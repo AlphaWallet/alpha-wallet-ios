@@ -25,7 +25,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let scrollView = UIScrollView()
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
-    private let recepientAddressLabel = UILabel()
+    private let recipientAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SendViewModel
@@ -49,7 +49,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         text: R.string.localizable.sendRecipient().uppercased()
     )
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
-    //We storing link to make shure that only one alert is displaying on the screen.
+    //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(tokenObject: transferType.tokenObject)
@@ -123,7 +123,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
-            [.spacerWidth(16), recepientAddressLabel].asStackView(axis: .horizontal),
+            [.spacerWidth(16), recipientAddressLabel].asStackView(axis: .horizontal),
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
             .spacer(height: 4), [
@@ -150,7 +150,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             recipientHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
             recipientHeader.heightAnchor.constraint(equalToConstant: 50),
 
-            recepientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
+            recipientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
 
@@ -214,9 +214,9 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountHeader.configure(viewModel: amountViewModel)
         recipientHeader.configure(viewModel: recipientViewModel)
 
-        recepientAddressLabel.text = viewModel.recipientsAddress
-        recepientAddressLabel.font = viewModel.recepientLabelFont
-        recepientAddressLabel.textColor = viewModel.recepientLabelTextColor
+        recipientAddressLabel.text = viewModel.recipientsAddress
+        recipientAddressLabel.font = viewModel.recipientLabelFont
+        recipientAddressLabel.textColor = viewModel.recepientLabelTextColor
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor

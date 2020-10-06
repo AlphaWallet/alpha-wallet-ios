@@ -41,7 +41,7 @@ struct SendViewModel {
         case .dapp:
             return nil
         }
-    } 
+    }
 
     var textFieldsLabelTextColor: UIColor {
         return Colors.appGrayLabel
@@ -50,7 +50,7 @@ struct SendViewModel {
         return Fonts.regular(size: 10)!
     }
 
-    var recepientLabelFont: UIFont {
+    var recipientLabelFont: UIFont {
         return Fonts.regular(size: 13)!
     }
 

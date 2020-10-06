@@ -65,7 +65,7 @@ public class UniversalLinkHandler {
             return ""
         }
         let signature = signedOrder.signature
-        let link = (message + signature).hexa2Bytes
+        let link = (message + signature).hexToBytes
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
         return prefix + b64SafeEncoding(base64String)
@@ -186,7 +186,7 @@ public class UniversalLinkHandler {
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
-    
+
     private func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
         let sigPos = linkBytes.count - 65; //the last 65 bytes are the signature params
         let tokenPos = 28 //tokens start at this byte
@@ -194,7 +194,7 @@ public class UniversalLinkHandler {
         let tokenIds = bytes.chunked(into: 32)
         return tokenIds.map { BigUInt(Data(bytes: $0)) }
     }
-    
+
     //we used a special encoding so that one 16 bit number could represent either one token or two
     //this is for the purpose of keeping universal links as short as possible
     private func decodeTokenIndices(indices: [UInt16]) -> [UInt8] {
@@ -311,7 +311,7 @@ public class UniversalLinkHandler {
         }
         return tokenIndices
     }
-    
+
     private func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String)? {
         let signatureLength = 65
         guard linkBytes.count >= signatureLength else { return nil }
@@ -344,7 +344,7 @@ public class UniversalLinkHandler {
         message.append(contentsOf: contractAddress)
         return message
     }
-    
+
     //price and expiry need to be 32 bytes each
     private func getMessageFromOrder(order: Order) -> [UInt8] {
         var message = [UInt8]()
@@ -353,13 +353,13 @@ public class UniversalLinkHandler {
         message.append(contentsOf: priceBytes)
         let expiryBytes = UniversalLinkHandler.padTo32(order.expiry.serialize().array)
         message.append(contentsOf: expiryBytes)
-        let contractBytes = order.contractAddress.eip55String.hexa2Bytes
+        let contractBytes = order.contractAddress.eip55String.hexToBytes
         message.append(contentsOf: contractBytes)
         let indices = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: order.indices)
         message.append(contentsOf: indices)
         return message
     }
-    
+
     static func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
         let padCount = count - buffer.count
         var padded = buffer

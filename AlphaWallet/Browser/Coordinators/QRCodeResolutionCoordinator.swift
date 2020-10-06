@@ -148,7 +148,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             showOpenURL(completion: {
                 delegate.coordinator(self, didResolveURL: url)
             }, cancelCompletion: {
-                //NOTE: we need to reset flat to false to make shure that next detected QR code will be handled
+                //NOTE: we need to reset flat to false to make sure that next detected QR code will be handled
                 self.skipResolvedCodes = false
             })
         }

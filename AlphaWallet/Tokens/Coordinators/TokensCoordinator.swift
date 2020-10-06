@@ -220,9 +220,9 @@ extension TokensCoordinator: SelectAssetCoordinatorDelegate {
 
         switch sendToAddressState {
         case .pending(let address):
-            let paymantFlow = PaymentFlow.send(type: .init(token: token, recipient: .address(address), amount: nil))
+            let paymentFlow = PaymentFlow.send(type: .init(token: token, recipient: .address(address), amount: nil))
 
-            delegate?.didPress(for: paymantFlow, server: token.server, in: self)
+            delegate?.didPress(for: paymentFlow, server: token.server, in: self)
         case .none:
             break
         }
@@ -242,9 +242,9 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransferType transferType: TransferType, token: TokenObject) {
         removeCoordinator(coordinator)
 
-        let paymantFlow = PaymentFlow.send(type: transferType)
+        let paymentFlow = PaymentFlow.send(type: transferType)
 
-        delegate?.didPress(for: paymantFlow, server: token.server, in: self)
+        delegate?.didPress(for: paymentFlow, server: token.server, in: self)
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {

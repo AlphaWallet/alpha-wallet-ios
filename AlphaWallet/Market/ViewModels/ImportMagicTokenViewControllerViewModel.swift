@@ -130,7 +130,7 @@ struct ImportMagicTokenViewControllerViewModel {
             } else {
                 let countryA = tokenHolder.values["countryA"]?.stringValue ?? ""
                 let countryB = tokenHolder.values["countryB"]?.stringValue ?? ""
-                //While both will return emptyTeams, we want to be explicit about ising `emptyTeams`
+                //While both will return emptyTeams, we want to be explicit about using `emptyTeams`
                 if countryA.isEmpty && countryB.isEmpty {
                     return emptyTeams
                 } else {
@@ -337,7 +337,7 @@ struct ImportMagicTokenViewControllerViewModel {
         case .promptImport, .succeeded, .failed:
             if let tokenHolder = tokenHolder, tokenHolder.isSpawnableMeetupContract {
                 //Not the best check, but we assume that even if the data is just partially available, we can show something
-                //TODO get rid of this. Do we even use "building" as spawable check anymore? Testing `is String` is wrong anyway. But probably harmless for now
+                //TODO get rid of this. Do we even use "building" as spawnable check anymore? Testing `is String` is wrong anyway. But probably harmless for now
                 if case .some(.subscribable(let subscribable)) = tokenHolder.values["building"]?.value, subscribable.value?.stringValue != nil {
                     return false
                 } else {

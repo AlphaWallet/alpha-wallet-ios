@@ -653,7 +653,7 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
 extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
     }
 }

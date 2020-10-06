@@ -32,7 +32,7 @@ class StaticHTMLViewController: UIViewController {
 
         webView.backgroundColor = Colors.appBackground
         //TODO verify still needed for WKWebView
-        //So webview is seethrough to reveal its parents background color when HTML is not loaded yet
+        //So webview is see-through to reveal its parents background color when HTML is not loaded yet
         webView.isOpaque = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self

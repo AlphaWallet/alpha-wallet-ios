@@ -15,7 +15,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             var showInfoButton = hasShowInfoButton
             //TODO ugly. And duplicated below
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
-                showInfoButton = tokenVerifiableVC.contract.isFifaTicketcontract
+                showInfoButton = tokenVerifiableVC.contract.isFifaTicketContract
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -37,7 +37,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             var showInfoButton = hasShowInfoButton
             //TODO ugly
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
-                showInfoButton = tokenVerifiableVC.contract.isFifaTicketcontract
+                showInfoButton = tokenVerifiableVC.contract.isFifaTicketContract
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))

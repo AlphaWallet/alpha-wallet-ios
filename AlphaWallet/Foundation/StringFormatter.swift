@@ -3,7 +3,7 @@
 import UIKit
 
 final class StringFormatter {
-    /// currencyFormatter of a `StringFormatter` to represent curent locale.
+    /// currencyFormatter of a `StringFormatter` to represent current locale.
     private lazy var currencyFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.currencySymbol = ""
@@ -19,7 +19,7 @@ final class StringFormatter {
     /// - Parameters:
     ///   - double: double to convert.
     ///   - currencyCode: code of the currency.
-    /// - Returns: Currency `String` represenation.
+    /// - Returns: Currency `String` representation.
     func currency(with value: Double, and currencyCode: String) -> String {
         let formatter = currencyFormatter
         formatter.currencyCode = currencyCode
@@ -31,7 +31,7 @@ final class StringFormatter {
     /// - Parameters:
     ///   - double: double to convert.
     ///   - precision: symbols after coma.
-    /// - Returns: `String` represenation.
+    /// - Returns: `String` representation.
     func formatter(for double: Double, with precision: Int) -> String {
         return String(format: "%.\(precision)f", double)
     }
@@ -39,7 +39,7 @@ final class StringFormatter {
     ///
     /// - Parameters:
     ///   - double: double to convert.
-    /// - Returns: `String` represenation.
+    /// - Returns: `String` representation.
     func formatter(for double: Double) -> String {
         return String(format: "%f", double)
     }

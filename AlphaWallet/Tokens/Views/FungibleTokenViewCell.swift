@@ -68,6 +68,6 @@ class FungibleTokenViewCell: UITableViewCell {
         }
 
         tokenIconImageView.subscribable = viewModel.iconImage
-        blockChainTagLabel.configure(viewModel: viewModel.blockChaintagViewModel)
+        blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }
 }

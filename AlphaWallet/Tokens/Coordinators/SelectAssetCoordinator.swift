@@ -47,14 +47,14 @@ class SelectAssetCoordinator: Coordinator {
     func start() {
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentsNavigationController.present(navigationController, animated: true)
-    } 
+    }
 }
 
 extension SelectAssetCoordinator: SelectAssetViewControllerDelegate {
 
     func controller(_ controller: SelectAssetViewController, didSelectToken token: TokenObject) {
-        //NOTE: for now we dissmiss assets vc because then we will not able to close it, after paymant flow.
-        //first needs to update paymant flow, make it push to navigation stack
+        //NOTE: for now we dismiss assets vc because then we will not able to close it, after payment flow.
+        //first needs to update payment flow, make it push to navigation stack
         navigationController.dismiss(animated: true) {
             self.delegate?.coordinator(self, didSelectToken: token)
         }
