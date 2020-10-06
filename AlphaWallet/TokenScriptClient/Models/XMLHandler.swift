@@ -309,7 +309,7 @@ private class PrivateXMLHandler {
             let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
             self.xml = xml
             self.hasValidTokenScriptFile = hasValidTokenScriptFile
-            if isBase ?? false {
+            if isBase {
                 self.server = .any
             } else {
                 self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract).flatMap { .server($0) }
@@ -680,7 +680,7 @@ public class XMLHandler {
     }
 
     var tokenViewIconifiedHtml: (html: String, style: String) {
-        let (html: html, style: style) = privateXMLHandler.tokenViewIconifiedHtml
+        let (html: html, style: _) = privateXMLHandler.tokenViewIconifiedHtml
         if let baseXMLHandler = baseXMLHandler {
             if html.isEmpty {
                 return baseXMLHandler.tokenViewIconifiedHtml
@@ -693,7 +693,7 @@ public class XMLHandler {
     }
 
     var tokenViewHtml: (html: String, style: String) {
-        let (html: html, style: style) = privateXMLHandler.tokenViewHtml
+        let (html: html, style: _) = privateXMLHandler.tokenViewHtml
         if let baseXMLHandler = baseXMLHandler {
             if html.isEmpty {
                 return baseXMLHandler.tokenViewHtml
