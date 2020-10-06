@@ -35,9 +35,9 @@ open class _AlphaWalletSettingsButtonRowOf<T: Equatable> : Row<AlphaWalletSettin
 
 	open override func customUpdateCell() {
 		super.customUpdateCell()
-		let leftAligmnment = presentationMode != nil
-		cell.textLabel?.textAlignment = leftAligmnment ? .left : .center
-		cell.accessoryType = !leftAligmnment || isDisabled ? .none : .disclosureIndicator
+		let leftAlignment = presentationMode != nil
+		cell.textLabel?.textAlignment = leftAlignment ? .left : .center
+		cell.accessoryType = !leftAlignment || isDisabled ? .none : .disclosureIndicator
 		cell.editingAccessoryType = cell.accessoryType
 	}
 

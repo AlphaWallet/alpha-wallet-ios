@@ -39,7 +39,7 @@ struct SendHeaderViewViewModel {
         token.icon
     }
 
-    var blockChaintagViewModel: BlockchainTagLabelViewModel {
+    var blockChainTagViewModel: BlockchainTagLabelViewModel {
         .init(server: server)
     }
 

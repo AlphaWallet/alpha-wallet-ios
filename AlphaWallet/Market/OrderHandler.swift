@@ -22,15 +22,15 @@ public struct SignedOrder {
 }
 
 extension String {
-	var hexa2Bytes: [UInt8] {
-		let hexa: [Character]
+	var hexToBytes: [UInt8] {
+		let hex: [Character]
 		if count % 2 == 0 {
-			hexa = Array(self)
+			hex = Array(self)
 		} else {
-			hexa = Array(("0" + self))
+			hex = Array(("0" + self))
 		}
 		return stride(from: 0, to: count, by: 2).compactMap {
-			UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
+			UInt8(String(hex[$0..<$0.advanced(by: 2)]), radix: 16)
 		}
 	}
 }
@@ -117,7 +117,7 @@ public class OrderHandler {
         buffer.append(contentsOf: priceInWei)
         buffer.append(contentsOf: expiry)
         //no leading zeros issue here
-        buffer.append(contentsOf: contractAddress.eip55String.hexa2Bytes)
+        buffer.append(contentsOf: contractAddress.eip55String.hexToBytes)
         let tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: indices)
         buffer.append(contentsOf: tokensUint8)
         return buffer
@@ -136,7 +136,7 @@ public class OrderHandler {
         let expiry = Array(expiryBuffer.serialize())
         buffer.append(contentsOf: UniversalLinkHandler.padTo32(priceInWei))
         buffer.append(contentsOf: UniversalLinkHandler.padTo32(expiry))
-        buffer.append(contentsOf: contractAddress.eip55String.hexa2Bytes)
+        buffer.append(contentsOf: contractAddress.eip55String.hexToBytes)
         for token in tokenIds {
             buffer.append(contentsOf: UniversalLinkHandler.padTo32(token.serialize().array))
         }

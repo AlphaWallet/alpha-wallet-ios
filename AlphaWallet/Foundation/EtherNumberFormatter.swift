@@ -46,7 +46,7 @@ final class EtherNumberFormatter {
     /// - Parameters:
     ///   - string: string to convert
     ///   - units: units to use
-    /// - Returns: `BigInt` represenation.
+    /// - Returns: `BigInt` representation.
     func number(from string: String, units: EthereumUnit = .ether) -> BigInt? {
         let decimals = Int(log10(Double(units.rawValue)))
         return number(from: string, decimals: decimals)
@@ -57,7 +57,7 @@ final class EtherNumberFormatter {
     /// - Parameters:
     ///   - string: string to convert
     ///   - decimals: decimal places used for scaling values.
-    /// - Returns: `BigInt` represenation.
+    /// - Returns: `BigInt` representation.
     func number(from string: String, decimals: Int) -> BigInt? {
         guard let index = string.index(where: { String($0) == decimalSeparator }) ?? string.index(where: { String($0) == EtherNumberFormatter.decimalPoint }) else {
             // No fractional part

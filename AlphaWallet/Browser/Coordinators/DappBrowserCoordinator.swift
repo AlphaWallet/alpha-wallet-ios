@@ -699,7 +699,7 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
             removeCoordinator(coordinator)
 
             withCurrentUrl { url in
-                //TOOD extract method? Clean up
+                //TODO extract method? Clean up
                 browserNavBar?.clearDisplay()
                 browserNavBar?.configure(server: server)
                 start()

@@ -13,7 +13,7 @@ struct Config {
         if let currency = defaults.string(forKey: Keys.currencyID) {
             return Currency(rawValue: currency)!
         }
-        //If ther is not saved currency try to use user local currency if it is supported.
+        //If the is not saved currency try to use user local currency if it is supported.
         let availableCurrency = Currency.allValues.first { currency in
             return currency.rawValue == Locale.current.currencySymbol
         }

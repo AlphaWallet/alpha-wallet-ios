@@ -119,7 +119,7 @@ extension AlphaWallet.Address {
     }
 
     //Useful for special case for FIFA tickets
-    var isFifaTicketcontract: Bool {
+    var isFifaTicketContract: Bool {
         return sameContract(as: Constants.ticketContractAddress) || sameContract(as: Constants.ticketContractAddressRopsten)
     }
 

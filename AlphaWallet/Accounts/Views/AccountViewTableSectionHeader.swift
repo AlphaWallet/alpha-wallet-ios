@@ -24,31 +24,31 @@ class AccountViewTableSectionHeader: UIView {
     private let label = UILabel()
     private var heightConstraint: NSLayoutConstraint?
     private var constraintsWhenVisible: [NSLayoutConstraint] = []
-    private let topSeperatorView = UIView.tableHeaderFooterViewSeparatorView()
-    private let bottomSeperatorView = UIView.tableHeaderFooterViewSeparatorView()
+    private let topSeparatorView = UIView.tableHeaderFooterViewSeparatorView()
+    private let bottomSeparatorView = UIView.tableHeaderFooterViewSeparatorView()
 
     override init(frame: CGRect) {
         super.init(frame: CGRect())
 
         label.translatesAutoresizingMaskIntoConstraints = false
 
-        addSubview(topSeperatorView)
-        addSubview(bottomSeperatorView)
+        addSubview(topSeparatorView)
+        addSubview(bottomSeparatorView)
         addSubview(label)
 
-        let topConstraint = label.topAnchor.constraint(equalTo: topSeperatorView.bottomAnchor, constant: 13)
-        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomSeperatorView.topAnchor, constant: -13)
+        let topConstraint = label.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor, constant: 13)
+        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomSeparatorView.topAnchor, constant: -13)
         let constraintsWhenVisible = [
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            topSeperatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            topSeperatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            topSeperatorView.topAnchor.constraint(equalTo: topAnchor),
+            topSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topSeparatorView.topAnchor.constraint(equalTo: topAnchor),
 
-            bottomSeperatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bottomSeperatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomSeperatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             topConstraint,
             bottomConstraint
@@ -89,7 +89,7 @@ extension UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
         view.backgroundColor = DataEntry.Color.border
-        
+
         return view
     }
 }

@@ -71,8 +71,8 @@ class TransactionConfirmationTableViewHeader: UITableViewHeaderFooterView {
     func configure(viewModel: TransactionConfirmationTableViewHeaderViewModel) {
         self.viewModel = viewModel
 
-        contentView.backgroundColor = viewModel.backgoundColor
-        backgroundColor = viewModel.backgoundColor
+        contentView.backgroundColor = viewModel.backgroundColor
+        backgroundColor = viewModel.backgroundColor
 
         titleLabel.text = viewModel.title
         titleLabel.font = viewModel.titleLabelFont

@@ -137,7 +137,7 @@ class TokenInstanceWebView: UIView {
         estimatedProgressObservation.invalidate()
     }
 
-    //Implementation: String concatentation is slow, but it's not obvious at all
+    //Implementation: String concatenation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
         lastTokenHolder = tokenHolder
         let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)

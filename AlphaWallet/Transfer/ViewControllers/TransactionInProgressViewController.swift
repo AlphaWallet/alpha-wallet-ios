@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TransactionInProgressViewControllerDelegate: class {
-    func transactionInProgressDidDissmiss(in controller: TransactionInProgressViewController)
+    func transactionInProgressDidDismiss(in controller: TransactionInProgressViewController)
     func controller(_ controller: TransactionInProgressViewController, okButtonSelected sender: UIButton)
 }
 
@@ -48,7 +48,7 @@ class TransactionInProgressViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dissmiss))
+        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dismiss))
 
         view.addSubview(footerBar)
         view.addSubview(titleLabel)
@@ -102,11 +102,11 @@ class TransactionInProgressViewController: UIViewController {
         imageView.image = viewModel.image
     }
 
-    @objc private func dissmiss(_ sender: UIBarButtonItem) {
-        delegate?.transactionInProgressDidDissmiss(in: self)
+    @objc private func dismiss(_ sender: UIBarButtonItem) {
+        delegate?.transactionInProgressDidDismiss(in: self)
     }
 
     @objc private func okButtonSelected(_ sender: UIButton) {
         delegate?.controller(self, okButtonSelected: sender)
     }
-} 
+}

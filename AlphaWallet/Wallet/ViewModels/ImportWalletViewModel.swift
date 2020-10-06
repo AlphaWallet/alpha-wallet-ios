@@ -38,10 +38,10 @@ struct ImportWalletViewModel {
         return Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20)!
     }
 
-    var importSeedAtrributedText: NSAttributedString {
+    var importSeedAttributedText: NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-            
+
         return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
             .paragraphStyle: style,
             .font: Fonts.light(size: ScreenChecker().isNarrowScreen ? 14 : 16)!,

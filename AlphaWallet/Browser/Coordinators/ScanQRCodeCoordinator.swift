@@ -56,12 +56,12 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     }
 
     @objc private func dismiss() {
-        stopScannerAndDissmiss {
+        stopScannerAndDismiss {
             self.delegate?.didCancel(in: self)
         }
     }
 
-    private func stopScannerAndDissmiss(completion: @escaping () -> Void) {
+    private func stopScannerAndDismiss(completion: @escaping () -> Void) {
         reader.stopScanning()
         navigationController.dismiss(animated: true, completion: completion)
     }
@@ -70,13 +70,13 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
 extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
 
     func readerDidCancel(_ reader: QRCodeReaderViewController!) {
-        stopScannerAndDissmiss {
+        stopScannerAndDismiss {
             self.delegate?.didCancel(in: self)
         }
     }
 
     func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
-        stopScannerAndDissmiss {
+        stopScannerAndDismiss {
             self.delegate?.didScan(result: result, in: self)
         }
     }
