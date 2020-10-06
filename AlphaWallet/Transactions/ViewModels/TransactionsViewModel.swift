@@ -14,7 +14,7 @@ struct TransactionsViewModel {
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
             let date = formatter.string(from: transaction.date)
-            var currentItems = newItems[date] ?? .init()
+            let currentItems = newItems[date] ?? .init()
             currentItems.add(transaction)
             newItems[date] = currentItems
         }

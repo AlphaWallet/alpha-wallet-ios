@@ -194,19 +194,13 @@ struct TokenScriptFilterParser {
             var buffer: [Character] = []
             var escapeBuffer: [Character]? = nil
             var wasPreviousEscapedCharacter = false
-            for (i, c) in expression.enumerated() {
-                let next: String?
-                if i + 1 < expression.count {
-                    next = expression[i + 1]
-                } else {
-                    next = nil
-                }
+            for (_, c) in expression.enumerated() {
                 let previous = buffer.last.flatMap { String($0) }
                 if c == escape && escapeBuffer == nil {
                     //start new escape
                     escapeBuffer = .init()
                     continue
-                } else if c == escape, var eb = escapeBuffer {
+                } else if c == escape, let eb = escapeBuffer {
                     if escapeBuffer.isEmpty {
                         //Invalid escape sequence with double backward slash (\\)
                         if !buffer.isEmpty {

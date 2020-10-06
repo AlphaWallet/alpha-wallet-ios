@@ -121,7 +121,7 @@ class ActivitiesCoordinator: Coordinator {
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 
-        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.flatMap { eachContract, eachServer, xmlHandler in
+        let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, eachServer, xmlHandler in
             var contractAndCard: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)] = .init()
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
@@ -367,7 +367,7 @@ extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
         case .success(let items):
             transactions = items
             reloadViewController()
-        case .failure(let error):
+        case .failure:
             break
         }
     }

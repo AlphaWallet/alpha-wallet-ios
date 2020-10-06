@@ -420,7 +420,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivityCoordinator() -> ActivitiesCoordinator {
-        let realm = self.realm(forAccount: wallet)
         let coordinator = ActivitiesCoordinator(
                 config: config,
                 sessions: walletSessions,

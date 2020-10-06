@@ -14,7 +14,7 @@ struct ActivitiesViewModel {
         var newItems: [String: NSMutableArray] = [:]
         for each in activities {
             let date = formatter.string(from: each.date)
-            var currentItems = newItems[date] ?? .init()
+            let currentItems = newItems[date] ?? .init()
             currentItems.add(each)
             newItems[date] = currentItems
         }
