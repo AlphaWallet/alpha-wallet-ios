@@ -199,7 +199,7 @@ extension Config {
     }
 
     func saveWalletName(_ walletName: String, forAddress address: AlphaWallet.Address) {
-        var walletName = walletName.trimmed
+        let walletName = walletName.trimmed
         guard !walletName.isEmpty else { return }
         var names = walletNames
         names[address] = walletName
