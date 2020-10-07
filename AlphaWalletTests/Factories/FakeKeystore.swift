@@ -7,6 +7,7 @@ import TrustKeystore
 import Result
 
 struct FakeKeystore: Keystore {
+
     static var current: Wallet?
 
     enum AssumeAllWalletsType {
@@ -63,8 +64,8 @@ struct FakeKeystore: Keystore {
     func importWallet(type: ImportType, completion: @escaping (Result<Wallet, KeystoreError>) -> Void) {
     }
 
-    func delete(wallet: Wallet, completion: @escaping (Result<Void, KeystoreError>) -> Void) {
-        completion(.failure(KeystoreError.failedToSignTransaction))
+    func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
+        .failure(KeystoreError.failedToSignTransaction)
     }
 
     func isHdWallet(account: EthereumAccount) -> Bool {
