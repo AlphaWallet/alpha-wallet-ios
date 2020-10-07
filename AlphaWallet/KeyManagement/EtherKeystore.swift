@@ -381,11 +381,11 @@ open class EtherKeystore: Keystore {
             removeAccountFromBookkeeping(account)
             deleteKeysAndSeedCipherTextFromKeychain(forAccount: account)
             deletePrivateKeysFromSecureEnclave(forAccount: account)
-            //TODO: pass in Config instance instead
-            Config().deleteWalletName(forAccount: account.address)
         case .watch(let address):
             removeAccountFromBookkeeping(.init(address: address))
         }
+        //TODO: pass in Config instance instead
+        Config().deleteWalletName(forAccount: account.address)
         (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.delete(wallet: wallet)
         return .success(())
     }
