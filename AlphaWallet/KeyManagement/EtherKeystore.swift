@@ -381,6 +381,8 @@ open class EtherKeystore: Keystore {
             Config().deleteWalletName(forAccount: account.address)
         case .watch(let address):
             removeAccountFromBookkeeping(.init(address: address))
+            //TODO: pass in Config instance instead
+            Config().deleteWalletName(forAccount: address)
         }
         (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.delete(wallet: wallet)
         return .success(())
@@ -406,7 +408,7 @@ open class EtherKeystore: Keystore {
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
-    } 
+    }
 
     func isHdWallet(account: EthereumAccount) -> Bool {
         return ethereumAddressesWithSeed.contains(account.address.eip55String)
