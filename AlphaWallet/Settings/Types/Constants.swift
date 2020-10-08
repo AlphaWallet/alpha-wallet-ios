@@ -153,6 +153,33 @@ public struct Constants {
         (name: "USDC", contract: AlphaWallet.Address(string: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")!),
         (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!),
         (name: "SHANKAI", contract: Self.ticketContractAddress),
+
+        //fTokens
+        (name: "fETH", contract: AlphaWallet.Address(string: "0x5993233d88B4424D9c12e468A39736D5948c2835")!),
+        (name: "fHBTC", contract: AlphaWallet.Address(string: "0x3CE92b88DEAec1037335E614Eb6409C95edcAC76")!),
+        (name: "fWBTC", contract: AlphaWallet.Address(string: "0x93B9B852FcD2f964Faa7E50EC1374e016260718c")!),
+        (name: "fUSDT", contract: AlphaWallet.Address(string: "0x51da0A7340874674C488b67200D007E422667650")!),
+        (name: "fUSDC", contract: AlphaWallet.Address(string: "0xfDD543Ed2701dEB2a172Df4876E60918E28Ba217")!),
+        (name: "fBUSD", contract: AlphaWallet.Address(string: "0x556be90ea81e8abceEc2737cf6AE0a6cfEe58b40")!),
+        (name: "fHUSD", contract: AlphaWallet.Address(string: "0x52d61a0AA88170b6EbDEA25Be1561E5665e6481B")!),
+        (name: "fDAI", contract: AlphaWallet.Address(string: "0xfF5cDA31926CA2Ed79533D6B95Fc6ADbDE0f1015")!),
+        (name: "fFOR", contract: AlphaWallet.Address(string: "0x84ff569ee2E8b9A2C22E79af431fD248fb41D87b")!),
+        (name: "fBNB", contract: AlphaWallet.Address(string: "0x92563b3b8c92B22e37aC956a2B19c40988D25933")!),
+        (name: "fHT", contract: AlphaWallet.Address(string: "0x39527B067B04D43c627FB741848ef2c3f8ead3FE")!),
+        (name: "fOKB", contract: AlphaWallet.Address(string: "0x4316AAa55ab3BD3a7ee3fbC83580521801210225")!),
+        (name: "fyUSD", contract: AlphaWallet.Address(string: "0x66142B3c234C054bA91374732C10cEA0f72390fE")!),
+        (name: "fQC", contract: AlphaWallet.Address(string: "0x161190d29cC015EaEFD6c4ad0AA7519B6b75b9c0")!),
+        (name: "fyWETH", contract: AlphaWallet.Address(string: "0xd136b32330E539aa9411c4e8968eB26b35c5917B")!),
+        (name: "fYFII", contract: AlphaWallet.Address(string: "0x4Ffc92ddD9439c93fc79dD5560e06026A445037D")!),
+        (name: "fNEST", contract: AlphaWallet.Address(string: "0xbd3df917A7E69fBa3e1d912577Be7eCC01bE1d12")!),
+        (name: "fARPA", contract: AlphaWallet.Address(string: "0x0486B8d96789C6938361Ab776D6b27b6FC03C471")!),
+        (name: "fYFI", contract: AlphaWallet.Address(string: "0x8a06bbA4219C3f1Ca705318f5848E62f3beF33d0")!),
+        (name: "fMKR", contract: AlphaWallet.Address(string: "0x9FC5d71FC9b14630a2f198F188450D26Fa5788f7")!),
+        (name: "fLINK", contract: AlphaWallet.Address(string: "0x29B22BeFe0F5362986152a5430d03B446b8e27fB")!),
+        (name: "fUNI", contract: AlphaWallet.Address(string: "0xDb694CB2B58F66C5E79fF272dF37ECb46Dc31ADD")!),
+        (name: "fLRC", contract: AlphaWallet.Address(string: "0x6c2e2cEc8De4A6a071065D4BD5c496636570fDC2")!),
+        (name: "fLEND", contract: AlphaWallet.Address(string: "0x45b4E177B17e2d50dB6D547015A6f9723FF9c1a0")!),
+        (name: "fSNX", contract: AlphaWallet.Address(string: "0x8B2ef6d7d4Cc334D003398007722FdF8ca3f5E55")!),
     ]
 
     static let rinkebyPartnerContracts = [
