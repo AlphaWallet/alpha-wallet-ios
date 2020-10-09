@@ -44,6 +44,7 @@ class GetContractInteractions {
                                 id: transactionJson["hash"].description,
                                 server: server,
                                 blockNumber: transactionJson["blockNumber"].intValue,
+                                transactionIndex: transactionJson["transactionIndex"].intValue,
                                 from: transactionJson["from"].description,
                                 to: transactionJson["to"].description,
                                 value: transactionJson["value"].description,
@@ -53,6 +54,7 @@ class GetContractInteractions {
                                 nonce: transactionJson["nonce"].description,
                                 date: Date(timeIntervalSince1970: Double(string: transactionJson["timeStamp"].description) ?? Double(0)),
                                 localizedOperations: [localizedTokenObj],
+                                //The API only returns successful transactions
                                 state: .completed,
                                 isErc20Interaction: true
                         )

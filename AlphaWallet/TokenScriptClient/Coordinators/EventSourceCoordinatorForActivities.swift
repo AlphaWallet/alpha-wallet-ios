@@ -104,13 +104,14 @@ class EventSourceCoordinatorForActivities {
         guard let blockNumber = event.eventLog?.blockNumber else { return nil }
         guard let logIndex = event.eventLog?.logIndex else { return nil }
         guard let transactionHash = event.eventLog?.transactionHash else { return nil }
+        guard let transactionIndex = event.eventLog?.transactionIndex else { return nil }
         let transactionId = transactionHash.hexEncoded
         let decodedResult = self.convertToJsonCompatible(dictionary: event.decodedResult)
         guard let json = decodedResult.jsonString else { return nil }
         //TODO when TokenScript schema allows it, support more than 1 filter
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
-        return EventActivity(contract: eventOrigin.contract, tokenContract: token.contractAddress, server: server, date: date, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), transactionId: transactionId, logIndex: Int(logIndex), filter: filterText, json: json)
+        return EventActivity(contract: eventOrigin.contract, tokenContract: token.contractAddress, server: server, date: date, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), transactionId: transactionId, transactionIndex: Int(transactionIndex), logIndex: Int(logIndex), filter: filterText, json: json)
     }
 
     private func convertToJsonCompatible(dictionary: [String: Any]) -> [String: Any] {
