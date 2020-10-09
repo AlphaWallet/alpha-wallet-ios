@@ -5,8 +5,8 @@ import BigInt
 import RealmSwift
 
 class EventActivity: Object {
-    static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, blockNumber: Int, logIndex: Int, filter: String) -> String {
-        "\(contract.eip55String)-\(tokenContract.eip55String)-\(server.chainID)-\(eventName)-\(blockNumber)-\(logIndex)-\(filter)"
+    static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, blockNumber: Int, transactionId: String, logIndex: Int, filter: String) -> String {
+        "\(contract.eip55String)-\(tokenContract.eip55String)-\(server.chainID)-\(eventName)-\(blockNumber)-\(transactionId)-\(logIndex)-\(filter)"
     }
 
     @objc dynamic var primaryKey: String = ""
@@ -17,6 +17,7 @@ class EventActivity: Object {
     @objc dynamic var eventName: String = ""
     @objc dynamic var blockNumber: Int = 0
     @objc dynamic var transactionId: String = ""
+    @objc dynamic var transactionIndex: Int = 0
     @objc dynamic var logIndex: Int = 0
     @objc dynamic var filter: String = ""
     @objc dynamic var json: String = "{}" {
@@ -45,9 +46,9 @@ class EventActivity: Object {
         .init(chainID: chainId)
     }
 
-    convenience init(contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, date: Date, eventName: String, blockNumber: Int, transactionId: String, logIndex: Int, filter: String, json: String) {
+    convenience init(contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, date: Date, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, filter: String, json: String) {
         self.init()
-        self.primaryKey = EventActivity.generatePrimaryKey(fromContract: contract, tokenContract: tokenContract, server: server, eventName: eventName, blockNumber: blockNumber, logIndex: logIndex, filter: filter)
+        self.primaryKey = EventActivity.generatePrimaryKey(fromContract: contract, tokenContract: tokenContract, server: server, eventName: eventName, blockNumber: blockNumber, transactionId: transactionId, logIndex: logIndex, filter: filter)
         self.contract = contract.eip55String
         self.tokenContract = tokenContract.eip55String
         self.chainId = server.chainID
@@ -55,6 +56,7 @@ class EventActivity: Object {
         self.eventName = eventName
         self.blockNumber = blockNumber
         self.transactionId = transactionId
+        self.transactionIndex = transactionIndex
         self.logIndex = logIndex
         self.filter = filter
         self.json = json

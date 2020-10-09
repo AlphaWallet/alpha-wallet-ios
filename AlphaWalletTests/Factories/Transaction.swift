@@ -7,6 +7,7 @@ extension Transaction {
     static func make(
         id: String = "0x1",
         blockNumber: Int = 1,
+        transactionIndex: Int = 0,
         from: String = "0x1",
         to: String = "0x1",
         value: String = "1",
@@ -22,6 +23,7 @@ extension Transaction {
             id: id,
             server: .main,
             blockNumber: blockNumber,
+            transactionIndex: transactionIndex,
             from: from,
             to: to,
             value: value,
@@ -32,7 +34,7 @@ extension Transaction {
             date: date,
             localizedOperations: localizedOperations,
             state: state,
-            isErc20Interaction: false 
+            isErc20Interaction: false
         )
     }
 }

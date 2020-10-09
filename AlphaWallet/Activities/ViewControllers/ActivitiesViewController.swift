@@ -121,6 +121,9 @@ class ActivitiesViewController: UIViewController {
                 eventName: activityName,
                 blockNumber: transaction.blockNumber,
                 transactionId: transaction.id,
+                transactionIndex: transaction.transactionIndex,
+                //We don't use this for transactions, so it's ok
+                logIndex: 0,
                 date: transaction.date,
                 values: (token: .init(), card: cardAttributes),
                 view: (html: "", style: ""),

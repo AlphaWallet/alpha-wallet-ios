@@ -13,6 +13,7 @@ extension SentTransaction {
             id: transaction.id,
             server: transaction.original.server,
             blockNumber: 0,
+            transactionIndex: 0,
             from: from.eip55String,
             to: transaction.original.to?.eip55String ?? "",
             value: transaction.original.value.description,

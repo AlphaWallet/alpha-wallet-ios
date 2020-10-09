@@ -32,6 +32,8 @@ struct Activity {
     let eventName: String
     let blockNumber: Int
     let transactionId: String
+    let transactionIndex: Int
+    let logIndex: Int
     let date: Date
     let values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue])
     let view: (html: String, style: String)
