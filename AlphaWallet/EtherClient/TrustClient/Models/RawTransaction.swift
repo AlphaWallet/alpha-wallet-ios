@@ -7,6 +7,7 @@ import PromiseKit
 struct RawTransaction: Decodable {
     let hash: String
     let blockNumber: String
+    let transactionIndex: String
     let timeStamp: String
     let nonce: String
     let from: String
@@ -17,6 +18,7 @@ struct RawTransaction: Decodable {
     let input: String
     let gasUsed: String
     let error: String?
+    let isError: String?
 
     ///
     ///It is possible for the etherscan.io API to return an empty `to` even if the transaction actually has a `to`. It doesn't seem to be linked to `"isError" = "1"`, because other transactions that fail (with isError="1") has a non-empty `to`.
@@ -32,6 +34,7 @@ struct RawTransaction: Decodable {
     enum CodingKeys: String, CodingKey {
         case hash = "hash"
         case blockNumber
+        case transactionIndex
         case timeStamp
         case nonce
         case from
@@ -43,6 +46,7 @@ struct RawTransaction: Decodable {
         case gasUsed
         case operationsLocalized = "operations"
         case error = "error"
+        case isError = "isError"
     }
 
     let operationsLocalized: [LocalizedOperation]?
@@ -54,7 +58,7 @@ extension Transaction {
             return Promise.value(nil)
         }
         let state: TransactionState = {
-            if transaction.error?.isEmpty == false {
+            if transaction.error?.isEmpty == false || transaction.isError == "1" {
                 return .error
             }
             return .completed
@@ -67,6 +71,7 @@ extension Transaction {
                     id: transaction.hash,
                     server: tokensStorage.server,
                     blockNumber: Int(transaction.blockNumber)!,
+                    transactionIndex: Int(transaction.transactionIndex)!,
                     from: from.description,
                     to: to,
                     value: transaction.value,

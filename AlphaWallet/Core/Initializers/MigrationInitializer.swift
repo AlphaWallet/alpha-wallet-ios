@@ -15,7 +15,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 6
+        config.schemaVersion = 7
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 2 {
                 //Fix bug created during multi-chain implementation. Where TokenObject instances are created from transfer Transaction instances, with the primaryKey as a empty string; so instead of updating an existing TokenObject, a duplicate TokenObject instead was created but with primaryKey empty
@@ -61,6 +61,12 @@ class MigrationInitializer: Initializer {
                     newObject["shouldDisplay"] = true
                     newObject["sortIndex"] = RealmOptional<Int>(nil)
                 }
+            }
+            if oldSchemaVersion < 7 {
+                //Fix bug where we marked all transactions as completed successfully without checking `isError` from Etherscan
+                migration.deleteData(forType: Transaction.className())
+                RPCServer.allCases.map { Config.setLastFetchedErc20InteractionBlockNumber(0, server: $0, wallet: self.account.address) }
+                migration.deleteData(forType: EventActivity.className())
             }
         }
     }
