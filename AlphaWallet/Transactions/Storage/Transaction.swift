@@ -8,6 +8,7 @@ class Transaction: Object {
     @objc dynamic var chainId: Int = 0
     @objc dynamic var id: String = ""
     @objc dynamic var blockNumber: Int = 0
+    @objc dynamic var transactionIndex: Int = 0
     @objc dynamic var from = ""
     @objc dynamic var to = ""
     @objc dynamic var value = ""
@@ -24,6 +25,7 @@ class Transaction: Object {
         id: String,
         server: RPCServer,
         blockNumber: Int,
+        transactionIndex: Int,
         from: String,
         to: String,
         value: String,
@@ -42,6 +44,7 @@ class Transaction: Object {
         self.id = id
         self.chainId = server.chainID
         self.blockNumber = blockNumber
+        self.transactionIndex = transactionIndex
         self.from = from
         self.to = to
         self.value = value
