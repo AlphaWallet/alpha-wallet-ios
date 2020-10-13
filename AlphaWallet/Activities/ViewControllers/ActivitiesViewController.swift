@@ -102,6 +102,9 @@ class ActivitiesViewController: UIViewController {
         if let value = AlphaWallet.Address(string: transaction.from) {
             cardAttributes["from"] = .address(value)
         }
+        var timestamp: GeneralisedTime = .init()
+        timestamp.date = transaction.date
+        cardAttributes["timestamp"] = .generalisedTime(timestamp)
         let state: Activity.State
         switch transaction.state {
         case .pending:
