@@ -90,7 +90,7 @@ class TransferNFTCoordinator: Coordinator {
                     account: account,
                     transaction: transaction
             )
-            configurator.load { [weak self] result in
+            configurator.start { [weak self] result in
                 guard let strongSelf = self else {
                     return
                 }

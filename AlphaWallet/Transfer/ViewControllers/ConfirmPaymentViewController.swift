@@ -89,7 +89,7 @@ class ConfirmPaymentViewController: UIViewController {
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        configurator.load { [weak self] result in
+        configurator.start { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success:
