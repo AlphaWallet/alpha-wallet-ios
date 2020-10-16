@@ -233,7 +233,6 @@ class ConfirmPaymentViewController: UIViewController {
 extension ConfirmPaymentViewController: ConfigureTransactionViewControllerDelegate {
     func didEdit(configuration: TransactionConfiguration, in viewController: ConfigureTransactionViewController) {
         configurator.update(configuration: configuration)
-        reloadView()
         navigationController?.popViewController(animated: true)
     }
 }
