@@ -32,7 +32,7 @@ class ConfirmPaymentViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let viewModel = ConfirmPaymentViewModel()
-    private var configurator: TransactionConfigurator
+    private let configurator: TransactionConfigurator
     private let confirmType: ConfirmType
 
     var didCompleted: ((Result<ConfirmResult, AnyError>) -> Void)?
