@@ -14,7 +14,7 @@ cache:
 before_install:
   - gem install cocoapods -v '1.8.4'
   - pod install --repo-update
-  - brew update
+  - travis_retry brew update
   - brew install swiftlint || true
 
 script:
