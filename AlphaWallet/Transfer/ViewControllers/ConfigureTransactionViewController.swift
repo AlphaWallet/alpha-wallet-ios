@@ -120,7 +120,7 @@ class ConfigureTransactionViewController: FormViewController {
 
         <<< SliderTextFieldRow(Values.gasLimit) {
             $0.title = R.string.localizable.configureTransactionGasLimitLabelTitle()
-            $0.value = Float(configuration.gasLimit.description) ?? 21000
+            $0.value = Float(configuration.gasLimit.description) ?? Float(GasLimitConfiguration.minGasLimit)
             $0.minimumValue = Float(GasLimitConfiguration.minGasLimit)
             $0.maximumValue = Float(GasLimitConfiguration.maxGasLimit)
             $0.steps = UInt((GasLimitConfiguration.maxGasLimit - GasLimitConfiguration.minGasLimit) / 1000)
@@ -194,11 +194,15 @@ class ConfigureTransactionViewController: FormViewController {
 
         let nonce: Int? = Int(nonceString)
 
+        let hasUserAdjustedGasPrice = self.configuration.hasUserAdjustedGasPrice || (self.configuration.gasPrice != gasPrice)
+        let hasUserAdjustedGasLimit = self.configuration.hasUserAdjustedGasLimit || (self.configuration.gasLimit != gasLimit)
         let configuration = TransactionConfiguration(
             gasPrice: gasPrice,
             gasLimit: gasLimit,
             data: data,
-            nonce: nonce
+            nonce: nonce,
+            hasUserAdjustedGasPrice: hasUserAdjustedGasPrice,
+            hasUserAdjustedGasLimit: hasUserAdjustedGasLimit
         )
         delegate?.didEdit(configuration: configuration, in: self)
     }
