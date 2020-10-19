@@ -41,6 +41,8 @@ extension AlphaWallet.Address {
             return R.image.tokenEos()
         case "0x04abEdA201850aC0124161F037Efd70c74ddC74C":
             return R.image.tokenNest()
+        case "0x1a23a6BfBAdB59fa563008c0fB7cf96dfCF34Ea1":
+            return R.image.tokenCofi()
         case "0x514910771AF9Ca656af840dff83E8264EcF986CA":
             return R.image.tokenLink()
         case "0x5401b9687a08b15CFca344EdEc7c1486bDaf9e32":
