@@ -113,7 +113,10 @@ private class PrivateXMLHandler {
     private lazy var selections = extractSelectionsForToken()
     private let isOfficial: Bool
     private let isCanonicalized: Bool
-    private let isBase: Bool
+    private var isBase: Bool {
+        baseTokenType != nil
+    }
+    private let baseTokenType: TokenType?
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
     private var tokenElement: XMLElement? {
@@ -181,8 +184,12 @@ private class PrivateXMLHandler {
             }
         }
         if fromActionAsTopLevel.isEmpty {
-            tokenType
-                    .flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
+            if let baseTokenType = baseTokenType, Features.isActivityEnabled {
+                results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
+            } else {
+                tokenType
+                        .flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
+            }
         } else {
             //TODO "erc20Send" name is not good for cryptocurrency
             let defaultActionsForCryptoCurrency: [TokenInstanceAction] = [.init(type: .erc20Send), .init(type: .erc20Receive)]
@@ -288,19 +295,19 @@ private class PrivateXMLHandler {
         let xmlString = assetDefinitionStore[contract]
         let isOfficial = assetDefinitionStore.isOfficial(contract: contract)
         let isCanonicalized = assetDefinitionStore.isCanonicalized(contract: contract)
-        self.init(contract: contract, xmlString: xmlString, isBase: false, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
+        self.init(contract: contract, xmlString: xmlString, baseTokenType: nil, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
     }
 
-    convenience init(contract: AlphaWallet.Address, baseXml: String, assetDefinitionStore: AssetDefinitionStore) {
-        self.init(contract: contract, xmlString: baseXml, isBase: true, isOfficial: true, isCanonicalized: true, assetDefinitionStore: assetDefinitionStore)
+    convenience init(contract: AlphaWallet.Address, baseXml: String, baseTokenType: TokenType, assetDefinitionStore: AssetDefinitionStore) {
+        self.init(contract: contract, xmlString: baseXml, baseTokenType: baseTokenType, isOfficial: true, isCanonicalized: true, assetDefinitionStore: assetDefinitionStore)
     }
 
-    private init(contract: AlphaWallet.Address, xmlString: String?, isBase: Bool, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
+    private init(contract: AlphaWallet.Address, xmlString: String?, baseTokenType: TokenType?, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
         let xmlString = xmlString ?? ""
         self.contractAddress = contract
         self.isOfficial = isOfficial
         self.isCanonicalized = isCanonicalized
-        self.isBase = isBase
+        self.baseTokenType = baseTokenType
         self.assetDefinitionStore = assetDefinitionStore
         //We still compute the TokenScript status even if xmlString is empty because it might be considered empty because there's a conflict
         let tokenScriptStatusPromise = PrivateXMLHandler.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
@@ -317,6 +324,7 @@ private class PrivateXMLHandler {
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             hasValidTokenScriptFile = true
+            let isBase = baseTokenType != nil
             if isBase {
                 self.server = .any
             } else {
@@ -510,6 +518,27 @@ private class PrivateXMLHandler {
         case .erc20:
             actions = [.erc20Send, .erc20Receive]
         case .erc721:
+            if contractAddress.isUEFATicketContract {
+                actions = [.nftRedeem, .nonFungibleTransfer]
+            } else {
+                actions = [.nonFungibleTransfer]
+            }
+        case .erc875:
+            if contractAddress.isFifaTicketContract {
+                actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
+            } else {
+                actions = [.nftSell, .nonFungibleTransfer]
+            }
+        }
+        return actions.map { .init(type: $0) }
+    }
+
+    private func defaultActions(forTokenType tokenType: TokenType) -> [TokenInstanceAction] {
+        let actions: [TokenInstanceAction.ActionType]
+        switch tokenType {
+        case .erc20, .nativeCryptocurrency:
+            actions = [.erc20Send, .erc20Receive]
+        case .erc721, .erc721ForTickets:
             if contractAddress.isUEFATicketContract {
                 actions = [.nftRedeem, .nonFungibleTransfer]
             } else {
@@ -791,7 +820,7 @@ public class XMLHandler {
                 baseXMLHandler = handler
             } else {
                 if let xml = TokenScript.baseTokenScriptFiles[tokenTypeForBaseXml] {
-                    baseXMLHandler = PrivateXMLHandler(contract: contract, baseXml: xml, assetDefinitionStore: assetDefinitionStore)
+                    baseXMLHandler = PrivateXMLHandler(contract: contract, baseXml: xml, baseTokenType: tokenTypeForBaseXml, assetDefinitionStore: assetDefinitionStore)
                     XMLHandler.baseXmlHandlers[key] = baseXMLHandler
                 } else {
                     baseXMLHandler = nil
