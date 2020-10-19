@@ -29,20 +29,16 @@ class TransactionConfigurator {
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
         case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
-            return configureGasPrice()
+            if let gasPrice = transaction.gasPrice, gasPrice > 0 {
+                return gasPrice
+            } else {
+                return configuration.gasPrice
+            }
         }
     }()
 
-    private func configureGasPrice() -> BigInt {
-        if let gasPrice = transaction.gasPrice, gasPrice > 0 {
-            return gasPrice
-        } else {
-            return configuration.gasPrice
-        }
-    }
-
-    private var gasLimitNotSet: Bool {
-        return transaction.gasLimit == .none
+    private var isGasLimitSpecifiedByTransaction: Bool {
+        transaction.gasLimit != nil
     }
 
     let transaction: UnconfirmedTransaction
@@ -69,7 +65,8 @@ class TransactionConfigurator {
             data: transaction.data ?? Data()
         )
     }
-    func estimateGasLimit() {
+
+    private func estimateGasLimit() {
         let to: AlphaWallet.Address? = {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp: return transaction.to
@@ -105,26 +102,22 @@ class TransactionConfigurator {
             case .success(let gasLimit):
                 let gasLimit: BigInt = {
                     let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
-                    if limit == BigInt(21000) {
+                    if limit == GasLimitConfiguration.minGasLimit {
                         return limit
                     }
                     return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
                 }()
-                strongSelf.configuration.gasLimit = gasLimit
-            case .failure: break
+                strongSelf.configuration.setEstimated(gasLimit: gasLimit)
+            case .failure:
+                break
             }
         }
     }
 
-    func estimateGasPrice() {
+    private func estimateGasPrice() {
         _ = TransactionConfigurator.estimateGasPrice(server: self.session.server).done { [weak self] gasPrice in
             guard let strongSelf = self else { return }
-            strongSelf.configuration = TransactionConfiguration(
-                    gasPrice: gasPrice,
-                    gasLimit: strongSelf.transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
-                    data: strongSelf.configuration.data,
-                    nonce: strongSelf.configuration.nonce
-            )
+            strongSelf.configuration.setEstimated(gasPrice: gasPrice)
         }
     }
 
@@ -159,13 +152,12 @@ class TransactionConfigurator {
     }
 
 // swiftlint:disable function_body_length
-    func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
+    func start(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
         switch transaction.transferType {
         case .dapp:
-            estimateGasPrice()
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
-                    gasLimit: GasLimitConfiguration.maxGasLimit,
+                    gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
                     data: transaction.data ?? configuration.data,
                     nonce: configuration.nonce
             )
@@ -186,8 +178,8 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        gasPrice: calculatedGasPrice,
+                        gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
                 completion(.success(()))
@@ -211,8 +203,8 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        gasPrice: calculatedGasPrice,
+                        gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
                 completion(.success(()))
@@ -244,8 +236,8 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        gasPrice: calculatedGasPrice,
+                        gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
                 completion(.success(()))
@@ -266,8 +258,8 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        gasPrice: calculatedGasPrice,
+                        gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
                 completion(.success(()))
@@ -275,10 +267,12 @@ class TransactionConfigurator {
                 completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
         }
-        /* the node can provide reliable gas limit estimates, this prevents running out of gas or defaulting to an
-        inappropriately high gas limit. This can also be an issue for native transfers which are 21k if send to an EOA
-        address but may be higher if sent to a contract address. */
-        estimateGasLimit()
+
+        //Estimation for gas limit must be after configuring `configuration` above to get the correct data
+        estimateGasPrice()
+        if !isGasLimitSpecifiedByTransaction {
+            estimateGasLimit()
+        }
     }
 // swiftlint:enable function_body_length
 

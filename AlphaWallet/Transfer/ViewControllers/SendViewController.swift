@@ -34,7 +34,6 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let account: EthereumAccount
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
-    private var gasPrice: BigInt?
     private var data = Data()
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
@@ -187,7 +186,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
-        getGasPrice()
     }
 // swiftlint:enable function_body_length
 
@@ -268,17 +266,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         title = "\(R.string.localizable.send()) \(transferType.symbol)"
     }
 
-    func getGasPrice() {
-        let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GasPriceRequest()))
-        Session.send(request) { [weak self] result in
-            switch result {
-            case .success(let balance):
-                self?.gasPrice = BigInt(balance.drop0x, radix: 16)
-            case .failure: break
-            }
-        }
-    }
-
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
@@ -308,7 +295,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 data: data,
                 gasLimit: .none,
                 tokenId: .none,
-                gasPrice: gasPrice,
+                gasPrice: .none,
                 nonce: .none,
                 v: .none,
                 r: .none,

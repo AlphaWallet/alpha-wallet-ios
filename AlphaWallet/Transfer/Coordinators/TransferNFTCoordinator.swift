@@ -68,43 +68,38 @@ class TransferNFTCoordinator: Coordinator {
 
     private func transfer() {
         if case .send(let transferType) = paymentFlow {
-            _ = TransactionConfigurator.estimateGasPrice(server: self.session.server).done { [weak self] gasPrice in
+            let transaction = UnconfirmedTransaction(
+                    transferType: transferType,
+                    value: BigInt(0),
+                    to: walletAddress,
+                    data: Data(),
+                    gasLimit: .none,
+                    tokenId: String(tokenHolder.tokens[0].id),
+                    gasPrice: .none,
+                    nonce: .none,
+                    v: .none,
+                    r: .none,
+                    s: .none,
+                    expiry: .none,
+                    indices: tokenHolder.indices,
+                    tokenIds: .none
+            )
+
+            let configurator = TransactionConfigurator(
+                    session: session,
+                    account: account,
+                    transaction: transaction
+            )
+            configurator.start { [weak self] result in
                 guard let strongSelf = self else {
                     return
                 }
-                let transaction = UnconfirmedTransaction(
-                        transferType: transferType,
-                        value: BigInt(0),
-                        to: strongSelf.walletAddress,
-                        data: Data(),
-                        gasLimit: .none,
-                        tokenId: String(strongSelf.tokenHolder.tokens[0].id),
-                        gasPrice: gasPrice,
-                        nonce: .none,
-                        v: .none,
-                        r: .none,
-                        s: .none,
-                        expiry: .none,
-                        indices: strongSelf.tokenHolder.indices,
-                        tokenIds: .none
-                )
-
-                let configurator = TransactionConfigurator(
-                        session: strongSelf.session,
-                        account: strongSelf.account,
-                        transaction: transaction
-                )
-                configurator.load { [weak self] result in
-                    guard let strongSelf = self else {
-                        return
-                    }
-                    switch result {
-                    case .success:
-                        strongSelf.sendTransaction(with: configurator)
-                    case .failure:
-                        //TODO use the error object or remove it from the case-statement
-                        strongSelf.processFailed()
-                    }
+                switch result {
+                case .success:
+                    strongSelf.sendTransaction(with: configurator)
+                case .failure:
+                    //TODO use the error object or remove it from the case-statement
+                    strongSelf.processFailed()
                 }
             }
         }

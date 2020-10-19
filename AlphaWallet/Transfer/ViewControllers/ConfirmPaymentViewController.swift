@@ -32,7 +32,7 @@ class ConfirmPaymentViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let viewModel = ConfirmPaymentViewModel()
-    private var configurator: TransactionConfigurator
+    private let configurator: TransactionConfigurator
     private let confirmType: ConfirmType
 
     var didCompleted: ((Result<ConfirmResult, AnyError>) -> Void)?
@@ -89,7 +89,7 @@ class ConfirmPaymentViewController: UIViewController {
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        configurator.load { [weak self] result in
+        configurator.start { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success:
@@ -233,7 +233,6 @@ class ConfirmPaymentViewController: UIViewController {
 extension ConfirmPaymentViewController: ConfigureTransactionViewControllerDelegate {
     func didEdit(configuration: TransactionConfiguration, in viewController: ConfigureTransactionViewController) {
         configurator.update(configuration: configuration)
-        reloadView()
         navigationController?.popViewController(animated: true)
     }
 }
