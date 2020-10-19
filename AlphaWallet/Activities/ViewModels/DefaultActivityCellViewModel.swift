@@ -116,7 +116,7 @@ struct DefaultActivityCellViewModel {
         case .erc20Sent, .erc20Received, .erc20OwnerApproved, .erc20ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
             if let value = cardAttributes["amount"]?.uintValue {
                 let formatter = EtherNumberFormatter.short
-                let value = formatter.string(from: BigInt(value))
+                let value = formatter.string(from: BigInt(value), decimals: activity.tokenObject.decimals)
                 return "\(sign)\(value) \(activity.tokenObject.symbol)"
             } else {
                 return ""
