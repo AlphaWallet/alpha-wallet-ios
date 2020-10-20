@@ -78,7 +78,7 @@ class AddressTextField: UIControl {
 
     var value: String {
         get {
-            if let ensResolvedAddress = ensAddressLabel.addressString/*addressString*/, !ensResolvedAddress.isEmpty {
+            if let ensResolvedAddress = ensAddressLabel.addressString, !ensResolvedAddress.isEmpty {
                 return ensResolvedAddress
             } else {
                 return textFieldText
