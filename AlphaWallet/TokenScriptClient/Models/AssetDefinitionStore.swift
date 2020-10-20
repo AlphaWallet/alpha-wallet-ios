@@ -98,6 +98,7 @@ class AssetDefinitionStore {
         return backingStore.hasOutdatedTokenScript(forContract: contract)
     }
 
+    //Calling this in >= iOS 14 will trigger a scary "AlphaWallet pasted from <app>" message
     func enableFetchXMLForContractInPasteboard() {
         NotificationCenter.default.addObserver(self, selector: #selector(fetchXMLForContractInPasteboard), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
