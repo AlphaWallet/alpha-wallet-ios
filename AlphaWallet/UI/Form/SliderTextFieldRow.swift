@@ -184,6 +184,10 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
 
         textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
+        //Selecting all the text upon focus is more user-friendly. Without DispatchQueue, select all sometimes doesn't work when tapping between text fields
+        DispatchQueue.main.async {
+            textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+        }
     }
 
     @objc public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
