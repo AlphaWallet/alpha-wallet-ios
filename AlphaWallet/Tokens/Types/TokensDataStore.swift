@@ -486,12 +486,7 @@ class TokensDataStore {
             }
         }
         for tokenObject in tokens {
-            //We don't want a whole lot of RPC calls to go out at once. If the user has 100 ERC20 tokens, that's 100 `balanceOf`. iOS doesn't lke it and will return this error:
-            //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
-            let delay = TimeInterval.random(in: 0...20)
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.refreshBalance(forToken: tokenObject, completion: incrementCountAndUpdateDelegate)
-            }
+            refreshBalance(forToken: tokenObject, completion: incrementCountAndUpdateDelegate)
         }
     }
 
