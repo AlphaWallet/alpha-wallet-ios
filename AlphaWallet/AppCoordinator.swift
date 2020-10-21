@@ -115,9 +115,9 @@ class AppCoordinator: NSObject, Coordinator {
         resetToWelcomeScreen()
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
-        
+
         if keystore.hasWallets {
-            showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
+            showTransactions(for: keystore.currentWallet)
         } else {
             resetToWelcomeScreen()
         }
@@ -184,9 +184,7 @@ class AppCoordinator: NSObject, Coordinator {
             return
         }
         navigationController.dismiss(animated: true, completion: nil)
-        if let wallet = keystore.recentlyUsedWallet {
-            showTransactions(for: wallet)
-        }
+        showTransactions(for: keystore.currentWallet)
     }
 
     private func initializers() {
@@ -247,6 +245,7 @@ class AppCoordinator: NSObject, Coordinator {
         let prices = inCoordinator.nativeCryptoCurrencyPrices
         let balances = inCoordinator.nativeCryptoCurrencyBalances
         guard let universalLinkCoordinator = UniversalLinkCoordinator(
+                wallet: keystore.currentWallet,
                 config: config,
                 ethPrices: prices,
                 ethBalances: balances,
