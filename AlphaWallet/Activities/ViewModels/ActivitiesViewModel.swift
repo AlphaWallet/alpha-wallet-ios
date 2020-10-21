@@ -33,9 +33,9 @@ struct ActivitiesViewModel {
                         switch ($0, $1) {
                         case let (.activity(a0), .activity(a1)):
                             return a0.logIndex > a1.logIndex
-                        case let (.transaction, .activity):
+                        case (.transaction, .activity):
                             return false
-                        case let (.activity, .transaction):
+                        case (.activity, .transaction):
                             return true
                         case let (.transaction(t0), .transaction(t1)):
                             if let n0 = Int(t0.nonce), let n1 = Int(t1.nonce) {
