@@ -117,6 +117,7 @@ class EtherKeystoreTests: XCTestCase {
         keystore.recentlyUsedWallet = account
 
         XCTAssertEqual(account, keystore.recentlyUsedWallet)
+        XCTAssertEqual(account, keystore.currentWallet)
 
         keystore.recentlyUsedWallet = nil
 

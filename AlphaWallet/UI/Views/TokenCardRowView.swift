@@ -57,9 +57,9 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	var stateLabel = UILabel()
 	var tokenView: TokenView
 	lazy var tokenScriptRendererView: TokenInstanceWebView = {
-		//TODO pass in keystore or wallet address instead
-		let walletAddress = EtherKeystore.current!.address
-		let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+		//TODO pass in keystore or wallet instead
+		let wallet = EtherKeystore.currentWallet
+		let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
 		webView.delegate = self
 		return webView
 	}()

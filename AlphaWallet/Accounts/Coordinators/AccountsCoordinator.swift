@@ -23,7 +23,7 @@ class AccountsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let controller = AccountsViewController(config: config, keystore: keystore, balanceCoordinator: balanceCoordinator, analyticsCoordinator: analyticsCoordinator)
+        let controller = AccountsViewController(config: config, keystore: keystore, balanceCoordinator: balanceCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .done, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true

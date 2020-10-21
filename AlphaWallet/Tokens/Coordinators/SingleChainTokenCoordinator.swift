@@ -87,11 +87,10 @@ class SingleChainTokenCoordinator: Coordinator {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         guard !isRunningTests() else { return }
         guard !session.config.isAutoFetchingDisabled else { return }
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(forSession: session, coordinator: self, wallet: address)
+        let operation = AutoDetectTransactedTokensOperation(forSession: session, coordinator: self, wallet: keystore.currentWallet.address)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -115,7 +114,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
                     }
                 }
-                guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.sameContract(as: wallet) else { return }
+                let currentAddress = strongSelf.keystore.currentWallet.address
+                guard currentAddress.sameContract(as: wallet) else { return }
                 let detectedContracts = contracts
                 let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
                 let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contractAddress }
@@ -178,16 +178,16 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
         guard !isAutoDetectingTokens else { return }
 
+        let address = keystore.currentWallet.address
         isAutoDetectingTokens = true
         let operation = AutoDetectTokensOperation(forSession: session, coordinator: self, wallet: address, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
     private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> Void) {
-        guard let address = keystore.recentlyUsedWallet?.address else { return }
+        let address = keystore.currentWallet.address
         let alreadyAddedContracts = storage.enabledObject.map { $0.contractAddress }
         let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
         let hiddenContracts = storage.hiddenContracts.map { $0.contractAddress }
@@ -379,8 +379,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func createTransactionsStore() -> TransactionsStorage? {
-        guard let wallet = keystore.recentlyUsedWallet else { return nil }
-        let realm = self.realm(forAccount: wallet)
+        let realm = self.realm(forAccount: keystore.currentWallet)
         return TransactionsStorage(realm: realm, server: session.server, delegate: self)
     }
 

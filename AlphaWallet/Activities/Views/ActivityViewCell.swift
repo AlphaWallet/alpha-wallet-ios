@@ -6,10 +6,10 @@ import BigInt
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        //TODO pass in keystore or wallet address instead
-        let walletAddress = EtherKeystore.current!.address
+        //TODO pass in keystore or wallet address instead. Have to think about initialization of cells
+        let wallet = EtherKeystore.currentWallet
         //TODO server value doesn't matter since we will change it later. But we should improve this
-        let webView = TokenInstanceWebView(server: .main, walletAddress: walletAddress, assetDefinitionStore: AssetDefinitionStore.instance)
+        let webView = TokenInstanceWebView(server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance)
         //TODO needed? Seems like scary, performance-wise
         //webView.delegate = self
         return webView
