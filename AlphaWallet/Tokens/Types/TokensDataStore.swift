@@ -346,23 +346,6 @@ class TokensDataStore {
         }
     }
 
-    func getIsERC875Contract(for address: AlphaWallet.Address,
-                             completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void) {
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
-                switch result {
-                case .success:
-                    completion(result)
-                case .failure:
-                    if !triggerRetry() {
-                        completion(result)
-                    }
-                }
-            }
-        }
-    }
-
     func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
             guard let strongSelf = self else { return }
