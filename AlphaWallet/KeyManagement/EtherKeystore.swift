@@ -132,6 +132,7 @@ open class EtherKeystore: Keystore {
         set {
             keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccessUserPresenceNotRequired)
         }
+        //Use `currentWallet` wherever possible instead of this getter to avoid optionals
         get {
             guard let address = keychain.get(Keys.recentlyUsedAddress) else {
                 return nil
@@ -142,13 +143,21 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    //TODO improve
-    static var current: Wallet? {
-        do {
-            return try EtherKeystore(analyticsCoordinator: nil).recentlyUsedWallet
-        } catch {
-            return .none
+    var currentWallet: Wallet {
+        //Better crash now instead of populating callers with optionals
+        if let wallet = recentlyUsedWallet {
+            return wallet
+        } else if wallets.count == 1 {
+            return wallets.first!
+        } else {
+            fatalError("No wallet")
         }
+    }
+
+    //TODO improve
+    static var currentWallet: Wallet {
+        //Better crash now instead of populating callers with optionals
+        (try! EtherKeystore(analyticsCoordinator: nil)).currentWallet
     }
 
     init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standard, analyticsCoordinator: AnalyticsCoordinator?) throws {

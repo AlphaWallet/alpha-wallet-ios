@@ -212,7 +212,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     //TODO notify user of received tokens too
     private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
-        guard let wallet = keystore.recentlyUsedWallet else { return }
+        let wallet = keystore.currentWallet
         var toNotify: [Transaction]
         if let newestCached = storage.objects.first {
             toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }

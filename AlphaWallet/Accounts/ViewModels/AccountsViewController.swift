@@ -21,19 +21,16 @@ class AccountsViewController: UIViewController {
     private let config: Config
     private let keystore: Keystore
     private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
-    private let analyticsCoordinator: AnalyticsCoordinator?
-    lazy private var etherKeystore = try? EtherKeystore(analyticsCoordinator: analyticsCoordinator)
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
 
-    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator) {
         self.config = config
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
-        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -143,7 +140,7 @@ class AccountsViewController: UIViewController {
         let account = self.account(for: path)
         let walletName = viewModel.walletName(forAccount: account)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
+        let model = AccountViewModel(wallet: account, current: keystore.currentWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
         return model
     }
 
@@ -197,11 +194,11 @@ extension AccountsViewController: UITableViewDataSource {
         guard allowsAccountDeletion else { return false }
         switch AccountViewTableSectionHeader.HeaderType(rawValue: indexPath.section) {
         case .some(.hdWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.hdWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.hdWallets[indexPath.row]
         case .some(.keystoreWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.keystoreWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.keystoreWallets[indexPath.row]
         case .some(.watchedWallet):
-            return etherKeystore?.recentlyUsedWallet != viewModel.watchedWallets[indexPath.row]
+            return keystore.currentWallet != viewModel.watchedWallets[indexPath.row]
         case .none:
             return false
         }
@@ -294,7 +291,7 @@ extension AccountsViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let account = self.account(for: indexPath)
-        guard etherKeystore?.recentlyUsedWallet != account else { return }
+        guard keystore.currentWallet != account else { return }
 
         delegate?.didSelectAccount(account: account, in: self)
     }

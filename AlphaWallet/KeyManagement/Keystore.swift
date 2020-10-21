@@ -19,12 +19,14 @@ enum KeystoreExportReason {
 }
 
 protocol Keystore {
-    static var current: Wallet? { get }
+    //TODO remove this if possible, replacing with the instance-side version
+    static var currentWallet: Wallet { get }
 
     var hasWallets: Bool { get }
     var isUserPresenceCheckPossible: Bool { get }
     var wallets: [Wallet] { get }
     var recentlyUsedWallet: Wallet? { get set }
+    var currentWallet: Wallet { get }
 
     @available(iOS 10.0, *)
     func createAccount(completion: @escaping (Result<EthereumAccount, KeystoreError>) -> Void)

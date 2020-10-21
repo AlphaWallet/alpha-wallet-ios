@@ -8,7 +8,9 @@ import Result
 
 struct FakeKeystore: Keystore {
 
-    static var current: Wallet?
+    static var currentWallet: Wallet {
+        Wallet(type: .watch(.makeStormBird()))
+    }
 
     enum AssumeAllWalletsType {
         case hdWallet
@@ -25,6 +27,17 @@ struct FakeKeystore: Keystore {
     }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
+
+    var currentWallet: Wallet {
+        //Better crash now instead of populating callers with optionals
+        if let wallet = recentlyUsedWallet {
+            return wallet
+        } else if wallets.count == 1 {
+            return wallets.first!
+        } else {
+            fatalError("No wallet")
+        }
+    }
 
     init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = .none, assumeAllWalletsType: AssumeAllWalletsType = .hdWallet) {
         self.wallets = wallets

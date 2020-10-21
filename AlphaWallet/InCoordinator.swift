@@ -619,7 +619,7 @@ class InCoordinator: NSObject, Coordinator {
         let v = UInt8(signature.substring(from: 128), radix: 16)!
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        guard let wallet = keystore.recentlyUsedWallet else { return }
+        let wallet = keystore.currentWallet
         claimOrderCoordinator = ClaimOrderCoordinator()
         claimOrderCoordinator?.claimOrder(
                 signedOrder: signedOrder,
@@ -757,8 +757,7 @@ class InCoordinator: NSObject, Coordinator {
 
 extension InCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
-        guard let account = keystore.recentlyUsedWallet else { return }
-
+        let account = keystore.currentWallet
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
         let realm = self.realm(forAccount: account)
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true)
