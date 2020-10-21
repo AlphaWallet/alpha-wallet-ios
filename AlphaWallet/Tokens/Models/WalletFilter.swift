@@ -25,8 +25,8 @@ func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
 		return keyword1 == keyword2
 	case (.keyword, .all), (.keyword, .currencyOnly), (.keyword, .assetsOnly), (.keyword, .collectiblesOnly), (.collectiblesOnly, .all), (.collectiblesOnly, .currencyOnly), (.collectiblesOnly, .assetsOnly), (.collectiblesOnly, .keyword), (.assetsOnly, .all), (.assetsOnly, .currencyOnly), (.assetsOnly, .collectiblesOnly), (.assetsOnly, .keyword), (.currencyOnly, .all), (.currencyOnly, .assetsOnly), (.currencyOnly, .collectiblesOnly), (.currencyOnly, .keyword), (.all, .currencyOnly), (.all, .assetsOnly), (.all, .collectiblesOnly), (.all, .keyword):
         return false
-    case (.type(_), _), (_, .type(_)):
+	case (.type, _), (_, .type):
         return true
-    }
+	}
 }
 

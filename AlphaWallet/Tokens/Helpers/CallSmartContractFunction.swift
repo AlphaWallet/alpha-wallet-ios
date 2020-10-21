@@ -7,9 +7,10 @@ import web3swift
 //TODO time to wrap `callSmartContract` with a class
 
 //TODO wrap callSmartContract() and cache into a type
+// swiftlint:disable private_over_fileprivate
 fileprivate var smartContractCallsCache = [String: (promise: Promise<[String: Any]>, timestamp: Date)]()
-
 fileprivate var web3s = [RPCServer: [TimeInterval: web3]]()
+// swiftlint:enable private_over_fileprivate
 
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
     if let result = web3s[server]?[timeout] {

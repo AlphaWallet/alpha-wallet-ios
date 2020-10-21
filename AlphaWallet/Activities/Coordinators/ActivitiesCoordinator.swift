@@ -22,7 +22,7 @@ class ActivitiesCoordinator: Coordinator {
     private var activities: [Activity] = .init()
     private var transactions: [Transaction] = .init()
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: TokenObject, tokenHolders: [TokenHolder])] = .init()
-    weak private var activityViewController:  ActivityViewController?
+    weak private var activityViewController: ActivityViewController?
     private var rateLimitedUpdater: RateLimiter?
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
@@ -121,7 +121,7 @@ class ActivitiesCoordinator: Coordinator {
             let eachServer = each.server
             let xmlHandler = XMLHandler(token: each, assetDefinitionStore: assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition else { return nil }
-            guard (xmlHandler.server?.matches(server: eachServer) ?? false) else { return nil }
+            guard xmlHandler.server?.matches(server: eachServer) ?? false else { return nil }
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
 

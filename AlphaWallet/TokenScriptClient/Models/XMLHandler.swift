@@ -1,4 +1,3 @@
-//
 //  XMLHandler.swift
 //  AlphaWallet
 //
@@ -424,7 +423,6 @@ private class PrivateXMLHandler {
                 values: values
         )
     }
-
 
     func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
         fields.resolve(withTokenIdOrEvent: tokenIdOrEvent, userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: .init())
