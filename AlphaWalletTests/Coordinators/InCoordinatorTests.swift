@@ -53,11 +53,11 @@ class InCoordinatorTests: XCTestCase {
 
         coordinator.showTabBar(for: account1)
 
-        XCTAssertEqual(coordinator.keystore.recentlyUsedWallet, account1)
+        XCTAssertEqual(coordinator.keystore.currentWallet, account1)
 
         coordinator.showTabBar(for: account2)
 
-        XCTAssertEqual(coordinator.keystore.recentlyUsedWallet, account2)
+        XCTAssertEqual(coordinator.keystore.currentWallet, account2)
     }
 
     func testShowSendFlow() {

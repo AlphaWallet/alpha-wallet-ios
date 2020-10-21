@@ -11,6 +11,7 @@ protocol ActivityViewControllerDelegate: class {
 
 class ActivityViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
+    private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let tokenImageView = TokenImageView()
@@ -21,9 +22,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        //TODO pass in keystore or wallet address instead
-        let walletAddress = EtherKeystore.current!.address
-        let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -41,7 +40,8 @@ class ActivityViewController: UIViewController {
 
     weak var delegate: ActivityViewControllerDelegate?
 
-    init(assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+    init(wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+        self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
 

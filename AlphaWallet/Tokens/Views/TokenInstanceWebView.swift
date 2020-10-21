@@ -46,13 +46,13 @@ class TokenInstanceWebView: UIView {
     }
 
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
-    private let walletAddress: AlphaWallet.Address
+    private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private var hashOfCurrentHtml: Int?
     private var hashOfLoadedHtml: Int?
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
-        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: walletAddress, in: ScriptMessageProxy(delegate: self))
+        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, address: wallet.address, in: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .zero, configuration: webViewConfig)
     }()
@@ -93,9 +93,9 @@ class TokenInstanceWebView: UIView {
         return results
     }
 
-    init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
+    init(server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
-        self.walletAddress = walletAddress
+        self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         super.init(frame: .zero)
 
@@ -243,9 +243,7 @@ class TokenInstanceWebView: UIView {
         guard !localRefs.isEmpty else { return .init() }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastCardLevelAttributeValues?[$0.key] == nil }
-        //TODO it's not important for now whether it is .real or .watch, but should fix
-        let account = Wallet(type: .watch(walletAddress))
-        return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: localRefs)
+        return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: wallet, additionalValues: .init(), localRefs: localRefs)
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
@@ -254,7 +252,7 @@ class TokenInstanceWebView: UIView {
             guard each.shouldInclude(forAddress: tokenHolder.contractAddress, isFungible: isFungible) else { continue }
             switch each {
             case .ownerAddress:
-                results[each.javaScriptName] = .address(walletAddress)
+                results[each.javaScriptName] = .address(wallet.address)
             case .tokenId:
                 results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
             case .label:
@@ -438,18 +436,18 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         let transfer = Transfer(server: server, type: .dapp(token, requester))
         let action = DappAction.fromCommand(command, transfer: transfer)
 
-        //TODO pass this in instead
-        let wallet = EtherKeystore.current!
-
-        guard case .real(let account) = wallet.type else { return }
-
-        switch action {
-        case .signPersonalMessage(let hexMessage):
-            let msg = convertMessageToHex(msg: hexMessage)
-            let callbackID = command.id
-            signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
-        case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown:
-            return
+        switch wallet.type {
+        case .real(let account):
+            switch action {
+            case .signPersonalMessage(let hexMessage):
+                let msg = convertMessageToHex(msg: hexMessage)
+                let callbackID = command.id
+                signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown:
+                return
+            }
+        case .watch:
+            break
         }
     }
 }

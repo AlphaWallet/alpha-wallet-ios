@@ -33,6 +33,10 @@ class ActivitiesCoordinator: Coordinator {
         tokensStorages.values.flatMap { $0.enabledObject }
     }
 
+    private var wallet: Wallet {
+        sessions.anyValue.account
+    }
+
     lazy var rootViewController: ActivitiesViewController = {
         makeActivitiesViewController()
     }()
@@ -68,13 +72,13 @@ class ActivitiesCoordinator: Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel()
-        let controller = ActivitiesViewController(viewModel: viewModel, sessions: sessions)
+        let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions)
         controller.delegate = self
         return controller
     }
 
     func showActivity(_ activity: Activity) {
-        let controller = ActivityViewController(assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
+        let controller = ActivityViewController(wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
         controller.delegate = self
         activityViewController = controller
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -131,8 +135,7 @@ class ActivitiesCoordinator: Coordinator {
                     case .tokenId:
                         continue
                     case .ownerAddress:
-                        let wallet = sessions.anyValue.account.address
-                        interpolatedFilter = "\(filterName)=\(wallet.eip55String)"
+                        interpolatedFilter = "\(filterName)=\(wallet.address.eip55String)"
                     case .label, .contractAddress, .symbol:
                         //TODO support more?
                         continue

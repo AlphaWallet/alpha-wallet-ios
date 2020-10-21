@@ -11,14 +11,16 @@ protocol ActivitiesViewControllerDelegate: class {
 
 class ActivitiesViewController: UIViewController {
     private var viewModel: ActivitiesViewModel
+    private let wallet: AlphaWallet.Address
     private let sessions: ServerDictionary<WalletSession>
     private let tableView = UITableView(frame: .zero, style: .grouped)
 
     var paymentType: PaymentFlow?
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
+        self.wallet = wallet
         self.sessions = sessions
         super.init(nibName: nil, bundle: nil)
 
@@ -85,8 +87,7 @@ class ActivitiesViewController: UIViewController {
 
     private func createPseudoActivity(fromTransaction transaction: Transaction) -> Activity {
         let activityName: String
-        //TODO pass in instead
-        if EtherKeystore.current!.address.sameContract(as: transaction.from) {
+        if wallet.sameContract(as: transaction.from) {
             activityName = "sent"
         } else {
             activityName = "received"
