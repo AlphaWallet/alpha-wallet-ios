@@ -65,7 +65,9 @@ class MigrationInitializer: Initializer {
             if oldSchemaVersion < 7 {
                 //Fix bug where we marked all transactions as completed successfully without checking `isError` from Etherscan
                 migration.deleteData(forType: Transaction.className())
-                RPCServer.allCases.map { Config.setLastFetchedErc20InteractionBlockNumber(0, server: $0, wallet: self.account.address) }
+                for each in RPCServer.allCases {
+                    Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: self.account.address)
+                }
                 migration.deleteData(forType: EventActivity.className())
             }
         }
