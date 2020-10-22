@@ -81,17 +81,9 @@ class ActivitiesCoordinator: Coordinator {
         let controller = ActivityViewController(wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
         controller.delegate = self
         activityViewController = controller
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .formSheet
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-            nav.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(nav, animated: true, completion: nil)
-        } else {
-            controller.hidesBottomBarWhenPushed = true
-            controller.navigationItem.largeTitleDisplayMode = .never
-            navigationController.pushViewController(controller, animated: true)
-        }
+        controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(controller, animated: true)
     }
 
     @objc func dismiss() {
