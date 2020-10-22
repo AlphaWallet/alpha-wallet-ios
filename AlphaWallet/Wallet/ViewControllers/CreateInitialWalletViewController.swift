@@ -20,7 +20,6 @@ class CreateInitialWalletViewController: UIViewController {
     private let haveWalletLabel = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .white(buttons: 2))
 
-
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {
             return 60

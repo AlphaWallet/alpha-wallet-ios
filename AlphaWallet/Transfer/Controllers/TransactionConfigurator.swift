@@ -87,7 +87,7 @@ class TransactionConfigurator {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp, .ERC875TokenOrder: return transaction.value
             case .ERC20Token, .ERC721Token, .ERC721ForTicketToken, .ERC875Token:
-                return 0;
+                return 0
             }
         }()
         let request = EstimateGasRequest(

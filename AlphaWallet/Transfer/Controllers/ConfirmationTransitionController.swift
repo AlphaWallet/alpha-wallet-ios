@@ -24,7 +24,7 @@ extension UINavigationController: UpdatablePreferredContentSizeContainer {
 class ConfirmationTransitionController: NSObject {
 
     //NOTE: Need to retain self until dismissal because UIKit won't.
-    private var selfRetainer: ConfirmationTransitionController? = nil
+    private var selfRetainer: ConfirmationTransitionController?
     private let sourceViewController: UIViewController
     private let destinationViewController: UIViewController
     private let presenter = Presenter()
