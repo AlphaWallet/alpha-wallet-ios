@@ -194,7 +194,7 @@ struct TokenScriptFilterParser {
             var buffer: [Character] = []
             var escapeBuffer: [Character]? = nil
             var wasPreviousEscapedCharacter = false
-            for (_, c) in expression.enumerated() {
+            for c in expression {
                 let previous = buffer.last.flatMap { String($0) }
                 if c == escape && escapeBuffer == nil {
                     //start new escape
