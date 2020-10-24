@@ -83,7 +83,7 @@ final class BrowserViewController: UIViewController {
         NSLayoutConstraint.activate([
             webView.anchorsConstraint(to: view),
 
-            progressView.topAnchor.constraint(equalTo: view.layoutGuide.topAnchor),
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             progressView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
             progressView.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
             progressView.heightAnchor.constraint(equalToConstant: 2),
@@ -175,7 +175,7 @@ final class BrowserViewController: UIViewController {
 
     private func hideErrorView() {
         errorView.isHidden = true
-    } 
+    }
 
     deinit {
         estimatedProgressObservation.invalidate()

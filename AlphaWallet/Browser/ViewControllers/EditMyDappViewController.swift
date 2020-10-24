@@ -35,16 +35,16 @@ class EditMyDappViewController: UIViewController {
             UIView.spacer(height: 28),
             imageHolder,
             UIView.spacer(height: 28),
-            
+
             titleTextField.label,
             UIView.spacer(height: 4),
             titleTextField,
             UIView.spacer(height: 18),
-            
+
             urlTextField.label,
             UIView.spacer(height: 7),
             urlTextField
-            
+
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -66,13 +66,13 @@ class EditMyDappViewController: UIViewController {
 
             titleTextField.label.widthAnchor.constraint(equalTo: stackView.widthAnchor),
             titleTextField.widthAnchor.constraint(equalTo: stackView.widthAnchor),
-            
+
             urlTextField.label.widthAnchor.constraint(equalTo: stackView.widthAnchor),
             urlTextField.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
@@ -85,7 +85,7 @@ class EditMyDappViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 14),
-            cancelButton.topAnchor.constraint(equalTo: view.layoutGuide.topAnchor),
+            cancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 
             //We don't use createConstraintsWithContainer() because the top rounded corners need to be lower
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -129,7 +129,7 @@ class EditMyDappViewController: UIViewController {
 
         urlTextField.configureOnce()
         titleTextField.configureOnce()
-        
+
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
         saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
@@ -161,7 +161,7 @@ class EditMyDappViewController: UIViewController {
 }
 
 extension EditMyDappViewController: TextFieldDelegate {
-    
+
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
         case titleTextField:
@@ -173,12 +173,12 @@ extension EditMyDappViewController: TextFieldDelegate {
         }
         return true
     }
-    
+
     func doneButtonTapped(for textField: TextField) {
-        
+
     }
-    
+
     func nextButtonTapped(for textField: TextField) {
-        
+
     }
 }

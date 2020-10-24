@@ -92,7 +92,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.cornerRadius = DataEntry.Metric.cornerRadius
-        
+
         domainNameLabel.isHidden = true
 
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
@@ -145,11 +145,11 @@ final class DappBrowserNavigationBar: UINavigationBar {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = 4 
+        stackView.spacing = 4
         addSubview(stackView)
 
-        let leadingAnchorConstraint = stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10)
-        let trailingAnchorConstraint = stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10)
+        let leadingAnchorConstraint = stackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 10)
+        let trailingAnchorConstraint = stackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -10)
         //We really want these constraints to be `.required`, but can't because it AutoLayout complains the instance `this` is created, as it probably starts with a frame of zero and can't fulfill the constants
         leadingAnchorConstraint.priority = .required - 1
         trailingAnchorConstraint.priority = .required - 1
@@ -265,21 +265,21 @@ final class DappBrowserNavigationBar: UINavigationBar {
 }
 
 extension DappBrowserNavigationBar: UITextFieldDelegate {
-    
+
     func textFieldDidEndEditing(_ textField: UITextField) {
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
-        
+
         textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.backgroundColor = Colors.appWhite
         textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
-        
+
         textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     private func queue(typedText text: String) {
         navigationBarDelegate?.didTyped(text: text, inNavigationBar: self)
     }
