@@ -164,7 +164,7 @@ class ActivitiesCoordinator: Coordinator {
         activities = activitiesAndTokens.map { $0.0 }
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
-        reloadViewController()
+        reloadViewController(reloadImmediately: false)
         for (activity, tokenObject, tokenHolder) in activitiesAndTokens {
             refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity)
         }
@@ -230,7 +230,12 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     //TODO throttling reloading because sorting the activities for every attribute in every activity refreshed is really slow: can we speed this up?
-    private func reloadViewController() {
+    private func reloadViewController(reloadImmediately: Bool) {
+        if reloadImmediately {
+            reloadViewControllerImpl()
+            return
+        }
+
         //We want to show the activities tab immediately the first time activities are available, otherwise when the app launch and user goes to the tab immediately and wait for a few seconds, they'll see some of the transactions transforming into activities. Very jarring
         if hasLoadedActivitiesTheFirstTime {
             if rateLimitedViewControllerReloader == nil {
@@ -241,14 +246,15 @@ class ActivitiesCoordinator: Coordinator {
                 rateLimitedViewControllerReloader?.run()
             }
         } else {
-            if !activities.isEmpty {
-                hasLoadedActivitiesTheFirstTime = true
-            }
             reloadViewControllerImpl()
         }
     }
 
     private func reloadViewControllerImpl() {
+        if !activities.isEmpty {
+            hasLoadedActivitiesTheFirstTime = true
+        }
+
         let transactionAlreadyRepresentedAsActivities = Set(activities.map { $0.transactionId })
         let transactions: [Transaction]
         if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
@@ -272,7 +278,7 @@ class ActivitiesCoordinator: Coordinator {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
             let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
             activities[index] = updatedActivity
-            reloadViewController()
+            reloadViewController(reloadImmediately: false)
             if let activityViewController = activityViewController, activityViewController.isForActivity(updatedActivity) {
                 activityViewController.configure(viewModel: .init(activity: updatedActivity))
             }
@@ -357,11 +363,11 @@ extension ActivitiesCoordinator: ActivityViewControllerDelegate {
 }
 
 extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
-    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t) {
+    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t, reloadImmediately: Bool) {
         switch result {
         case .success(let items):
             transactions = items
-            reloadViewController()
+            reloadViewController(reloadImmediately: reloadImmediately)
         case .failure:
             break
         }

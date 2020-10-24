@@ -130,7 +130,7 @@ extension TransactionsViewController: UITableViewDelegate {
 }
 
 extension TransactionsViewController: TransactionDataCoordinatorDelegate {
-    func didUpdate(result: Result<[Transaction], TransactionError>) {
+    func didUpdate(result: Result<[Transaction], TransactionError>, reloadImmediately: Bool) {
         switch result {
         case .success(let items):
         let viewModel = TransactionsViewModel(transactions: items)
