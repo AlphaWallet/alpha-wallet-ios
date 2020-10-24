@@ -108,7 +108,7 @@ class TransactionDataCoordinator: Coordinator {
         let session = sessions[transaction.original.server]
 
         let tokensDataStore = tokensStorages[transaction.original.server]
-        let transaction = SentTransaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
+        let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
         transactionCollection.add([transaction])
         handleUpdateItems(reloadImmediately: true)
     }
