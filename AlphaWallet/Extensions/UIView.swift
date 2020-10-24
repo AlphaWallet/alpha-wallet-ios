@@ -7,7 +7,7 @@ extension UIView {
     static func tableFooterToRemoveEmptyCellSeparators() -> UIView {
       return .init()
     }
-    
+
     static var tokenSymbolBackgroundImageCache: [UIColor: UIImage] = .init()
     static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
@@ -48,14 +48,6 @@ extension UIView {
 
     func anchorsConstraint(to view: UIView, margin: CGFloat) -> [NSLayoutConstraint] {
         return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
-    }
-
-    var layoutGuide: UILayoutGuide {
-        if #available(iOS 11, *) {
-            return safeAreaLayoutGuide
-        } else {
-            return layoutMarginsGuide
-        }
     }
 
     static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear) -> UIView {

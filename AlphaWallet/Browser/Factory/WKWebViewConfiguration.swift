@@ -55,14 +55,12 @@ extension WKWebViewConfiguration {
         case .tokenScriptRenderer:
             //TODO enable content blocking rules to support whitelisting
 //            let json = contentBlockingRulesJson()
-//            if #available(iOS 11.0, *) {
-//                WKContentRuleListStore.default().compileContentRuleList(forIdentifier: "ContentBlockingRules", encodedContentRuleList: json) { (contentRuleList, error) in
-//                    guard let contentRuleList = contentRuleList,
-//                          error == nil else {
-//                        return
-//                    }
-//                    webViewConfig.userContentController.add(contentRuleList)
+//            WKContentRuleListStore.default().compileContentRuleList(forIdentifier: "ContentBlockingRules", encodedContentRuleList: json) { (contentRuleList, error) in
+//                guard let contentRuleList = contentRuleList,
+//                      error == nil else {
+//                    return
 //                }
+//                webViewConfig.userContentController.add(contentRuleList)
 //            }
             webViewConfig.setURLSchemeHandler(webViewConfig, forURLScheme: "tokenscript-resource")
         }
