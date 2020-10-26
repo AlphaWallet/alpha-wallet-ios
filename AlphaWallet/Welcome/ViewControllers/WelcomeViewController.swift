@@ -31,7 +31,7 @@ class WelcomeViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
         button.titleLabel?.font = Fonts.semibold(size: 16)
-        button.setBackgroundColor(Colors.appTint, forState: .normal) 
+        button.setBackgroundColor(Colors.appTint, forState: .normal)
         button.setTitleColor(Colors.appWhite, for: .normal)
         return button
     }()
@@ -84,7 +84,7 @@ class WelcomeViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -walletButtonHeight),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -walletButtonHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 

@@ -134,7 +134,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             statusLabel.widthAnchor.constraint(equalTo: tokenCardRowView.widthAnchor, constant: -20),

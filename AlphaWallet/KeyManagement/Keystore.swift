@@ -28,7 +28,6 @@ protocol Keystore {
     var recentlyUsedWallet: Wallet? { get set }
     var currentWallet: Wallet { get }
 
-    @available(iOS 10.0, *)
     func createAccount(completion: @escaping (Result<EthereumAccount, KeystoreError>) -> Void)
     func importWallet(type: ImportType, completion: @escaping (Result<Wallet, KeystoreError>) -> Void)
     func createAccount() -> Result<EthereumAccount, KeystoreError>
