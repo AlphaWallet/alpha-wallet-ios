@@ -2,7 +2,6 @@
 import UIKit
 import RealmSwift
 import AWSSNS
-//import AWSCognito
 import AWSCore
 import UserNotifications
 
