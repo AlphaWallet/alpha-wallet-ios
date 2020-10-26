@@ -55,7 +55,7 @@ class HelpViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ContactUsBannerView.bannerHeight),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ContactUsBannerView.bannerHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 

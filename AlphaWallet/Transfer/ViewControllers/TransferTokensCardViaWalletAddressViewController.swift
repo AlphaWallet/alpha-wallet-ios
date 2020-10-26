@@ -66,7 +66,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         addressControlsContainer.backgroundColor = .clear
 
         targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
-        
+
         let addressControlsStackView = [
             targetAddressTextField.pasteButton,
             targetAddressTextField.clearButton
@@ -107,7 +107,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             targetAddressLabel.heightAnchor.constraint(equalToConstant: 22),
-            
+
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
 
@@ -134,7 +134,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -142,7 +142,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     // swiftlint:enable function_body_length
-    
+
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
@@ -174,7 +174,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         targetAddressLabel.font = viewModel.targetAddressLabelFont
         targetAddressLabel.textColor = viewModel.targetAddressLabelTextColor
         targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
-        
+
         targetAddressTextField.configureOnce()
 
         buttonsBar.configure()

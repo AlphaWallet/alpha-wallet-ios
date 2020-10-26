@@ -43,11 +43,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private var nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView {
         //Not the best implementation. Hopefully this will be unnecessary
         let safeAreaInsetsTop: CGFloat
-        if #available(iOS 11, *) {
-            safeAreaInsetsTop = navigationController.view.safeAreaInsets.top
-        } else {
-            safeAreaInsetsTop = 20
-        }
+        safeAreaInsetsTop = navigationController.view.safeAreaInsets.top
         _nativeCryptoCurrencyBalanceView.topMargin = 56 + safeAreaInsetsTop
         return _nativeCryptoCurrencyBalanceView
     }
