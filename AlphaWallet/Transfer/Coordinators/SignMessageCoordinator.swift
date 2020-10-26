@@ -18,7 +18,7 @@ protocol SignMessageCoordinatorDelegate: class {
 class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private var message: SignMessageType?
 
     var coordinators: [Coordinator] = []
@@ -28,7 +28,7 @@ class SignMessageCoordinator: Coordinator {
     init(
         navigationController: UINavigationController,
         keystore: Keystore,
-        account: EthereumAccount
+        account: AlphaWallet.Address
     ) {
         self.navigationController = navigationController
         self.keystore = keystore

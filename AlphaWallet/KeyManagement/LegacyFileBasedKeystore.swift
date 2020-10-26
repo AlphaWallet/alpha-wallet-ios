@@ -50,9 +50,9 @@ class LegacyFileBasedKeystore {
         }
     }
 
-    private func exportPrivateKey(account: EthereumAccount) -> Result<Data, KeystoreError> {
+    private func exportPrivateKey(account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         guard let password = getPassword(for: account) else { return .failure(KeystoreError.accountNotFound) }
-        guard let account = getAccount(forAddress: account.address) else { return .failure(.accountNotFound) }
+        guard let account = getAccount(forAddress: account) else { return .failure(.accountNotFound) }
         do {
             let privateKey = try keyStore.exportPrivateKey(account: account, password: password)
             return .success(privateKey)
@@ -63,9 +63,9 @@ class LegacyFileBasedKeystore {
 
     @discardableResult func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
         switch wallet.type {
-        case .real(let ethereumAccount):
-            guard let account = getAccount(forAddress: ethereumAccount.address) else { return .failure(.accountNotFound) }
-            guard let password = getPassword(for: ethereumAccount) else { return .failure(.failedToDeleteAccount) }
+        case .real(let address):
+            guard let account = getAccount(forAddress: address) else { return .failure(.accountNotFound) }
+            guard let password = getPassword(for: address) else { return .failure(.failedToDeleteAccount) }
 
             do {
                 try keyStore.delete(account: account, password: password)
@@ -78,9 +78,9 @@ class LegacyFileBasedKeystore {
         }
     }
 
-    func getPassword(for account: EthereumAccount) -> String? {
+    func getPassword(for account: AlphaWallet.Address) -> String? {
         //This has to be lowercased due to legacy reasons — it had been written to as lowercased() earlier
-        return keychain.get(account.address.eip55String.lowercased())
+        return keychain.get(account.eip55String.lowercased())
     }
 
     func getAccount(forAddress address: AlphaWallet.Address) -> Account? {
@@ -103,7 +103,7 @@ class LegacyFileBasedKeystore {
         guard !etherKeystore.hasMigratedFromKeystoreFiles else { return }
 
         for each in keyStore.accounts {
-            switch exportPrivateKey(account: .init(account: each)) {
+            switch exportPrivateKey(account: AlphaWallet.Address(address: each.address)) {
             case .success(let privateKey):
                 etherKeystore.importWallet(type: .privateKey(privateKey: privateKey), completion: { _ in })
             case .failure:
