@@ -131,7 +131,7 @@ extension SendCoordinator: SendViewControllerDelegate {
         coordinator.start()
     }
 
-    func didPressConfirm(transaction: UnconfirmedTransaction, transferType: TransferType, in viewController: SendViewController) {
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController) {
 
         let configurator = TransactionConfigurator(
             session: session,

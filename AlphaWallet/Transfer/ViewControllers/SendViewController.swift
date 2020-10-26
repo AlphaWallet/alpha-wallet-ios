@@ -10,11 +10,7 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(
-            transaction: UnconfirmedTransaction,
-            transferType: TransferType,
-            in viewController: SendViewController
-    )
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
@@ -305,7 +301,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 tokenIds: .none
         )
 
-        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
+        delegate?.didPressConfirm(transaction: transaction, in: self)
     }
 
     func activateAmountView() {
