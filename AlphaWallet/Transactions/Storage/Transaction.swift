@@ -86,7 +86,7 @@ extension Transaction {
 
 extension Transaction {
     static func from(from: AlphaWallet.Address, transaction: SentTransaction, tokensDataStore: TokensDataStore) -> Transaction {
-        let (operations: operations, isErc20Interaction: isErc20Interaction)  = decodeOperations(fromData: transaction.original.data, from: transaction.original.account.address, contractOrRecipient: transaction.original.to, tokensDataStore: tokensDataStore)
+        let (operations: operations, isErc20Interaction: isErc20Interaction)  = decodeOperations(fromData: transaction.original.data, from: transaction.original.account, contractOrRecipient: transaction.original.to, tokensDataStore: tokensDataStore)
         return Transaction(
                 id: transaction.id,
                 server: transaction.original.server,

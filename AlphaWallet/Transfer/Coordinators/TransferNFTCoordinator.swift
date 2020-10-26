@@ -15,7 +15,7 @@ class TransferNFTCoordinator: Coordinator {
     private let paymentFlow: PaymentFlow
     private let keystore: Keystore
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let viewController: UIViewController
     private var statusViewController: StatusViewController?
     private var status = StatusViewControllerViewModel.State.processing {
@@ -34,7 +34,7 @@ class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(tokenHolder: TokenHolder, walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: EthereumAccount, assetDefinitionStore: AssetDefinitionStore, on viewController: UIViewController) {
+    init(tokenHolder: TokenHolder, walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore, on viewController: UIViewController) {
         self.tokenHolder = tokenHolder
         self.walletAddress = walletAddress
         self.paymentFlow = paymentFlow

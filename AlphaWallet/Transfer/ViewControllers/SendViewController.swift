@@ -31,7 +31,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private var viewModel: SendViewModel
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private var data = Data()
@@ -64,7 +64,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     init(
             session: WalletSession,
             storage: TokensDataStore,
-            account: EthereumAccount,
+            account: AlphaWallet.Address,
             transferType: TransferType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore

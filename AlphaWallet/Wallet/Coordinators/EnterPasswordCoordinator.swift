@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 protocol EnterPasswordCoordinatorDelegate: class {
-    func didEnterPassword(password: String, account: EthereumAccount, in coordinator: EnterPasswordCoordinator)
+    func didEnterPassword(password: String, account: AlphaWallet.Address, in coordinator: EnterPasswordCoordinator)
     func didCancel(in coordinator: EnterPasswordCoordinator)
 }
 
@@ -15,7 +15,7 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
         controller.configure()
         return controller
     }()
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -23,7 +23,7 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
 
     init(
         navigationController: UINavigationController = UINavigationController(),
-        account: EthereumAccount
+        account: AlphaWallet.Address
     ) {
         self.navigationController = navigationController
         self.account = account
@@ -60,7 +60,7 @@ extension EnterPasswordCoordinator: KeystoreBackupIntroductionViewControllerDele
 }
 
 extension EnterPasswordCoordinator: EnterPasswordViewControllerDelegate {
-    func didEnterPassword(password: String, for account: EthereumAccount, inViewController viewController: EnterPasswordViewController) {
+    func didEnterPassword(password: String, for account: AlphaWallet.Address, inViewController viewController: EnterPasswordViewController) {
         delegate?.didEnterPassword(password: password, account: account, in: self)
     }
 }

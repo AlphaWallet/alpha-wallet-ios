@@ -634,7 +634,7 @@ class InCoordinator: NSObject, Coordinator {
             switch result {
             case .success(let payload):
                 let session = strongSelf.walletSessions[server]
-                let account = try! EtherKeystore(analyticsCoordinator: strongSelf.analyticsCoordinator).getAccount(for: wallet.address)!
+                let account = wallet.address
                 TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
                     //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
                     let transactionToSign = UnsignedTransaction(

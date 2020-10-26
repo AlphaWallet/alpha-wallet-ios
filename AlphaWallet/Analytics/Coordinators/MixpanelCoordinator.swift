@@ -44,8 +44,8 @@ class MixpanelCoordinator: Coordinator {
             return url
         case let address as AlphaWallet.Address:
             return address.eip55String
-        case let address as EthereumAccount:
-            return address.address.eip55String
+        case let address as AlphaWallet.Address:
+            return address.eip55String
 
         default:
             return nil

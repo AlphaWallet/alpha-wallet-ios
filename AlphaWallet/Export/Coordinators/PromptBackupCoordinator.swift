@@ -376,7 +376,7 @@ extension PromptBackupCoordinator: PromptBackupWalletViewDelegate {
 
     func didChooseBackup(inView view: PromptBackupWalletView) {
         guard let nc = viewControllerToShowBackupLaterAlert(forView: view)?.navigationController else { return }
-        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: .init(address: wallet.address), analyticsCoordinator: analyticsCoordinator)
+        let coordinator = BackupCoordinator(navigationController: nc, keystore: keystore, account: wallet.address, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -388,7 +388,7 @@ extension PromptBackupCoordinator: BackupCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+    func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
         markBackupDone()
         showHideCurrentPrompt()

@@ -13,7 +13,7 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 class SendCoordinator: Coordinator {
     private let transferType: TransferType
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
@@ -35,7 +35,7 @@ class SendCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
-            account: EthereumAccount,
+            account: AlphaWallet.Address,
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,

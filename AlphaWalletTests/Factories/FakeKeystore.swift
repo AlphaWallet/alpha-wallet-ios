@@ -45,7 +45,7 @@ struct FakeKeystore: Keystore {
         self.assumeAllWalletsType = assumeAllWalletsType
     }
 
-    func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: EthereumAccount, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
+    func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
     }
 
     func isHdWallet(wallet: Wallet) -> Bool {
@@ -70,7 +70,7 @@ struct FakeKeystore: Keystore {
         return false
     }
 
-    func isProtectedByUserPresence(account: EthereumAccount) -> Bool {
+    func isProtectedByUserPresence(account: AlphaWallet.Address) -> Bool {
         return false
     }
 
@@ -81,7 +81,7 @@ struct FakeKeystore: Keystore {
         .failure(KeystoreError.failedToSignTransaction)
     }
 
-    func isHdWallet(account: EthereumAccount) -> Bool {
+    func isHdWallet(account: AlphaWallet.Address) -> Bool {
         switch assumeAllWalletsType {
         case .hdWallet:
             return true
@@ -90,15 +90,15 @@ struct FakeKeystore: Keystore {
         }
     }
 
-    func signHash(_ data: Data, for account: EthereumAccount) -> Result<Data, KeystoreError> {
+    func signHash(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         return .failure(KeystoreError.failedToSignMessage)
     }
 
-    func signPersonalMessage(_ data: Data, for account: EthereumAccount) -> Result<Data, KeystoreError> {
+    func signPersonalMessage(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         return .failure(KeystoreError.failedToSignTransaction)
     }
 
-    func signMessage(_ data: Data, for account: EthereumAccount) -> Result<Data, KeystoreError> {
+    func signMessage(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         return .failure(KeystoreError.failedToSignMessage)
     }
 
@@ -106,25 +106,25 @@ struct FakeKeystore: Keystore {
         return .failure(KeystoreError.failedToSignTransaction)
     }
 
-    func signTypedMessage(_ datas: [EthTypedData], for account: EthereumAccount) -> Result<Data, KeystoreError> {
+    func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         return .failure(KeystoreError.failedToSignMessage)
     }
 
-    func createAccount(completion: @escaping (Result<EthereumAccount, KeystoreError>) -> Void) {
+    func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {
     }
 
-    func createAccount() -> Result<EthereumAccount, KeystoreError> {
+    func createAccount() -> Result<AlphaWallet.Address, KeystoreError> {
         return .success(.make())
     }
 
-    func elevateSecurity(forAccount account: EthereumAccount) -> Bool {
+    func elevateSecurity(forAccount account: AlphaWallet.Address) -> Bool {
         return false
     }
 
-    func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 
-    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 }
 

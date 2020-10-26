@@ -10,7 +10,7 @@ import PromiseKit
 
 public struct PreviewTransaction {
     let value: BigInt
-    let account: EthereumAccount
+    let account: AlphaWallet.Address
     let address: AlphaWallet.Address?
     let contract: AlphaWallet.Address?
     let nonce: Int
@@ -22,7 +22,7 @@ public struct PreviewTransaction {
 
 class TransactionConfigurator {
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private lazy var calculatedGasPrice: BigInt = {
         switch session.server {
         case .xDai:
@@ -53,7 +53,7 @@ class TransactionConfigurator {
 
     init(
         session: WalletSession,
-        account: EthereumAccount,
+        account: AlphaWallet.Address,
         transaction: UnconfirmedTransaction
     ) {
         self.session = session
@@ -253,7 +253,7 @@ class TransactionConfigurator {
                     parameters = [TrustKeystore.Address(address: transaction.to!), BigUInt(transaction.tokenId!)!]
                 } else {
                     function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256)])
-                    parameters = [TrustKeystore.Address(address: self.account.address), TrustKeystore.Address(address: transaction.to!), BigUInt(transaction.tokenId!)!]
+                    parameters = [TrustKeystore.Address(address: account), TrustKeystore.Address(address: transaction.to!), BigUInt(transaction.tokenId!)!]
                 }
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)

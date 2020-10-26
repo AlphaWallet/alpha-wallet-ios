@@ -217,7 +217,7 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 		removeCoordinator(coordinator)
 	}
 
-	func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+	func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
 		promptBackupCoordinator.markBackupDone()
 		promptBackupCoordinator.showHideCurrentPrompt()
 		removeCoordinator(coordinator)

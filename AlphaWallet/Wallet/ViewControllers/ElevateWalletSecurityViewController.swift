@@ -9,7 +9,7 @@ protocol ElevateWalletSecurityViewControllerDelegate: class {
 
 class ElevateWalletSecurityViewController: UIViewController {
     private let keystore: Keystore
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     lazy private var viewModel = ElevateWalletSecurityViewModel(isHdWallet: keystore.isHdWallet(account: account))
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
@@ -28,7 +28,7 @@ class ElevateWalletSecurityViewController: UIViewController {
 
     weak var delegate: ElevateWalletSecurityViewControllerDelegate?
 
-    init(keystore: Keystore, account: EthereumAccount) {
+    init(keystore: Keystore, account: AlphaWallet.Address) {
         self.keystore = keystore
         self.account = account
         super.init(nibName: nil, bundle: nil)

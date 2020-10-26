@@ -10,7 +10,7 @@ protocol ConfirmCoordinatorDelegate: class {
 
 class ConfirmCoordinator: Coordinator {
     private let session: WalletSession
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let keystore: Keystore
     private let configurator: TransactionConfigurator
     private let type: ConfirmType
@@ -25,7 +25,7 @@ class ConfirmCoordinator: Coordinator {
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
-        account: EthereumAccount,
+        account: AlphaWallet.Address,
         type: ConfirmType
     ) {
         self.navigationController = navigationController

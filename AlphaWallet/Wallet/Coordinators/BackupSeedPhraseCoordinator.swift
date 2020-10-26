@@ -5,8 +5,8 @@ import LocalAuthentication
 import UIKit
 
 protocol BackupSeedPhraseCoordinatorDelegate: class {
-    func didClose(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator)
-    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator)
+    func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator)
+    func didVerifySeedPhraseSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator)
 }
 
 class BackupSeedPhraseCoordinator: Coordinator {
@@ -22,7 +22,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     private lazy var verifySeedPhraseViewController: VerifySeedPhraseViewController = {
         return createVerifySeedPhraseViewController()
     }()
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let analyticsCoordinator: AnalyticsCoordinator?
     private let keystore: Keystore
     private var _context: LAContext?
@@ -49,7 +49,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: BackupSeedPhraseCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: EthereumAccount, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator?) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -119,14 +119,14 @@ extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
         return context
     }
 
-    func didTapTestSeedPhrase(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
+    func didTapTestSeedPhrase(for account: AlphaWallet.Address, inViewController viewController: ShowSeedPhraseViewController) {
         //Important to re-create it because we want to make sure the seed phrase display state etc are correct
         verifySeedPhraseViewController = createVerifySeedPhraseViewController()
         verifySeedPhraseViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(verifySeedPhraseViewController, animated: true)
     }
 
-    func biometricsFailed(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
+    func biometricsFailed(for account: AlphaWallet.Address, inViewController viewController: ShowSeedPhraseViewController) {
         clearContext()
     }
 }
@@ -139,7 +139,7 @@ extension BackupSeedPhraseCoordinator: SeedPhraseBackupIntroductionViewControlle
         navigationController.pushViewController(showSeedPhraseViewController, animated: true)
     }
 
-    func didClose(for account: EthereumAccount, inViewController viewController: SeedPhraseBackupIntroductionViewController) {
+    func didClose(for account: AlphaWallet.Address, inViewController viewController: SeedPhraseBackupIntroductionViewController) {
         delegate?.didClose(forAccount: account, inCoordinator: self)
     }
 }
@@ -149,11 +149,11 @@ extension BackupSeedPhraseCoordinator: VerifySeedPhraseViewControllerDelegate {
         return context
     }
 
-    func didVerifySeedPhraseSuccessfully(for account: EthereumAccount, in viewController: VerifySeedPhraseViewController) {
+    func didVerifySeedPhraseSuccessfully(for account: AlphaWallet.Address, in viewController: VerifySeedPhraseViewController) {
         delegate?.didVerifySeedPhraseSuccessfully(forAccount: account, inCoordinator: self)
     }
 
-    func biometricsFailed(for account: EthereumAccount, inViewController viewController: VerifySeedPhraseViewController) {
+    func biometricsFailed(for account: AlphaWallet.Address, inViewController viewController: VerifySeedPhraseViewController) {
         clearContext()
     }
 }

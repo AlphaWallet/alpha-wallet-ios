@@ -23,6 +23,3 @@ extension URL: AnalyticsEventPropertyValue {
 }
 extension AlphaWallet.Address: AnalyticsEventPropertyValue {
 }
-extension EthereumAccount: AnalyticsEventPropertyValue {
-}
-
