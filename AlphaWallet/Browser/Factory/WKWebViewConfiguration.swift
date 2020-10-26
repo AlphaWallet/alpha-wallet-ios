@@ -54,14 +54,6 @@ extension WKWebViewConfiguration {
             break
         case .tokenScriptRenderer:
             //TODO enable content blocking rules to support whitelisting
-//            let json = contentBlockingRulesJson()
-//            WKContentRuleListStore.default().compileContentRuleList(forIdentifier: "ContentBlockingRules", encodedContentRuleList: json) { (contentRuleList, error) in
-//                guard let contentRuleList = contentRuleList,
-//                      error == nil else {
-//                    return
-//                }
-//                webViewConfig.userContentController.add(contentRuleList)
-//            }
             webViewConfig.setURLSchemeHandler(webViewConfig, forURLScheme: "tokenscript-resource")
         }
 
