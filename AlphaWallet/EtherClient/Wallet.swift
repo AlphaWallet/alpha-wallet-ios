@@ -3,7 +3,7 @@
 import Foundation
 
 enum WalletType: Equatable {
-    case real(EthereumAccount)
+    case real(AlphaWallet.Address)
     case watch(AlphaWallet.Address)
 }
 
@@ -13,12 +13,12 @@ struct Wallet: Equatable {
     var address: AlphaWallet.Address {
         switch type {
         case .real(let account):
-            return account.address
+            return account
         case .watch(let address):
             return address
         }
     }
-    
+
     var allowBackup: Bool {
         switch type {
         case .real:

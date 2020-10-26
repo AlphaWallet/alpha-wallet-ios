@@ -6,19 +6,19 @@ import Result
 
 protocol BackupCoordinatorDelegate: class {
     func didCancel(coordinator: BackupCoordinator)
-    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator)
+    func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator)
 }
 
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
-    private let account: EthereumAccount
+    private let account: AlphaWallet.Address
     private let analyticsCoordinator: AnalyticsCoordinator?
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: EthereumAccount, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator?) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -39,7 +39,7 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func presentActivityViewController(for account: EthereumAccount, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func presentActivityViewController(for account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
@@ -52,7 +52,7 @@ class BackupCoordinator: Coordinator {
     private func handleExport(result: (Result<String, KeystoreError>), completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
-            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
+            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.eip55String).json"))
             do {
                 try value.data(using: .utf8)!.write(to: url)
             } catch {
@@ -82,7 +82,7 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func presentShareActivity(for account: EthereumAccount, newPassword: String ) {
+    private func presentShareActivity(for account: AlphaWallet.Address, newPassword: String ) {
         presentActivityViewController(for: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -172,27 +172,27 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didEnterPassword(password: String, account: EthereumAccount, in coordinator: EnterPasswordCoordinator) {
+    func didEnterPassword(password: String, account: AlphaWallet.Address, in coordinator: EnterPasswordCoordinator) {
         presentShareActivity(for: account, newPassword: password)
     }
 }
 
 extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
-    func didClose(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
+    func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         removeCoordinator(coordinator)
     }
 
-    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
+    func didVerifySeedPhraseSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         promptElevateSecurityOrEnd()
     }
 }
 
 extension BackupCoordinator: ElevateWalletSecurityCoordinatorDelegate {
-    func didLockWalletSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
+    func didLockWalletSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
         cleanUpAfterBackupAndPromptedToElevateSecurity()
     }
 
-    func didCancelLock(forAccount account: EthereumAccount, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
+    func didCancelLock(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
         cleanUpAfterBackupAndPromptedToElevateSecurity()
     }
 }
