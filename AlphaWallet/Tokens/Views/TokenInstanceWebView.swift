@@ -480,7 +480,7 @@ extension TokenInstanceWebView {
         }
     }
 
-    func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
+    func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
 
         //TODO pass in keystore

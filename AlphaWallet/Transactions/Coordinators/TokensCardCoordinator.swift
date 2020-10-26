@@ -312,8 +312,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let orders = [order]
         let address = keystore.currentWallet.address
         let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
-        let account = etherKeystore.getAccount(for: address)
-        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
@@ -339,8 +338,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let orders = [order]
         let address = keystore.currentWallet.address
         let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
-        let account = etherKeystore.getAccount(for: address)
-        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 

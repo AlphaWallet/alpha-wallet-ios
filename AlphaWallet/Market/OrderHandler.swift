@@ -55,7 +55,7 @@ public class OrderHandler {
         self.keystore = keystore
     }
 
-    func signOrders(orders: [Order], account: EthereumAccount, tokenType: TokenType) throws -> [SignedOrder] {
+    func signOrders(orders: [Order], account: AlphaWallet.Address, tokenType: TokenType) throws -> [SignedOrder] {
         let messages = createMessagesFromOrders(orders: orders, tokenType: tokenType)
         return try! bulkSignOrders(messages: messages, account: account, orders: orders)
     }
@@ -89,7 +89,7 @@ public class OrderHandler {
         return messages
     }
 
-    private func bulkSignOrders(messages: [Data], account: EthereumAccount, orders: [Order]) throws -> [SignedOrder] {
+    private func bulkSignOrders(messages: [Data], account: AlphaWallet.Address, orders: [Order]) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
         let signatures = try! keystore.signMessageBulk(messages, for: account).dematerialize()
         for i in 0..<signatures.count {
