@@ -8,7 +8,7 @@ enum TransactionError: Error {
 }
 
 protocol TransactionDataCoordinatorDelegate: class {
-    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t)
+    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t, reloadImmediately: Bool)
 }
 
 class TransactionDataCoordinator: Coordinator {
@@ -75,7 +75,7 @@ class TransactionDataCoordinator: Coordinator {
         //Since start() is called at launch, and user don't see the Transactions tab immediately, we don't want it to block launching
         DispatchQueue.global().async {
             DispatchQueue.main.async { [weak self] in
-                self?.handleUpdateItems()
+                self?.handleUpdateItems(reloadImmediately: false)
             }
         }
     }
@@ -106,9 +106,11 @@ class TransactionDataCoordinator: Coordinator {
 
     func addSentTransaction(_ transaction: SentTransaction) {
         let session = sessions[transaction.original.server]
-        let transaction = SentTransaction.from(from: session.account.address, transaction: transaction)
+
+        let tokensDataStore = tokensStorages[transaction.original.server]
+        let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
         transactionCollection.add([transaction])
-        handleUpdateItems()
+        handleUpdateItems(reloadImmediately: true)
     }
 
     func stop() {
@@ -121,14 +123,14 @@ class TransactionDataCoordinator: Coordinator {
         return singleChainTransactionDataCoordinators.first { $0.isServer(server) }
     }
 
-    private func handleUpdateItems() {
-        delegate?.didUpdate(result: .success(transactionCollection.objects))
-        delegate2?.didUpdate(result: .success(transactionCollection.objects))
+    private func handleUpdateItems(reloadImmediately: Bool) {
+        delegate?.didUpdate(result: .success(transactionCollection.objects), reloadImmediately: reloadImmediately)
+        delegate2?.didUpdate(result: .success(transactionCollection.objects), reloadImmediately: reloadImmediately)
     }
 }
 
 extension TransactionDataCoordinator: SingleChainTransactionDataCoordinatorDelegate {
     func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator) {
-        handleUpdateItems()
+        handleUpdateItems(reloadImmediately: false)
     }
 }
