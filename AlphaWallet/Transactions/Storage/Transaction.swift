@@ -114,7 +114,7 @@ extension Transaction {
                 interfaceHash: "a9059cbb",
                 byteCount: 68
         )
-        if data[0..<4].hex() == erc20Transfer.interfaceHash && data.count == erc20Transfer.byteCount, let contract = contractOrRecipient, let value = BigUInt(data[(4 + 32)..<(4 + 32 + 32)].hex(), radix: 16), let token = tokensDataStore.token(forContract: contract) {
+        if data.count == erc20Transfer.byteCount && data[0..<4].hex() == erc20Transfer.interfaceHash, let contract = contractOrRecipient, let value = BigUInt(data[(4 + 32)..<(4 + 32 + 32)].hex(), radix: 16), let token = tokensDataStore.token(forContract: contract) {
             //Compiler thinks it's a `Slice<Data>` if don't explicitly state the type, so we have to split into 2 `if`s
             let recipientData: Data = data[4..<(4 + 32)][4 + 12..<(4 + 32)]
             if let recipient = AlphaWallet.Address(string: recipientData.hexEncoded) {
