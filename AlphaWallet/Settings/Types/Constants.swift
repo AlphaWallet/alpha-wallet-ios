@@ -94,6 +94,7 @@ public struct Constants {
     public static let artisTau1NetworkCoreAPIErc20Events = "https://explorer.tau1.artis.network/api?module=account&action=tokentx&address="
 
     //etherscan-compatible contract details web page
+    public static let mainnetEtherscanTokenDetailsWebPageURL = "https://cn.etherscan.com/token/"
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://cn.etherscan.com/address/"
     public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
