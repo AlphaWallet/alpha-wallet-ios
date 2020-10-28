@@ -3,7 +3,7 @@
 import BigInt
 import Foundation
 
-struct PendingTransaction: Decodable {
+struct PendingTransaction {
     let blockHash: String
     let blockNumber: String
     let from: String
