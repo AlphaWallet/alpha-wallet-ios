@@ -772,7 +772,7 @@ extension InCoordinator: CanOpenURL {
             let url = server.etherscanContractDetailsWebPageURL(for: wallet.address)
             open(url: url, in: viewController)
         } else {
-            let url = server.etherscanContractDetailsWebPageURL(for: contract)
+            let url = server.etherscanTokenDetailsWebPageURL(for: contract)
             open(url: url, in: viewController)
         }
     }
