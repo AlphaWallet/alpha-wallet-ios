@@ -134,6 +134,16 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //We assume that only Etherscan supports this and only for Ethereum mainnet: The token page instead of contract page
+    var etherscanTokenDetailsWebPageURL: String {
+        switch self {
+        case .main:
+            return Constants.mainnetEtherscanTokenDetailsWebPageURL
+        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+            return etherscanContractDetailsWebPageURL
+        }
+    }
+
     func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          getEtherscanURL.flatMap {
              var url = "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)"
@@ -156,6 +166,10 @@ enum RPCServer: Hashable, CaseIterable {
 
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
         return URL(string: etherscanContractDetailsWebPageURL + address.eip55String)!
+    }
+
+    func etherscanTokenDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
+        return URL(string: etherscanTokenDetailsWebPageURL + address.eip55String)!
     }
 
     var priceID: AlphaWallet.Address {
