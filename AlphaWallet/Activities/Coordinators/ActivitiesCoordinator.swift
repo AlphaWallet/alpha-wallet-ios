@@ -72,7 +72,7 @@ class ActivitiesCoordinator: Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel()
-        let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions)
+        let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions, tokensStorages: tokensStorages)
         controller.delegate = self
         return controller
     }
