@@ -118,7 +118,7 @@ extension Transaction {
             //Compiler thinks it's a `Slice<Data>` if don't explicitly state the type, so we have to split into 2 `if`s
             let recipientData: Data = data[4..<(4 + 32)][4 + 12..<(4 + 32)]
             if let recipient = AlphaWallet.Address(string: recipientData.hexEncoded) {
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: "erc20TokenTransfer", value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             }
         }
         return (operations: .init(), isErc20Interaction: false)
