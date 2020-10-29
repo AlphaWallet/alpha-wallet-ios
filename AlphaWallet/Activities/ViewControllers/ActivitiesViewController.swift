@@ -13,15 +13,17 @@ class ActivitiesViewController: UIViewController {
     private var viewModel: ActivitiesViewModel
     private let wallet: AlphaWallet.Address
     private let sessions: ServerDictionary<WalletSession>
+    private let tokensStorages: ServerDictionary<TokensDataStore>
     private let tableView = UITableView(frame: .zero, style: .grouped)
 
     var paymentType: PaymentFlow?
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>) {
+    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>, tokensStorages: ServerDictionary<TokensDataStore>) {
         self.viewModel = viewModel
         self.wallet = wallet
         self.sessions = sessions
+        self.tokensStorages = tokensStorages
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.activityTabbarItemTitle()
@@ -85,7 +87,28 @@ class ActivitiesViewController: UIViewController {
         return container
     }
 
-    private func createPseudoActivity(fromTransaction transaction: Transaction) -> Activity {
+    private func createPseudoActivity(fromTransaction transaction: Transaction) -> Activity? {
+        let token: TokenObject
+        if transaction.operation == nil {
+            token = TokensDataStore.etherToken(forServer: transaction.server)
+        } else {
+            let tokenPendingTransfer: TokenObject?
+            switch (transaction.state, transaction.operation?.operationType) {
+            case (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
+                tokenPendingTransfer = transaction.operation?.contractAddress.flatMap { tokensStorages[transaction.server].token(forContract: $0) }
+                    //Explicitly listing out combinations so future changes to enums will be caught by compiler
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .unknown), (.pending, nil):
+                tokenPendingTransfer = nil
+            case (.unknown, _), (.error, _), (.failed, _), (.completed, _):
+                tokenPendingTransfer = nil
+            }
+            if let t = tokenPendingTransfer {
+                token = t
+            } else {
+                return nil
+            }
+        }
+
         let activityName: String
         if wallet.sameContract(as: transaction.from) {
             activityName = "sent"
@@ -94,15 +117,27 @@ class ActivitiesViewController: UIViewController {
         }
         var cardAttributes = [AttributeId: AssetInternalValue]()
         cardAttributes["symbol"] = .string(transaction.server.symbol)
-        if let value = BigUInt(transaction.value) {
+
+        if let operation = transaction.operation, let symbol = operation.symbol, let value = BigUInt(operation.value) {
             cardAttributes["amount"] = .uint(value)
+        } else {
+            if let value = BigUInt(transaction.value) {
+                cardAttributes["amount"] = .uint(value)
+            }
         }
-        if let value = AlphaWallet.Address(string: transaction.to) {
-            cardAttributes["to"] = .address(value)
-        }
+
         if let value = AlphaWallet.Address(string: transaction.from) {
             cardAttributes["from"] = .address(value)
         }
+
+        if let toString = transaction.operation?.to, let to = AlphaWallet.Address(string: toString) {
+            cardAttributes["to"] = .address(to)
+        } else {
+            if let value = AlphaWallet.Address(string: transaction.to) {
+                cardAttributes["to"] = .address(value)
+            }
+        }
+
         var timestamp: GeneralisedTime = .init()
         timestamp.date = transaction.date
         cardAttributes["timestamp"] = .generalisedTime(timestamp)
@@ -119,7 +154,7 @@ class ActivitiesViewController: UIViewController {
         return .init(
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transaction.blockNumber + 10000000,
-                tokenObject: TokensDataStore.etherToken(forServer: transaction.server),
+                tokenObject: token,
                 server: transaction.server,
                 name: activityName,
                 eventName: activityName,
@@ -152,9 +187,7 @@ extension ActivitiesViewController: UITableViewDelegate {
         case .activity(let activity):
             delegate?.didPressActivity(activity: activity, in: self)
         case .transaction(let transaction):
-            //ETH
-            if transaction.operation == nil {
-                let activity = createPseudoActivity(fromTransaction: transaction)
+            if let activity = createPseudoActivity(fromTransaction: transaction) {
                 delegate?.didPressActivity(activity: activity, in: self)
             } else {
                 delegate?.didPressTransaction(transaction: transaction, in: self)
@@ -191,9 +224,7 @@ extension ActivitiesViewController: UITableViewDataSource {
                 return cell
             }
         case .transaction(let transaction):
-            //ETH
-            if transaction.operation == nil {
-                let activity = createPseudoActivity(fromTransaction: transaction)
+            if let activity = createPseudoActivity(fromTransaction: transaction) {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
