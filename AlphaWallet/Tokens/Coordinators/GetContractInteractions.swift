@@ -34,7 +34,7 @@ class GetContractInteractions {
                                 from: transactionJson["from"].stringValue,
                                 to: transactionJson["to"].stringValue,
                                 contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                                type: "erc20TokenTransfer",
+                                type: OperationType.erc20TokenTransfer.rawValue,
                                 value: transactionJson["value"].stringValue,
                                 symbol: transactionJson["tokenSymbol"].stringValue,
                                 name: transactionJson["tokenName"].stringValue,
