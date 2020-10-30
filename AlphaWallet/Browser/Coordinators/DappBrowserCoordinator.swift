@@ -5,6 +5,7 @@ import UIKit
 import BigInt
 import RealmSwift
 import WebKit
+import Result
 
 protocol DappBrowserCoordinatorDelegate: class {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
@@ -140,53 +141,23 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     @objc func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
+        removeAllCoordinators()
+        navigationController.dismiss(animated: true)
     }
 
+    private enum PendingTransaction {
+        case none
+        case data(callbackID: Int)
+    }
+
+    private var pendingTransaction: PendingTransaction = .none
+
     private func executeTransaction(account: AlphaWallet.Address, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
-        let configurator = TransactionConfigurator(
-            session: session,
-            account: account,
-            transaction: transaction
-        )
-        let coordinator = ConfirmCoordinator(
-            session: session,
-            configurator: configurator,
-            keystore: keystore,
-            account: account,
-            type: type
-        )
+        pendingTransaction = .data(callbackID: callbackID)
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .dappTransaction(confirmType: type, keystore: keystore))
+        coordinator.delegate = self
         addCoordinator(coordinator)
-        coordinator.didCompleted = { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let type):
-                switch type {
-                case .signedTransaction(let data):
-                    let callback = DappCallback(id: callbackID, value: .signTransaction(data))
-                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-                    //TODO do we need to do this for a pending transaction?
-//                    strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
-                case .sentTransaction(let transaction):
-                    // on send transaction we pass transaction ID only.
-                    let data = Data(hex: transaction.id)
-                    let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
-                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-                    strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
-                }
-            case .failure:
-                strongSelf.browserViewController.notifyFinish(
-                        callbackID: callbackID,
-                        value: .failure(DAppError.cancelled)
-                )
-            }
-            coordinator.didCompleted = nil
-            strongSelf.removeCoordinator(coordinator)
-            strongSelf.navigationController.dismiss(animated: true, completion: nil)
-        }
         coordinator.start()
-        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 
     func open(url: URL, animated: Bool = true, forceReload: Bool = false) {
@@ -377,6 +348,66 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 }
 
+extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+
+            switch strongSelf.pendingTransaction {
+            case .data(let callbackID):
+                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+            case .none:
+                break
+            }
+
+            strongSelf.removeCoordinator(coordinator)
+            strongSelf.navigationController.dismiss(animated: true)
+        }
+    }
+
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        switch pendingTransaction {
+        case .data(let callbackID):
+            browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+        case .none:
+            break
+        }
+
+        removeCoordinator(coordinator)
+        navigationController.dismiss(animated: true)
+    }
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
+
+            switch (strongSelf.pendingTransaction, result) {
+            case (.data(let callbackID), .confirmationResult(let type)):
+                switch type {
+                case .signedTransaction(let data):
+                    let callback = DappCallback(id: callbackID, value: .signTransaction(data))
+                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+                    //TODO do we need to do this for a pending transaction?
+    //                    strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
+                case .sentTransaction(let transaction):
+                    // on send transaction we pass transaction ID only.
+                    let data = Data(hex: transaction.id)
+                    let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
+                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+
+                    delegate.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
+                }
+            case (.none, .noData), (.none, .confirmationResult), (.data, .noData):
+                break
+            }
+
+            strongSelf.removeCoordinator(coordinator)
+            strongSelf.navigationController.dismiss(animated: true)
+        }
+    }
+}
+
 extension DappBrowserCoordinator: BrowserViewControllerDelegate {
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
         guard case .real(let account) = session.account.type else {
@@ -431,14 +462,6 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 extension DappBrowserCoordinator: SignMessageCoordinatorDelegate {
     func didCancel(in coordinator: SignMessageCoordinator) {
         coordinator.didComplete = nil
-        removeCoordinator(coordinator)
-    }
-}
-
-extension DappBrowserCoordinator: ConfirmCoordinatorDelegate {
-    func didCancel(in coordinator: ConfirmCoordinator) {
-        navigationController.dismiss(animated: true, completion: nil)
-        coordinator.didCompleted = nil
         removeCoordinator(coordinator)
     }
 }

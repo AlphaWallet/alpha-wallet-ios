@@ -38,7 +38,7 @@ struct SendViewModel {
             return token
         case .ERC721ForTicketToken(let token):
             return token
-        case .dapp:
+        case .dapp, .tokenScript:
             return nil
         }
     }
@@ -73,7 +73,7 @@ struct SendViewModel {
                 return true
             }
             return false
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             return true
         }
     }
@@ -82,7 +82,7 @@ struct SendViewModel {
         switch transferType {
         case .nativeCryptocurrency, .ERC20Token:
             return false
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             return true
         }
     }
@@ -97,7 +97,7 @@ struct SendViewModel {
         case .ERC20Token(let token, _, _):
             let value = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transferType.symbol)")
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript:
             break
         }
 
@@ -111,7 +111,7 @@ struct SendViewModel {
         case .ERC20Token(let token, _, _):
             let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt
             return tokenBalance == nil
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript:
             break
         }
         return true
@@ -120,7 +120,7 @@ struct SendViewModel {
     func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
         let parsedValue: BigInt? = {
             switch transferType {
-            case .nativeCryptocurrency, .dapp:
+            case .nativeCryptocurrency, .dapp, .tokenScript:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -148,7 +148,7 @@ struct SendViewModel {
             if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
                 return nil
             }
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript:
             break
         }
 

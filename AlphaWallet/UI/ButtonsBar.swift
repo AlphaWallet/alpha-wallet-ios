@@ -66,7 +66,7 @@ enum ButtonsBarButtonType {
     case white
 }
 
-class BarButton: UIButton {
+class BarButton: TransitionButton {
 
     private var observation: NSKeyValueObservation?
     private var borderColorMap: [UInt: UIColor?] = [:]
@@ -74,7 +74,7 @@ class BarButton: UIButton {
 
     init() {
         super.init(frame: .zero)
-        self.observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
+        observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
             guard let strongSelf = self else { return }
 
             for pair in strongSelf.borderColorMap where pair.key == object.state.rawValue {
@@ -84,7 +84,7 @@ class BarButton: UIButton {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func setBorderColor(_ color: UIColor?, for state: UIControl.State) {

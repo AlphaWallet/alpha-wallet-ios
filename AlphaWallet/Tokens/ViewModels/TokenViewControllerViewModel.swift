@@ -19,7 +19,7 @@ struct TokenViewControllerViewModel {
             return TokensDataStore.etherToken(forServer: session.server)
         case .ERC20Token(let token, _, _):
             return token
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             return nil
         }
     }
@@ -107,7 +107,7 @@ struct TokenViewControllerViewModel {
             return string.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: session.server.decimals) }
         case .ERC20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             return nil
         }
     }
@@ -137,7 +137,7 @@ struct TokenViewControllerViewModel {
                         }})
                     .filter({ $0.operation?.contract.flatMap { token.contractAddress.sameContract(as: $0) } ?? false })
                     .prefix(3))
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             self.recentTransactions = []
         }
     }

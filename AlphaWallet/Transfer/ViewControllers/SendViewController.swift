@@ -10,12 +10,11 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController)
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
 
-// swiftlint:disable type_body_length
 class SendViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
@@ -30,7 +29,6 @@ class SendViewController: UIViewController {
     private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
-    private var data = Data()
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
@@ -244,7 +242,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
@@ -266,9 +264,8 @@ class SendViewController: UIViewController {
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
         let checkIfGreaterThanZero: Bool
-        // allow users to input zero on native transactions as they may want to send custom data
         switch transferType {
-        case .nativeCryptocurrency, .dapp:
+        case .nativeCryptocurrency, .dapp, .tokenScript:
             checkIfGreaterThanZero = false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             checkIfGreaterThanZero = true
@@ -277,30 +274,18 @@ class SendViewController: UIViewController {
             amountTextField.errorState = .error
             return
         }
-
-        guard let address = AlphaWallet.Address(string: input) else {
+        guard let recipient = AlphaWallet.Address(string: input) else {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
         }
-
         let transaction = UnconfirmedTransaction(
                 transferType: transferType,
                 value: value,
-                to: address,
-                data: data,
-                gasLimit: .none,
-                tokenId: .none,
-                gasPrice: .none,
-                nonce: .none,
-                v: .none,
-                r: .none,
-                s: .none,
-                expiry: .none,
-                indices: .none,
-                tokenIds: .none
+                recipient: recipient,
+                contract: transferType.contractForFungibleSend,
+                data: nil
         )
-
-        delegate?.didPressConfirm(transaction: transaction, in: self)
+        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)
     }
 
     func activateAmountView() {
@@ -325,7 +310,7 @@ class SendViewController: UIViewController {
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
             break
         }
     }
@@ -420,7 +405,7 @@ class SendViewController: UIViewController {
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }
@@ -428,7 +413,6 @@ class SendViewController: UIViewController {
         configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
-// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 

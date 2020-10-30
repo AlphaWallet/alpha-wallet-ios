@@ -4,6 +4,7 @@ import BigInt
 import Foundation
 import APIKit
 import JSONRPCKit
+import PromiseKit
 import Result
 
 class SendTransactionCoordinator {
@@ -24,7 +25,7 @@ class SendTransactionCoordinator {
 
     func send(
         transaction: UnsignedTransaction,
-        completion: @escaping (Result<ConfirmResult, AnyError>) -> Void
+        completion: @escaping (ResultResult<ConfirmResult, AnyError>.t) -> Void
     ) {
         if transaction.nonce >= 0 {
             signAndSend(transaction: transaction, completion: completion)
@@ -47,6 +48,19 @@ class SendTransactionCoordinator {
         }
     }
 
+    func send(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+        Promise { seal in
+            send(transaction: transaction) { result in
+                switch result {
+                case .success(let result):
+                    seal.fulfill(result)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
     private func appendNonce(to: UnsignedTransaction, currentNonce: Int) -> UnsignedTransaction {
         return UnsignedTransaction(
             value: to.value,
@@ -62,7 +76,7 @@ class SendTransactionCoordinator {
 
     func signAndSend(
         transaction: UnsignedTransaction,
-        completion: @escaping (Result<ConfirmResult, AnyError>) -> Void
+        completion: @escaping (ResultResult<ConfirmResult, AnyError>.t) -> Void
     ) {
         let signedTransaction = keystore.signTransaction(transaction)
         switch signedTransaction {
