@@ -18,6 +18,14 @@ extension UIViewController {
         present(alertController, animated: true, completion: nil)
     }
 
+    func displayError(message: String) {
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alertController.popoverPresentationController?.sourceView = view
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+
+        present(alertController, animated: true)
+    }
+
     func displayError(title: String = "", error: Error) {
         var title = title
         let message: String

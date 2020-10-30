@@ -8,7 +8,7 @@ import PromiseKit
 protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController)
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -189,34 +189,9 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             let contract = transactionFunction.originContractOrRecipientAddress
             let tokenId = strongSelf.tokenId
 
-            func notify(message: String) {
-                UIAlertController.alert(title: message,
-                    message: "",
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.default],
-                    viewController: strongSelf,
-                    completion: nil
-                )
-            }
-
-            func postTransaction() {
-                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {_ in
-                    strongSelf.delegate?.didCompleteTransaction(in: strongSelf)
-                }.catch { error in
-                    notify(message: "Transaction Failed")
-                }
-            }
-
             guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) != nil else { return }
 
-            guard let navigationController = strongSelf.navigationController else { return }
-
-            let viewModel = TransactionConfirmationViewModel(contract: contract)
-            let controller = TransactionConfirmationViewController(viewModel: viewModel)
-            controller.didCompleted = postTransaction
-
-            let transitionController = ConfirmationTransitionController(sourceViewController: navigationController, destinationViewController: controller)
-            transitionController.start()
+            strongSelf.delegate?.confirmTransactionSelected(in: strongSelf, tokenObject: strongSelf.tokenObject, contract: contract, tokenId: tokenId, values: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore, transactionFunction: transactionFunction)
 
         }.cauterize()
         //TODO catch

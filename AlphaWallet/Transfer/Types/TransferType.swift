@@ -34,6 +34,18 @@ enum TransferType {
     case ERC721Token(TokenObject)
     case ERC721ForTicketToken(TokenObject)
     case dapp(TokenObject, DAppRequester)
+    case tokenScript(TokenObject)
+
+    var contractForFungibleSend: AlphaWallet.Address? {
+        switch self {
+        case .nativeCryptocurrency:
+            return nil
+        case .ERC20Token(let token, _, _):
+            return token.contractAddress
+        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
+            return nil
+        }
+    }
 }
 
 extension TransferType {
@@ -42,7 +54,7 @@ extension TransferType {
         switch self {
         case .nativeCryptocurrency(let server, _, _):
             return server.symbol
-        case .dapp(let token, _):
+        case .dapp(let token, _), .tokenScript(let token):
             return token.symbol
         case .ERC20Token(let token, _, _):
             return token.symbol
@@ -61,7 +73,7 @@ extension TransferType {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return token
-        case .dapp(let token, _):
+        case .dapp(let token, _), .tokenScript(let token):
             return token
         case .ERC20Token(let token, _, _):
             return token
@@ -80,7 +92,7 @@ extension TransferType {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return token.server
-        case .dapp(let token, _):
+        case .dapp(let token, _), .tokenScript(let token):
             return token.server
         case .ERC20Token(let token, _, _):
             return token.server
@@ -109,7 +121,7 @@ extension TransferType {
             return token.contractAddress
         case .ERC721ForTicketToken(let token):
             return token.contractAddress
-        case .dapp(let token, _):
+        case .dapp(let token, _), .tokenScript(let token):
             return token.contractAddress
         }
     }

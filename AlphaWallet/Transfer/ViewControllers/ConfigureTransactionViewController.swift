@@ -1,209 +1,387 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
-import Eureka
 import BigInt
 
 protocol ConfigureTransactionViewControllerDelegate: class {
-    func didEdit(configuration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
+    func didSavedToUseDefaultConfiguration(in viewController: ConfigureTransactionViewController)
+    func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
 }
 
-class ConfigureTransactionViewController: FormViewController {
-    private let configuration: TransactionConfiguration
-    private let server: RPCServer
-    private let transferType: TransferType
-    private let currencyRate: CurrencyRate?
-    private let fullFormatter = EtherNumberFormatter.full
-
-    private struct Values {
-        static let gasPrice = "gasPrice"
-        static let gasLimit = "gasLimit"
-        static let nonce = "nonce"
-        static let totalFee = "totalFee"
-        static let data = "data"
+class ConfigureTransactionViewController: UIViewController {
+    private struct EditCell {
+        let gasLimit = SliderTableViewCell(style: .default, reuseIdentifier: nil)
+        let nonce = TextFieldTableViewCell(style: .default, reuseIdentifier: nil)
+        let totalFee = TextFieldTableViewCell(style: .default, reuseIdentifier: nil)
+        let data = TextFieldTableViewCell(style: .default, reuseIdentifier: nil)
+        let gasPrice = SliderTableViewCell(style: .default, reuseIdentifier: nil)
     }
 
-    private var gasPriceRow: SliderTextFieldRow? {
-        return form.rowBy(tag: Values.gasPrice) as? SliderTextFieldRow
-    }
-    private var gasLimitRow: SliderTextFieldRow? {
-        return form.rowBy(tag: Values.gasLimit) as? SliderTextFieldRow
-    }
-    private var nonceRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.nonce) as? TextFloatLabelRow
-    }
-    private var totalFeeRow: TextRow? {
-        return form.rowBy(tag: Values.totalFee) as? TextRow
-    }
-    private var dataRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.data) as? TextFloatLabelRow
-    }
-
-    private var gasLimit: BigInt {
-        return BigInt(String(Int(gasLimitRow?.value ?? 0)), radix: 10) ?? BigInt()
-    }
-    private var gasPrice: BigInt {
-        return fullFormatter.number(from: String(Int(gasPriceRow?.value ?? 1)), units: UnitConfiguration.gasPriceUnit) ?? BigInt()
-    }
-    private var nonceString: String {
-        return nonceRow?.value?.trimmed ?? ""
-    }
-    private var totalFee: BigInt {
-        return gasPrice * gasLimit
-    }
-    private var dataString: String {
-        return dataRow?.value ?? "0x"
-    }
-
-    private var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
-    }
-
-    lazy var viewModel: ConfigureTransactionViewModel = {
-        return ConfigureTransactionViewModel(
-            server: server,
-            transferType: transferType
-        )
-    }()
-
+    private let cells = EditCell()
+    private var viewModel: ConfigureTransactionViewModel
+    private let notificationCenter = NotificationCenter.default
+    private var lastSavedConfiguration: TransactionConfiguration
     weak var delegate: ConfigureTransactionViewControllerDelegate?
 
-    init(
-        configuration: TransactionConfiguration,
-        transferType: TransferType,
-        server: RPCServer,
-        currencyRate: CurrencyRate?
-    ) {
-        self.configuration = configuration
-        self.transferType = transferType
-        self.server = server
-        self.currencyRate = currencyRate
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(GasSpeedTableViewCell.self)
+        tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.separatorStyle = .none
+        tableView.allowsSelection = true
+
+        return tableView
+    }()
+
+    override func loadView() {
+        view = tableView
+    }
+
+    init(viewModel: ConfigureTransactionViewModel) {
+        self.viewModel = viewModel
+        self.lastSavedConfiguration = viewModel.configurationToEdit.configuration
 
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.title = viewModel.title
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.save(), style: .plain, target: self, action: #selector(save))
+        tableView.backgroundColor = viewModel.backgroundColor
+        navigationItem.rightBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        notificationCenter.removeObserver(self)
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let gasPriceGwei = EtherNumberFormatter.full.string(from: configuration.gasPrice, units: UnitConfiguration.gasPriceUnit)
+        tableView.delegate = self
+        tableView.dataSource = self
 
-        form = Section()
+        recalculateTotalFee()
+    }
 
-        +++ Section(
-            footer: viewModel.gasPriceFooterText
+    func configure(viewModel: ConfigureTransactionViewModel) {
+        self.viewModel = viewModel
+        recalculateTotalFee()
+        tableView.reloadData()
+    }
+
+    func configure(withEstimatedGasLimit value: BigInt) {
+        var updatedViewModel = viewModel
+        var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
+        guard configuration.gasLimit != value else { return }
+        configuration.setEstimated(gasLimit: value)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        viewModel = updatedViewModel
+        recalculateTotalFee()
+        tableView.reloadData()
+    }
+
+    func configure(withEstimatedGasPrice value: BigInt) {
+        var updatedViewModel = viewModel
+        var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
+        guard configuration.gasPrice != value else { return }
+        configuration.setEstimated(gasPrice: value)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        viewModel = updatedViewModel
+        recalculateTotalFee()
+        tableView.reloadData()
+    }
+
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let info = notification.userInfo else {
+            return
+        }
+
+        let endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        let duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        let curve = UIView.AnimationCurve(rawValue: (info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue)!
+        let bottom = endFrame.height - UIApplication.shared.bottomSafeAreaHeight
+
+        UIView.setAnimationCurve(curve)
+        UIView.animate(withDuration: duration, animations: {
+            self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottom, right: 0)
+            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
+        }, completion: { _ in
+
+        })
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let info = notification.userInfo else {
+            return
+        }
+
+        let duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        let curve = UIView.AnimationCurve(rawValue: (info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue)!
+
+        UIView.setAnimationCurve(curve)
+        UIView.animate(withDuration: duration, animations: {
+            self.tableView.contentInset = .zero
+            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
+        }, completion: { _ in
+
+        })
+    }
+
+    private func recalculateTotalFee() {
+        cells.totalFee.value = viewModel.gasViewModel.feeText
+    }
+
+    @objc private func saveButtonSelected(_ sender: UIBarButtonItem) {
+        guard let delegate = delegate else { return }
+
+        switch viewModel.selectedConfigurationType {
+        case .custom:
+            var canSave: Bool = true
+
+            if viewModel.configurationToEdit.isGasPriceValid {
+                cells.gasPrice.textField.status = .none
+            } else {
+                canSave = false
+                cells.gasPrice.textField.status = .error(ConfigureTransactionError.gasLimitTooLow.localizedDescription)
+            }
+
+            if viewModel.configurationToEdit.isGasLimitValid {
+                cells.gasLimit.textField.status = .none
+            } else {
+                canSave = false
+                cells.gasLimit.textField.status = .error(ConfigureTransactionError.gasLimitTooHigh.localizedDescription)
+            }
+
+            if viewModel.configurationToEdit.isTotalFeeValid {
+                cells.totalFee.textField.status = .none
+            } else {
+                canSave = false
+                cells.totalFee.textField.status = .error(ConfigureTransactionError.gasFeeTooHigh.localizedDescription)
+            }
+
+            if viewModel.configurationToEdit.isNonceValid {
+                cells.nonce.textField.status = .none
+            } else {
+                canSave = false
+                cells.nonce.textField.status = .error(ConfigureTransactionError.nonceNotPositiveNumber.localizedDescription)
+            }
+
+            guard canSave else {
+                tableView.reloadData()
+                return
+            }
+
+            let configuration = makeConfigureSuitableForSaving(from: viewModel.configurationToEdit.configuration)
+            delegate.didSaved(customConfiguration: configuration, in: self)
+        case .default:
+            delegate.didSavedToUseDefaultConfiguration(in: self)
+        }
+    }
+
+    private func makeConfigureSuitableForSaving(from configuration: TransactionConfiguration) -> TransactionConfiguration {
+        let hasUserAdjustedGasPrice = lastSavedConfiguration.hasUserAdjustedGasPrice || (lastSavedConfiguration.gasPrice != configuration.gasPrice)
+        let hasUserAdjustedGasLimit = lastSavedConfiguration.hasUserAdjustedGasLimit || (lastSavedConfiguration.gasLimit != configuration.gasLimit)
+        let newConfiguration = TransactionConfiguration(
+                gasPrice: configuration.gasPrice,
+                gasLimit: configuration.gasLimit,
+                data: configuration.data,
+                nonce: configuration.nonce,
+                hasUserAdjustedGasPrice: hasUserAdjustedGasPrice,
+                hasUserAdjustedGasLimit: hasUserAdjustedGasLimit
         )
+        lastSavedConfiguration = newConfiguration
+        return newConfiguration
+    }
+}
 
-        <<< SliderTextFieldRow(Values.gasPrice) {
-            $0.title = R.string.localizable.configureTransactionGasPriceGweiLabelTitle()
-            $0.value = Float(gasPriceGwei) ?? 1
-            $0.minimumValue = Float(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-            $0.maximumValue = Float(GasPriceConfiguration.maxPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-            $0.steps = UInt((GasPriceConfiguration.maxPrice / GasPriceConfiguration.minPrice))
-            $0.displayValueFor = { (rowValue: Float?) in
-                return "\(Int(rowValue ?? 1))"
+extension ConfigureTransactionViewController: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.sections.count
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.numberOfSections(in: section)
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch viewModel.sections[indexPath.section] {
+        case .configurationTypes:
+            let cell: GasSpeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
+
+            return cell
+        case .gasLimit:
+            switch viewModel.gasLimitRows[indexPath.row] {
+            case .gasLimit:
+                cells.gasLimit.configure(viewModel: viewModel.gasLimitSliderViewModel)
+                cells.gasLimit.delegate = self
+                cells.gasLimit.textField.inputAccessoryButtonType = .next
+
+                return cells.gasLimit
+            case .nonce:
+                cells.nonce.configure(viewModel: viewModel.nonceViewModel)
+                cells.nonce.textField.delegate = self
+                cells.nonce.textField.inputAccessoryButtonType = .next
+
+                return cells.nonce
+            case .totalFee:
+                cells.totalFee.configure(viewModel: viewModel.totalFeeViewModel)
+                cells.totalFee.textField.delegate = self
+                cells.totalFee.textField.inputAccessoryButtonType = .next
+
+                return cells.totalFee
+            case .transactionData:
+                cells.data.configure(viewModel: viewModel.dataViewModel)
+                cells.data.textField.delegate = self
+                cells.data.textField.inputAccessoryButtonType = .done
+
+                return cells.data
             }
-            $0.onChange { [unowned self] _ in
-                self.recalculateTotalFee()
-            }
+        case .gasPrice:
+            cells.gasPrice.configure(viewModel: viewModel.gasPriceSliderViewModel)
+            cells.gasPrice.delegate = self
+            cells.gasPrice.textField.inputAccessoryButtonType = .next
+
+            return cells.gasPrice
         }
+    }
+}
 
-        +++ Section(
-            footer: viewModel.gasLimitFooterText
-        )
+extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
 
-        <<< SliderTextFieldRow(Values.gasLimit) {
-            $0.title = R.string.localizable.configureTransactionGasLimitLabelTitle()
-            $0.value = Float(configuration.gasLimit.description) ?? Float(GasLimitConfiguration.minGasLimit)
-            $0.minimumValue = Float(GasLimitConfiguration.minGasLimit)
-            $0.maximumValue = Float(GasLimitConfiguration.maxGasLimit)
-            $0.steps = UInt((GasLimitConfiguration.maxGasLimit - GasLimitConfiguration.minGasLimit) / 1000)
-            $0.displayValueFor = { (rowValue: Float?) in
-                return "\(Int(rowValue ?? 1))"
-            }
-            $0.onChange { [unowned self] _ in
-                self.recalculateTotalFee()
-            }
-        }
+    func cell(_ cell: SliderTableViewCell, textDidChange value: Int) {
+        if cell == cells.gasLimit {
+            viewModel.configurationToEdit.gasLimitRawValue = value
+            viewModel.configurationToEdit.updateMaxGasLimitIfNeeded(value)
 
-        +++ Section()
+            cells.gasLimit.configureSliderRange(viewModel: viewModel.gasLimitSliderViewModel)
+        } else if cell == cells.gasPrice {
+            viewModel.configurationToEdit.updateMaxGasPriceIfNeeded(value)
+            viewModel.configurationToEdit.gasPriceRawValue = value
 
-        <<< AppFormAppearance.textFieldFloat(tag: Values.nonce) { [weak self] in
-            guard let strongSelf = self else { return }
-            $0.title = R.string.localizable.configureTransactionNonceLabelTitle()
-            $0.value = strongSelf.configuration.nonce.flatMap { String($0) }
-        }.cellUpdate { cell, row in
-            cell.textField.keyboardType = .numberPad
-        }
-
-        +++ Section {
-            $0.hidden = Eureka.Condition.function([], { [weak self] _ in
-                guard let strongSelf = self else { return true }
-                return strongSelf.viewModel.isDataInputHidden
-            })
-        }
-        <<< AppFormAppearance.textFieldFloat(tag: Values.data) { [weak self] in
-            guard let strongSelf = self else { return }
-            $0.title = R.string.localizable.configureTransactionDataLabelTitle()
-            $0.value = strongSelf.configuration.data.hexEncoded
-        }
-
-        +++ Section()
-
-        <<< TextRow(Values.totalFee) {
-            $0.title = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
-            $0.disabled = true
+            cells.gasPrice.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
         }
 
         recalculateTotalFee()
     }
 
-    func recalculateTotalFee() {
-        let feeAndSymbol = gasViewModel.feeText
-        totalFeeRow?.value = feeAndSymbol
-        totalFeeRow?.updateCell()
+    func cell(_ cell: SliderTableViewCell, valueDidChange value: Int) {
+        if cell == cells.gasLimit {
+            viewModel.configurationToEdit.gasLimitRawValue = value
+        } else if cell == cells.gasPrice {
+            viewModel.configurationToEdit.gasPriceRawValue = value
+        }
+
+        recalculateTotalFee()
+    }
+}
+
+extension ConfigureTransactionViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
     }
 
-    @objc func save() {
-        guard gasLimit <= ConfigureTransaction.gasLimitMax else {
-            return displayError(error: ConfigureTransactionError.gasLimitTooHigh)
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        switch viewModel.sections[section] {
+        case .configurationTypes:
+            return nil
+        case .gasPrice:
+            let view: GasSpeedTableViewHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.configure(viewModel: .init(title: viewModel.gasPriceHeaderTitle))
+
+            return view
+        case .gasLimit:
+            let view: GasSpeedTableViewHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.configure(viewModel: .init(title: viewModel.gasLimitHeaderTitle))
+
+            return view
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch viewModel.sections[section] {
+        case .configurationTypes:
+            return 0.01
+        case .gasLimit, .gasPrice:
+            return GasSpeedTableViewHeaderView.height
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.01
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch viewModel.sections[indexPath.section] {
+        case .configurationTypes:
+            viewModel.selectedConfigurationType = viewModel.configurationTypes[indexPath.row]
+        case .gasLimit, .gasPrice:
+            break
         }
 
-        guard totalFee <= ConfigureTransaction.gasFeeMax else {
-            return displayError(error: ConfigureTransactionError.gasFeeTooHigh)
+        tableView.reloadData()
+    }
+}
+
+extension ConfigureTransactionViewController: TextFieldDelegate {
+
+    func shouldReturn(in textField: TextField) -> Bool {
+        return true
+    }
+
+    func doneButtonTapped(for textField: TextField) {
+        view.endEditing(true)
+    }
+
+    func nextButtonTapped(for textField: TextField) {
+        if textField == cells.gasPrice.textField {
+            cells.gasLimit.textField.becomeFirstResponder()
+        } else if textField == cells.gasLimit.textField {
+            cells.nonce.textField.becomeFirstResponder()
+        } else if textField == cells.nonce.textField {
+            cells.data.textField.becomeFirstResponder()
+        }
+    }
+
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
+        let value = (textField.value as NSString).replacingCharacters(in: range, with: string)
+
+        if textField == cells.data.textField {
+            viewModel.configurationToEdit.dataRawValue = value
+        } else if textField == cells.nonce.textField {
+            viewModel.configurationToEdit.nonceRawValue = Int(value)
         }
 
-        if !nonceString.isEmpty {
-            guard let nonce = Int(nonceString), nonce >= 0 else {
-                return displayError(error: ConfigureTransactionError.nonceNotPositiveNumber)
-            }
-        }
+        return true
+    }
+}
 
-        let data: Data = {
-            if dataString.isEmpty {
-                return Data()
-            }
-            return Data(hex: dataString.drop0x)
-        }()
+extension UIBarButtonItem {
+    static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
+    }
 
-        let nonce: Int? = Int(nonceString)
-
-        let hasUserAdjustedGasPrice = self.configuration.hasUserAdjustedGasPrice || (self.configuration.gasPrice != gasPrice)
-        let hasUserAdjustedGasLimit = self.configuration.hasUserAdjustedGasLimit || (self.configuration.gasLimit != gasLimit)
-        let configuration = TransactionConfiguration(
-            gasPrice: gasPrice,
-            gasLimit: gasLimit,
-            data: data,
-            nonce: nonce,
-            hasUserAdjustedGasPrice: hasUserAdjustedGasPrice,
-            hasUserAdjustedGasLimit: hasUserAdjustedGasLimit
-        )
-        delegate?.didEdit(configuration: configuration, in: self)
+    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
     }
 }
