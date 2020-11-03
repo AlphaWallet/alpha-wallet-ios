@@ -109,13 +109,8 @@ private class TokenImageFetcher {
     }
 
     private func fetchFromAssetGitHubRepo(_ tokenObject: TokenObject) -> Promise<UIImage> {
-        Promise { seal in
-            let request = URLRequest(url: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/\(tokenObject.contractAddress.eip55String)/logo.png")!)
-            fetch(request: request).done { image in
-                seal.fulfill(image)
-            }.catch { error in
-                seal.reject(ImageAvailabilityError.notAvailable)
-            }
+        return GithubAssetsURLResolver().resolve(for: tokenObject).then { request -> Promise<UIImage> in
+            self.fetch(request: request)
         }
     }
 
@@ -134,6 +129,41 @@ private class TokenImageFetcher {
                 }
             }
             task.resume()
+        }
+    }
+}
+
+class GithubAssetsURLResolver {
+    static let file = "logo.png"
+
+    enum Source: String {
+        case testNetTokensSource = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
+        case allTokensSource = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
+    }
+
+    enum AnyError: Error {
+        case case1
+    }
+
+    func resolve(for tokenObject: TokenObject) -> Promise<URLRequest> {
+        let value = tokenObject.server.githubAssetsSource.rawValue + tokenObject.contractAddress.eip55String + "/" + GithubAssetsURLResolver.file
+
+        guard let url = URL(string: value) else {
+            return .init(error: AnyError.case1)
+        }
+        let request = URLRequest(url: url)
+        return .value(request)
+    }
+}
+
+fileprivate extension RPCServer {
+
+    var githubAssetsSource: GithubAssetsURLResolver.Source {
+        switch self {
+        case .rinkeby, .ropsten, .sokol, .kovan, .goerli:
+            return .testNetTokensSource
+        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+            return .allTokensSource
         }
     }
 }
