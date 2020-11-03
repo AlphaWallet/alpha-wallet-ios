@@ -26,17 +26,17 @@ private struct Layout {
 
 final class DappBrowserNavigationBar: UINavigationBar {
     private let stackView = UIStackView()
-    private let moreButton = UIButton()
+    private let moreButton = UIButton(type: .system)
     //Change server button is remove, for now to make browser more generic
     //TODO re-evaluate if we can put it back
-    private let changeServerButton = UIButton()
-    private let cancelEditingButton = UIButton()
-    private let closeButton = UIButton()
+    private let changeServerButton = UIButton(type: .system)
+    private let cancelEditingButton = UIButton(type: .system)
+    private let closeButton = UIButton(type: .system)
 
     private let textField = UITextField()
     private let domainNameLabel = UILabel()
-    private let backButton = UIButton()
-    private let forwardButton = UIButton()
+    private let backButton = UIButton(type: .system)
+    private let forwardButton = UIButton(type: .system)
     private var viewsToShowWhenNotEditing = [UIView]()
     private var viewsToShowWhenEditing = [UIView]()
     private var viewsToShowWhenBrowserOnly = [UIView]()
@@ -95,21 +95,28 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         domainNameLabel.isHidden = true
 
+        moreButton.tintColor = Colors.black
+        moreButton.adjustsImageWhenHighlighted = true
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
-        moreButton.addTarget(self, action: #selector(moreAction(_:)), for: .touchUpInside)
+        moreButton.addTarget(self, action: #selector(moreAction), for: .touchUpInside)
 
+        closeButton.tintColor = Colors.black
         closeButton.isHidden = true
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
         closeButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
-        closeButton.addTarget(self, action: #selector(closeAction(_:)), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
 
-        changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
+        changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
 
+        backButton.tintColor = Colors.black
+        backButton.adjustsImageWhenHighlighted = true
         backButton.setImage(R.image.toolbarBack(), for: .normal)
         backButton.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
 
+        forwardButton.tintColor = Colors.black
+        forwardButton.adjustsImageWhenHighlighted = true
         forwardButton.setImage(R.image.toolbarForward(), for: .normal)
         forwardButton.addTarget(self, action: #selector(goForwardAction), for: .touchUpInside)
 
@@ -167,7 +174,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure(server: RPCServer) {
