@@ -16,7 +16,7 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 }
 
 // swiftlint:disable type_body_length
-class SendViewController: UIViewController, CanScanQRCode {
+class SendViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let recipientHeader = SendViewSectionHeader()
