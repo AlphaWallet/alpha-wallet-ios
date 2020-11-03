@@ -9,7 +9,7 @@ protocol ImportWalletViewControllerDelegate: class {
 }
 
 // swiftlint:disable type_body_length
-class ImportWalletViewController: UIViewController, CanScanQRCode {
+class ImportWalletViewController: UIViewController {
     struct ValidationError: LocalizedError {
         var msg: String
         var errorDescription: String? {

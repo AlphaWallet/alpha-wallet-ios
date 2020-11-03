@@ -104,7 +104,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     init(
-            navigationController: UINavigationController = NavigationController(),
+            navigationController: UINavigationController = UINavigationController(),
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
