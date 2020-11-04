@@ -4,7 +4,7 @@ source 'https://cdn.cocoapods.org/'
 
 target 'AlphaWallet' do
   use_frameworks!
-  pod 'BigInt', '~> 3.0'
+  pod 'BigInt', '~> 3.1'
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
@@ -37,6 +37,7 @@ target 'AlphaWallet' do
   pod 'TrustWalletCore'
   pod 'AWSSNS'
   pod 'Mixpanel-swift'
+  pod 'UnstoppableDomainsResolution', '0.1.6'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
       inherit! :search_paths
