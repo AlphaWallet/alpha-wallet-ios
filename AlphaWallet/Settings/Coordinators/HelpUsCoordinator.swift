@@ -11,7 +11,7 @@ class HelpUsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     init(
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         appTracker: AppTracker = AppTracker()
     ) {
         self.navigationController = navigationController
@@ -39,7 +39,7 @@ class HelpUsCoordinator: Coordinator {
         controller.navigationItem.title = viewModel.title
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
         controller.delegate = self
-        let nav = NavigationController(rootViewController: controller)
+        let nav = UINavigationController(rootViewController: controller)
         nav.makePresentationFullScreenForiOS13Migration()
         navigationController.present(nav, animated: true, completion: nil)
     }

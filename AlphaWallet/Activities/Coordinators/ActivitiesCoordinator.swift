@@ -47,7 +47,7 @@ class ActivitiesCoordinator: Coordinator {
     init(
         config: Config,
         sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
         tokensStorages: ServerDictionary<TokensDataStore>,
         assetDefinitionStore: AssetDefinitionStore,
