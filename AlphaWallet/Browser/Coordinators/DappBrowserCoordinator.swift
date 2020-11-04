@@ -102,7 +102,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     var coordinators: [Coordinator] = []
-    let navigationController: NavigationController
+    let navigationController: UINavigationController
 
     lazy var rootViewController: DappsHomeViewController = {
         let vc = DappsHomeViewController(bookmarksStore: bookmarksStore)
@@ -119,7 +119,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         sharedRealm: Realm,
         browserOnly: Bool
     ) {
-        self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
+        self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
         self.keystore = keystore
         self.config = config

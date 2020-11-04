@@ -35,7 +35,7 @@ class TransactionCoordinator: Coordinator {
 
     init(
         sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         transactionsCollection: TransactionCollection,
         keystore: Keystore,
         tokensStorages: ServerDictionary<TokensDataStore>,

@@ -3,11 +3,7 @@
 import UIKit
 import AVFoundation
 
-protocol CanScanQRCode: class {
-    func promptUserOpenSettingsToChangeCameraPermission()
-}
-
-extension CanScanQRCode where Self: UIViewController {
+extension UIViewController {
     func ensureHasDeviceAuthorization() -> Bool {
         guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
             promptUserOpenSettingsToChangeCameraPermission()

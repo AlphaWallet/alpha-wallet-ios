@@ -8,7 +8,7 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController)
 }
 
-class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController, CanScanQRCode {
+class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let token: TokenObject
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()

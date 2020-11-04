@@ -44,7 +44,7 @@ class SettingsCoordinator: Coordinator {
     }()
 
 	init(
-			navigationController: UINavigationController = NavigationController(),
+			navigationController: UINavigationController = UINavigationController(),
 			keystore: Keystore,
 			config: Config,
 			sessions: ServerDictionary<WalletSession>,
