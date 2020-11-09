@@ -176,6 +176,8 @@ struct DefaultActivityCellViewModel {
             }
         case .pending:
             return R.image.activityPending()
+        case .failed:
+            return R.image.activityFailed()
         }
     }
 }
