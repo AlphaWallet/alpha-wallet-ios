@@ -214,7 +214,6 @@ class SendViewController: UIViewController {
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
-        amountTextField.currentPair = viewModel.amountTextFieldPair
         amountTextField.isAlternativeAmountEnabled = false
         amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
         amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden

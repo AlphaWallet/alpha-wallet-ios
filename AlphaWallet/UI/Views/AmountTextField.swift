@@ -78,32 +78,35 @@ class AmountTextField: UIControl {
     enum Currency {
         case cryptoCurrency(TokenObject)
         case usd
+    }
+
+    struct Pair {
+        var left: Currency
+        var right: Currency
+
+        mutating func swap() {
+            let currentLeft = left
+
+            left = right
+            right = currentLeft
+        }
+
+        var symbol: String {
+            switch left {
+            case .cryptoCurrency(let tokenObject):
+                return tokenObject.symbol
+            case .usd:
+                return Constants.Currency.usd
+            }
+        }
 
         var icon: Subscribable<TokenImage> {
-            switch self {
+            switch left {
             case .cryptoCurrency(let tokenObject):
                 return tokenObject.icon
             case .usd:
                 return .init((image: R.image.usaFlag()!, symbol: ""))
             }
-        }
-
-        var symbol: String {
-            switch self {
-            case .cryptoCurrency(let tokenObject):
-                return tokenObject.symbol
-            case .usd:
-                return "USD"
-            }
-        }
-    }
-
-    struct Pair {
-        let left: Currency
-        let right: Currency
-
-        func swapPair() -> Pair {
-            return Pair(left: right, right: left)
         }
     }
 
@@ -117,7 +120,7 @@ class AmountTextField: UIControl {
         textField.delegate = self
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
-        textField.inputAccessoryView = makeToolbarWithDoneButton()
+        textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
         textField.textColor = R.color.black()!
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
@@ -145,50 +148,112 @@ class AmountTextField: UIControl {
         return label
     }()
 
-    var cryptoToDollarRate: Double? = nil {
-        didSet {
-            if cryptoToDollarRate != nil {
-                updateAlternatePricingDisplay()
-            }
-            updateFiatButtonTitle()
-        }
-    }
+    //NOTE: Help to prevent recalculation for ethCostRawValue, dollarCostRawValue values, during recalculation we loose precission
+    private var cryptoToDollarRatePrevValue: Double?
+    //NOTE: Raw values for eth and collar values, to prevent recalculation it we store user entered eth and calculated dollarCostRawValue value and vice versa.
+    private var ethCostRawValue: Double?
+    private var dollarCostRawValue: Double?
+    private let cryptoCurrency: Currency
+    private var currentPair: Pair
 
-    var ethCost: String {
-        get {
-            switch currentPair.left {
-            case .cryptoCurrency:
-                return textField.text ?? "0"
-            case .usd:
-                return convertToAlternateAmount()
-            }
+    var cryptoToDollarRate: Double? = nil {
+        willSet {
+            cryptoToDollarRatePrevValue = cryptoToDollarRate
         }
-        set {
-            switch currentPair.left {
-            case .cryptoCurrency:
-                textField.text = newValue
-            case .usd:
-                if let amount = Double(newValue.withDecimalSeparatorReplacedByPeriod), let cryptoToDollarRate = cryptoToDollarRate {
-                    textField.text = String(amount * cryptoToDollarRate)
-                } else {
-                    textField.text = ""
+
+        didSet {
+            if let value = cryptoToDollarRate {
+                //NOTE: Make sure value has changed
+                if let prevValue = cryptoToDollarRatePrevValue, prevValue == value {
+                    return
                 }
+
+                switch currentPair.left {
+                case .cryptoCurrency:
+                    recalculate(amountValue: ethCostRawValue)
+                case .usd:
+                    recalculate(amountValue: dollarCostRawValue)
+                }
+
+                updateAlternatePricingDisplay()
+                update(selectCurrencyButton: selectCurrencyButton)
             }
-            updateAlternatePricingDisplay()
         }
     }
 
     var dollarCost: Double? {
-        switch currentPair.left {
-        case .cryptoCurrency:
-            return convertToAlternateAmountNumeric()
-        case .usd:
-            return Double(textFieldString() ?? "")
+        return dollarCostRawValue
+    }
+
+    var ethCost: String {
+        get {
+            return ethCostRawValue?.toString(decimal: 18) ?? "0"
+        }
+        set {
+            ethCostRawValue = newValue.optionalDoubleValue
+            recalculate(amountValue: newValue.optionalDoubleValue, for: cryptoCurrency)
+
+            switch currentPair.left {
+            case .cryptoCurrency:
+                textField.text = formatValueToDisplayValue(ethCostRawValue)
+            case .usd:
+                textField.text = formatValueToDisplayValue(dollarCostRawValue)
+            }
+
+            updateAlternatePricingDisplay()
         }
     }
-    var currentPair: Pair {
-        didSet {
-            updateFiatButtonTitle()
+
+    ///Returns raw (calculated) value based on selected currency
+    private var alternativeAmount: Double? {
+        switch currentPair.left {
+        case .cryptoCurrency:
+            return dollarCostRawValue
+        case .usd:
+            return ethCostRawValue
+        }
+    }
+
+    ///Formats string value for display in text field.
+    private func formatValueToDisplayValue(_ value: Double?) -> String {
+        guard let amount = value else {
+            return String()
+        }
+
+        switch currentPair.left {
+        case .cryptoCurrency:
+            return StringFormatter().currency(with: amount, and: Constants.Currency.usd)
+        case .usd:
+            //NOTE: for values that greater then 0.01 threshold we use different formatters
+            if amount > 0.01 {
+                return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
+            } else {
+                return amount.toString(decimal: 18).droppedTrailingZeros
+            }
+        }
+    }
+
+    ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
+    private func recalculate(amountValue: Double?, for currencyToOverride: Currency? = nil) {
+        guard let cryptoToDollarRate = cryptoToDollarRate else {
+            return
+        }
+
+        switch currencyToOverride ?? currentPair.left {
+        case .cryptoCurrency:
+            if let amount = amountValue {
+                let value = amount * cryptoToDollarRate
+                dollarCostRawValue = value
+            } else {
+                dollarCostRawValue = nil
+            }
+        case .usd:
+            if let amount = amountValue {
+                let value = amount / cryptoToDollarRate
+                ethCostRawValue = value
+            } else {
+                ethCostRawValue = nil
+            }
         }
     }
 
@@ -263,13 +328,14 @@ class AmountTextField: UIControl {
     }()
 
     var currencySymbol: String {
-        currentPair.left.symbol
+        currentPair.symbol
     }
 
     weak var delegate: AmountTextFieldDelegate?
 
     init(tokenObject: TokenObject) {
-        currentPair = Pair(left: .cryptoCurrency(tokenObject), right: .usd)
+        cryptoCurrency = .cryptoCurrency(tokenObject)
+        currentPair = Pair(left: cryptoCurrency, right: .usd)
 
         super.init(frame: .zero)
 
@@ -280,7 +346,8 @@ class AmountTextField: UIControl {
         addSubview(stackView)
 
         errorState = .none
-        computeAlternateAmount()
+        updateAlternateAmountLabel(alternativeAmount)
+
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
         ])
@@ -288,51 +355,65 @@ class AmountTextField: UIControl {
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
     }
 
-    override func becomeFirstResponder() -> Bool {
+    private func updateAlternateAmountLabel(_ value: Double?) {
+        let amount = formatValueToDisplayValue(value)
+
+        if amount.isEmpty {
+            let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
+            alternativeAmountLabel.text = atLeastOneWhiteSpaceToKeepTextFieldHeight
+        } else {
+            switch currentPair.left {
+            case .cryptoCurrency:
+                alternativeAmountLabel.text = "~ \(amount) \(Constants.Currency.usd)"
+            case .usd:
+                switch currentPair.right {
+                case .cryptoCurrency(let tokenObject):
+                    alternativeAmountLabel.text = "~ \(amount) " + tokenObject.symbol
+                case .usd:
+                    break
+                }
+            }
+        }
+    }
+
+    @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
     }
 
     private func update(selectCurrencyButton button: SelectCurrencyButton) {
-        button.text = currentPair.left.symbol
-        button.tokenIcon = currentPair.left.icon
+        button.text = currentPair.symbol
+        button.tokenIcon = currentPair.icon
     }
 
-    @objc func fiatAction(button: UIButton) {
+    @objc private func fiatAction(button: UIButton) {
         guard cryptoToDollarRate != nil else { return }
 
-        let oldAlternateAmount = convertToAlternateAmount()
-        currentPair = currentPair.swapPair()
-        updateFiatButtonTitle()
+        let oldAlternateAmount = formatValueToDisplayValue(alternativeAmount)
+
+        togglePair()
+
         textField.text = oldAlternateAmount
-        computeAlternateAmount()
-        activateAmountView()
+
+        updateAlternateAmountLabel(alternativeAmount)
+
+        becomeFirstResponder()
         delegate?.changeType(in: self)
     }
 
-    private func updateFiatButtonTitle() {
+    private func updateAlternatePricingDisplay() {
+        updateAlternateAmountLabel(alternativeAmount)
+
+        delegate?.changeAmount(in: self)
+    }
+
+    func togglePair() {
+        currentPair.swap()
         update(selectCurrencyButton: selectCurrencyButton)
     }
 
-    private func activateAmountView() {
-        _ = becomeFirstResponder()
-    }
-
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func makeToolbarWithDoneButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let button = UIBarButtonItem(customView: inputAccessoryButton)
-        toolbar.items = [flexSpace, button]
-        toolbar.sizeToFit()
-
-        return toolbar
+        return nil
     }
 
     @objc func closeKeyboard() {
@@ -345,9 +426,51 @@ class AmountTextField: UIControl {
             endEditing(true)
         }
     }
+}
 
-    private func amountChanged(in range: NSRange, to string: String) -> Bool {
-        guard let input = textField.text else {
+extension AmountTextField: UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let delegate = delegate else { return true }
+        return delegate.shouldReturn(in: self)
+    }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard let enteredString = textField.stringReplacingCharacters(in: range, with: string) else { return false }
+
+        let allowChange = textField.amountChanged(in: range, to: string, allowedCharacters: allowedCharacters)
+        if allowChange {
+            //NOTE: Set raw value (ethCost, dollarCost) and recalculate alternative value
+            switch currentPair.left {
+            case .cryptoCurrency:
+                ethCostRawValue = enteredString.optionalDoubleValue
+
+                recalculate(amountValue: ethCostRawValue)
+            case .usd:
+                dollarCostRawValue = enteredString.optionalDoubleValue
+
+                recalculate(amountValue: dollarCostRawValue)
+            }
+
+            //We have to allow the text field the chance to update, so we have to use asyncAfter..
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+
+                strongSelf.updateAlternatePricingDisplay()
+            }
+        }
+        return allowChange
+    }
+}
+
+private extension UITextField {
+
+    func stringReplacingCharacters(in range: NSRange, with string: String) -> String? {
+        (text as NSString?)?.replacingCharacters(in: range, with: string)
+    }
+
+    func amountChanged(in range: NSRange, to string: String, allowedCharacters: String) -> Bool {
+        guard let input = text else {
             return true
         }
         //In this step we validate only allowed characters it is because of the iPad keyboard.
@@ -363,105 +486,98 @@ class AmountTextField: UIControl {
         }
         return true
     }
-
-    private func computeAlternateAmount() {
-        let amount = convertToAlternateAmount()
-        if amount.isEmpty {
-            let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
-            alternativeAmountLabel.text = atLeastOneWhiteSpaceToKeepTextFieldHeight
-        } else {
-            switch currentPair.left {
-            case .cryptoCurrency:
-                alternativeAmountLabel.text = "~ \(amount) USD"
-            case .usd:
-                switch currentPair.right {
-                case .cryptoCurrency:
-                    alternativeAmountLabel.text = "~ \(amount) " + currentPair.right.symbol
-                case .usd:
-                    break
-                }
-            }
-        }
-    }
-
-    private func convertToAlternateAmount() -> String {
-        if let cryptoToDollarRate = cryptoToDollarRate, let string = textFieldString(), let amount = Double(string) {
-            switch currentPair.left {
-            case .cryptoCurrency:
-                return StringFormatter().currency(with: amount * cryptoToDollarRate, and: "USD")
-            case .usd:
-                return (amount / cryptoToDollarRate).toString(decimal: 18)
-            }
-        } else {
-            return ""
-        }
-    }
-
-    private func convertToAlternateAmountNumeric() -> Double? {
-        if let cryptoToDollarRate = cryptoToDollarRate, let string = textFieldString(), let amount = Double(string) {
-            switch currentPair.left {
-            case .cryptoCurrency:
-                return amount * cryptoToDollarRate
-            case .usd:
-                return amount / cryptoToDollarRate
-            }
-        } else {
-            return nil
-        }
-    }
-
-    private func updateAlternatePricingDisplay() {
-        computeAlternateAmount()
-        delegate?.changeAmount(in: self)
-    }
-
-    private func textFieldString() -> String? {
-        textField.text?.withDecimalSeparatorReplacedByPeriod
-    }
-}
-
-extension AmountTextField: UITextFieldDelegate {
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let delegate = delegate else { return true }
-        return delegate.shouldReturn(in: self)
-    }
-
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let allowChange = amountChanged(in: range, to: string)
-        if allowChange {
-            //We have to allow the text field the chance to update, so we have to use asyncAfter..
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.updateAlternatePricingDisplay()
-            }
-
-        }
-        return allowChange
-    }
 }
 
 extension Double {
-    func toString(decimal: Int) -> String {
-        let value = decimal < 0 ? 0 : decimal
-        var string = String(format: "%.\(value)f", self)
 
-        while string.last == "0" || string.last == "." {
-            if string.last == "." { string = String(string.dropLast()); break }
-            string = String(string.dropLast())
-        }
-        return string
+    var stringValue: String {
+        String(self)
+    }
+
+    func toString(decimal: Int) -> String {
+        let value = self == 0.0 ? 0 : max(0, decimal)
+        
+        return String(format: "%.\(value)f", self).droppedTrailingZeros
     }
 }
 
-fileprivate extension String {
-    var withDecimalSeparatorReplacedByPeriod: String {
-        guard let decimalSeparator = Locale.current.decimalSeparator else { return self }
-        let period = "."
-        if decimalSeparator == period {
-            return self
-        } else {
-            return replacingOccurrences(of: decimalSeparator, with: period)
+extension Character {
+    var toString: String {
+        return String(self)
+    }
+}
+
+extension String {
+
+    var droppedTrailingZeros: String {
+        var string = self
+        let decimalSeparator = Locale.current.decimalSeparator ?? "."
+
+        while string.last == "0" || string.last?.toString == decimalSeparator {
+            if string.last?.toString == decimalSeparator {
+                string = String(string.dropLast())
+                break
+            }
+            string = String(string.dropLast())
         }
+
+        return string
+    }
+
+    ///Allow to convert locale based decimal number to its Double value supports strings like `123,123.12`
+    var optionalDoubleValue: Double? {
+        return EtherNumberFormatter.full.double(from: self)
+    }
+}
+
+extension EtherNumberFormatter {
+
+    /// returns Double? value from `value` formatted from `EtherNumberFormatter` with appropriate `decimalSeparator` and `groupingSeparator`
+    func double(from value: String) -> Double? {
+
+        enum Wrapper {
+            static let formatter: NumberFormatter = {
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .decimal
+
+                return formatter
+            }()
+        }
+
+        let formatter = Wrapper.formatter
+        formatter.decimalSeparator = decimalSeparator
+        formatter.groupingSeparator = groupingSeparator
+
+        return formatter.number(from: value)?.doubleValue
+    }
+}
+
+extension UIToolbar {
+
+    static func doneToolbarButton(_ selector: Selector, _ target: AnyObject) -> UIToolbar {
+        //Frame needed, but actual values aren't that important
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        toolbar.barStyle = .default
+
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: target, action: selector)
+
+        toolbar.items = [flexSpace, done]
+        toolbar.sizeToFit()
+
+        return toolbar
+    }
+
+    static func nextToolbarButton(_ selector: Selector, _ target: AnyObject) -> UIToolbar {
+        //Frame needed, but actual values aren't that important
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        toolbar.barStyle = .default
+
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let next = UIBarButtonItem(title: R.string.localizable.next(), style: .plain, target: target, action: selector)
+        toolbar.items = [flexSpace, next]
+        toolbar.sizeToFit()
+
+        return toolbar
     }
 }

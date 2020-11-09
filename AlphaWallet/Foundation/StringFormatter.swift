@@ -14,6 +14,18 @@ final class StringFormatter {
         formatter.isLenient = true
         return formatter
     }()
+
+    private let alternateAmountFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.currencySymbol = ""
+        formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
+        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+        formatter.roundingMode = .down
+        formatter.numberStyle = .currency
+
+        return formatter
+    }()
+    
     /// Converts a Double to a `currency String`.
     ///
     /// - Parameters:
@@ -42,5 +54,14 @@ final class StringFormatter {
     /// - Returns: `String` representation.
     func formatter(for double: Double) -> String {
         return String(format: "%f", double)
+    }
+
+    func alternateAmount(value: Double) -> String {
+        //For some reasons formatter adds trailing whitespace
+        if let value = alternateAmountFormatter.string(from: NSNumber(value: value)) {
+            return value.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            return "\(value)"
+        }
     }
 }
