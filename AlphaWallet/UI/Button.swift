@@ -24,11 +24,13 @@ enum ButtonStyle: Int {
     case squared
     case border
     case borderless
+    case system
 
     var backgroundColor: UIColor {
         switch self {
         case .solid, .squared: return Colors.appTint
         case .border, .borderless: return .white
+        case .system: return .clear
         }
     }
 
@@ -37,13 +39,14 @@ enum ButtonStyle: Int {
         case .solid, .squared: return Colors.appTint
         case .border: return Colors.appTint
         case .borderless: return .white
+        case .system: return .clear
         }
     }
 
     var cornerRadius: CGFloat {
         switch self {
         case .solid, .border: return 5
-        case .squared, .borderless: return 0
+        case .squared, .borderless, .system: return 0
         }
     }
 
@@ -52,7 +55,7 @@ enum ButtonStyle: Int {
         case .solid,
              .squared,
              .border,
-             .borderless:
+             .borderless, .system:
             return Fonts.semibold(size: 16)!
         }
     }
@@ -60,7 +63,7 @@ enum ButtonStyle: Int {
     var textColor: UIColor {
         switch self {
         case .solid, .squared: return Colors.appWhite
-        case .border, .borderless: return Colors.appTint
+        case .border, .borderless, .system: return Colors.appTint
         }
     }
 
@@ -68,20 +71,20 @@ enum ButtonStyle: Int {
         switch self {
         case .solid, .squared: return UIColor(white: 1, alpha: 0.8)
         case .border: return Colors.appWhite
-        case .borderless: return Colors.appTint
+        case .borderless, .system: return Colors.appTint
         }
     }
 
     var borderColor: UIColor {
         switch self {
         case .solid, .squared, .border: return GroupedTable.Color.background
-        case .borderless: return .clear
+        case .borderless, .system: return .clear
         }
     }
 
     var borderWidth: CGFloat {
         switch self {
-        case .solid, .squared, .borderless: return 0
+        case .solid, .squared, .borderless, .system: return 0
         case .border: return 1
         }
     }
