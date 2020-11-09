@@ -241,7 +241,7 @@ class AddressTextField: UIControl {
     }
 
     private func makeTargetAddressRightView() -> UIView {
-        let scanQRCodeButton = Button(size: .normal, style: .borderless)
+        let scanQRCodeButton = Button(size: .normal, style: .system)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
@@ -253,7 +253,7 @@ class AddressTextField: UIControl {
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         targetAddressRightView.clipsToBounds = false
         targetAddressRightView.layer.masksToBounds = false
-
+        targetAddressRightView.backgroundColor = .clear
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         NSLayoutConstraint.activate([
