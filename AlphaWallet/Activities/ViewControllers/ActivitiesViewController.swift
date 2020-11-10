@@ -15,7 +15,11 @@ class ActivitiesViewController: UIViewController {
     private let sessions: ServerDictionary<WalletSession>
     private let tokensStorages: ServerDictionary<TokensDataStore>
     private let tableView = UITableView(frame: .zero, style: .grouped)
-
+    private let searchController: UISearchController
+    private var isSearchBarConfigured = false
+    private var bottomConstraint: NSLayoutConstraint!
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+    
     var paymentType: PaymentFlow?
     weak var delegate: ActivitiesViewControllerDelegate?
 
@@ -24,6 +28,7 @@ class ActivitiesViewController: UIViewController {
         self.wallet = wallet
         self.sessions = sessions
         self.tokensStorages = tokensStorages
+        searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.activityTabbarItemTitle()
@@ -39,10 +44,17 @@ class ActivitiesViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
         tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+
+        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        keyboardChecker.constraint = bottomConstraint
+        
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomConstraint,
         ])
 
         errorView = ErrorView(onRetry: { [weak self] in
@@ -61,16 +73,34 @@ class ActivitiesViewController: UIViewController {
         //    let view = TransactionsEmptyView()
         //    return view
         //}()
+
+        setupFilteringWithKeyword()
+        processSearchWithKeywords()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        keyboardChecker.viewWillAppear()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        keyboardChecker.viewWillDisappear()
     }
 
     func configure(viewModel: ActivitiesViewModel) {
         self.viewModel = viewModel
-        tableView.reloadData()
+        processSearchWithKeywords()
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
+
+    override func viewDidLayoutSubviews() {
+        configureSearchBarOnce()
+    }
+
     fileprivate func headerView(for section: Int) -> UIView {
         let container = UIView()
         container.backgroundColor = viewModel.headerBackgroundColor
@@ -254,5 +284,75 @@ extension ActivitiesViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    }
+}
+
+extension ActivitiesViewController: UISearchResultsUpdating {
+    //At least on iOS 13 beta on a device. updateSearchResults(for:) is called when we set `searchController.isActive = false` to dismiss search (because user tapped on a filter), but the value of `searchController.isActive` remains `false` during the call, hence the async.
+    //This behavior is not observed in iOS 12, simulator
+    public func updateSearchResults(for searchController: UISearchController) {
+        DispatchQueue.main.async {
+            self.processSearchWithKeywords()
+        }
+    }
+
+    private func processSearchWithKeywords() {
+        let keyword = searchController.searchBar.text
+
+        DispatchQueue.global().async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            strongSelf.viewModel.filter(.keyword(keyword))
+
+            DispatchQueue.main.async {
+                strongSelf.tableView.reloadData()
+            }
+        }
+    }
+}
+
+extension ActivitiesViewController {
+
+    private func makeSwitchToAnotherTabWorkWhileFiltering() {
+        definesPresentationContext = true
+    }
+
+    private func doNotDimTableViewToReuseTableForFilteringResult() {
+        searchController.dimsBackgroundDuringPresentation = false
+    }
+
+    private func wireUpSearchController() {
+        searchController.searchResultsUpdater = self
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
+    }
+
+    private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
+        view.superview?.backgroundColor = viewModel.backgroundColor
+    }
+
+    private func setupFilteringWithKeyword() {
+        wireUpSearchController()
+        doNotDimTableViewToReuseTableForFilteringResult()
+        makeSwitchToAnotherTabWorkWhileFiltering()
+    }
+
+    //Makes a difference where this is called from. Can't be too early
+    private func configureSearchBarOnce() {
+        guard !isSearchBarConfigured else { return }
+        isSearchBarConfigured = true
+
+        if let placeholderLabel = searchController.searchBar.firstSubview(ofType: UILabel.self) {
+            placeholderLabel.textColor = Colors.lightGray
+        }
+        if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
+            textField.textColor = Colors.appText
+            if let imageView = textField.leftView as? UIImageView {
+                imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+                imageView.tintColor = Colors.appText
+            }
+        }
+        //Hack to hide the horizontal separator below the search bar
+        searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
     }
 }
