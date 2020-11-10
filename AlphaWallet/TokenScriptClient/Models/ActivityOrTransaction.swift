@@ -6,6 +6,15 @@ enum ActivityOrTransaction {
     case activity(Activity)
     case transaction(Transaction)
 
+    var activityName: String? {
+        switch self {
+        case .activity(let activity):
+            return activity.name
+        case .transaction:
+            return nil
+        }
+    }
+
     var date: Date {
         switch self {
         case .activity(let activity):

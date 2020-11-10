@@ -23,10 +23,13 @@ class KeyboardChecker: NSObject {
     private let notificationCenter = NotificationCenter.default
     private let resetHeightDefaultValue: CGFloat
     var constraint: NSLayoutConstraint?
+    //NOTE: for views with input veiw like date picker, seems like we need to ignore bottom safe area
+    private let ignoreBottomSafeArea: Bool
 
-    init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight) {
+    init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight, ignoreBottomSafeArea: Bool = false) {
         self.viewController = viewController
         self.resetHeightDefaultValue = resetHeightDefaultValue
+        self.ignoreBottomSafeArea = ignoreBottomSafeArea
         super.init()
     }
 
@@ -55,10 +58,14 @@ class KeyboardChecker: NSObject {
         if diff > yKeyboardFrameOffset {
             constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
         } else {
-            if UIApplication.shared.bottomSafeAreaHeight > 0.0 {
-                constraint?.constant = -(diff + UIApplication.shared.bottomSafeAreaHeight)
-            } else {
+            if ignoreBottomSafeArea {
                 constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+            } else {
+                if UIApplication.shared.bottomSafeAreaHeight > 0.0 {
+                    constraint?.constant = -(diff + UIApplication.shared.bottomSafeAreaHeight)
+                } else {
+                    constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+                }
             }
         }
 

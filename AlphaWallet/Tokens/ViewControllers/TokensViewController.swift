@@ -104,7 +104,7 @@ class TokensViewController: UIViewController {
     private var isSearchBarConfigured = false
     private let hideTokenWidth: CGFloat = 170
     private var bottomConstraint: NSLayoutConstraint!
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0)
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
 
     var isConsoleButtonHidden: Bool {
         get {
