@@ -333,11 +333,15 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCurrentPageAsBookmark() {
-        guard let url = currentUrl?.absoluteString else { return }
-        guard let title = browserViewController.webView.title else { return }
-        let bookmark = Bookmark(url: url, title: title)
-        bookmarksStore.add(bookmarks: [bookmark])
-        refreshDapps()
+        if let url = currentUrl?.absoluteString, let title = browserViewController.webView.title {
+            let bookmark = Bookmark(url: url, title: title)
+            bookmarksStore.add(bookmarks: [bookmark])
+            refreshDapps()
+
+            UINotificationFeedbackGenerator.show(feedbackType: .success)
+        } else {
+            UINotificationFeedbackGenerator.show(feedbackType: .error)
+        }
     }
 
     private func scanQrCode() {
@@ -370,6 +374,35 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     func isMagicLink(_ url: URL) -> Bool {
         return RPCServer.allCases.contains { $0.magicLinkHost == url.host }
+    }
+}
+
+enum NotificationFeedbackType {
+    case success
+    case warning
+    case error
+
+    var feedbackType: UINotificationFeedbackGenerator.FeedbackType {
+        switch self {
+        case .success:
+            return .success
+        case .warning:
+            return .warning
+        case .error:
+            return .error
+        }
+    }
+}
+
+extension UINotificationFeedbackGenerator {
+
+    static func show(feedbackType result: NotificationFeedbackType) {
+        let feedbackGenerator = UINotificationFeedbackGenerator()
+        feedbackGenerator.prepare()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            feedbackGenerator.notificationOccurred(result.feedbackType)
+        }
     }
 }
 
