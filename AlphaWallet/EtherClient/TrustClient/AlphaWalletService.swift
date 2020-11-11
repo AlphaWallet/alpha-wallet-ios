@@ -11,6 +11,7 @@ enum AlphaWalletService {
     case unregister(config: Config, device: PushDevice)
     case marketplace(config: Config, server: RPCServer)
     case gasPriceEstimate
+    case oneInchTokens(config: Config)
 
     enum SortOrder: String {
         case asc
@@ -31,6 +32,8 @@ extension AlphaWalletService: TargetType {
             return config.priceInfoEndpoints
         case .gasPriceEstimate:
             return URL(string: Constants.gasNowEndpointBaseUrl)!
+        case .oneInchTokens(let config):
+            return config.oneInch
         }
     }
 
@@ -53,6 +56,8 @@ extension AlphaWalletService: TargetType {
             return "/marketplace"
         case .gasPriceEstimate:
             return "/api/v3/gas/price"
+        case .oneInchTokens:
+            return "/v1.1/tokens"
         }
     }
 
@@ -65,6 +70,7 @@ extension AlphaWalletService: TargetType {
         case .priceOfDai: return .get
         case .marketplace: return .get
         case .gasPriceEstimate: return .get
+        case .oneInchTokens: return .get
         }
     }
 
@@ -110,6 +116,8 @@ extension AlphaWalletService: TargetType {
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
         case .gasPriceEstimate:
             return .requestPlain
+        case .oneInchTokens:
+            return .requestPlain
         }
     }
 
@@ -134,6 +142,8 @@ extension AlphaWalletService: TargetType {
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
+        case .oneInchTokens:
+            return nil
         }
     }
 }

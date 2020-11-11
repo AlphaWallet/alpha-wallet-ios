@@ -177,6 +177,8 @@ struct Config {
         addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
     }
+
+    let oneInch = URL(string: "https://api.1inch.exchange")!
 }
 
 extension Config {
