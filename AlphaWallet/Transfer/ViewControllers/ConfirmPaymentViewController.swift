@@ -215,17 +215,11 @@ class ConfirmPaymentViewController: UIViewController {
     }
 
     private func showFeedbackOnSuccess(_ result: Result<ConfirmResult, AnyError>) {
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
         switch result {
         case .success:
-            //Hackish, but delay necessary because of the switch to and from user-presence for signing
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                //TODO sound too
-                feedbackGenerator.notificationOccurred(.success)
-            }
+            UINotificationFeedbackGenerator.show(feedbackType: .success)
         case .failure:
-            break
+            UINotificationFeedbackGenerator.show(feedbackType: .error)
         }
     }
 }

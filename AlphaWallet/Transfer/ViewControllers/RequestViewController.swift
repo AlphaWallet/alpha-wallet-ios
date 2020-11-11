@@ -229,10 +229,7 @@ class RequestViewController: UIViewController {
 	}
 
 	private func showFeedback() {
-		//TODO sound too
-		let feedbackGenerator = UINotificationFeedbackGenerator()
-		feedbackGenerator.prepare()
-		feedbackGenerator.notificationOccurred(.success)
+		UINotificationFeedbackGenerator.show(feedbackType: .success)
 	}
 
 	func generateQRCode(from string: String) -> UIImage? {

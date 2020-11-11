@@ -75,13 +75,7 @@ class SignMessageCoordinator: Coordinator {
     }
 
     private func showFeedback() {
-        //TODO sound too
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
-        //Hackish, but delay necessary because of the switch to and from user-presence for signing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            feedbackGenerator.notificationOccurred(.success)
-        }
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
     }
 }
 
