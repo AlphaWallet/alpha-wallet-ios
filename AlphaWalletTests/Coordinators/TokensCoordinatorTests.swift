@@ -3,6 +3,17 @@
 import XCTest
 @testable import AlphaWallet
 
+class FakeSwapTokenService: SwapTokenServiceType {
+
+    func register(service: SwapTokenActionsService) {
+
+    }
+
+    func actions(token: TokenObject) -> [TokenInstanceAction] {
+        return []
+    }
+}
+
 class TokensCoordinatorTests: XCTestCase {
     func testRootViewController() {
         var sessions = ServerDictionary<WalletSession>()
@@ -20,7 +31,8 @@ class TokensCoordinatorTests: XCTestCase {
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: nil),
             filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
-            analyticsCoordinator: nil
+            analyticsCoordinator: nil,
+            swapTokenActionsService: FakeSwapTokenService()
         )
         coordinator.start()
 

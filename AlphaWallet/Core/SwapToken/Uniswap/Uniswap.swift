@@ -1,5 +1,5 @@
 //
-//  UniswapHolder.swift
+//  Uniswap.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 21.08.2020.
@@ -7,15 +7,22 @@
 
 import UIKit
 
-struct UniswapHolder {
+struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
+
+    var action: String {
+        return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
+    }
+
     private static let baseURL = "https://app.uniswap.org/#"
 
-    let input: Input
     var version: Version = .v2
     var theme: Theme = .dark
     var method: Method = .swap
 
-    var url: URL? {
+    func url(token: TokenObject) -> URL? {
+        guard isSupportToken(token: token) else { return nil }
+
+        let input = Input.input(token.contractAddress)
         var components = URLComponents()
         components.path = method.rawValue
         components.queryItems = [
@@ -26,7 +33,7 @@ struct UniswapHolder {
         //NOTE: URLComponents doesn't allow path to contain # symbol
         guard let pathWithQueryItems = components.url?.absoluteString else { return nil }
 
-        return URL(string: UniswapHolder.baseURL + pathWithQueryItems)
+        return URL(string: Uniswap.baseURL + pathWithQueryItems)
     }
 
     enum Version: String {
@@ -49,7 +56,7 @@ struct UniswapHolder {
     }
 
     enum Input {
-        private enum Keys {
+        enum Keys {
             static let input = "inputCurrency"
             static let output = "outputCurrency"
         }
@@ -74,5 +81,29 @@ struct UniswapHolder {
             }
         }
     }
+
+    func actions(token: TokenObject) -> [TokenInstanceAction] {
+        if UniswapERC20Token.isSupport(token: token) {
+            return [
+                .init(type: .swap(service: self))
+            ]
+        } else {
+            return []
+        }
+    }
 }
 
+extension UITraitCollection {
+    var uniswapTheme: Uniswap.Theme {
+        if #available(iOS 12.0, *) {
+            switch userInterfaceStyle {
+            case .dark:
+                return .dark
+            case .light, .unspecified:
+                return .light
+            }
+        } else {
+            return .light
+        }
+    }
+}
