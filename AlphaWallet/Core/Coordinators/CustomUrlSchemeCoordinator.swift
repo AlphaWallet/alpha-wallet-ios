@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 import PromiseKit
 
-protocol CustomUrlSchemeCoordinatorDelegate: class {
+protocol CustomUrlSchemeCoordinatorResolver: class {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator)
 }
 
@@ -13,7 +13,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
 
     var coordinators: [Coordinator] = []
-    weak var delegate: CustomUrlSchemeCoordinatorDelegate?
+    weak var delegate: CustomUrlSchemeCoordinatorResolver?
 
     init(tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore) {
         self.tokensDatastores = tokensDatastores
