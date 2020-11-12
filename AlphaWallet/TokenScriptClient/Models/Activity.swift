@@ -21,6 +21,7 @@ struct Activity {
     enum State {
         case pending
         case completed
+        case failed
     }
 
     //We use the internal id to track which activity to replace/update

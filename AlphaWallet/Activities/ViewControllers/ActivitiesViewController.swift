@@ -147,8 +147,10 @@ class ActivitiesViewController: UIViewController {
             state = .pending
         case .completed:
             state = .completed
+        case .error, .failed:
+            state = .failed
         //TODO we don't need the other states at the moment
-        case .error, .failed, .unknown:
+        case .unknown:
             state = .completed
         }
         return .init(
