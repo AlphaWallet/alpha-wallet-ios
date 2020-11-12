@@ -118,6 +118,8 @@ struct ActivityViewModel {
             }
         case .pending:
             return R.image.activityPending()
+        case .failed:
+            return R.image.activityFailed()
         }
     }
 }
