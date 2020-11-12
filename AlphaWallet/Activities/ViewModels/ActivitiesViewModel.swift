@@ -3,22 +3,35 @@
 import Foundation
 import UIKit
 
+enum ActivityOrTransactionFilter {
+    case keyword(_ value: String?)
+}
+
 struct ActivitiesViewModel {
-    private var formatter: DateFormatter {
+    private static var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
-    private var items: [(date: String, items: [ActivityOrTransaction])] = []
+
+    typealias MappedToDateActivityOrTransaction = (date: String, items: [ActivityOrTransaction])
+
+    private var items: [MappedToDateActivityOrTransaction] = []
+    private var filteredItems: [MappedToDateActivityOrTransaction] = []
 
     init(activities: [ActivityOrTransaction] = []) {
+        items = ActivitiesViewModel.sorted(activities: activities)
+    }
+
+    private static func sorted(activities: [ActivityOrTransaction]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for each in activities {
-            let date = formatter.string(from: each.date)
+            let date = ActivitiesViewModel.formatter.string(from: each.date)
             let currentItems = newItems[date] ?? .init()
             currentItems.add(each)
             newItems[date] = currentItems
         }
-        let tuple = newItems.map { each in
+
+        return newItems.map { each in
             (date: each.key, items: (each.value as! [ActivityOrTransaction]).sorted {
                 //Show pending transactions at the top
                 if $0.blockNumber == 0 && $1.blockNumber != 0 {
@@ -52,10 +65,34 @@ struct ActivitiesViewModel {
                     }
                 }
             })
+        }.sorted { (object1, object2) -> Bool in
+            ActivitiesViewModel.formatter.date(from: object1.date)! > ActivitiesViewModel.formatter.date(from: object2.date)!
         }
-        items = tuple.sorted { (object1, object2) -> Bool in
-            formatter.date(from: object1.date)! > formatter.date(from: object2.date)!
+    }
+
+    mutating func filter(_ filter: ActivityOrTransactionFilter) {
+        var newFilteredItems = items
+
+        switch filter {
+        case .keyword(let keyword):
+            if let valueToSearch = keyword?.trimmed, valueToSearch.nonEmpty {
+                let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
+                    let data = content.filter { data -> Bool in
+                        return data.activityName?.lowercased().contains(valueToSearch.lowercased()) ?? false
+                    }
+
+                    if data.isEmpty {
+                        return nil
+                    } else {
+                        return (date: date, items: data)
+                    }
+                }
+
+                newFilteredItems = results
+            }
         }
+
+        filteredItems = newFilteredItems
     }
 
     var backgroundColor: UIColor {
@@ -75,20 +112,21 @@ struct ActivitiesViewModel {
     }
 
     var numberOfSections: Int {
-        items.count
+        filteredItems.count
     }
 
     func numberOfItems(for section: Int) -> Int {
-        items[section].items.count
+        filteredItems[section].items.count
     }
 
     func item(for row: Int, section: Int) -> ActivityOrTransaction {
-        items[section].items[row]
+        filteredItems[section].items[row]
     }
 
     func titleForHeader(in section: Int) -> String {
-        let value = items[section].date
-        let date = formatter.date(from: value)!
+        let value = filteredItems[section].date
+
+        let date = ActivitiesViewModel.formatter.date(from: value)!
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }
@@ -96,5 +134,11 @@ struct ActivitiesViewModel {
             return R.string.localizable.yesterday().localizedUppercase
         }
         return value.localizedUppercase
+    }
+}
+
+extension String {
+    var nonEmpty: Bool {
+        return !self.trimmed.isEmpty
     }
 }
