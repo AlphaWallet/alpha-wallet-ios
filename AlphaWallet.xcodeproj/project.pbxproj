@@ -686,6 +686,7 @@
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
+		878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE953255BFFB9000210DE /* FeedbackGenerator.swift */; };
 		87A3020924BEE243000DF32E /* TransactionInProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */; };
 		87A3020B24BF04B6000DF32E /* TransactionInProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */; };
 		87A3022224C021F4000DF32E /* ConfirmationTransitionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3022024C021F3000DF32E /* ConfirmationTransitionController.swift */; };
@@ -1460,6 +1461,7 @@
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
+		878EE953255BFFB9000210DE /* FeedbackGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackGenerator.swift; sourceTree = "<group>"; };
 		87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewController.swift; sourceTree = "<group>"; };
 		87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewModel.swift; sourceTree = "<group>"; };
 		87A3022024C021F3000DF32E /* ConfirmationTransitionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmationTransitionController.swift; sourceTree = "<group>"; };
@@ -3699,6 +3701,7 @@
 				5E7C708DE897B6677EAD769B /* ScriptMessageProxy.swift */,
 				5E7C71AFE747055742986023 /* withRetry.swift */,
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
+				878EE953255BFFB9000210DE /* FeedbackGenerator.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4751,6 +4754,7 @@
 				5E7C782069BAD4A667543979 /* SettingsViewController.swift in Sources */,
 				5E7C750721DA2745432B1857 /* TokenObject+UI.swift in Sources */,
 				5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */,
+				878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */,
 				5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */,
 				5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */,
 				5E7C7C5C350376B83D23154F /* MixpanelCoordinator.swift in Sources */,

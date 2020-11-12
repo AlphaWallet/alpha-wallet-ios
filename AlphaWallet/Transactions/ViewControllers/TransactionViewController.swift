@@ -151,10 +151,7 @@ class TransactionViewController: UIViewController {
     }
 
     private func showFeedback() {
-        //TODO sound too
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
-        feedbackGenerator.notificationOccurred(.success)
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
     }
 
     @objc func more() {

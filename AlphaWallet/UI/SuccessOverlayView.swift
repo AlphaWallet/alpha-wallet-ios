@@ -49,10 +49,7 @@ class SuccessOverlayView: UIView {
             self.imageView.transform = .identity
         })
 
-        //TODO sound too
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
-        feedbackGenerator.notificationOccurred(.success)
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
 
         hideAfterAWhile()
     }
