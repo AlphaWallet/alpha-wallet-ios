@@ -94,7 +94,7 @@ class ActivityViewController: UIViewController {
         NSLayoutConstraint.activate([
             //Setting height for labels to get their heights to be correct. If we want to remove them, make sure to test with both the native Activity view and TokenScript (HTML) Activity views
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+            titleLabel.heightAnchor.constraint(equalToConstant: 26),
             subTitleLabel.heightAnchor.constraint(equalToConstant: 20),
 
             tokenImageView.heightAnchor.constraint(equalToConstant: 60),
@@ -138,7 +138,7 @@ class ActivityViewController: UIViewController {
 
         titleLabel.textColor = viewModel.titleTextColor
         titleLabel.font = viewModel.titleFont
-        titleLabel.text = viewModel.title
+        titleLabel.attributedText = viewModel.title
 
         subTitleLabel.text = viewModel.subTitle
         subTitleLabel.textColor = viewModel.subTitleTextColor

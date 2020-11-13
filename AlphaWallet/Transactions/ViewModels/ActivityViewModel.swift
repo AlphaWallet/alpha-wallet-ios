@@ -26,20 +26,38 @@ struct ActivityViewModel {
         Fonts.regular(size: 20)!
     }
 
-    var title: String {
+    var title: NSAttributedString {
         let symbol = activity.tokenObject.symbol
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            return "\(R.string.localizable.transactionCellSentTitle()) \(symbol)"
+            let string: NSMutableAttributedString
+            switch activity.state {
+            case .pending:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendPending(symbol))")
+            case .completed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle()) \(symbol)")
+            case .failed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
+            }
+            return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            return "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)"
+            return NSAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
         case .erc20OwnerApproved, .erc721OwnerApproved:
-            return R.string.localizable.activityOwnerApproved(symbol)
+            let string: NSMutableAttributedString
+            switch activity.state {
+            case .pending:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedPending(symbol))")
+            case .completed:
+                string = NSMutableAttributedString(string: R.string.localizable.activityOwnerApproved(symbol))
+            case .failed:
+                string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedFailed(symbol))")
+            }
+            return string
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
-            return R.string.localizable.activityApprovalObtained(symbol)
+            return NSAttributedString(string: R.string.localizable.activityApprovalObtained(symbol))
         case .none:
             //Displaying the symbol is intentional
-            return symbol
+            return NSAttributedString(string: symbol)
         }
     }
 
