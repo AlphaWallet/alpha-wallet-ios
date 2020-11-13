@@ -95,9 +95,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
         timestampLabel.font = viewModel.timestampFont
         timestampLabel.text = viewModel.timestamp
 
-        amountLabel.text = viewModel.amount
-        amountLabel.font = viewModel.amountFont
-        amountLabel.textColor = viewModel.amountColor
+        amountLabel.attributedText = viewModel.amount
 
         tokenImageView.subscribable = viewModel.iconImage
         stateImageView.image = viewModel.stateImage
