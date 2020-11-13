@@ -34,10 +34,7 @@ class DefaultActivityView: UIView {
 
         backgroundColor = viewModel.backgroundColor
 
-        amountLabel.text = viewModel.amount
-        amountLabel.font = viewModel.amountFont
-        amountLabel.textColor = viewModel.amountColor
-
+        amountLabel.attributedText = viewModel.amount
         amountLabel.textAlignment = .center
     }
 }
