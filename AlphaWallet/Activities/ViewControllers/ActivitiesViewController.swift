@@ -19,7 +19,7 @@ class ActivitiesViewController: UIViewController {
     private var isSearchBarConfigured = false
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-    
+
     var paymentType: PaymentFlow?
     weak var delegate: ActivitiesViewControllerDelegate?
 
@@ -47,7 +47,7 @@ class ActivitiesViewController: UIViewController {
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         keyboardChecker.constraint = bottomConstraint
-        
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -148,7 +148,7 @@ class ActivitiesViewController: UIViewController {
         var cardAttributes = [AttributeId: AssetInternalValue]()
         cardAttributes["symbol"] = .string(transaction.server.symbol)
 
-        if let operation = transaction.operation, let symbol = operation.symbol, let value = BigUInt(operation.value) {
+        if let operation = transaction.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
             cardAttributes["amount"] = .uint(value)
         } else {
             if let value = BigUInt(transaction.value) {
