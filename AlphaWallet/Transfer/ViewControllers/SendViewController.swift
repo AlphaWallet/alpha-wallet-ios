@@ -231,7 +231,7 @@ class SendViewController: UIViewController {
             }
             currentSubscribableKeyForNativeCryptoCurrencyPrice = ethPrice.subscribe { [weak self] value in
                 if let value = value {
-                    self?.amountTextField.cryptoToDollarRate = value
+                    self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
                 }
             }
         case .ERC20Token(_, let recipient, let amount):
@@ -441,7 +441,7 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.errorState = .none
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
-
+        
         guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
             return
