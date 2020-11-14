@@ -6,6 +6,7 @@ import Alamofire
 import BigInt
 import RealmSwift
 import PromiseKit
+import Result
 
 enum ContractData {
     case name(String)
@@ -555,7 +556,7 @@ extension TransferType {
         switch self {
         case .ERC20Token(let token, _, _):
             return .init(input: .input(token.contractAddress), theme: theme)
-        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency:
+        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency, .tokenScript:
             return .init(input: .none, theme: theme)
         }
     }
@@ -601,7 +602,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch transferType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)
@@ -632,13 +633,42 @@ extension SingleChainTokenCoordinator: CanOpenURL {
     }
 }
 
-extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
+extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegate {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        //TODO improve error message. Several of this delegate func
+        coordinator.navigationController.displayError(message: error.localizedDescription)
+    }
 
-        coordinator.start()
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.removeCoordinator(coordinator)
+
+            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
+
+            coordinator.start()
+        }
+    }
+}
+
+extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
+        switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
+        case .success(let transaction):
+            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore))
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            coordinator.start()
+        case .failure:
+            //TODO throw an error
+            break
+        }
     }
 
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {

@@ -561,21 +561,21 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
 }
 
 extension TokensCardCoordinator: TransferNFTCoordinatorDelegate {
-    private func cleanUpAfterTransfer(coordinator: TransferNFTCoordinator) {
-        navigationController.dismiss(animated: true)
+    func didClose(in coordinator: TransferNFTCoordinator) {
         removeCoordinator(coordinator)
     }
 
-    func didClose(in coordinator: TransferNFTCoordinator) {
-        cleanUpAfterTransfer(coordinator: coordinator)
-    }
+    func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: TransactionConfirmationResult, inCoordinator coordinator: TransferNFTCoordinator) {
+        transactionConfirmationCoordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.removeCoordinator(coordinator)
 
-    func didFinishSuccessfully(in coordinator: TransferNFTCoordinator) {
-        cleanUpAfterTransfer(coordinator: coordinator)
-    }
+            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
 
-    func didFail(in coordinator: TransferNFTCoordinator) {
-        cleanUpAfterTransfer(coordinator: coordinator)
+            coordinator.start()
+        }
     }
 }
 
@@ -650,16 +650,22 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
         coordinator.start()
     }
 
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
-        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress.eip55String), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) { [weak self] in
-            guard let strongSelf = self else { return }
-            guard $0 == 0 else { return }
-            if case .real(let account) = strongSelf.session.account.type {
-                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: strongSelf.keystore, session: strongSelf.session, account: account, assetDefinitionStore: strongSelf.assetDefinitionStore, on: strongSelf.navigationController)
-                coordinator.delegate = self
-                coordinator.start()
-                strongSelf.addCoordinator(coordinator)
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
+        switch session.account.type {
+        case .real:
+            switch paymentFlow {
+            case .send:
+                if case .send(let transferType) = paymentFlow {
+                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transferType: transferType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session)
+                    addCoordinator(coordinator)
+                    coordinator.delegate = self
+                    coordinator.start()
+                }
+            case .request:
+                return
             }
+        case .watch:
+            break
         }
     }
 
@@ -689,13 +695,17 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
-
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-
-        coordinator.start()
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
+        switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
+        case .success(let transaction):
+            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore))
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            coordinator.start()
+        case .failure:
+            //TODO throw an error
+            break
+        }
     }
 
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
@@ -707,8 +717,31 @@ extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
     }
 }
 
-extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
+extension TokensCardCoordinator: TransactionConfirmationCoordinatorDelegate {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        //TODO improve error message. Several of this delegate func
+        coordinator.navigationController.displayError(message: error.localizedDescription)
+    }
 
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.removeCoordinator(coordinator)
+
+            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
+
+            coordinator.start()
+        }
+    }
+}
+
+extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
     }

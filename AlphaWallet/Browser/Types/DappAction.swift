@@ -50,22 +50,15 @@ extension DappAction {
             return BigInt((value).drop0x, radix: 16)
         }()
         let data = Data(hex: object["data"]?.value ?? "0x")
-
         return UnconfirmedTransaction(
             transferType: transfer.type,
             value: value,
-            to: to,
+            recipient: nil,
+            contract: to,
             data: data,
             gasLimit: gasLimit,
-            tokenId: nil,
             gasPrice: gasPrice,
-            nonce: nonce,
-            v: nil,
-            r: nil,
-            s: nil,
-            expiry: nil,
-            indices: nil,
-            tokenIds: nil
+            nonce: nonce
         )
     }
 

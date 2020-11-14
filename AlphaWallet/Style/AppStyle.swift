@@ -69,6 +69,7 @@ struct Colors {
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
     static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
+    static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
 }
 
 struct StyleLayout {
@@ -199,6 +200,11 @@ enum DataEntry {
             static let separatorHeight: CGFloat = 1.0
         }
 
+        enum TransactionConfirmation {
+            static let separatorHeight: CGFloat = 1.0
+            static let headerHeight: CGFloat = isNarrowScreen ? 50 : 60
+            static let footerHeight: CGFloat = isNarrowScreen ? 80 : 120
+        }
     }
 
     enum Font {
@@ -269,6 +275,14 @@ enum Screen {
         enum Metric {
             static let blockChainTagCornerRadius = CGFloat(4)
             static let blockChainTagHeight = CGFloat(20)
+        }
+    }
+    
+    enum TransactionConfirmation {
+        static var transactionRowInfoInsets: UIEdgeInsets {
+            let leftRightInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 24
+            let topBottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 5 : 8
+            return .init(top: 0, left: leftRightInset, bottom: topBottomInset, right: leftRightInset)
         }
     }
 }
