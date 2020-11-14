@@ -38,6 +38,13 @@ final class StringFormatter {
         //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
         return formatter.string(from: NSNumber(value: value))?.trimmed ?? "\(value)"
     }
+
+    func currency(with value: NSDecimalNumber, and currencyCode: String) -> String {
+        let formatter = currencyFormatter
+        formatter.currencyCode = currencyCode
+        //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
+        return formatter.string(from: value)?.trimmed ?? "\(value)"
+    }
     /// Converts a Double to a `String`.
     ///
     /// - Parameters:
@@ -56,12 +63,12 @@ final class StringFormatter {
         return String(format: "%f", double)
     }
 
-    func alternateAmount(value: Double) -> String {
+    func alternateAmount(value: NSDecimalNumber) -> String {
         //For some reasons formatter adds trailing whitespace
-        if let value = alternateAmountFormatter.string(from: NSNumber(value: value)) {
+        if let value = alternateAmountFormatter.string(from: value) {
             return value.trimmingCharacters(in: .whitespacesAndNewlines)
         } else {
-            return "\(value)"
-        }
+            return value.stringValue
+        } 
     }
 }

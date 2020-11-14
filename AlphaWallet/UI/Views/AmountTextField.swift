@@ -149,14 +149,14 @@ class AmountTextField: UIControl {
     }()
 
     //NOTE: Help to prevent recalculation for ethCostRawValue, dollarCostRawValue values, during recalculation we loose precission
-    private var cryptoToDollarRatePrevValue: Double?
+    private var cryptoToDollarRatePrevValue: NSDecimalNumber?
     //NOTE: Raw values for eth and collar values, to prevent recalculation it we store user entered eth and calculated dollarCostRawValue value and vice versa.
-    private var ethCostRawValue: Double?
-    private var dollarCostRawValue: Double?
+    private var ethCostRawValue: NSDecimalNumber?
+    private var dollarCostRawValue: NSDecimalNumber?
     private let cryptoCurrency: Currency
     private var currentPair: Pair
 
-    var cryptoToDollarRate: Double? = nil {
+    var cryptoToDollarRate: NSDecimalNumber? = nil {
         willSet {
             cryptoToDollarRatePrevValue = cryptoToDollarRate
         }
@@ -167,7 +167,6 @@ class AmountTextField: UIControl {
                 if let prevValue = cryptoToDollarRatePrevValue, prevValue == value {
                     return
                 }
-
                 switch currentPair.left {
                 case .cryptoCurrency:
                     recalculate(amountValue: ethCostRawValue)
@@ -181,17 +180,25 @@ class AmountTextField: UIControl {
         }
     }
 
-    var dollarCost: Double? {
+    var dollarCost: NSDecimalNumber? {
         return dollarCostRawValue
     }
 
     var ethCost: String {
         get {
-            return ethCostRawValue?.toString(decimal: 18) ?? "0"
+            switch currentPair.left {
+            case .cryptoCurrency:
+                return textField.text ?? "0"
+            case .usd:
+                guard let value = ethCostRawValue else { return "0" }
+                return StringFormatter().alternateAmount(value: value)
+            }
         }
         set {
-            ethCostRawValue = newValue.optionalDoubleValue
-            recalculate(amountValue: newValue.optionalDoubleValue, for: cryptoCurrency)
+            let valueToSet = newValue.optionalDecimalValue
+
+            ethCostRawValue = valueToSet
+            recalculate(amountValue: valueToSet, for: cryptoCurrency)
 
             switch currentPair.left {
             case .cryptoCurrency:
@@ -205,7 +212,7 @@ class AmountTextField: UIControl {
     }
 
     ///Returns raw (calculated) value based on selected currency
-    private var alternativeAmount: Double? {
+    private var alternativeAmount: NSDecimalNumber? {
         switch currentPair.left {
         case .cryptoCurrency:
             return dollarCostRawValue
@@ -215,7 +222,7 @@ class AmountTextField: UIControl {
     }
 
     ///Formats string value for display in text field.
-    private func formatValueToDisplayValue(_ value: Double?) -> String {
+    private func formatValueToDisplayValue(_ value: NSDecimalNumber?) -> String {
         guard let amount = value else {
             return String()
         }
@@ -224,17 +231,12 @@ class AmountTextField: UIControl {
         case .cryptoCurrency:
             return StringFormatter().currency(with: amount, and: Constants.Currency.usd)
         case .usd:
-            //NOTE: for values that greater then 0.01 threshold we use different formatters
-            if amount > 0.01 {
-                return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
-            } else {
-                return amount.toString(decimal: 18).droppedTrailingZeros
-            }
+            return StringFormatter().alternateAmount(value: amount)
         }
     }
 
     ///Recalculates raw value (eth, or usd) depends on selected currency `currencyToOverride ?? currentPair.left` based on cryptoToDollarRate
-    private func recalculate(amountValue: Double?, for currencyToOverride: Currency? = nil) {
+    private func recalculate(amountValue: NSDecimalNumber?, for currencyToOverride: Currency? = nil) {
         guard let cryptoToDollarRate = cryptoToDollarRate else {
             return
         }
@@ -242,15 +244,13 @@ class AmountTextField: UIControl {
         switch currencyToOverride ?? currentPair.left {
         case .cryptoCurrency:
             if let amount = amountValue {
-                let value = amount * cryptoToDollarRate
-                dollarCostRawValue = value
+                dollarCostRawValue = amount.multiplying(by: cryptoToDollarRate)
             } else {
                 dollarCostRawValue = nil
             }
         case .usd:
             if let amount = amountValue {
-                let value = amount / cryptoToDollarRate
-                ethCostRawValue = value
+                ethCostRawValue = amount.dividing(by: cryptoToDollarRate)
             } else {
                 ethCostRawValue = nil
             }
@@ -306,7 +306,7 @@ class AmountTextField: UIControl {
         }
         set {
             //Intentionally not sure the equivalent amount for now
-            alternativeAmountLabelContainer.isHidden = true //!newValue
+            alternativeAmountLabelContainer.isHidden = !newValue//true //!newValue
         }
     }
 
@@ -355,7 +355,7 @@ class AmountTextField: UIControl {
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
     }
 
-    private func updateAlternateAmountLabel(_ value: Double?) {
+    private func updateAlternateAmountLabel(_ value: NSDecimalNumber?) {
         let amount = formatValueToDisplayValue(value)
 
         if amount.isEmpty {
@@ -443,11 +443,11 @@ extension AmountTextField: UITextFieldDelegate {
             //NOTE: Set raw value (ethCost, dollarCost) and recalculate alternative value
             switch currentPair.left {
             case .cryptoCurrency:
-                ethCostRawValue = enteredString.optionalDoubleValue
+                ethCostRawValue = enteredString.optionalDecimalValue
 
                 recalculate(amountValue: ethCostRawValue)
             case .usd:
-                dollarCostRawValue = enteredString.optionalDoubleValue
+                dollarCostRawValue = enteredString.optionalDecimalValue
 
                 recalculate(amountValue: dollarCostRawValue)
             }
@@ -486,20 +486,7 @@ private extension UITextField {
         }
         return true
     }
-}
-
-extension Double {
-
-    var stringValue: String {
-        String(self)
-    }
-
-    func toString(decimal: Int) -> String {
-        let value = self == 0.0 ? 0 : max(0, decimal)
-        
-        return String(format: "%.\(value)f", self).droppedTrailingZeros
-    }
-}
+} 
 
 extension Character {
     var toString: String {
@@ -509,31 +496,16 @@ extension Character {
 
 extension String {
 
-    var droppedTrailingZeros: String {
-        var string = self
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
-
-        while string.last == "0" || string.last?.toString == decimalSeparator {
-            if string.last?.toString == decimalSeparator {
-                string = String(string.dropLast())
-                break
-            }
-            string = String(string.dropLast())
-        }
-
-        return string
-    }
-
     ///Allow to convert locale based decimal number to its Double value supports strings like `123,123.12`
-    var optionalDoubleValue: Double? {
-        return EtherNumberFormatter.full.double(from: self)
+    var optionalDecimalValue: NSDecimalNumber? {
+        return EtherNumberFormatter.full.decimal(from: self)
     }
 }
 
 extension EtherNumberFormatter {
 
     /// returns Double? value from `value` formatted from `EtherNumberFormatter` with appropriate `decimalSeparator` and `groupingSeparator`
-    func double(from value: String) -> Double? {
+    func decimal(from value: String) -> NSDecimalNumber? {
 
         enum Wrapper {
             static let formatter: NumberFormatter = {
@@ -548,7 +520,9 @@ extension EtherNumberFormatter {
         formatter.decimalSeparator = decimalSeparator
         formatter.groupingSeparator = groupingSeparator
 
-        return formatter.number(from: value)?.doubleValue
+        guard let result = formatter.number(from: value)?.decimalValue else { return nil }
+
+        return NSDecimalNumber(decimal: result)
     }
 }
 
