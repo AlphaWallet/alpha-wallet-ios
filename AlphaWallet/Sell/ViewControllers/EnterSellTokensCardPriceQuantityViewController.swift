@@ -35,8 +35,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     private var totalDollarCost: String {
         if let dollarCostPerToken = pricePerTokenField.dollarCost {
-            let quantity = Double(quantityStepper.value)
-            return StringFormatter().currency(with: dollarCostPerToken * quantity, and: "USD")
+            let quantity = NSDecimalNumber(value: quantityStepper.value)
+            let value = dollarCostPerToken.multiplying(by: quantity)
+            return StringFormatter().currency(with: value, and: "USD")
         } else {
             return ""
         }
@@ -96,7 +97,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
         cryptoPrice.subscribe { [weak self] value in
             if let value = value {
-                self?.pricePerTokenField.cryptoToDollarRate = value
+                self?.pricePerTokenField.cryptoToDollarRate = NSDecimalNumber(value: value)
             }
         }
         pricePerTokenField.delegate = self
