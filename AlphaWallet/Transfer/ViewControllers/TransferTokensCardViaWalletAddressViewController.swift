@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController)
 }

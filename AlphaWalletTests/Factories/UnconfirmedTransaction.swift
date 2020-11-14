@@ -17,18 +17,13 @@ extension UnconfirmedTransaction {
         return UnconfirmedTransaction(
             transferType: transferType,
             value: value,
-            to: to,
+            recipient: nil,
+            contract: to,
             data: data,
+            tokenId: nil,
             gasLimit: gasLimit,
-            tokenId: Constants.nullTokenId,
             gasPrice: gasPrice,
-            nonce: nonce,
-            v: .none,
-            r: .none,
-            s: .none,
-            expiry: .none,
-            indices: .none,
-            tokenIds: [BigUInt]()
+            nonce: nonce
         )
     }
 }

@@ -8,7 +8,7 @@ struct EstimateGasRequest: JSONRPCKit.Request {
     typealias Response = String
 
     let from: AlphaWallet.Address
-    let to: AlphaWallet.Address?
+    let to: AlphaWallet.Address
     let value: BigInt
     let data: Data
 
@@ -21,7 +21,7 @@ struct EstimateGasRequest: JSONRPCKit.Request {
         let results: [[String: String]] = [
             [
                 "from": from.description,
-                "to": to?.description ?? "",
+                "to": to.eip55String,
                 "value": "0x" + String(value, radix: 16),
                 "data": data.hexEncoded,
             ],
