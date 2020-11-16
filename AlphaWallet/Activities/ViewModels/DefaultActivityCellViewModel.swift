@@ -126,11 +126,19 @@ struct DefaultActivityCellViewModel {
 
         let string: String
         switch activity.nativeViewType {
-        case .erc20Sent, .erc20Received, .erc20OwnerApproved, .erc20ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
+        case .erc20Sent, .erc20Received, .nativeCryptoSent, .nativeCryptoReceived:
             if let value = cardAttributes["amount"]?.uintValue {
-                let formatter = EtherNumberFormatter.short
-                let value = formatter.string(from: BigInt(value), decimals: activity.tokenObject.decimals)
-                string = "\(sign)\(value) \(activity.tokenObject.symbol)"
+                string = stringFromFungibleAmount(sign: sign, amount: value)
+            } else {
+                string = ""
+            }
+        case .erc20OwnerApproved, .erc20ApprovalObtained:
+            if let value = cardAttributes["amount"]?.uintValue {
+                if doesApprovedAmountLookReallyBig(value, decimals: activity.tokenObject.decimals) {
+                    string = R.string.localizable.activityApproveAmountAll(activity.tokenObject.symbol)
+                } else {
+                    string = stringFromFungibleAmount(sign: sign, amount: value)
+                }
             } else {
                 string = ""
             }
@@ -197,5 +205,16 @@ struct DefaultActivityCellViewModel {
         case .failed:
             return R.image.activityFailed()
         }
+    }
+
+    private func stringFromFungibleAmount(sign: String, amount: BigUInt) -> String {
+        let formatter = EtherNumberFormatter.short
+        let value = formatter.string(from: BigInt(amount), decimals: activity.tokenObject.decimals)
+        return "\(sign)\(value) \(activity.tokenObject.symbol)"
+    }
+
+    private func doesApprovedAmountLookReallyBig(_ amount: BigUInt, decimals: Int) -> Bool {
+        let empiricallyBigLimit: Double = 90_000_000
+        return Double(amount) / pow(10, activity.tokenObject.decimals).doubleValue > empiricallyBigLimit
     }
 }
