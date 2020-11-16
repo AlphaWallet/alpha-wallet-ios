@@ -214,7 +214,7 @@ class TransactionConfirmationViewController: UIViewController {
         set(state: .ready)
         configure(for: viewModel)
 
-        //NOTE: to display animation correntry we can take 'view.frame.height' and bottom view will smoothly slide up from button ;)
+        //NOTE: to display animation correctly we can take 'view.frame.height' and bottom view will smoothly slide up from button ;)
         bottomConstraint.constant = view.frame.height
     }
 
