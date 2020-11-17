@@ -12,11 +12,12 @@ protocol AnalyticsAction {
 
 enum Analytics {
     enum Navigation: String, AnalyticsNavigation {
-        case placeholder
+        case actionSheetForTransactionConfirmation = "Screen: Txn Confirmation"
     }
 
     enum Action: String, AnalyticsAction {
-        case placeholder
+        case confirmsTransactionInActionSheet = "Txn Confirmation Confirm Tapped"
+        case cancelsTransactionInActionSheet = "Txn Confirmation Cancelled"
     }
 
     enum Properties {

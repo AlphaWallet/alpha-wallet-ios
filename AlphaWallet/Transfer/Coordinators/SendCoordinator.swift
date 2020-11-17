@@ -144,7 +144,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             amount: amount,
             ethPrice: ethPrice
         )
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration)
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
