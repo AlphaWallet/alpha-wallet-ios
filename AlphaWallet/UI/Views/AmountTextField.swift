@@ -188,10 +188,10 @@ class AmountTextField: UIControl {
         get {
             switch currentPair.left {
             case .cryptoCurrency:
-                return textField.text ?? "0"
+                return textField.text?.droppedTrailingZeros ?? "0"
             case .usd:
                 guard let value = ethCostRawValue else { return "0" }
-                return StringFormatter().alternateAmount(value: value)
+                return StringFormatter().alternateAmount(value: value).droppedTrailingZeros
             }
         }
         set {
@@ -229,9 +229,9 @@ class AmountTextField: UIControl {
 
         switch currentPair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: Constants.Currency.usd)
+            return StringFormatter().currency(with: amount, and: Constants.Currency.usd).droppedTrailingZeros
         case .usd:
-            return StringFormatter().alternateAmount(value: amount)
+            return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
         }
     }
 
@@ -500,6 +500,22 @@ extension String {
     var optionalDecimalValue: NSDecimalNumber? {
         return EtherNumberFormatter.full.decimal(from: self)
     }
+
+    var droppedTrailingZeros: String {
+        var string = self
+        let decimalSeparator = Locale.current.decimalSeparator ?? "."
+
+        while string.last == "0" || string.last?.toString == decimalSeparator {
+            if string.last?.toString == decimalSeparator {
+                string = String(string.dropLast())
+                break
+            }
+            string = String(string.dropLast())
+        }
+
+        return string
+    }
+
 }
 
 extension EtherNumberFormatter {
