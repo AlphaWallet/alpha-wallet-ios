@@ -27,6 +27,14 @@ class AppCoordinator: NSObject, Coordinator {
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
+
+    private lazy var urlSchemeCoordinator: UrlSchemeCoordinatorType = {
+        let coordinator = UrlSchemeCoordinator()
+        coordinator.delegate = self
+
+        return coordinator
+    }()
+
     //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
     private var hasRealmDatabasesForWallet: Bool {
         let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
@@ -145,12 +153,18 @@ class AppCoordinator: NSObject, Coordinator {
 
     /// Return true if handled
     func handleOpen(url: URL) -> Bool {
+        let handled = urlSchemeCoordinator.handleOpen(url: url)
+        if handled {
+            return true
+        }
+
         if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator {
             let handled = assetDefinitionStoreCoordinator.handleOpen(url: url)
             if handled {
                 return true
             }
         }
+
         guard let inCoordinator = inCoordinator else { return false }
         let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages, assetDefinitionStore: assetDefinitionStore)
         urlSchemeHandler.delegate = self
@@ -172,8 +186,10 @@ class AppCoordinator: NSObject, Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 config: config,
                 appTracker: appTracker,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                urlSchemeCoordinator: urlSchemeCoordinator
         )
+
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -370,7 +386,7 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
     }
 }
 
-extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
+extension AppCoordinator: CustomUrlSchemeCoordinatorResolver {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
         inCoordinator?.showPaymentFlow(for: paymentFlow, server: server)
     }
@@ -394,5 +410,11 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
 extension AppCoordinator: AssetDefinitionStoreDelegate {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
         inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
+    }
+}
+
+extension AppCoordinator: UrlSchemeCoordinatorDelegate {
+    func resolve(for coordinator: UrlSchemeCoordinator) -> UrlSchemeResolver? {
+        return inCoordinator
     }
 }
