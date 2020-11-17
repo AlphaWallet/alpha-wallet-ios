@@ -16,17 +16,18 @@ class TransferNFTCoordinator: Coordinator {
     private let recipient: AlphaWallet.Address
     private let keystore: Keystore
     private let session: WalletSession
-
+    private let analyticsCoordinator: AnalyticsCoordinator?
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, transferType: TransferType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession) {
+    init(navigationController: UINavigationController, transferType: TransferType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession, analyticsCoordinator: AnalyticsCoordinator?) {
         self.navigationController = navigationController
         self.transferType = transferType
         self.tokenHolder = tokenHolder
         self.recipient = recipient
         self.keystore = keystore
         self.session = session
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -40,7 +41,7 @@ class TransferNFTCoordinator: Coordinator {
                 indices: tokenHolder.indices
         )
         let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore)
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration)
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
