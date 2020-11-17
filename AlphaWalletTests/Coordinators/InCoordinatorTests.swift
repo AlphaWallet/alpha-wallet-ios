@@ -4,6 +4,21 @@ import XCTest
 @testable import AlphaWallet
 import TrustKeystore
 
+class FakeUrlSchemeCoordinator: UrlSchemeCoordinatorType {
+
+    static func make() -> FakeUrlSchemeCoordinator {
+        return .init()
+    }
+
+    func handleOpen(url: URL) -> Bool {
+        return false
+    }
+
+    func processPendingURL(in inCoordinator: UrlSchemeResolver) {
+        //no op
+    }
+}
+
 class InCoordinatorTests: XCTestCase {
 
     func testShowTabBar() {
@@ -16,7 +31,8 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
-            analyticsCoordinator: nil
+            analyticsCoordinator: nil,
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
 
         coordinator.start()
@@ -48,7 +64,8 @@ class InCoordinatorTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: nil,
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
 
         coordinator.showTabBar(for: account1)
@@ -68,7 +85,8 @@ class InCoordinatorTests: XCTestCase {
                 keystore: FakeKeystore(wallets: [wallet]),
                 assetDefinitionStore: AssetDefinitionStore(),
                 config: .make(),
-                analyticsCoordinator: nil
+                analyticsCoordinator: nil,
+                urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
 
@@ -88,7 +106,8 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: nil,
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
 
@@ -107,7 +126,8 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: nil,
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
 
@@ -145,7 +165,8 @@ class InCoordinatorTests: XCTestCase {
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
                     config: .make(),
-                    analyticsCoordinator: nil
+                    analyticsCoordinator: nil,
+                    urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
             )
             coordinator.showTabBar(for: wallet)
 
