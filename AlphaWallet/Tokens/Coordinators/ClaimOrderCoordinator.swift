@@ -20,7 +20,7 @@ class ClaimOrderCoordinator {
                     s: String,
                     contractAddress: AlphaWallet.Address,
                     recipient: AlphaWallet.Address,
-                    completion: @escaping (Result<Data, AnyError>) -> Void
+                    completion: @escaping (Swift.Result<Data, AnyError>) -> Void
         ) {
 
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
@@ -44,7 +44,7 @@ class ClaimOrderCoordinator {
                           r: String,
                           s: String,
                           contractAddress: AlphaWallet.Address,
-                          completion: @escaping (Result<Data, AnyError>) -> Void) {
+                          completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
         do {
             let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(hex: r), Data(hex: s)]
             let arrayType: ABIType
@@ -75,7 +75,7 @@ class ClaimOrderCoordinator {
                              r: String,
                              s: String,
                              recipient: AlphaWallet.Address,
-                             completion: @escaping (Result<Data, AnyError>) -> Void) {
+                             completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
 
         do {
             let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), TrustKeystore.Address(address: recipient)]
@@ -101,7 +101,7 @@ class ClaimOrderCoordinator {
             r: String,
             s: String,
             recipient: AlphaWallet.Address,
-            completion: @escaping (Result<Data, AnyError>) -> Void
+        completion: @escaping (Swift.Result<Data, AnyError>) -> Void
     ) {
         do {
             let parameters: [Any] = [

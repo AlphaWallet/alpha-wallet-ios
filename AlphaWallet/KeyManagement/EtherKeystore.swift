@@ -5,7 +5,7 @@ import LocalAuthentication
 import BigInt
 import KeychainSwift
 import Result
-import TrustWalletCore
+import WalletCore
 import web3swift
 
 enum EtherKeystoreError: LocalizedError {
@@ -324,7 +324,7 @@ open class EtherKeystore: Keystore {
         let firstAccountIndex = UInt32(0)
         let externalChangeConstant = UInt32(0)
         let addressIndex = UInt32(0)
-        let privateKey = wallet.getKey(purpose: .bip44, coin: .ethereum, account: firstAccountIndex, change: externalChangeConstant, address: addressIndex)
+        let privateKey = wallet.getKeyBIP44(coin: .ethereum, account: firstAccountIndex, change: externalChangeConstant, address: addressIndex)
         return privateKey.data
     }
 
