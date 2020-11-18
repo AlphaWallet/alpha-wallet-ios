@@ -298,16 +298,8 @@ extension ActivitiesViewController: UISearchResultsUpdating {
 
     private func processSearchWithKeywords() {
         let keyword = searchController.searchBar.text
-
-        DispatchQueue.global().async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            strongSelf.viewModel.filter(.keyword(keyword))
-
-            DispatchQueue.main.async {
-                strongSelf.tableView.reloadData()
-            }
-        }
+        viewModel.filter(.keyword(keyword))
+        tableView.reloadData()
     }
 }
 
