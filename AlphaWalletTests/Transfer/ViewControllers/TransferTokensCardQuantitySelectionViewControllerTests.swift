@@ -7,7 +7,6 @@ import UIKit
 class TransferTokensCardQuantitySelectionViewControllerTests: FBSnapshotTestCase {
     override func setUp() {
         super.setUp()
-        isDeviceAgnostic = true
         recordMode = false
     }
 

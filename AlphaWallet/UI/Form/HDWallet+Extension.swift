@@ -2,7 +2,7 @@
 
 import Foundation
 import BigInt
-import TrustWalletCore
+import WalletCore
 
 extension HDWallet {
     static let mnemonicWordCount = 12

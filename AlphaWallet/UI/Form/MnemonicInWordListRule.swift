@@ -2,7 +2,7 @@
 
 import Foundation
 import Eureka
-import TrustWalletCore
+import WalletCore
 
 struct MnemonicInWordListRule<T: Equatable>: RuleType {
     public init() {

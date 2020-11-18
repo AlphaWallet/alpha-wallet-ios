@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import TrustWalletCore
+import WalletCore
 
 protocol ImportWalletViewControllerDelegate: class {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
@@ -503,12 +503,17 @@ class ImportWalletViewController: UIViewController {
         let types = ["public.text", "public.content", "public.item", "public.data"]
         let controller = UIDocumentPickerViewController(documentTypes: types, in: .import)
         controller.delegate = self
+
         switch UIDevice.current.userInterfaceIdiom {
         case .pad:
             controller.modalPresentationStyle = .formSheet
-        case .unspecified, .tv, .carPlay, .phone:
+        case .phone:
+            controller.makePresentationFullScreenForiOS13Migration()
+        //NOTE: allow to support version xCode 11.7 and xCode 12
+        default:
             controller.makePresentationFullScreenForiOS13Migration()
         }
+
         present(controller, animated: true, completion: nil)
     }
 

@@ -2,7 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
-import TrustWalletCore
+import WalletCore
 
 class HDWalletTest: XCTestCase {
     func testComputeSeedFromEnglishMnemonic() {
