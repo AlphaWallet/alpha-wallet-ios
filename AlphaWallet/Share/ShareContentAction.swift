@@ -61,7 +61,7 @@ enum ShareContentAction {
         switch self {
         case .url(let url):
             components.queryItems = [
-                .init(name: "q", value: url.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))
+                .init(name: "q", value: url.absoluteString)
             ]
         case .string(let text):
             components.queryItems = [
