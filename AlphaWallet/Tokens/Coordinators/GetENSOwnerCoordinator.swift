@@ -30,7 +30,7 @@ class GetENSAddressCoordinator {
     private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
 
     private var toStartResolvingEnsNameTimer: Timer?
-    private let server: RPCServer
+    private (set) var server: RPCServer
 
     init(server: RPCServer) {
         self.server = server
