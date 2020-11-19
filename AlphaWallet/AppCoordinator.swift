@@ -366,8 +366,8 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
         }
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        inCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
+        inCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, inViewController: viewController, completion: completion)
     }
 
     func completed(in coordinator: UniversalLinkCoordinator) {

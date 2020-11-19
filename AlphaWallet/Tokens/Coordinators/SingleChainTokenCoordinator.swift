@@ -556,7 +556,7 @@ extension TransferType {
         switch self {
         case .ERC20Token(let token, _, _):
             return .init(input: .input(token.contractAddress), theme: theme)
-        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency, .tokenScript:
+        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency, .tokenScript, .claimPaidErc875MagicLink:
             return .init(input: .none, theme: theme)
         }
     }
@@ -602,7 +602,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch transferType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)

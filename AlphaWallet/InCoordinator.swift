@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import UIKit
-import RealmSwift
 import BigInt
+import RealmSwift
+import Result
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -51,8 +51,6 @@ class InCoordinator: NSObject, Coordinator {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
         }
     }
-    //TODO We might not need this anymore once we stop using the vendored Web3Swift library which uses a WKWebView underneath
-    private var claimOrderCoordinator: ClaimOrderCoordinator?
     //TODO rename this generic name to reflect that it's for event instances, not for event activity
     lazy private var eventsDataStore: EventsDataStore = {
         EventsDataStore(realm: self.realm(forAccount: wallet))
@@ -63,6 +61,8 @@ class InCoordinator: NSObject, Coordinator {
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     var tokensStorages = ServerDictionary<TokensDataStore>()
+    private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
+
     lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
         return createEtherPricesSubscribablesForAllChains()
     }()
@@ -618,59 +618,14 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let server = tokenObject.server
-        let signature = signedOrder.signature.substring(from: 2)
-        let v = UInt8(signature.substring(from: 128), radix: 16)!
-        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
-        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        let wallet = keystore.currentWallet
-        claimOrderCoordinator = ClaimOrderCoordinator()
-        claimOrderCoordinator?.claimOrder(
-                signedOrder: signedOrder,
-                expiry: signedOrder.order.expiry,
-                v: v,
-                r: r,
-                s: s,
-                contractAddress: signedOrder.order.contractAddress,
-                recipient: wallet.address
-        ) { result in
-            let strongSelf = self
-            switch result {
-            case .success(let payload):
-                let session = strongSelf.walletSessions[server]
-                let account = wallet.address
-                TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
-                    //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
-                    let transactionToSign = UnsignedTransaction(
-                            value: BigInt(signedOrder.order.price),
-                            account: account,
-                            to: signedOrder.order.contractAddress,
-                            nonce: -1,
-                            data: payload,
-                            gasPrice: gasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            server: server
-                    )
-                    let sendTransactionCoordinator = SendTransactionCoordinator(
-                            session: session,
-                            keystore: strongSelf.keystore,
-                            confirmType: .signThenSend
-                    )
-                    sendTransactionCoordinator.send(transaction: transactionToSign) { result in
-                        switch result {
-                        case .success(let res):
-                            completion(true)
-                            print(res)
-                        case .failure(let error):
-                            completion(false)
-                            print(error)
-                        }
-                    }
-                }.cauterize()
-            case .failure: break
-            }
-        }
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void) {
+        guard let navigationController = viewController.navigationController else { return }
+        let session = walletSessions[tokenObject.server]
+        claimOrderCoordinatorCompletionBlock = completion
+        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, tokenObject: tokenObject, signedOrder: signedOrder, ethPrice: nativeCryptoCurrencyPrices[session.server], analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
@@ -836,7 +791,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: UrlSchemeResolver {
-    
+
     func openURLInBrowser(url: URL) {
         openURLInBrowser(url: url, forceReload: false)
     }
@@ -962,5 +917,21 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+}
+extension InCoordinator: ClaimOrderCoordinatorDelegate {
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
+        claimOrderCoordinatorCompletionBlock?(false)
+    }
+
+    func didClose(in coordinator: ClaimPaidOrderCoordinator) {
+        claimOrderCoordinatorCompletionBlock = nil
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+        claimOrderCoordinatorCompletionBlock?(true)
+        claimOrderCoordinatorCompletionBlock = nil
+        removeCoordinator(coordinator)
     }
 }

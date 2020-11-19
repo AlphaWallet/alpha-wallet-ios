@@ -41,7 +41,7 @@ class TransactionConfigurator {
         switch transaction.transferType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .tokenScript:
+        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
             return transaction.contract
         }
     }
@@ -56,6 +56,7 @@ class TransactionConfigurator {
         case .ERC721Token: return 0
         case .ERC721ForTicketToken: return 0
         case .tokenScript: return transaction.value
+        case .claimPaidErc875MagicLink: return transaction.value
         }
     }
 
@@ -106,7 +107,7 @@ class TransactionConfigurator {
     }
 
     // Generic function to derive the typical acceptable gas price on each network
-    static public func estimateGasPrice(server: RPCServer) -> Promise<BigInt> {
+    static private func estimateGasPrice(server: RPCServer) -> Promise<BigInt> {
         return Promise { seal in
             if server == .xDai {
                 // xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
@@ -227,6 +228,8 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+            case .claimPaidErc875MagicLink:
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
             }
         } catch {
             return .init(transaction: transaction)

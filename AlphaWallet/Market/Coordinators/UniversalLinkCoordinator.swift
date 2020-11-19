@@ -10,7 +10,7 @@ import web3swift
 protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: UniversalLinkCoordinator)
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
 }
 
@@ -559,8 +559,8 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
     private func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
-        updateImportTokenController(with: .processing)
-        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { [weak self] successful in
+        guard let importTokenViewController = importTokenViewController else { return }
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, inViewController: importTokenViewController) { [weak self] successful in
             guard let strongSelf = self else { return }
             guard let vc = strongSelf.importTokenViewController, case .ready = vc.state else { return }
             if successful {
