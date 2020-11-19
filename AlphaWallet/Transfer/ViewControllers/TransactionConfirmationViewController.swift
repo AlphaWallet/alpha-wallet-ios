@@ -195,12 +195,18 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 break
             }
         case .sendNftTransaction(let sendNftViewModel):
             sendNftViewModel.recipientResolver.resolve { [weak self] in
                 guard let strongSelf = self else { return }
+                strongSelf.generateSubviews()
+            }
+        case .claimPaidErc875MagicLink(let claimPaidErc875MagicLinkViewModel):
+            claimPaidErc875MagicLinkViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
         }
@@ -501,6 +507,20 @@ extension TransactionConfirmationViewController {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
                 case .tokenId:
+                    break
+                }
+                header.childrenStackView.addArrangedSubviews(children)
+                views.append(header)
+            }
+        case .claimPaidErc875MagicLink(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                header.delegate = self
+                var children: [UIView] = []
+                switch section {
+                case .gas:
+                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                case .amount, .numberOfTokens:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)

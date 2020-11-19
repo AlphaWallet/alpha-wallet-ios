@@ -61,7 +61,7 @@ struct SendHeaderViewViewModel {
                 } else {
                     return marketPriceAttributedString
                 }
-            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return nil
             }
         }

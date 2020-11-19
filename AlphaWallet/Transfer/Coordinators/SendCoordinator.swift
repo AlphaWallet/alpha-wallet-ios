@@ -103,6 +103,7 @@ class SendCoordinator: Coordinator {
         case .ERC721ForTicketToken: break
         case .dapp: break
         case .tokenScript: break
+        case .claimPaidErc875MagicLink: break
         }
         controller.delegate = self
         return controller

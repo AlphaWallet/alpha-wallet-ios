@@ -3,5 +3,5 @@
 import Foundation
 @testable import AlphaWallet
 
-class FakeClaimOrderCoordinator: ClaimOrderCoordinator {
+class FakeClaimOrderCoordinator: ClaimPaidOrderCoordinator {
 }

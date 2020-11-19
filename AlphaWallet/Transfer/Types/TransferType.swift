@@ -34,6 +34,7 @@ enum TransferType {
     case ERC721Token(TokenObject)
     case ERC721ForTicketToken(TokenObject)
     case dapp(TokenObject, DAppRequester)
+    case claimPaidErc875MagicLink(TokenObject)
     case tokenScript(TokenObject)
 
     var contractForFungibleSend: AlphaWallet.Address? {
@@ -42,7 +43,7 @@ enum TransferType {
             return nil
         case .ERC20Token(let token, _, _):
             return token.contractAddress
-        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
+        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -66,6 +67,8 @@ extension TransferType {
             return token.symbol
         case .ERC721ForTicketToken(let token):
             return token.symbol
+        case .claimPaidErc875MagicLink(let token):
+            return token.symbol
         }
     }
 
@@ -84,6 +87,8 @@ extension TransferType {
         case .ERC721Token(let token):
             return token
         case .ERC721ForTicketToken(let token):
+            return token
+        case .claimPaidErc875MagicLink(let token):
             return token
         }
     }
@@ -104,6 +109,8 @@ extension TransferType {
             return token.server
         case .ERC721ForTicketToken(let token):
             return token.server
+        case .claimPaidErc875MagicLink(let token):
+            return token.server
         }
     }
 
@@ -121,7 +128,7 @@ extension TransferType {
             return token.contractAddress
         case .ERC721ForTicketToken(let token):
             return token.contractAddress
-        case .dapp(let token, _), .tokenScript(let token):
+        case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress
         }
     }
