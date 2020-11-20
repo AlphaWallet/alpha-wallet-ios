@@ -38,6 +38,7 @@ target 'AlphaWallet' do
   pod 'AWSSNS'
   pod 'Mixpanel-swift'
   pod 'UnstoppableDomainsResolution', '0.1.6'
+  pod 'BlockiesSwift'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
       inherit! :search_paths
