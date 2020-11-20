@@ -96,10 +96,10 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func close(completion: @escaping () -> Void) {
-        confirmationViewController.dismissViewAnimated(with: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.navigationController.dismiss(animated: true, completion: completion)
-        })
+        confirmationViewController.dismissViewAnimated {
+            //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
+            self.navigationController.dismiss(animated: true, completion: completion)
+        }
     }
 
     private func showFeedbackOnSuccess() {
