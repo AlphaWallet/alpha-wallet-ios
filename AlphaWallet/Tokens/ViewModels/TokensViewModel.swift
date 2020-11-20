@@ -26,7 +26,7 @@ class TokensViewModel {
         return .white
     }
 
-    var title: String {
+    var walletDefaultTitle: String {
         return R.string.localizable.walletTokensTabbarItemTitle()
     }
 

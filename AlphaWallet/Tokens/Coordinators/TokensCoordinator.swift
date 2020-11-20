@@ -56,7 +56,8 @@ class TokensCoordinator: Coordinator {
                 tokenCollection: tokenCollection,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                filterTokensCoordinator: filterTokensCoordinator
+                filterTokensCoordinator: filterTokensCoordinator,
+                config: config
         )
         controller.delegate = self
         return controller

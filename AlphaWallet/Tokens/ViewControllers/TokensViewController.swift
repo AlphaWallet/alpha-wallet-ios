@@ -3,6 +3,7 @@
 import UIKit
 import Result
 import StatefulViewController
+import PromiseKit
 
 protocol TokensViewControllerDelegate: class {
     func didPressAddHideTokens(viewModel: TokensViewModel)
@@ -105,7 +106,7 @@ class TokensViewController: UIViewController {
     private let hideTokenWidth: CGFloat = 170
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-
+    private let config: Config
     var isConsoleButtonHidden: Bool {
         get {
             return consoleButton.isHidden
@@ -164,13 +165,15 @@ class TokensViewController: UIViewController {
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
          eventsDataStore: EventsDataStoreProtocol,
-         filterTokensCoordinator: FilterTokensCoordinator
+         filterTokensCoordinator: FilterTokensCoordinator,
+         config: Config
     ) {
         self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.config = config
         self.viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         searchController = UISearchController(searchResultsController: nil)
 
@@ -206,12 +209,11 @@ class TokensViewController: UIViewController {
             self?.tokenCollection.fetch()
         })
         loadingView = LoadingView()
-        emptyView = EmptyView(
-            title: R.string.localizable.emptyViewNoTokensLabelTitle(),
-            onRetry: { [weak self] in
-                self?.startLoading()
-                self?.tokenCollection.fetch()
+        emptyView = EmptyView(title: R.string.localizable.emptyViewNoTokensLabelTitle(), onRetry: { [weak self] in
+            self?.startLoading()
+            self?.tokenCollection.fetch()
         })
+
         refreshView(viewModel: viewModel)
 
         setupFilteringWithKeyword()
@@ -229,6 +231,7 @@ class TokensViewController: UIViewController {
         fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
+        getWalletName()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -238,6 +241,17 @@ class TokensViewController: UIViewController {
 
     @objc func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
         delegate?.scanQRCodeSelected(in: self)
+    }
+
+    private func getWalletName() {
+        title = viewModel.walletDefaultTitle
+
+        firstly {
+            GetWalletNameCoordinator(config: config).getName(forAddress: account.address)
+        }.done { [weak self] name in
+            guard let strongSelf = self else { return }
+            strongSelf.navigationItem.title = name ?? strongSelf.viewModel.walletDefaultTitle
+        }.cauterize()
     }
 
     @objc func pullToRefresh() {
@@ -287,7 +301,6 @@ class TokensViewController: UIViewController {
     }
 
     func refreshView(viewModel: TokensViewModel) {
-        title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
     }
