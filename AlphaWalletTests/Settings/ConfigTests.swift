@@ -24,8 +24,10 @@ class ConfigTests: XCTestCase {
                 tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore)
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+                config: .make()
         )
+        vc1.viewWillAppear(false)
         XCTAssertEqual(vc1.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
@@ -35,8 +37,10 @@ class ConfigTests: XCTestCase {
                 tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore)
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+                config: .make()
         )
+        vc2.viewWillAppear(false)
         XCTAssertEqual(vc2.title, "我的钱包")
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run

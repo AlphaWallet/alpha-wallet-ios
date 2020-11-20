@@ -22,6 +22,7 @@ class ENSReverseLookupCoordinator {
         self.server = server
     }
 
+    //TODO make calls from multiple callers at the same time for the same address more efficient
     func getENSNameFromResolver(
             forAddress input: AlphaWallet.Address,
             completion: @escaping (Result<String, AnyError>) -> Void
