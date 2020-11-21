@@ -262,14 +262,6 @@ extension TransactionConfirmationViewModel {
             self.ethPrice = ethPrice
         }
 
-        func isSubviewHidden(section: Int, row: Int) -> Bool {
-            let _ = openedSections.contains(section)
-            switch sections[section] {
-            case .gas:
-                return true
-            }
-        }
-
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                 isOpened: openedSections.contains(section),
