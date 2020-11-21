@@ -13,7 +13,7 @@ enum TransactionConfirmationViewModel {
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _):
-            self = .tokenScriptTransaction(.init(address: contract))
+            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator))
         case .dappTransaction:
             self = .dappTransaction(.init(configurator: configurator))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
@@ -101,9 +101,6 @@ extension TransactionConfirmationViewModel {
         private var newBalance: String?
         private let configurator: TransactionConfigurator
         private let assetDefinitionStore: AssetDefinitionStore
-        private var defaultTitle: String {
-            R.string.localizable.tokenTransactionConfirmationDefault()
-        }
         private var configurationTitle: String {
             configurator.selectedConfigurationType.title
         }
@@ -223,9 +220,6 @@ extension TransactionConfirmationViewModel {
             }
         }
         private let configurator: TransactionConfigurator
-        private var defaultTitle: String {
-            return R.string.localizable.tokenTransactionConfirmationDefault()
-        }
         private var configurationTitle: String {
             return configurator.selectedConfigurationType.title
         }
@@ -279,8 +273,9 @@ extension TransactionConfirmationViewModel {
         }
 
         private let address: AlphaWallet.Address
-        private var defaultTitle: String {
-            return R.string.localizable.tokenTransactionConfirmationDefault()
+        private let configurator: TransactionConfigurator
+        private var configurationTitle: String {
+            configurator.selectedConfigurationType.title
         }
 
         var openedSections = Set<Int>()
@@ -288,8 +283,9 @@ extension TransactionConfirmationViewModel {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address) {
+        init(address: AlphaWallet.Address, configurator: TransactionConfigurator) {
             self.address = address
+            self.configurator = configurator
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -298,7 +294,7 @@ extension TransactionConfirmationViewModel {
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
-                return .init(title: defaultTitle, placeholder: placeholder, configuration: configuration)
+                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
             case .contract:
                 return .init(title: address.truncateMiddle, placeholder: placeholder, configuration: configuration)
             }
@@ -329,10 +325,6 @@ extension TransactionConfirmationViewModel {
 
         private var configurationTitle: String {
             configurator.selectedConfigurationType.title
-        }
-
-        private var defaultTitle: String {
-            R.string.localizable.tokenTransactionConfirmationDefault()
         }
 
         var ensName: String? { recipientResolver.ensName }
