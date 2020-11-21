@@ -12,16 +12,16 @@ enum TransactionConfirmationViewModel {
 
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
-        case .tokenScriptTransaction(_, let contract, _):
-            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator))
-        case .dappTransaction:
-            self = .dappTransaction(.init(configurator: configurator))
+        case .tokenScriptTransaction(_, let contract, _, let ethPrice):
+            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, ethPrice: ethPrice))
+        case .dappTransaction(_, _, let ethPrice):
+            self = .dappTransaction(.init(configurator: configurator, ethPrice: ethPrice))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
-        case .sendNftTransaction:
+        case .sendNftTransaction(_, _, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
-            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver))
+            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice))
         case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
         }
@@ -75,6 +75,19 @@ enum UpdateBalanceValue {
 }
 
 extension TransactionConfirmationViewModel {
+    private static func gasFeeString(withConfigurator configurator: TransactionConfigurator, cryptoToDollarRate: Double?) -> String {
+        let fee = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
+        let symbol = configurator.session.server.symbol
+        let feeString = EtherNumberFormatter.short.string(from: fee)
+        let cryptoToDollarSymbol = Constants.Currency.usd
+        if let cryptoToDollarRate = cryptoToDollarRate {
+            let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
+            return "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
+        } else {
+            return "< ~\(feeString) \(symbol)"
+        }
+    }
+
     class SendFungiblesTransactionViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case balance
@@ -166,6 +179,18 @@ extension TransactionConfirmationViewModel {
             }
         }
 
+        var gasFee: String {
+            let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
+            let feeString = EtherNumberFormatter.short.string(from: fee)
+            let cryptoToDollarSymbol = Constants.Currency.usd
+            if let cryptoToDollarRate = cryptoToDollarRate {
+                let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
+                return "< ~\(feeString) \(session.server.symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
+            } else {
+                return "< ~\(feeString) \(session.server.symbol)"
+            }
+        }
+
         func isSubviewsHidden(section: Int, row: Int) -> Bool {
             let isOpened = openedSections.contains(section)
 
@@ -192,14 +217,14 @@ extension TransactionConfirmationViewModel {
                 section: section,
                 shouldHideChevron: sections[section] != .recipient
             )
-
             let placeholder = sections[section].title
             switch sections[section] {
             case .balance:
                 let title = R.string.localizable.tokenTransactionConfirmationDefault()
                 return .init(title: balance ?? title, placeholder: placeholder, details: newBalance, configuration: configuration)
             case .gas:
-                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .amount:
                 return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
             case .recipient:
@@ -224,14 +249,17 @@ extension TransactionConfirmationViewModel {
             return configurator.selectedConfigurationType.title
         }
 
+        var cryptoToDollarRate: Double?
+        let ethPrice: Subscribable<Double>
         var openedSections = Set<Int>()
 
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(configurator: TransactionConfigurator) {
+        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
+            self.ethPrice = ethPrice
         }
 
         func isSubviewHidden(section: Int, row: Int) -> Bool {
@@ -252,7 +280,8 @@ extension TransactionConfirmationViewModel {
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
-                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             }
         }
     }
@@ -278,14 +307,17 @@ extension TransactionConfirmationViewModel {
             configurator.selectedConfigurationType.title
         }
 
+        var cryptoToDollarRate: Double?
+        let ethPrice: Subscribable<Double>
         var openedSections = Set<Int>()
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator) {
+        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
             self.address = address
             self.configurator = configurator
+            self.ethPrice = ethPrice
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -294,7 +326,8 @@ extension TransactionConfirmationViewModel {
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
-                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .contract:
                 return .init(title: address.truncateMiddle, placeholder: placeholder, configuration: configuration)
             }
@@ -331,15 +364,18 @@ extension TransactionConfirmationViewModel {
         var addressString: String? { recipientResolver.address?.eip55String }
         var openedSections = Set<Int>()
         let recipientResolver: RecipientResolver
+        var cryptoToDollarRate: Double?
+        let ethPrice: Subscribable<Double>
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver) {
+        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
             self.transferType = configurator.transaction.transferType
             self.session = configurator.session
             self.recipientResolver = recipientResolver
+            self.ethPrice = ethPrice
         }
 
         func isSubviewsHidden(section: Int, row: Int) -> Bool {
@@ -371,7 +407,8 @@ extension TransactionConfirmationViewModel {
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
-                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .tokenId:
                 //TODO be good to display the token instance's name or equivalent too
                 let tokenId = configurator.transaction.tokenId.flatMap({ String($0) }) ?? ""
