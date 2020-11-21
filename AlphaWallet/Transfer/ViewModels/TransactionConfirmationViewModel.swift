@@ -482,14 +482,6 @@ extension TransactionConfirmationViewModel {
             self.numberOfTokens = numberOfTokens
         }
 
-        func isSubviewHidden(section: Int, row: Int) -> Bool {
-            let _ = openedSections.contains(section)
-            switch sections[section] {
-            case .gas, .amount, .numberOfTokens:
-                return true
-            }
-        }
-
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(
                     isOpened: openedSections.contains(section),
