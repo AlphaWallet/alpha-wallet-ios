@@ -150,11 +150,12 @@ extension TransactionConfirmationViewModel {
             switch transferType {
             case .nativeCryptocurrency(let token, _, _):
                 let cryptoToDollarSymbol = Constants.Currency.usd
-                if let cryptoToDollarRate = cryptoToDollarRate, let amount = Double(amount) {
-                    let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
-                    return "\(amount) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+                let double = Double(amount) ?? 0
+                if let cryptoToDollarRate = cryptoToDollarRate {
+                    let cryptoToDollarValue = StringFormatter().currency(with: double * cryptoToDollarRate, and: cryptoToDollarSymbol)
+                    return "\(double) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
                 } else {
-                    return "\(amount) \(token.symbol)"
+                    return "\(double) \(token.symbol)"
                 }
             case .ERC20Token(let token, _, _):
                 return "\(amount) \(token.symbol)"
