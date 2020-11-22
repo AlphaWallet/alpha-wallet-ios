@@ -29,6 +29,13 @@ enum TransactionConfirmationConfiguration {
             return keystore
         }
     }
+
+    var ethPrice: Subscribable<Double> {
+        switch self {
+        case .dappTransaction(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _):
+            return ethPrice
+        }
+    }
 }
 
 enum TransactionConfirmationResult {
@@ -167,7 +174,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, session: WalletSession) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, currencyRate: session.balanceCoordinator.currencyRate))
+        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, ethPrice: configuration.ethPrice, currencyRate: session.balanceCoordinator.currencyRate))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
@@ -175,8 +182,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 }
 
 extension TransactionConfirmationCoordinator: ConfigureTransactionViewControllerDelegate {
-    func didSavedToUseDefaultConfiguration(in viewController: ConfigureTransactionViewController) {
-        configurator.chooseDefaultConfiguration()
+    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController) {
+        configurator.chooseDefaultConfigurationType(configurationType)
         navigationController.popViewController(animated: true)
     }
 
@@ -196,6 +203,6 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     }
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(withEstimatedGasPrice: estimate)
+        configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
     }
 }
