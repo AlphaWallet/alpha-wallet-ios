@@ -8,39 +8,66 @@
 import UIKit
 
 struct GasSpeedTableViewCellViewModel {
-    var speed: String?
-    var estimatedTime: String?
-    var details: String?
+    let configuration: TransactionConfiguration
+    let configurationType: TransactionConfigurationType
+    let cryptoToDollarRate: Double?
+    let symbol: String
+    var title: String
     let isSelected: Bool
+
+    private var gasFeeString: String {
+        let fee = configuration.gasPrice * configuration.gasLimit
+        let feeString = EtherNumberFormatter.short.string(from: fee)
+        let cryptoToDollarSymbol = Constants.Currency.usd
+        let costs: String
+        if let cryptoToDollarRate = cryptoToDollarRate {
+            let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
+            return  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
+        } else {
+            return "< ~\(feeString) \(symbol)"
+        }
+    }
+
+    private var estimatedTime: String? {
+        let estimatedProcessingTime = configurationType.estimatedProcessingTime
+        if estimatedProcessingTime.isEmpty {
+            return nil
+        } else {
+            return estimatedProcessingTime
+        }
+    }
 
     var accessoryType: UITableViewCell.AccessoryType {
         return isSelected ? .checkmark : .none
     }
 
-    var speedAttributedString: NSAttributedString? {
-        guard let speed = speed else { return nil }
-
-        return NSAttributedString(string: speed, attributes: [
-            .foregroundColor: Colors.black,
-            .font: Fonts.regular(size: 17)!
-        ])
+    var titleAttributedString: NSAttributedString? {
+        if isSelected {
+            return NSAttributedString(string: title, attributes: [
+                .foregroundColor: Colors.black,
+                .font: Fonts.semibold(size: 17)!
+            ])
+        } else {
+            return NSAttributedString(string: title, attributes: [
+                .foregroundColor: Colors.black,
+                .font: Fonts.regular(size: 17)!
+            ])
+        }
     }
 
     var estimatedTimeAttributedString: NSAttributedString? {
         guard let estimatedTime = estimatedTime else { return nil }
 
         return NSAttributedString(string: estimatedTime, attributes: [
-            .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)!
+            .foregroundColor: R.color.mine()!,
+            .font: Fonts.regular(size: 15)!
         ])
     }
 
     var detailsAttributedString: NSAttributedString? {
-        guard let details = details else { return nil }
-
-        return NSAttributedString(string: details, attributes: [
+        return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)!
+            .font: Fonts.regular(size: 12)!
         ])
     }
 
@@ -48,4 +75,3 @@ struct GasSpeedTableViewCellViewModel {
         return Colors.appBackground
     }
 }
-

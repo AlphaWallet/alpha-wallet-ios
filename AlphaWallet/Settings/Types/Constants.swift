@@ -124,6 +124,8 @@ public struct Constants {
     static let ENSRegistrarRinkeby = ENSRegistrarAddress
     static let ENSRegistrarGoerli = ENSRegistrarAddress
 
+    static let gasNowEndpointBaseUrl = "https://www.gasnow.org"
+
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
     static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,

@@ -10,6 +10,7 @@ enum AlphaWalletService {
     case register(config: Config, device: PushDevice)
     case unregister(config: Config, device: PushDevice)
     case marketplace(config: Config, server: RPCServer)
+    case gasPriceEstimate
 
     enum SortOrder: String {
         case asc
@@ -28,6 +29,8 @@ extension AlphaWalletService: TargetType {
             return config.priceInfoEndpoints
         case .marketplace(let config, _):
             return config.priceInfoEndpoints
+        case .gasPriceEstimate:
+            return URL(string: Constants.gasNowEndpointBaseUrl)!
         }
     }
 
@@ -43,11 +46,13 @@ extension AlphaWalletService: TargetType {
         case .unregister:
             return "/push/unregister"
         case .priceOfEth:
-            return "/api/v3/coins/markets" 
+            return "/api/v3/coins/markets"
         case .priceOfDai:
             return "/api/v3/coins/markets"
         case .marketplace:
             return "/marketplace"
+        case .gasPriceEstimate:
+            return "/api/v3/gas/price"
         }
     }
 
@@ -59,6 +64,7 @@ extension AlphaWalletService: TargetType {
         case .priceOfEth: return .get
         case .priceOfDai: return .get
         case .marketplace: return .get
+        case .gasPriceEstimate: return .get
         }
     }
 
@@ -92,16 +98,18 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .priceOfEth:
             return .requestParameters(parameters: [
-                "vs_currency": "USD", 
+                "vs_currency": "USD",
                 "ids": "ethereum",
             ], encoding: URLEncoding())
         case .priceOfDai:
             return .requestParameters(parameters: [
-                "vs_currency": "USD", 
+                "vs_currency": "USD",
                 "ids": "dai",
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
+        case .gasPriceEstimate:
+            return .requestPlain
         }
     }
 
@@ -120,7 +128,7 @@ extension AlphaWalletService: TargetType {
                     "client-build": Bundle.main.buildNumber ?? "",
                 ]
             }
-        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace:
+        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace, .gasPriceEstimate:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",

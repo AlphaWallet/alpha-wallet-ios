@@ -4,7 +4,7 @@ import UIKit
 import BigInt
 
 protocol ConfigureTransactionViewControllerDelegate: class {
-    func didSavedToUseDefaultConfiguration(in viewController: ConfigureTransactionViewController)
+    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
 }
 
@@ -94,12 +94,13 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.reloadData()
     }
 
-    func configure(withEstimatedGasPrice value: BigInt) {
+    func configure(withEstimatedGasPrice value: BigInt, configurator: TransactionConfigurator) {
         var updatedViewModel = viewModel
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasPrice != value else { return }
         configuration.setEstimated(gasPrice: value)
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
         recalculateTotalFee()
         tableView.reloadData()
@@ -187,8 +188,8 @@ class ConfigureTransactionViewController: UIViewController {
 
             let configuration = makeConfigureSuitableForSaving(from: viewModel.configurationToEdit.configuration)
             delegate.didSaved(customConfiguration: configuration, in: self)
-        case .default:
-            delegate.didSavedToUseDefaultConfiguration(in: self)
+        case .standard, .slow, .fast, .rapid:
+            delegate.didSavedToUseDefaultConfigurationType(viewModel.selectedConfigurationType, in: self)
         }
     }
 
