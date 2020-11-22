@@ -500,6 +500,6 @@
 "transactionConfirmation.Send.Section.Balance.new.title" = "(New: %@ %@)";
 "transactionConfirmation.Send.Section.Amount.title" = "Amount";
 "transactionConfirmation.Send.Section.Recipient.title" = "Recipient";
-"transactionConfirmation.Send.Section.TokenId.title" = "Token Id";
+"transactionConfirmation.Send.Section.TokenId.title" = "Token";
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
