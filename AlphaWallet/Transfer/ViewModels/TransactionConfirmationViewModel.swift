@@ -236,11 +236,14 @@ extension TransactionConfirmationViewModel {
     class DappTransactionViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case gas
+            case amount
 
             var title: String {
                 switch self {
                 case .gas:
                     return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                case .amount:
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
                 }
             }
         }
@@ -248,9 +251,21 @@ extension TransactionConfirmationViewModel {
         private var configurationTitle: String {
             return configurator.selectedConfigurationType.title
         }
+        private var formattedAmountValue: String {
+            let cryptoToDollarSymbol = Constants.Currency.usd
+            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
+            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
+            let symbol = configurator.session.server.symbol
+            if let cryptoToDollarRate = cryptoToDollarRate {
+                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
+                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+            } else {
+                return "\(amountString) \(symbol)"
+            }
+        }
 
-        var cryptoToDollarRate: Double?
         let ethPrice: Subscribable<Double>
+        var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
 
         var sections: [Section] {
@@ -260,14 +275,6 @@ extension TransactionConfirmationViewModel {
         init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
             self.ethPrice = ethPrice
-        }
-
-        func isSubviewHidden(section: Int, row: Int) -> Bool {
-            let _ = openedSections.contains(section)
-            switch sections[section] {
-            case .gas:
-                return true
-            }
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -282,6 +289,8 @@ extension TransactionConfirmationViewModel {
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
+            case .amount:
+                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
             }
         }
     }
