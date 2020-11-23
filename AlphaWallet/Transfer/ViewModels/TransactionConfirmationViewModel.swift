@@ -19,9 +19,9 @@ enum TransactionConfirmationViewModel {
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
-        case .sendNftTransaction(_, _, let ethPrice):
+        case .sendNftTransaction(_, _, let ethPrice, let tokenInstanceName):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
-            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice))
+            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName))
         case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
         }
@@ -355,6 +355,7 @@ extension TransactionConfirmationViewModel {
         private let configurator: TransactionConfigurator
         private let transferType: TransferType
         private let session: WalletSession
+        private let tokenInstanceName: String?
 
         private var configurationTitle: String {
             configurator.selectedConfigurationType.title
@@ -370,12 +371,13 @@ extension TransactionConfirmationViewModel {
             return Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>) {
+        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>, tokenInstanceName: String?) {
             self.configurator = configurator
             self.transferType = configurator.transaction.transferType
             self.session = configurator.session
             self.recipientResolver = recipientResolver
             self.ethPrice = ethPrice
+            self.tokenInstanceName = tokenInstanceName
         }
 
         func isSubviewsHidden(section: Int, row: Int) -> Bool {
@@ -410,9 +412,18 @@ extension TransactionConfirmationViewModel {
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .tokenId:
-                //TODO be good to display the token instance's name or equivalent too
-                let tokenId = configurator.transaction.tokenId.flatMap({ String($0) }) ?? ""
-                return .init(title: tokenId, placeholder: placeholder, configuration: configuration)
+                let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
+                let title: String
+                if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
+                    if let tokenId = tokenId {
+                        title = "\(tokenInstanceName) (\(tokenId))"
+                    } else {
+                        title = tokenInstanceName
+                    }
+                } else {
+                    title = tokenId ?? ""
+                }
+                return .init(title: title, placeholder: placeholder, configuration: configuration)
             case .recipient:
                 return .init(title: recipientResolver.value, placeholder: placeholder, configuration: configuration)
             }
