@@ -457,6 +457,8 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                case .amount:
+                    break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
