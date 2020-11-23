@@ -8,6 +8,7 @@ enum TransactionConfirmationViewModel {
     case tokenScriptTransaction(TokenScriptTransactionViewModel)
     case sendFungiblesTransaction(SendFungiblesTransactionViewModel)
     case sendNftTransaction(SendNftTransactionViewModel)
+    case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
 
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
@@ -21,6 +22,8 @@ enum TransactionConfirmationViewModel {
         case .sendNftTransaction:
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver))
+        case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
+            self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
         }
     }
 
@@ -38,6 +41,8 @@ enum TransactionConfirmationViewModel {
         case .sendFungiblesTransaction(var viewModel):
             return viewModel.showHideSection(section)
         case .sendNftTransaction(var viewModel):
+            return viewModel.showHideSection(section)
+        case .claimPaidErc875MagicLink(var viewModel):
             return viewModel.showHideSection(section)
         }
     }
@@ -158,7 +163,7 @@ extension TransactionConfirmationViewModel {
                 }
             case .ERC20Token(let token, _, _):
                 return "\(amount) \(token.symbol)"
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
         }
@@ -383,6 +388,86 @@ extension TransactionConfirmationViewModel {
             }
         }
     }
+
+    class ClaimPaidErc875MagicLinkViewModel: SectionProtocol {
+        enum Section: Int, CaseIterable {
+            case gas
+            case amount
+            case numberOfTokens
+
+            var title: String {
+                switch self {
+                case .gas:
+                    return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                case .amount:
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                case .numberOfTokens:
+                    return R.string.localizable.tokensTitlecase()
+                }
+            }
+        }
+        private let configurator: TransactionConfigurator
+        private let price: BigUInt
+        private let numberOfTokens: UInt
+
+        private var defaultTitle: String {
+            return R.string.localizable.tokenTransactionConfirmationDefault()
+        }
+        private var configurationTitle: String {
+            return configurator.selectedConfigurationType.title
+        }
+
+        var openedSections = Set<Int>()
+        let ethPrice: Subscribable<Double>
+        var cryptoToDollarRate: Double?
+
+        var sections: [Section] {
+            return Section.allCases
+        }
+
+        init(configurator: TransactionConfigurator, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt) {
+            self.configurator = configurator
+            self.price = price
+            self.ethPrice = ethPrice
+            self.numberOfTokens = numberOfTokens
+        }
+
+        func isSubviewHidden(section: Int, row: Int) -> Bool {
+            let _ = openedSections.contains(section)
+            switch sections[section] {
+            case .gas, .amount, .numberOfTokens:
+                return true
+            }
+        }
+
+        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
+                    isOpened: openedSections.contains(section),
+                    section: section,
+                    shouldHideChevron: true
+            )
+
+            let placeholder = sections[section].title
+            switch sections[section] {
+            case .gas:
+                return .init(title: configurationTitle, placeholder: placeholder, configuration: configuration)
+            case .amount:
+                let cryptoToDollarSymbol = Constants.Currency.usd
+                let nativeCryptoSymbol = configurator.session.server.symbol
+                let formattedAmountValue: String
+                let nativeCryptoPrice = EtherNumberFormatter.short.string(from: BigInt(price))
+                if let cryptoToDollarRate = cryptoToDollarRate {
+                    let cryptoToDollarValue = StringFormatter().currency(with: Double(price) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
+                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+                } else {
+                    formattedAmountValue = "\(nativeCryptoPrice) \(nativeCryptoSymbol)"
+                }
+                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+            case .numberOfTokens:
+                return .init(title: String(numberOfTokens), placeholder: placeholder, configuration: configuration)
+            }
+        }
+    }
 }
 
 extension TransactionConfirmationViewModel {
@@ -392,6 +477,8 @@ extension TransactionConfirmationViewModel {
             return R.string.localizable.tokenTransactionTransferConfirmationTitle()
         case .dappTransaction, .tokenScriptTransaction:
             return R.string.localizable.tokenTransactionConfirmationTitle()
+        case .claimPaidErc875MagicLink:
+            return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
         }
     }
 
