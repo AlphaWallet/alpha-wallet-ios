@@ -48,7 +48,7 @@ class TransactionConfirmationHeaderView: UIView {
 
         return view
     }()
-    
+
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
