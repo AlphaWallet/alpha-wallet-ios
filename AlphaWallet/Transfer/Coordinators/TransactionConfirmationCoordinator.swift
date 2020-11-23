@@ -15,17 +15,18 @@ enum TransactionConfirmationConfiguration {
     case dappTransaction(confirmType: ConfirmType, keystore: Keystore)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: String, ethPrice: Subscribable<Double>)
     case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore)
+    case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
 
     var confirmType: ConfirmType {
         switch self {
-        case .dappTransaction(let confirmType, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _):
+        case .dappTransaction(let confirmType, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _), .tokenScriptTransaction(let confirmType, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
             return confirmType
         }
     }
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore), .tokenScriptTransaction(_, _, let keystore):
+        case .dappTransaction(_, let keystore), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore), .tokenScriptTransaction(_, _, let keystore), .claimPaidErc875MagicLink(_, let keystore, _, _, _):
             return keystore
         }
     }
@@ -96,10 +97,10 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func close(completion: @escaping () -> Void) {
-        confirmationViewController.dismissViewAnimated(with: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.navigationController.dismiss(animated: true, completion: completion)
-        })
+        confirmationViewController.dismissViewAnimated {
+            //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
+            self.navigationController.dismiss(animated: true, completion: completion)
+        }
     }
 
     private func showFeedbackOnSuccess() {

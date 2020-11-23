@@ -185,7 +185,7 @@ class TokenViewController: UIViewController {
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
 

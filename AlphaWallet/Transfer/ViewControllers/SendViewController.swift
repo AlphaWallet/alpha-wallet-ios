@@ -242,7 +242,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
@@ -265,7 +265,7 @@ class SendViewController: UIViewController {
         amountTextField.errorState = .none
         let checkIfGreaterThanZero: Bool
         switch transferType {
-        case .nativeCryptocurrency, .dapp, .tokenScript:
+        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             checkIfGreaterThanZero = false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             checkIfGreaterThanZero = true
@@ -310,7 +310,7 @@ class SendViewController: UIViewController {
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -405,7 +405,7 @@ class SendViewController: UIViewController {
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }
@@ -425,7 +425,7 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.errorState = .none
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
-        
+
         guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
             return

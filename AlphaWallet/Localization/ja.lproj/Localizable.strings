@@ -461,6 +461,7 @@
 "token.transactionConfirmation.contract.title" = "Contract";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
+"token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
 "token.transactionConfirmation.title" = "Confirm Transaction?";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
