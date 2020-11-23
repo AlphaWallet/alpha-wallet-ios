@@ -479,6 +479,7 @@
 "activity.ownerApproved" = "Approved to move %@";
 "activity.ownerApproved.pending" = "Approving to move %@";
 "activity.ownerApproved.failed" = "Failed to Approve to move %@";
+"activity.approve.amount.all" = "All %@";
 "activity.send.pending" = "Sending %@";
 "activity.send.failed" = "Failed to Send %@";
 "activity.goToToken" = "Go to Token";
