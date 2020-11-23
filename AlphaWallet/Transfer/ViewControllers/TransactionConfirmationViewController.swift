@@ -168,10 +168,18 @@ class TransactionConfirmationViewController: UIViewController {
         }
 
         switch viewModel {
-        case .dappTransaction:
-            break
-        case .tokenScriptTransaction:
-            break
+        case .dappTransaction(let dappTransactionViewModel):
+            dappTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                dappTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
+        case .tokenScriptTransaction(let tokenScriptTransactionViewModel):
+            tokenScriptTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                tokenScriptTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             sendFungiblesViewModel.recipientResolver.resolve { [weak self] in
                 guard let strongSelf = self else { return }
@@ -185,22 +193,29 @@ class TransactionConfirmationViewController: UIViewController {
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                     strongSelf.generateSubviews()
                 }
-
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
                     strongSelf.generateSubviews()
                 }
-
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                break
+                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                    guard let strongSelf = self else { return }
+                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    strongSelf.generateSubviews()
+                }
             }
         case .sendNftTransaction(let sendNftViewModel):
             sendNftViewModel.recipientResolver.resolve { [weak self] in
                 guard let strongSelf = self else { return }
+                strongSelf.generateSubviews()
+            }
+            sendNftViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else {return}
+                sendNftViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
         case .claimPaidErc875MagicLink(let claimPaidErc875MagicLinkViewModel):
