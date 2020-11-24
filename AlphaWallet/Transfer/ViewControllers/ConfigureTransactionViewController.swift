@@ -27,10 +27,9 @@ class ConfigureTransactionViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(GasSpeedTableViewCell.self)
         tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.tableFooterView = createTableInformationFooter()
         tableView.separatorStyle = .none
         tableView.allowsSelection = true
-
         return tableView
     }()
 
@@ -140,6 +139,22 @@ class ConfigureTransactionViewController: UIViewController {
         }, completion: { _ in
 
         })
+    }
+
+    private func createTableInformationFooter() -> UIView {
+        let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 100))
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.font = Fonts.regular(size: 12)
+        label.textColor = R.color.dove()
+        label.text = R.string.localizable.transactionConfirmationFeeFooterText()
+        footer.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.anchorsConstraint(to: footer, edgeInsets: UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)),
+        ])
+        return footer
     }
 
     private func recalculateTotalFee() {
