@@ -492,7 +492,12 @@
 "transactionConfiguration.Type.slow" = "Slow";
 "transactionConfiguration.Type.average" = "Average";
 "transactionConfiguration.Type.fast" = "Fast";
-"transactionConfiguration.Type.custom" = "Custom"; 
+"transactionConfiguration.Type.rapid" = "Rapid";
+"transactionConfiguration.Type.custom" = "Custom (set your own)";
+"transactionConfiguration.Type.slow.time" = "> 10 minutes";
+"transactionConfiguration.Type.average.time" = "< 5 minutes";
+"transactionConfiguration.Type.fast.time" = "< 2 minutes";
+"transactionConfiguration.Type.rapid.time" = "ASAP";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";
@@ -503,3 +508,4 @@
 "transactionConfirmation.Send.Section.TokenId.title" = "Token";
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
+"transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
