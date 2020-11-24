@@ -8,6 +8,8 @@
 import UIKit
 
 protocol TransactionConfirmationHeaderViewDelegate: class {
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int)
 }
 
@@ -174,14 +176,22 @@ class TransactionConfirmationHeaderView: UIView {
     }
 
     func expand() {
-        for view in childrenStackView.arrangedSubviews {
-            view.isHidden = false
+        guard let delegate = delegate else { return }
+
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() {
+            if delegate.headerView(self, shouldShowChildren: viewModel.configuration.section, index: index) {
+                view.isHidden = false
+            }
         }
     }
 
     func collapse() {
-        for view in childrenStackView.arrangedSubviews {
-            view.isHidden = true
+        guard let delegate = delegate else { return }
+
+        for (index, view) in childrenStackView.arrangedSubviews.enumerated() {
+            if delegate.headerView(self, shouldHideChildren: viewModel.configuration.section, index: index) {
+                view.isHidden = true
+            }
         }
     }
 }

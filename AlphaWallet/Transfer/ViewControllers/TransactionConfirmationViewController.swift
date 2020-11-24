@@ -98,7 +98,7 @@ class TransactionConfirmationViewController: UIViewController {
 
     var canBeDismissed = true
     weak var delegate: TransactionConfirmationViewControllerDelegate?
-
+    // swiftlint:disable function_body_length
     init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -151,7 +151,7 @@ class TransactionConfirmationViewController: UIViewController {
         ])
         headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
 
-        contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, change in
+        contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
             guard let strongSelf = self, strongSelf.allowDismissialAnimation else { return }
 
             let statusBarHeight = UIApplication.shared.statusBarFrame.height
@@ -214,7 +214,7 @@ class TransactionConfirmationViewController: UIViewController {
                 strongSelf.generateSubviews()
             }
             sendNftViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
-                guard let strongSelf = self else {return}
+                guard let strongSelf = self else { return }
                 sendNftViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
@@ -228,7 +228,7 @@ class TransactionConfirmationViewController: UIViewController {
 
         generateSubviews()
     }
-
+    // swiftlint:enable function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -445,15 +445,18 @@ fileprivate class HeaderView: UIView {
 }
 
 extension TransactionConfirmationViewController {
+    // swiftlint:disable function_body_length
     private func generateSubviews() {
         stackView.removeAllArrangedSubviews()
         var views: [UIView] = []
         switch viewModel {
         case .dappTransaction(let viewModel):
             for (sectionIndex, section) in viewModel.sections.enumerated() {
+                var children: [UIView] = []
+                
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
-                var children: [UIView] = []
+
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
@@ -557,26 +560,51 @@ extension TransactionConfirmationViewController {
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
-                var children: [UIView] = []
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
                 case .amount, .numberOfTokens:
                     break
                 }
-                header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
             }
         }
         stackView.addArrangedSubviews(views)
     }
-
+    // swiftlint:enable function_body_length
     @objc private func editTransactionButtonTapped(_ sender: UIButton) {
         delegate?.controller(self, editTransactionButtonTapped: sender)
     }
 }
 
 extension TransactionConfirmationViewController: TransactionConfirmationHeaderViewDelegate {
+
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool {
+        return true
+    }
+
+    func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
+        switch viewModel {
+        case .dappTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction:
+            return true
+        case .sendFungiblesTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient:
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .amount, .balance:
+                return true
+            }
+        case .sendNftTransaction(let viewModel):
+            switch viewModel.sections[section] {
+            case .recipient:
+                //NOTE: Here we need to make sure that this view is available to display
+                return !viewModel.isSubviewsHidden(section: section, row: index)
+            case .gas, .tokenId:
+                return true
+            }
+        }
+    }
+
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {
         switch viewModel.showHideSection(section) {
         case .show:
