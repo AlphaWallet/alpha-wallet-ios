@@ -430,11 +430,10 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             return
         }
 
-        //TODO clean up this. Some of these are wrong, eg: Transfer(). They are only here so we can sign personal message
+        //TODO clean up this. Some of these are wrong, eg: transactionType. They are only here so we can sign personal message
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
-        let transfer = Transfer(server: server, type: .dapp(token, requester))
-        let action = DappAction.fromCommand(command, transfer: transfer)
+        let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
 
         switch wallet.type {
         case .real(let account):

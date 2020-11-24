@@ -130,7 +130,7 @@ extension TransactionConfirmationViewModel {
         var ensName: String? { recipientResolver.ensName }
         var addressString: String? { recipientResolver.address?.eip55String }
         var openedSections = Set<Int>()
-        let transferType: TransferType
+        let transactionType: TransactionType
         let session: WalletSession
         let recipientResolver: RecipientResolver
         let ethPrice: Subscribable<Double>
@@ -141,7 +141,7 @@ extension TransactionConfirmationViewModel {
 
         init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: String, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
-            self.transferType = configurator.transaction.transferType
+            self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
             self.assetDefinitionStore = assetDefinitionStore
             self.recipientResolver = recipientResolver
@@ -170,7 +170,7 @@ extension TransactionConfirmationViewModel {
         }
 
         var formattedAmountValue: String {
-            switch transferType {
+            switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
                 let cryptoToDollarSymbol = Constants.Currency.usd
                 let double = Double(amount) ?? 0
@@ -370,7 +370,7 @@ extension TransactionConfirmationViewModel {
         }
 
         private let configurator: TransactionConfigurator
-        private let transferType: TransferType
+        private let transactionType: TransactionType
         private let session: WalletSession
         private let tokenInstanceName: String?
 
@@ -390,7 +390,7 @@ extension TransactionConfirmationViewModel {
 
         init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>, tokenInstanceName: String?) {
             self.configurator = configurator
-            self.transferType = configurator.transaction.transferType
+            self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
             self.recipientResolver = recipientResolver
             self.ethPrice = ethPrice

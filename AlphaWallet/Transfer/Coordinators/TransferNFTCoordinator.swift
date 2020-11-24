@@ -11,7 +11,7 @@ protocol TransferNFTCoordinatorDelegate: class {
 
 class TransferNFTCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    private let transferType: TransferType
+    private let transactionType: TransactionType
     private let tokenHolder: TokenHolder
     private let recipient: AlphaWallet.Address
     private let keystore: Keystore
@@ -21,9 +21,9 @@ class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, transferType: TransferType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, transactionType: TransactionType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator?) {
         self.navigationController = navigationController
-        self.transferType = transferType
+        self.transactionType = transactionType
         self.tokenHolder = tokenHolder
         self.recipient = recipient
         self.keystore = keystore
@@ -34,7 +34,7 @@ class TransferNFTCoordinator: Coordinator {
 
     func start() {
         let transaction = UnconfirmedTransaction(
-                transferType: transferType,
+                transactionType: transactionType,
                 value: BigInt(0),
                 recipient: recipient,
                 contract: tokenHolder.contractAddress,

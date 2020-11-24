@@ -14,12 +14,12 @@ enum DappAction {
 }
 
 extension DappAction {
-    static func fromCommand(_ command: DappCommand, transfer: Transfer) -> DappAction {
+    static func fromCommand(_ command: DappCommand, server: RPCServer, transactionType: TransactionType) -> DappAction {
         switch command.name {
         case .signTransaction:
-            return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, transfer: transfer))
+            return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
         case .sendTransaction:
-            return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, transfer: transfer))
+            return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
         case .signMessage:
             let data = command.object["data"]?.value ?? ""
             return .signMessage(data)
@@ -34,7 +34,7 @@ extension DappAction {
         }
     }
 
-    private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], transfer: Transfer) -> UnconfirmedTransaction {
+    private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], server: RPCServer, transactionType: TransactionType) -> UnconfirmedTransaction {
         let to = AlphaWallet.Address(string: object["to"]?.value ?? "")
         let value = BigInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
         let nonce: BigInt? = {
@@ -51,7 +51,7 @@ extension DappAction {
         }()
         let data = Data(hex: object["data"]?.value ?? "0x")
         return UnconfirmedTransaction(
-            transferType: transfer.type,
+            transactionType: transactionType,
             value: value,
             recipient: nil,
             contract: to,

@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 
 struct UnconfirmedTransaction {
-    let transferType: TransferType
+    let transactionType: TransactionType
     let value: BigInt
     let recipient: AlphaWallet.Address?
     let contract: AlphaWallet.Address?
@@ -24,7 +24,7 @@ struct UnconfirmedTransaction {
     let indices: [UInt16]?
 
     init(
-        transferType: TransferType,
+        transactionType: TransactionType,
         value: BigInt,
         recipient: AlphaWallet.Address?,
         contract: AlphaWallet.Address?,
@@ -35,7 +35,7 @@ struct UnconfirmedTransaction {
         gasPrice: BigInt? = nil,
         nonce: BigInt? = nil
     ) {
-        self.transferType = transferType
+        self.transactionType = transactionType
         self.value = value
         self.recipient = recipient
         self.contract = contract

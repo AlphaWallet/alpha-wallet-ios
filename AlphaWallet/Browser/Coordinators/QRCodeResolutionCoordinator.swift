@@ -11,7 +11,7 @@ import PromiseKit
 
 protocol QRCodeResolutionCoordinatorDelegate: class {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransferType transferType: TransferType, token: TokenObject)
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WCURL)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL)
@@ -137,7 +137,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 let data = CheckEIP681Params(protocolName: protocolName, address: address, functionName: function, params: params, rpcServer: rpcServer)
 
                 self.checkEIP681(data).done { result in
-                    delegate.coordinator(self, didResolveTransferType: result.transferType, token: result.token)
+                    delegate.coordinator(self, didResolveTransactionType: result.transactionType, token: result.token)
                 }.cauterize()
             }
         case .other(let value):
@@ -205,8 +205,8 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         let rpcServer: RPCServer
     }
 
-    private func checkEIP681(_ params: CheckEIP681Params) -> Promise<(transferType: TransferType, token: TokenObject)> {
-        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transferType: TransferType, token: TokenObject)> in
+    private func checkEIP681(_ params: CheckEIP681Params) -> Promise<(transactionType: TransactionType, token: TokenObject)> {
+        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: TokenObject)> in
             guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else {
                 return .init(error: CheckEIP681Error.parameterInvalid)
             }
@@ -220,9 +220,9 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                     EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                 }
 
-                let transferType = TransferType(token: token, recipient: recipient, amount: amount)
+                let transactionType = TransactionType(token: token, recipient: recipient, amount: amount)
 
-                return .value((transferType, token))
+                return .value((transactionType, token))
             } else {
                 return Promise { resolver in
                     fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: self.assetDefinitionStore) { result in
@@ -242,9 +242,9 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                                 EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                             }
-                            let transferType = TransferType(token: token, recipient: recipient, amount: amount)
+                            let transactionType = TransactionType(token: token, recipient: recipient, amount: amount)
 
-                            resolver.fulfill((transferType, token))
+                            resolver.fulfill((transactionType, token))
                         }
                     }
                 }
