@@ -494,9 +494,9 @@
 "transactionConfiguration.Type.fast" = "Fast";
 "transactionConfiguration.Type.rapid" = "Rapid";
 "transactionConfiguration.Type.custom" = "Custom (set your own)";
-"transactionConfiguration.Type.slow.time" = "> 10 minutes";
-"transactionConfiguration.Type.average.time" = "< 5 minutes";
-"transactionConfiguration.Type.fast.time" = "< 2 minutes";
+"transactionConfiguration.Type.slow.time" = "> 10 min";
+"transactionConfiguration.Type.average.time" = "< 5 min";
+"transactionConfiguration.Type.fast.time" = "< 2 min";
 "transactionConfiguration.Type.rapid.time" = "ASAP";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";

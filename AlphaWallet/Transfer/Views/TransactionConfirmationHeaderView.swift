@@ -120,7 +120,7 @@ class TransactionConfirmationHeaderView: UIView {
             trailingStackView.heightAnchor.constraint(equalTo: row0.heightAnchor),
             placeholderLabel.topAnchor.constraint(equalTo: v1.topAnchor, constant: 5),
             placeholderLabel.leadingAnchor.constraint(equalTo: v1.leadingAnchor),
-            placeholderLabel.widthAnchor.constraint(equalToConstant: 60),
+            placeholderLabel.widthAnchor.constraint(equalToConstant: 80),
 
             titleLabel.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
 
