@@ -184,9 +184,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(token, destination: .none, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil))
         case .erc20:
-            coordinator.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .ERC20Token(token, destination: nil, amount: nil))
         case .erc721:
             coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token)
         case .erc875, .erc721ForTickets:
@@ -240,10 +240,10 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransferType transferType: TransferType, token: TokenObject) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
         removeCoordinator(coordinator)
 
-        let paymentFlow = PaymentFlow.send(type: transferType)
+        let paymentFlow = PaymentFlow.send(type: transactionType)
 
         delegate?.didPress(for: paymentFlow, server: token.server, in: self)
     }

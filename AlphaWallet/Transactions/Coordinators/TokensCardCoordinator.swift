@@ -345,8 +345,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let server: RPCServer
         switch paymentFlow {
-        case .send(let transferType):
-            server = transferType.server
+        case .send(let transactionType):
+            server = transactionType.server
         case .request:
             return
         }
@@ -373,8 +373,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func transferViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let server: RPCServer
         switch paymentFlow {
-        case .send(let transferType):
-            server = transferType.server
+        case .send(let transactionType):
+            server = transactionType.server
         case .request:
             return
         }
@@ -655,8 +655,8 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
         case .real:
             switch paymentFlow {
             case .send:
-                if case .send(let transferType) = paymentFlow {
-                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transferType: transferType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session, ethPrice: ethPrice, analyticsCoordinator: analyticsCoordinator)
+                if case .send(let transactionType) = paymentFlow {
+                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transactionType: transactionType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session, ethPrice: ethPrice, analyticsCoordinator: analyticsCoordinator)
                     addCoordinator(coordinator)
                     coordinator.delegate = self
                     coordinator.start()

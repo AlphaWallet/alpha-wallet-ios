@@ -3,12 +3,7 @@
 import Foundation
 import BigInt
 
-struct Transfer {
-    let server: RPCServer
-    let type: TransferType
-}
-
-enum TransferType {
+enum TransactionType {
     init(token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
         self = {
             switch token.type {
@@ -49,7 +44,7 @@ enum TransferType {
     }
 }
 
-extension TransferType {
+extension TransactionType {
 
     var symbol: String {
         switch self {

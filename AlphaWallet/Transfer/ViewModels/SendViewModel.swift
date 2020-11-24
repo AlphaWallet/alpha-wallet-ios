@@ -8,16 +8,16 @@ struct SendViewModel {
     private let session: WalletSession
     private let storage: TokensDataStore
 
-    let transferType: TransferType
+    let transactionType: TransactionType
 
-    init(transferType: TransferType, session: WalletSession, storage: TokensDataStore) {
-        self.transferType = transferType
+    init(transactionType: TransactionType, session: WalletSession, storage: TokensDataStore) {
+        self.transactionType = transactionType
         self.session = session
         self.storage = storage
     }
 
     var destinationAddress: AlphaWallet.Address {
-        return transferType.contract
+        return transactionType.contract
     }
 
     var backgroundColor: UIColor {
@@ -25,7 +25,7 @@ struct SendViewModel {
     }
 
     var token: TokenObject? {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             return nil
         case .ERC20Token(let token, _, _):
@@ -63,11 +63,11 @@ struct SendViewModel {
     }
 
     var amountTextFieldPair: AmountTextField.Pair {
-        return AmountTextField.Pair(left: .cryptoCurrency(transferType.tokenObject), right: .usd)
+        return AmountTextField.Pair(left: .cryptoCurrency(transactionType.tokenObject), right: .usd)
     }
 
     var selectCurrencyButtonHidden: Bool {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             guard let currentTokenInfo = storage.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
                 return true
@@ -79,7 +79,7 @@ struct SendViewModel {
     }
 
     var currencyButtonHidden: Bool {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency, .ERC20Token:
             return false
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
@@ -88,15 +88,15 @@ struct SendViewModel {
     }
 
     var availableLabelText: String? {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             if let balance = session.balance {
                 let value = EtherNumberFormatter.plain.string(from: balance.value)
-                return R.string.localizable.sendAvailable("\(value) \(transferType.symbol)")
+                return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
             }
         case .ERC20Token(let token, _, _):
             let value = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
-            return R.string.localizable.sendAvailable("\(value) \(transferType.symbol)")
+            return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
@@ -105,7 +105,7 @@ struct SendViewModel {
     }
 
     var availableTextHidden: Bool {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             return session.balance == nil
         case .ERC20Token(let token, _, _):
@@ -119,7 +119,7 @@ struct SendViewModel {
 
     func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
         let parsedValue: BigInt? = {
-            switch transferType {
+            switch transactionType {
             case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token, _, _):
@@ -139,7 +139,7 @@ struct SendViewModel {
             return nil
         }
 
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             if let balance = session.balance, balance.value < value {
                 return nil

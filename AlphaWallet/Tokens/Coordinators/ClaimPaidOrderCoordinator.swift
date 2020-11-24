@@ -69,7 +69,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             case .success(let payload):
                 let account = strongSelf.session.account.address
                 let transaction = UnconfirmedTransaction(
-                        transferType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
+                        transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
                         value: BigInt(strongSelf.signedOrder.order.price),
                         recipient: nil,
                         contract: strongSelf.signedOrder.order.contractAddress,

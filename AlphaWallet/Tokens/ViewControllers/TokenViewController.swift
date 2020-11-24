@@ -6,27 +6,27 @@ import BigInt
 import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
-    func didTapErc20ExchangeOnUniswap(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
-    func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
-    func didTapReceive(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
+    func didTapErc20ExchangeOnUniswap(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
+    func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
+    func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
-    func didTap(action: TokenInstanceAction, transferType: TransferType, viewController: TokenViewController)
+    func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController)
 }
 
 class TokenViewController: UIViewController {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private let roundedBackground = RoundedBackground()
     lazy private var header = {
-        return TokenViewControllerHeaderView(contract: transferType.contract)
+        return TokenViewControllerHeaderView(contract: transactionType.contract)
     }()
-    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server, token: token, transferType: transferType)
+    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server, token: token, transactionType: transactionType)
     private var viewModel: TokenViewControllerViewModel?
     private var tokenHolder: TokenHolder?
     private let token: TokenObject
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let transferType: TransferType
+    private let transactionType: TransactionType
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
     private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -34,12 +34,12 @@ class TokenViewController: UIViewController {
 
     weak var delegate: TokenViewControllerDelegate?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transferType: TransferType, token: TokenObject) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, token: TokenObject) {
         self.token = token
         self.session = session
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
-        self.transferType = transferType
+        self.transactionType = transactionType
 
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -158,7 +158,7 @@ class TokenViewController: UIViewController {
     }
 
     private func configureBalanceViewModel() {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
@@ -193,15 +193,15 @@ class TokenViewController: UIViewController {
     }
 
     @objc private func send() {
-        delegate?.didTapSend(forTransferType: transferType, inViewController: self)
+        delegate?.didTapSend(forTransactionType: transactionType, inViewController: self)
     }
 
     @objc private func receive() {
-        delegate?.didTapReceive(forTransferType: transferType, inViewController: self)
+        delegate?.didTapReceive(forTransactionType: transactionType, inViewController: self)
     }
 
     @objc private func erc20ExchangeOnUniswap() {
-        delegate?.didTapErc20ExchangeOnUniswap(forTransferType: transferType, inViewController: self)
+        delegate?.didTapErc20ExchangeOnUniswap(forTransactionType: transactionType, inViewController: self)
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
@@ -232,7 +232,7 @@ class TokenViewController: UIViewController {
                         //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
                     }
                 } else {
-                    delegate?.didTap(action: action, transferType: transferType, viewController: self)
+                    delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
                 }
             }
             break

@@ -186,7 +186,7 @@ class TransactionConfirmationViewController: UIViewController {
                 strongSelf.generateSubviews()
             }
 
-            switch sendFungiblesViewModel.transferType {
+            switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
                 sendFungiblesViewModel.session.balanceViewModel.subscribe { [weak self] balanceBaseViewModel in
                     guard let strongSelf = self else { return }

@@ -49,7 +49,7 @@ class PaymentCoordinator: Coordinator {
         switch (flow, session.account.type) {
         case (.send(let type), .real(let account)):
             let coordinator = SendCoordinator(
-                transferType: type,
+                transactionType: type,
                 navigationController: navigationController,
                 session: session,
                 keystore: keystore,
