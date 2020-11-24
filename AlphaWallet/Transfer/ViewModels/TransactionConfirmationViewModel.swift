@@ -106,7 +106,7 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .balance:
                     return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
                 case .amount:
@@ -249,7 +249,7 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
                     return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
                 }
@@ -360,7 +360,7 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .recipient:
                     return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
                 case .tokenId:
@@ -456,7 +456,7 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.transactionConfirmationSendSectionGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
                     return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
                 case .numberOfTokens:
