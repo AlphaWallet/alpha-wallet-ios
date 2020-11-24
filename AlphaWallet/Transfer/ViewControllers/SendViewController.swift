@@ -45,11 +45,11 @@ class SendViewController: UIViewController {
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     let targetAddressTextField = AddressTextField()
-    lazy var amountTextField = AmountTextField(tokenObject: transferType.tokenObject)
+    lazy var amountTextField = AmountTextField(tokenObject: transactionType.tokenObject)
     weak var delegate: SendViewControllerDelegate?
 
-    var transferType: TransferType {
-        return viewModel.transferType
+    var transactionType: TransactionType {
+        return viewModel.transactionType
     }
 
     let storage: TokensDataStore
@@ -59,7 +59,7 @@ class SendViewController: UIViewController {
             session: WalletSession,
             storage: TokensDataStore,
             account: AlphaWallet.Address,
-            transferType: TransferType,
+            transactionType: TransactionType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore
     ) {
@@ -68,7 +68,7 @@ class SendViewController: UIViewController {
         self.storage = storage
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
-        self.viewModel = .init(transferType: transferType, session: session, storage: storage)
+        self.viewModel = .init(transactionType: transactionType, session: session, storage: storage)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -219,7 +219,7 @@ class SendViewController: UIViewController {
         amountTextField.statusLabel.text = viewModel.availableLabelText
         amountTextField.availableTextHidden = viewModel.availableTextHidden
 
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
@@ -256,7 +256,7 @@ class SendViewController: UIViewController {
     }
 
     private func updateNavigationTitle() {
-        title = "\(R.string.localizable.send()) \(transferType.symbol)"
+        title = "\(R.string.localizable.send()) \(transactionType.symbol)"
     }
 
     @objc func send() {
@@ -264,7 +264,7 @@ class SendViewController: UIViewController {
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
         let checkIfGreaterThanZero: Bool
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             checkIfGreaterThanZero = false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
@@ -279,10 +279,10 @@ class SendViewController: UIViewController {
             return
         }
         let transaction = UnconfirmedTransaction(
-                transferType: transferType,
+                transactionType: transactionType,
                 value: value,
                 recipient: recipient,
-                contract: transferType.contractForFungibleSend,
+                contract: transactionType.contractForFungibleSend,
                 data: nil
         )
         delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)
@@ -299,17 +299,17 @@ class SendViewController: UIViewController {
     private func configureBalanceViewModel() {
         currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceViewModel.unsubscribe($0) }
         currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self else { return }
-                guard celf.storage.token(forContract: celf.viewModel.transferType.contract) != nil else { return }
-                celf.configureFor(contract: celf.viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
+                guard celf.storage.token(forContract: celf.viewModel.transactionType.contract) != nil else { return }
+                celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
             }
             session.refresh(.ethBalance)
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
-            configureFor(contract: viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
+            configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
@@ -319,9 +319,9 @@ class SendViewController: UIViewController {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
-            guard let tokenObject = storage.token(forContract: viewModel.transferType.contract) else { return }
+            guard let tokenObject = storage.token(forContract: viewModel.transactionType.contract) else { return }
             let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
-            configureFor(contract: transferType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
+            configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
             checkAndFillEIP681Details(protocolName: protocolName, address: address, functionName: functionName, params: params)
@@ -396,21 +396,21 @@ class SendViewController: UIViewController {
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
         guard let tokenObject = storage.token(forContract: contract) else { return }
         let amount = amount.flatMap { EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals) }
-        let transferType: TransferType
+        let transactionType: TransactionType
         if let amount = amount, amount != "0" {
-            transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
+            transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
         } else {
-            switch viewModel.transferType {
+            switch viewModel.transactionType {
             case .nativeCryptocurrency(_, _, let amount):
-                transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
+                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
-                transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
+                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
+                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }
 
-        configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
+        configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
 

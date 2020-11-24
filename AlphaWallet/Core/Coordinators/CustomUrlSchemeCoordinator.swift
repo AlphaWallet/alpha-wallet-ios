@@ -80,7 +80,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
         } else {
             amountConsideringDecimals = ""
         }
-        let transferType = TransferType(token: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
-        delegate?.openSendPaymentFlow(.send(type: transferType), server: server, inCoordinator: self)
+        let transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
+        delegate?.openSendPaymentFlow(.send(type: transactionType), server: server, inCoordinator: self)
     }
 }

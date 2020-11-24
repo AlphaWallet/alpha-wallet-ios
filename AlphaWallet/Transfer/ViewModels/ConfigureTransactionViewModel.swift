@@ -7,7 +7,7 @@ struct ConfigureTransactionViewModel {
     var selectedConfigurationType: TransactionConfigurationType
     let server: RPCServer
     let ethPrice: Subscribable<Double>
-    let transferType: TransferType
+    let transactionType: TransactionType
     var configurationToEdit: EditedTransactionConfiguration
     var configurationTypes: [TransactionConfigurationType]
     var configurations: TransactionConfigurations {
@@ -24,7 +24,7 @@ struct ConfigureTransactionViewModel {
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurations = configurations
         self.currencyRate = currencyRate
-        transferType = configurator.transaction.transferType
+        transactionType = configurator.transaction.transactionType
         selectedConfigurationType = configurator.selectedConfigurationType
         configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
     }
@@ -48,7 +48,7 @@ struct ConfigureTransactionViewModel {
     }
 
     var isDataInputHidden: Bool {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:

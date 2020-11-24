@@ -4,17 +4,17 @@ import UIKit
 
 struct SendHeaderViewViewModel {
     private let token: TokenObject
-    private let transferType: TransferType
+    private let transactionType: TransactionType
     let server: RPCServer
     var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
     var isShowingValue: Bool = true
 
-    init(server: RPCServer, token: TokenObject, transferType: TransferType) {
+    init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
         self.server = server
         self.token = token
-        self.transferType = transferType
+        self.transactionType = transactionType
         title = ""
         ticker = nil
         currencyAmount = nil
@@ -54,7 +54,7 @@ struct SendHeaderViewViewModel {
         if server.isTestnet {
             return nil
         } else {
-            switch transferType {
+            switch transactionType {
             case .nativeCryptocurrency:
                 if isShowingValue {
                     return tokenValueAttributedString

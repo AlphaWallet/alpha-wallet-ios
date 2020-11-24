@@ -6,14 +6,14 @@ import BigInt
 import PromiseKit
 
 struct TokenViewControllerViewModel {
-    private let transferType: TransferType
+    private let transactionType: TransactionType
     private let session: WalletSession
     private let tokensStore: TokensDataStore
     private let transactionsStore: TransactionsStorage
     private let assetDefinitionStore: AssetDefinitionStore
 
     var token: TokenObject? {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return TokensDataStore.etherToken(forServer: session.server)
@@ -101,7 +101,7 @@ struct TokenViewControllerViewModel {
     }
 
     var fungibleBalance: BigInt? {
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             let string: String? = session.balanceViewModel.value?.amountShort
             return string.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: session.server.decimals) }
@@ -112,14 +112,14 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    init(transferType: TransferType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage, assetDefinitionStore: AssetDefinitionStore) {
-        self.transferType = transferType
+    init(transactionType: TransactionType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage, assetDefinitionStore: AssetDefinitionStore) {
+        self.transactionType = transactionType
         self.session = session
         self.tokensStore = tokensStore
         self.transactionsStore = transactionsStore
         self.assetDefinitionStore = assetDefinitionStore
 
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency:
             self.recentTransactions = Array(transactionsStore.objects.lazy
                     .filter({ $0.state == .completed || $0.state == .pending })
@@ -143,7 +143,7 @@ struct TokenViewControllerViewModel {
     }
 
     var destinationAddress: AlphaWallet.Address {
-        return transferType.contract
+        return transactionType.contract
     }
 
     var backgroundColor: UIColor {
