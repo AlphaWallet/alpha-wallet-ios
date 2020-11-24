@@ -12,7 +12,7 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 }
 
 class SendCoordinator: Coordinator {
-    private let transferType: TransferType
+    private let transactionType: TransactionType
     private let session: WalletSession
     private let account: AlphaWallet.Address
     private let keystore: Keystore
@@ -32,7 +32,7 @@ class SendCoordinator: Coordinator {
     weak var delegate: SendCoordinatorDelegate?
 
     init(
-            transferType: TransferType,
+            transactionType: TransactionType,
             navigationController: UINavigationController = UINavigationController(),
             session: WalletSession,
             keystore: Keystore,
@@ -43,7 +43,7 @@ class SendCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator?
     ) {
-        self.transferType = transferType
+        self.transactionType = transactionType
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
@@ -58,7 +58,7 @@ class SendCoordinator: Coordinator {
 
     func start() {
         sendViewController.configure(viewModel:
-                .init(transferType: sendViewController.transferType,
+                .init(transactionType: sendViewController.transactionType,
                         session: session,
                         storage: sendViewController.storage
                         )
@@ -78,7 +78,7 @@ class SendCoordinator: Coordinator {
             session: session,
             storage: storage,
             account: account,
-            transferType: transferType,
+            transactionType: transactionType,
             cryptoPrice: ethPrice,
             assetDefinitionStore: assetDefinitionStore
         )
@@ -86,7 +86,7 @@ class SendCoordinator: Coordinator {
         if navigationController.viewControllers.isEmpty {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         }
-        switch transferType {
+        switch transactionType {
         case .nativeCryptocurrency(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
             if let amount = amount {

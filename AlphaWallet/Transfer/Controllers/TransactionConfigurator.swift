@@ -39,7 +39,7 @@ class TransactionConfigurator {
     }
 
     var toAddress: AlphaWallet.Address? {
-        switch transaction.transferType {
+        switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
         case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
@@ -49,7 +49,7 @@ class TransactionConfigurator {
 
     var value: BigInt {
         //TODO why not all `transaction.value`? Shouldn't the other types of transactions make sure their `transaction.value` is 0?
-        switch transaction.transferType {
+        switch transaction.transactionType {
         case .nativeCryptocurrency, .dapp: return transaction.value
         case .ERC20Token: return 0
         case .ERC875Token: return 0
@@ -211,7 +211,7 @@ class TransactionConfigurator {
 
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) -> TransactionConfiguration {
         do {
-            switch transaction.transferType {
+            switch transaction.transactionType {
             case .dapp:
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
             case .nativeCryptocurrency:

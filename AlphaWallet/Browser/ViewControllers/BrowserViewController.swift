@@ -231,8 +231,7 @@ extension BrowserViewController: WKScriptMessageHandler {
         guard let command = DappAction.fromMessage(message) else { return }
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
-        let transfer = Transfer(server: server, type: .dapp(token, requester))
-        let action = DappAction.fromCommand(command, transfer: transfer)
+        let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
 
         delegate?.didCall(action: action, callbackID: command.id, inBrowserViewController: self)
     }
