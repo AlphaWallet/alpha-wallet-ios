@@ -15,7 +15,6 @@ protocol TransactionConfiguratorDelegate: class {
 
 class TransactionConfigurator {
     private let account: AlphaWallet.Address
-    private var defaultConfiguration: TransactionConfiguration
 
     private var isGasLimitSpecifiedByTransaction: Bool {
         transaction.gasLimit != nil
@@ -25,15 +24,17 @@ class TransactionConfigurator {
     weak var delegate: TransactionConfiguratorDelegate?
 
     let transaction: UnconfirmedTransaction
-    var customConfiguration: TransactionConfiguration
-    var selectedConfigurationType: TransactionConfigurationType = .default
+    var selectedConfigurationType: TransactionConfigurationType = .standard
+    var configurations: TransactionConfigurations
 
     var currentConfiguration: TransactionConfiguration {
         switch selectedConfigurationType {
-        case .default:
-            return defaultConfiguration
+        case .standard:
+            return configurations.standard
+        case .slow, .fast, .rapid:
+            return configurations[selectedConfigurationType]!
         case .custom:
-            return customConfiguration
+            return configurations.custom
         }
     }
 
@@ -64,8 +65,7 @@ class TransactionConfigurator {
         self.session = session
         self.account = session.account.address
         self.transaction = transaction
-        self.customConfiguration = TransactionConfigurator.createConfiguration(server: session.server, transaction: transaction, account: account)
-        self.defaultConfiguration = customConfiguration
+        self.configurations = .init(standard: TransactionConfigurator.createConfiguration(server: session.server, transaction: transaction, account: account))
     }
 
     private func estimateGasLimit() {
@@ -87,10 +87,23 @@ class TransactionConfigurator {
                     }
                     return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
                 }()
-                self.customConfiguration.setEstimated(gasLimit: gasLimit)
-                self.defaultConfiguration.setEstimated(gasLimit: gasLimit)
+                var customConfig = self.configurations.custom
+                customConfig.setEstimated(gasLimit: gasLimit)
+                self.configurations.custom = customConfig
+                var defaultConfig = self.configurations.standard
+                defaultConfig.setEstimated(gasLimit: gasLimit)
+                self.configurations.standard = defaultConfig
+
+                //Careful to not create if they don't exist
+                for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+                    if var config = self.configurations[each] {
+                        config.setEstimated(gasLimit: gasLimit)
+                        self.configurations[each] = config
+                    }
+                }
+
                 self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-            case .failure(let error):
+            case .failure:
                 break
             }
         }
@@ -98,39 +111,80 @@ class TransactionConfigurator {
 
     private func estimateGasPrice() {
         firstly {
-            TransactionConfigurator.estimateGasPrice(server: session.server)
-        }.done {
-            self.customConfiguration.setEstimated(gasPrice: $0)
-            self.defaultConfiguration.setEstimated(gasPrice: $0)
-            self.delegate?.gasPriceEstimateUpdated(to: $0, in: self)
+            estimateGasPrice(server: session.server)
+        }.done { estimates in
+            let standard = estimates.standard
+            var customConfig = self.configurations.custom
+            customConfig.setEstimated(gasPrice: standard)
+            self.configurations.custom = customConfig
+            var defaultConfig = self.configurations.standard
+            defaultConfig.setEstimated(gasPrice: standard)
+            self.configurations.standard = defaultConfig
+
+            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+                guard let estimate = estimates[each] else { continue }
+                //Since there's a price estimate, we want to add that config if it's missing
+                var config = self.configurations[each] ?? defaultConfig
+                config.setEstimated(gasPrice: estimate)
+                self.configurations[each] = config
+            }
+
+            self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
         }.cauterize()
     }
 
-    // Generic function to derive the typical acceptable gas price on each network
-    static private func estimateGasPrice(server: RPCServer) -> Promise<BigInt> {
-        return Promise { seal in
-            if server == .xDai {
-                // xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
-                seal.fulfill(GasPriceConfiguration.xDaiGasPrice)
-            } else {
-                let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-                Session.send(request) { result in
-                    switch result {
-                    case .success(let balance):
-                        if let gasPrice = BigInt(balance.drop0x, radix: 16) {
-                            if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
-                                // Guard against really high prices
-                                seal.fulfill(GasPriceConfiguration.maxPrice)
-                            } else {
-                                //Add an extra gwei because the estimate is sometimes too low
-                                seal.fulfill(gasPrice + GasPriceConfiguration.oneGwei)
-                            }
+    private func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
+        switch server {
+        case .main:
+            return firstly {
+                estimateGasPriceForEthMainnetUsingThirdPartyApi()
+            }.recover { error -> Promise<GasEstimates> in
+                self.estimateGasPriceForUseRpcNode(server: server)
+            }
+        case .xDai:
+            return estimateGasPriceForXDai()
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+            return estimateGasPriceForUseRpcNode(server: server)
+        }
+    }
+
+    private func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
+        let estimator = GasNowGasPriceEstimator()
+        return firstly {
+            estimator.fetch()
+        }.map { estimates in
+            GasEstimates(standard: BigInt(estimates.standard), others: [
+                TransactionConfigurationType.slow: BigInt(estimates.slow),
+                TransactionConfigurationType.fast: BigInt(estimates.fast),
+                TransactionConfigurationType.rapid: BigInt(estimates.rapid)
+            ])
+        }
+    }
+
+    private func estimateGasPriceForXDai() -> Promise<GasEstimates> {
+        //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
+        .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
+    }
+
+    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> Promise<GasEstimates> {
+        Promise { seal in
+            let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
+            Session.send(request) { result in
+                switch result {
+                case .success(let balance):
+                    if let gasPrice = BigInt(balance.drop0x, radix: 16) {
+                        if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
+                            // Guard against really high prices
+                            seal.fulfill(.init(standard: GasPriceConfiguration.maxPrice))
                         } else {
-                            seal.fulfill(GasPriceConfiguration.defaultPrice)
+                            //Add an extra gwei because the estimate is sometimes too low
+                            seal.fulfill(.init(standard: gasPrice + GasPriceConfiguration.oneGwei))
                         }
-                    case .failure:
-                        seal.fulfill(GasPriceConfiguration.defaultPrice)
+                    } else {
+                        seal.fulfill(.init(standard: GasPriceConfiguration.defaultPrice))
                     }
+                case .failure:
+                    seal.fulfill(.init(standard: GasPriceConfiguration.defaultPrice))
                 }
             }
         }
@@ -257,13 +311,13 @@ class TransactionConfigurator {
     }
 
     func chooseCustomConfiguration(_ configuration: TransactionConfiguration) {
-        customConfiguration = configuration
+        configurations.custom = configuration
         selectedConfigurationType = .custom
         delegate?.configurationChanged(in: self)
     }
 
-    func chooseDefaultConfiguration() {
-        selectedConfigurationType = .default
+    func chooseDefaultConfigurationType(_ configurationType: TransactionConfigurationType) {
+        selectedConfigurationType = configurationType
         delegate?.configurationChanged(in: self)
     }
 }

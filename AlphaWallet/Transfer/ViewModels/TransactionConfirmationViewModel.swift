@@ -77,14 +77,22 @@ enum UpdateBalanceValue {
 extension TransactionConfirmationViewModel {
     private static func gasFeeString(withConfigurator configurator: TransactionConfigurator, cryptoToDollarRate: Double?) -> String {
         let fee = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
+        let estimatedProcessingTime = configurator.selectedConfigurationType.estimatedProcessingTime
         let symbol = configurator.session.server.symbol
         let feeString = EtherNumberFormatter.short.string(from: fee)
         let cryptoToDollarSymbol = Constants.Currency.usd
+        let costs: String
         if let cryptoToDollarRate = cryptoToDollarRate {
             let cryptoToDollarValue = StringFormatter().currency(with: Double(fee) * cryptoToDollarRate / Double(EthereumUnit.ether.rawValue), and: cryptoToDollarSymbol)
-            return "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
+            costs =  "< ~\(feeString) \(symbol) (\(cryptoToDollarValue) \(cryptoToDollarSymbol))"
         } else {
-            return "< ~\(feeString) \(symbol)"
+            costs = "< ~\(feeString) \(symbol)"
+        }
+
+        if estimatedProcessingTime.isEmpty {
+            return costs
+        } else {
+            return "\(costs) \(estimatedProcessingTime)"
         }
     }
 
@@ -480,14 +488,6 @@ extension TransactionConfirmationViewModel {
             self.price = price
             self.ethPrice = ethPrice
             self.numberOfTokens = numberOfTokens
-        }
-
-        func isSubviewHidden(section: Int, row: Int) -> Bool {
-            let _ = openedSections.contains(section)
-            switch sections[section] {
-            case .gas, .amount, .numberOfTokens:
-                return true
-            }
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {

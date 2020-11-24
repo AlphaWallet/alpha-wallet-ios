@@ -3,121 +3,30 @@
 import Foundation
 import BigInt
 
-struct EditedTransactionConfiguration {
-    private let formatter = EtherNumberFormatter.full
-
-    var gasPrice: BigInt {
-        return formatter.number(from: String(gasPriceRawValue), units: UnitConfiguration.gasPriceUnit) ?? BigInt()
-    }
-
-    var gasLimit: BigInt {
-        BigInt(String(gasLimitRawValue), radix: 10) ?? BigInt()
-    }
-
-    var data: Data {
-        if dataRawValue.isEmpty {
-            return .init()
-        } else {
-            return .init(hex: dataRawValue.drop0x)
-        }
-    }
-
-    var gasPriceRawValue: Int
-    var gasLimitRawValue: Int
-    var dataRawValue: String
-    var nonceRawValue: Int?
-
-    var overridenMaxGasPrice: Int?
-    var overridenMaxGasLimit: Int?
-
-    let defaultMinGasLimit = Int(GasLimitConfiguration.minGasLimit)
-    let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-
-    private let defaultMaxGasLimit: Int = Int(GasLimitConfiguration.maxGasLimit)
-    private let defaultMaxGasPrice: Int = Int(GasPriceConfiguration.maxPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-
-    var maxGasPrice: Int {
-        if let overridenValue = overridenMaxGasPrice {
-            return overridenValue
-        } else {
-            return defaultMaxGasPrice
-        }
-    }
-
-    var maxGasLimit: Int {
-        if let overridenValue = overridenMaxGasLimit {
-            return overridenValue
-        } else {
-            return defaultMaxGasLimit
-        }
-    }
-
-    mutating func updateMaxGasLimitIfNeeded(_ value: Int) {
-        if value > defaultMaxGasLimit {
-            overridenMaxGasLimit = value
-        } else if value < defaultMinGasLimit {
-            overridenMaxGasLimit = nil
-        }
-    }
-
-    mutating func updateMaxGasPriceIfNeeded(_ value: Int) {
-        if value > defaultMaxGasPrice {
-            overridenMaxGasPrice = value
-        } else if value < defaultMaxGasPrice {
-            overridenMaxGasPrice = nil
-        }
-    }
-
-    init(configuration: TransactionConfiguration) {
-        gasLimitRawValue = Int(configuration.gasLimit.description) ?? 21000
-        gasPriceRawValue = formatter.string(from: configuration.gasPrice, units: UnitConfiguration.gasPriceUnit).numberValue?.intValue ?? 1
-        nonceRawValue = Int(configuration.nonce.flatMap { String($0) } ?? "")
-        dataRawValue = configuration.data.hexEncoded.add0x
-
-        updateMaxGasLimitIfNeeded(gasLimitRawValue)
-        updateMaxGasPriceIfNeeded(gasPriceRawValue)
-    }
-
-    var configuration: TransactionConfiguration {
-        return .init(gasPrice: gasPrice, gasLimit: gasLimit, data: data, nonce: nonceRawValue)
-    }
-
-    var isGasPriceValid: Bool {
-        return gasPrice >= 0
-    }
-
-    var isGasLimitValid: Bool {
-        return gasLimit <= ConfigureTransaction.gasLimitMax && gasLimit >= 0
-    }
-
-    var totalFee: BigInt {
-        return gasPrice * gasLimit
-    }
-
-    var isTotalFeeValid: Bool {
-        return totalFee <= ConfigureTransaction.gasFeeMax && totalFee >= 0
-    }
-
-    var isNonceValid: Bool {
-        guard let nonce = nonceRawValue else { return true }
-        return nonce >= 0
-    }
-}
-
 struct ConfigureTransactionViewModel {
     var selectedConfigurationType: TransactionConfigurationType
     let server: RPCServer
+    let ethPrice: Subscribable<Double>
     let transferType: TransferType
     var configurationToEdit: EditedTransactionConfiguration
-    var configurationTypes: [TransactionConfigurationType] = [.default, .custom]
+    var configurationTypes: [TransactionConfigurationType]
+    var configurations: TransactionConfigurations {
+        didSet {
+            configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
+        }
+    }
     let currencyRate: CurrencyRate?
 
-    init(server: RPCServer, configurator: TransactionConfigurator, currencyRate: CurrencyRate?) {
+    init(server: RPCServer, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, currencyRate: CurrencyRate?) {
         self.server = server
+        self.ethPrice = ethPrice
+        let configurations = configurator.configurations
+        self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
+        self.configurations = configurations
         self.currencyRate = currencyRate
         transferType = configurator.transaction.transferType
         selectedConfigurationType = configurator.selectedConfigurationType
-        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.customConfiguration)
+        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
     }
 
     private let fullFormatter = EtherNumberFormatter.full
@@ -147,10 +56,18 @@ struct ConfigureTransactionViewModel {
         }
     }
 
+    static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
+        let available = configurations.types
+        let all: [TransactionConfigurationType] = [.slow, .standard, .fast, .rapid, .custom]
+        return all.filter { available.contains($0) }
+    }
+
     func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedTableViewCellViewModel {
-        let configuration = configurationTypes[indexPath.row]
-        let isSelected = selectedConfigurationType == configuration
-        return .init(speed: configuration.title, estimatedTime: nil, details: nil, isSelected: isSelected)
+        let configurationType = configurationTypes[indexPath.row]
+        let isSelected = selectedConfigurationType == configurationType
+        let configuration = configurations[configurationType]!
+        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
+        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     var gasLimitSliderViewModel: SliderTableViewCellViewModel {
@@ -201,7 +118,7 @@ struct ConfigureTransactionViewModel {
 
     var sections: [Section] {
         switch selectedConfigurationType {
-        case .default:
+        case .standard, .slow, .fast, .rapid:
             return [.configurationTypes]
         case .custom:
             return [.configurationTypes, .gasPrice, .gasLimit]

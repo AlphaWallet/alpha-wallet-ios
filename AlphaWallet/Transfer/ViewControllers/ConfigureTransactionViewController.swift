@@ -4,7 +4,7 @@ import UIKit
 import BigInt
 
 protocol ConfigureTransactionViewControllerDelegate: class {
-    func didSavedToUseDefaultConfiguration(in viewController: ConfigureTransactionViewController)
+    func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
 }
 
@@ -27,10 +27,9 @@ class ConfigureTransactionViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(GasSpeedTableViewCell.self)
         tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.tableFooterView = createTableInformationFooter()
         tableView.separatorStyle = .none
         tableView.allowsSelection = true
-
         return tableView
     }()
 
@@ -94,12 +93,13 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.reloadData()
     }
 
-    func configure(withEstimatedGasPrice value: BigInt) {
+    func configure(withEstimatedGasPrice value: BigInt, configurator: TransactionConfigurator) {
         var updatedViewModel = viewModel
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasPrice != value else { return }
         configuration.setEstimated(gasPrice: value)
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
         recalculateTotalFee()
         tableView.reloadData()
@@ -139,6 +139,22 @@ class ConfigureTransactionViewController: UIViewController {
         }, completion: { _ in
 
         })
+    }
+
+    private func createTableInformationFooter() -> UIView {
+        let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 100))
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.font = Fonts.regular(size: 12)
+        label.textColor = R.color.dove()
+        label.text = R.string.localizable.transactionConfirmationFeeFooterText()
+        footer.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.anchorsConstraint(to: footer, edgeInsets: UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)),
+        ])
+        return footer
     }
 
     private func recalculateTotalFee() {
@@ -187,8 +203,8 @@ class ConfigureTransactionViewController: UIViewController {
 
             let configuration = makeConfigureSuitableForSaving(from: viewModel.configurationToEdit.configuration)
             delegate.didSaved(customConfiguration: configuration, in: self)
-        case .default:
-            delegate.didSavedToUseDefaultConfiguration(in: self)
+        case .standard, .slow, .fast, .rapid:
+            delegate.didSavedToUseDefaultConfigurationType(viewModel.selectedConfigurationType, in: self)
         }
     }
 

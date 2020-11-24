@@ -64,7 +64,11 @@ class GasSpeedTableViewCell: UITableViewCell {
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 1, right: 0))
+
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 1)
         ])
     }
 
@@ -75,9 +79,9 @@ class GasSpeedTableViewCell: UITableViewCell {
     func configure(viewModel: GasSpeedTableViewCellViewModel) {
         backgroundColor = viewModel.backgroundColor
 
-        speedLabel.attributedText = viewModel.speedAttributedString
-        speedLabel.isHidden = speedLabel.attributedText == nil
+        speedLabel.attributedText = viewModel.titleAttributedString
 
+        estimatedTimeLabel.textAlignment = .right
         estimatedTimeLabel.attributedText = viewModel.estimatedTimeAttributedString
         estimatedTimeLabel.isHidden = estimatedTimeLabel.attributedText == nil
 

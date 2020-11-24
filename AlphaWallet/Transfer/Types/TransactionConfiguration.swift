@@ -40,15 +40,39 @@ struct TransactionConfiguration {
 }
 
 enum TransactionConfigurationType: Int, CaseIterable {
-    case `default`
+    case slow
+    case standard
+    case fast
+    case rapid
     case custom
 
     var title: String {
         switch self {
-        case .default:
-            return R.string.localizable.tokenTransactionConfirmationDefault()
+        case .standard:
+            return R.string.localizable.transactionConfigurationTypeAverage()
+        case .slow:
+            return R.string.localizable.transactionConfigurationTypeSlow()
+        case .fast:
+            return R.string.localizable.transactionConfigurationTypeFast()
+        case .rapid:
+            return R.string.localizable.transactionConfigurationTypeRapid()
         case .custom:
             return R.string.localizable.transactionConfigurationTypeCustom()
+        }
+    }
+
+    var estimatedProcessingTime: String {
+        switch self {
+        case .standard:
+            return R.string.localizable.transactionConfigurationTypeAverageTime()
+        case .slow:
+            return R.string.localizable.transactionConfigurationTypeSlowTime()
+        case .fast:
+            return R.string.localizable.transactionConfigurationTypeFastTime()
+        case .rapid:
+            return R.string.localizable.transactionConfigurationTypeRapidTime()
+        case .custom:
+            return ""
         }
     }
 }
