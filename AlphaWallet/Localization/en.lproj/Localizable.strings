@@ -459,6 +459,7 @@
 "wallets.showSeedPhrase.subtitle.error" = "Do not share your backup. AlphaWallet team members will not ask for it.";
 "token.transactionConfirmation.gas.title" = "Speed (Gas)";
 "token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
