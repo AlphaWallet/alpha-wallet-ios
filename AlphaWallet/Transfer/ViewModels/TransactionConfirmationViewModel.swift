@@ -12,8 +12,8 @@ enum TransactionConfirmationViewModel {
 
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
-        case .tokenScriptTransaction(_, let contract, _, let ethPrice):
-            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, ethPrice: ethPrice))
+        case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
+            self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice))
         case .dappTransaction(_, _, let ethPrice):
             self = .dappTransaction(.init(configurator: configurator, ethPrice: ethPrice))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
@@ -307,6 +307,8 @@ extension TransactionConfirmationViewModel {
         enum Section: Int, CaseIterable {
             case gas
             case contract
+            case function
+            case amount
 
             var title: String {
                 switch self {
@@ -314,6 +316,10 @@ extension TransactionConfirmationViewModel {
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .contract:
                     return R.string.localizable.tokenTransactionConfirmationContractTitle()
+                case .function:
+                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+                case .amount:
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
                 }
             }
         }
@@ -323,23 +329,36 @@ extension TransactionConfirmationViewModel {
         private var configurationTitle: String {
             configurator.selectedConfigurationType.title
         }
+        private var formattedAmountValue: String {
+            let cryptoToDollarSymbol = Constants.Currency.usd
+            let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
+            let amountString = EtherNumberFormatter.short.string(from: configurator.transaction.value)
+            let symbol = configurator.session.server.symbol
+            if let cryptoToDollarRate = cryptoToDollarRate {
+                let cryptoToDollarValue = StringFormatter().currency(with: amount * cryptoToDollarRate, and: cryptoToDollarSymbol)
+                return "\(amountString) \(symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+            } else {
+                return "\(amountString) \(symbol)"
+            }
+        }
 
         var cryptoToDollarRate: Double?
+        let functionCallMetaData: FunctionCallMetaData
         let ethPrice: Subscribable<Double>
         var openedSections = Set<Int>()
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
+        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: FunctionCallMetaData, ethPrice: Subscribable<Double>) {
             self.address = address
             self.configurator = configurator
+            self.functionCallMetaData = functionCallMetaData
             self.ethPrice = ethPrice
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section)
-
+            let configuration = TransactionConfirmationHeaderView.Configuration(isOpened: openedSections.contains(section), section: section, shouldHideChevron: sections[section] != .function)
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
@@ -347,7 +366,15 @@ extension TransactionConfirmationViewModel {
                 return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .contract:
                 return .init(title: address.truncateMiddle, placeholder: placeholder, configuration: configuration)
+            case .function:
+                return .init(title: functionCallMetaData.name, placeholder: placeholder, configuration: configuration)
+            case .amount:
+                return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
             }
+        }
+
+        func isSubviewsHidden(section: Int) -> Bool {
+            !openedSections.contains(section)
         }
     }
 

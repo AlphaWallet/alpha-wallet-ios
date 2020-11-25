@@ -11,6 +11,8 @@ enum FunctionError: LocalizedError {
     case postTransaction
 }
 
+typealias FunctionCallMetaData = (name: String, arguments: [(type: ABIType, value: AnyObject)])
+
 struct FunctionOrigin {
     enum FunctionType {
         case functionCall(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType)
@@ -209,7 +211,7 @@ struct FunctionOrigin {
         return arguments
     }
 
-    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> Data? {
+    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> (data: Data, function: FunctionCallMetaData)? {
         assert(functionType.isFunctionTransaction)
         guard let functionName = functionType.functionName else { return nil }
         guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }
@@ -219,7 +221,11 @@ struct FunctionOrigin {
         do {
             try encoder.encode(function: functionEncoder, arguments: arguments)
             let data = encoder.data
-            return data
+
+            let argumentsMetaData: [(type: ABIType, value: AnyObject)] = Array(zip(parameters, arguments))
+            let functionCallMetaData: FunctionCallMetaData = (name: functionName, arguments: argumentsMetaData)
+
+            return (data: data, function: functionCallMetaData)
         } catch {
             return nil
         }
@@ -249,10 +255,11 @@ struct FunctionOrigin {
         }
     }
 
-    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<UnconfirmedTransaction, FunctionError>.t {
+    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<(UnconfirmedTransaction, FunctionCallMetaData), FunctionError>.t {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
+        let functionCallMetaData: FunctionCallMetaData
         switch functionType {
         case .functionCall, .eventFiltering:
             return .init(error: FunctionError.postTransaction)
@@ -261,22 +268,20 @@ struct FunctionOrigin {
             guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
                 return .failure(FunctionError.formValue)
             }
+            functionCallMetaData = (name: "Transfer", arguments: .init())
             value = val
         case .functionTransaction:
-            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
+            guard let (data, metadata) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
                 return .failure(FunctionError.formPayload)
             }
             payload = data
+            functionCallMetaData = metadata
             value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
         //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
-        return .success(UnconfirmedTransaction(
-                transactionType: .tokenScript(tokenObject),
-                value: BigInt(value),
-                recipient: nil,
-                contract: originContractOrRecipientAddress,
-                data: payload
-        ))
+        return .success((
+                UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
+                functionCallMetaData))
     }
 
     func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
@@ -291,7 +296,7 @@ struct FunctionOrigin {
             guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
             value = val
         case .functionTransaction:
-            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
+            guard let (data, _) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
             payload = data
             value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }

@@ -459,6 +459,7 @@
 "wallets.showSeedPhrase.subtitle.error" = "请勿将备份文件分享给他人。AlphaWallet 团队成员绝不会向您索要备份。";
 "token.transactionConfirmation.gas.title" = "Speed (Gas)";
 "token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
