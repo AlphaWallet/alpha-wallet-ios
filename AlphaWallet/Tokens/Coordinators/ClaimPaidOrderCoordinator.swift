@@ -5,11 +5,8 @@
 
 import Foundation
 import BigInt
-import JSONRPCKit
-import APIKit
 import Result
 import TrustKeystore
-import JavaScriptKit
 
 protocol ClaimOrderCoordinatorDelegate: class {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
