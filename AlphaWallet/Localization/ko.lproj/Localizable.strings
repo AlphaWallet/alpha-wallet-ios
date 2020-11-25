@@ -459,6 +459,7 @@
 "wallets.showSeedPhrase.subtitle.error" = "백업을 공유하지 마십시오. AlphaWallet 팀원은 요청하지 않습니다.";
 "token.transactionConfirmation.gas.title" = "Speed (Gas)";
 "token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";

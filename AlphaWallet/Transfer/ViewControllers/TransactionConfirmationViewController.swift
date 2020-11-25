@@ -467,12 +467,25 @@ extension TransactionConfirmationViewController {
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
+                var children: [UIView] = []
                 switch section {
                 case .gas:
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
-                case .contract:
+                case .function:
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
+                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
+                    view.isHidden = isSubViewsHidden
+                    children.append(view)
+
+                    for (type, value) in viewModel.functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                        view.isHidden = isSubViewsHidden
+                        children.append(view)
+                    }
+                case .contract, .amount:
                     break
                 }
+                header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
             }
         case .sendFungiblesTransaction(let viewModel):
