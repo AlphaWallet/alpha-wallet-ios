@@ -11,6 +11,7 @@ PODS:
     - BigInt (~> 3.1)
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
+  - BlockiesSwift (0.1.2)
   - CryptoSwift (1.3.2)
   - EthereumABI (1.3.0):
     - BigInt (~> 3.1)
@@ -105,6 +106,7 @@ DEPENDENCIES:
   - APIKit
   - AWSSNS
   - BigInt (~> 3.1)
+  - BlockiesSwift
   - CryptoSwift (~> 1.0)
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, commit `5c54e2607632ce586010e50e91d9adcb6bb3909e`)
   - iOSSnapshotTestCase
@@ -144,6 +146,7 @@ SPEC REPOS:
     - AWSSNS
     - Base58Swift
     - BigInt
+    - BlockiesSwift
     - CryptoSwift
     - EthereumABI
     - EthereumAddress
@@ -245,6 +248,7 @@ SPEC CHECKSUMS:
   AWSSNS: d3ed65985986d5393de2793259e457e466997b55
   Base58Swift: 149c9dd95d8712f00e4695b36baafb3031927256
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
+  BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
@@ -283,6 +287,6 @@ SPEC CHECKSUMS:
   UnstoppableDomainsResolution: dc89a8d9e51f3786b46274b457875a231d5bdbb8
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 9b09ec864c2168207fdd3d0a3cbaddbbf0f696e8
+PODFILE CHECKSUM: 8f216dde70d2efce9ebc7a334f1166e9961ab038
 
 COCOAPODS: 1.10.0

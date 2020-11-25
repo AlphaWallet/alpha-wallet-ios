@@ -11,7 +11,8 @@ struct AccountViewModel {
     let walletBalance: Balance?
     let walletName: String?
     var ensName: String?
-
+    let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
+    
     init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, server: RPCServer, walletName: String?) {
         self.wallet = wallet
         self.current = current
@@ -19,6 +20,8 @@ struct AccountViewModel {
         self.ensName = nil
         self.server = server
         self.walletName = walletName
+        
+        AccountViewModel.resolveBlockie(for: self)
     }
 
     var showWatchIcon: Bool {
@@ -63,6 +66,18 @@ struct AccountViewModel {
             return "\(ensName) | \(wallet.address.truncateMiddle)"
         } else {
             return wallet.address.eip55String
+        }
+    }
+}
+
+extension AccountViewModel {
+    //Because struct can't capture self in closure we using static func to resolve blockie
+    static func resolveBlockie(for viewModel: AccountViewModel) {
+        let generator = BlockiesGenerator()
+        generator.promise(address: viewModel.address).done { image in
+            viewModel.icon.value = image
+        }.catch { _ in
+            viewModel.icon.value = nil
         }
     }
 }

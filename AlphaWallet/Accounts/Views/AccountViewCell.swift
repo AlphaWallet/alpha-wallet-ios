@@ -5,6 +5,7 @@ import UIKit
 class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
     private let balanceLabel = UILabel()
+    private let blockieImageView = BlockieImageView()
 
     var viewModel: AccountViewModel?
     var account: Wallet?
@@ -21,7 +22,7 @@ class AccountViewCell: UITableViewCell {
             addressLabel,
         ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
 
-        let stackView = [leftStackView].asStackView(spacing: 0, alignment: .center)
+        let stackView = [blockieImageView, leftStackView].asStackView(spacing: 20, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         addressLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -32,12 +33,14 @@ class AccountViewCell: UITableViewCell {
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
+            blockieImageView.heightAnchor.constraint(equalToConstant: 40),
+            blockieImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: 20, bottom: 20, right: 0)),
         ])
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure(viewModel: AccountViewModel) {
@@ -53,5 +56,7 @@ class AccountViewCell: UITableViewCell {
         addressLabel.text = viewModel.addresses
 
         accessoryType = viewModel.accessoryType
+
+        blockieImageView.subscribable = viewModel.icon
     }
 }
