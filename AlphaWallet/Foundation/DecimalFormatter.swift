@@ -3,6 +3,9 @@
 import Foundation
 
 final class DecimalFormatter {
+    var groupingSeparator: String {
+        return numberFormatter.groupingSeparator
+    }
     /// Locale of a `DecimalFormatter`.
     var locale: Locale
     /// numberFormatter of a `DecimalFormatter` to represent current locale.
