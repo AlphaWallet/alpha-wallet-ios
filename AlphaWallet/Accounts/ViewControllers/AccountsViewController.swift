@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 protocol AccountsViewControllerDelegate: class {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)
@@ -124,15 +125,20 @@ class AccountsViewController: UIViewController {
 
     private func refreshWalletBalances() {
         let addresses = (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
-        var counter = 0
+
+        let group = DispatchGroup()
+        
         for address in addresses {
-            balanceCoordinator.getBalance(for: address, completion: { [weak self] (result) in
+            group.enter()
+
+            balanceCoordinator.getBalance(for: address) { [weak self] result in
                 self?.balances[address] = result.value
-                counter += 1
-                if counter == addresses.count {
-                    self?.tableView.reloadData()
-                }
-            })
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) { [weak self] in
+            self?.tableView.reloadData()
         }
     }
 
@@ -145,7 +151,7 @@ class AccountsViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 }
 
@@ -186,7 +192,7 @@ extension AccountsViewController: UITableViewDataSource {
             cellViewModel.ensName = ensName
             cell.configure(viewModel: cellViewModel)
         }
-
+        
         return cell
     }
 

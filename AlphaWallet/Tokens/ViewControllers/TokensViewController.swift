@@ -90,6 +90,17 @@ class TokensViewController: UIViewController {
 
         return collectionView
     }()
+    private lazy var blockieImageView: BlockieImageView = {
+        let imageView = BlockieImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.clipsToBounds = true
+
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 24),
+            imageView.heightAnchor.constraint(equalToConstant: 24),
+        ])
+        return imageView
+    }()
     private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private var consoleButton: UIButton {
@@ -219,6 +230,7 @@ class TokensViewController: UIViewController {
         setupFilteringWithKeyword()
 
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -232,6 +244,7 @@ class TokensViewController: UIViewController {
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
         getWalletName()
+        getWalletBlockie()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -252,6 +265,15 @@ class TokensViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.navigationItem.title = name ?? strongSelf.viewModel.walletDefaultTitle
         }.cauterize()
+    }
+
+    private func getWalletBlockie() {
+        let generator = BlockiesGenerator()
+        generator.promise(address: account.address).done { [weak self] value in
+            self?.blockieImageView.image = value
+        }.catch { [weak self] _ in
+            self?.blockieImageView.image = nil
+        }
     }
 
     @objc func pullToRefresh() {
