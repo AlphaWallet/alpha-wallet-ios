@@ -26,7 +26,7 @@ class GetENSAddressCoordinator {
         let server: RPCServer
     }
 
-    private static var resultsCache = [ENSLookupKey: EthereumAddress]()
+    private static var resultsCache = [ENSLookupKey: AlphaWallet.Address]()
     private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
 
     private var toStartResolvingEnsNameTimer: Timer?
@@ -38,11 +38,11 @@ class GetENSAddressCoordinator {
 
     func getENSAddressFromResolver(
             for input: String,
-            completion: @escaping (Result<EthereumAddress, AnyError>) -> Void
+            completion: @escaping (Result<AlphaWallet.Address, AnyError>) -> Void
     ) {
 
         //if already an address, send back the address
-        if let ethAddress = EthereumAddress(input) {
+        if let ethAddress = AlphaWallet.Address(string: input) {
             completion(.success(ethAddress))
             return
         }
@@ -74,14 +74,15 @@ class GetENSAddressCoordinator {
                                 completion(.failure(AnyError(Web3Error(description: "Null address returned"))))
                             } else {
                                 //Retain self because it's useful to cache the results even if we don't immediately need it now
-                                self.cache(forNode: node, result: ensAddress)
-                                completion(.success(ensAddress))
+                                let adress = AlphaWallet.Address(address: ensAddress)
+                                
+                                self.cache(forNode: node, result: adress)
+                                completion(.success(adress))
                             }
                         } else {
                             completion(.failure(AnyError(Web3Error(description: "Incorrect data output from ENS resolver"))))
                         }
                     }.cauterize()
-
                 }
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(self.server.ensRegistrarContract).\(function.name)()"))))
@@ -91,7 +92,7 @@ class GetENSAddressCoordinator {
         }
     }
 
-    func queueGetENSOwner(for input: String, completion: @escaping (Result<EthereumAddress, AnyError>) -> Void) {
+    func queueGetENSOwner(for input: String, completion: @escaping (Result<AlphaWallet.Address, AnyError>) -> Void) {
         let node = input.lowercased().nameHash
         if let cachedResult = cachedResult(forNode: node) {
             completion(.success(cachedResult))
@@ -107,11 +108,11 @@ class GetENSAddressCoordinator {
         }
     }
 
-    private func cachedResult(forNode node: String) -> EthereumAddress? {
+    private func cachedResult(forNode node: String) -> AlphaWallet.Address? {
         return GetENSAddressCoordinator.resultsCache[ENSLookupKey(name: node, server: server)]
     }
 
-    private func cache(forNode node: String, result: EthereumAddress) {
+    private func cache(forNode node: String, result: AlphaWallet.Address) {
         GetENSAddressCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
     }
 }

@@ -122,9 +122,7 @@ class AddressOrEnsNameLabel: UILabel {
             inResolvingState = true
 
             DomainResolver(server: server).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
-                return GetENSAddressCoordinator(server: server).getENSAddressFromResolverPromise(value: value).map { address in
-                    AlphaWallet.Address(address: address)
-                }
+                return GetENSAddressCoordinator(server: server).getENSAddressFromResolverPromise(value: value)
             }.done { address in
                 completion(.resolved(.address(address)))
             }.catch { _ in
