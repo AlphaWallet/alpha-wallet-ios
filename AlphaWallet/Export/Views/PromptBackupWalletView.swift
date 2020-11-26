@@ -14,11 +14,11 @@ class PromptBackupWalletView: UIView {
     private let descriptionLabel = UILabel()
     private let backupButton = UIButton(type: .system)
     private let remindMeLaterButton = UIButton(type: .system)
-    private let viewModel: PromptBackupWalletViewViewModel
+    private let viewModel: PromptBackupWalletViewModel
 
     weak var delegate: PromptBackupWalletViewDelegate?
 
-    init(viewModel: PromptBackupWalletViewViewModel) {
+    init(viewModel: PromptBackupWalletViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
 

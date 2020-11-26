@@ -94,7 +94,7 @@ class PromptBackupCoordinator: Coordinator {
         writeState(walletsBackupState)
     }
 
-    private func createBackupViewImpl(viewModel: PromptBackupWalletViewViewModel) -> UIView {
+    private func createBackupViewImpl(viewModel: PromptBackupWalletViewModel) -> UIView {
         let view = PromptBackupWalletView(viewModel: viewModel)
         view.delegate = self
         view.configure()
