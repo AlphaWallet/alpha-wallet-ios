@@ -274,46 +274,22 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         notificationCenter.add(request)
     }
 
-    private func fetchTransactions(
-            for address: AlphaWallet.Address,
-            startBlock: Int,
-            endBlock: Int = 999_999_999,
-            sortOrder: AlphaWalletService.SortOrder,
-            completion: @escaping (ResultResult<[Transaction], AnyError>.t) -> Void
-    ) {
-        alphaWalletProvider.request(
-                .getTransactions(
-                        config: session.config,
-                        server: session.server,
-                        address: address,
-                        startBlock: startBlock,
-                        endBlock: endBlock,
-                        sortOrder: sortOrder
-                )
-        ) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    do {
-                        let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
-                        DispatchQueue.main.async {
-                            let transactionsPromises = rawTransactions.map { Transaction.from(transaction: $0, tokensStorage: strongSelf.tokensStorage) }
-                            when(fulfilled: transactionsPromises).done { results in
-                                let transactions = results.compactMap { $0 }
-                                completion(.success(transactions))
-                            }.cauterize()
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            completion(.failure(AnyError(error)))
-                        }
-                    }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion(.failure(AnyError(error)))
-                }
+    private func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder) -> Promise<[Transaction]> {
+
+        return alphaWalletProvider.request(.getTransactions(
+            config: session.config,
+            server: session.server,
+            address: address,
+            startBlock: startBlock,
+            endBlock: endBlock,
+            sortOrder: sortOrder
+        )).map {
+            try $0.map(ArrayResponse<RawTransaction>.self).result.map {
+                Transaction.from(transaction: $0, tokensStorage: self.tokensStorage)
+            }
+        }.then {
+            when(fulfilled: $0).compactMap {
+                $0.compactMap { $0 }
             }
         }
     }
@@ -321,22 +297,20 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private func fetchOlderTransactions(for address: AlphaWallet.Address) {
         guard let oldestCachedTransaction = storage.completedObjects.last else { return }
 
-        fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let transactions):
-                strongSelf.update(items: transactions)
-                if !transactions.isEmpty {
-                    let timeout = DispatchTime.now() + .milliseconds(300)
-                    DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
-                        self?.fetchOlderTransactions(for: address)
-                    }
-                } else {
-                    strongSelf.transactionsTracker.fetchingState = .done
+        let promise = fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
+        promise.done { [weak self] transactions in
+            self?.update(items: transactions)
+
+            if !transactions.isEmpty {
+                let timeout = DispatchTime.now() + .milliseconds(300)
+                DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
+                    self?.fetchOlderTransactions(for: address)
                 }
-            case .failure:
-                strongSelf.transactionsTracker.fetchingState = .failed
+            } else {
+                self?.transactionsTracker.fetchingState = .done
             }
+        }.catch { [weak self] _ in
+            self?.transactionsTracker.fetchingState = .failed
         }
     }
 
@@ -378,24 +352,21 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
 
         override func main() {
-            coordinator?.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder) { [weak self] result in
-                guard let strongSelf = self else { return }
-                guard let coordinator = self?.coordinator else { return }
-                defer {
-                    strongSelf.willChangeValue(forKey: "isExecuting")
-                    strongSelf.willChangeValue(forKey: "isFinished")
-                    coordinator.isFetchingLatestTransactions = false
-                    strongSelf.didChangeValue(forKey: "isExecuting")
-                    strongSelf.didChangeValue(forKey: "isFinished")
-                }
-                switch result {
-                case .success(let transactions):
-                    strongSelf.coordinator?.notifyUserEtherReceived(inNewTransactions: transactions)
-                    strongSelf.coordinator?.update(items: transactions)
-                case .failure(let error):
-                    strongSelf.coordinator?.handleError(error: error)
-                }
-            }
+            guard let coordinator = self.coordinator else { return }
+            let promise = coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
+
+            promise.done { transactions in
+                coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
+                coordinator.update(items: transactions)
+            }.catch { e in
+                coordinator.handleError(error: e)
+            }.finally { [weak self] in
+                self?.willChangeValue(forKey: "isExecuting")
+                self?.willChangeValue(forKey: "isFinished")
+                coordinator.isFetchingLatestTransactions = false
+                self?.didChangeValue(forKey: "isExecuting")
+                self?.didChangeValue(forKey: "isFinished")
+            } 
         }
     }
 }
