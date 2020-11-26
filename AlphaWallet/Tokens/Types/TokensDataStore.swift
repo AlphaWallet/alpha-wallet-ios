@@ -640,28 +640,28 @@ class TokensDataStore {
         guard let priceToUpdate = getPriceToUpdate() else { return }
         guard !isFetchingPrices else { return }
         isFetchingPrices = true
-        provider.request(priceToUpdate) { [weak self] result in
-            guard let strongSelf = self else { return }
-            defer {
-                strongSelf.isFetchingPrices = false
+
+        firstly {
+            provider.request(priceToUpdate)
+        }.map { response -> [AlphaWallet.Address : CoinTicker] in
+            let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
+            let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
+                var dict = dict
+                dict[ticker.contract] = ticker
+                return dict
             }
-            guard case .success(let response) = result else { return }
-            do {
-                let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
-                let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
-                    var dict = dict
-                    dict[ticker.contract] = ticker
-                    return dict
-                }
-                var resultTickers = [AlphaWallet.Address: CoinTicker]()
-                for (contract, ticker) in tempTickers {
-                    guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contract) else { continue }
-                    resultTickers[contractAddress] = ticker
-                }
-                strongSelf.tickers = resultTickers
-                //TODO is it better if we pass in an enum to indicate what's the change? if crypto price change, we only need to refresh the native crypto currency cards?
-                strongSelf.updateDelegate()
-            } catch { }
+            var resultTickers = [AlphaWallet.Address: CoinTicker]()
+            for (contract, ticker) in tempTickers {
+                guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contract) else { continue }
+                resultTickers[contractAddress] = ticker
+            }
+
+            return resultTickers
+        }.done { [weak self] tickers in
+            self?.tickers = tickers
+            self?.updateDelegate()
+        }.cauterize().finally { [weak self] in
+            self?.isFetchingPrices = false
         }
     }
 
