@@ -26,7 +26,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     }
 
     var subtitleFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var subtitleText: String {

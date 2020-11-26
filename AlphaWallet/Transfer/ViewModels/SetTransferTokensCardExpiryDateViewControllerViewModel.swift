@@ -22,7 +22,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var descriptionLabelColor: UIColor {
@@ -34,7 +34,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteTitleLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var noteTitleLabelColor: UIColor {
@@ -46,7 +46,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var noteLabelColor: UIColor {
@@ -66,7 +66,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var linkExpiryDateLabelText: String {

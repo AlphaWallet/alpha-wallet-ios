@@ -48,7 +48,7 @@ class DappViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.regular(size: 12)!
+        return Fonts.regular(size: 12)
     }
 
     var domainNameColor: UIColor {
@@ -56,6 +56,6 @@ class DappViewCellViewModel {
     }
 
     var domainNameFont: UIFont {
-        return Fonts.bold(size: 10)!
+        return Fonts.bold(size: 10)
     }
 }

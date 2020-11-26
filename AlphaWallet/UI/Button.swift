@@ -56,7 +56,7 @@ enum ButtonStyle: Int {
              .squared,
              .border,
              .borderless, .system:
-            return Fonts.semibold(size: 16)!
+            return Fonts.semibold(size: 16)
         }
     }
 

@@ -8,7 +8,7 @@ struct ImportWalletHelpBubbleViewViewModel {
 	}
 
 	var textFont: UIFont {
-		return Fonts.semibold(size: 18)!
+		return Fonts.semibold(size: 18)
 	}
 
 	var descriptionColor: UIColor {
@@ -16,6 +16,6 @@ struct ImportWalletHelpBubbleViewViewModel {
 	}
 
 	var descriptionFont: UIFont {
-		return Fonts.regular(size: 15)!
+		return Fonts.regular(size: 15)
 	}
 }

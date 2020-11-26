@@ -400,7 +400,7 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonFont: UIFont {
-        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)!
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
     }
 
     var buttonBorderColor: UIColor = R.color.azure()!

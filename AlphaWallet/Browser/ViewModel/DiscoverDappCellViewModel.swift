@@ -44,11 +44,11 @@ struct DiscoverDappCellViewModel {
     }
 
     var nameFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.semibold(size: 12)
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var nameColor: UIColor? {
@@ -60,7 +60,7 @@ struct DiscoverDappCellViewModel {
     }
 
     var addRemoveButtonFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.semibold(size: 12)
     }
 
     var addRemoveButtonContentEdgeInsets: UIEdgeInsets {

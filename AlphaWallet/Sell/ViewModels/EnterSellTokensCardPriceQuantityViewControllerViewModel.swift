@@ -30,7 +30,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var quantityLabelText: String {
@@ -56,7 +56,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelLabelFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var ethCostLabelLabelColor: UIColor {
@@ -72,7 +72,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var dollarCostLabelLabelColor: UIColor {
@@ -80,7 +80,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var dollarCostLabelLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var dollarCostLabelText: String {
@@ -92,7 +92,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var dollarCostLabelFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var dollarCostLabelBackgroundColor: UIColor {

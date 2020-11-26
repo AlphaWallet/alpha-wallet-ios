@@ -19,6 +19,6 @@ struct AssetDefinitionsOverridesViewCellViewModel {
     let backgroundColor = Colors.appBackground
 
     let textColor = Colors.appText
-    let textFont = Fonts.light(size: 18)!
+    let textFont = Fonts.light(size: 18)
     let textLineBreakMode = NSLineBreakMode.byTruncatingMiddle
 }

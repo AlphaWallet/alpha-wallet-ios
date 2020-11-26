@@ -48,15 +48,15 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var tokenCountFont: UIFont {
-        return Fonts.bold(size: 21)!
+        return Fonts.bold(size: 21)
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var venueFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var stateBackgroundColor: UIColor {
@@ -68,15 +68,11 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var subtitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 12)!
-        } else {
-            return Fonts.semibold(size: 15)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 12 : 15)
     }
 
     var detailsFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var buttonTitleColor: UIColor {
@@ -92,6 +88,6 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var buttonFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 }

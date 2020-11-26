@@ -14,7 +14,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Colors.appText
     }
     var subtitleFont: UIFont {
-        return Fonts.light(size: 25)!
+        return Fonts.light(size: 25)
     }
     var subtitleLabelText: String {
         return R.string.localizable.aWalletTokenTransferConfirmSubtitle()
@@ -31,7 +31,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Colors.appActionButtonGreen
     }
     var actionButtonTitleFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
     var cancelButtonTitleColor: UIColor {
         return Colors.appRed
@@ -40,7 +40,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return .clear
     }
     var cancelButtonTitleFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
     var actionButtonTitle: String {
         return R.string.localizable.aWalletTokenSellConfirmButtonTitle()
@@ -50,7 +50,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
     }
 
     var tokenSaleDetailsLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var tokenSaleDetailsLabelColor: UIColor {

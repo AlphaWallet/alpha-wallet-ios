@@ -206,7 +206,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var statusFont: UIFont {
-        return Fonts.regular(size: 25)!
+        return Fonts.regular(size: 25)
     }
 
     var showCost: Bool {
@@ -222,7 +222,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var ethCostLabelText: String {
@@ -240,7 +240,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var dollarCostLabelLabelText: String {
@@ -252,7 +252,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var dollarCostLabelText: String {
@@ -276,7 +276,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var showActionButton: Bool {

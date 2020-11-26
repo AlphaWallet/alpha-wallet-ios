@@ -44,7 +44,7 @@ class NumberStepper: UIControl {
         }
     }
 
-    public var buttonsFont = Fonts.bold(size: 21)! {
+    public var buttonsFont = Fonts.bold(size: 21) {
         didSet {
             for button in [leftButton, rightButton] {
                 button.titleLabel?.font = buttonsFont

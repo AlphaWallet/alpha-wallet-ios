@@ -28,7 +28,7 @@ struct NewTokenViewModel {
     }
 
     var choiceLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var addressLabel: String {
