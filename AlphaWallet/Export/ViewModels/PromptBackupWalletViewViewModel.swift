@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol PromptBackupWalletViewViewModel {
+protocol PromptBackupWalletViewModel {
     var backgroundColor: UIColor { get }
     var cornerRadius: CGFloat { get }
     var titleFont: UIFont { get }
@@ -23,7 +23,7 @@ protocol PromptBackupWalletViewViewModel {
     var walletAddress: AlphaWallet.Address { get }
 }
 
-extension PromptBackupWalletViewViewModel {
+extension PromptBackupWalletViewModel {
     var cornerRadius: CGFloat {
         return Metrics.CornerRadius.box
     }
