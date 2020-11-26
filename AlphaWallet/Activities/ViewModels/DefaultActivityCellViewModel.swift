@@ -39,13 +39,13 @@ struct DefaultActivityCellViewModel {
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
             }
-            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
             let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
-            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20OwnerApproved, .erc721OwnerApproved:
             let string: NSMutableAttributedString
@@ -57,13 +57,13 @@ struct DefaultActivityCellViewModel {
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedFailed(symbol))")
             }
-            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
             let string = NSMutableAttributedString(string: R.string.localizable.activityApprovalObtained(symbol))
-            string.addAttribute(.font, value: Fonts.regular(size: 17)!, range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17)!, range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .none:
             return .init()
@@ -106,7 +106,7 @@ struct DefaultActivityCellViewModel {
     }
 
     var subTitleFont: UIFont {
-        Fonts.regular(size: 12)!
+        Fonts.regular(size: 12)
     }
 
     var amount: NSAttributedString {
@@ -154,16 +154,16 @@ struct DefaultActivityCellViewModel {
 
         switch activity.state {
         case .pending:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
         case .completed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
         case .failed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17)!, .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
         }
     }
 
     var timestampFont: UIFont {
-        Fonts.regular(size: 12)!
+        Fonts.regular(size: 12)
     }
 
     var timestampColor: UIColor {

@@ -16,10 +16,10 @@ struct OpenSeaNonFungibleTokenAttributeCellViewModel {
     }
 
     var nameFont: UIFont {
-        return Fonts.light(size: 12)!
+        return Fonts.light(size: 12)
     }
 
     var valueFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.semibold(size: 12)
     }
 }

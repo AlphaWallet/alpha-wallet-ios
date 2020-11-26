@@ -10,7 +10,7 @@ struct StateViewModel {
    }
 
     var titleFont: UIFont {
-        return Fonts.semibold(size: 18)!
+        return Fonts.semibold(size: 18)
     }
 
     var descriptionTextColor: UIColor {
@@ -18,7 +18,7 @@ struct StateViewModel {
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 16)!
+        return Fonts.regular(size: 16)
     }
 
     var stackSpacing: CGFloat {

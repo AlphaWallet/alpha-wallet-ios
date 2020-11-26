@@ -50,15 +50,11 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var titleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 13)!
-        } else {
-            return Fonts.semibold(size: 17)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 13 : 17)
     }
 
     var descriptionFont: UIFont {
-        return Fonts.light(size: 13)!
+        return Fonts.light(size: 13)
     }
 
     var stateColor: UIColor {
@@ -66,15 +62,11 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var stateFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 10)!
-        } else {
-            return Fonts.semibold(size: 12)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 10: 12)
     }
 
     var detailsFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var urlButtonText: String {
@@ -91,11 +83,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var attributesTitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 11)!
-        } else {
-            return Fonts.semibold(size: 15)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 11 : 15)
     }
 
     var attributesTitle: String {
@@ -123,11 +111,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var subtitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 11)!
-        } else {
-            return Fonts.semibold(size: 14)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 11 : 14)
     }
 
     var nonFungibleIdIconText: String {
@@ -245,7 +229,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var urlButtonFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.semibold(size: 12)
     }
 
     var urlButtonImage: UIImage {

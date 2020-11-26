@@ -47,11 +47,11 @@ struct SendViewModel {
         return Colors.appGrayLabel
     }
     var textFieldsLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 10)
     }
 
     var recipientLabelFont: UIFont {
-        return Fonts.regular(size: 13)!
+        return Fonts.regular(size: 13)
     }
 
     var recepientLabelTextColor: UIColor {

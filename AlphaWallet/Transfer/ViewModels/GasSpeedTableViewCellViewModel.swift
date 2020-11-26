@@ -45,12 +45,12 @@ struct GasSpeedTableViewCellViewModel {
         if isSelected {
             return NSAttributedString(string: title, attributes: [
                 .foregroundColor: Colors.black,
-                .font: Fonts.semibold(size: 17)!
+                .font: Fonts.semibold(size: 17)
             ])
         } else {
             return NSAttributedString(string: title, attributes: [
                 .foregroundColor: Colors.black,
-                .font: Fonts.regular(size: 17)!
+                .font: Fonts.regular(size: 17)
             ])
         }
     }
@@ -60,14 +60,14 @@ struct GasSpeedTableViewCellViewModel {
 
         return NSAttributedString(string: estimatedTime, attributes: [
             .foregroundColor: R.color.mine()!,
-            .font: Fonts.regular(size: 15)!
+            .font: Fonts.regular(size: 15)
         ])
     }
 
     var detailsAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 12)!
+            .font: Fonts.regular(size: 12)
         ])
     }
 

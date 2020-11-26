@@ -27,7 +27,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var actionButtonTitleFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var cancelButtonTitleColor: UIColor {
@@ -39,7 +39,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var cancelButtonTitleFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var actionButtonTitle: String {
@@ -52,7 +52,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var singleMessageLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var singleMessageLabelTextColor: UIColor {
@@ -60,11 +60,11 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var nameTextFont: UIFont {
-        return Fonts.semibold(size: 16)!
+        return Fonts.semibold(size: 16)
     }
 
     var valueTextFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.semibold(size: 21)
     }
 
     var detailsBackgroundBackgroundColor: UIColor {

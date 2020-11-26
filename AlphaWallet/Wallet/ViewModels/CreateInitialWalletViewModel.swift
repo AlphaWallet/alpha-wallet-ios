@@ -18,9 +18,9 @@ struct CreateInitialViewModel {
 
     var subtitleFont: UIFont {
         if ScreenChecker().isNarrowScreen {
-            return Fonts.regular(size: 20)!
+            return Fonts.regular(size: 20)
         } else {
-            return Fonts.regular(size: 30)!
+            return Fonts.regular(size: 30)
         }
     }
 
@@ -49,7 +49,7 @@ struct CreateInitialViewModel {
     }
 
     var alreadyHaveWalletTextFont: UIFont {
-        return Fonts.regular(size: 18)!
+        return Fonts.regular(size: 18)
     }
 
     var separatorColor: UIColor {

@@ -27,11 +27,11 @@ struct BrowserHistoryCellViewModel {
     }
 
     var nameFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.semibold(size: 12)
     }
 
     var urlFont: UIFont {
-        return Fonts.semibold(size: 10)!
+        return Fonts.semibold(size: 10)
     }
 
     var nameColor: UIColor? {

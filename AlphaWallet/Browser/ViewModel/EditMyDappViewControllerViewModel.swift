@@ -43,7 +43,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var screenFont: UIFont {
-        return Fonts.semibold(size: 20)!
+        return Fonts.semibold(size: 20)
     }
 
     var titleColor: UIColor {
@@ -51,7 +51,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.semibold(size: 16)!
+        return Fonts.semibold(size: 16)
     }
 
     var titleText: String {
@@ -63,7 +63,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var urlFont: UIFont {
-        return Fonts.semibold(size: 16)!
+        return Fonts.semibold(size: 16)
     }
 
     var urlText: String {
@@ -91,7 +91,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var titleTextFieldFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var titleTextFieldText: String {
@@ -115,7 +115,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var urlTextFieldFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var urlTextFieldText: String {
@@ -131,7 +131,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var cancelButtonFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var cancelButtonTitle: String {

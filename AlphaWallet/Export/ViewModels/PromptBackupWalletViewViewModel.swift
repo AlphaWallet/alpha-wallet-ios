@@ -29,7 +29,7 @@ extension PromptBackupWalletViewViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.regular(size: 22)!
+        return Fonts.regular(size: 22)
     }
 
     var titleColor: UIColor {
@@ -37,7 +37,7 @@ extension PromptBackupWalletViewViewModel {
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 13)!
+        return Fonts.regular(size: 13)
     }
 
     var descriptionColor: UIColor {
@@ -49,7 +49,7 @@ extension PromptBackupWalletViewViewModel {
     }
 
     var backupButtonTitleFont: UIFont {
-        return Fonts.semibold(size: 16)!
+        return Fonts.semibold(size: 16)
     }
 
     var backupButtonImage: UIImage {

@@ -22,15 +22,15 @@ struct TokenListFormatRowViewModel {
     }
 
     var tokenCountFont: UIFont {
-        return Fonts.bold(size: 21)!
+        return Fonts.bold(size: 21)
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 21)!
+        return Fonts.light(size: 21)
     }
 
     var descriptionFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var stateBackgroundColor: UIColor {
@@ -42,15 +42,11 @@ struct TokenListFormatRowViewModel {
     }
 
     var subtitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 12)!
-        } else {
-            return Fonts.semibold(size: 15)!
-        }
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 12 : 15)
     }
 
     var detailsFont: UIFont {
-        return Fonts.light(size: 16)!
+        return Fonts.light(size: 16)
     }
 
     var urlButtonColor: UIColor {
@@ -58,7 +54,7 @@ struct TokenListFormatRowViewModel {
     }
 
     var urlButtonFont: UIFont {
-        return Fonts.light(size: 25)!
+        return Fonts.light(size: 25)
     }
 
     var urlButtonText: String {

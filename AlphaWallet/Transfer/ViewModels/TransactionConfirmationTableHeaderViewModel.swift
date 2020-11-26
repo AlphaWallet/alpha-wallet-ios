@@ -31,7 +31,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Colors.black,
-            .font: Fonts.regular(size: 17)!
+            .font: Fonts.regular(size: 17)
         ])
     }
 
@@ -40,7 +40,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: placeholder, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)!
+            .font: Fonts.regular(size: 13)
         ])
     }
 
@@ -49,7 +49,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: details, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)!
+            .font: Fonts.regular(size: 13)
         ])
     }
 

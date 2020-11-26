@@ -26,14 +26,14 @@ struct SeedPhraseCellViewModel {
 
     var font: UIFont {
         if ScreenChecker().isNarrowScreen {
-            return Fonts.regular(size: 15)!
+            return Fonts.regular(size: 15)
         } else {
-            return Fonts.regular(size: 18)!
+            return Fonts.regular(size: 18)
         }
     }
 
     var sequenceFont: UIFont {
-        return Fonts.regular(size: 12)!
+        return Fonts.regular(size: 12)
     }
 
     var sequenceColor: UIColor {

@@ -146,7 +146,7 @@ class TokensViewController: UIViewController {
             if listOfBadTokenScriptFiles.isEmpty {
                 isConsoleButtonHidden = true
             } else {
-                consoleButton.titleLabel?.font = Fonts.light(size: 22)!
+                consoleButton.titleLabel?.font = Fonts.light(size: 22)
                 consoleButton.setTitleColor(Colors.appWhite, for: .normal)
                 consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
                 consoleButton.bounds.size.height = 44
