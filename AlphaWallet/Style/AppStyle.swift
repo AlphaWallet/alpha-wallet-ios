@@ -77,21 +77,19 @@ struct StyleLayout {
 }
 
 struct Fonts {
-    static let labelSize: CGFloat = 18
-
-    static func light(size: CGFloat) -> UIFont? {
-        return UIFont(resource: R.font.sourceSansProLight, size: size)
+    static func light(size: CGFloat) -> UIFont {
+        return UIFont(resource: R.font.sourceSansProLight, size: size)!
     }
-    static func regular(size: CGFloat) -> UIFont? {
-        return UIFont(resource: R.font.sourceSansProRegular, size: size)
+    static func regular(size: CGFloat) -> UIFont {
+        return UIFont(resource: R.font.sourceSansProRegular, size: size)!
     }
-    static func semibold(size: CGFloat) -> UIFont? {
-        return UIFont(resource: R.font.sourceSansProSemibold, size: size)
+    static func semibold(size: CGFloat) -> UIFont {
+        return UIFont(resource: R.font.sourceSansProSemibold, size: size)!
     }
-    static func bold(size: CGFloat) -> UIFont? {
-        return UIFont(resource: R.font.sourceSansProBold, size: size)
+    static func bold(size: CGFloat) -> UIFont {
+        return UIFont(resource: R.font.sourceSansProBold, size: size)!
     }
-    static let tableHeader = Fonts.semibold(size: 15)!
+    static let tableHeader = Fonts.semibold(size: 15)
 }
 
 extension UISegmentedControl {
@@ -218,6 +216,12 @@ enum DataEntry {
     }
 }
 
+enum Label {
+    enum Font {
+        static let text = Fonts.regular(size: 18)
+    }
+}
+
 enum Screen {
 
     enum Tokens {
@@ -225,16 +229,16 @@ enum Screen {
     }
 
     enum Backup {
-        static let subtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 22)! : Fonts.regular(size: 28)!
+        static let subtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 22) : Fonts.regular(size: 28)
         static let subtitleColor = Colors.darkGray
-        static let descriptionFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 16)! : Fonts.regular(size: 18)!
+        static let descriptionFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 16) : Fonts.regular(size: 18)
         static let descriptionColor = Colors.darkGray
     }
 
     enum Setting {
         enum Font {
-            static let title = Fonts.regular(size: 17)!
-            static let subtitle = Fonts.regular(size: 12)!
+            static let title = Fonts.regular(size: 17)
+            static let subtitle = Fonts.regular(size: 12)
         }
         enum Color {
             static let background = Colors.appBackground
@@ -246,12 +250,12 @@ enum Screen {
 
     enum TokenCard {
         enum Font {
-            static let title: UIFont = Fonts.regular(size: 20)!
-            static let subtitle = Fonts.regular(size: 12)!
-            static let blockChainName = Fonts.semibold(size: 12)!
-            static let valueChangeLabel = Fonts.regular(size: 12)!
-            static let placeholderLabel = Fonts.regular(size: 17)!
-            static let valueChangeValue = Fonts.semibold(size: 17)!
+            static let title: UIFont = Fonts.regular(size: 20)
+            static let subtitle = Fonts.regular(size: 12)
+            static let blockChainName = Fonts.semibold(size: 12)
+            static let valueChangeLabel = Fonts.regular(size: 12)
+            static let placeholderLabel = Fonts.regular(size: 17)
+            static let valueChangeValue = Fonts.semibold(size: 17)
         }
 
         enum Color {

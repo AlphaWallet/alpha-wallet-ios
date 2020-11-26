@@ -35,7 +35,7 @@ struct ImportWalletViewModel {
     }
 
     var importKeystoreJsonButtonFont: UIFont {
-        return Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20)!
+        return Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20)
     }
 
     var importSeedAttributedText: NSAttributedString {
@@ -44,7 +44,7 @@ struct ImportWalletViewModel {
 
         return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
             .paragraphStyle: style,
-            .font: Fonts.light(size: ScreenChecker().isNarrowScreen ? 14 : 16)!,
+            .font: Fonts.light(size: ScreenChecker().isNarrowScreen ? 14 : 16),
             .foregroundColor: UIColor(red: 116, green: 116, blue: 116)
         ])
     }

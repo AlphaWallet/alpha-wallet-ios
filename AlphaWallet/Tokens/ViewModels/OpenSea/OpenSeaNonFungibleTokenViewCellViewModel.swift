@@ -52,6 +52,6 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.semibold(size: 10)!
+        return Fonts.semibold(size: 10)
     }
 }

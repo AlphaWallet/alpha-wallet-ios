@@ -29,7 +29,7 @@ struct VerifySeedPhraseViewModel {
     }
 
     var seedPhraseTextViewFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var seedPhraseTextViewContentInset: UIEdgeInsets {
@@ -46,7 +46,7 @@ struct VerifySeedPhraseViewModel {
     }
 
     var errorFont: UIFont {
-        return Fonts.regular(size: 18)!
+        return Fonts.regular(size: 18)
     }
 
     var noErrorText: String {
@@ -55,7 +55,7 @@ struct VerifySeedPhraseViewModel {
     }
 
     var importKeystoreJsonButtonFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var subtitleColor: UIColor {

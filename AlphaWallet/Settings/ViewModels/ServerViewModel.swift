@@ -30,7 +30,7 @@ struct ServerViewModel {
     }
 
     var serverFont: UIFont {
-        return Fonts.regular(size: 17)!
+        return Fonts.regular(size: 17)
     }
 
     var serverName: String {

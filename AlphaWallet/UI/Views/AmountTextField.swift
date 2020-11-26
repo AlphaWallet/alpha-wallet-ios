@@ -49,9 +49,9 @@ class AmountTextField: UIControl {
         var statusLabelFont: UIFont {
             switch self {
             case .error:
-                return Fonts.semibold(size: 13)!
+                return Fonts.semibold(size: 13)
             case .none:
-                return Fonts.regular(size: 13)!
+                return Fonts.regular(size: 13)
             }
         }
 
@@ -113,7 +113,7 @@ class AmountTextField: UIControl {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: DataEntry.Font.amountTextField!, .foregroundColor: DataEntry.Color.placeholder
+            .font: DataEntry.Font.amountTextField, .foregroundColor: DataEntry.Color.placeholder
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.adjustsFontSizeToFitWidth = true
@@ -264,7 +264,7 @@ class AmountTextField: UIControl {
             textField.textColor = errorState.textFieldTextColor
 
             textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-                .font: DataEntry.Font.amountTextField!, .foregroundColor: errorState.textFieldPlaceholderTextColor
+                .font: DataEntry.Font.amountTextField, .foregroundColor: errorState.textFieldPlaceholderTextColor
             ])
         }
     }

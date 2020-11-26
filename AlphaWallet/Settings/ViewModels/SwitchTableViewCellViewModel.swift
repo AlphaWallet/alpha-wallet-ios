@@ -13,7 +13,7 @@ struct SwitchTableViewCellViewModel {
     let value: Bool
     
     var titleFont: UIFont {
-        return Fonts.regular(size: 17)!
+        return Fonts.regular(size: 17)
     }
     
     var titleTextColor: UIColor {

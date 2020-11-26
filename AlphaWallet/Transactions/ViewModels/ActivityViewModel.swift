@@ -23,7 +23,7 @@ struct ActivityViewModel {
     }
 
     var titleFont: UIFont {
-        Fonts.regular(size: 20)!
+        Fonts.regular(size: 20)
     }
 
     var title: NSAttributedString {
@@ -97,11 +97,11 @@ struct ActivityViewModel {
     }
 
     var subTitleFont: UIFont {
-        Fonts.regular(size: 12)!
+        Fonts.regular(size: 12)
     }
 
     var timestampFont: UIFont {
-        Fonts.regular(size: 12)!
+        Fonts.regular(size: 12)
     }
 
     var timestampColor: UIColor {

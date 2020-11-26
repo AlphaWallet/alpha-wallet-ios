@@ -23,7 +23,7 @@ class SettingsHeaderView: UIView {
         backgroundColor = Colors.appBackground
 
         titleLabel.textColor = Colors.appWhite
-        titleLabel.font = Fonts.regular(size: 16)!
+        titleLabel.font = Fonts.regular(size: 16)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
 

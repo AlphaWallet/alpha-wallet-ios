@@ -36,7 +36,7 @@ struct TokenViewControllerTransactionCellViewModel {
         return NSAttributedString(
                 string: amount,
                 attributes: [
-                    .font: Fonts.semibold(size: 17)!,
+                    .font: Fonts.semibold(size: 17),
                     .foregroundColor: transactionViewModel.amountTextColor,
                 ]
         )

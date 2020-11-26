@@ -30,11 +30,11 @@ struct SegmentedControlViewModel {
 	}
 
 	private var unselectedTitleFont: UIFont {
-		return Fonts.regular(size: 15)!
+		return Fonts.regular(size: 15)
 	}
 
 	private var selectedTitleFont: UIFont {
-		return Fonts.semibold(size: 15)!
+		return Fonts.semibold(size: 15)
 	}
 
 	private var unselectedTitleColor: UIColor {

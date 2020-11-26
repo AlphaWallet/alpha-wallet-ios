@@ -25,7 +25,7 @@ struct LocaleViewModel {
     }
 
     var localeFont: UIFont {
-        return Fonts.regular(size: 17)!
+        return Fonts.regular(size: 17)
     }
 
     var localeName: String {
