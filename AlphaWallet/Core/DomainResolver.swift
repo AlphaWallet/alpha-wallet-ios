@@ -57,7 +57,7 @@ class DomainResolver {
             resolution.addr(domain: input, ticker: self.ticker) { result in
                 switch result {
                 case .success(let value):
-                    if let address = AlphaWallet.Address(string: value), CryptoAddressValidator.isValidAddress(value) {
+                    if let address = AlphaWallet.Address(string: value) {
                         self.cache(forNode: node, result: address)
 
                         seal.fulfill(address)
@@ -82,18 +82,14 @@ class DomainResolver {
 
 extension GetENSAddressCoordinator {
 
-    func getENSAddressFromResolverPromise(value: String) -> Promise<EthereumAddress> {
-
-        enum AnyError: Error {
-            case addressNotFound
-        }
-
+    func getENSAddressFromResolverPromise(value: String) -> Promise<AlphaWallet.Address> {
         return Promise { seal in
             GetENSAddressCoordinator(server: server).getENSAddressFromResolver(for: value) { result in
-                if let address = result.value, CryptoAddressValidator.isValidAddress(address.address) {
+                switch result {
+                case .success(let address):
                     seal.fulfill(address)
-                } else {
-                    seal.reject(AnyError.addressNotFound)
+                case .failure(let error):
+                    seal.reject(error)
                 }
             }
         }
