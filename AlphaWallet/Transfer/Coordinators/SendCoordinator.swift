@@ -73,7 +73,7 @@ class SendCoordinator: Coordinator {
         }
     }
 
-    func makeSendViewController() -> SendViewController {
+    private func makeSendViewController() -> SendViewController {
         let controller = SendViewController(
             session: session,
             storage: storage,
@@ -109,7 +109,7 @@ class SendCoordinator: Coordinator {
         return controller
     }
 
-    @objc func dismiss() {
+    @objc private func dismiss() {
         removeAllCoordinators()
 
         delegate?.didCancel(in: self)
