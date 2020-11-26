@@ -38,9 +38,8 @@ class DecimalFormatterTest: XCTestCase {
         XCTAssertEqual(frDecimalFormatter.number(from: ",25"), NSNumber(value: 0.25))
     }
     func testNumberToStingInFr() {
-        //NOTE: For FR seems like it uses \u{202F} scalar for space instead of \u{00A0} like others do.
-        let spaceCharacterString = String(UnicodeScalar("\u{202F}"))
-        let value: String = "1"+spaceCharacterString+"000,25"
+        //NOTE: There some cases when for different simulators it uses different characters for space like \u{202F} or \u{00A0}.
+        let value: String = "1"+frDecimalFormatter.groupingSeparator+"000,25"
 
         XCTAssertEqual(frDecimalFormatter.string(from: NSNumber(value: 1000.25))!, value)
         XCTAssertEqual(frDecimalFormatter.string(from: NSNumber(value: 0.25)), "0,25")
