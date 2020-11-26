@@ -22,7 +22,7 @@ struct TokenCardRedemptionViewModel {
     }
 
     var headerFont: UIFont {
-        return Fonts.regular(size: 28)!
+        return Fonts.regular(size: 28)
     }
 
     var backgroundColor: UIColor {

@@ -29,7 +29,7 @@ struct ShowSeedPhraseViewModel {
     }
 
     var errorFont: UIFont {
-        return Fonts.regular(size: 18)!
+        return Fonts.regular(size: 18)
     }
 
     var errorMessage: String? {

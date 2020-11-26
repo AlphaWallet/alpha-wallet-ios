@@ -48,11 +48,11 @@ struct AccountViewModel {
     }
 
     var balanceFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: 20)
     }
 
     var addressFont: UIFont {
-        return Fonts.regular(size: 12)!
+        return Fonts.regular(size: 12)
     }
 
     var addressTextColor: UIColor {

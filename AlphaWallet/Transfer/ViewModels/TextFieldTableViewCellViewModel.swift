@@ -20,7 +20,7 @@ struct TextFieldTableViewCellViewModel {
 
         return NSAttributedString(string: placeholder, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)!
+            .font: Fonts.regular(size: 13)
         ])
     }
 }

@@ -75,15 +75,15 @@ struct TransactionCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.regular(size: 17)!
+        return Fonts.regular(size: 17)
     }
 
     var subTitleFont: UIFont {
-        return Fonts.regular(size: 13)!
+        return Fonts.regular(size: 13)
     }
 
     var amountFont: UIFont {
-        return Fonts.semibold(size: 14)!
+        return Fonts.semibold(size: 14)
     }
 
     var contentsBackgroundColor: UIColor {
@@ -114,7 +114,7 @@ struct TransactionCellViewModel {
         return NSAttributedString(
                 string: amount,
                 attributes: [
-                    .font: Fonts.light(size: 25)!,
+                    .font: Fonts.light(size: 25),
                     .foregroundColor: transactionViewModel.amountTextColor,
                 ]
         )
