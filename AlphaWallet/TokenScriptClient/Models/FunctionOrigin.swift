@@ -11,8 +11,6 @@ enum FunctionError: LocalizedError {
     case postTransaction
 }
 
-typealias FunctionCallMetaData = (name: String, arguments: [(type: ABIType, value: AnyObject)])
-
 struct FunctionOrigin {
     enum FunctionType {
         case functionCall(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType)
@@ -211,7 +209,7 @@ struct FunctionOrigin {
         return arguments
     }
 
-    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> (data: Data, function: FunctionCallMetaData)? {
+    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> (data: Data, function: DecodedFunctionCall)? {
         assert(functionType.isFunctionTransaction)
         guard let functionName = functionType.functionName else { return nil }
         guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }
@@ -221,10 +219,8 @@ struct FunctionOrigin {
         do {
             try encoder.encode(function: functionEncoder, arguments: arguments)
             let data = encoder.data
-
             let argumentsMetaData: [(type: ABIType, value: AnyObject)] = Array(zip(parameters, arguments))
-            let functionCallMetaData: FunctionCallMetaData = (name: functionName, arguments: argumentsMetaData)
-
+            let functionCallMetaData: DecodedFunctionCall = .init(name: functionName, arguments: argumentsMetaData)
             return (data: data, function: functionCallMetaData)
         } catch {
             return nil
@@ -255,11 +251,11 @@ struct FunctionOrigin {
         }
     }
 
-    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<(UnconfirmedTransaction, FunctionCallMetaData), FunctionError>.t {
+    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<(UnconfirmedTransaction, DecodedFunctionCall), FunctionError>.t {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
-        let functionCallMetaData: FunctionCallMetaData
+        let functionCallMetaData: DecodedFunctionCall
         switch functionType {
         case .functionCall, .eventFiltering:
             return .init(error: FunctionError.postTransaction)
@@ -268,7 +264,7 @@ struct FunctionOrigin {
             guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
                 return .failure(FunctionError.formValue)
             }
-            functionCallMetaData = (name: "Transfer", arguments: .init())
+            functionCallMetaData = .nativeCryptoTransfer(value: val)
             value = val
         case .functionTransaction:
             guard let (data, metadata) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {

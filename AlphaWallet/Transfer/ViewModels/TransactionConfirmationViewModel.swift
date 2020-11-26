@@ -10,6 +10,7 @@ enum TransactionConfirmationViewModel {
     case sendNftTransaction(SendNftTransactionViewModel)
     case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
 
+
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
@@ -242,9 +243,10 @@ extension TransactionConfirmationViewModel {
     }
 
     class DappTransactionViewModel: SectionProtocol {
-        enum Section: Int, CaseIterable {
+        enum Section {
             case gas
             case amount
+            case function(DecodedFunctionCall)
 
             var title: String {
                 switch self {
@@ -252,6 +254,19 @@ extension TransactionConfirmationViewModel {
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
                     return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                case .function:
+                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+                }
+            }
+
+            var isExpandable: Bool {
+                switch self {
+                case .gas:
+                    return false
+                case .amount:
+                    return false
+                case .function:
+                    return true
                 }
             }
         }
@@ -273,25 +288,26 @@ extension TransactionConfirmationViewModel {
         }
 
         let ethPrice: Subscribable<Double>
+        let functionCallMetaData: DecodedFunctionCall?
         var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
 
         var sections: [Section] {
-            return Section.allCases
+            if let functionCallMetaData = functionCallMetaData {
+                return [.gas, .amount, .function(functionCallMetaData)]
+            } else {
+                return [.gas, .amount]
+            }
         }
 
         init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
             self.ethPrice = ethPrice
+            self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
-                isOpened: openedSections.contains(section),
-                section: section,
-                shouldHideChevron: true
-            )
-
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
             let placeholder = sections[section].title
             switch sections[section] {
             case .gas:
@@ -299,7 +315,13 @@ extension TransactionConfirmationViewModel {
                 return .init(title: configurationTitle, placeholder: placeholder, details: gasFee, configuration: configuration)
             case .amount:
                 return .init(title: formattedAmountValue, placeholder: placeholder, configuration: configuration)
+            case .function(let functionCallMetaData):
+                return .init(title: functionCallMetaData.name, placeholder: placeholder, configuration: configuration)
             }
+        }
+
+        func isSubviewsHidden(section: Int) -> Bool {
+            !openedSections.contains(section)
         }
     }
 
@@ -343,14 +365,14 @@ extension TransactionConfirmationViewModel {
         }
 
         var cryptoToDollarRate: Double?
-        let functionCallMetaData: FunctionCallMetaData
+        let functionCallMetaData: DecodedFunctionCall
         let ethPrice: Subscribable<Double>
         var openedSections = Set<Int>()
         var sections: [Section] {
             return Section.allCases
         }
 
-        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: FunctionCallMetaData, ethPrice: Subscribable<Double>) {
+        init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>) {
             self.address = address
             self.configurator = configurator
             self.functionCallMetaData = functionCallMetaData

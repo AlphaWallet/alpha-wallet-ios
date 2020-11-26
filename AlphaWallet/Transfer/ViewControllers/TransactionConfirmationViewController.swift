@@ -459,6 +459,17 @@ extension TransactionConfirmationViewController {
                     header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
                 case .amount:
                     break
+                case .function(let functionCallMetaData):
+                    let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
+                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(functionCallMetaData.name)()", subtitle: ""))
+                    view.isHidden = isSubViewsHidden
+                    children.append(view)
+
+                    for (type, value) in functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                        view.isHidden = isSubViewsHidden
+                        children.append(view)
+                    }
                 }
                 header.childrenStackView.addArrangedSubviews(children)
                 views.append(header)
