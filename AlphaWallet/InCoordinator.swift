@@ -104,6 +104,21 @@ class InCoordinator: NSObject, Coordinator {
         return navigationController.viewControllers.first as? UITabBarController
     }
 
+    private lazy var oneInchSwapServie = Oneinch()
+    private lazy var swapTokenService: SwapTokenServiceType = {
+        let service = SwapTokenService()
+        service.register(service: oneInchSwapServie)
+
+        //NOTE: Disable uniswap swap provider
+
+        //var uniswap = Uniswap()
+        //uniswap.theme = navigationController.traitCollection.uniswapTheme
+
+        //service.register(service: uniswap)
+
+        return service
+    }()
+
     init(
             navigationController: UINavigationController = UINavigationController(),
             wallet: Wallet,
@@ -139,6 +154,7 @@ class InCoordinator: NSObject, Coordinator {
         setupWatchingTokenScriptFileChangesToFetchEvents()
 
         urlSchemeCoordinator.processPendingURL(in: self)
+        oneInchSwapServie.fetchSupportedTokens()
     }
 
     func launchUniversalScanner() {
@@ -398,7 +414,8 @@ class InCoordinator: NSObject, Coordinator {
                 eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                swapTokenActionsService: swapTokenService
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
@@ -806,13 +823,28 @@ extension InCoordinator: UrlSchemeResolver {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
+        switch transactionType {
+        case .nativeCryptocurrency(let token, _, _):
+            guard let url = service.url(token: token) else { return }
+            
+            openSwapToken(for: url, coordinator: coordinator)
+        case .ERC20Token(let token, _, _):
+            guard let url = service.url(token: token) else { return }
 
-    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: TokensCoordinator) {
-        guard let url = holder.url else { return }
+            openSwapToken(for: url, coordinator: coordinator)
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+    }
 
+    private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
         coordinator.navigationController.popViewController(animated: false)
 
-        openURLInBrowser(url: url, forceReload: true)
+        showTab(.browser)
+
+        dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
     }
 
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {
