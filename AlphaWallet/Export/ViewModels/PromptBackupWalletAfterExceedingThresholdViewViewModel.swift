@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalletViewViewModel {
+struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalletViewModel {
     let walletAddress: AlphaWallet.Address
     let dollarValueInUsd: Double
 

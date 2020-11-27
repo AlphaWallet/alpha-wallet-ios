@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-struct PromptBackupWalletAfterIntervalViewViewModel: PromptBackupWalletViewViewModel {
+struct PromptBackupWalletAfterIntervalViewViewModel: PromptBackupWalletViewModel {
     let walletAddress: AlphaWallet.Address
 
     var backgroundColor: UIColor {
