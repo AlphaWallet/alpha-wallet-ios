@@ -92,7 +92,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
-        return .init(assetDefinitionStore: assetDefinitionStore)
+        return .init(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService)
     }()
 
     let navigationController: UINavigationController
@@ -415,7 +415,7 @@ class InCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-                swapTokenActionsService: swapTokenService
+                swapTokenService: swapTokenService
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
