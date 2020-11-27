@@ -8,10 +8,16 @@
 import UIKit
 
 class FilterTokensCoordinator {
-    private let assetDefinitionStore: AssetDefinitionStore
+    private enum FilterKeys: String {
+        case swap
+    }
 
-    init(assetDefinitionStore: AssetDefinitionStore) {
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let swapTokenService: SwapTokenServiceType
+
+    init(assetDefinitionStore: AssetDefinitionStore, swapTokenService: SwapTokenServiceType) {
         self.assetDefinitionStore = assetDefinitionStore
+        self.swapTokenService = swapTokenService
     }
 
     func filterTokens(tokens: [TokenObject], filter: WalletFilter) -> [TokenObject] {
@@ -42,8 +48,8 @@ class FilterTokensCoordinator {
                     } else if lowercasedKeyword == "tokenscript" {
                         let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
-                    } else if lowercasedKeyword == "uniswap" {
-                        return UniswapERC20Token.isSupport(token: $0)
+                    } else if lowercasedKeyword == FilterKeys.swap.rawValue {
+                        return swapTokenService.isSupport(token: $0)
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||

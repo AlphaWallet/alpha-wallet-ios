@@ -22,12 +22,10 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     private let predefinedTokens: [Oneinch.ERC20Token] = [
         .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: 18)
     ]
-
-    private(set) var availableTokens: [Oneinch.ERC20Token] = []
+    //NOTE: we use dictionary to improve search tokens 
+    private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
 
     func url(token: TokenObject) -> URL? {
-        guard isSupportToken(token: token) else { return nil }
-
         var components = URLComponents()
         components.path = Oneinch.refferal + "/" + subpath(inputAddress: token.contractAddress)
         //NOTE: URLComponents doesn't allow path to contain # symbol
@@ -43,26 +41,22 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     }
 
     func actions(token: TokenObject) -> [TokenInstanceAction] {
-        if self.isSupport(token: token) {
-            return [
-                .init(type: .swap(service: self))
-            ]
-        } else {
-            return []
-        }
+        return [
+            .init(type: .swap(service: self))
+        ]
     }
 
-    private func isSupport(token: TokenObject) -> Bool {
+    func isSupport(token: TokenObject) -> Bool {
         switch token.server {
         case .main:
-            return availableTokens.contains(where: { $0.address == token.contractAddress })
+            return availableTokens[token.contractAddress] != nil
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .xDai, .classic, .binance_smart_chain, .binance_smart_chain_testnet:
             return false
         }
     }
 
     private func token(address: AlphaWallet.Address) -> Oneinch.ERC20Token? {
-        return availableTokens.first(where: { $0.address == address })
+        return availableTokens[address]
     }
 
     func fetchSupportedTokens() {
@@ -74,7 +68,9 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
         }.map { data -> [Oneinch.ERC20Token] in
             return data.map { $0.value }
         }.done { response in
-            self.availableTokens = self.predefinedTokens + response
+            for token in self.predefinedTokens + response {
+                self.availableTokens[token.address] = token
+            }
         }.cauterize()
     }
 }

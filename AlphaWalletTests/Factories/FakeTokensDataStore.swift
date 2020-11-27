@@ -10,6 +10,7 @@ class FakeTokensDataStore: TokensDataStore {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest"))
         let account: Wallet = .make()
         let config: Config = .make()
-        self.init(realm: realm, account: account, server: .main, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore))
+        let swapTokenService = FakeSwapTokenService()
+        self.init(realm: realm, account: account, server: .main, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService))
     }
 }
