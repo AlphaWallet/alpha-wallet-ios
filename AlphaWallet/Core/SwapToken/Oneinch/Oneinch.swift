@@ -77,20 +77,4 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
             self.availableTokens = self.predefinedTokens + response
         }.cauterize()
     }
-} 
-
-extension MoyaProvider {
-
-    func request(_ target: Target, callbackQueue: DispatchQueue? = nil, progress: ProgressBlock? = nil) -> Promise<Moya.Response> {
-        return Promise { seal in
-            request(target, callbackQueue: callbackQueue, progress: progress) { result in
-                switch result {
-                case let .success(response):
-                    seal.fulfill(response)
-                case let .failure(error):
-                    seal.reject(error)
-                }
-            }
-        }
-    }
 }
