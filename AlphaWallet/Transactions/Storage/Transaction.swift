@@ -106,19 +106,14 @@ extension Transaction {
         )
     }
 
-    //TODO add support for more types of pending transactions. Probably can be supported via TokenScript in the future
-    //TODO add support for more types of pending transactions. Use a more general decoder at some point
+    //TODO add support for more types of pending transactions
     fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, contractOrRecipient: AlphaWallet.Address?, tokensDataStore: TokensDataStore) -> (operations: [LocalizedOperationObject], isErc20Interaction: Bool) {
-        //transfer(address,uint256)
-        let erc20Transfer = (
-                interfaceHash: "a9059cbb",
-                byteCount: 68
-        )
-        if data.count == erc20Transfer.byteCount && data[0..<4].hex() == erc20Transfer.interfaceHash, let contract = contractOrRecipient, let value = BigUInt(data[(4 + 32)..<(4 + 32 + 32)].hex(), radix: 16), let token = tokensDataStore.token(forContract: contract) {
-            //Compiler thinks it's a `Slice<Data>` if don't explicitly state the type, so we have to split into 2 `if`s
-            let recipientData: Data = data[4..<(4 + 32)][4 + 12..<(4 + 32)]
-            if let recipient = AlphaWallet.Address(string: recipientData.hexEncoded) {
+        if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.token(forContract: contract) {
+            switch functionCallMetaData.type {
+            case .erc20Transfer(let recipient, let value):
                 return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+            case .nativeCryptoTransfer, .others:
+                break
             }
         }
         return (operations: .init(), isErc20Interaction: false)
