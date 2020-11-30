@@ -16,9 +16,11 @@ struct ActivitiesViewModel {
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
+    private let tokensStorages: ServerDictionary<TokensDataStore>
 
-    init(activities: [ActivityOrTransaction] = []) {
+    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [ActivityOrTransaction] = []) {
         items = ActivitiesViewModel.sorted(activities: activities)
+        self.tokensStorages = tokensStorages
     }
 
     private static func sorted(activities: [ActivityOrTransaction]) -> [MappedToDateActivityOrTransaction] {
@@ -78,7 +80,8 @@ struct ActivitiesViewModel {
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
                     let data = content.filter { data -> Bool in
-                        return data.activityName?.lowercased().contains(valueToSearch) ?? false
+                        (data.activityName?.lowercased().contains(valueToSearch) ?? false) ||
+                                (data.getTokenSymbol(fromTokensStorages: tokensStorages)?.lowercased().contains(valueToSearch) ?? false)
                     }
 
                     if data.isEmpty {
