@@ -35,7 +35,6 @@ class SingleChainTokenCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator?
-    private let navigationController: UINavigationController
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private var isAutoDetectingTransactedTokens = false
@@ -53,7 +52,6 @@ class SingleChainTokenCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
             analyticsCoordinator: AnalyticsCoordinator?,
-            navigationController: UINavigationController,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             swapTokenActionsService: SwapTokenActionsService
@@ -65,7 +63,6 @@ class SingleChainTokenCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
-        self.navigationController = navigationController
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
         self.swapTokenActionsService = swapTokenActionsService
@@ -337,7 +334,7 @@ class SingleChainTokenCoordinator: Coordinator {
         fetchContractDataFor(address: address, storage: storage, assetDefinitionStore: assetDefinitionStore, completion: completion)
     }
 
-    func showTokenList(for type: PaymentFlow, token: TokenObject) {
+    func showTokenList(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
         guard !token.nonZeroBalance.isEmpty else {
             navigationController.displayError(error: NoTokenError())
             return
@@ -392,14 +389,17 @@ class SingleChainTokenCoordinator: Coordinator {
         return try! Realm(configuration: migration.config)
     }
 
-    func show(fungibleToken token: TokenObject, transactionType: TransactionType) {
+    func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
         guard let transactionsStore = createTransactionsStore() else { return }
 
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, token: token)
         viewController.delegate = self
         let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore, swapTokenActionsService: swapTokenActionsService)
         viewController.configure(viewModel: viewModel)
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(dismiss))
+
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: {
+            navigationController.popToRootViewController(animated: true)
+        })
 
         navigationController.pushViewController(viewController, animated: true)
 
@@ -421,10 +421,6 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    @objc func dismiss() {
-        navigationController.popToRootViewController(animated: true)
-    }
-
     func delete(token: TokenObject) {
         assetDefinitionStore.contractDeleted(token.contractAddress)
         storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: session.server)])
@@ -433,13 +429,13 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
-        self.storage.updateOrderedTokens(with: orderedTokens)
+        storage.updateOrderedTokens(with: orderedTokens)
 
         delegate?.tokensDidChange(inCoordinator: self)
     }
 
     func mark(token: TokenObject, isHidden: Bool) {
-        self.storage.update(token: token, action: .isHidden(isHidden))
+        storage.update(token: token, action: .isHidden(isHidden))
     }
 
     func add(token: ERCToken) -> TokenObject {
@@ -524,7 +520,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, viewController: UIViewController) {
+    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
@@ -536,14 +532,15 @@ class SingleChainTokenCoordinator: Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
-        viewController.navigationController?.pushViewController(vc, animated: true)
+        navigationController.pushViewController(vc, animated: true)
     }
 }
 // swiftlint:enable type_body_length
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
+
     func didCancel(in coordinator: TokensCardCoordinator) {
-        navigationController.popToRootViewController(animated: true)
+        coordinator.navigationController.popToRootViewController(animated: true)
         removeCoordinator(coordinator)
     }
 
@@ -571,6 +568,8 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
     }
 
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController) {
+        guard let navigationController = viewController.navigationController else { return }
+
         let token: TokenObject
         switch transactionType {
         case .ERC20Token(let erc20Token, _, _):
@@ -579,12 +578,12 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)
-            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
             return
         }
         switch action.type {
         case .tokenScript:
-            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
         case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap:
             //Couldn't have reached here
             break
@@ -621,7 +620,7 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
 
-            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(navigationController: coordinator.presentationNavigationController)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 
@@ -632,6 +631,8 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
 
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
     func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
+        guard let navigationController = viewController.navigationController else { return }
+
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
         case .success(let transaction, let functionCallMetaData):
             let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)

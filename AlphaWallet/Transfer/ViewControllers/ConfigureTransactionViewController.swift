@@ -405,11 +405,38 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
 }
 
 extension UIBarButtonItem {
+    
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
     }
 
     static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
+    }
+
+    static func backBarButton(selectionClosure: @escaping () -> Void) -> UIBarButtonItem {
+        let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
+        barButton.selectionClosure = selectionClosure
+
+        return barButton
+    }
+
+    private struct AssociatedObject {
+        static var key = "action_closure_key"
+    }
+
+    var selectionClosure: (() -> Void)? {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedObject.key) as? () -> Void
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedObject.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            target = self
+            action = #selector(didTapButton)
+        }
+    }
+
+    @objc func didTapButton(_ sender: Any) {
+        selectionClosure?()
     }
 }
