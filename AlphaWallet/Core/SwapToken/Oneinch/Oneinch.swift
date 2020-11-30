@@ -16,7 +16,7 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     }
 
     private static let baseURL = "https://1inch.exchange/#"
-    private static let refferal = "/r/0x98f21584006c79871F176F8D474958a69e04595B"
+    private static let referralSlug = "/r/0x98f21584006c79871F176F8D474958a69e04595B"
     //NOTE: for Oneinch exchange service we need to use two addresses, by default it uses Uptrennd token
     private static let outputAddress = AlphaWallet.Address(string: "0x07597255910a51509ca469568b048f2597e72504")!
     private let predefinedTokens: [Oneinch.ERC20Token] = [
@@ -27,7 +27,7 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
 
     func url(token: TokenObject) -> URL? {
         var components = URLComponents()
-        components.path = Oneinch.refferal + "/" + subpath(inputAddress: token.contractAddress)
+        components.path = Oneinch.referralSlug + "/" + subpath(inputAddress: token.contractAddress)
         //NOTE: URLComponents doesn't allow path to contain # symbol
         guard let pathWithQueryItems = components.url?.absoluteString else { return nil }
 
