@@ -75,10 +75,10 @@ struct ActivitiesViewModel {
 
         switch filter {
         case .keyword(let keyword):
-            if let valueToSearch = keyword?.trimmed, valueToSearch.nonEmpty {
+            if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
                     let data = content.filter { data -> Bool in
-                        return data.activityName?.lowercased().contains(valueToSearch.lowercased()) ?? false
+                        return data.activityName?.lowercased().contains(valueToSearch) ?? false
                     }
 
                     if data.isEmpty {
