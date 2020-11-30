@@ -16,6 +16,13 @@ class RecipientResolver {
     let address: AlphaWallet.Address?
     var ensName: String?
 
+    var hasResolvedESNName: Bool {
+        if let value = ensName {
+            return !value.trimmed.isEmpty
+        }
+        return false
+    }
+
     init(address: AlphaWallet.Address?) {
         self.address = address
     }
