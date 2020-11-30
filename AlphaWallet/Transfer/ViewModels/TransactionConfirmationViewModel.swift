@@ -212,7 +212,7 @@ extension TransactionConfirmationViewModel {
                     case .address:
                         return false
                     case .ens:
-                        return recipientResolver.ensName == nil
+                        return !recipientResolver.hasResolvedESNName
                     }
                 } else {
                     return true
@@ -457,7 +457,7 @@ extension TransactionConfirmationViewModel {
                     case .address:
                         return false
                     case .ens:
-                        return recipientResolver.ensName == nil
+                        return !recipientResolver.hasResolvedESNName
                     }
                 } else {
                     return true
