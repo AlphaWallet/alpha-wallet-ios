@@ -30,20 +30,13 @@ class SendTransactionCoordinator {
         if transaction.nonce >= 0 {
             signAndSend(transaction: transaction, completion: completion)
         } else {
-            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GetTransactionCountRequest(
-                address: session.account.address,
-                state: "pending"
-            )))
-            //TODO Verify we need a strong reference to self
-            Session.send(request) { result in
-                //guard let `self` = self else { return }
-                switch result {
-                case .success(let count):
-                    let transaction = self.appendNonce(to: transaction, currentNonce: count)
-                    self.signAndSend(transaction: transaction, completion: completion)
-                case .failure(let error):
-                    completion(.failure(AnyError(error)))
-                }
+            firstly {
+                GetNextNonce(server: session.server, wallet: session.account.address).promise()
+            }.done {
+                let transaction = self.appendNonce(to: transaction, currentNonce: $0)
+                self.signAndSend(transaction: transaction, completion: completion)
+            }.catch {
+                completion(.failure(AnyError($0)))
             }
         }
     }
