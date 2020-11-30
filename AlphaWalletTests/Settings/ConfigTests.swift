@@ -18,26 +18,29 @@ class ConfigTests: XCTestCase {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
         Config.setLocale(AppLocale.english)
+        let swapTokenService = FakeSwapTokenService()
+        
         let vc1 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
                 config: .make()
         )
         vc1.viewWillAppear(false)
         XCTAssertEqual(vc1.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
+        
         let vc2 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
                 config: .make()
         )
         vc2.viewWillAppear(false)

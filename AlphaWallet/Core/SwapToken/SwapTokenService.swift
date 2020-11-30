@@ -8,13 +8,8 @@
 import UIKit
 
 protocol SwapTokenActionsService {
+    func isSupport(token: TokenObject) -> Bool
     func actions(token: TokenObject) -> [TokenInstanceAction]
-}
-
-extension SwapTokenActionsService {
-    func isSupportToken(token: TokenObject) -> Bool {
-        return !actions(token: token).isEmpty
-    }
 }
 
 protocol SwapTokenURLProviderType {
@@ -36,10 +31,18 @@ class SwapTokenService: SwapTokenServiceType {
     }
 
     func actions(token: TokenObject) -> [TokenInstanceAction] {
-        let values = services.flatMap {
+        services.filter {
+            $0.isSupport(token: token)
+        }.flatMap {
             $0.actions(token: token)
         }
-        return values
     }
+
+    func isSupport(token: TokenObject) -> Bool {
+        return services.compactMap {
+            $0.isSupport(token: token) ? $0 : nil
+        }.isEmpty 
+    }
+
 }
 

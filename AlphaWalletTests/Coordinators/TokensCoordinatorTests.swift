@@ -4,13 +4,16 @@ import XCTest
 @testable import AlphaWallet
 
 class FakeSwapTokenService: SwapTokenServiceType {
-
     func register(service: SwapTokenActionsService) {
 
     }
 
+    func isSupport(token: TokenObject) -> Bool {
+        false
+    }
+
     func actions(token: TokenObject) -> [TokenInstanceAction] {
-        return []
+        []
     }
 }
 
@@ -20,19 +23,20 @@ class TokensCoordinatorTests: XCTestCase {
         sessions[.main] = WalletSession.make()
         let config: Config = .make()
         let assetDefinitionStore = AssetDefinitionStore()
+        let swapTokenService = FakeSwapTokenService()
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: []),
+            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: []),
             nativeCryptoCurrencyPrices: .init(),
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: nil),
-            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
             analyticsCoordinator: nil,
-            swapTokenActionsService: FakeSwapTokenService()
+            swapTokenService: swapTokenService
         )
         coordinator.start()
 
