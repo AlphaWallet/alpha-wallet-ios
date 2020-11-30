@@ -105,6 +105,18 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.reloadData()
     }
 
+    func configure(nonce: Int, configurator: TransactionConfigurator) {
+        var updatedViewModel = viewModel
+        var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
+        guard configuration.nonce != nonce else { return }
+        configuration.set(nonce: nonce)
+        updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
+        updatedViewModel.configurations = configurator.configurations
+        viewModel = updatedViewModel
+        recalculateTotalFee()
+        tableView.reloadData()
+    }
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let info = notification.userInfo else {
             return
