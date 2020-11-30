@@ -24,22 +24,22 @@ class SelectAssetCoordinator: Coordinator {
     )
     private let tokenCollection: TokenCollection
     private let sessions: ServerDictionary<WalletSession>
-    private lazy var filterTokensCoordinator = FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore)
+    private let filterTokensCoordinator: FilterTokensCoordinator
     private let assetDefinitionStore: AssetDefinitionStore
     private let filter: WalletFilter
-
+    
     lazy var navigationController = UINavigationController(rootViewController: viewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectAssetCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency])) {
+    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency]), filterTokensCoordinator: FilterTokensCoordinator) {
         self.sessions = sessions
         self.filter = filter
         self.parentsNavigationController = navigationController
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-
+        self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController.hidesBottomBarWhenPushed = true
         viewController.delegate = self
     }

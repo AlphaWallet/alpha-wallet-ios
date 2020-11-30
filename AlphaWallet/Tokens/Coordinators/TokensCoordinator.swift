@@ -26,7 +26,7 @@ class TokensCoordinator: Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let analyticsCoordinator: AnalyticsCoordinator?
-    private let swapTokenActionsService: SwapTokenActionsService
+    private let swapTokenService: SwapTokenServiceType
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -90,7 +90,7 @@ class TokensCoordinator: Coordinator {
             promptBackupCoordinator: PromptBackupCoordinator,
             filterTokensCoordinator: FilterTokensCoordinator,
             analyticsCoordinator: AnalyticsCoordinator?,
-            swapTokenActionsService: SwapTokenActionsService
+            swapTokenService: SwapTokenServiceType
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -104,7 +104,7 @@ class TokensCoordinator: Coordinator {
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
-        self.swapTokenActionsService = swapTokenActionsService
+        self.swapTokenService = swapTokenService
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
@@ -122,7 +122,7 @@ class TokensCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenActionsService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -293,7 +293,8 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             assetDefinitionStore: assetDefinitionStore,
             sessions: sessions,
             tokenCollection: tokenCollection,
-            navigationController: navigationController
+            navigationController: navigationController,
+            filterTokensCoordinator: filterTokensCoordinator
         )
         coordinator.delegate = self
         addCoordinator(coordinator)

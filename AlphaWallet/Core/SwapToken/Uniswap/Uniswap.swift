@@ -20,8 +20,6 @@ struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
     var method: Method = .swap
 
     func url(token: TokenObject) -> URL? {
-        guard isSupportToken(token: token) else { return nil }
-
         let input = Input.input(token.contractAddress)
         var components = URLComponents()
         components.path = method.rawValue
@@ -83,13 +81,13 @@ struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
     }
 
     func actions(token: TokenObject) -> [TokenInstanceAction] {
-        if UniswapERC20Token.isSupport(token: token) {
-            return [
-                .init(type: .swap(service: self))
-            ]
-        } else {
-            return []
-        }
+        return [
+            .init(type: .swap(service: self))
+        ]
+    }
+
+    func isSupport(token: TokenObject) -> Bool {
+        return UniswapERC20Token.isSupport(token: token)
     }
 }
 
