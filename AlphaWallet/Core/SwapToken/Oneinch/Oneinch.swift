@@ -20,9 +20,9 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     //NOTE: for Oneinch exchange service we need to use two addresses, by default it uses Uptrennd token
     private static let outputAddress = AlphaWallet.Address(string: "0x07597255910a51509ca469568b048f2597e72504")!
     private let predefinedTokens: [Oneinch.ERC20Token] = [
-        .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: 18)
+        .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: RPCServer.main.decimals)
     ]
-    //NOTE: we use dictionary to improve search tokens 
+    //NOTE: we use dictionary to improve search tokens
     private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
 
     func url(token: TokenObject) -> URL? {
