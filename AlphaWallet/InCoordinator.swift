@@ -840,7 +840,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
-        coordinator.navigationController.popViewController(animated: false)
 
         showTab(.browser)
 
@@ -937,10 +936,9 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
     }
 
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator) {
-        //TODO way better UX if we can just open the token without switching tabs
-        showTab(.wallet)
         guard let tokensCoordinator = tokensCoordinator else { return }
-        tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
+
+        tokensCoordinator.showSingleChainToken(token: tokenObject, in: coordinator.navigationController)
     }
 
     func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
