@@ -11,6 +11,7 @@ protocol TransactionConfiguratorDelegate: class {
     func configurationChanged(in configurator: TransactionConfigurator)
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)
+    func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
 }
 
 class TransactionConfigurator {
@@ -205,8 +206,8 @@ class TransactionConfigurator {
         }
     }
 
-    private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data, nonce: Int? = nil) -> TransactionConfiguration {
-        TransactionConfiguration(gasPrice: TransactionConfigurator.computeDefaultGasPrice(server: server, transaction: transaction), gasLimit: gasLimit, data: data, nonce: nonce)
+    private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
+        TransactionConfiguration(gasPrice: TransactionConfigurator.computeDefaultGasPrice(server: server, transaction: transaction), gasLimit: gasLimit, data: data)
     }
 
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) -> TransactionConfiguration {
@@ -295,6 +296,18 @@ class TransactionConfigurator {
         if !isGasLimitSpecifiedByTransaction {
             estimateGasLimit()
         }
+        firstly {
+            GetNextNonce(server: session.server, wallet: session.account.address).promise()
+        }.done {
+            var customConfig = self.configurations.custom
+            if let existingNonce = customConfig.nonce, existingNonce > 0 {
+                //no-op
+            } else {
+                customConfig.set(nonce: $0)
+                self.configurations.custom = customConfig
+                self.delegate?.updateNonce(to: $0, in: self)
+            }
+        }.cauterize()
     }
 
     func formUnsignedTransaction() -> UnsignedTransaction {

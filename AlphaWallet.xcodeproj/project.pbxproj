@@ -523,6 +523,7 @@
 		5E7C7CCA2D436A940E874D47 /* VerifySeedPhraseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C739774984CDE1D3D7555 /* VerifySeedPhraseViewModel.swift */; };
 		5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */; };
 		5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */; };
+		5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DAFCCF74F40D144CB0E /* GetNextNonce.swift */; };
 		5E7C7CDE2814481CD7BC47AC /* PushNotificationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsCoordinator.swift */; };
 		5E7C7CE29C74DF7FDDDB6A0D /* ERC721-TokenScript.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C7676A744239C4880A3ED /* ERC721-TokenScript.tsml */; };
 		5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */; };
@@ -1380,6 +1381,7 @@
 		5E7C7D8D618A8A8D55479CDF /* Dapp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dapp.swift; sourceTree = "<group>"; };
 		5E7C7D913DAA3322F1C7DD46 /* OpenSeaNonFungibleTokenCardRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenCardRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C7D931F68BFB5E1DCE001 /* TokenCardRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TokenCardRowView.swift; path = Views/TokenCardRowView.swift; sourceTree = "<group>"; };
+		5E7C7DAFCCF74F40D144CB0E /* GetNextNonce.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetNextNonce.swift; sourceTree = "<group>"; };
 		5E7C7DCB0BDDD30D10130AE7 /* GetIsERC875Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875Encode.swift; sourceTree = "<group>"; };
 		5E7C7DD409C330DA4033F504 /* Keystore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keystore.swift; sourceTree = "<group>"; };
 		5E7C7DD9C564F2C7DE435894 /* ConfirmSignMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmSignMessageTableViewCell.swift; sourceTree = "<group>"; };
@@ -1909,6 +1911,7 @@
 				29F1C862200375D2003780D8 /* Wallet.swift */,
 				5E7C7FC30FF22C3EA71451BC /* EthTypedData.swift */,
 				5E7C7C0CFD047ED7C488FB45 /* OpenSea.swift */,
+				5E7C7F649A54E4AD0BEA5220 /* Models */,
 			);
 			path = EtherClient;
 			sourceTree = "<group>";
@@ -3452,6 +3455,14 @@
 				87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		5E7C7F649A54E4AD0BEA5220 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7DAFCCF74F40D144CB0E /* GetNextNonce.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		5E7C7F74815AFC150C0AF14D /* TokenScriptClient */ = {
@@ -5043,6 +5054,7 @@
 				5E7C7CA66F3086000BA3E72C /* GasEstimates.swift in Sources */,
 				5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */,
 				5E7C7DFC309C7CC499202375 /* DecodedFunctionCall.swift in Sources */,
+				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
