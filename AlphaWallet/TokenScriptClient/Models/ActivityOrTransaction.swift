@@ -41,4 +41,31 @@ enum ActivityOrTransaction {
             return transaction.transactionIndex
         }
     }
+
+    func getTokenSymbol(fromTokensStorages tokensStorages: ServerDictionary<TokensDataStore>) -> String? {
+        switch self {
+        case .activity(let activity):
+            return activity.tokenObject.symbol
+        case .transaction(let transaction):
+            return getSymbol(fromTransaction: transaction, tokensStorages: tokensStorages)
+        }
+    }
+
+    private func getSymbol(fromTransaction transaction: Transaction, tokensStorages: ServerDictionary<TokensDataStore>) -> String? {
+        if transaction.operation == nil {
+            let token = TokensDataStore.etherToken(forServer: transaction.server)
+            return token.symbol
+        } else {
+            switch (transaction.state, transaction.operation?.operationType) {
+            case (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
+                let token = transaction.operation?.contractAddress.flatMap { tokensStorages[transaction.server].token(forContract: $0) }
+                return token?.symbol
+            //Explicitly listing out combinations so future changes to enums will be caught by compiler
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .unknown), (.pending, nil):
+                return nil
+            case (.unknown, _), (.error, _), (.failed, _), (.completed, _):
+                return nil
+            }
+        }
+    }
 }
