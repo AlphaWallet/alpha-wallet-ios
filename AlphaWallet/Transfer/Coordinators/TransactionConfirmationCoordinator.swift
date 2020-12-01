@@ -60,12 +60,8 @@ protocol TransactionConfirmationCoordinatorDelegate: class {
 }
 
 class TransactionConfirmationCoordinator: Coordinator {
-    private struct Parent {
-        let navigationController: UINavigationController
-    }
-
     private let configuration: TransactionConfirmationConfiguration
-    private let parent: Parent
+    let presentationNavigationController: UINavigationController
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
@@ -90,11 +86,11 @@ class TransactionConfirmationCoordinator: Coordinator {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
-        parent = Parent(navigationController: navigationController)
+        presentationNavigationController = navigationController
     }
 
     func start() {
-        parent.navigationController.present(navigationController, animated: false)
+        presentationNavigationController.present(navigationController, animated: false)
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()
