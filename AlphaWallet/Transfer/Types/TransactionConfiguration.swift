@@ -30,6 +30,10 @@ struct TransactionConfiguration {
         gasLimit = estimate
     }
 
+    mutating func set(nonce: Int) {
+        self.nonce = nonce
+    }
+
     init(transaction: UnconfirmedTransaction) {
         self.init(
             gasPrice: min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice),
