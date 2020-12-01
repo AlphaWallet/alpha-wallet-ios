@@ -16,9 +16,11 @@ struct ActivitiesViewModel {
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
+    private let tokensStorages: ServerDictionary<TokensDataStore>
 
-    init(activities: [ActivityOrTransaction] = []) {
+    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [ActivityOrTransaction] = []) {
         items = ActivitiesViewModel.sorted(activities: activities)
+        self.tokensStorages = tokensStorages
     }
 
     private static func sorted(activities: [ActivityOrTransaction]) -> [MappedToDateActivityOrTransaction] {
@@ -75,10 +77,22 @@ struct ActivitiesViewModel {
 
         switch filter {
         case .keyword(let keyword):
-            if let valueToSearch = keyword?.trimmed, valueToSearch.nonEmpty {
+            if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
+                let components = valueToSearch.split(separator: " ")
+                let twoKeywords = splitIntoExactlyTwoKeywords(valueToSearch)
                 let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
-                    let data = content.filter { data -> Bool in
-                        return data.activityName?.lowercased().contains(valueToSearch.lowercased()) ?? false
+                    let data: [ActivityOrTransaction]
+                    if let twoKeywords = twoKeywords {
+                        //Special case to support keywords like "Sent CoFi"
+                        data = content.filter { data -> Bool in
+                            (data.activityName?.lowercased().contains(twoKeywords.0) ?? false) &&
+                                    (data.getTokenSymbol(fromTokensStorages: tokensStorages)?.lowercased().contains(twoKeywords.1) ?? false)
+                        }
+                    } else {
+                        data = content.filter { data -> Bool in
+                            (data.activityName?.lowercased().contains(valueToSearch) ?? false) ||
+                                    (data.getTokenSymbol(fromTokensStorages: tokensStorages)?.lowercased().contains(valueToSearch) ?? false)
+                        }
                     }
 
                     if data.isEmpty {
@@ -134,6 +148,14 @@ struct ActivitiesViewModel {
             return R.string.localizable.yesterday().localizedUppercase
         }
         return value.localizedUppercase
+    }
+
+    private func splitIntoExactlyTwoKeywords(_ string: String) -> (String, String)? {
+        let components = string.split(separator: " ")
+        let keyword0: String?
+        let keyword1: String?
+        guard components.count == 2 else { return nil }
+        return (String(components[0]), String(components[1]))
     }
 }
 

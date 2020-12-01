@@ -71,7 +71,7 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
-        let viewModel = ActivitiesViewModel()
+        let viewModel = ActivitiesViewModel(tokensStorages: tokensStorages)
         let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions, tokensStorages: tokensStorages)
         controller.delegate = self
         return controller
@@ -263,7 +263,7 @@ class ActivitiesCoordinator: Coordinator {
             transactions = self.transactions
         }
         let items: [ActivityOrTransaction] = activities.map { .activity($0) } + transactions.filter { txn in !transactionAlreadyRepresentedAsActivities.contains(txn.id) }.map { .transaction($0) }
-        rootViewController.configure(viewModel: .init(activities: items))
+        rootViewController.configure(viewModel: .init(tokensStorages: tokensStorages, activities: items))
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
