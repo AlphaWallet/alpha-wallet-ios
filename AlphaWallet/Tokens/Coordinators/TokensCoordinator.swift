@@ -122,7 +122,7 @@ class TokensCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -182,19 +182,23 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         coordinator.start()
     }
 
-    func didSelect(token: TokenObject, in viewController: UIViewController) {
-        let server = token.server
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
+    func showSingleChainToken(token: TokenObject, in navigationController: UINavigationController) {
+        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
+
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil), navigationController: navigationController)
         case .erc20:
-            coordinator.show(fungibleToken: token, transactionType: .ERC20Token(token, destination: nil, amount: nil))
+            coordinator.show(fungibleToken: token, transactionType: .ERC20Token(token, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
-            coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token)
+            coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token, navigationController: navigationController)
         case .erc875, .erc721ForTickets:
-            coordinator.showTokenList(for: .send(type: .ERC875Token(token)), token: token)
+            coordinator.showTokenList(for: .send(type: .ERC875Token(token)), token: token, navigationController: navigationController)
         }
+    }
+
+    func didSelect(token: TokenObject, in viewController: UIViewController) {
+        showSingleChainToken(token: token, in: navigationController)
     }
 
     func didHide(token: TokenObject, in viewController: UIViewController) {
