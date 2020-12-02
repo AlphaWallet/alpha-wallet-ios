@@ -168,7 +168,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
     func openQRCode(in controller: ImportWalletViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: keystore.currentWallet, server: config.server)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: keystore.recentlyUsedWallet, server: config.server)
         coordinator.delegate = self
 
         addCoordinator(coordinator)
