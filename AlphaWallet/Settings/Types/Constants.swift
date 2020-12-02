@@ -108,8 +108,9 @@ public struct Constants {
     public static let callistoContractPage = "https://blockscout.com/callisto/mainnet/search?q="
     public static let artisSigma1ContractPage = "https://explorer.sigma1.artis.network/search?q="
     public static let artisTau1ContractPage = "https://explorer.tau1.artis.network/search?q="
-    public static let binanceContractPage = "https://explorer.binance.org/smart/search?q="
-    public static let binanceTestnetContractPage = "https://explorer.binance.org/smart-testnet/search?q="
+    public static let binanceContractPage = "https://bscscan.com/search?q="
+    public static let binanceTestnetContractPage = "https://testnet.bscscan.com/search?q="
+
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
