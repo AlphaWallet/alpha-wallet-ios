@@ -79,13 +79,12 @@ class SendTransactionCoordinator {
                 completion(.success(.signedTransaction(data)))
             case .signThenSend:
                 let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: data.hexEncoded)))
-                Session.send(request) { result in
-                    switch result {
-                    case .success(let transactionID):
-                        completion(.success(.sentTransaction(SentTransaction(id: transactionID, original: transaction))))
-                    case .failure(let error):
-                        completion(.failure(AnyError(error)))
-                    }
+                firstly {
+                    Session.send(request)
+                }.done { transactionID in
+                    completion(.success(.sentTransaction(SentTransaction(id: transactionID, original: transaction))))
+                }.catch { error in
+                    completion(.failure(AnyError(error)))
                 }
             }
         case .failure(let error):

@@ -16,15 +16,6 @@ class GetNextNonce {
 
     func promise() -> Promise<Int> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
-        return Promise { seal in
-            Session.send(request) { result in
-                switch result {
-                case .success(let count):
-                    seal.fulfill(count)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
+        return Session.send(request)
     }
 }
