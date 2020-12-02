@@ -46,7 +46,7 @@ struct ConfigExplorer {
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "Binance Explorer"
         case .artis_sigma1, .artis_tau1:
-            return "ARTIS" 
+            return "ARTIS"
         }
     }
 
@@ -76,9 +76,9 @@ struct ConfigExplorer {
         case .artis_tau1:
             return ("https://explorer.tau1.artis.network", nameForServer)
         case .binance_smart_chain:
-            return ("https://explorer.binance.org/smart", nameForServer)
+            return ("https://api.bscscan.com", nameForServer)
         case .binance_smart_chain_testnet:
-            return ("https://explorer.binance.org/smart-testnet", nameForServer)
+            return ("https://api-testnet.bscscan.com", nameForServer)
         case .custom, .callisto:
             return (.none, nameForServer)
         }

@@ -325,8 +325,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .goerli: return "https://api-goerli.etherscan.io"
             case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
-            case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
-            case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
+            case .binance_smart_chain: return "https://bscscan.com/tx/"
+            case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
             case .custom:
                 return "" // Enable? make optional
             }
