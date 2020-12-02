@@ -14,13 +14,14 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     private lazy var navigationController = UINavigationController(rootViewController: qrcodeController)
     private lazy var reader = QRCodeReader(metadataObjectTypes: [AVMetadataObject.ObjectType.qr])
     private lazy var qrcodeController: QRCodeReaderViewController = {
+        let shouldShowMyQRCodeButton = account != nil
         let controller = QRCodeReaderViewController(
             cancelButtonTitle: nil,
             codeReader: reader,
             startScanningAtLoad: true,
             showSwitchCameraButton: false,
             showTorchButton: true,
-            showMyQRCodeButton: true,
+            showMyQRCodeButton: shouldShowMyQRCodeButton,
             chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos(),
             bordersColor: Colors.qrCodeRectBorders,
             messageText: R.string.localizable.qrCodeTitle(),
@@ -37,14 +38,14 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
 
         return controller
     }()
-    private let account: Wallet
+    private let account: Wallet?
     private let server: RPCServer
 
     let parentNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: ScanQRCodeCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, account: Wallet, server: RPCServer) {
+    init(navigationController: UINavigationController, account: Wallet?, server: RPCServer) {
         self.account = account
         self.server = server
         self.parentNavigationController = navigationController
@@ -82,6 +83,8 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
     }
 
     func reader(_ reader: QRCodeReaderViewController!, myQRCodeSelected sender: UIButton!) {
+        //Showing QR code functionality is not available if there's no account, specifically when importing wallet during onboarding
+        guard let account = account else { return }
         let coordinator = RequestCoordinator(account: account, server: server)
         coordinator.delegate = self
         coordinator.start()
