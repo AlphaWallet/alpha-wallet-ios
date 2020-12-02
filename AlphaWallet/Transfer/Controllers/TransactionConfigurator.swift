@@ -78,36 +78,33 @@ class TransactionConfigurator {
             data: currentConfiguration.data
         )
 
-        Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request))) { result in
-            switch result {
-            case .success(let gasLimit):
-                let gasLimit: BigInt = {
-                    let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
-                    if limit == GasLimitConfiguration.minGasLimit {
-                        return limit
-                    }
-                    return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
-                }()
-                var customConfig = self.configurations.custom
-                customConfig.setEstimated(gasLimit: gasLimit)
-                self.configurations.custom = customConfig
-                var defaultConfig = self.configurations.standard
-                defaultConfig.setEstimated(gasLimit: gasLimit)
-                self.configurations.standard = defaultConfig
-
-                //Careful to not create if they don't exist
-                for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
-                    if var config = self.configurations[each] {
-                        config.setEstimated(gasLimit: gasLimit)
-                        self.configurations[each] = config
-                    }
+        firstly {
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
+        }.done { gasLimit in
+            let gasLimit: BigInt = {
+                let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
+                if limit == GasLimitConfiguration.minGasLimit {
+                    return limit
                 }
+                return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
+            }()
+            var customConfig = self.configurations.custom
+            customConfig.setEstimated(gasLimit: gasLimit)
+            self.configurations.custom = customConfig
+            var defaultConfig = self.configurations.standard
+            defaultConfig.setEstimated(gasLimit: gasLimit)
+            self.configurations.standard = defaultConfig
 
-                self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-            case .failure:
-                break
+            //Careful to not create if they don't exist
+            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+                if var config = self.configurations[each] {
+                    config.setEstimated(gasLimit: gasLimit)
+                    self.configurations[each] = config
+                }
             }
-        }
+
+            self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
+        }.cauterize()
     }
 
     private func estimateGasPrice() {
@@ -139,13 +136,13 @@ class TransactionConfigurator {
         case .main:
             return firstly {
                 estimateGasPriceForEthMainnetUsingThirdPartyApi()
-            }.recover { error -> Promise<GasEstimates> in
+            }.recover { _ in
                 self.estimateGasPriceForUseRpcNode(server: server)
             }
         case .xDai:
             return estimateGasPriceForXDai()
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
-            return estimateGasPriceForUseRpcNode(server: server)
+            return Promise(estimateGasPriceForUseRpcNode(server: server))
         }
     }
 
@@ -167,27 +164,24 @@ class TransactionConfigurator {
         .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
     }
 
-    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> Promise<GasEstimates> {
-        Promise { seal in
-            let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-            Session.send(request) { result in
-                switch result {
-                case .success(let balance):
-                    if let gasPrice = BigInt(balance.drop0x, radix: 16) {
-                        if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
-                            // Guard against really high prices
-                            seal.fulfill(.init(standard: GasPriceConfiguration.maxPrice))
-                        } else {
-                            //Add an extra gwei because the estimate is sometimes too low
-                            seal.fulfill(.init(standard: gasPrice + GasPriceConfiguration.oneGwei))
-                        }
-                    } else {
-                        seal.fulfill(.init(standard: GasPriceConfiguration.defaultPrice))
-                    }
-                case .failure:
-                    seal.fulfill(.init(standard: GasPriceConfiguration.defaultPrice))
+    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> Guarantee<GasEstimates> {
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
+        return firstly {
+            Session.send(request)
+        }.map {
+            if let gasPrice = BigInt($0.drop0x, radix: 16) {
+                if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
+                    // Guard against really high prices
+                    return GasEstimates(standard: GasPriceConfiguration.maxPrice)
+                } else {
+                    //Add an extra gwei because the estimate is sometimes too low
+                    return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
                 }
+            } else {
+                return GasEstimates(standard: GasPriceConfiguration.defaultPrice)
             }
+        }.recover { _ in
+            .value(GasEstimates(standard: GasPriceConfiguration.defaultPrice))
         }
     }
 
