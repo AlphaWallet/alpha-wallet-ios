@@ -6,8 +6,8 @@ import JSONRPCKit
 import PromiseKit
 
 class GetNextNonce {
-    let server: RPCServer
-    let wallet: AlphaWallet.Address
+    private let server: RPCServer
+    private let wallet: AlphaWallet.Address
 
     init(server: RPCServer, wallet: AlphaWallet.Address) {
         self.server = server
