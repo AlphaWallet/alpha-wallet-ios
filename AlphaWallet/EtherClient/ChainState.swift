@@ -3,6 +3,7 @@
 import Foundation
 import JSONRPCKit
 import APIKit
+import PromiseKit
 
 class ChainState {
 
@@ -49,14 +50,11 @@ class ChainState {
 
     @objc func fetch() {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
-        Session.send(request) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let number):
-                strongSelf.latestBlock = number
-            case .failure: break
-            }
-        }
+        firstly {
+            Session.send(request)
+        }.done {
+            self.latestBlock = $0
+        }.cauterize()
     }
 
     func confirmations(fromBlock: Int) -> Int? {

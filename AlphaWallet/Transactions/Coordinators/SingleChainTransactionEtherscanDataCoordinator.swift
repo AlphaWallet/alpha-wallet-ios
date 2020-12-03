@@ -143,35 +143,32 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
     private func updatePendingTransaction(_ transaction: Transaction) {
         let request = GetTransactionRequest(hash: transaction.id)
-        Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request))) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success:
-                // NSLog("parsedTransaction \(_parsedTransaction)")
-                if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
-                    strongSelf.update(state: .completed, for: transaction)
-                    strongSelf.update(items: [transaction])
-                }
-            case .failure(let error):
-                // NSLog("error: \(error)")
+        firstly {
+            Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
+        }.done { _ in
+            if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
+                self.update(state: .completed, for: transaction)
+                self.update(items: [transaction])
+            }
+        }.catch { error in
+            guard let error = error as? SessionTaskError else { return }
+            switch error {
+            case .responseError(let error):
+                // TODO: Think about the logic to handle pending transactions.
+                guard let error = error as? JSONRPCError else { return }
                 switch error {
-                case .responseError(let error):
-                    // TODO: Think about the logic to handle pending transactions.
-                    guard let error = error as? JSONRPCError else { return }
-                    switch error {
-                    case .responseError:
-                        // NSLog("code \(code), error: \(message)")
-                        strongSelf.delete(transactions: [transaction])
-                    case .resultObjectParseError:
-                        if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
-                            strongSelf.update(state: .failed, for: transaction)
-                        }
-                    case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
-                        break
+                case .responseError:
+                    // NSLog("code \(code), error: \(message)")
+                    self.delete(transactions: [transaction])
+                case .resultObjectParseError:
+                    if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
+                        self.update(state: .failed, for: transaction)
                     }
-                case .connectionError, .requestError:
+                case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
                     break
                 }
+            case .connectionError, .requestError:
+                break
             }
         }
     }
@@ -366,7 +363,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 coordinator.isFetchingLatestTransactions = false
                 self?.didChangeValue(forKey: "isExecuting")
                 self?.didChangeValue(forKey: "isFinished")
-            } 
+            }
         }
     }
 }
