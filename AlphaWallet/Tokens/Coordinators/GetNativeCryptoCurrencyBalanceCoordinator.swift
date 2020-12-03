@@ -6,6 +6,7 @@ import JSONRPCKit
 import APIKit
 import Result
 import web3swift
+import PromiseKit
 
 class GetNativeCryptoCurrencyBalanceCoordinator {
     let server: RPCServer
@@ -19,13 +20,12 @@ class GetNativeCryptoCurrencyBalanceCoordinator {
         completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void
     ) {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
-        Session.send(request) { result in
-            switch result {
-            case .success(let balance):
-                completion(.success(balance))
-            case .failure(let error):
-                completion(.failure(AnyError(error)))
-            }
+        firstly {
+            Session.send(request)
+        }.done {
+            completion(.success($0))
+        }.catch {
+            completion(.failure(AnyError($0)))
         }
     }
 }

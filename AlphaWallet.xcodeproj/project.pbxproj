@@ -490,6 +490,7 @@
 		5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */; };
 		5E7C7B129C55A8458AEF3F61 /* URLViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D69938F484C2A186FAE /* URLViewModel.swift */; };
 		5E7C7B14B0D172F91D52F0BF /* EthereumSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */; };
+		5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */; };
 		5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */; };
 		5E7C7B414FA8A428798D73EF /* OpenSeaNonFungibleTokenHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C758EEBD945A3451C96C8 /* OpenSeaNonFungibleTokenHandling.swift */; };
@@ -1428,6 +1429,7 @@
 		5E7C7FC30FF22C3EA71451BC /* EthTypedData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthTypedData.swift; sourceTree = "<group>"; };
 		5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationsCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7FCE2427A30ACD860DF8 /* ServerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerViewModel.swift; sourceTree = "<group>"; };
+		5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Session+PromiseKit.swift"; sourceTree = "<group>"; };
 		5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStoreTests.swift; sourceTree = "<group>"; };
 		5E7C7FE5EEC96A7CDF62213F /* DappsHomeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7FF2EF77D5004A600DDB /* SuccessOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessOverlayView.swift; sourceTree = "<group>"; };
@@ -2377,6 +2379,7 @@
 				5E7C7D2C43C15D0762C7F374 /* UIStackView.swift */,
 				5E7C7B06D3FBE83BBC00555F /* Optional.swift */,
 				87D175EA24AEF8B4002130D2 /* UITableView.swift */,
+				5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5055,6 +5058,7 @@
 				5E7C766B96C59C7893CF2CB4 /* EditedTransactionConfiguration.swift in Sources */,
 				5E7C7DFC309C7CC499202375 /* DecodedFunctionCall.swift in Sources */,
 				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,
+				5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
