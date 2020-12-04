@@ -243,7 +243,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         let url = directory.appendingPathComponent(fileName)
         var contractsAffected: [AlphaWallet.Address]
         if url.pathExtension == AssetDefinitionDiskBackingStore.fileExtension || url.pathExtension == "xml" {
-            let contractsPreviouslyForThisXmlFile = tokenScriptFileIndices.contractsToFileNames.filter { eachContract, fileNames in
+            let contractsPreviouslyForThisXmlFile = tokenScriptFileIndices.contractsToFileNames.filter { _, fileNames in
                 return fileNames.contains(fileName)
             }.map { $0.key }
             for eachContract in contractsPreviouslyForThisXmlFile {

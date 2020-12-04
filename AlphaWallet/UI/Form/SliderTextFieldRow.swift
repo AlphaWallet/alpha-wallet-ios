@@ -46,7 +46,6 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
     deinit {
         guard !awakeFromNibCalled else { return }
-        NotificationCenter.default.removeObserver(self, name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
 
     required public init?(coder aDecoder: NSCoder) {

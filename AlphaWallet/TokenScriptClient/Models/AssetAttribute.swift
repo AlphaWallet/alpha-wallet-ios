@@ -84,7 +84,7 @@ struct AssetAttribute {
               let rawValue = syntaxElement.text,
               let syntax = AssetAttributeSyntax(rawValue: rawValue) else { return nil }
 
-        var originFound: Origin? = nil
+        var originFound: Origin?
         if let tokenIdElement = XMLHandler.getTokenIdElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
            XMLHandler.getBitMask(fromTokenIdElement: tokenIdElement) != nil {
             originFound = Origin(forTokenIdElement: tokenIdElement, xmlContext: xmlContext)

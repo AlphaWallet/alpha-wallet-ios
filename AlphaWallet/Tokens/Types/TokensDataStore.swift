@@ -643,7 +643,7 @@ class TokensDataStore {
 
         firstly {
             provider.request(priceToUpdate)
-        }.map { response -> [AlphaWallet.Address : CoinTicker] in
+        }.map { response -> [AlphaWallet.Address: CoinTicker] in
             let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
             let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                 var dict = dict

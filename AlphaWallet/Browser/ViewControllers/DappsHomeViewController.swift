@@ -29,7 +29,7 @@ class DappsHomeViewController: UIViewController {
                 browserNavBar?.disableButtons()
                 guard timerToCheckIfStillEditing == nil else { return }
 
-                timerToCheckIfStillEditing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
+                timerToCheckIfStillEditing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
                     guard let strongSelf = self else { return }
                     if strongSelf.isTopViewController {
                     } else {

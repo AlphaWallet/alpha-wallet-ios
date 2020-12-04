@@ -3,31 +3,29 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 //
 
-/**
- * Universal link format
- *
- * Android requires the link to be in the form:
- *
- * https://www.awallet.io/[base64]
- *
- * The format forbids using a prefix other than 'www'.
- * There needs to be text in the specific link too, in this case 'import'.
-$ echo -n https://www.awallet.io/; \
-  echo -n 000f42405AB5B400007bee82bdd9e866b2bd114780a47f2261c684e30102030405060708092F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE54754410530818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B1b | xxd -r -p | base64;\
-https://aw.app/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGNZZ6m2MG7VeJp8GRkWQXHjfczfS1m+VHVEEFMIGLiWt9JA9WxZ698gkGLuVNp6NZCQVzlnTc/c7PPpsb
- * uint32:    price in Szabo                                           000f4240
- * uint32:    expiry in Unix Time                                      5AB5B400
- * bytes20:   contract address         007bee82bdd9e866b2bd114780a47f2261c684e3
- * Uint16[]:  token indices                               010203040506070809
- * bytes32:    2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105
- * bytes32:    30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B
- * byte:                                                                     1b
- * 1521857536, [0,1,2,3,4,5,6,7,8,9], 27, "0x2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105", "0x30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B" -> 0xd2bef24c7e90192426b54bf437a5eac4e220dde7
- */
-
 import Foundation
 import BigInt
 
+///
+// Universal link format
+//
+// Android requires the link to be in the form:
+//
+// https://www.awallet.io/[base64]
+//
+// The format forbids using a prefix other than 'www'.
+// There needs to be text in the specific link too, in this case 'import'.
+// $ echo -n https://www.awallet.io/; \
+//  echo -n 000f42405AB5B400007bee82bdd9e866b2bd114780a47f2261c684e30102030405060708092F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE54754410530818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B1b | xxd -r -p | base64;\
+// https://aw.app/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGNZZ6m2MG7VeJp8GRkWQXHjfczfS1m+VHVEEFMIGLiWt9JA9WxZ698gkGLuVNp6NZCQVzlnTc/c7PPpsb
+// uint32:    price in Szabo                                           000f4240
+// uint32:    expiry in Unix Time                                      5AB5B400
+// bytes20:   contract address         007bee82bdd9e866b2bd114780a47f2261c684e3
+// Uint16[]:  token indices                               010203040506070809
+// bytes32:    2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105
+// bytes32:    30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B
+// byte:                                                                     1b
+/// 1521857536, [0,1,2,3,4,5,6,7,8,9], 27, "0x2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105", "0x30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B" -> 0xd2bef24c7e90192426b54bf437a5eac4e220dde7
 private enum LinkFormat: UInt8 {
     case unassigned = 0x00
     case normal = 0x01
