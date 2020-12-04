@@ -11,6 +11,7 @@ protocol TransactionConfirmationHeaderViewDelegate: class {
     func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int)
+    func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int)
 }
 
 class TransactionConfirmationHeaderView: UIView {
@@ -20,6 +21,8 @@ class TransactionConfirmationHeaderView: UIView {
         let section: Int
         var shouldHideChevron: Bool = true
     }
+
+    private var isTapActionEnabled = false
 
     private let placeholderLabel: UILabel = {
         let label = UILabel()
@@ -167,12 +170,16 @@ class TransactionConfirmationHeaderView: UIView {
     }
 
     @objc private func didTap(_ sender: UITapGestureRecognizer) {
-        viewModel.configuration.isOpened.toggle()
+        if isTapActionEnabled {
+            delegate?.headerView(self, tappedSection: viewModel.configuration.section)
+        } else {
+            viewModel.configuration.isOpened.toggle()
 
-        chevronImageView.image = viewModel.chevronImage
-        titleLabel.alpha = viewModel.titleAlpha
+            chevronImageView.image = viewModel.chevronImage
+            titleLabel.alpha = viewModel.titleAlpha
 
-        delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
+            delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
+        }
     }
 
     func expand() {
@@ -197,22 +204,19 @@ class TransactionConfirmationHeaderView: UIView {
 }
 
 extension TransactionConfirmationHeaderView {
+    func enableTapAction(title: String) {
+        isTapActionEnabled = true
 
-    func setEditButton(section: Int, _ target: AnyObject, selector: Selector) {
         let label = UILabel()
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .right
 
-        label.attributedText = NSAttributedString(string: "Edit", attributes: [
+        label.attributedText = NSAttributedString(string: title, attributes: [
             .font: Fonts.bold(size: 15) as Any,
             .foregroundColor: R.color.azure() as Any,
             .paragraphStyle: paragraph
         ])
-        label.isUserInteractionEnabled = true
         label.translatesAutoresizingMaskIntoConstraints = false
-
-        let tap = UITapGestureRecognizer(target: target, action: selector)
-        label.addGestureRecognizer(tap)
 
         let wrapper = UIView()
         wrapper.addSubview(label)

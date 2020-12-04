@@ -165,7 +165,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }
     }
 
-    func controller(_ controller: TransactionConfirmationViewController, editTransactionButtonTapped sender: UIButton) {
+    func controllerDidTapEdit(_ controller: TransactionConfirmationViewController) {
         showConfigureTransactionViewController(configurator, session: configurator.session)
     }
 
