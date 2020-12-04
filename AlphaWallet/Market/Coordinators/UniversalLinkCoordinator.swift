@@ -463,7 +463,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
-        assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+        assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] _ in
             guard let strongSelf = self else { return }
 
             func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {

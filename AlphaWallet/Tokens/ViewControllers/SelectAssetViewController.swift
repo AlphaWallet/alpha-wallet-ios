@@ -69,7 +69,7 @@ class SelectAssetViewController: UIViewController {
             onRetry: { [weak self] in
                 self?.startLoading()
                 self?.tokenCollection.fetch()
-        })
+            })
 
         configure(viewModel: viewModel)
     }

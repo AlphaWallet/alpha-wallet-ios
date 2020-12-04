@@ -37,7 +37,7 @@ class ConvertSVGToPNG {
         request.httpMethod = "GET"
         request.cachePolicy = .returnCacheDataElseLoad
         //OK to retain strong self reference because we can still download the image and cache it for future sessions
-        let promise = Alamofire.request(request).responseData().then { data, response -> Promise<UIImage> in
+        let promise = Alamofire.request(request).responseData().then { data, _ -> Promise<UIImage> in
             let imageFileExtension = url.pathExtension.lowercased()
             if imageFileExtension.lowercased() == "svg" {
                 let imagePromise = self.generateImage(data: data, fromURL: url, forTokenId: tokenId)

@@ -81,7 +81,7 @@ class GetIsERC721ContractCoordinator {
         //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
         firstly {
             when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise, nonCryptoKittyERC721WithOldInterfaceHashPromise)
-        }.done { results in
+        }.done { _ in
             let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
             let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
             let isNonCryptoKittyERC721WithOldInterfaceHash = nonCryptoKittyERC721WithOldInterfaceHashPromise.value?["0"] as? Bool

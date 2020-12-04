@@ -43,7 +43,7 @@ class EtherKeystoreTests: XCTestCase {
 
     func testImportDuplicate() {
         let keystore = FakeEtherKeystore()
-        var address: AlphaWallet.Address? = nil
+        var address: AlphaWallet.Address?
         let expectation1 = self.expectation(description: "completion block called")
         let expectation2 = self.expectation(description: "completion block called")
         let expectations = [expectation1, expectation2]
