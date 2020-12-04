@@ -21,7 +21,6 @@ class CustomUrlSchemeCoordinator: Coordinator {
     }
 
     /// Return true if handled
-    //TODO We aren't returning true/false accurately since we use a promise here
     func handleOpen(url: URL) -> Bool {
         guard let scheme = url.scheme, scheme == Eip681Parser.scheme else { return false }
         guard let result = QRCodeValueParser.from(string: url.absoluteString) else { return false }
