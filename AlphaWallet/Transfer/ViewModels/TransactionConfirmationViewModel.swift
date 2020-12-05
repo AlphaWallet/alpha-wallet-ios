@@ -10,7 +10,6 @@ enum TransactionConfirmationViewModel {
     case sendNftTransaction(SendNftTransactionViewModel)
     case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
 
-
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):

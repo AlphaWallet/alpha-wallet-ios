@@ -64,7 +64,6 @@ class ClaimPaidOrderCoordinator: Coordinator {
             let strongSelf = self
             switch result {
             case .success(let payload):
-                let account = strongSelf.session.account.address
                 let transaction = UnconfirmedTransaction(
                         transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
                         value: BigInt(strongSelf.signedOrder.order.price),
@@ -172,7 +171,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
             r: String,
             s: String,
             recipient: AlphaWallet.Address,
-        completion: @escaping (Swift.Result<Data, AnyError>) -> Void
+            completion: @escaping (Swift.Result<Data, AnyError>) -> Void
     ) {
         do {
             let parameters: [Any] = [

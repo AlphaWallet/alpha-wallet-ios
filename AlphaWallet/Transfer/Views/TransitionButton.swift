@@ -62,7 +62,7 @@ public enum StopAnimationStyle {
 
         UIView.animate(withDuration: 0.2, animations: {
             self.layer.cornerRadius = self.frame.height / 2
-        }, completion: { completed -> Void in
+        }, completion: { _ -> Void in
             self.shrink(completion: completion)
         })
     }

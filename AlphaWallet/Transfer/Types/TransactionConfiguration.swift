@@ -26,7 +26,7 @@ struct TransactionConfiguration {
     }
 
     mutating func setEstimated(gasLimit estimate: BigInt) {
-        guard !hasUserAdjustedGasLimit else {return}
+        guard !hasUserAdjustedGasLimit else { return }
         gasLimit = estimate
     }
 

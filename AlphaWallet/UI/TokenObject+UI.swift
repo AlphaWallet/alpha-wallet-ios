@@ -98,7 +98,7 @@ private class TokenImageFetcher {
                     let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
                     fetch(request: request).done { image in
                         seal.fulfill(image)
-                    }.catch { error in
+                    }.catch { _ in
                         seal.reject(ImageAvailabilityError.notAvailable)
                     }
                 }
@@ -116,7 +116,7 @@ private class TokenImageFetcher {
 
     private func fetch(request: URLRequest) -> Promise<UIImage> {
         Promise { seal in
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            let task = URLSession.shared.dataTask(with: request) { data, _, _ in
                 if let data = data {
                     let image = UIImage(data: data)
                     if let img = image {

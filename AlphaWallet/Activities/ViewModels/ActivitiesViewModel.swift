@@ -78,7 +78,6 @@ struct ActivitiesViewModel {
         switch filter {
         case .keyword(let keyword):
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
-                let components = valueToSearch.split(separator: " ")
                 let twoKeywords = splitIntoExactlyTwoKeywords(valueToSearch)
                 let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
                     let data: [ActivityOrTransaction]
@@ -152,8 +151,6 @@ struct ActivitiesViewModel {
 
     private func splitIntoExactlyTwoKeywords(_ string: String) -> (String, String)? {
         let components = string.split(separator: " ")
-        let keyword0: String?
-        let keyword1: String?
         guard components.count == 2 else { return nil }
         return (String(components[0]), String(components[1]))
     }

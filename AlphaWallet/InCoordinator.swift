@@ -372,7 +372,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func pollEthereumEvents(tokenCollection: TokenCollection) {
-        tokenCollection.subscribe { [weak self] result in
+        tokenCollection.subscribe { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.fetchEthereumEvents()
         }
@@ -827,7 +827,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         switch transactionType {
         case .nativeCryptocurrency(let token, _, _):
             guard let url = service.url(token: token) else { return }
-            
+
             openSwapToken(for: url, coordinator: coordinator)
         case .ERC20Token(let token, _, _):
             guard let url = service.url(token: token) else { return }

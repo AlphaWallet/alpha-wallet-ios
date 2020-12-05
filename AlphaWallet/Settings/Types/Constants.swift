@@ -111,7 +111,6 @@ public struct Constants {
     public static let binanceContractPage = "https://bscscan.com/search?q="
     public static let binanceTestnetContractPage = "https://testnet.bscscan.com/search?q="
 
-
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"

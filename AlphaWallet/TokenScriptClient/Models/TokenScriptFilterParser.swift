@@ -192,7 +192,7 @@ struct TokenScriptFilterParser {
         func tokenize(expression: String) -> [Token] {
             var result: [Token] = []
             var buffer: [Character] = []
-            var escapeBuffer: [Character]? = nil
+            var escapeBuffer: [Character]?
             var wasPreviousEscapedCharacter = false
             for c in expression {
                 let previous = buffer.last.flatMap { String($0) }
