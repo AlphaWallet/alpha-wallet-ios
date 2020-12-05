@@ -106,11 +106,9 @@ class TransactionConfirmationHeaderView: UIView {
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20)
         ]
 
-        for view in headerViews {
-            view.isUserInteractionEnabled = true
-            let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
-            view.addGestureRecognizer(tap)
-        }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        isUserInteractionEnabled = true
+        addGestureRecognizer(tap)
 
         let stackView = (headerViews + [childrenStackView]).asStackView(axis: .vertical)
 
