@@ -47,10 +47,9 @@ class TokenScriptSignatureVerifier {
         ]
         //TODO more detailed error reporting for failed verifications
         Alamofire.upload(
-                multipartFormData: {
-                    multipartFormData in
-                multipartFormData.append(xmlAsData, withName: "file", fileName: "file.tsml", mimeType: "text/xml")
-        },
+                multipartFormData: { multipartFormData in
+                    multipartFormData.append(xmlAsData, withName: "file", fileName: "file.tsml", mimeType: "text/xml")
+                },
         to: url,
         headers: headers,
         encodingCompletion: { encodingResult in
@@ -90,8 +89,8 @@ class TokenScriptSignatureVerifier {
         })
     }
 
-    ///Because of strong references, retry attempts will retain self and not go away even when we close the view controller that triggered this signature verification. So backing off before retrying is important
     //TODO fix strong references so that when caller goes away, retry attempts stop
+    ///Because of strong references, retry attempts will retain self and not go away even when we close the view controller that triggered this signature verification. So backing off before retrying is important
     private func retryAfterDelay(xml: String, retryAttempt: Int, completion: @escaping (VerifierResult) -> Void) {
         //TODO instead of a hardcoded delay, observe reachability and retry when there's connectivity. Be careful with reachability status. It's not always accurate. A request can fail and isReachable=true. We should retry in that case
         let delay = Double(10 * retryAttempt)

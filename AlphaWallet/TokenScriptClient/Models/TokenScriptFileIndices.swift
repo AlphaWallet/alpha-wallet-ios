@@ -73,7 +73,7 @@ struct TokenScriptFileIndices: Codable {
     }
 
     func contracts(inFileName fileName: FileName) -> [AlphaWallet.Address] {
-        return Array(contractsToFileNames.filter { contract, fileNames in fileNames.contains(fileName) }.keys)
+        return Array(contractsToFileNames.filter { _, fileNames in fileNames.contains(fileName) }.keys)
     }
 
     func write(toUrl url: URL) {

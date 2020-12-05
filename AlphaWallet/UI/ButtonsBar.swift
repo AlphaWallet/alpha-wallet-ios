@@ -74,7 +74,7 @@ class BarButton: TransitionButton {
 
     init() {
         super.init(frame: .zero)
-        observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
+        observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, _ in
             guard let strongSelf = self else { return }
 
             for pair in strongSelf.borderColorMap where pair.key == object.state.rawValue {
@@ -214,7 +214,8 @@ class ButtonsBar: UIView {
         resetIsHiddenObservers()
 
         for view in buttonContainerViews {
-            let observation = view.childView.observe(\.displayButton, options: [.new]) { [weak self] object, change in
+
+            let observation = view.childView.observe(\.displayButton, options: [.new]) { [weak self] _, _ in
                 self?.updateButtonsTypes()
             }
             observations.append(observation)

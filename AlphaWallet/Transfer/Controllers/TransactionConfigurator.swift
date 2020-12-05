@@ -70,7 +70,7 @@ class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        guard let toAddress = toAddress else {return}
+        guard let toAddress = toAddress else { return }
         let request = EstimateGasRequest(
             from: session.account.address,
             to: toAddress,

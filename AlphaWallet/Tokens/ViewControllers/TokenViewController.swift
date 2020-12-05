@@ -252,7 +252,7 @@ class TokenViewController: UIViewController {
         } else {
             for each in subscribablesForAttributeValues {
                 guard let subscribable = each.subscribableValue else { continue }
-                subscribable.subscribe { [weak self] value in
+                subscribable.subscribe { [weak self] _ in
                     guard let strongSelf = self else { return }
                     guard let viewModel = strongSelf.viewModel else { return }
                     strongSelf.configure(viewModel: viewModel)

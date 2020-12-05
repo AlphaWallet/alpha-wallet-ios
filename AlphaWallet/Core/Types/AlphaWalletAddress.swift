@@ -83,7 +83,7 @@ extension AlphaWallet {
 }
 
 extension AlphaWallet.Address {
-    static func ==(lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
+    static func == (lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
         return lsh.sameContract(as: rhs)
     }
 }

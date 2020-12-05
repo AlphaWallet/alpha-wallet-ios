@@ -3,7 +3,7 @@
 import Foundation
 import Eureka
 
-public final class AlphaWalletSettingsButtonRowOf<T: Equatable> : _AlphaWalletSettingsButtonRowOf<T>, RowType {
+public final class AlphaWalletSettingsButtonRowOf<T: Equatable>: _AlphaWalletSettingsButtonRowOf<T>, RowType {
 	public required init(tag: String?) {
 		super.init(tag: tag)
 	}
@@ -11,7 +11,7 @@ public final class AlphaWalletSettingsButtonRowOf<T: Equatable> : _AlphaWalletSe
 
 public typealias AlphaWalletSettingsButtonRow = AlphaWalletSettingsButtonRowOf<String>
 
-open class _AlphaWalletSettingsButtonRowOf<T: Equatable> : Row<AlphaWalletSettingsButtonCellOf<T>> {
+open class _AlphaWalletSettingsButtonRowOf<T: Equatable>: Row<AlphaWalletSettingsButtonCellOf<T>> {
 	open var presentationMode: PresentationMode<UIViewController>?
 
 	required public init(tag: String?) {
