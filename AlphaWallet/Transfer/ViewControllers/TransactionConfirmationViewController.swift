@@ -7,7 +7,7 @@ import Result
 
 protocol TransactionConfirmationViewControllerDelegate: class {
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton)
-    func controller(_ controller: TransactionConfirmationViewController, editTransactionButtonTapped sender: UIButton)
+    func controllerDidTapEdit(_ controller: TransactionConfirmationViewController)
     func didClose(in controller: TransactionConfirmationViewController)
 }
 
@@ -453,13 +453,13 @@ extension TransactionConfirmationViewController {
         case .dappTransaction(let viewModel):
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 var children: [UIView] = []
-                
+
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
 
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount:
                     break
                 case .function(let functionCallMetaData):
@@ -484,7 +484,7 @@ extension TransactionConfirmationViewController {
                 var children: [UIView] = []
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .function:
                     let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
                     let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
@@ -522,7 +522,7 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount, .balance:
                     break
                 }
@@ -549,7 +549,7 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .tokenId:
                     break
                 }
@@ -562,7 +562,7 @@ extension TransactionConfirmationViewController {
                 header.delegate = self
                 switch section {
                 case .gas:
-                    header.setEditButton(section: sectionIndex, self, selector: #selector(editTransactionButtonTapped))
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 case .amount, .numberOfTokens:
                     break
                 }
@@ -572,9 +572,6 @@ extension TransactionConfirmationViewController {
         stackView.addArrangedSubviews(views)
     }
     // swiftlint:enable function_body_length
-    @objc private func editTransactionButtonTapped(_ sender: UIButton) {
-        delegate?.controller(self, editTransactionButtonTapped: sender)
-    }
 }
 
 extension TransactionConfirmationViewController: TransactionConfirmationHeaderViewDelegate {
@@ -616,6 +613,10 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
         UIView.animate(withDuration: 0.35) {
             self.view.layoutIfNeeded()
         }
+    }
+
+    func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int) {
+        delegate?.controllerDidTapEdit(self)
     }
 }
 
