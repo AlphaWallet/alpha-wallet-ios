@@ -75,8 +75,7 @@ class TransactionsStorage {
             if each.isERC20Interaction {
                 return true
             } else {
-                let erc20TransactionExists = realm.objects(Transaction.self).filter("isERC20Interaction == true").contains { each.id == $0.id }
-                return !erc20TransactionExists
+                return realm.object(ofType: Transaction.self, forPrimaryKey: each.primaryKey) == nil
             }
         }
     }
