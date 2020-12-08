@@ -9,7 +9,7 @@ import UIKit
 
 struct TransactionConfirmationHeaderViewModel {
 
-    var title: String?
+    let title: String?
     var headerName: String?
     var details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
