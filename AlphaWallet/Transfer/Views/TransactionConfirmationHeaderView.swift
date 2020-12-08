@@ -24,7 +24,7 @@ class TransactionConfirmationHeaderView: UIView {
 
     private var isTapActionEnabled = false
 
-    private let placeholderLabel: UILabel = {
+    private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
@@ -86,21 +86,19 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         separatorLine.backgroundColor = R.color.mercury()
 
-        let v2 = [titleLabel, detailsLabel].asStackView(axis: .vertical, alignment: .leading)
-        v2.translatesAutoresizingMaskIntoConstraints = false
+        let col0 = nameLabel
+        let col1 = [
+            titleLabel,
+            detailsLabel
+        ].asStackView(axis: .vertical, alignment: .leading)
+        col1.translatesAutoresizingMaskIntoConstraints = false
 
-        let v1 = UIView()
-        v1.translatesAutoresizingMaskIntoConstraints = false
-        v1.addSubview(placeholderLabel)
-        v1.addSubview(v2)
+        let contents = UIView()
+        contents.translatesAutoresizingMaskIntoConstraints = false
+        contents.addSubview(col0)
+        contents.addSubview(col1)
 
-        let row0 = [
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16),
-            v1,
-            trailingStackView,
-            chevronView,
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)
-        ].asStackView(axis: .horizontal, alignment: .top)
+        let row0 = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), contents, trailingStackView, chevronView, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal, alignment: .top)
 
         let headerViews = [
             separatorLine,
@@ -121,20 +119,20 @@ class TransactionConfirmationHeaderView: UIView {
 
         NSLayoutConstraint.activate([
             trailingStackView.heightAnchor.constraint(equalTo: row0.heightAnchor),
-            placeholderLabel.topAnchor.constraint(equalTo: v1.topAnchor, constant: 5),
-            placeholderLabel.leadingAnchor.constraint(equalTo: v1.leadingAnchor),
-            placeholderLabel.widthAnchor.constraint(equalToConstant: 80),
+            nameLabel.topAnchor.constraint(equalTo: contents.topAnchor, constant: 5),
+            nameLabel.leadingAnchor.constraint(equalTo: contents.leadingAnchor),
+            nameLabel.widthAnchor.constraint(equalToConstant: 80),
 
-            titleLabel.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
 
-            v2.leadingAnchor.constraint(equalTo: placeholderLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
-            v2.trailingAnchor.constraint(equalTo: v1.trailingAnchor),
-            v2.topAnchor.constraint(lessThanOrEqualTo: placeholderLabel.topAnchor),
-            v2.bottomAnchor.constraint(equalTo: v1.bottomAnchor),
+            col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
+            col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
+            col1.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor),
+            col1.bottomAnchor.constraint(equalTo: contents.bottomAnchor),
 
             separatorLine.heightAnchor.constraint(equalToConstant: 1),
 
-            chevronImageView.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
+            chevronImageView.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             chevronImageView.bottomAnchor.constraint(equalTo: chevronView.bottomAnchor),
             chevronImageView.trailingAnchor.constraint(equalTo: chevronView.trailingAnchor),
             chevronImageView.leadingAnchor.constraint(equalTo: chevronView.leadingAnchor),
@@ -160,8 +158,8 @@ class TransactionConfirmationHeaderView: UIView {
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.isHidden = titleLabel.attributedText == nil
 
-        placeholderLabel.attributedText = viewModel.placeholderAttributedString
-        placeholderLabel.isHidden = placeholderLabel.attributedText == nil
+        nameLabel.attributedText = viewModel.headerNameAttributedString
+        nameLabel.isHidden = nameLabel.attributedText == nil
 
         detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsLabel.isHidden = detailsLabel.attributedText == nil
