@@ -73,12 +73,12 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 
     func configure(viewModel: ConfigureTransactionViewModel) {
         self.viewModel = viewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -89,7 +89,7 @@ class ConfigureTransactionViewController: UIViewController {
         configuration.setEstimated(gasLimit: value)
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         viewModel = updatedViewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -101,7 +101,7 @@ class ConfigureTransactionViewController: UIViewController {
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -113,7 +113,7 @@ class ConfigureTransactionViewController: UIViewController {
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
         tableView.reloadData()
     }
 
@@ -169,8 +169,12 @@ class ConfigureTransactionViewController: UIViewController {
         return footer
     }
 
-    private func recalculateTotalFee() {
+    private func recalculateTotalFeeForCustomGas() {
         cells.totalFee.value = viewModel.gasViewModel.feeText
+        let configurationTypes = viewModel.configurationTypes
+        if let indexPath = configurationTypes.index(of: .custom).flatMap { IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }, let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
+            cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
+        }
     }
 
     @objc private func saveButtonSelected(_ sender: UIBarButtonItem) {
@@ -305,7 +309,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
             cells.gasPrice.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
         }
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 
     func cell(_ cell: SliderTableViewCell, valueDidChange value: Int) {
@@ -315,7 +319,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
             viewModel.configurationToEdit.gasPriceRawValue = value
         }
 
-        recalculateTotalFee()
+        recalculateTotalFeeForCustomGas()
     }
 }
 
@@ -405,7 +409,7 @@ extension ConfigureTransactionViewController: TextFieldDelegate {
 }
 
 extension UIBarButtonItem {
-    
+
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
     }

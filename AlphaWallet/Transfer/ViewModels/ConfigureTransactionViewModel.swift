@@ -8,7 +8,11 @@ struct ConfigureTransactionViewModel {
     let server: RPCServer
     let ethPrice: Subscribable<Double>
     let transactionType: TransactionType
-    var configurationToEdit: EditedTransactionConfiguration
+    var configurationToEdit: EditedTransactionConfiguration {
+        didSet {
+            configurations.custom = configurationToEdit.configuration
+        }
+    }
     var configurationTypes: [TransactionConfigurationType]
     var configurations: TransactionConfigurations {
         didSet {
