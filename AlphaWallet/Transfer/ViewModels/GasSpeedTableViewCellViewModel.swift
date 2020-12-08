@@ -66,7 +66,7 @@ struct GasSpeedTableViewCellViewModel {
     var detailsAttributedString: NSAttributedString? {
         return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 12)
+            .font: Fonts.regular(size: 15)
         ])
     }
 

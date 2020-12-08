@@ -34,14 +34,13 @@ class GasSpeedTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        let estimatedTimeStackView = [estimatedTimeLabel].asStackView(axis: .vertical)
+        let col0 = [
+            speedLabel,
+            detailsLabel
+        ].asStackView(axis: .vertical, alignment: .leading)
+        let col1 = [estimatedTimeLabel].asStackView(axis: .vertical)
 
-        let row0 = [
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16),
-            [speedLabel, detailsLabel].asStackView(axis: .vertical, alignment: .leading),
-            estimatedTimeStackView,
-            .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)
-        ].asStackView(axis: .horizontal)
+        let row = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), col0, col1, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal)
 
         let separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +48,7 @@ class GasSpeedTableViewCell: UITableViewCell {
 
         let stackView = [
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20),
-            row0,
+            row,
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20)
         ].asStackView(axis: .vertical)
 
@@ -59,7 +58,7 @@ class GasSpeedTableViewCell: UITableViewCell {
         addSubview(separator)
 
         NSLayoutConstraint.activate([
-            estimatedTimeStackView.widthAnchor.constraint(equalToConstant: 100),
+            col1.widthAnchor.constraint(equalToConstant: 100),
             separator.heightAnchor.constraint(equalToConstant: 1),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
