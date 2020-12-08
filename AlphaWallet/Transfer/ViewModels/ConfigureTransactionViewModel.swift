@@ -8,7 +8,11 @@ struct ConfigureTransactionViewModel {
     let server: RPCServer
     let ethPrice: Subscribable<Double>
     let transactionType: TransactionType
-    var configurationToEdit: EditedTransactionConfiguration
+    var configurationToEdit: EditedTransactionConfiguration {
+        didSet {
+            configurations.custom = configurationToEdit.configuration
+        }
+    }
     var configurationTypes: [TransactionConfigurationType]
     var configurations: TransactionConfigurations {
         didSet {
@@ -105,7 +109,7 @@ struct ConfigureTransactionViewModel {
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
     }
 
-    func numberOfSections(in section: Int) -> Int {
+    func numberOfRowsInSections(in section: Int) -> Int {
         switch sections[section] {
         case .configurationTypes:
             return configurationTypes.count
