@@ -16,7 +16,10 @@ class MigrationInitializer: Initializer {
 
     func perform() {
         config.schemaVersion = 7
-        config.migrationBlock = { migration, oldSchemaVersion in
+        //NOTE: use [weak self] to avaid memory leak
+        config.migrationBlock = { [weak self] migration, oldSchemaVersion in
+            guard let strongSelf = self else { return }
+
             if oldSchemaVersion < 2 {
                 //Fix bug created during multi-chain implementation. Where TokenObject instances are created from transfer Transaction instances, with the primaryKey as a empty string; so instead of updating an existing TokenObject, a duplicate TokenObject instead was created but with primaryKey empty
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
@@ -66,7 +69,7 @@ class MigrationInitializer: Initializer {
                 //Fix bug where we marked all transactions as completed successfully without checking `isError` from Etherscan
                 migration.deleteData(forType: Transaction.className())
                 for each in RPCServer.allCases {
-                    Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: self.account.address)
+                    Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
                 }
                 migration.deleteData(forType: EventActivity.className())
             }
