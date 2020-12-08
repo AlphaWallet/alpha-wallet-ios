@@ -109,7 +109,7 @@ struct ConfigureTransactionViewModel {
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
     }
 
-    func numberOfSections(in section: Int) -> Int {
+    func numberOfRowsInSections(in section: Int) -> Int {
         switch sections[section] {
         case .configurationTypes:
             return configurationTypes.count
