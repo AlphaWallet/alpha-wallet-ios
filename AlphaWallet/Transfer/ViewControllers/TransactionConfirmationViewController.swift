@@ -72,7 +72,7 @@ class TransactionConfirmationViewController: UIViewController {
         return view
     }()
 
-    private lazy var сontainerView: UIView = {
+    private lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
@@ -86,11 +86,11 @@ class TransactionConfirmationViewController: UIViewController {
     }()
 
     private lazy var heightConstraint: NSLayoutConstraint = {
-        return сontainerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
+        return containerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
     }()
 
     private lazy var bottomConstraint: NSLayoutConstraint = {
-        сontainerView.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        containerView.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
     }()
 
     private var allowPresentationAnimation: Bool = true
@@ -104,30 +104,30 @@ class TransactionConfirmationViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(backgroundView)
-        view.addSubview(сontainerView)
+        view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            backgroundView.bottomAnchor.constraint(equalTo: сontainerView.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: containerView.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             heightConstraint,
             bottomConstraint,
-            сontainerView.safeAreaLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            сontainerView.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.safeAreaLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerView.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            headerView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
-            headerView.topAnchor.constraint(equalTo: сontainerView.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            headerView.topAnchor.constraint(equalTo: containerView.topAnchor),
 
-            scrollView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
@@ -136,10 +136,10 @@ class TransactionConfirmationViewController: UIViewController {
             separatorLine.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
 
-            footerBar.leadingAnchor.constraint(equalTo: сontainerView.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: сontainerView.trailingAnchor),
+            footerBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.footerHeight),
-            footerBar.bottomAnchor.constraint(equalTo: сontainerView.safeAreaLayoutGuide.bottomAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
 
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
@@ -161,7 +161,7 @@ class TransactionConfirmationViewController: UIViewController {
             let fillScreenPercentage = strongSelf.heightConstraint.constant / strongSelf.view.bounds.height
 
             if fillScreenPercentage >= 0.9 {
-                strongSelf.heightConstraint.constant = strongSelf.сontainerView.bounds.height
+                strongSelf.heightConstraint.constant = strongSelf.containerView.bounds.height
             } else {
                 strongSelf.heightConstraint.constant = newHeight
             }
