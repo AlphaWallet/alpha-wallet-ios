@@ -208,7 +208,7 @@ extension TransactionConfirmationHeaderView {
         paragraph.alignment = .right
 
         label.attributedText = NSAttributedString(string: title, attributes: [
-            .font: Fonts.bold(size: 15) as Any,
+            .font: Fonts.bold(size: 17) as Any,
             .foregroundColor: R.color.azure() as Any,
             .paragraphStyle: paragraph
         ])
@@ -225,7 +225,6 @@ extension TransactionConfirmationHeaderView {
             label.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             label.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
             label.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
-            label.widthAnchor.constraint(equalToConstant: 50)
         ])
     }
 }

@@ -49,7 +49,7 @@ struct TransactionConfirmationHeaderViewModel {
 
         return NSAttributedString(string: details, attributes: [
             .foregroundColor: R.color.dove()!,
-            .font: Fonts.regular(size: 13)
+            .font: Fonts.regular(size: 15)
         ])
     }
 
