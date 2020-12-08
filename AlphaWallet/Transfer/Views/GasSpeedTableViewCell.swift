@@ -31,12 +31,21 @@ class GasSpeedTableViewCell: UITableViewCell {
         return label
     }()
 
+    private let gasPriceLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+
+        return label
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         let col0 = [
             speedLabel,
-            detailsLabel
+            detailsLabel,
+            gasPriceLabel,
         ].asStackView(axis: .vertical, alignment: .leading)
         let col1 = [estimatedTimeLabel].asStackView(axis: .vertical)
 
@@ -86,6 +95,9 @@ class GasSpeedTableViewCell: UITableViewCell {
 
         detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsLabel.isHidden = detailsLabel.attributedText == nil
+
+        gasPriceLabel.attributedText = viewModel.gasPriceAttributedString
+        gasPriceLabel.isHidden = gasPriceLabel.attributedText == nil
 
         accessoryType = viewModel.accessoryType
     }
