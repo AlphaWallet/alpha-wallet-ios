@@ -4,10 +4,17 @@ import Foundation
 import BigInt
 
 struct ConfigureTransactionViewModel {
+    private let server: RPCServer
+    private let ethPrice: Subscribable<Double>
+    private let transactionType: TransactionType
+    private let configurator: TransactionConfigurator
+    private let currencyRate: CurrencyRate?
+    private let fullFormatter = EtherNumberFormatter.full
+    private var totalFee: BigInt {
+        return configurationToEdit.gasPrice * configurationToEdit.gasLimit
+    }
+
     var selectedConfigurationType: TransactionConfigurationType
-    let server: RPCServer
-    let ethPrice: Subscribable<Double>
-    let transactionType: TransactionType
     var configurationToEdit: EditedTransactionConfiguration {
         didSet {
             configurations.custom = configurationToEdit.configuration
@@ -19,28 +26,12 @@ struct ConfigureTransactionViewModel {
             configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         }
     }
-    let currencyRate: CurrencyRate?
-
-    init(server: RPCServer, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, currencyRate: CurrencyRate?) {
-        self.server = server
-        self.ethPrice = ethPrice
-        let configurations = configurator.configurations
-        self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
-        self.configurations = configurations
-        self.currencyRate = currencyRate
-        transactionType = configurator.transaction.transactionType
-        selectedConfigurationType = configurator.selectedConfigurationType
-        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
+    var gasPriceWarning: TransactionConfigurator.GasPriceWarning? {
+        configurator.gasPriceWarning(forConfiguration: configurationToEdit.configuration)
     }
-
-    private let fullFormatter = EtherNumberFormatter.full
 
     var gasViewModel: GasViewModel {
         return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
-    }
-
-    private var totalFee: BigInt {
-        return configurationToEdit.gasPrice * configurationToEdit.gasLimit
     }
 
     var backgroundColor: UIColor {
@@ -58,20 +49,6 @@ struct ConfigureTransactionViewModel {
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             return true
         }
-    }
-
-    static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
-        let available = configurations.types
-        let all: [TransactionConfigurationType] = [.slow, .standard, .fast, .rapid, .custom]
-        return all.filter { available.contains($0) }
-    }
-
-    func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedTableViewCellViewModel {
-        let configurationType = configurationTypes[indexPath.row]
-        let isSelected = selectedConfigurationType == configurationType
-        let configuration = configurations[configurationType]!
-        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     var gasLimitSliderViewModel: SliderTableViewCellViewModel {
@@ -107,17 +84,6 @@ struct ConfigureTransactionViewModel {
         let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
 
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
-    }
-
-    func numberOfRowsInSections(in section: Int) -> Int {
-        switch sections[section] {
-        case .configurationTypes:
-            return configurationTypes.count
-        case .gasPrice:
-            return 1
-        case .gasLimit:
-            return gasLimitRows.count
-        }
     }
 
     var sections: [Section] {
@@ -157,6 +123,44 @@ struct ConfigureTransactionViewModel {
             case nonce
             case transactionData
             case totalFee
+        }
+    }
+
+    init(server: RPCServer, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, currencyRate: CurrencyRate?) {
+        self.server = server
+        self.ethPrice = ethPrice
+        let configurations = configurator.configurations
+        self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
+        self.configurator = configurator
+        self.configurations = configurations
+        self.currencyRate = currencyRate
+        transactionType = configurator.transaction.transactionType
+        selectedConfigurationType = configurator.selectedConfigurationType
+        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
+    }
+
+    static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
+        let available = configurations.types
+        let all: [TransactionConfigurationType] = [.slow, .standard, .fast, .rapid, .custom]
+        return all.filter { available.contains($0) }
+    }
+
+    func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedTableViewCellViewModel {
+        let configurationType = configurationTypes[indexPath.row]
+        let isSelected = selectedConfigurationType == configurationType
+        let configuration = configurations[configurationType]!
+        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
+        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+    }
+
+    func numberOfRowsInSections(in section: Int) -> Int {
+        switch sections[section] {
+        case .configurationTypes:
+            return configurationTypes.count
+        case .gasPrice:
+            return 1
+        case .gasLimit:
+            return gasLimitRows.count
         }
     }
 }

@@ -8,11 +8,16 @@
 import UIKit
 
 struct TransactionConfirmationHeaderViewModel {
+    enum Title {
+        case normal(String?)
+        case warning(String)
+    }
 
     let title: String?
-    var headerName: String?
-    var details: String?
+    let headerName: String?
+    let details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
+    let isWarning: Bool
     var chevronImage: UIImage? {
         let image = configuration.isOpened ? R.image.expand() : R.image.not_expand()
         return image?.withRenderingMode(.alwaysTemplate)
@@ -55,5 +60,19 @@ struct TransactionConfirmationHeaderViewModel {
 
     var backgroundColor: UIColor {
         return Colors.appBackground
+    }
+
+    init(title: Title, headerName: String?, details: String? = nil, configuration: TransactionConfirmationHeaderView.Configuration) {
+        switch title {
+        case .normal(let title):
+            self.title = title
+            self.isWarning = false
+        case .warning(let title):
+            self.title = title
+            self.isWarning = true
+        }
+        self.headerName = headerName
+        self.details = details
+        self.configuration = configuration
     }
 }

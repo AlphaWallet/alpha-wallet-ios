@@ -500,6 +500,15 @@
 "transactionConfiguration.Type.average.time" = "< 5 min";
 "transactionConfiguration.Type.fast.time" = "< 2 min";
 "transactionConfiguration.Type.rapid.time" = "ASAP";
+"transactionConfiguration.gasPrice.tooHigh.short" = "High Price";
+"transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
+"transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
+"transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
+
+"transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
+"transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
+"transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
+You can check the latest gas price on gasnow.org";
 "transactionConfirmation.Row.title.ens" = "ENS";
 "transactionConfirmation.Row.title.wallet" = "Wallet Address";
 "transactionConfirmation.Send.Section.Gas.title" = "Gas";

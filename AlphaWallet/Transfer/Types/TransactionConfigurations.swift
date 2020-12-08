@@ -12,6 +12,24 @@ struct TransactionConfigurations {
         others.keys + [.standard, .custom]
     }
 
+    var fastestThirdPartyConfiguration: TransactionConfiguration? {
+        for each in TransactionConfigurationType.sortedThirdPartyFastestFirst {
+            if let config = others[each] {
+                return config
+            }
+        }
+        return nil
+    }
+
+    var slowestThirdPartyConfiguration: TransactionConfiguration? {
+        for each in TransactionConfigurationType.sortedThirdPartyFastestFirst.reversed() {
+            if let config = others[each] {
+                return config
+            }
+        }
+        return nil
+    }
+
     subscript(configurationType: TransactionConfigurationType) -> TransactionConfiguration? {
         get {
             switch configurationType {
