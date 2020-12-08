@@ -125,6 +125,7 @@ public struct Constants {
     static let ENSRegistrarGoerli = ENSRegistrarAddress
 
     static let gasNowEndpointBaseUrl = "https://www.gasnow.org"
+    static let highStandardGasThresholdGwei = BigInt(55)
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"

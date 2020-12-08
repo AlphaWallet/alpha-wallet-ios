@@ -30,7 +30,7 @@ struct GasSpeedTableViewCellViewModel {
 
     private var gasPriceString: String {
         let price = configuration.gasPrice / BigInt(EthereumUnit.gwei.rawValue)
-        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) Gwei"
+        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) \(EthereumUnit.gwei.name)"
     }
 
     private var estimatedTime: String? {
