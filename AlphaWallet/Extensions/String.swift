@@ -58,6 +58,15 @@ extension String {
         return [:]
     }
 
+    var has0xPrefix: Bool {
+        return hasPrefix("0x")
+    }
+
+    var isPrivateKey: Bool {
+        let value = self.drop0x.components(separatedBy: " ").joined()
+        return value.count == 64
+    }
+
     var drop0x: String {
         if count > 2 && substring(with: 0..<2) == "0x" {
             return String(dropFirst(2))
