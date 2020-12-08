@@ -10,7 +10,7 @@ import UIKit
 struct TransactionConfirmationHeaderViewModel {
 
     var title: String?
-    var placeholder: String?
+    var headerName: String?
     var details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
     var chevronImage: UIImage? {
@@ -35,10 +35,10 @@ struct TransactionConfirmationHeaderViewModel {
         ])
     }
 
-    var placeholderAttributedString: NSAttributedString? {
-        guard let placeholder = placeholder else { return nil }
+    var headerNameAttributedString: NSAttributedString? {
+        guard let name = headerName else { return nil }
 
-        return NSAttributedString(string: placeholder, attributes: [
+        return NSAttributedString(string: name, attributes: [
             .foregroundColor: R.color.dove()!,
             .font: Fonts.regular(size: 13)
         ])
