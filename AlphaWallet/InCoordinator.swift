@@ -581,7 +581,7 @@ class InCoordinator: NSObject, Coordinator {
         let tokenStorage = tokensStorages[server]
 
         switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
+        case (.send, .real):
             let coordinator = PaymentCoordinator(
                     flow: type,
                     session: session,
@@ -593,12 +593,29 @@ class InCoordinator: NSObject, Coordinator {
             )
             coordinator.delegate = self
             coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
+
             if let topVC = navigationController.presentedViewController {
-                topVC.present(coordinator.navigationController, animated: true, completion: nil)
+                topVC.present(coordinator.navigationController, animated: true)
             } else {
-                navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+                navigationController.present(coordinator.navigationController, animated: true)
             }
+
             coordinator.start()
+            addCoordinator(coordinator)
+        case (.request, _):
+            let coordinator = PaymentCoordinator(
+                    navigationController: navigationController,
+                    flow: type,
+                    session: session,
+                    keystore: keystore,
+                    storage: tokenStorage,
+                    ethPrice: nativeCryptoCurrencyPrices[server],
+                    assetDefinitionStore: assetDefinitionStore,
+                    analyticsCoordinator: analyticsCoordinator
+            )
+            coordinator.delegate = self
+            coordinator.start()
+
             addCoordinator(coordinator)
         case (_, _):
             if let topVC = navigationController.presentedViewController {
@@ -714,7 +731,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func showConsole() {
         let viewController = createConsoleViewController()
-        viewController.navigationItem.rightBarButtonItem =  .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
+        viewController.navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
         if let topVC = navigationController.presentedViewController {
             viewController.makePresentationFullScreenForiOS13Migration()
             topVC.present(viewController, animated: true)
@@ -878,12 +895,20 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
             }
-        case .signedTransaction: break
+        case .signedTransaction:
+            break
         }
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        switch coordinator.flow {
+        case .request:
+            coordinator.navigationController.setNavigationBarHidden(true, animated: false)
+            coordinator.navigationController.popToRootViewController(animated: true)
+        case .send:
+            coordinator.navigationController.dismiss(animated: true, completion: nil)
+        }
+
         removeCoordinator(coordinator)
     }
 }
