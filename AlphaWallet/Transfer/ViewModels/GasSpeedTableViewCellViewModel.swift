@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import BigInt
 
 struct GasSpeedTableViewCellViewModel {
     let configuration: TransactionConfiguration
@@ -25,6 +26,11 @@ struct GasSpeedTableViewCellViewModel {
         } else {
             return "< ~\(feeString) \(symbol)"
         }
+    }
+
+    private var gasPriceString: String {
+        let price = configuration.gasPrice / BigInt(EthereumUnit.gwei.rawValue)
+        return "\(R.string.localizable.configureTransactionHeaderGasPrice()): \(price) Gwei"
     }
 
     private var estimatedTime: String? {
@@ -67,6 +73,13 @@ struct GasSpeedTableViewCellViewModel {
         return NSAttributedString(string: gasFeeString, attributes: [
             .foregroundColor: R.color.dove()!,
             .font: Fonts.regular(size: 15)
+        ])
+    }
+
+    var gasPriceAttributedString: NSAttributedString? {
+        NSAttributedString(string: gasPriceString, attributes: [
+            .foregroundColor: R.color.dove()!,
+            .font: Fonts.regular(size: 13)
         ])
     }
 
