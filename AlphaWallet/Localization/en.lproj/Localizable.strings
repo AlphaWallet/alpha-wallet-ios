@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
 "configureTransaction.gasLimit.label.title" = "Gas Limit";
-"configureTransaction.gasPrice.label.description" = "The higher the gas price, the more expensive your transaction fee will be, but the quicker your tranasction will be processed by the %@ network.";
 "configureTransaction.totalNetworkFee.label.title" = "Total network fee";
 "transaction.confirmation.label.title" = "Confirmation";
 "transaction.from.label.title" = "From";
