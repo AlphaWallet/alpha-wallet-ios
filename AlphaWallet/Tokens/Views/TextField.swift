@@ -43,6 +43,15 @@ class TextField: UIControl {
                 return whileEditing
             }
         }
+
+        func textFieldTextColor(whileEditing: Bool = false) -> UIColor {
+            switch self {
+            case .none:
+                return DataEntry.Color.text
+            case .error:
+                return DataEntry.Color.textFieldError
+            }
+        }
     }
     
     private var isConfigured = false
@@ -117,9 +126,11 @@ class TextField: UIControl {
                 statusLabel.isHidden = true 
             }
             
+            let textColor = status.textFieldTextColor(whileEditing: isFirstResponder)
             let borderColor = status.textFieldBorderColor(whileEditing: isFirstResponder)
             let shouldDropShadow = status.textFieldShowShadow(whileEditing: isFirstResponder)
             
+            textField.textColor = textColor
             layer.borderColor = borderColor.cgColor
             
             dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
