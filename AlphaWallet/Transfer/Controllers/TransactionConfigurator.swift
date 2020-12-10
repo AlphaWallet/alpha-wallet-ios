@@ -15,6 +15,41 @@ protocol TransactionConfiguratorDelegate: class {
 }
 
 class TransactionConfigurator {
+    enum GasPriceWarning {
+        case tooHighCustomGasPrice
+        case networkCongested
+        case tooLowCustomGasPrice
+
+        var shortTitle: String {
+            switch self {
+            case .tooHighCustomGasPrice, .networkCongested:
+                return R.string.localizable.transactionConfigurationGasPriceTooHighShort()
+            case .tooLowCustomGasPrice:
+                return R.string.localizable.transactionConfigurationGasPriceTooLowShort()
+            }
+        }
+
+        var longTitle: String {
+            switch self {
+            case .tooHighCustomGasPrice, .networkCongested:
+                return R.string.localizable.transactionConfigurationGasPriceTooHighLong()
+            case .tooLowCustomGasPrice:
+                return R.string.localizable.transactionConfigurationGasPriceTooLowLong()
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .tooHighCustomGasPrice:
+                return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()
+            case .networkCongested:
+                return R.string.localizable.transactionConfigurationGasPriceCongestedDescription()
+            case .tooLowCustomGasPrice:
+                return R.string.localizable.transactionConfigurationGasPriceTooLowDescription()
+            }
+        }
+    }
+
     private let account: AlphaWallet.Address
 
     private var isGasLimitSpecifiedByTransaction: Bool {
@@ -60,6 +95,10 @@ class TransactionConfigurator {
         case .tokenScript: return transaction.value
         case .claimPaidErc875MagicLink: return transaction.value
         }
+    }
+
+    var gasPriceWarning: GasPriceWarning? {
+        gasPriceWarning(forConfiguration: currentConfiguration)
     }
 
     init(session: WalletSession, transaction: UnconfirmedTransaction) {
@@ -183,6 +222,25 @@ class TransactionConfigurator {
         }.recover { _ in
             .value(GasEstimates(standard: GasPriceConfiguration.defaultPrice))
         }
+    }
+
+    func gasPriceWarning(forConfiguration configuration: TransactionConfiguration) -> GasPriceWarning? {
+        if let fastestConfig = configurations.fastestThirdPartyConfiguration, configuration.gasPrice > fastestConfig.gasPrice {
+            return .tooHighCustomGasPrice
+        }
+        //Conversion to gwei is needed so we that 17 (entered) is equal to 17.1 (fetched). Because 17.1 is displayed as "17" in the UI and might confuse the user if it's not treated as equal
+        if let slowestConfig = configurations.slowestThirdPartyConfiguration, (configuration.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) < (slowestConfig.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) {
+            return .tooLowCustomGasPrice
+        }
+        switch session.server {
+        case .main:
+            if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardGasThresholdGwei {
+                return .networkCongested
+            }
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+            break
+        }
+        return nil
     }
 
     private static func computeDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigInt {
