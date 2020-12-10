@@ -14,7 +14,7 @@ class RequestCoordinator: Coordinator {
     private lazy var requestViewController: RequestViewController = {
         let viewModel: RequestViewModel = .init(account: account, server: server)
         let controller = RequestViewController(viewModel: viewModel)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         
         return controller
     }()
@@ -30,12 +30,14 @@ class RequestCoordinator: Coordinator {
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
+        self.navigationController.setNavigationBarHidden(false, animated: true)
+
         self.account = account
         self.server = server
     }
 
     func start() {
-        navigationController.viewControllers = [requestViewController]
+        navigationController.pushViewController(requestViewController, animated: true)
     } 
 
     @objc func dismiss() {
