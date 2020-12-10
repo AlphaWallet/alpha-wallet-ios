@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce 必须是一个正值";
 "configureTransaction.gasLimit.label.description" = "燃料限制可防止智能合约消耗掉您的所有%@。我们会尝试为您自动计算燃料限制，但部分智能合约可能需要自定义燃料限制。";
 "configureTransaction.gasLimit.label.title" = "燃料限制";
-"configureTransaction.gasPrice.label.description" = "燃料价格越高，您的交易费用就越昂贵，但%@网络对交易的处理速度则越快。";
 "configureTransaction.totalNetworkFee.label.title" = "总计网络费用";
 "transaction.confirmation.label.title" = "确认";
 "transaction.from.label.title" = "来源地址";
