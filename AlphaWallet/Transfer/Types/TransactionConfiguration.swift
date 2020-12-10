@@ -50,6 +50,11 @@ enum TransactionConfigurationType: Int, CaseIterable {
     case rapid
     case custom
 
+    static var sortedThirdPartyFastestFirst: [TransactionConfigurationType] {
+        //We intentionally do not include `.standard`
+        [.rapid, .fast, .slow]
+    }
+
     var title: String {
         switch self {
         case .standard:

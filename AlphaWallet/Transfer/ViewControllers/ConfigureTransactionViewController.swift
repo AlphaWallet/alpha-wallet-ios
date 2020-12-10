@@ -27,7 +27,7 @@ class ConfigureTransactionViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(GasSpeedTableViewCell.self)
         tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
-        tableView.tableFooterView = createTableInformationFooter()
+        tableView.tableFooterView = createTableFooter()
         tableView.separatorStyle = .none
         tableView.allowsSelection = true
         return tableView
@@ -102,6 +102,8 @@ class ConfigureTransactionViewController: UIViewController {
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
         recalculateTotalFeeForCustomGas()
+        showGasPriceWarning()
+        tableView.tableFooterView = createTableFooter()
         tableView.reloadData()
     }
 
@@ -153,13 +155,21 @@ class ConfigureTransactionViewController: UIViewController {
         })
     }
 
-    private func createTableInformationFooter() -> UIView {
+    private func createTableFooter() -> UIView {
+        if let gasPriceWarning = viewModel.gasPriceWarning {
+            return createTableFooterForGasPriceWarning(gasPriceWarning)
+        } else {
+            return createTableFooterForGasInformation()
+        }
+    }
+
+    private func createTableFooterForGasInformation() -> UIView {
         let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 100))
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.font = Fonts.regular(size: 12)
+        label.font = Fonts.regular(size: 15)
         label.textColor = R.color.dove()
         label.text = R.string.localizable.transactionConfirmationFeeFooterText()
         footer.addSubview(label)
@@ -169,11 +179,83 @@ class ConfigureTransactionViewController: UIViewController {
         return footer
     }
 
+    private func createTableFooterForGasPriceWarning(_ gasPriceWarning: TransactionConfigurator.GasPriceWarning) -> UIView {
+        let footer = UIView(frame: .init(x: 0, y: 0, width: 0, height: 0))
+
+        let background = UIView()
+        background.translatesAutoresizingMaskIntoConstraints = false
+        background.backgroundColor = .init(red: 255, green: 235, blue: 234)
+        background.borderColor = .init(red: 252, green: 187, blue: 183)
+        background.cornerRadius = 8
+        background.borderWidth = 1
+        footer.addSubview(background)
+
+        let warningIcon = UIImageView(image: R.image.gasWarning())
+        warningIcon.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.textAlignment = .center
+        titleLabel.font = Fonts.semibold(size: 20)
+        titleLabel.textColor = R.color.danger()
+        titleLabel.text = gasPriceWarning.longTitle
+
+        let descriptionLabel = UITextView()
+        descriptionLabel.backgroundColor = .clear
+        descriptionLabel.textColor = R.color.dove()
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.isEditable = false
+        descriptionLabel.isSelectable = true
+        descriptionLabel.isUserInteractionEnabled = true
+        descriptionLabel.isScrollEnabled = false
+        descriptionLabel.dataDetectorTypes = .link
+        descriptionLabel.font = Fonts.regular(size: 15)
+        descriptionLabel.text = gasPriceWarning.description
+
+        let row0 = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
+        let row1 = descriptionLabel
+
+        let stackView = [
+            row0,
+            row1,
+        ].asStackView(axis: .vertical, spacing: 6, alignment: .center)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        footer.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            background.anchorsConstraint(to: footer, margin: 16),
+
+            stackView.anchorsConstraint(to: background, edgeInsets: UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 16)),
+
+            warningIcon.widthAnchor.constraint(equalToConstant: 24),
+            warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
+
+            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50),
+
+            descriptionLabel.widthAnchor.constraint(equalToConstant: 250),
+        ])
+
+        var frame = footer.frame
+        frame.size.height = footer.systemLayoutSizeFitting(footer.frame.size).height
+        footer.frame = frame
+
+        return footer
+    }
+
     private func recalculateTotalFeeForCustomGas() {
         cells.totalFee.value = viewModel.gasViewModel.feeText
         let configurationTypes = viewModel.configurationTypes
         if let indexPath = configurationTypes.index(of: .custom).flatMap { IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }, let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
             cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
+        }
+        showGasPriceWarning()
+        tableView.tableFooterView = createTableFooter()
+    }
+
+    private func showGasPriceWarning() {
+        if viewModel.gasPriceWarning == nil {
+            cells.gasPrice.textField.status = .none
+        } else {
+            cells.gasPrice.textField.status = .error("")
         }
     }
 
@@ -210,6 +292,12 @@ class ConfigureTransactionViewController: UIViewController {
             } else {
                 canSave = false
                 cells.nonce.textField.status = .error(ConfigureTransactionError.nonceNotPositiveNumber.localizedDescription)
+            }
+
+            if viewModel.gasPriceWarning == nil {
+                cells.gasPrice.textField.status = .none
+            } else {
+                cells.gasPrice.textField.status = .error("")
             }
 
             guard canSave else {

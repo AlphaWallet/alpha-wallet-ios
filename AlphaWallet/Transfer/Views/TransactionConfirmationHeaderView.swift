@@ -33,14 +33,17 @@ class TransactionConfirmationHeaderView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
     }()
 
+    private let warningIcon: UIImageView = {
+        let imageView = UIImageView(image: R.image.gasWarning())
+        return imageView
+    }()
+
     private let detailsLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
 
         return label
@@ -48,7 +51,6 @@ class TransactionConfirmationHeaderView: UIView {
 
     private lazy var chevronView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chevronImageView)
 
         return view
@@ -86,9 +88,12 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         separatorLine.backgroundColor = R.color.mercury()
 
+        titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let titleRow = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
+
         let col0 = nameLabel
         let col1 = [
-            titleLabel,
+            titleRow,
             detailsLabel
         ].asStackView(axis: .vertical, alignment: .leading)
         col1.translatesAutoresizingMaskIntoConstraints = false
@@ -125,6 +130,9 @@ class TransactionConfirmationHeaderView: UIView {
 
             titleLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
 
+            warningIcon.widthAnchor.constraint(equalToConstant: 24),
+            warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
+
             col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
             col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
             col1.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor),
@@ -153,6 +161,9 @@ class TransactionConfirmationHeaderView: UIView {
         chevronView.isHidden = viewModel.configuration.shouldHideChevron
 
         chevronImageView.image = viewModel.chevronImage
+
+        warningIcon.isHidden = !viewModel.isWarning
+
         titleLabel.alpha = viewModel.titleAlpha
 
         titleLabel.attributedText = viewModel.titleAttributedString
