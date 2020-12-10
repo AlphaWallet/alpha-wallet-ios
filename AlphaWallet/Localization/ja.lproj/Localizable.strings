@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "ガスの制限によって、スマート契約はすべての %@を消費できなくします。このアプリは、自動的にガスの制限を計算を試行しまが、スマート契約によってはカスタムのガス制限を必要とすることがあります。";
 "configureTransaction.gasLimit.label.title" = "ガスの制限";
-"configureTransaction.gasPrice.label.description" = "ガスの価格が高くなるほど、トランザクションの手数料が高くなりますが、%@ ネットワークによりトランザクションがより速く処理されます。";
 "configureTransaction.totalNetworkFee.label.title" = "総合ネットワーク料金";
 "transaction.confirmation.label.title" = "確認";
 "transaction.from.label.title" = "送信元";

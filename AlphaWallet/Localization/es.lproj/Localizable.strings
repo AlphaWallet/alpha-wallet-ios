@@ -19,7 +19,6 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "El nonce debe ser un número positivo";
 "configureTransaction.gasLimit.label.description" = "El límite de gas evita que los contratos inteligentes consuman todo tu %@. Intentaremos calcular el límite de gas de forma automática, pero algunos contratos inteligentes requieren un límite de gas personalizado.";
 "configureTransaction.gasLimit.label.title" = "Límite de gas";
-"configureTransaction.gasPrice.label.description" = "Cuanto más alto sea el precio del gas, más cara será la tarifa de tu transacción, pero más rápido se procesará por la red %@.";
 "configureTransaction.totalNetworkFee.label.title" = "Tarifa total de red";
 "transaction.confirmation.label.title" = "Confirmación";
 "transaction.from.label.title" = "De";
