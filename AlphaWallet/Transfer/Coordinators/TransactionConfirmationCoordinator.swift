@@ -166,11 +166,11 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     func controllerDidTapEdit(_ controller: TransactionConfirmationViewController) {
-        showConfigureTransactionViewController(configurator, session: configurator.session)
+        showConfigureTransactionViewController(configurator)
     }
 
-    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, session: WalletSession) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(server: session.server, configurator: configurator, ethPrice: configuration.ethPrice, currencyRate: session.balanceCoordinator.currencyRate))
+    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator) {
+        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, ethPrice: configuration.ethPrice))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
