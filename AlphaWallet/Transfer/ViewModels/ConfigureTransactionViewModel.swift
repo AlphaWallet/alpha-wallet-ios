@@ -34,6 +34,14 @@ struct ConfigureTransactionViewModel {
         configurator.gasPriceWarning(forConfiguration: configurationToEdit.configuration)
     }
 
+    var gasLimitWarning: TransactionConfigurator.GasLimitWarning? {
+        configurator.gasLimitWarning(forConfiguration: configurationToEdit.configuration)
+    }
+
+    var gasFeeWarning: TransactionConfigurator.GasFeeWarning? {
+        configurator.gasFeeWarning(forConfiguration: configurationToEdit.configuration)
+    }
+
     var gasViewModel: GasViewModel {
         return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
     }
