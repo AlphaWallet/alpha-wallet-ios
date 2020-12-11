@@ -4,14 +4,18 @@ import Foundation
 import BigInt
 
 struct ConfigureTransactionViewModel {
-    private let server: RPCServer
     private let ethPrice: Subscribable<Double>
     private let transactionType: TransactionType
     private let configurator: TransactionConfigurator
-    private let currencyRate: CurrencyRate?
     private let fullFormatter = EtherNumberFormatter.full
     private var totalFee: BigInt {
         return configurationToEdit.gasPrice * configurationToEdit.gasLimit
+    }
+    private var server: RPCServer {
+        configurator.session.server
+    }
+    private var currencyRate: CurrencyRate? {
+        configurator.session.balanceCoordinator.currencyRate
     }
 
     var selectedConfigurationType: TransactionConfigurationType
@@ -126,14 +130,12 @@ struct ConfigureTransactionViewModel {
         }
     }
 
-    init(server: RPCServer, configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, currencyRate: CurrencyRate?) {
-        self.server = server
+    init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
         self.ethPrice = ethPrice
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator
         self.configurations = configurations
-        self.currencyRate = currencyRate
         transactionType = configurator.transaction.transactionType
         selectedConfigurationType = configurator.selectedConfigurationType
         configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
