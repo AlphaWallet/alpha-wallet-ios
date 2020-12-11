@@ -248,6 +248,8 @@ class ConfigureTransactionViewController: UIViewController {
             cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
         }
         showGasPriceWarning()
+        showGasLimitWarning()
+        showGasFeeWarning()
         tableView.tableFooterView = createTableFooter()
     }
 
@@ -256,6 +258,34 @@ class ConfigureTransactionViewController: UIViewController {
             cells.gasPrice.textField.status = .none
         } else {
             cells.gasPrice.textField.status = .error("")
+        }
+    }
+
+    private func showGasLimitWarning() {
+        if let warning = viewModel.gasLimitWarning {
+            cells.gasLimit.textField.status = .error(warning.description)
+        } else {
+            cells.gasLimit.textField.status = .none
+        }
+        refreshCellsWithoutAnimation()
+    }
+
+    private func showGasFeeWarning() {
+        if let warning = viewModel.gasFeeWarning {
+            cells.totalFee.textField.status = .error(warning.description)
+        } else {
+            cells.totalFee.textField.status = .none
+        }
+        refreshCellsWithoutAnimation()
+    }
+
+    private func refreshCellsWithoutAnimation() {
+        //async needed otherwise it crashes when view controller is just created
+        DispatchQueue.main.async {
+            UIView.setAnimationsEnabled(false)
+            self.tableView.beginUpdates()
+            self.tableView.endUpdates()
+            UIView.setAnimationsEnabled(true)
         }
     }
 

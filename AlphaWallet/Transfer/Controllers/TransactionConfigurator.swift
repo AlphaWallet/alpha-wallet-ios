@@ -50,6 +50,22 @@ class TransactionConfigurator {
         }
     }
 
+    enum GasLimitWarning {
+        case tooHighCustomGasLimit
+
+        var description: String {
+            ConfigureTransactionError.gasLimitTooHigh.localizedDescription
+        }
+    }
+
+    enum GasFeeWarning {
+        case tooHighGasFee
+
+        var description: String {
+            ConfigureTransactionError.gasFeeTooHigh.localizedDescription
+        }
+    }
+
     private let account: AlphaWallet.Address
 
     private var isGasLimitSpecifiedByTransaction: Bool {
@@ -222,6 +238,20 @@ class TransactionConfigurator {
         }.recover { _ in
             .value(GasEstimates(standard: GasPriceConfiguration.defaultPrice))
         }
+    }
+
+    func gasLimitWarning(forConfiguration configuration: TransactionConfiguration) -> GasLimitWarning? {
+        if configuration.gasLimit > ConfigureTransaction.gasLimitMax {
+            return .tooHighCustomGasLimit
+        }
+        return nil
+    }
+
+    func gasFeeWarning(forConfiguration configuration: TransactionConfiguration) -> GasFeeWarning? {
+        if (configuration.gasPrice * configuration.gasLimit) > ConfigureTransaction.gasFeeMax {
+            return .tooHighGasFee
+        }
+        return nil
     }
 
     func gasPriceWarning(forConfiguration configuration: TransactionConfiguration) -> GasPriceWarning? {
