@@ -70,7 +70,7 @@ struct EditedTransactionConfiguration {
 
     init(configuration: TransactionConfiguration) {
         gasLimitRawValue = Int(configuration.gasLimit.description) ?? 21000
-        gasPriceRawValue = formatter.string(from: configuration.gasPrice, units: UnitConfiguration.gasPriceUnit).numberValue?.intValue ?? 1
+        gasPriceRawValue = Int(configuration.gasPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
         nonceRawValue = Int(configuration.nonce.flatMap { String($0) } ?? "")
         dataRawValue = configuration.data.hexEncoded.add0x
 
