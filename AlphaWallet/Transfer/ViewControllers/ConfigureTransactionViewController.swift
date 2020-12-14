@@ -530,11 +530,7 @@ extension UIBarButtonItem {
 
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
-    }
-
-    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
-    }
+    } 
 
     static func backBarButton(selectionClosure: @escaping () -> Void) -> UIBarButtonItem {
         let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
@@ -560,5 +556,5 @@ extension UIBarButtonItem {
 
     @objc func didTapButton(_ sender: Any) {
         selectionClosure?()
-    }
+    } 
 }

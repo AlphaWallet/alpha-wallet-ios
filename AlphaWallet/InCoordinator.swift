@@ -4,6 +4,7 @@ import UIKit
 import BigInt
 import RealmSwift
 import Result
+import WalletConnectSwift
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -100,6 +101,7 @@ class InCoordinator: NSObject, Coordinator {
     var keystore: Keystore
     var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
+
     var tabBarController: UITabBarController? {
         return navigationController.viewControllers.first as? UITabBarController
     }
@@ -117,6 +119,17 @@ class InCoordinator: NSObject, Coordinator {
         //service.register(service: uniswap)
 
         return service
+    }()
+    private var walletConnectConfiguration: WalletConnectServer.Configuration {
+        let server = RPCServer(chainID: config.server.chainID)
+
+        return WalletConnectServer.Configuration(wallet: wallet, rpcServer: server)
+    }
+
+    lazy var walletConnectCoordinator: WalletConnectCoordinator = {
+        let coordinator = WalletConnectCoordinator(keystore: keystore, configuration: walletConnectConfiguration, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        coordinator.delegate = self
+        return coordinator
     }()
 
     init(
@@ -141,6 +154,9 @@ class InCoordinator: NSObject, Coordinator {
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
+
+        addCoordinator(walletConnectCoordinator)
+        walletConnectCoordinator.start()
     }
 
     func start() {
@@ -349,6 +365,7 @@ class InCoordinator: NSObject, Coordinator {
             )
             walletSessions[each] = session
         }
+        walletConnectCoordinator.sessions = walletSessions
     }
 
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
@@ -381,7 +398,7 @@ class InCoordinator: NSObject, Coordinator {
     func showTabBar(for account: Wallet) {
         keystore.recentlyUsedWallet = account
         wallet = account
-
+        walletConnectCoordinator.set(configuration: walletConnectConfiguration)
         setupResourcesOnMultiChain()
         fetchEthereumEvents()
 
@@ -415,7 +432,8 @@ class InCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-                swapTokenService: swapTokenService
+                swapTokenService: swapTokenService,
+                walletConnectCoordinator: walletConnectCoordinator
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
@@ -794,6 +812,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
+
         restart(for: account, in: transactionCoordinator)
     }
 
@@ -837,6 +856,10 @@ extension InCoordinator: UrlSchemeResolver {
 
         dappBrowserCoordinator.open(url: url, animated: true, forceReload: false)
     }
+}
+
+extension InCoordinator: WalletConnectCoordinatorDelegate {
+
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
@@ -895,7 +918,7 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
             }
-        case .signedTransaction:
+        case .sentRawTransaction, .signedTransaction:
             break
         }
     }
@@ -974,6 +997,7 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 }
+
 extension InCoordinator: ClaimOrderCoordinatorDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
         claimOrderCoordinatorCompletionBlock?(false)
