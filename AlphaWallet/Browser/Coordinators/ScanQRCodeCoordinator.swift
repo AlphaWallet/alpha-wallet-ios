@@ -114,4 +114,8 @@ extension UIBarButtonItem {
     static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.close(), style: .plain, target: target, action: selector)
     }
+
+    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
+    }
 }

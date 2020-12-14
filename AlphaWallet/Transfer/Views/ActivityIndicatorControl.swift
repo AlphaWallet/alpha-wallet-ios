@@ -146,7 +146,11 @@ class CircularLoadingIndicatorView: UIView {
     }
 
     func stopAnimating(animated: Bool = true, completion: (() -> Void)? = nil) {
-        guard circleAnimation else { return }
+        guard circleAnimation else {
+            //NOTE: for some reasons operation can be performed very fast and in case when completion for `.pending` won't be called `circleAnimation` will be false, in this case we need call completion closure
+            completion?()
+            return
+        }
         self.completion = completion
         circleAnimation = false
         checkmarkAnimation = true

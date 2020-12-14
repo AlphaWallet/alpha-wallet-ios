@@ -179,6 +179,8 @@ struct Config {
     }
 
     let oneInch = URL(string: "https://api.1inch.exchange")!
+    static let gnosisURL = URL(string: "https://safe.gnosis.io")!
+    static let bridgeURL = URL(string: "https://bridge.walletconnect.org")!
 }
 
 extension Config {

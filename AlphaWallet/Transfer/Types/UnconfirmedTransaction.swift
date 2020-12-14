@@ -7,7 +7,6 @@ struct UnconfirmedTransaction {
     let transactionType: TransactionType
     let value: BigInt
     let recipient: AlphaWallet.Address?
-    let contract: AlphaWallet.Address?
     let data: Data?
     let gasLimit: BigInt?
     let tokenId: BigUInt?
@@ -27,7 +26,6 @@ struct UnconfirmedTransaction {
         transactionType: TransactionType,
         value: BigInt,
         recipient: AlphaWallet.Address?,
-        contract: AlphaWallet.Address?,
         data: Data?,
         tokenId: BigUInt? = nil,
         indices: [UInt16]? = nil,
@@ -37,8 +35,7 @@ struct UnconfirmedTransaction {
     ) {
         self.transactionType = transactionType
         self.value = value
-        self.recipient = recipient
-        self.contract = contract
+        self.recipient = recipient 
         self.data = data
         self.tokenId = tokenId
         self.indices = indices

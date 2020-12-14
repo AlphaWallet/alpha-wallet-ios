@@ -37,7 +37,6 @@ class TransferNFTCoordinator: Coordinator {
                 transactionType: transactionType,
                 value: BigInt(0),
                 recipient: recipient,
-                contract: tokenHolder.contractAddress,
                 data: nil,
                 tokenId: tokenHolder.tokens[0].id,
                 indices: tokenHolder.indices

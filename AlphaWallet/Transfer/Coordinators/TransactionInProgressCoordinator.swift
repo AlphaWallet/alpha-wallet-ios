@@ -12,7 +12,7 @@ protocol TransactionInProgressCoordinatorDelegate: class {
 }
 
 class TransactionInProgressCoordinator: Coordinator {
-
+    
     private lazy var viewControllerToPresent: UINavigationController = {
         let controller = TransactionInProgressViewController(viewModel: .init())
         controller.delegate = self

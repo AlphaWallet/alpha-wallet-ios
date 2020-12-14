@@ -98,6 +98,10 @@ struct FakeKeystore: Keystore {
         return .failure(KeystoreError.failedToSignTransaction)
     }
 
+    func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
+        return .failure(KeystoreError.failedToSignMessage)
+    }
+
     func signMessage(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
         return .failure(KeystoreError.failedToSignMessage)
     }
