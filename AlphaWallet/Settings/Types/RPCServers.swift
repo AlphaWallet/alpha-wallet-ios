@@ -410,7 +410,9 @@ enum RPCServer: Hashable, CaseIterable {
             return R.image.tokenCallisto()!
         case .artis_sigma1:
             return R.image.tokenArtis()!
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
+        case .binance_smart_chain:
+            return R.image.tokenBnb()!
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .custom:
             return nil
         }
     }
