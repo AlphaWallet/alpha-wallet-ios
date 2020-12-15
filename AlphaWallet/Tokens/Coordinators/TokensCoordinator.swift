@@ -252,6 +252,18 @@ extension TokensCoordinator: SelectAssetCoordinatorDelegate {
 
 extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String) {
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveSeedPhase seedPhase: [String]) {
+        removeCoordinator(coordinator)
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolvePrivateKey privateKey: String) {
+        removeCoordinator(coordinator)
+    }
+
     func didCancel(in coordinator: QRCodeResolutionCoordinator) {
         removeCoordinator(coordinator)
     }
