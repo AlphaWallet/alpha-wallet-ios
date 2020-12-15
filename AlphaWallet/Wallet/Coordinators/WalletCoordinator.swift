@@ -150,25 +150,13 @@ extension WalletCoordinator: WelcomeViewControllerDelegate {
     }
 }
 
-extension WalletCoordinator: ScanQRCodeCoordinatorDelegate {
-
-    func didCancel(in coordinator: ScanQRCodeCoordinator) {
-        removeCoordinator(coordinator)
-    }
-
-    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
-        removeCoordinator(coordinator)
-
-        importWalletViewController?.didScanQRCode(result)
-    }
-
-}
-
 extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
     func openQRCode(in controller: ImportWalletViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: keystore.recentlyUsedWallet, server: config.server)
+
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: keystore.recentlyUsedWallet, server: config.server)
+        let coordinator = QRCodeResolutionCoordinator(coordinator: scanQRCodeCoordinator, tokensDatastores: nil, assetDefinitionStore: nil)
         coordinator.delegate = self
 
         addCoordinator(coordinator)
@@ -181,7 +169,63 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
     }
 }
 
+extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {
+        removeCoordinator(coordinator)
+
+        importWalletViewController?.set(tabSelection: .watch)
+        importWalletViewController?.setValueForCurrentField(string: address.eip55String)
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
+        removeCoordinator(coordinator)
+        //no op
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL) {
+        removeCoordinator(coordinator)
+        //no op
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String) {
+        removeCoordinator(coordinator)
+        //no op
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL) {
+        removeCoordinator(coordinator)
+        //no op
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveJSON json: String) {
+        removeCoordinator(coordinator)
+
+        importWalletViewController?.set(tabSelection: .keystore)
+        importWalletViewController?.setValueForCurrentField(string: json)
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveSeedPhase seedPhase: [String]) {
+        removeCoordinator(coordinator)
+
+        importWalletViewController?.set(tabSelection: .mnemonic)
+        importWalletViewController?.setValueForCurrentField(string: seedPhase.joined(separator: " "))
+    }
+
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolvePrivateKey privateKey: String) {
+        removeCoordinator(coordinator)
+        
+        importWalletViewController?.set(tabSelection: .privateKey)
+        importWalletViewController?.setValueForCurrentField(string: privateKey)
+    }
+
+    func didCancel(in coordinator: QRCodeResolutionCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
 extension WalletCoordinator: CreateInitialWalletViewControllerDelegate {
+
     func didTapCreateWallet(inViewController viewController: CreateInitialWalletViewController) {
         createInstantWallet()
     }
@@ -196,14 +240,16 @@ extension WalletCoordinator: CreateInitialWalletViewControllerDelegate {
 }
 
 extension WalletCoordinator: WalletCoordinatorDelegate {
+
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
-        coordinator.navigationController.dismiss(animated: false, completion: nil)
-        self.removeCoordinator(coordinator)
-        self.delegate?.didFinish(with: account, in: self)
+        coordinator.navigationController.dismiss(animated: false)
+
+        removeCoordinator(coordinator)
+        delegate?.didFinish(with: account, in: self)
     }
 
     func didCancel(in coordinator: WalletCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        self.removeCoordinator(coordinator)
+        coordinator.navigationController.dismiss(animated: true)
+        removeCoordinator(coordinator)
     }
 }

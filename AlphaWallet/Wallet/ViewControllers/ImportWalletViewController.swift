@@ -69,7 +69,7 @@ class ImportWalletViewController: UIViewController {
             button.frame = .init(x: 0, y: 0, width: 30, height: 30)
             button.setImage(R.image.togglePassword(), for: .normal)
             button.tintColor = .init(red: 111, green: 111, blue: 111)
-            button.addTarget(self, action: #selector(self.toggleMaskPassword), for: .touchUpInside)
+            button.addTarget(self, action: #selector(toggleMaskPassword), for: .touchUpInside)
             return button
         }()
         textField.textField.rightViewMode = .unlessEditing
@@ -521,9 +521,12 @@ class ImportWalletViewController: UIViewController {
         delegate?.openQRCode(in: self)
     }
 
+    func set(tabSelection selection: ImportWalletTab) {
+        tabBar.selection = .selected(selection.selectionIndex)
+    }
+
     func setValueForCurrentField(string: String) {
-        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
-        switch tab {
+        switch viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) {
         case .mnemonic:
             mnemonicTextView.value = string
         case .keystore:
@@ -532,7 +535,10 @@ class ImportWalletViewController: UIViewController {
             privateKeyTextView.value = string
         case .watch:
             watchAddressTextField.value = string
+        case .none:
+            break
         }
+
         showCorrectTab()
     }
 

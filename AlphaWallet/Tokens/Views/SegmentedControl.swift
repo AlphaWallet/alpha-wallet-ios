@@ -36,7 +36,7 @@ class SegmentedControl: UIView {
         backgroundColor = viewModel.backgroundColor
 
         for each in buttons {
-            each.addTarget(self, action: #selector(segmentTapped(_:)), for: .touchUpInside)
+            each.addTarget(self, action: #selector(segmentTapped), for: .touchUpInside)
         }
         let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: 20)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ class SegmentedControl: UIView {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private static func createButtons(fromTitles titles: [String]) -> [UIButton] {
@@ -117,7 +117,7 @@ class SegmentedControl: UIView {
             if let constraints = highlightBarHorizontalConstraints {
                 NSLayoutConstraint.activate(constraints)
             }
-            UIView.animate(withDuration: 0.7, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 10, options: UIView.AnimationOptions.allowUserInteraction, animations: {
+            UIView.animate(withDuration: 0.7, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 10, options: .allowUserInteraction, animations: {
                 self.layoutIfNeeded()
             })
         case .unselected:
