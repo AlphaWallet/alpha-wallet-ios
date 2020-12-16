@@ -58,6 +58,7 @@ struct Config {
         defaults.set(chainId, forKey: Keys.chainID)
     }
 
+    //TODO Only Dapp browser uses this
     static func getChainId(defaults: UserDefaults = UserDefaults.standard) -> Int {
         let id = defaults.integer(forKey: Keys.chainID)
         guard id > 0 else { return RPCServer.main.chainID }
@@ -140,6 +141,7 @@ struct Config {
         }
     }
 
+    //TODO Only Dapp browser uses this. Shall we move it?
     var server: RPCServer {
         let chainId = Config.getChainId()
         if let server = enabledServers.first(where: { $0.chainID == chainId }) {
