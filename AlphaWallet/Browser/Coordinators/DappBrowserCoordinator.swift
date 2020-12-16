@@ -326,7 +326,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func scanQrCode() {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()

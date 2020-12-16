@@ -196,7 +196,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
         guard let nc = controller.navigationController, nc.ensureHasDeviceAuthorization() else { return }
 
         let session = sessions[config.server]
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
         coordinator.delegate = self
         addCoordinator(coordinator)
 

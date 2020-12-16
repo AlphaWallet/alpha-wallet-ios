@@ -53,7 +53,6 @@
 "Refresh" = "刷新";
 "request.addressCopied.title" = "地址已复制";
 "request.copyWallet.button.title" = "复制钱包地址";
-"request.myAddressIs.label.title" = "我的%1$@地址是： %2$@";
 "Retry" = "重试";
 "Send" = "发送";
 "Receive" = "接收";

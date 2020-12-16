@@ -39,15 +39,13 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         return controller
     }()
     private let account: Wallet?
-    private let server: RPCServer
 
     let parentNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: ScanQRCodeCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, account: Wallet?, server: RPCServer) {
+    init(navigationController: UINavigationController, account: Wallet?) {
         self.account = account
-        self.server = server
         self.parentNavigationController = navigationController
     }
 
@@ -85,7 +83,7 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
     func reader(_ reader: QRCodeReaderViewController!, myQRCodeSelected sender: UIButton!) {
         //Showing QR code functionality is not available if there's no account, specifically when importing wallet during onboarding
         guard let account = account else { return }
-        let coordinator = RequestCoordinator(account: account, server: server)
+        let coordinator = RequestCoordinator(account: account)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

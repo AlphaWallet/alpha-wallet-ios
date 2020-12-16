@@ -157,7 +157,7 @@ class TokensCoordinator: Coordinator {
 
     func launchUniversalScanner() {
         let session = sessions[config.server]
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
         let tokensDatastores = tokenCollection.tokenDataStores
 
         let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore))
