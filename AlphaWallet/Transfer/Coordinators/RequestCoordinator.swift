@@ -9,13 +9,12 @@ protocol RequestCoordinatorDelegate: class {
 
 class RequestCoordinator: Coordinator {
     private let account: Wallet
-    private let server: RPCServer
 
     private lazy var requestViewController: RequestViewController = {
-        let viewModel: RequestViewModel = .init(account: account, server: server)
+        let viewModel: RequestViewModel = .init(account: account)
         let controller = RequestViewController(viewModel: viewModel)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
-        
+
         return controller
     }()
 
@@ -23,22 +22,17 @@ class RequestCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
 
-    init(
-        navigationController: UINavigationController = UINavigationController(),
-        account: Wallet,
-        server: RPCServer
-    ) {
+    init(navigationController: UINavigationController = UINavigationController(), account: Wallet) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.navigationController.setNavigationBarHidden(false, animated: true)
 
         self.account = account
-        self.server = server
     }
 
     func start() {
         navigationController.pushViewController(requestViewController, animated: true)
-    } 
+    }
 
     @objc func dismiss() {
         delegate?.didCancel(in: self)

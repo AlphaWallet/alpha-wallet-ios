@@ -53,7 +53,6 @@
 "Refresh" = "Actualizar";
 "request.addressCopied.title" = "Dirección copiada";
 "request.copyWallet.button.title" = "Copiar la dirección del monedero";
-"request.myAddressIs.label.title" = "Mi dirección de %1$@ es: %2$@";
 "Retry" = "Reintentar";
 "Send" = "Enviar";
 "Receive" = "Recibir";

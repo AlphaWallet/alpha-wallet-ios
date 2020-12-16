@@ -5,11 +5,9 @@ import UIKit
 
 struct RequestViewModel {
 	private let account: Wallet
-    private let server: RPCServer
 
-	init(account: Wallet, server: RPCServer) {
+	init(account: Wallet) {
 		self.account = account
-		self.server = server
 	}
 
 	var myAddressText: String {
@@ -18,10 +16,6 @@ struct RequestViewModel {
 
 	var myAddress: AlphaWallet.Address {
 		return account.address
-	}
-
-	var shareMyAddressText: String {
-		return R.string.localizable.requestMyAddressIsLabelTitle(server.name, myAddressText)
 	}
 
 	var copyWalletText: String {
