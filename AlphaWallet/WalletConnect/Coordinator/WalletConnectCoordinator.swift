@@ -7,7 +7,7 @@
 
 import UIKit
 import WalletConnectSwift
-import PromiseKit  
+import PromiseKit
 import Result
 
 protocol WalletConnectCoordinatorDelegate: class {
@@ -30,7 +30,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }()
 
     private let navigationController: UINavigationController
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectCoordinatorDelegate?
     var connection: Subscribable<WalletConnectServerConnection> {
@@ -101,7 +101,7 @@ extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
     func didDismiss(in coordinator: WalletConnectSessionCoordinator) {
         removeCoordinator(coordinator)
     }
-} 
+}
 
 extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
@@ -157,7 +157,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func executeTransaction(account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<WalletConnectServer.Callback> {
-        
+
         return Promise { seal in
             let dummyPrice: Subscribable<Double> = Subscribable<Double>(nil)
             let configuration: TransactionConfirmationConfiguration = .dappTransaction(confirmType: type, keystore: keystore, ethPrice: dummyPrice)
@@ -270,7 +270,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         alertViewController.addAction(cancelAction)
 
         navigationController.present(alertViewController, animated: true)
-    } 
+    }
 }
 
 extension String {
