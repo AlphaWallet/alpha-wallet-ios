@@ -43,7 +43,7 @@ class SendTransactionCoordinator {
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
         return Promise { seal in
-            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction)))
+            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)))
             Session.send(request) { result in
                 switch result {
                 case .success(let transactionID):
