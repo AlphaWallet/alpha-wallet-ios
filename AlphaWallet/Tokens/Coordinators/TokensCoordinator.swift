@@ -2,7 +2,7 @@
 
 import Foundation
 import UIKit
-import PromiseKit 
+import PromiseKit
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
@@ -156,11 +156,11 @@ class TokensCoordinator: Coordinator {
     }
 
     func launchUniversalScanner() {
-        let session = sessions[config.server]
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let account = sessions.anyValue.account
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: account)
         let tokensDatastores = tokenCollection.tokenDataStores
 
-        let coordinator = QRCodeResolutionCoordinator(coordinator: scanQRCodeCoordinator, tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore))
         coordinator.delegate = self
 
         addCoordinator(coordinator)

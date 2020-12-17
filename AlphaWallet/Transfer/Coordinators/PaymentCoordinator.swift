@@ -66,8 +66,7 @@ class PaymentCoordinator: Coordinator {
         case (.request, _):
             let coordinator = RequestCoordinator(
                 navigationController: navigationController,
-                account: session.account,
-                server: session.server
+                account: session.account
             )
             coordinator.delegate = self
             coordinator.start()

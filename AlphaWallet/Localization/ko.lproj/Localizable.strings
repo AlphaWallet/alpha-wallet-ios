@@ -53,7 +53,6 @@
 "Refresh" = "새로 고침";
 "request.addressCopied.title" = "주소가 복사되었습니다";
 "request.copyWallet.button.title" = "지갑 주소 복사";
-"request.myAddressIs.label.title" = "내 %1$@ 주소: %2$@";
 "Retry" = "다시 시도";
 "Send" = "보내기";
 "Receive" = "Receive";
