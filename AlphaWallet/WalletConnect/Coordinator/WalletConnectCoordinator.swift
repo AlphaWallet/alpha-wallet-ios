@@ -10,10 +10,6 @@ import WalletConnectSwift
 import PromiseKit
 import Result
 
-protocol WalletConnectCoordinatorDelegate: class {
-
-}
-
 typealias WalletConnectURL = WCURL
 typealias WalletConnectSession = Session
 
@@ -32,7 +28,6 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
 
     var coordinators: [Coordinator] = []
-    weak var delegate: WalletConnectCoordinatorDelegate?
     var connection: Subscribable<WalletConnectServerConnection> {
         return server.connection
     }
