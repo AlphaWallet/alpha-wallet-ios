@@ -54,7 +54,7 @@ extension DappAction {
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,
-            recipient: to, 
+            recipient: to,
             data: data,
             gasLimit: gasLimit,
             gasPrice: gasPrice,
