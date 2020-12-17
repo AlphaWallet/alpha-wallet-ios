@@ -4,7 +4,6 @@ import UIKit
 import BigInt
 import RealmSwift
 import Result
-import WalletConnectSwift
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -128,7 +127,6 @@ class InCoordinator: NSObject, Coordinator {
 
     lazy var walletConnectCoordinator: WalletConnectCoordinator = {
         let coordinator = WalletConnectCoordinator(keystore: keystore, configuration: walletConnectConfiguration, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
-        coordinator.delegate = self
         return coordinator
     }()
 
@@ -856,10 +854,6 @@ extension InCoordinator: UrlSchemeResolver {
 
         dappBrowserCoordinator.open(url: url, animated: true, forceReload: false)
     }
-}
-
-extension InCoordinator: WalletConnectCoordinatorDelegate {
-
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
