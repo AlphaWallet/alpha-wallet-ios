@@ -85,24 +85,25 @@ private enum CheckEIP681Error: Error {
 }
 
 final class QRCodeResolutionCoordinator: Coordinator {
+    enum Usage {
+        case all(tokensDatastores: [TokensDataStore], assetDefinitionStore: AssetDefinitionStore)
+        case importWalletOnly
+    }
 
-    private let tokensDatastores: [TokensDataStore]?
-    private let assetDefinitionStore: AssetDefinitionStore?
+    private let config: Config
+    private let usage: Usage
     private var skipResolvedCodes: Bool = false
     private var navigationController: UINavigationController {
         scanQRCodeCoordinator.parentNavigationController
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
-    private var rpcServer: RPCServer {
-        return Config().server
-    }
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(coordinator: ScanQRCodeCoordinator, tokensDatastores: [TokensDataStore]?, assetDefinitionStore: AssetDefinitionStore?) {
-        self.tokensDatastores = tokensDatastores
+    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage) {
+        self.config = config
+        self.usage = usage
         self.scanQRCodeCoordinator = coordinator
-        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
@@ -127,16 +128,16 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 
     private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
-        //NOTE: or maybe we need pass though all servers?
-        guard let tokensDatastore = tokensDatastores?.first(where: { $0.server == rpcServer }) else {
-            return []
-        }
-
-        //I guess if we have token, we shouldn't be able to send to it, or we should?
-        if tokensDatastore.token(forContract: contract) != nil {
-            return [.sendToAddress, .watchWallet, .openInEtherscan]
-        } else {
-            return [.sendToAddress, .addCustomToken, .watchWallet, .openInEtherscan]
+        switch usage {
+        case .all(let tokensDataStores, _):
+            let isTokenFound = tokensDataStores.contains { $0.token(forContract: contract) != nil } ?? false
+            if isTokenFound {
+                return [.sendToAddress, .watchWallet, .openInEtherscan]
+            } else {
+                return [.sendToAddress, .addCustomToken, .watchWallet, .openInEtherscan]
+            }
+        case .importWalletOnly:
+            return [.watchWallet]
         }
     }
 
@@ -148,8 +149,8 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             switch value {
             case .address(let contract):
                 let actions = availableActions(forContract: contract)
-                if actions.isEmpty {
-                    delegate.coordinator(self, didResolveAddress: contract, action: .watchWallet)
+                if actions.count == 1 {
+                    delegate.coordinator(self, didResolveAddress: contract, action: actions[0])
                 } else {
                     showDidScanWalletAddress(for: actions, completion: { action in
                         delegate.coordinator(self, didResolveAddress: contract, action: action)
@@ -158,12 +159,17 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                     })
                 }
             case .eip681(let protocolName, let address, let function, let params):
-                guard let tokensDatastores = tokensDatastores, let assetDefinitionStore = assetDefinitionStore else { return }
-                let data = CheckEIP681Params(protocolName: protocolName, address: address, functionName: function, params: params, rpcServer: rpcServer)
-
-                self.checkEIP681(data, tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore).done { result in
-                    delegate.coordinator(self, didResolveTransactionType: result.transactionType, token: result.token)
-                }.cauterize()
+                let data = CheckEIP681Params(protocolName: protocolName, address: address, functionName: function, params: params)
+                switch usage {
+                case .all(let tokensDataStores, let assetDefinitionStore):
+                    firstly {
+                        checkEIP681(data, tokensDatastores: tokensDataStores, assetDefinitionStore: assetDefinitionStore)
+                    }.done { result in
+                        delegate.coordinator(self, didResolveTransactionType: result.transactionType, token: result.token)
+                    }.cauterize()
+                case .importWalletOnly:
+                    break
+                }
             }
         case .other(let value):
             delegate.coordinator(self, didResolveString: value)
@@ -173,7 +179,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             showOpenURL(completion: {
                 delegate.coordinator(self, didResolveURL: url)
             }, cancelCompletion: {
-                //NOTE: we need to reset flat to false to make sure that next detected QR code will be handled
+                //NOTE: we need to reset flag to false to make sure that next detected QR code will be handled
                 self.skipResolvedCodes = false
             })
         case .json(let value):
@@ -233,26 +239,19 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         let address: AddressOrEnsName
         let functionName: String?
         let params: [String: String]
-        let rpcServer: RPCServer
     }
 
     private func checkEIP681(_ params: CheckEIP681Params, tokensDatastores: [TokensDataStore], assetDefinitionStore: AssetDefinitionStore) -> Promise<(transactionType: TransactionType, token: TokenObject)> {
-        return Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: TokenObject)> in
-            guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else {
-                return .init(error: CheckEIP681Error.parameterInvalid)
-            }
-
-            guard let storage = tokensDatastores.first(where: { $0.server == customServer ?? params.rpcServer }) else {
-                return .init(error: CheckEIP681Error.missingRpcServer)
-            }
+        Eip681Parser(protocolName: params.protocolName, address: params.address, functionName: params.functionName, params: params.params).parse().then { result -> Promise<(transactionType: TransactionType, token: TokenObject)> in
+            guard let (contract: contract, customServer, recipient, maybeScientificAmountString) = result.parameters else { return .init(error: CheckEIP681Error.parameterInvalid) }
+            guard let server = self.serverFromEip681LinkOrDefault(customServer) else { return .init(error: CheckEIP681Error.missingRpcServer) }
+            guard let storage = tokensDatastores.first(where: { $0.server == server }) else { return .init(error: CheckEIP681Error.missingRpcServer) }
 
             if let token = storage.token(forContract: contract) {
                 let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                     EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                 }
-
                 let transactionType = TransactionType(token: token, recipient: recipient, amount: amount)
-
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
@@ -281,6 +280,18 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 }
             }
         }
+    }
+
+    private func serverFromEip681LinkOrDefault(_ serverInLink: RPCServer?) -> RPCServer? {
+        let server: RPCServer
+        if let serverInLink = serverInLink {
+            return serverInLink
+        }
+        if config.enabledServers.count == 1 {
+            //Specs https://eips.ethereum.org/EIPS/eip-681 says we should fallback to the current chainId, but since we support multiple chains at the same time, we only fallback if there is exactly 1 enabled network
+            return config.enabledServers.first!
+        }
+        return nil
     }
 }
 

@@ -195,8 +195,8 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     func openQRCode(in controller: NewTokenViewController) {
         guard let nc = controller.navigationController, nc.ensureHasDeviceAuthorization() else { return }
 
-        let session = sessions[config.server]
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let account = sessions.anyValue.account
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: account)
         coordinator.delegate = self
         addCoordinator(coordinator)
 

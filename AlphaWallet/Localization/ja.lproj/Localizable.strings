@@ -53,7 +53,6 @@
 "Refresh" = "リフレッシュ";
 "request.addressCopied.title" = "アドレスがコピーされました";
 "request.copyWallet.button.title" = "ウォレットのアドレスをコピー";
-"request.myAddressIs.label.title" = "私の %1$@ のアドレス: %2$@";
 "Retry" = "再試行";
 "Send" = "送信";
 "Receive" = "Receive";

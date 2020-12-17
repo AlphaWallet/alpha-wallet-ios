@@ -7,7 +7,7 @@
 
 import UIKit
 import WalletConnectSwift
-import PromiseKit 
+import PromiseKit
 
 enum WalletConnectError: Error {
     case connectionInvalid
@@ -198,11 +198,11 @@ extension WalletConnectServer: ServerDelegate {
         DispatchQueue.main.async {
             if let delegate = self.delegate {
                 let connection = WalletConnectConnection(dAppInfo: session.dAppInfo, url: session.url.absoluteString)
-                
+
                 delegate.server(self, shouldConnectFor: connection) { [weak self] isApproved in
                     guard let strongSelf = self else { return }
                     print(session)
-                    
+
                     if let chainIdToConnect = session.walletInfo?.chainId {
                         let rpcServer = RPCServer(chainID: chainIdToConnect)
 
