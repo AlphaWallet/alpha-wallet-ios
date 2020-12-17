@@ -262,12 +262,5 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
 
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController) {
 
-    } 
-}
-
-extension SettingsCoordinator: WalletConnectCoordinatorDelegate {
-
-    func walletConnectDidDissmiss(in coordinator: WalletConnectCoordinator) {
-        removeCoordinator(coordinator)
     }
 }
