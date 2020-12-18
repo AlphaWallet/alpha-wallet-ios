@@ -58,7 +58,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1: return "ARTIS sigma1"
         case .artis_tau1: return "ARTIS tau1"
         case .binance_smart_chain: return "Binance"
-        case .binance_smart_chain_testnet: return "Binance"
+        case .binance_smart_chain_testnet: return "Binance Testnet"
         case .custom(let custom):
             return custom.name
         }
