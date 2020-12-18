@@ -18,7 +18,6 @@ class WalletConnectSessionCoordinator: Coordinator {
     private let server: WalletConnectServer
     private var viewController: WalletConnectSessionViewController
     private let session: WalletConnectSession
-    private var sessionsSubscribableKey: Subscribable<[WalletConnectSession]>.SubscribableKey?
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
@@ -31,9 +30,8 @@ class WalletConnectSessionCoordinator: Coordinator {
         viewController = WalletConnectSessionViewController(viewModel: .init(server: server, session: session))
         viewController.delegate = self
 
-        sessionsSubscribableKey = server.sessions.subscribe { [weak self] sessions in
+        server.sessions.subscribe { [weak self] sessions in
             guard let strongSelf = self else { return }
-
             strongSelf.viewController.reload()
         }
     }
@@ -44,23 +42,19 @@ class WalletConnectSessionCoordinator: Coordinator {
 }
 
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
-
-    func didDissmiss(in controller: WalletConnectSessionViewController) {
+    func didDismiss(in controller: WalletConnectSessionViewController) {
         guard let delegate = delegate else { return }
-
         navigationController.popViewController(animated: true)
         delegate.didDismiss(in: self)
     }
 
-    func controller(_ controller: WalletConnectSessionViewController, dissconnectSelected sender: UIButton) {
+    func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
         guard let delegate = delegate else { return }
-
         do {
             try server.disconnect(session: session)
         } catch {
-            print(error)
+            //no-op
         }
-
         navigationController.popViewController(animated: true)
         delegate.didDismiss(in: self)
     }

@@ -24,10 +24,6 @@ protocol WalletConnectServerDelegate: class {
 
 typealias WalletConnectRequest = WalletConnectSwift.Request
 
-enum WalletConnectServerConnection {
-    case connected(WalletConnectSession)
-    case disconnected
-}
 typealias WalletConnectRequestID = WalletConnectSwift.RequestID
 
 extension WalletConnectSession {
@@ -41,7 +37,7 @@ class WalletConnectServer {
         case connect(RPCServer)
         case cancel
 
-        var shouldProceeed: Bool {
+        var shouldProceed: Bool {
             switch self {
             case .connect:
                 return true
@@ -66,19 +62,16 @@ class WalletConnectServer {
 
     private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: Config.gnosisURL)
     private lazy var server: Server = Server(delegate: self)
-
     private let wallet: AlphaWallet.Address
+
     var urlToServer: [WCURL: RPCServer] = .init()
     var sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
-    var connection: Subscribable<WalletConnectServerConnection> = Subscribable(.disconnected)
 
     weak var delegate: WalletConnectServerDelegate?
 
     init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
-
         sessions.value = server.openSessions()
-
         server.register(handler: self)
     }
 
@@ -91,13 +84,11 @@ class WalletConnectServer {
     }
 
     func disconnect(session: Session) throws {
-
         try server.disconnect(from: session)
     }
 
-    func fullfill(_ callback: Callback, request: WalletConnectSwift.Request) throws {
+    func fulfill(_ callback: Callback, request: WalletConnectSwift.Request) throws {
         let response = try Response(url: callback.url, value: callback.value.object, id: callback.id)
-
         server.send(response)
     }
 
@@ -117,11 +108,11 @@ class WalletConnectServer {
 
     private func walletInfo(_ wallet: AlphaWallet.Address, choice: WalletConnectServer.ConnectionChoice) -> Session.WalletInfo {
         return Session.WalletInfo(
-                approved: choice.shouldProceeed,
+                approved: choice.shouldProceed,
                 accounts: [wallet.eip55String],
                 //When there's no server (because user chose to cancel), it shouldn't matter whether the fallback (mainnet) is enabled
                 chainId: choice.server?.chainID ?? RPCServer.main.chainID,
-                peerId: peerId(approved: choice.shouldProceeed),
+                peerId: peerId(approved: choice.shouldProceed),
                 peerMeta: walletMeta
         )
     }
@@ -148,10 +139,8 @@ extension WalletConnectServer: RequestHandler {
     }
 
     private func convert(request: WalletConnectSwift.Request) -> Promise<Action.ActionType> {
-        guard let connection = connection.value, case .connected(let session) = connection else {
-            return .init(error: WalletConnectError.connectionInvalid)
-        }
-
+        guard let sessions = sessions.value else { return .init(error: WalletConnectError.connectionInvalid) }
+        guard let session = sessions.first(where: { $0.url == request.url }) else { return .init(error: WalletConnectError.connectionInvalid) }
         guard let rpcServer = urlToServer[request.url] else { return .init(error: WalletConnectError.connectionInvalid) }
         let token = TokensDataStore.token(forServer: rpcServer)
         let transactionType: TransactionType = .dapp(token, session.requester)
@@ -211,11 +200,12 @@ extension WalletConnectServer: ServerDelegate {
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
         DispatchQueue.main.async {
             if let delegate = self.delegate {
-                let connection = WalletConnectConnection(dAppInfo: session.dAppInfo, url: session.url.absoluteString)
+                let connection = WalletConnectConnection(dAppInfo: session.dAppInfo, url: session.url)
 
                 delegate.server(self, shouldConnectFor: connection) { [weak self] choice in
                     guard let strongSelf = self else { return }
                     let info = strongSelf.walletInfo(strongSelf.wallet, choice: choice)
+                    strongSelf.urlToServer[session.url] = choice.server
                     completion(info)
                 }
             } else {
@@ -228,42 +218,35 @@ extension WalletConnectServer: ServerDelegate {
     func server(_ server: Server, didConnect session: Session) {
         DispatchQueue.main.async {
             guard var sessions = self.sessions.value else { return }
-
             if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
                 sessions[index] = session
             } else {
                 sessions.append(session)
             }
-
-            UserDefaults.standard.lastSession = session
-
+            UserDefaults.standard.walletConnectSessions = sessions
             self.refresh(sessions: sessions)
-            self.connection.value = .connected(session)
         }
     }
 
     func server(_ server: Server, didDisconnect session: Session) {
         DispatchQueue.main.async {
             guard var sessions = self.sessions.value else { return }
-
             if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
+                //TODO should we remove by WCURL instead? Is that safer?
                 sessions.remove(at: index)
             }
-
-            UserDefaults.standard.lastSession = .none
-
+            UserDefaults.standard.walletConnectSessions = sessions
             self.refresh(sessions: sessions)
-            self.connection.value = .disconnected
         }
     }
 }
 
 struct WalletConnectConnection {
-    let url: String
+    let url: WCURL
     let name: String
     let icon: URL?
 
-    init(dAppInfo info: Session.DAppInfo, url: String) {
+    init(dAppInfo info: Session.DAppInfo, url: WCURL) {
         self.url = url
         name = info.peerMeta.name
         icon = info.peerMeta.icons.first

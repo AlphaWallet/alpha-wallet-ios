@@ -175,7 +175,6 @@ class TokensViewController: UIViewController {
             }
         }
     }
-    private var subscription: Subscribable<WalletConnectServerConnection>.SubscribableKey?
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -241,16 +240,13 @@ class TokensViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
 
-        subscription = walletConnectCoordinator.connection.subscribe { [weak self] connection in
-            guard let strongSelf = self, let connection = connection else { return }
-
-            switch connection {
-            case .connected:
-                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession, .tokens]
-            case .disconnected:
+        walletConnectCoordinator.walletConnectSessions.subscribe { [weak self] sessions in
+            guard let strongSelf = self, let sessions = sessions else { return }
+            if sessions.isEmpty {
                 strongSelf.sections = [.filters, .addHideToken, .tokens]
+            } else {
+                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession, .tokens]
             }
-
             strongSelf.tableView.reloadData()
         }
     }
