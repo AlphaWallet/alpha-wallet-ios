@@ -7,8 +7,7 @@
 
 import UIKit
 
-class WallerConnectRawView: UIView {
-
+class WalletConnectRowView: UIView {
     private let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

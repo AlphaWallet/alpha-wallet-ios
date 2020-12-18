@@ -120,11 +120,7 @@ class InCoordinator: NSObject, Coordinator {
         return service
     }()
 
-    lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
-        addCoordinator(coordinator)
-        return coordinator
-    }()
+    private lazy var walletConnectCoordinator: WalletConnectCoordinator = createWalletConnectCoordinator()
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -389,8 +385,8 @@ class InCoordinator: NSObject, Coordinator {
         keystore.recentlyUsedWallet = account
         wallet = account
         setupResourcesOnMultiChain()
+        walletConnectCoordinator = createWalletConnectCoordinator()
         fetchEthereumEvents()
-        walletConnectCoordinator.disconnect()
 
         //TODO creating many objects here. Messy. Improve?
         let realm = self.realm(forAccount: wallet)
@@ -753,6 +749,12 @@ class InCoordinator: NSObject, Coordinator {
     private func createConsoleViewController() -> ConsoleViewController {
         let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore)
         return coordinator.createConsoleViewController()
+    }
+
+    private func createWalletConnectCoordinator() -> WalletConnectCoordinator {
+        let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        addCoordinator(coordinator)
+        return coordinator
     }
 }
 // swiftlint:enable type_body_length
