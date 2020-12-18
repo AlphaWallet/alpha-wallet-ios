@@ -20,7 +20,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
 
     private lazy var server: WalletConnectServer = {
-        let server = WalletConnectServer(configuration: configuration, config: config)
+        let server = WalletConnectServer(wallet: sessions.anyValue.account.address)
         server.delegate = self
         return server
     }()
@@ -31,37 +31,32 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     var connection: Subscribable<WalletConnectServerConnection> {
         return server.connection
     }
-    private var session: WalletSession {
-        return sessions[configuration.rpcServer]
-    }
     private let keystore: Keystore
-    private var configuration: WalletConnectServer.Configuration
+    private let sessions: ServerDictionary<WalletSession>
     private let analyticsCoordinator: AnalyticsCoordinator?
     private let config: Config
-    var sessions: ServerDictionary<WalletSession> = .init()
 
-    init(keystore: Keystore, configuration: WalletConnectServer.Configuration, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator?, config: Config) {
+    private var serverChoices: [RPCServer] {
+        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+    }
+
+    init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator?, config: Config) {
         self.config = config
-        self.configuration = configuration
+        self.sessions = sessions
         self.keystore = keystore
         self.navigationController = navigationController
         self.analyticsCoordinator = analyticsCoordinator
+        super.init()
+        start()
     }
 
-    func start() {
+    private func start() {
         if let session = UserDefaults.standard.lastSession {
             try? server.reconnect(session: session)
         }
     }
 
-    func set(configuration conf: WalletConnectServer.Configuration) {
-        disconnect()
-
-        configuration = conf
-        server.set(configuration: conf)
-    }
-
-    private func disconnect() {
+    func disconnect() {
         switch server.connection.value {
         case .connected(let session):
             try? server.disconnect(session: session)
@@ -101,20 +96,27 @@ extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
 extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest) {
+        guard let rpcServer = server.urlToServer[request.url] else {
+            server.reject(request)
+            return
+        }
+        let session = sessions[rpcServer]
         firstly {
-            return Promise<AlphaWallet.Address> { seal in
-                if case .real(let account) = session.account.type {
-                    seal.fulfill(account)
-                } else {
+            Promise<Void> { seal in
+                switch session.account.type {
+                case .real:
+                    seal.fulfill(())
+                case .watch:
                     seal.reject(PMKError.cancelled)
                 }
             }
-        }.then { account -> Promise<WalletConnectServer.Callback> in
+        }.then { Void -> Promise<WalletConnectServer.Callback> in
+            let account = session.account.address
             switch action.type {
             case .signTransaction(let transaction):
-                return self.executeTransaction(account: account, callbackID: action.id, url: action.url, transaction: transaction, type: .sign)
+                return self.executeTransaction(session: session, callbackID: action.id, url: action.url, transaction: transaction, type: .sign)
             case .sendTransaction(let transaction):
-                return self.executeTransaction(account: account, callbackID: action.id, url: action.url, transaction: transaction, type: .signThenSend)
+                return self.executeTransaction(session: session, callbackID: action.id, url: action.url, transaction: transaction, type: .signThenSend)
             case .signMessage(let hexMessage):
                 return self.signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
             case .signPersonalMessage(let hexMessage):
@@ -122,9 +124,9 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signTypedMessage(let typedData):
                 return self.signMessage(with: .eip712(typedData), account: account, callbackID: action.id, url: action.url)
             case .sendRawTransaction(let raw):
-                return self.send(rawTransaction: raw, callbackID: action.id, url: action.url)
+                return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
             case .getTransactionCount:
-                //NOTE: there is case like in example client app when client whants to get nonce first and then send transaction,
+                //NOTE: there is case like in example client app when client wants to get nonce first and then send transaction,
                 //here i suppose we need to show UI to user to allow to enter this nonce value
                 let data = "0x117".toHexData
                 return .value(.init(id: action.id, url: action.url, value: .getTransactionCount(data)))
@@ -151,13 +153,12 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    private func executeTransaction(account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<WalletConnectServer.Callback> {
-
+    private func executeTransaction(session: WalletSession, callbackID id: WalletConnectRequestID, url: WalletConnectURL, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<WalletConnectServer.Callback> {
         return Promise { seal in
             let dummyPrice: Subscribable<Double> = Subscribable<Double>(nil)
             let configuration: TransactionConfirmationConfiguration = .dappTransaction(confirmType: type, keystore: keystore, ethPrice: dummyPrice)
 
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: account, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator).map { data -> WalletConnectServer.Callback in
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: session.account.address, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator).map { data -> WalletConnectServer.Callback in
                 switch data {
                 case .signedTransaction(let data):
                     return .init(id: id, url: url, value: .signTransaction(data))
@@ -196,18 +197,18 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         navigationController.displaySuccess(message: R.string.localizable.walletConnectFailureTitle())
     }
 
-    func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (Bool) -> Void) {
+    func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
         showConnectToSession(title: connection.name, url: connection.url, completion: completion)
     }
 
     //TODO after we support sendRawTransaction in dapps (and hence a proper UI, be it the actionsheet for transaction confirmation or a simple prompt), let's modify this to use the same flow
-    private func send(rawTransaction: String, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
+    private func sendRawTransaction(session: WalletSession, rawTransaction: String, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
         return firstly {
             showSignRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: rawTransaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
 
-            let coordinator = SendTransactionCoordinator(session: self.session, keystore: self.keystore, confirmType: .sign)
+            let coordinator = SendTransactionCoordinator(session: session, keystore: self.keystore, confirmType: .sign)
             return coordinator.send(rawTransaction: rawTransaction)
         }.map { data in
             switch data {
@@ -250,18 +251,20 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    private func showConnectToSession(title: String, url: String, completion: @escaping (Bool) -> Void) {
+    private func showConnectToSession(title: String, url: String, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
         let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
-        let alertViewController = UIAlertController(title: title, message: url, preferredStyle: style)
-        let startAction = UIAlertAction(title: R.string.localizable.start(), style: .default) { _ in
-            completion(true)
+        let alertViewController = UIAlertController(title: title, message: R.string.localizable.walletConnectStart(url), preferredStyle: style)
+
+        for each in serverChoices {
+            let action = UIAlertAction(title: each.name, style: .default) { _ in
+                completion(.connect(each))
+            }
+            alertViewController.addAction(action)
         }
 
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
-            completion(false)
+            completion(.cancel)
         }
-
-        alertViewController.addAction(startAction)
         alertViewController.addAction(cancelAction)
 
         navigationController.present(alertViewController, animated: true)

@@ -17,7 +17,7 @@ enum WalletConnectError: Error {
 }
 
 protocol WalletConnectServerDelegate: class {
-    func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (Bool) -> Void)
+    func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void)
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest)
     func server(_ server: WalletConnectServer, didFail error: Error)
 }
@@ -37,10 +37,27 @@ extension WalletConnectSession {
 }
 
 class WalletConnectServer {
+    enum ConnectionChoice {
+        case connect(RPCServer)
+        case cancel
 
-    struct Configuration {
-        let wallet: Wallet
-        let rpcServer: RPCServer
+        var shouldProceeed: Bool {
+            switch self {
+            case .connect:
+                return true
+            case .cancel:
+                return false
+            }
+        }
+
+        var server: RPCServer? {
+            switch self {
+            case .connect(let server):
+                return server
+            case .cancel:
+                return nil
+            }
+        }
     }
 
     private enum Keys {
@@ -50,23 +67,19 @@ class WalletConnectServer {
     private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: Config.gnosisURL)
     private lazy var server: Server = Server(delegate: self)
 
-    private var configuration: Configuration
-    private let config: Config
+    private let wallet: AlphaWallet.Address
+    var urlToServer: [WCURL: RPCServer] = .init()
     var sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
     var connection: Subscribable<WalletConnectServerConnection> = Subscribable(.disconnected)
 
     weak var delegate: WalletConnectServerDelegate?
 
-    init(configuration: Configuration, config: Config) {
-        self.configuration = configuration
-        self.config = config
+    init(wallet: AlphaWallet.Address) {
+        self.wallet = wallet
 
         sessions.value = server.openSessions()
-        server.register(handler: self)
-    }
 
-    func set(configuration: Configuration) {
-        self.configuration = configuration
+        server.register(handler: self)
     }
 
     func connect(url: WalletConnectURL) throws {
@@ -101,6 +114,17 @@ class WalletConnectServer {
     private func peerId(approved: Bool) -> String {
         return approved ? UUID().uuidString : String()
     }
+
+    private func walletInfo(_ wallet: AlphaWallet.Address, choice: WalletConnectServer.ConnectionChoice) -> Session.WalletInfo {
+        return Session.WalletInfo(
+                approved: choice.shouldProceeed,
+                accounts: [wallet.eip55String],
+                //When there's no server (because user chose to cancel), it shouldn't matter whether the fallback (mainnet) is enabled
+                chainId: choice.server?.chainID ?? RPCServer.main.chainID,
+                peerId: peerId(approved: choice.shouldProceeed),
+                peerMeta: walletMeta
+        )
+    }
 }
 
 extension WalletConnectServer: RequestHandler {
@@ -128,7 +152,8 @@ extension WalletConnectServer: RequestHandler {
             return .init(error: WalletConnectError.connectionInvalid)
         }
 
-        let token = TokensDataStore.token(forServer: configuration.rpcServer)
+        guard let rpcServer = urlToServer[request.url] else { return .init(error: WalletConnectError.connectionInvalid) }
+        let token = TokensDataStore.token(forServer: rpcServer)
         let transactionType: TransactionType = .dapp(token, session.requester)
 
         do {
@@ -166,17 +191,6 @@ extension WalletConnectServer: RequestHandler {
 }
 
 extension WalletConnectServer: ServerDelegate {
-
-    func walletInfo(_ wallet: Wallet, approved: Bool) -> Session.WalletInfo {
-        return Session.WalletInfo(
-            approved: approved,
-            accounts: [wallet.address.eip55String],
-            chainId: configuration.rpcServer.chainID,
-            peerId: peerId(approved: approved),
-            peerMeta: walletMeta
-        )
-    }
-
     func server(_ server: Server, didFailToConnect url: WalletConnectURL) {
         DispatchQueue.main.async {
             guard var sessions = self.sessions.value, let delegate = self.delegate else { return }
@@ -199,22 +213,13 @@ extension WalletConnectServer: ServerDelegate {
             if let delegate = self.delegate {
                 let connection = WalletConnectConnection(dAppInfo: session.dAppInfo, url: session.url.absoluteString)
 
-                delegate.server(self, shouldConnectFor: connection) { [weak self] isApproved in
+                delegate.server(self, shouldConnectFor: connection) { [weak self] choice in
                     guard let strongSelf = self else { return }
-                    print(session)
-
-                    if let chainIdToConnect = session.walletInfo?.chainId {
-                        let rpcServer = RPCServer(chainID: chainIdToConnect)
-
-                        guard strongSelf.config.enabledServers.contains(rpcServer) else { return }
-                    }
-
-                    let info = strongSelf.walletInfo(strongSelf.configuration.wallet, approved: isApproved)
-
+                    let info = strongSelf.walletInfo(strongSelf.wallet, choice: choice)
                     completion(info)
                 }
             } else {
-                let info = self.walletInfo(self.configuration.wallet, approved: false)
+                let info = self.walletInfo(self.wallet, choice: .cancel)
                 completion(info)
             }
         }

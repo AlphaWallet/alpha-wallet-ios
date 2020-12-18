@@ -119,14 +119,10 @@ class InCoordinator: NSObject, Coordinator {
 
         return service
     }()
-    private var walletConnectConfiguration: WalletConnectServer.Configuration {
-        let server = RPCServer(chainID: config.server.chainID)
-
-        return WalletConnectServer.Configuration(wallet: wallet, rpcServer: server)
-    }
 
     lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, configuration: walletConnectConfiguration, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        addCoordinator(coordinator)
         return coordinator
     }()
 
@@ -152,9 +148,6 @@ class InCoordinator: NSObject, Coordinator {
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
-
-        addCoordinator(walletConnectCoordinator)
-        walletConnectCoordinator.start()
     }
 
     func start() {
@@ -363,7 +356,6 @@ class InCoordinator: NSObject, Coordinator {
             )
             walletSessions[each] = session
         }
-        walletConnectCoordinator.sessions = walletSessions
     }
 
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
@@ -396,9 +388,9 @@ class InCoordinator: NSObject, Coordinator {
     func showTabBar(for account: Wallet) {
         keystore.recentlyUsedWallet = account
         wallet = account
-        walletConnectCoordinator.set(configuration: walletConnectConfiguration)
         setupResourcesOnMultiChain()
         fetchEthereumEvents()
+        walletConnectCoordinator.disconnect()
 
         //TODO creating many objects here. Messy. Improve?
         let realm = self.realm(forAccount: wallet)
