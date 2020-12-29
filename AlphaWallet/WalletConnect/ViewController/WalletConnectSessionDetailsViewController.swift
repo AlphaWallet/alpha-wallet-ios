@@ -9,9 +9,9 @@ import UIKit
 import WalletConnectSwift
 
 protocol WalletConnectSessionViewControllerDelegate: class {
-    func controller(_ controller: WalletConnectSessionViewController, dissconnectSelected sender: UIButton)
+    func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton)
     func signedTransactionSelected(in controller: WalletConnectSessionViewController)
-    func didDissmiss(in controller: WalletConnectSessionViewController)
+    func didDismiss(in controller: WalletConnectSessionViewController)
 }
 
 class WalletConnectSessionViewController: UIViewController {
@@ -23,9 +23,9 @@ class WalletConnectSessionViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-    private let statusRow = WallerConnectRawView()
-    private let nameRow = WallerConnectRawView()
-    private let connectedToRow = WallerConnectRawView()
+    private let statusRow = WalletConnectRowView()
+    private let nameRow = WalletConnectRowView()
+    private let connectedToRow = WalletConnectRowView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let roundedBackground = RoundedBackground()
     private let separatorList: UIView = {
@@ -57,11 +57,11 @@ class WalletConnectSessionViewController: UIViewController {
     }()
 
     weak var delegate: WalletConnectSessionViewControllerDelegate?
-    
+
     init(viewModel: WalletConnectSessionDetailsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        
+
         let tap = UIGestureRecognizer(target: self, action: #selector(signedTransactionSelected))
         transactionsLabel.addGestureRecognizer(tap)
 
@@ -105,7 +105,7 @@ class WalletConnectSessionViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
-        
+
     }
 
     required init?(coder: NSCoder) {
@@ -117,7 +117,7 @@ class WalletConnectSessionViewController: UIViewController {
 
         buttonsBar.configure()
         reload()
-        
+
         hidesBottomBarWhenPushed = true
         navigationItem.hidesBackButton = true
         navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(backButtonSelected))
@@ -134,7 +134,7 @@ class WalletConnectSessionViewController: UIViewController {
     }
 
     @objc private func backButtonSelected(_ sender: UIBarButtonItem) {
-        delegate?.didDissmiss(in: self)
+        delegate?.didDismiss(in: self)
     }
 
     private func configure(viewModel: WalletConnectSessionDetailsViewModel) {
@@ -147,7 +147,7 @@ class WalletConnectSessionViewController: UIViewController {
 
         let button0 = buttonsBar.buttons[0]
         button0.setTitle(viewModel.dissconnectButtonText, for: .normal)
-        button0.addTarget(self, action: #selector(dissconnectButtonSelected), for: .touchUpInside)
+        button0.addTarget(self, action: #selector(disconnectButtonSelected), for: .touchUpInside)
         button0.isEnabled = viewModel.isDisconnectAvailable
     }
 
@@ -155,7 +155,7 @@ class WalletConnectSessionViewController: UIViewController {
         delegate?.signedTransactionSelected(in: self)
     }
 
-    @objc private func dissconnectButtonSelected(_ sender: UIButton) {
-        delegate?.controller(self, dissconnectSelected: sender)
+    @objc private func disconnectButtonSelected(_ sender: UIButton) {
+        delegate?.controller(self, disconnectSelected: sender)
     }
 }

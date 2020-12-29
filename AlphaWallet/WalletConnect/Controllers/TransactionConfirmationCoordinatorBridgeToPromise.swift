@@ -92,6 +92,7 @@ extension UIViewController {
 
 extension TransactionConfirmationCoordinator {
 
+    //session contains account already
     static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator)
         return bridge.promise(account: account, transaction: transaction, configuration: configuration)

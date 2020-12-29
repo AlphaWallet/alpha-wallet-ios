@@ -7,7 +7,10 @@ extension WalletConnectCoordinator {
 
     static func fake() -> WalletConnectCoordinator {
         let keystore = FakeEtherKeystore()
-        return .init(keystore: keystore, configuration: .init(wallet: .make(), rpcServer: .main), navigationController: .init(), analyticsCoordinator: nil, config: .make())
+        var sessions = ServerDictionary<WalletSession>()
+        let session = WalletSession.make()
+        sessions[session.server] = session
+        return .init(keystore: keystore, sessions: sessions, navigationController: .init(), analyticsCoordinator: nil, config: .make())
     }
 }
 
@@ -42,7 +45,7 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(vc1.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
-        
+
         let vc2 = TokensViewController(
                 sessions: sessions,
                 account: .make(),

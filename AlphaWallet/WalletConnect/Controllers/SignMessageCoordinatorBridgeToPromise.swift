@@ -51,7 +51,7 @@ private class SignMessageCoordinatorBridgeToPromise {
         coordinator.start(with: signType)
 
         return promise
-    } 
+    }
 }
 
 extension SignMessageCoordinator {

@@ -169,9 +169,8 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
-
     func walletConnectSelected(in viewController: UIViewController) {
-        walletConnectCoordinator.perform(.openSessionDetails(navigationController: navigationController))
+        walletConnectCoordinator.showSessionDetails(inNavigationController: navigationController)
     }
 
     func didPressAddHideTokens(viewModel: TokensViewModel) {
@@ -347,8 +346,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL) {
         removeCoordinator(coordinator)
-
-        walletConnectCoordinator.perform(.startWalletConnectSession(url))
+        walletConnectCoordinator.openSession(url: url)
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String) {
