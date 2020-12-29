@@ -512,3 +512,20 @@ enum RPCServer: Hashable, CaseIterable {
     }
 }
 // swiftlint:enable type_body_length
+
+extension RPCServer: Codable {
+    private enum Keys: String, CodingKey {
+        case chainId
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        let chainId = try container.decode(Int.self, forKey: .chainId)
+        self = .init(chainID: chainId)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: Keys.self)
+        try container.encode(chainID, forKey: .chainId)
+    }
+}
