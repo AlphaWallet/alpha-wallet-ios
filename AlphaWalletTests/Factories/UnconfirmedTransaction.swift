@@ -17,7 +17,8 @@ extension UnconfirmedTransaction {
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,
-            recipient: to,
+            recipient: nil,
+            contract: to,
             data: data,
             tokenId: nil,
             gasLimit: gasLimit,
