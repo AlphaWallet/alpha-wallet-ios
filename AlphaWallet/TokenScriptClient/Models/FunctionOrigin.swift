@@ -276,7 +276,7 @@ struct FunctionOrigin {
         }
         //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
         return .success((
-                UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: originContractOrRecipientAddress, data: payload),
+                UnconfirmedTransaction(transactionType: .tokenScript(tokenObject), value: BigInt(value), recipient: nil, contract: originContractOrRecipientAddress, data: payload),
                 functionCallMetaData))
     }
 

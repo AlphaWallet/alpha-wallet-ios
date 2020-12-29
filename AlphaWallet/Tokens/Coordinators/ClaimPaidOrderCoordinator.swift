@@ -67,7 +67,8 @@ class ClaimPaidOrderCoordinator: Coordinator {
                 let transaction = UnconfirmedTransaction(
                         transactionType: .claimPaidErc875MagicLink(strongSelf.tokenObject),
                         value: BigInt(strongSelf.signedOrder.order.price),
-                        recipient: strongSelf.signedOrder.order.contractAddress,
+                        recipient: nil,
+                        contract: strongSelf.signedOrder.order.contractAddress,
                         data: payload,
                         gasLimit: nil,
                         gasPrice: nil,

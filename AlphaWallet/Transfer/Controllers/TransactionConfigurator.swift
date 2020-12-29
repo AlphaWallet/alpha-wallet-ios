@@ -91,7 +91,12 @@ class TransactionConfigurator {
     }
 
     var toAddress: AlphaWallet.Address? {
-        return transaction.recipient
+        switch transaction.transactionType {
+        case .nativeCryptocurrency:
+            return transaction.recipient
+        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
+            return transaction.contract
+        }
     }
 
     var value: BigInt {
