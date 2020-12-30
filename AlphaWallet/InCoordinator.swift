@@ -105,10 +105,10 @@ class InCoordinator: NSObject, Coordinator {
         return navigationController.viewControllers.first as? UITabBarController
     }
 
-    private lazy var oneInchSwapServie = Oneinch()
+    private lazy var oneInchSwapService = Oneinch()
     private lazy var swapTokenService: SwapTokenServiceType = {
         let service = SwapTokenService()
-        service.register(service: oneInchSwapServie)
+        service.register(service: oneInchSwapService)
 
         //NOTE: Disable uniswap swap provider
 
@@ -157,7 +157,7 @@ class InCoordinator: NSObject, Coordinator {
         setupWatchingTokenScriptFileChangesToFetchEvents()
 
         urlSchemeCoordinator.processPendingURL(in: self)
-        oneInchSwapServie.fetchSupportedTokens()
+        oneInchSwapService.fetchSupportedTokens()
     }
 
     func launchUniversalScanner() {
