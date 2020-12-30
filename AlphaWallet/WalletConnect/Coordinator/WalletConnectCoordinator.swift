@@ -117,10 +117,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .sendRawTransaction(let raw):
                 return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
             case .getTransactionCount:
-                //NOTE: there is case like in example client app when client wants to get nonce first and then send transaction,
-                //here i suppose we need to show UI to user to allow to enter this nonce value
-                let data = "0x117".toHexData
-                return .value(.init(id: action.id, url: action.url, value: .getTransactionCount(data)))
+                return self.getTransactionCount(session: session, callbackID: action.id, url: action.url)
             case .unknown:
                 throw PMKError.cancelled
             }
@@ -211,6 +208,18 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             }
         }.then { callback -> Promise<WalletConnectServer.Callback> in
             return self.showFeedbackOnSuccess(callback)
+        }
+    }
+
+    private func getTransactionCount(session: WalletSession, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
+        firstly {
+            GetNextNonce(server: session.server, wallet: session.account.address).promise()
+        }.map {
+            if let data = Data(fromHexEncodedString: String(format:"%02X", $0)) {
+                return .init(id: id, url: url, value: .getTransactionCount(data))
+            } else {
+                throw PMKError.badInput
+            }
         }
     }
 
