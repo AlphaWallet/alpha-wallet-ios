@@ -30,17 +30,19 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let analyticsCoordinator: AnalyticsCoordinator?
     private let config: Config
+    private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
 
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
 
-    init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator?, config: Config) {
+    init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator?, config: Config, nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>) {
         self.config = config
         self.sessions = sessions
         self.keystore = keystore
         self.navigationController = navigationController
         self.analyticsCoordinator = analyticsCoordinator
+        self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         super.init()
         start()
     }
@@ -145,8 +147,9 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func executeTransaction(session: WalletSession, callbackID id: WalletConnectRequestID, url: WalletConnectURL, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<WalletConnectServer.Callback> {
-        let dummyPrice: Subscribable<Double> = Subscribable<Double>(nil)
-        let configuration: TransactionConfirmationConfiguration = .dappTransaction(confirmType: type, keystore: keystore, ethPrice: dummyPrice)
+        guard let rpcServer = server.urlToServer[url] else { return Promise(error: WalletConnectError.connectionInvalid) }
+        let ethPrice = nativeCryptoCurrencyPrices[rpcServer]
+        let configuration: TransactionConfirmationConfiguration = .dappTransaction(confirmType: type, keystore: keystore, ethPrice: ethPrice)
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: session.account.address, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         }.map { data -> WalletConnectServer.Callback in
