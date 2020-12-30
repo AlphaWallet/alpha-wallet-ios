@@ -58,8 +58,4 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
         navigationController.popViewController(animated: true)
         delegate.didDismiss(in: self)
     }
-
-    func signedTransactionSelected(in controller: WalletConnectSessionViewController) {
-        //no op
-    }
 }
