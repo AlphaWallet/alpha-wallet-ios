@@ -60,7 +60,7 @@ class WalletConnectServer {
         static let server = "AlphaWallet"
     }
 
-    private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: Config.gnosisURL)
+    private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: URL(string: Constants.website)!)
     private lazy var server: Server = Server(delegate: self)
     private let wallet: AlphaWallet.Address
 
