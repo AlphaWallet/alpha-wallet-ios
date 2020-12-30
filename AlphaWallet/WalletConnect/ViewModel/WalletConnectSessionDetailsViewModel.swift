@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import UIKit 
+import UIKit
 
 struct WalletConnectSessionDetailsViewModel {
 
