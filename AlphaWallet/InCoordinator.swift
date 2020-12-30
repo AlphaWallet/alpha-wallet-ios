@@ -752,7 +752,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createWalletConnectCoordinator() -> WalletConnectCoordinator {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices)
         addCoordinator(coordinator)
         return coordinator
     }
