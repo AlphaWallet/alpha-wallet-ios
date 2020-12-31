@@ -18,11 +18,11 @@ class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
-    private enum Section: CaseIterable {
+    private enum Section {
         case filters
         case addHideToken
         case tokens
-        case activeWalletSession
+        case activeWalletSession(count: Int)
     }
 
     private let tokenCollection: TokenCollection
@@ -245,7 +245,7 @@ class TokensViewController: UIViewController {
             if sessions.isEmpty {
                 strongSelf.sections = [.filters, .addHideToken, .tokens]
             } else {
-                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession, .tokens]
+                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession(count: sessions.count), .tokens]
             }
             strongSelf.tableView.reloadData()
         }
@@ -432,9 +432,9 @@ extension TokensViewController: UITableViewDelegate {
             header.configure()
 
             return header
-        case .activeWalletSession:
+        case .activeWalletSession(let count):
             let header: ActiveWalletSessionView = tableView.dequeueReusableHeaderFooterView()
-            header.configure()
+            header.configure(viewModel: .init(count: count))
             header.delegate = self
 
             return header
