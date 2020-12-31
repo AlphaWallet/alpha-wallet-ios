@@ -756,6 +756,10 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
         return coordinator
     }
+
+    func openWalletConnectSession(url: WalletConnectURL) {
+        walletConnectCoordinator.openSession(url: url)
+    }
 }
 // swiftlint:enable type_body_length
 

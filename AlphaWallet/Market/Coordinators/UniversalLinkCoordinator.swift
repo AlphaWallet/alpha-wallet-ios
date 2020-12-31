@@ -12,6 +12,7 @@ protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
 	func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
+    func handle(walletConnectUrl url: WalletConnectURL)
 }
 
 // swiftlint:disable type_body_length
@@ -20,6 +21,8 @@ class UniversalLinkCoordinator: Coordinator {
         case freeTransfer(query: String, parameters: Parameters)
         case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
     }
+
+    private static let walletConnectPath = "/wc"
 
     private let wallet: Wallet
     private let config: Config
@@ -305,6 +308,29 @@ class UniversalLinkCoordinator: Coordinator {
 
     //Returns true if handled
     func handleUniversalLink() -> Bool {
+        //Eg. https://aw.app/wc?uri=wc:4dc404c9-d685-40f9-9813-ac85676dc845@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=0de792fc767d5cb2410f44e76b5f4cf599d04d53ffdc8caf49ed0fb1c22276ab
+        if url.path == Self.walletConnectPath {
+            return handleWalletConnect()
+        } else {
+            return handleMagicLink()
+        }
+    }
+
+    private func handleWalletConnect() -> Bool {
+        assert(url.path == Self.walletConnectPath)
+        let namePrefix = "uri="
+        //Can't use `URLComponents `because the URL is not well-formed, e.g.: https://example.wallet/wc?uri=wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=91303dedf64285cbbaf9120f6e9d160a5c8aa3deb67017a3874cd272323f48ae
+        let string = url.query!.substring(from: namePrefix.count)
+        if let walletConnectUrl = WalletConnectURL(string) {
+            delegate?.handle(walletConnectUrl: walletConnectUrl)
+        } else {
+            //no-op. According to WalletConnect docs, this is just to get iOS to switch over to the app for signing, etc. e.g. https://aw.app/wc?uri=wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1
+        }
+        return true
+    }
+
+
+    private func handleMagicLink() -> Bool {
         preparingToImportUniversalLink()
         let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
         let prefix: String
