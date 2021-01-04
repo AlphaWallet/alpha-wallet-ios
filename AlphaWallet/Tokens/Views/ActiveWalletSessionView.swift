@@ -12,6 +12,7 @@ protocol ActiveWalletSessionViewDelegate: class {
 }
 
 struct ActiveWalletSessionViewModel {
+    let count: Int
     let backgroundColor: UIColor = R.color.solitude()!
     let icon: UIImage = R.image.walletConnectIcon()!
 
@@ -29,8 +30,13 @@ struct ActiveWalletSessionViewModel {
     var descriptionAttributedText: NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .left
-
-        return .init(string: "Active connection to browser-based Dapp", attributes: [
+        let title: String
+        if count == 1 {
+            title = R.string.localizable.walletConnectActiveSessions()
+        } else {
+            title = R.string.localizable.walletConnectActiveSessionsPlural()
+        }
+        return .init(string: title, attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14 : 16) as Any,
             .foregroundColor: R.color.dove() as Any
@@ -92,7 +98,7 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        
+
         background.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(background)
 
@@ -126,7 +132,7 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
         return nil
     }
 
-    func configure(viewModel: ActiveWalletSessionViewModel = .init()) {
+    func configure(viewModel: ActiveWalletSessionViewModel) {
         background.backgroundColor = viewModel.backgroundColor
 
         iconImageView.image = viewModel.icon
