@@ -1,5 +1,5 @@
 //
-//  ShareViewController.swift
+//  ShareContextHandler.swift
 //  AlphaWalletShare
 //
 //  Created by Vladyslav Shepitko on 10.11.2020.
