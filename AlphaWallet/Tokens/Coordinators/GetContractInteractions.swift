@@ -64,7 +64,6 @@ class GetContractInteractions {
                     }
                 }
             case .failure(let error):
-                print(error)
                 completion([])
             }
         }
@@ -115,7 +114,6 @@ class GetContractInteractions {
                     }
                 }
             case .failure(let error):
-                print(error)
                 completion([], nil)
             }
         }
