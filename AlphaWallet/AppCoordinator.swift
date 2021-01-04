@@ -377,6 +377,10 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator) {
         inCoordinator?.addImported(contract: contract, forServer: coordinator.server)
     }
+
+    func handle(walletConnectUrl url: WalletConnectURL) {
+        inCoordinator?.openWalletConnectSession(url: url)
+    }
 }
 
 extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
