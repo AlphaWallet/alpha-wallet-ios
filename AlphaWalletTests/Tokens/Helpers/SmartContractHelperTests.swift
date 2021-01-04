@@ -21,7 +21,6 @@ class SmartContractHelperTests: XCTestCase {
                 filter: eventFilter
         )
         when(resolved: getEventsPromise).done { result in
-            print(result)
             //TODO make this consistent like this address has exactly one nameregistered from block a to block b
             if result[0].isFulfilled {
                 expectation.fulfill()
