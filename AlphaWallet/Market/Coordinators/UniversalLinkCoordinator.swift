@@ -341,8 +341,7 @@ class UniversalLinkCoordinator: Coordinator {
                 )
             }
         case .failure(let error):
-            print("ecrecover error: " + error.localizedDescription)
-            self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
         return true
@@ -595,7 +594,6 @@ class UniversalLinkCoordinator: Coordinator {
 
             guard let vc = strongSelf.importTokenViewController, case .ready = vc.state else { return }
             // TODO handle http response
-            print(result)
             if successful {
                 strongSelf.showImportSuccessful()
             } else {
