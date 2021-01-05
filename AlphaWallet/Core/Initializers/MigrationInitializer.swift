@@ -4,11 +4,9 @@ import Foundation
 import RealmSwift
 
 class MigrationInitializer: Initializer {
-    private let account: Wallet
+    let account: Wallet
 
-    lazy var config: Realm.Configuration = {
-        return RealmConfiguration.configuration(for: account)
-    }()
+    lazy var config: Realm.Configuration = RealmConfiguration.configuration(for: account)
 
     init(account: Wallet) {
         self.account = account
@@ -16,7 +14,7 @@ class MigrationInitializer: Initializer {
 
     func perform() {
         config.schemaVersion = 7
-        //NOTE: use [weak self] to avaid memory leak
+        //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
 
@@ -76,3 +74,97 @@ class MigrationInitializer: Initializer {
         }
     }
 }
+
+extension MigrationInitializer {
+
+    //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
+    static var hasRealmDatabasesForWallet: Bool {
+        let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+        if let contents = (try? FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil))?.filter({ $0.lastPathComponent.starts(with: "0") }) {
+            return !contents.isEmpty
+        } else {
+            //No reason why it should come here
+            return false
+        }
+    }
+
+    //NOTE: This function is using to make sure that wallets in user defaults will be removed after restoring backup from iCloud. Realm files don't backup to iCloud but user defaults does backed up.
+    static func removeWalletsIfRealmFilesMissed(keystore: Keystore) {
+        for wallet in keystore.wallets {
+            let migration = MigrationInitializer(account: wallet)
+
+            guard let path = migration.config.fileURL else { continue }
+
+            //NOTE: make sure realm files exists, if not then delete this wallets from user defaults.
+            if FileManager.default.fileExists(atPath: path.path) {
+                //no op
+            } else {
+                _ = keystore.delete(wallet: wallet)
+            }
+        }
+    }
+
+    func oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: AssetDefinitionStore) {
+        let migration = self//./MigrationInitializer(account: wallet)
+        //Debugging
+        print(migration.config.fileURL!)
+        print(migration.config.fileURL!.deletingLastPathComponent())
+        let exists: Bool
+        if let path = migration.config.fileURL?.path {
+            exists = FileManager.default.fileExists(atPath: path)
+        } else {
+            exists = false
+        }
+        guard !exists else { return }
+
+        migration.perform()
+        let realm = try! Realm(configuration: migration.config)
+
+        do {
+            try realm.write {
+                for each in RPCServer.allCases {
+                    let migration = MigrationInitializerForOneChainPerDatabase(account: self.account, server: each, assetDefinitionStore: assetDefinitionStore)
+                    migration.perform()
+                    let oldPerChainDatabase = try! Realm(configuration: migration.config)
+                    for each in oldPerChainDatabase.objects(Bookmark.self) {
+                        realm.create(Bookmark.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(DelegateContract.self) {
+                        realm.create(DelegateContract.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(DeletedContract.self) {
+                        realm.create(DeletedContract.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(HiddenContract.self) {
+                        realm.create(HiddenContract.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(History.self) {
+                        realm.create(History.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(TokenObject.self) {
+                        realm.create(TokenObject.self, value: each)
+                    }
+                    for each in oldPerChainDatabase.objects(Transaction.self) {
+                        realm.create(Transaction.self, value: each)
+                    }
+                }
+            }
+            for each in RPCServer.allCases {
+                let migration = MigrationInitializerForOneChainPerDatabase(account: self.account, server: each, assetDefinitionStore: assetDefinitionStore)
+                let realmUrl = migration.config.fileURL!
+                let realmUrls = [
+                    realmUrl,
+                    realmUrl.appendingPathExtension("lock"),
+                    realmUrl.appendingPathExtension("note"),
+                    realmUrl.appendingPathExtension("management")
+                ]
+                for each in realmUrls {
+                    try? FileManager.default.removeItem(at: each)
+                }
+            }
+        } catch {
+            //no-op
+        }
+    }
+}
+
