@@ -399,19 +399,19 @@ enum RPCServer: Hashable, CaseIterable {
     var iconImage: UIImage? {
         switch self {
         case .main:
-            return R.image.eth()!
+            return R.image.eth()
         case .xDai:
-            return R.image.xDai()!
+            return R.image.xDai()
         case .poa:
-            return R.image.tokenPoa()!
+            return R.image.tokenPoa()
         case  .classic:
-            return R.image.tokenEtc()!
+            return R.image.tokenEtc()
         case .callisto:
-            return R.image.tokenCallisto()!
+            return R.image.tokenCallisto()
         case .artis_sigma1:
-            return R.image.tokenArtis()!
+            return R.image.tokenArtis()
         case .binance_smart_chain:
-            return R.image.tokenBnb()!
+            return R.image.tokenBnb()
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .custom:
             return nil
         }
