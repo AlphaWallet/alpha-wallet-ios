@@ -42,18 +42,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let browserOnly: Bool
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
 
-    private var nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView {
-        //Not the best implementation. Hopefully this will be unnecessary
-        let safeAreaInsetsTop: CGFloat
-        safeAreaInsetsTop = navigationController.view.safeAreaInsets.top
-        _nativeCryptoCurrencyBalanceView.topMargin = 56 + safeAreaInsetsTop
-        return _nativeCryptoCurrencyBalanceView
-    }
-
-    private lazy var _nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView = {
-        return NativeCryptoCurrencyBalanceView(session: session, rightMargin: 16, topMargin: 0)
-    }()
-
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
     }()
@@ -85,7 +73,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         set {
             Config.setChainId(newValue.chainID)
-            nativeCryptoCurrencyBalanceView.session = session
         }
     }
 
@@ -186,14 +173,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
 
         browserViewController.goTo(url: url)
-        //FIXME: for some reasons webView doesnt reload itself when load(URLRequest) method is called. we need to force reload it
+        //FIXME: for some reasons webView doesn't reload itself when load(URLRequest) method is called. we need to force reload it
         if forceReload {
             browserViewController.reload()
         }
     }
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
-        nativeCryptoCurrencyBalanceView.hide()
         let coordinator = SignMessageCoordinator(
             navigationController: navigationController,
             keystore: keystore,
@@ -333,7 +319,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
-        nativeCryptoCurrencyBalanceView.hide()
         let coordinator = ServersCoordinator(defaultServer: server, config: config)
         coordinator.delegate = self
         coordinator.start()
@@ -345,10 +330,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func withCurrentUrl(handler: (URL?) -> Void) {
         handler(browserNavBar?.url)
-    }
-
-    func willHide() {
-        nativeCryptoCurrencyBalanceView.hide()
     }
 
     func isMagicLink(_ url: URL) -> Bool {

@@ -921,7 +921,7 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             coordinator.navigationController.setNavigationBarHidden(true, animated: false)
             coordinator.navigationController.popToRootViewController(animated: true)
         case .send:
-            coordinator.navigationController.dismiss(animated: true, completion: nil)
+            coordinator.navigationController.dismiss(animated: true)
         }
 
         removeCoordinator(coordinator)
@@ -949,9 +949,6 @@ extension InCoordinator: StaticHTMLViewControllerDelegate {
 
 extension InCoordinator: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        if !isViewControllerDappBrowserTab(viewController) {
-            dappBrowserCoordinator?.willHide()
-        }
         return true
     }
 }
