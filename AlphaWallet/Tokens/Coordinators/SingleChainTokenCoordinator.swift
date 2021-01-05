@@ -19,6 +19,12 @@ enum ContractData {
     case failed(networkReachable: Bool?)
 }
 
+struct NoTokenError: LocalizedError {
+    var errorDescription: String? {
+        return R.string.localizable.aWalletNoTokens()
+    }
+}
+
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)

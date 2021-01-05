@@ -35,17 +35,6 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
 
-    //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
-    private var hasRealmDatabasesForWallet: Bool {
-        let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-        if let contents = (try? FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil))?.filter({ $0.lastPathComponent.starts(with: "0") }) {
-            return !contents.isEmpty
-        } else {
-            //No reason why it should come here
-            return false
-        }
-    }
-
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
@@ -90,29 +79,14 @@ class AppCoordinator: NSObject, Coordinator {
             }
         }
     }
-    //NOTE: This function is using to make sure that wallets in user defaults will be removed after restoring backup from iCloud. Realm files don't backup to iCloud but user defaults does backed up.
-    private func removeWalletsIfRealmFilesMissed() {
-        for wallet in keystore.wallets {
-            let migration = MigrationInitializer(account: wallet)
-
-            guard let path = migration.config.fileURL else { continue }
-
-            //NOTE: make sure realm files exists, if not then delete this wallets from user defaults.
-            if FileManager.default.fileExists(atPath: path.path) {
-                //no op
-            } else {
-                _ = keystore.delete(wallet: wallet)
-            }
-        }
-    }
 
     //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
     private func startImpl() -> Bool {
-        if hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
+        if MigrationInitializer.hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
             return false
         }
 
-        removeWalletsIfRealmFilesMissed()
+        MigrationInitializer.removeWalletsIfRealmFilesMissed(keystore: keystore)
 
         setupAnalytics()
         window.rootViewController = navigationController
@@ -232,7 +206,7 @@ class AppCoordinator: NSObject, Coordinator {
     @objc func reset() {
         lock.deletePasscode()
         coordinators.removeAll()
-        navigationController.dismiss(animated: true, completion: nil)
+        navigationController.dismiss(animated: true)
         resetToWelcomeScreen()
     }
 
@@ -319,19 +293,22 @@ extension AppCoordinator: WelcomeViewControllerDelegate {
 }
 
 extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
+
     func didCancel(in coordinator: InitialWalletCreationCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }
 
     func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
-        navigationController.dismiss(animated: true, completion: nil)
-        self.removeCoordinator(coordinator)
-        self.showTransactions(for: account)
+        navigationController.dismiss(animated: true)
+
+        removeCoordinator(coordinator)
+        showTransactions(for: account)
     }
 }
 
 extension AppCoordinator: InCoordinatorDelegate {
+
     func didCancel(in coordinator: InCoordinator) {
         removeCoordinator(coordinator)
         reset()
