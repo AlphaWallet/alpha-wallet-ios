@@ -112,8 +112,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                 return self.signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
             case .signPersonalMessage(let hexMessage):
                 return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
-            case .signTypedMessage(let typedData):
-                return self.signMessage(with: .eip712(typedData), account: account, callbackID: action.id, url: action.url)
+            case .signTypedMessageV3(let typedData):
+                return self.signMessage(with: .eip712v3(typedData), account: account, callbackID: action.id, url: action.url)
             case .sendRawTransaction(let raw):
                 return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
             case .getTransactionCount:
@@ -132,14 +132,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         firstly {
             SignMessageCoordinator.promise(navigationController, keystore: keystore, coordinator: self, signType: type, account: account)
         }.map { data -> WalletConnectServer.Callback in
-            switch type {
-            case .message:
-                return .init(id: id, url: url, value: .signMessage(data))
-            case .personalMessage:
-                return .init(id: id, url: url, value: .signPersonalMessage(data))
-            case .typedMessage, .eip712:
-                return .init(id: id, url: url, value: .signTypedMessage(data))
-            }
+            return .init(id: id, url: url, value: data)
         }
     }
 
@@ -152,10 +145,10 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }.map { data -> WalletConnectServer.Callback in
             switch data {
             case .signedTransaction(let data):
-                return .init(id: id, url: url, value: .signTransaction(data))
+                return .init(id: id, url: url, value: data)
             case .sentTransaction(let transaction):
                 let data = Data(hex: transaction.id)
-                return .init(id: id, url: url, value: .sentTransaction(data))
+                return .init(id: id, url: url, value: data)
             case .sentRawTransaction:
                 //NOTE: Doesn't support sentRawTransaction for TransactionConfirmationCoordinator, for it we are using another function
                 throw PMKError.cancelled
@@ -204,7 +197,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                 throw PMKError.cancelled
             case .sentRawTransaction(let transactionId, _):
                 let data = Data(hex: transactionId)
-                return .init(id: id, url: url, value: .sentTransaction(data))
+                return .init(id: id, url: url, value: data)
             }
         }.then { callback -> Promise<WalletConnectServer.Callback> in
             return self.showFeedbackOnSuccess(callback)
@@ -216,7 +209,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             GetNextNonce(server: session.server, wallet: session.account.address).promise()
         }.map {
             if let data = Data(fromHexEncodedString: String(format:"%02X", $0)) {
-                return .init(id: id, url: url, value: .getTransactionCount(data))
+                return .init(id: id, url: url, value: data)
             } else {
                 throw PMKError.badInput
             }

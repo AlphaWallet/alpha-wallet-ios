@@ -16,8 +16,10 @@ public indirect enum ABIValue: Equatable {
     case int(bits: Int, BigInt)
 
     /// Address, similar to `uint(bits: 160)`
-    //TODO change this to use AlphaWallet.Address?
     case address(Address)
+
+    //TODO eventually replace `address` with this
+    case address2(AlphaWallet.Address)
 
     /// Boolean
     case bool(Bool)
@@ -58,6 +60,8 @@ public indirect enum ABIValue: Equatable {
             return .int(bits: bits)
         case .address:
             return .address
+        case .address2:
+            return .address
         case .bool:
             return .bool
         case .fixed(let bits, let scale, _):
@@ -84,7 +88,7 @@ public indirect enum ABIValue: Equatable {
     /// Encoded length in bytes
     public var length: Int {
         switch self {
-        case .uint, .int, .address, .bool, .fixed, .ufixed:
+        case .uint, .int, .address, .address2, .bool, .fixed, .ufixed:
             return 32
         case .bytes(let data):
             return ((data.count + 31) / 32) * 32
@@ -107,7 +111,7 @@ public indirect enum ABIValue: Equatable {
     /// Whether the value is dynamic
     public var isDynamic: Bool {
         switch self {
-        case .uint, .int, .address, .bool, .fixed, .ufixed, .bytes, .array:
+        case .uint, .int, .address, .address2, .bool, .fixed, .ufixed, .bytes, .array:
             return false
         case .dynamicBytes, .string, .dynamicArray:
             return true
@@ -135,6 +139,8 @@ public indirect enum ABIValue: Equatable {
             self = .int(bits: bits, value)
         case (.address, let address as Address):
             self = .address(address)
+        case (.address, let address as AlphaWallet.Address):
+            self = .address2(address)
         case (.bool, let value as Bool):
             self = .bool(value)
         case (.fixed(let bits, let scale), let value as BigInt):
@@ -171,6 +177,8 @@ public indirect enum ABIValue: Equatable {
             return value
         case .address(let value):
             return value
+        case .address2(let value):
+            return Address(address: value)
         case .bool(let value):
             return value
         case .fixed(_, _, let value):

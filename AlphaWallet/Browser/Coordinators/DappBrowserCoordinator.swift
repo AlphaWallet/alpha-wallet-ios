@@ -197,8 +197,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+                case .eip712v3:
+                    callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
                 }
                 strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
             case .failure:
@@ -419,6 +419,8 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
+        case .signTypedMessageV3(let typedData):
+            signMessage(with: .eip712v3(typedData), account: account, callbackID: callbackID)
         case .unknown, .sendRawTransaction:
             break
         }

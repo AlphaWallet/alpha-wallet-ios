@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import WalletConnectSwift 
+import WalletConnectSwift
 
 extension WalletConnectServer {
 
@@ -76,7 +76,7 @@ extension WalletConnectServer {
                 self = .sendRawTransaction(data)
             case .getTransactionCount:
                 let data = try request.parameter(of: String.self, at: 0)
-                
+
                 self = .getTransactionCount(data)
             case .none:
                 self = .unknown
@@ -95,7 +95,7 @@ private enum EIP712TypedDataPair: Decodable {
             case invalid
         }
         let container = try decoder.singleValueContainer()
-        
+
         if let value = try? container.decode(String.self) {
             self = .id(value)
         } else if let value = try? container.decode(EIP712TypedData.self) {

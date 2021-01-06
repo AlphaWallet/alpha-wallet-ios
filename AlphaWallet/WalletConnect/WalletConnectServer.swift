@@ -88,7 +88,7 @@ class WalletConnectServer {
     }
 
     func fulfill(_ callback: Callback, request: WalletConnectSwift.Request) throws {
-        let response = try Response(url: callback.url, value: callback.value.object, id: callback.id)
+        let response = try Response(url: callback.url, value: callback.value.hexEncoded, id: callback.id)
         server.send(response)
     }
 
@@ -158,7 +158,7 @@ extension WalletConnectServer: RequestHandler {
                 return .value(.signTransaction(data))
             case .signTypedData(_, let data):
 
-                return .value(.signTypedMessage(data))
+                return .value(.signTypedMessageV3(data))
             case .sendTransaction(let data):
                 let data = UnconfirmedTransaction(transactionType: transactionType, bridge: data)
 
