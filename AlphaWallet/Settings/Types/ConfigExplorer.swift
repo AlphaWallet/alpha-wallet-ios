@@ -20,7 +20,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
                 return endpoint + "/tx/" + ID
             }
         }()
@@ -47,6 +47,8 @@ struct ConfigExplorer {
             return "Binance Explorer"
         case .artis_sigma1, .artis_tau1:
             return "ARTIS"
+        case .heco, .heco_testnet:
+            return "Heco Explorer"
         }
     }
 
@@ -81,6 +83,11 @@ struct ConfigExplorer {
             return ("https://api-testnet.bscscan.com", nameForServer)
         case .custom, .callisto:
             return (.none, nameForServer)
+        case .heco:
+            return ("https://scan-mainnet.hecochain.com", nameForServer)
+        case .heco_testnet:
+            return ("https://scan-testnet.hecochain.com", nameForServer)
+
         }
     }
 }
