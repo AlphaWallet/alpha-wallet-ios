@@ -106,6 +106,8 @@ extension RPCServer {
         case .binance_smart_chain: return 12
         case .binance_smart_chain_testnet: return 13
         case .custom: return 11
+        case .heco: return 14
+        case .heco_testnet: return 15
         }
     }
 }
