@@ -29,6 +29,8 @@ public final class ABIEncoder {
             try encode(value)
         case .address(let address):
             try encode(address)
+        case .address2(let address):
+            try encode(address)
         case .bool(let value):
             try encode(value)
         case .fixed(_, _, let value):
@@ -159,6 +161,12 @@ public final class ABIEncoder {
     //TODO change this to use AlphaWallet.Address?
     /// Encodes an address
     public func encode(_ address: Address) throws {
+        let padding = ((address.data.count + 31) / 32) * 32 - address.data.count
+        data.append(Data(repeating: 0, count: padding))
+        data.append(address.data)
+    }
+
+    public func encode(_ address: AlphaWallet.Address) throws {
         let padding = ((address.data.count + 31) / 32) * 32 - address.data.count
         data.append(Data(repeating: 0, count: padding))
         data.append(address.data)

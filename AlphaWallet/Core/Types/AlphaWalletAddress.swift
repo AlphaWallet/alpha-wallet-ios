@@ -6,11 +6,11 @@ import TrustKeystore
 import WalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
-enum AlphaWallet {}
+public enum AlphaWallet {}
 
 //TODO move this to a standard alone internal Pod with 0 external dependencies so main app and TokenScript can use it?
 extension AlphaWallet {
-    enum Address: Hashable, Codable {
+    public enum Address: Hashable, Codable {
         //Computing EIP55 is really slow. Cache needed when we need to create many addresses, like parsing a whole lot of Ethereum event logs
         private static var cache: [String: Address] = .init()
 
@@ -47,7 +47,7 @@ extension AlphaWallet {
             self = Address.deriveEthereumAddress(fromPublicKey: publicKey)
         }
 
-        init(from decoder: Decoder) throws {
+        public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: Key.self)
             let address = try container.decode(String.self, forKey: .ethereumAddress)
             self = .ethereumAddress(eip55String: address)
@@ -66,7 +66,7 @@ extension AlphaWallet {
             return Data(hexString: eip55String)!
         }
 
-        func encode(to encoder: Encoder) throws {
+        public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: Key.self)
             try container.encode(eip55String, forKey: .ethereumAddress)
         }
@@ -83,7 +83,7 @@ extension AlphaWallet {
 }
 
 extension AlphaWallet.Address {
-    static func == (lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
+    public static func == (lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
         return lsh.sameContract(as: rhs)
     }
 }
