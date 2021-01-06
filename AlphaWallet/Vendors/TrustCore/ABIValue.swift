@@ -16,7 +16,6 @@ public indirect enum ABIValue: Equatable {
     case int(bits: Int, BigInt)
 
     /// Address, similar to `uint(bits: 160)`
-    //TODO change this to use AlphaWallet.Address?
     case address(Address)
 
     //TODO eventually replace `address` with this

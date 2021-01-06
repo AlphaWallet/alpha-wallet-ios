@@ -6,21 +6,13 @@
 
 /// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
 import Foundation
-import BigInt 
+import BigInt
 import TrustKeystore
 
 /// A struct represents EIP712 type tuple
 struct EIP712Type: Codable {
     let name: String
     let type: String
-}
-
-/// A struct represents EIP712 Domain
-struct EIP712Domain: Codable {
-    let name: String
-    let version: String
-    let chainId: Int
-    let verifyingContract: String
 }
 
 /// A struct represents EIP712 TypedData
@@ -32,21 +24,14 @@ struct EIP712TypedData: Codable {
 }
 
 extension EIP712TypedData {
-
     var rawStringValue: String? {
         guard let value = try? JSONEncoder().encode(self), let rawValue = String(data: value, encoding: .utf8) else { return nil }
         return rawValue
     }
 
-    /// Type hash for the primaryType of an `EIP712TypedData`
-    var typeHash: Data {
-        let data = encodeType(primaryType: primaryType)
-        return Crypto.hash(data)
-    }
-
     /// Sign-able hash for an `EIP712TypedData`
-    var signHash: Data {
-        let data = Data(bytes: [0x19, 0x01]) + Crypto.hash(encodeData(data: domain, type: "EIP712Domain")) + Crypto.hash(encodeData(data: message, type: primaryType))
+    var digest: Data {
+        let data = Data(bytes: [0x19, 0x01]) + hashStruct(domain, type: "EIP712Domain") + hashStruct(message, type: primaryType)
         return Crypto.hash(data)
     }
 
@@ -67,6 +52,7 @@ extension EIP712TypedData {
 
     /// Encode a type of struct
     func encodeType(primaryType: String) -> Data {
+        NSLog("  xxx encoding primary: \(primaryType)")
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
@@ -74,6 +60,7 @@ extension EIP712TypedData {
             let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
+        NSLog("  xxx result: \(encoded)")
         return encoded.data(using: .utf8) ?? Data()
     }
 
@@ -84,16 +71,13 @@ extension EIP712TypedData {
         let encoder = ABIEncoder()
         var values: [ABIValue] = []
         do {
-            let typeHash = Crypto.hash(encodeType(primaryType: type))
-            let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
-            values.append(typeHashValue)
             if let valueTypes = types[type] {
-                try valueTypes.forEach { field in
-                    if let _ = types[field.type],
-                        let json = data[field.name] {
-                        let nestEncoded = encodeData(data: json, type: field.type)
-                        values.append(try ABIValue(Crypto.hash(nestEncoded), type: .bytes(32)))
-                    } else if let value = makeABIValue(data: data[field.name], type: field.type) {
+                for field in valueTypes {
+                    guard let value = data[field.name] else { continue }
+                    if isStruct(field) {
+                        let nestEncoded = hashStruct(value, type: field.type)
+                        values.append(try ABIValue(nestEncoded, type: .bytes(32)))
+                    } else if let value = makeABIValue(data: value, type: field.type) {
                         values.append(value)
                     }
                 }
@@ -109,10 +93,10 @@ extension EIP712TypedData {
     private func makeABIValue(data: JSON?, type: String) -> ABIValue? {
         if (type == "string" || type == "bytes"), let value = data?.stringValue, let valueData = value.data(using: .utf8) {
             return try? ABIValue(Crypto.hash(valueData), type: .bytes(32))
-        } else if type == "bool",
-            let value = data?.boolValue {
+        } else if type == "bool", let value = data?.boolValue {
             return try? ABIValue(value, type: .bool)
-        } else if type == "address", let value = data?.stringValue, let address = Address(string: value) {
+            //Using `AlphaWallet.Address(uncheckedAgainstNullAddress:)` instead of `AlphaWallet.Address(string:)` because EIP712v3 test pages like to use the contract 0xb...b which fails the burn address check
+        } else if type == "address", let value = data?.stringValue, let address = AlphaWallet.Address(uncheckedAgainstNullAddress: value) {
             return try? ABIValue(address, type: .address)
         } else if type.starts(with: "uint") {
             let size = parseIntSize(type: type, prefix: "uint")
@@ -122,7 +106,7 @@ extension EIP712TypedData {
             if let value = data?.floatValue {
                 return try? ABIValue(Int(value), type: .uint(bits: size))
             } else if let value = data?.stringValue,
-                let bigInt = BigUInt(value: value) {
+                      let bigInt = BigUInt(value: value) {
                 return try? ABIValue(bigInt, type: .uint(bits: size))
             }
         } else if type.starts(with: "int") {
@@ -133,13 +117,13 @@ extension EIP712TypedData {
             if let value = data?.floatValue {
                 return try? ABIValue(Int(value), type: .int(bits: size))
             } else if let value = data?.stringValue,
-                let bigInt = BigInt(value: value) {
+                      let bigInt = BigInt(value: value) {
                 return try? ABIValue(bigInt, type: .int(bits: size))
             }
         } else if type.starts(with: "bytes") {
             if let length = Int(type.dropFirst("bytes".count)), let value = data?.stringValue {
                 if value.starts(with: "0x"),
-                    let hex = Data(hexString: value) {
+                   let hex = Data(hexString: value) {
                     return try? ABIValue(hex, type: .bytes(length))
                 } else {
                     return try? ABIValue(Data(bytes: Array(value.utf8)), type: .bytes(length))
@@ -162,6 +146,18 @@ extension EIP712TypedData {
             return -1
         }
         return size
+    }
+
+    private func isStruct(_ field: EIP712Type) -> Bool {
+        types[field.type] != nil
+    }
+
+    private func hashStruct(_ data: JSON, type: String) -> Data {
+        return Crypto.hash(typeHash(type) + encodeData(data: data, type: type))
+    }
+
+    private func typeHash(_ type: String) -> Data {
+        Crypto.hash(encodeType(primaryType: type))
     }
 }
 
