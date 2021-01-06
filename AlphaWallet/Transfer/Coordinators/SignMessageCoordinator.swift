@@ -9,7 +9,7 @@ enum SignMessageType {
     case message(Data)
     case personalMessage(Data)
     case typedMessage([EthTypedData])
-    case eip712(EIP712TypedData)
+    case eip712v3(EIP712TypedData)
 }
 
 protocol SignMessageCoordinatorDelegate: class {
@@ -64,7 +64,7 @@ class SignMessageCoordinator: Coordinator {
             } else {
                 result = keystore.signTypedMessage(typedData, for: account)
             }
-        case .eip712(let data):
+        case .eip712v3(let data):
             result = keystore.signEip712TypedData(data, for: account)
         }
         switch result {

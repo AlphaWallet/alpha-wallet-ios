@@ -19,6 +19,7 @@ enum DappCallbackValue {
     case signMessage(Data)
     case signPersonalMessage(Data)
     case signTypedMessage(Data)
+    case signTypedMessageV3(Data)
 
     var object: String {
         switch self {
@@ -32,24 +33,36 @@ enum DappCallbackValue {
             return data.hexEncoded
         case .signTypedMessage(let data):
             return data.hexEncoded
+        case .signTypedMessageV3(let data):
+            return data.hexEncoded
         }
     }
 }
 
 struct DappCommandObjectValue: Decodable {
-    public var value: String = ""
-    public var array: [EthTypedData] = []
-    public init(from coder: Decoder) throws {
+    var value: String = ""
+    var eip712PreV3Array: [EthTypedData] = []
+    let eip712v3Data: EIP712TypedData?
+
+    init(from coder: Decoder) throws {
         let container = try coder.singleValueContainer()
         if let intValue = try? container.decode(Int.self) {
-            self.value = String(intValue)
+            value = String(intValue)
+            eip712v3Data = nil
         } else if let stringValue = try? container.decode(String.self) {
-            self.value = stringValue
+            if let data = stringValue.data(using: .utf8), let object = try? JSONDecoder().decode(EIP712TypedData.self, from: data) {
+                value = ""
+                eip712v3Data = object
+            } else {
+                value = stringValue
+                eip712v3Data = nil
+            }
         } else {
             var arrayContainer = try coder.unkeyedContainer()
             while !arrayContainer.isAtEnd {
-                self.array.append(try arrayContainer.decode(EthTypedData.self))
+                eip712PreV3Array.append(try arrayContainer.decode(EthTypedData.self))
             }
+            eip712v3Data = nil
         }
     }
 }
