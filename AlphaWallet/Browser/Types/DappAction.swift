@@ -8,6 +8,7 @@ enum DappAction {
     case signMessage(String)
     case signPersonalMessage(String)
     case signTypedMessage([EthTypedData])
+    case signTypedMessageV3(EIP712TypedData)
     case signTransaction(UnconfirmedTransaction)
     case sendTransaction(UnconfirmedTransaction)
     case sendRawTransaction(String)
@@ -28,8 +29,15 @@ extension DappAction {
             let data = command.object["data"]?.value ?? ""
             return .signPersonalMessage(data)
         case .signTypedMessage:
-            let array = command.object["data"]?.array ?? []
-            return .signTypedMessage(array)
+            if let data = command.object["data"] {
+                if let eip712Data = data.eip712v3Data {
+                    return .signTypedMessageV3(eip712Data)
+                } else {
+                    return .signTypedMessage(data.eip712PreV3Array)
+                }
+            } else {
+                return .signTypedMessage([])
+            }
         case .unknown:
             return .unknown
         }

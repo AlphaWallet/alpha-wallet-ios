@@ -80,14 +80,14 @@ struct ConfirmSignMessageViewControllerViewModel {
             return message
         case .typedMessage:
             return nil
-        case .eip712(let data):
+        case .eip712v3(let data):
             return data.rawStringValue
         }
     }
 
     var typedMessagesCount: Int {
         switch message {
-        case .message, .eip712, .personalMessage:
+        case .message, .eip712v3, .personalMessage:
             return 0
         case .typedMessage(let typedMessage):
             return typedMessage.count
@@ -96,7 +96,7 @@ struct ConfirmSignMessageViewControllerViewModel {
 
     private func typedMessage(at index: Int) -> EthTypedData? {
         switch message {
-        case .message, .eip712, .personalMessage:
+        case .message, .eip712v3, .personalMessage:
             return nil
         case .typedMessage(let typedMessage):
             if index < typedMessage.count {

@@ -480,7 +480,7 @@ open class EtherKeystore: Keystore {
     }
 
     func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
-        return signHash(data.signHash, for: account)
+        signHash(data.digest, for: account)
     }
 
     func signTypedMessage(_ datas: [EthTypedData], for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
