@@ -245,10 +245,12 @@ struct WalletConnectConnection {
     let url: WCURL
     let name: String
     let icon: URL?
+    let server: RPCServer?
 
     init(dAppInfo info: Session.DAppInfo, url: WCURL) {
         self.url = url
         name = info.peerMeta.name
         icon = info.peerMeta.icons.first
+        server = info.chainId.flatMap { .init(chainID: $0) }
     }
 }
