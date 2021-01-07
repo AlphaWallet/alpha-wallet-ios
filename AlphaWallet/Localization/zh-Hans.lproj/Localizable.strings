@@ -525,6 +525,7 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.status.online" = "Online";
 "walletConnect.status.offline" = "Offline";
 "walletConnect.session.name" = "Name";
+"walletConnect.session.connect" = "Connect on %@";
 "walletConnect.session.connectedURL" = "Connected to";
 "walletConnect.session.disconnect" = "Disconnect";
 "walletConnect.session.signedTransactions" = "Signed Transactions"; 

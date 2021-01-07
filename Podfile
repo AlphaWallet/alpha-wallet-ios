@@ -39,7 +39,7 @@ target 'AlphaWallet' do
   pod 'Mixpanel-swift'
   pod 'UnstoppableDomainsResolution', '0.1.6'
   pod 'BlockiesSwift'
-  pod 'WalletConnectSwift' 
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git', :commit => 'c86938785303b99ff09d90e32e553ce38eee0aa6'
 
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
