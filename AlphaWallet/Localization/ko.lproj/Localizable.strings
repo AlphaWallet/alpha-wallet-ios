@@ -405,6 +405,8 @@
 "blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
 "blockchain.Binance" = "Binance Network";
 "blockchain.Binance.test" = "Binance Testnet Network";
+"blockchain.Heco" = "Heco Network";
+"blockchain.Heco.test" = "Heco Testnet Network";
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Browse";
 "light" = "Light";
