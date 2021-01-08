@@ -179,7 +179,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
-        showConnectToSession(title: connection.name, url: connection.url, completion: completion)
+        showConnectToSession(connection: connection, completion: completion)
     }
 
     //TODO after we support sendRawTransaction in dapps (and hence a proper UI, be it the actionsheet for transaction confirmation or a simple prompt), let's modify this to use the same flow
@@ -244,23 +244,38 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    private func showConnectToSession(title: String, url: WCURL, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
+    private func showConnectToSession(connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
         let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
-        let alertViewController = UIAlertController(title: title, message: R.string.localizable.walletConnectStart(url.absoluteString), preferredStyle: style)
-
-        for each in serverChoices {
-            let action = UIAlertAction(title: each.name, style: .default) { _ in
-                completion(.connect(each))
+        if let server = connection.server {
+            let alertViewController = UIAlertController(title: connection.name, message: connection.url.absoluteString, preferredStyle: style)
+            let startAction = UIAlertAction(title: R.string.localizable.walletConnectSessionConnect(server.name), style: .default) { _ in
+                completion(.connect(server))
             }
-            alertViewController.addAction(action)
-        }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
-            completion(.cancel)
-        }
-        alertViewController.addAction(cancelAction)
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+                completion(.cancel)
+            }
 
-        navigationController.present(alertViewController, animated: true)
+            alertViewController.addAction(startAction)
+            alertViewController.addAction(cancelAction)
+
+            navigationController.present(alertViewController, animated: true)
+        } else {
+            let alertViewController = UIAlertController(title: connection.name, message: R.string.localizable.walletConnectStart(connection.url.absoluteString), preferredStyle: style)
+            for each in serverChoices {
+                let action = UIAlertAction(title: each.name, style: .default) { _ in
+                    completion(.connect(each))
+                }
+                alertViewController.addAction(action)
+            }
+
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+                completion(.cancel)
+            }
+            alertViewController.addAction(cancelAction)
+
+            navigationController.present(alertViewController, animated: true)
+        }
     }
 }
 
