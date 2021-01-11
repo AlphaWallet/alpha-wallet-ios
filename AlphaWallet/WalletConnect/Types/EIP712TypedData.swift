@@ -52,7 +52,6 @@ extension EIP712TypedData {
 
     /// Encode a type of struct
     func encodeType(primaryType: String) -> Data {
-        NSLog("  xxx encoding primary: \(primaryType)")
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
@@ -60,7 +59,6 @@ extension EIP712TypedData {
             let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
-        NSLog("  xxx result: \(encoded)")
         return encoded.data(using: .utf8) ?? Data()
     }
 
