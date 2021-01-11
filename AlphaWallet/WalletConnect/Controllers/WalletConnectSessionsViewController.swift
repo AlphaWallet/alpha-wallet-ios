@@ -19,11 +19,13 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
+    private let urlToServer: [WalletConnectURL: RPCServer]
 
     weak var delegate: WalletConnectSessionsViewControllerDelegate?
 
-    init(sessions: Subscribable<[WalletConnectSession]>) {
+    init(sessions: Subscribable<[WalletConnectSession]>, urlToServer: [WalletConnectURL: RPCServer]) {
         self.sessions = sessions
+        self.urlToServer = urlToServer
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
@@ -60,8 +62,12 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(for: indexPath) as WalletConnectSessionCell
         guard let session = sessions.value?[indexPath.row] else { return cell }
-        let viewModel = WalletConnectSessionCellViewModel(session: session)
-        cell.configure(viewModel: viewModel)
+        if let server = urlToServer[session.url] {
+            let viewModel = WalletConnectSessionCellViewModel(session: session, server: server)
+            cell.configure(viewModel: viewModel)
+        } else {
+            //Should be impossible
+        }
         return cell
     }
 

@@ -25,6 +25,7 @@ class WalletConnectSessionViewController: UIViewController {
     private let statusRow = WalletConnectRowView()
     private let nameRow = WalletConnectRowView()
     private let connectedToRow = WalletConnectRowView()
+    private let chainRow = WalletConnectRowView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let roundedBackground = RoundedBackground()
     private let separatorList: UIView = {
@@ -45,6 +46,7 @@ class WalletConnectSessionViewController: UIViewController {
             statusRow,
             nameRow,
             connectedToRow,
+            chainRow,
             separatorList
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -106,6 +108,7 @@ class WalletConnectSessionViewController: UIViewController {
         statusRow.configure(viewModel: viewModel.statusRowViewModel)
         nameRow.configure(viewModel: viewModel.nameRowViewModel)
         connectedToRow.configure(viewModel: viewModel.connectedToRowViewModel)
+        chainRow.configure(viewModel: viewModel.chainRowViewModel)
         imageView.image = viewModel.walletImageIcon
 
         let button0 = buttonsBar.buttons[0]
