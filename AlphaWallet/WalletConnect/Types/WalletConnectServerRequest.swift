@@ -60,12 +60,8 @@ extension WalletConnectServer {
                 let rawValue = try request.parameter(of: String.self, at: 1)
 
                 guard let address = AlphaWallet.Address(string: addressRawValue), let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
-                let pair = try JSONDecoder().decode([EIP712TypedDataPair].self, from: data)
-
-                guard let typed = pair.first(where: { $0.typedData != nil })?.typedData else { throw AnyError.invalid }
-
+                let typed = try JSONDecoder().decode(EIP712TypedData.self, from: data)
                 self = .signTypedData(address: address, data: typed)
-
             case .sendTransaction:
                 let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
 
@@ -83,35 +79,4 @@ extension WalletConnectServer {
             }
         }
     }
-
-}
-
-private enum EIP712TypedDataPair: Decodable {
-    case id(String)
-    case typedData(EIP712TypedData)
-
-    init(from decoder: Decoder) throws {
-        enum AnyError: Error {
-            case invalid
-        }
-        let container = try decoder.singleValueContainer()
-
-        if let value = try? container.decode(String.self) {
-            self = .id(value)
-        } else if let value = try? container.decode(EIP712TypedData.self) {
-            self = .typedData(value)
-        } else {
-            throw AnyError.invalid
-        }
-    }
-
-    var typedData: EIP712TypedData? {
-        switch self {
-        case .id:
-            return nil
-        case .typedData(let data):
-            return data
-        }
-    }
-
 }
