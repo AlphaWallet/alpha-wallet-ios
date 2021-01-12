@@ -3,11 +3,8 @@
 import UIKit
 
 struct WalletConnectSessionCellViewModel {
-    private let session: WalletConnectSession
-
-    init(session: WalletConnectSession) {
-        self.session = session
-    }
+    let session: WalletConnectSession
+    let server: RPCServer
 
     var backgroundColor: UIColor {
         Colors.appBackground
@@ -18,6 +15,6 @@ struct WalletConnectSessionCellViewModel {
     }
 
     var name: String {
-        session.dAppInfo.peerMeta.name
+        "\(session.dAppInfo.peerMeta.name) (\(server.name))"
     }
 }

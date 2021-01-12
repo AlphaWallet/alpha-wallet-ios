@@ -46,6 +46,16 @@ struct WalletConnectSessionDetailsViewModel {
         )
     }
 
+    var chainRowViewModel: WallerConnectRawViewModel {
+        if let server = server.urlToServer[session.url] {
+            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: server.name)
+        } else {
+            //Should be impossible
+            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: "-")
+        }
+    }
+
+
     var dissconnectButtonText: String {
         return R.string.localizable.walletConnectSessionDisconnect()
     }
