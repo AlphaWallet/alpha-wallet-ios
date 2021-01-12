@@ -64,7 +64,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
             let session = sessions[0]
             display(session: session, withNavigationController: navigationController)
         } else {
-            let viewController = WalletConnectSessionsViewController(sessions: server.sessions)
+            let viewController = WalletConnectSessionsViewController(sessions: server.sessions, urlToServer: server.urlToServer)
             viewController.delegate = self
             viewController.configure()
             navigationController.pushViewController(viewController, animated: true)
