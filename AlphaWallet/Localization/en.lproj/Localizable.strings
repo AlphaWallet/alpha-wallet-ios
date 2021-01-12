@@ -491,6 +491,7 @@
 "configureTransaction.barButton.useDefault" = "Use Default";
 "configureTransaction.header.gasPrice" = "Gas Price";
 "configureTransaction.header.gasLimit" = "Gas Limit";
+"configureTransaction.notEnoughFunds" = "Not enough funds to send this transaction";
 "transactionConfiguration.Type.slow" = "Slow";
 "transactionConfiguration.Type.average" = "Average";
 "transactionConfiguration.Type.fast" = "Fast";
