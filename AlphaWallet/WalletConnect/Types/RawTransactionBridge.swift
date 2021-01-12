@@ -49,3 +49,14 @@ struct RawTransactionBridge: Decodable {
         }
     }
 }
+
+extension RawTransactionBridge {
+    init(value: BigInt? = .none, to: AlphaWallet.Address? = .none, data: Data? = .none, gas: BigInt? = .none, gasPrice: BigInt? = .none, nonce: BigInt? = .none) {
+        self.value = value
+        self.to = to
+        self.data = data
+        self.gas = gas
+        self.gasPrice = gasPrice
+        self.nonce = nonce
+    }
+}
