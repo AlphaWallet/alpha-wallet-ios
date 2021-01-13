@@ -18,9 +18,13 @@ class TransactionSigningTests: XCTestCase {
             gasLimit: BigInt("21000"),
             server: .main)
         let signer = EIP155Signer(server: .main)
-        let hash = signer.hash(transaction: transaction)
+        do {
+            let hash = try signer.hash(transaction: transaction)
 
-        XCTAssertEqual(hash.hex(), "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")
+            XCTAssertEqual(hash.hex(), "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
 
     func testHomesteadSignHash() {
@@ -55,10 +59,13 @@ class TransactionSigningTests: XCTestCase {
 
         let signer = EIP155Signer(server: .main)
 
-        let hash = signer.hash(transaction: transaction)
-        let expectedHash = Data(hexString: "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")!
-        XCTAssertEqual(hash, expectedHash)
-
+        do {
+            let hash = try signer.hash(transaction: transaction)
+            let expectedHash = Data(hexString: "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")!
+            XCTAssertEqual(hash, expectedHash)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
         let signature = Data(hexString: "28ef61340bd939bc2195fe537567866003e1a15d3c71ff63e1590620aa63627667cbe9d8997f761aecb703304b3800ccf555c9f3dc64214b297fb1966a3b6d8300")!
         let (r, s, v) = signer.values(transaction: transaction, signature: signature)
         XCTAssertEqual(v, BigInt(37))
