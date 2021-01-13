@@ -53,7 +53,8 @@ class SendViewController: UIViewController {
     }
 
     let storage: TokensDataStore
-
+    private (set) var isAllFunds: Bool = false
+    
 // swiftlint:disable function_body_length
     init(
             session: WalletSession,
@@ -111,7 +112,7 @@ class SendViewController: UIViewController {
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
             .spacer(height: 4),
-            amountTextField.statusLabelContainer,
+            [amountTextField.statusLabelContainer, amountTextField.allFundsContainer].asStackView(axis: .horizontal, alignment: .fill),
             amountTextField.alternativeAmountLabelContainer,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
@@ -213,6 +214,7 @@ class SendViewController: UIViewController {
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
         amountTextField.isAlternativeAmountEnabled = false
+        amountTextField.allFundsAvailable = true
         amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
         amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
 
@@ -252,6 +254,7 @@ class SendViewController: UIViewController {
         nextButton.setTitle(R.string.localizable.send(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
+        amountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
         updateNavigationTitle()
     }
 
@@ -259,7 +262,37 @@ class SendViewController: UIViewController {
         title = "\(R.string.localizable.send()) \(transactionType.symbol)"
     }
 
-    @objc func send() {
+    @objc private func allFundsSelected(_ sender: UIButton) {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            guard let ethCost = allFunds else { return }
+            isAllFunds = true
+
+            amountTextField.set(ethCost: ethCost, useFormatting: false)
+        case .ERC20Token:
+            guard let ethCost = allFunds else { return }
+            isAllFunds = true
+
+            amountTextField.set(ethCost: ethCost, useFormatting: true)
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+    }
+    
+    //Represents all funds string value in eth
+    private var allFunds: String? {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            guard let balance = session.balance else { return nil }
+            return EtherNumberFormatter().string(from: balance.value, units: .ether)
+        case .ERC20Token(let token, _, _):
+            return EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+            return nil
+        }
+    }
+
+    @objc private func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
@@ -289,7 +322,7 @@ class SendViewController: UIViewController {
     }
 
     func activateAmountView() {
-        _ = amountTextField.becomeFirstResponder()
+        amountTextField.becomeFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -417,7 +450,7 @@ class SendViewController: UIViewController {
 extension SendViewController: AmountTextFieldDelegate {
 
     func shouldReturn(in textField: AmountTextField) -> Bool {
-        _ = targetAddressTextField.becomeFirstResponder()
+        targetAddressTextField.becomeFirstResponder()
         return false
     }
 
@@ -429,6 +462,13 @@ extension SendViewController: AmountTextFieldDelegate {
         guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
             return
+        }
+
+        //NOTE: not sure if we need to set `isAllFunds` to true if edited value quals to balance value
+        if let allFunds = allFunds, allFunds.nonEmpty, textField.ethCost != allFunds {
+            isAllFunds = false
+        } else {
+            //no op
         }
     }
 
@@ -454,7 +494,7 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        _ = textField.resignFirstResponder()
+        textField.resignFirstResponder()
         return true
     }
 

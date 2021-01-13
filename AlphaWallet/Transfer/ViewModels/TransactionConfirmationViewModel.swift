@@ -117,7 +117,7 @@ extension TransactionConfirmationViewModel {
             }
         }
 
-        private let amount: String
+        private var amount: FungiblesTransactionAmount
         private var balance: String?
         private var newBalance: String?
         private let configurator: TransactionConfigurator
@@ -139,7 +139,7 @@ extension TransactionConfirmationViewModel {
             Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: String, ethPrice: Subscribable<Double>) {
+        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: FungiblesTransactionAmount, ethPrice: Subscribable<Double>) {
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
@@ -154,10 +154,23 @@ extension TransactionConfirmationViewModel {
             case .nativeCryptocurrency(let balanceViewModel):
                 guard let viewModel = balanceViewModel else { return }
                 balance = "\(viewModel.amountShort) \(viewModel.symbol)"
-                if let balance = session.balanceCoordinator.balance?.value {
-                    let newAmountShort = EtherNumberFormatter.short.string(from: balance - configurator.transaction.value)
-                    newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
+
+                var availableAmount: BigInt
+                if amount.isAllFunds {
+                    //NOTE: we need to handle balance updates, and refresh `amount` balance - gas
+                    //if balance is equals to 0, or in case when value (balance - gas) less then zero we willn't crash
+                    let allFundsWithoutGas = viewModel.value - configurator.gasValue
+                    availableAmount = allFundsWithoutGas
+
+                    configurator.updateTransaction(value: allFundsWithoutGas)
+                    amount.value = EtherNumberFormatter().string(from: allFundsWithoutGas, units: .ether)
+                } else {
+                    availableAmount = viewModel.value
                 }
+
+                let newAmountShort = EtherNumberFormatter.short.string(from: availableAmount - configurator.transaction.value)
+                newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
+
             case .erc20(let token):
                 let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
                 let symbol = token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
@@ -173,7 +186,7 @@ extension TransactionConfirmationViewModel {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
                 let cryptoToDollarSymbol = Constants.Currency.usd
-                let double = Double(amount) ?? 0
+                let double = Double(amount.value) ?? 0
                 if let cryptoToDollarRate = cryptoToDollarRate {
                     let cryptoToDollarValue = StringFormatter().currency(with: double * cryptoToDollarRate, and: cryptoToDollarSymbol)
                     return "\(double) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
@@ -185,7 +198,7 @@ extension TransactionConfirmationViewModel {
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
-        }
+        } 
 
         var gasFee: String {
             let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit

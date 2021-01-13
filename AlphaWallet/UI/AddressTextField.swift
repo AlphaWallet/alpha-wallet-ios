@@ -203,7 +203,7 @@ class AddressTextField: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func becomeFirstResponder() -> Bool {
+    @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
     }
@@ -290,7 +290,7 @@ class AddressTextField: UIControl {
         delegate?.openQRCodeReader(for: self)
     }
 
-    override func resignFirstResponder() -> Bool {
+    @discardableResult override func resignFirstResponder() -> Bool {
         super.resignFirstResponder()
         return textField.resignFirstResponder()
     }
