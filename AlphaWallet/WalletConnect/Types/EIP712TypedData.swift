@@ -72,11 +72,8 @@ extension EIP712TypedData {
             if let valueTypes = types[type] {
                 for field in valueTypes {
                     guard let value = data[field.name] else { continue }
-                    if isStruct(field) {
-                        let nestEncoded = hashStruct(value, type: field.type)
-                        values.append(try ABIValue(nestEncoded, type: .bytes(32)))
-                    } else if let value = makeABIValue(data: value, type: field.type) {
-                        values.append(value)
+                    if let encoded = try encodeField(value: value, type: field.type) {
+                        values.append(encoded)
                     }
                 }
             }
@@ -85,6 +82,29 @@ extension EIP712TypedData {
             print(error)
         }
         return encoder.data
+    }
+
+    func encodeField(value: JSON, type: String) throws -> ABIValue? {
+        if isStruct(type) {
+            let nestEncoded = hashStruct(value, type: type)
+            return try ABIValue(nestEncoded, type: .bytes(32))
+            //Can't check for "[]" because we want to support static arrays: Type[n]
+        } else if let indexOfOpenBracket = type.index(of: "["), type.hasSuffix("]"), case let .array(elements) = value {
+            var encodedElements: Data = .init()
+            let elementType = type.substring(to: indexOfOpenBracket)
+            for each in elements {
+                if let value = try encodeField(value: each, type: elementType) {
+                    let encoder = ABIEncoder()
+                    try encoder.encode(value)
+                    encodedElements += encoder.data
+                }
+            }
+            return try ABIValue(Crypto.hash(encodedElements), type: .bytes(32))
+        } else if let value = makeABIValue(data: value, type: type) {
+            return value
+        } else {
+            return nil
+        }
     }
 
     /// Helper func for `encodeData`
@@ -128,8 +148,6 @@ extension EIP712TypedData {
                 }
             }
         }
-
-        //TODO array types
         return nil
     }
 
@@ -146,8 +164,8 @@ extension EIP712TypedData {
         return size
     }
 
-    private func isStruct(_ field: EIP712Type) -> Bool {
-        types[field.type] != nil
+    private func isStruct(_ fieldType: String) -> Bool {
+        types[fieldType] != nil
     }
 
     private func hashStruct(_ data: JSON, type: String) -> Data {
@@ -155,7 +173,7 @@ extension EIP712TypedData {
     }
 
     private func typeHash(_ type: String) -> Data {
-        Crypto.hash(encodeType(primaryType: type))
+        return Crypto.hash(encodeType(primaryType: type))
     }
 }
 
