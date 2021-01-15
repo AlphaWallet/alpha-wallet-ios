@@ -21,14 +21,38 @@ struct EIP712TypedData: Codable {
     let primaryType: String
     let domain: JSON
     let message: JSON
+
+    var domainName: String {
+        switch domain {
+        case .object(let dictionary):
+            switch dictionary["name"] {
+            case .string(let value):
+                return value
+            case .array, .object, .number, .bool, .null, .none:
+                return ""
+            }
+        case .array, .string, .number, .bool, .null:
+            return ""
+        }
+    }
+
+    var domainVerifyingContract: AlphaWallet.Address? {
+        switch domain {
+        case .object(let dictionary):
+            switch dictionary["verifyingContract"] {
+            case .string(let value):
+                //We need it to be unchecked because test sites like to use 0xCcc..cc
+                return AlphaWallet.Address(uncheckedAgainstNullAddress: value)
+            case .array, .object, .number, .bool, .null, .none:
+                return nil
+            }
+        case .array, .string, .number, .bool, .null:
+            return nil
+        }
+    }
 }
 
 extension EIP712TypedData {
-    var rawStringValue: String? {
-        guard let value = try? JSONEncoder().encode(self), let rawValue = String(data: value, encoding: .utf8) else { return nil }
-        return rawValue
-    }
-
     /// Sign-able hash for an `EIP712TypedData`
     var digest: Data {
         let data = Data(bytes: [0x19, 0x01]) + hashStruct(domain, type: "EIP712Domain") + hashStruct(message, type: primaryType)
