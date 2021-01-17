@@ -3,7 +3,9 @@
 import UIKit
 
 extension AlphaWallet.Address {
+
     var tokenImage: UIImage? {
+
         switch eip55String {
         case "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643":
             return R.image.tokenCdai()
@@ -17,6 +19,48 @@ extension AlphaWallet.Address {
             return R.image.tokenUsdc()
         case "0x493C57C4763932315A328269E1ADaD09653B9081":
             return R.image.tokenIdai()
+
+        //aave v1, v2
+        case "0xba3D9687Cf50fE253cd2e1cFeEdE1d6787344Ed5", "0xFFC97d72E13E01096502Cb8Eb52dEe56f74DAD7B":  //    Aave: aAAVE Token V2
+            return R.image.iconsTokensAAave()
+        case "0xE1BA0FB44CCb0D11b80F92f4f8Ed94CA3fF51D00", "0x05Ec93c0365baAeAbF7AefFb0972ea7ECdD39CF1":  //    Aave: aBAT Token V2
+            return R.image.iconsTokensABat()
+        case "0x6Ee0f7BB50a54AB5253dA0667B0Dc2ee526C30a8", "0xA361718326c15715591c299427c62086F69923D9":  //    Aave: aBUSD Token V2
+            return R.image.iconsTokensABusd()
+        case "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d", "0x028171bCA77440897B824Ca71D1c56caC55b68A3":  //    Aave: aDAI Token V2
+            return R.image.iconsTokensADai()
+        case "0xaC6Df26a590F08dcC95D5a4705ae8abbc88509Ef":  //    Aave: aENJ Token V2
+            return R.image.iconsTokensAEnj()
+        case "0x9D91BE44C06d373a8a226E1f3b146956083803eB", "0x39C6b3e42d6A679d7D776778Fe880BC9487C2EDA":  //    Aave: aKNC Token V2
+            return R.image.iconsTokensAKnc()
+        case "0xA64BD6C70Cb9051F6A9ba1F163Fdc07E0DfB5F84", "0xa06bC25B5805d5F8d82847D191Cb4Af5A3e873E0":  //    Aave: aLINK Token V2
+            return R.image.iconsTokensALink()
+        case "0x6FCE4A401B6B80ACe52baAefE4421Bd188e76F6f", "0xa685a61171bb30d4072B338c80Cb7b2c865c873E":  //    Aave: aMANA Token V2
+            return R.image.iconsTokensAMana()
+        case "0x7deB5e830be29F91E298ba5FF1356BB7f8146998", "0xc713e5E149D5D0715DcD1c156a020976e7E56B88":  //    Aave: aMKR Token V2
+            return R.image.iconsTokensAMkr()
+        case "0xCC12AbE4ff81c9378D670De1b57F8e0Dd228D77a":  //    Aave: aREN Token V2
+            return R.image.iconsTokensARep()
+        case "0x328C4c80BC7aCa0834Db37e6600A6c49E12Da4DE", "0x35f6B052C598d933D69A4EEC4D04c73A191fE6c2":  //    Aave: aSNX Token V2
+            return R.image.iconsTokensASnx()
+        case "0x625aE63000f46200499120B906716420bd059240", "0x6C5024Cd4F8A59110119C56f8933403A539555EB":  //    Aave: aSUSD Token V2
+            return R.image.iconsTokensASusd()
+        case "0x4DA9b813057D04BAef4e5800E36083717b4a0341", "0x101cc05f4A51C0319f570d5E146a8C625198e636":  //    Aave: aTUSD Token V2
+            return R.image.iconsTokensATusd()
+        case "0xB9D7CB55f463405CDfBe4E90a6D2Df01C2B92BF1":  //    Aave: aUNI Token V2
+            return R.image.iconsTokensAUniLinkEth()
+        case "0x9bA00D6856a4eDF4665BcA2C2309936572473B7E", "0xBcca60bB61934080951369a648Fb03DF4F96263C":  //    Aave: aUSDC Token V2
+            return R.image.iconsTokensAUsdc()
+        case "0x71fc860F7D3A592A4a98740e39dB31d25db65ae8", "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811":  //    Aave: aUSDT Token V2
+            return R.image.iconsTokensAUsdt()
+        case "0xFC4B8ED459e00e5400be803A9BB3954234FD50e3", "0x9ff58f4fFB29fA2266Ab25e75e2A8b3503311656":  //    Aave: aWBTC Token V2
+            return R.image.iconsTokensAWbtc()
+        case "0x030bA81f1c18d280636F32af80b9AAd02Cf0854e":  //    Aave: aWETH Token V2
+            return R.image.iconsTokensAWeth()
+        case "0x5165d24277cD063F5ac44Efd447B27025e888f37":  //    Aave: aYFI Token V2
+            return R.image.iconsTokensAYfi()
+        case "0x6Fb0855c404E09c47C3fBCA25f08d4E41f9F062f", "0xDf7FF54aAcAcbFf42dfe29DD6144A69b629f8C9e":  //    Aave: aZRX Token V2
+            return R.image.iconsTokensA0X()
 
         //p_tokens
         case "0x47421D4D41196475cd9f84cC3FCDA056BA6Bde64":
