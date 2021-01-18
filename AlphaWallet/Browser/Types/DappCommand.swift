@@ -42,27 +42,27 @@ enum DappCallbackValue {
 struct DappCommandObjectValue: Decodable {
     var value: String = ""
     var eip712PreV3Array: [EthTypedData] = []
-    let eip712v3Data: EIP712TypedData?
+    let eip712v3And4Data: EIP712TypedData?
 
     init(from coder: Decoder) throws {
         let container = try coder.singleValueContainer()
         if let intValue = try? container.decode(Int.self) {
             value = String(intValue)
-            eip712v3Data = nil
+            eip712v3And4Data = nil
         } else if let stringValue = try? container.decode(String.self) {
             if let data = stringValue.data(using: .utf8), let object = try? JSONDecoder().decode(EIP712TypedData.self, from: data) {
                 value = ""
-                eip712v3Data = object
+                eip712v3And4Data = object
             } else {
                 value = stringValue
-                eip712v3Data = nil
+                eip712v3And4Data = nil
             }
         } else {
             var arrayContainer = try coder.unkeyedContainer()
             while !arrayContainer.isAtEnd {
                 eip712PreV3Array.append(try arrayContainer.decode(EthTypedData.self))
             }
-            eip712v3Data = nil
+            eip712v3And4Data = nil
         }
     }
 }

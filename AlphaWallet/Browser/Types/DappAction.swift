@@ -30,7 +30,7 @@ extension DappAction {
             return .signPersonalMessage(data)
         case .signTypedMessage:
             if let data = command.object["data"] {
-                if let eip712Data = data.eip712v3Data {
+                if let eip712Data = data.eip712v3And4Data {
                     return .signTypedMessageV3(eip712Data)
                 } else {
                     return .signTypedMessage(data.eip712PreV3Array)
