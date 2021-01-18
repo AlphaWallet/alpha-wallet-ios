@@ -113,7 +113,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signPersonalMessage(let hexMessage):
                 return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
             case .signTypedMessageV3(let typedData):
-                return self.signMessage(with: .eip712v3(typedData), account: account, callbackID: action.id, url: action.url)
+                return self.signMessage(with: .eip712v3And4(typedData), account: account, callbackID: action.id, url: action.url)
             case .sendRawTransaction(let raw):
                 return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
             case .getTransactionCount:
