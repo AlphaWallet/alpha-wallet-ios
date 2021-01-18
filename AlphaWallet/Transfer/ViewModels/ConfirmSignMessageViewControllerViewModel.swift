@@ -22,7 +22,7 @@ struct ConfirmSignMessageViewControllerViewModel {
         switch message {
         case .message, .personalMessage, .typedMessage:
             return ""
-        case .eip712v3(let message):
+        case .eip712v3And4(let message):
             let name = message.domainName
             if let verifyingContract = message.domainVerifyingContract {
                 return "\(name)\n\(verifyingContract.truncateMiddle)"
@@ -85,7 +85,7 @@ struct ConfirmSignMessageViewControllerViewModel {
         switch message {
         case .message, .personalMessage, .typedMessage:
             return .center
-        case .eip712v3:
+        case .eip712v3And4:
             return .left
         }
     }
@@ -111,14 +111,14 @@ struct ConfirmSignMessageViewControllerViewModel {
             return NSAttributedString(string: message)
         case .typedMessage:
             return nil
-        case .eip712v3(let data):
+        case .eip712v3And4(let data):
             return data.rawStringValue
         }
     }
 
     var typedMessagesCount: Int {
         switch message {
-        case .message, .eip712v3, .personalMessage:
+        case .message, .eip712v3And4, .personalMessage:
             return 0
         case .typedMessage(let typedMessage):
             return typedMessage.count
@@ -127,7 +127,7 @@ struct ConfirmSignMessageViewControllerViewModel {
 
     private func typedMessage(at index: Int) -> EthTypedData? {
         switch message {
-        case .message, .eip712v3, .personalMessage:
+        case .message, .eip712v3And4, .personalMessage:
             return nil
         case .typedMessage(let typedMessage):
             if index < typedMessage.count {
