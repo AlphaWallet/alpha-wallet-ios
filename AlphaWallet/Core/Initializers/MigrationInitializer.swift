@@ -105,10 +105,13 @@ extension MigrationInitializer {
     }
 
     func oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: AssetDefinitionStore) {
-        let migration = self//./MigrationInitializer(account: wallet)
-        //Debugging
-        print(migration.config.fileURL!)
-        print(migration.config.fileURL!.deletingLastPathComponent())
+        let migration = self
+
+        #if DEBUG
+            print(migration.config.fileURL!)
+            print(migration.config.fileURL!.deletingLastPathComponent())
+        #endif
+
         let exists: Bool
         if let path = migration.config.fileURL?.path {
             exists = FileManager.default.fileExists(atPath: path)
@@ -123,7 +126,7 @@ extension MigrationInitializer {
         do {
             try realm.write {
                 for each in RPCServer.allCases {
-                    let migration = MigrationInitializerForOneChainPerDatabase(account: self.account, server: each, assetDefinitionStore: assetDefinitionStore)
+                    let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
                     for each in oldPerChainDatabase.objects(Bookmark.self) {
@@ -150,7 +153,7 @@ extension MigrationInitializer {
                 }
             }
             for each in RPCServer.allCases {
-                let migration = MigrationInitializerForOneChainPerDatabase(account: self.account, server: each, assetDefinitionStore: assetDefinitionStore)
+                let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                 let realmUrl = migration.config.fileURL!
                 let realmUrls = [
                     realmUrl,
