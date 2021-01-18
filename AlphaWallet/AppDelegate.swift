@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 }
             }
         } catch {
-            print("EtherKeystore init issue.")
+
         }
         protectionCoordinator.didFinishLaunchingWithOptions()
 
@@ -127,9 +127,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         #endif
 
         sns.createPlatformEndpoint(request!).continueWith(executor: AWSExecutor.mainThread(), block: { (task: AWSTask!) -> AnyObject? in
-            if task.error != nil {
-                print("Error: \(String(describing: task.error))")
-            } else {
+            if task.error == nil {
                 let createEndpointResponse = task.result! as AWSSNSCreateEndpointResponse
                 if let endpointArnForSNS = createEndpointResponse.endpointArn {
                     UserDefaults.standard.set(endpointArnForSNS, forKey: "endpointArnForSNS")
@@ -167,7 +165,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     //TODO Handle SNS errors
     func application(_ application: UIApplication,
                      didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print(error.localizedDescription)
+        //no op
     }
 
     @discardableResult private func handleUniversalLink(url: URL) -> Bool {
