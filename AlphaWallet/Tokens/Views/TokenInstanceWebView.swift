@@ -500,7 +500,7 @@ extension TokenInstanceWebView {
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712v3:
+                case .eip712v3And4:
                     callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
                 }
                 strongSelf.notifyFinish(callbackID: callbackID, value: .success(callback))

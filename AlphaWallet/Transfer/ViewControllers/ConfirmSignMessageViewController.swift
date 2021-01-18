@@ -12,6 +12,7 @@ protocol ConfirmSignMessageViewControllerDelegate: class {
 class ConfirmSignMessageViewController: UIViewController {
     private let background = UIView()
 	private let header = TokensCardViewControllerTitleHeader()
+    private let subtitleLabel = UILabel()
     private let detailsBackground = UIView()
     private let singleMessageLabel = UILabel()
     private let singleMessageScrollView = UIScrollView()
@@ -60,6 +61,7 @@ class ConfirmSignMessageViewController: UIViewController {
 
         let stackView = [
 			header,
+            subtitleLabel,
             .spacer(height: 20),
             tableView,
             singleMessageScrollView,
@@ -121,13 +123,20 @@ class ConfirmSignMessageViewController: UIViewController {
 
             header.configure(title: viewModel.headerTitle)
 
-            singleMessageLabel.textAlignment = .center
+            subtitleLabel.textAlignment = .center
+            subtitleLabel.numberOfLines = 0
+            subtitleLabel.textColor = viewModel.subtitleColor
+            subtitleLabel.font = viewModel.subtitleFont
+            subtitleLabel.text = viewModel.subtitle
+
+            singleMessageLabel.textAlignment = viewModel.singleMessageLabelTextAlignment
             singleMessageLabel.numberOfLines = 0
             singleMessageLabel.textColor = viewModel.singleMessageLabelTextColor
             singleMessageLabel.font = viewModel.singleMessageLabelFont
-            singleMessageLabel.text = viewModel.singleMessageLabelText
+            singleMessageLabel.attributedText = viewModel.singleMessageLabelText
             //We don't need to check if it's more than 1 line, the scroll indicator wouldn't flash if there's too little content
-            if !viewModel.singleMessageLabelText.isEmpty {
+            let str = viewModel.singleMessageLabelText?.string
+            if !str.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     self.singleMessageScrollView.flashScrollIndicators()
                 }
