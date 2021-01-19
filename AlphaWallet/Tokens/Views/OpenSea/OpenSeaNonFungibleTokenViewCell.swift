@@ -47,7 +47,10 @@ class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        setupParallaxEffect(forView: imageView, max: 20)
+
+        DispatchQueue.main.async {
+            self.setupParallaxEffect(forView: self.imageView, max: 20)
+        }
     }
 
     func configure(viewModel: OpenSeaNonFungibleTokenViewCellViewModel) {

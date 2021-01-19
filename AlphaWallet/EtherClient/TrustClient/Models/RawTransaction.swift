@@ -52,22 +52,25 @@ struct RawTransaction: Decodable {
     let operationsLocalized: [LocalizedOperation]?
 }
 
-extension Transaction {
-    static func from(transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<Transaction?> {
+extension TransactionInstance {
+    static func from(transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<TransactionInstance?> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }
+
         let state: TransactionState = {
             if transaction.error?.isEmpty == false || transaction.isError == "1" {
                 return .error
             }
             return .completed
         }()
+
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
+        
         return firstly {
             createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage)
-        }.then { operations -> Promise<Transaction?> in
-            let result = Transaction(
+        }.then { operations -> Promise<TransactionInstance?> in
+            let result = TransactionInstance(
                     id: transaction.hash,
                     server: tokensStorage.server,
                     blockNumber: Int(transaction.blockNumber)!,
@@ -84,11 +87,12 @@ extension Transaction {
                     state: state,
                     isErc20Interaction: false
             )
+            
             return .value(result)
         }
     }
 
-    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<[LocalizedOperationObject]> {
+    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<[LocalizedOperationObjectInstance]> {
         guard transaction.input != "0x" else {
             return Promise.value([])
         }
@@ -105,21 +109,23 @@ extension Transaction {
             let amount = BigInt(amount1, radix: 16)
             //Extract the address and strip the first 12 (x2 = 24) characters of 0s
             let to = "0x\(transaction.input[transaction.input.index(transaction.input.startIndex, offsetBy: 10 + 24)..<transaction.input.index(transaction.input.startIndex, offsetBy: 10 + 64)])"
+
             if let amount = amount, let contract = transaction.toAddress, let to = AlphaWallet.Address(string: to)?.eip55String {
-                if let token = tokensStorage.token(forContract: contract) {
+                if let token = tokensStorage.tokenThreadSafe(forContract: contract) {
                     let operationType = mapTokenTypeToTransferOperationType(token.type)
-                    let result = LocalizedOperationObject(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: token.symbol, name: token.name, decimals: token.decimals)
+                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: token.symbol, name: token.name, decimals: token.decimals)
                     return .value([result])
                 } else {
                     let getContractName = tokensStorage.getContractName(for: contract)
                     let getContractSymbol = tokensStorage.getContractSymbol(for: contract)
                     let getDecimals = tokensStorage.getDecimals(for: contract)
                     let getTokenType = tokensStorage.getTokenType(for: contract)
+
                     return firstly {
                         when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
-                    }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObject]> in
+                    }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
                         let operationType = mapTokenTypeToTransferOperationType(tokenType)
-                        let result = LocalizedOperationObject(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: symbol, name: name, decimals: Int(decimals))
+                        let result = LocalizedOperationObjectInstance(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: symbol, name: name, decimals: Int(decimals))
                         return .value([result])
                     }
                 }

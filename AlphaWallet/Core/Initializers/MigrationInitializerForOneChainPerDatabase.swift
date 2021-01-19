@@ -22,7 +22,9 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
 // swiftlint:disable function_body_length
     func perform() {
         config.schemaVersion = 53
-        config.migrationBlock = { migration, oldSchemaVersion in
+        config.migrationBlock = { [weak self] migration, oldSchemaVersion in
+            guard let strongSelf = self else { return }
+
             if oldSchemaVersion < 33 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
@@ -57,7 +59,7 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     if let contract = (oldObject["contract"] as? String).flatMap({ AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }), let type = (oldObject["rawType"] as? String).flatMap({ TokenType(rawValue: $0) }) {
-                        let tokenTypeName = XMLHandler(contract: contract, tokenType: type, assetDefinitionStore: self.assetDefinitionStore).getLabel(fallback: "")
+                        let tokenTypeName = XMLHandler(contract: contract, tokenType: type, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: "")
                         if !tokenTypeName.isEmpty {
                             newObject["name"] = ""
                         }
@@ -76,7 +78,7 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                 migration.deleteData(forType: Transaction.className())
             }
             if oldSchemaVersion < 53 {
-                let chainId = self.server.chainID
+                let chainId = strongSelf.server.chainID
                 migration.enumerateObjects(ofType: TokenObject.className()) { _, newObject in
                     guard let newObject = newObject else { return }
                     guard let contract = newObject["contract"] as? String else {

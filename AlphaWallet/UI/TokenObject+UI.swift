@@ -74,27 +74,31 @@ private class TokenImageFetcher {
             subscribable.value = programmaticallyGenerateIcon(forToken: tokenObject)
             return subscribable
         }
+        
+        let githubAssetsSource = tokenObject.server.githubAssetsSource
+        let contractAddress = tokenObject.contractAddress
+        let balance = tokenObject.balance.first?.balance
+        let generatedImage = programmaticallyGenerateIcon(forToken: tokenObject)
 
-        fetchFromOpenSea(tokenObject).done {
+        fetchFromOpenSea(tokenObject.type, balance: balance).done {
             subscribable.value = (image: $0, symbol: "")
         }.catch { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.fetchFromAssetGitHubRepo(tokenObject).done {
+            strongSelf.fetchFromAssetGitHubRepo(githubAssetsSource, contractAddress: contractAddress).done {
                 subscribable.value = (image: $0, symbol: "")
-            }.catch { [weak self] _ in
-                guard let strongSelf = self else { return }
-                subscribable.value = strongSelf.programmaticallyGenerateIcon(forToken: tokenObject)
+            }.catch { _ in
+                subscribable.value = generatedImage
             }
         }
 
         return subscribable
     }
 
-    private func fetchFromOpenSea(_ tokenObject: TokenObject) -> Promise<UIImage> {
+    private func fetchFromOpenSea(_ type: TokenType, balance: String?) -> Promise<UIImage> {
         Promise { seal in
-            switch tokenObject.type {
+            switch type {
             case .erc721:
-                if let json = tokenObject.balance.first?.balance, let data = json.data(using: .utf8), let openSeaNonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data), !openSeaNonFungible.contractImageUrl.isEmpty {
+                if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data), !openSeaNonFungible.contractImageUrl.isEmpty {
                     let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
                     fetch(request: request).done { image in
                         seal.fulfill(image)
@@ -108,8 +112,8 @@ private class TokenImageFetcher {
         }
     }
 
-    private func fetchFromAssetGitHubRepo(_ tokenObject: TokenObject) -> Promise<UIImage> {
-        return GithubAssetsURLResolver().resolve(for: tokenObject).then { request -> Promise<UIImage> in
+    private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+        return GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress).then { request -> Promise<UIImage> in
             self.fetch(request: request)
         }
     }
@@ -145,8 +149,8 @@ class GithubAssetsURLResolver {
         case case1
     }
 
-    func resolve(for tokenObject: TokenObject) -> Promise<URLRequest> {
-        let value = tokenObject.server.githubAssetsSource.rawValue + tokenObject.contractAddress.eip55String + "/" + GithubAssetsURLResolver.file
+    func resolve(for githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<URLRequest> {
+        let value = githubAssetsSource.rawValue + contractAddress.eip55String + "/" + GithubAssetsURLResolver.file
 
         guard let url = URL(string: value) else {
             return .init(error: AnyError.case1)

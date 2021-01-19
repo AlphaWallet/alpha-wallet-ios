@@ -18,12 +18,12 @@ struct ActivitiesViewModel {
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
     private let tokensStorages: ServerDictionary<TokensDataStore>
 
-    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [ActivityOrTransactionRow] = []) {
-        items = ActivitiesViewModel.sorted(activities: activities)
+    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [MappedToDateActivityOrTransaction] = []) {
+        items = activities
         self.tokensStorages = tokensStorages
     }
 
-    private static func sorted(activities: [ActivityOrTransactionRow]) -> [MappedToDateActivityOrTransaction] {
+    static func sorted(activities: [ActivityOrTransactionRow]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for each in activities {
@@ -68,7 +68,11 @@ struct ActivitiesViewModel {
                 }
             })
         }.sorted { (object1, object2) -> Bool in
-            ActivitiesViewModel.formatter.date(from: object1.date)! > ActivitiesViewModel.formatter.date(from: object2.date)!
+            //NOTE: Remove force unwrap to prevent crash 
+            guard let date1 = ActivitiesViewModel.formatter.date(from: object1.date), let date2 = ActivitiesViewModel.formatter.date(from: object2.date) else {
+                return false
+            }
+            return date1 > date2
         }
     }
 

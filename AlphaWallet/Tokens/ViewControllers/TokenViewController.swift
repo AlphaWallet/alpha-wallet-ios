@@ -10,7 +10,7 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
     func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
-    func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
+    func didTap(transaction: TransactionInstance, inViewController viewController: TokenViewController)
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController)
 }
 

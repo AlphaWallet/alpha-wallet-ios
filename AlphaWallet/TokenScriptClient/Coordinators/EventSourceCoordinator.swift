@@ -14,6 +14,7 @@ class EventSourceCoordinator {
     private let eventsDataStore: EventsDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
+    private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
 
     init(wallet: Wallet, config: Config, tokensStorages: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.wallet = wallet
@@ -32,36 +33,40 @@ class EventSourceCoordinator {
         for each in xmlHandler.attributesWithEventSource {
             guard let eventOrigin = each.eventOrigin else { continue }
             let tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet, sourceFromEvents: false)
+
             for eachTokenHolder in tokenHolders {
                 guard let tokenId = eachTokenHolder.tokenIds.first else { continue }
                 let promise = fetchEvents(forTokenId: tokenId, token: token, eventOrigin: eventOrigin)
                 fetchPromises.append(promise)
             }
         }
+
         return fetchPromises
     }
 
     func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
-                self?.fetchEthereumEventsImpl()
+                guard let strongSelf = self else { return }
+
+                strongSelf.queue.async {
+                    strongSelf.fetchEthereumEventsImpl()
+                }
             }
         } else {
             rateLimitedUpdater?.run()
         }
     }
 
-    func fetchEthereumEventsImpl() {
+    private func fetchEthereumEventsImpl() {
         guard !isFetching else { return }
         isFetching = true
+
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
-        var fetchPromises = [Promise<Void>]()
-        for eachTokenStorage in tokensStoragesForEnabledServers {
-            for eachToken in eachTokenStorage.enabledObject {
-                let promises = fetchEventsByTokenId(forToken: eachToken)
-                fetchPromises.append(contentsOf: promises)
-            }
+        let fetchPromises = tokensStoragesForEnabledServers.flatMap {
+            $0.enabledObject.flatMap { fetchEventsByTokenId(forToken: $0) }
         }
+
         when(resolved: fetchPromises).done { _ in
             self.isFetching = false
         }
@@ -69,38 +74,44 @@ class EventSourceCoordinator {
 
     private func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
-        let filterParam: [(filter: [EventFilterable], textEquivalent: String)?] = eventOrigin.parameters
+        let filterParam = eventOrigin.parameters
                 .filter { $0.isIndexed }
                 .map { self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue) }
-        let fromBlock: EventFilter.Block
-        let oldEvents = eventsDataStore.getMatchingEventsSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-        if let newestEvent = oldEvents.last {
-            fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
-        } else {
-            fromBlock = .blockNumber(0)
-        }
-        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: [EthereumAddress(address: eventOrigin.contract)], parameterFilters: filterParam.map { $0?.filter })
-        return firstly {
-            getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter)
-        }.map { result -> [EventInstance] in
-            result.compactMap { self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, token: token, server: token.server) }
-        }.map { events in
-            self.eventsDataStore.add(events: events, forTokenContract: token.contractAddress)
-        }
+        let contractAddress = token.contractAddress
+        let tokenServer = token.server
+
+        return eventsDataStore.getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName).map(on: queue, { oldEvent -> EventFilter.Block in
+            if let newestEvent = oldEvent {
+                return .blockNumber(UInt64(newestEvent.blockNumber + 1))
+            } else {
+                return .blockNumber(0)
+            }
+        }).map(on: queue, { fromBlock -> EventFilter in
+            EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: [EthereumAddress(address: eventOrigin.contract)], parameterFilters: filterParam.map { $0?.filter })
+        }).then(on: queue, { eventFilter in
+            getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
+        }).map(on: queue, { result -> [EventInstanceValue] in
+            result.compactMap {
+                self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
+            }
+        }).then(on: queue, { events -> Promise<Void> in
+            return self.eventsDataStore.add(events: events, forTokenContract: contractAddress)
+        })
     }
 
-    private func convertEventToDatabaseObject(_ event: EventParserResultProtocol, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, token: TokenObject, server: RPCServer) -> EventInstance? {
+    private func convertEventToDatabaseObject(_ event: EventParserResultProtocol, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, contractAddress: AlphaWallet.Address, server: RPCServer) -> EventInstanceValue? {
         guard let blockNumber = event.eventLog?.blockNumber else { return nil }
         guard let logIndex = event.eventLog?.logIndex else { return nil }
-        let decodedResult = self.convertToJsonCompatible(dictionary: event.decodedResult)
+        let decodedResult = Self.convertToJsonCompatible(dictionary: event.decodedResult)
         guard let json = decodedResult.jsonString else { return nil }
         //TODO when TokenScript schema allows it, support more than 1 filter
         let filterTextEquivalent = filterParam.compactMap({ $0?.textEquivalent }).first
         let filterText = filterTextEquivalent ?? "\(eventOrigin.eventFilter.name)=\(eventOrigin.eventFilter.value)"
-        return EventInstance(contract: eventOrigin.contract, tokenContract: token.contractAddress, server: server, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), logIndex: Int(logIndex), filter: filterText, json: json)
+
+        return EventInstanceValue(contract: eventOrigin.contract, tokenContract: contractAddress, server: server, eventName: eventOrigin.eventName, blockNumber: Int(blockNumber), logIndex: Int(logIndex), filter: filterText, json: json)
     }
 
-    private func convertToJsonCompatible(dictionary: [String: Any]) -> [String: Any] {
+    private static func convertToJsonCompatible(dictionary: [String: Any]) -> [String: Any] {
         Dictionary(uniqueKeysWithValues: dictionary.compactMap { key, value -> (String, Any)? in
             switch value {
             case let address as EthereumAddress:

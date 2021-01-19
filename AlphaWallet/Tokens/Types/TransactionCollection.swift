@@ -16,18 +16,17 @@ class TransactionCollection {
         guard let server = items.first?.server else { return [] }
         guard let storage = transactionsStorages.first(where: { $0.server == server }) else { return [] }
         return storage.add(items)
-    }
+    } 
 
-    var objects: [Transaction] {
-        var transactions = [Transaction]()
+    var objects: [TransactionInstance] {
         //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
-        for each in transactionsStorages {
-            transactions.append(contentsOf: Array(each.objects))
+        
+        return transactionsStorages.flatMap {
+            return $0.objects.map { TransactionInstance(transaction: $0) }
         }
-        return transactions
     }
 
-    func transaction(withTransactionId transactionId: String, server: RPCServer) -> Transaction? {
+    func transaction(withTransactionId transactionId: String, server: RPCServer) -> TransactionInstance? {
         guard let storage = transactionsStorages.first(where: { $0.server == server }) else { return nil }
         return storage.transaction(withTransactionId: transactionId)
     }

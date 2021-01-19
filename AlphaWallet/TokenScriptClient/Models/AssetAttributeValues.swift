@@ -29,10 +29,10 @@ class AssetAttributeValues {
                     if !subscribedAttributes.contains(where: { $0 === subscribable }) {
                         subscribedAttributes.append(subscribable)
                         subscribable.subscribe { [weak self] value in
-                            guard let strongSelf = self, let value = value else { return }
+                            guard let stongSelf = self, let value = value else { return }
 
-                            strongSelf.resolvedAttributeValues[name] = value
-                            block(strongSelf.resolvedAttributeValues)
+                            stongSelf.resolvedAttributeValues[name] = value
+                            block(stongSelf.resolvedAttributeValues)
                         }
                     }
                 }

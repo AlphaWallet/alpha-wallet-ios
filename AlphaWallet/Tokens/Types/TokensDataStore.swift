@@ -81,6 +81,7 @@ class TokensDataStore {
     private var isFetchingPrices = false
     private let config: Config
     private let openSea: OpenSea
+    private let queue = DispatchQueue.global()
 
     let server: RPCServer
     weak var delegate: TokensDataStoreDelegate?
@@ -98,23 +99,23 @@ class TokensDataStore {
 
     //TODO might be good to change `enabledObject` to just return the streaming list from Realm instead of a Swift native Array and other properties/callers can convert to Array if necessary
     var enabledObject: [TokenObject] {
-        return Array(realm.objects(TokenObject.self)
+        return Array(realm.threadSafe.objects(TokenObject.self)
                 .filter("chainId = \(self.chainId)")
                 .filter("isDisabled = false"))
     }
 
     var deletedContracts: [DeletedContract] {
-        return Array(realm.objects(DeletedContract.self)
+        return Array(realm.threadSafe.objects(DeletedContract.self)
                 .filter("chainId = \(self.chainId)"))
     }
 
     var delegateContracts: [DelegateContract] {
-        return Array(realm.objects(DelegateContract.self)
+        return Array(realm.threadSafe.objects(DelegateContract.self)
                 .filter("chainId = \(self.chainId)"))
     }
 
     var hiddenContracts: [HiddenContract] {
-        return Array(realm.objects(HiddenContract.self)
+        return Array(realm.threadSafe.objects(HiddenContract.self)
                 .filter("chainId = \(self.chainId)"))
     }
 
@@ -435,6 +436,12 @@ class TokensDataStore {
                 }
             }
         }
+    }
+
+    func tokenThreadSafe(forContract contract: AlphaWallet.Address) -> TokenObject? {
+        realm.threadSafe.objects(TokenObject.self)
+                .filter("contract = '\(contract.eip55String)'")
+                .filter("chainId = \(chainId)").first
     }
 
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
@@ -765,7 +772,7 @@ class TokensDataStore {
         case .nonFungibleBalance(let balance):
             //Performance: if we use realm.write {} directly, the UI will block for a few seconds because we are reading from Realm, appending to an array and writing back to Realm many times (once for each token) in the main thread. Instead, we do this for each token in a background thread
             let primaryKey = token.primaryKey
-            DispatchQueue.global().async {
+            queue.async {
                 let realmInBackground = try! Realm(configuration: self.realm.configuration)
                 let token = realmInBackground.object(ofType: TokenObject.self, forPrimaryKey: primaryKey)!
                 var newBalance = [TokenBalance]()
@@ -859,3 +866,9 @@ class TokensDataStore {
     }
 }
 // swiftlint:enable type_body_length
+
+extension Realm {
+    var threadSafe: Realm {
+         try! Realm(configuration: self.configuration)
+    }
+}

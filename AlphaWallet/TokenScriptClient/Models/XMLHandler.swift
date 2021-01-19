@@ -666,12 +666,59 @@ private class PrivateXMLHandler {
 }
 // swiftlint:enable type_body_length
 
+
+private class ThreadSafeBaseXmlHandlersCache {
+    fileprivate var cache: [String: PrivateXMLHandler] = [:]
+    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
+
+    subscript(key: String) -> PrivateXMLHandler? {
+        get {
+            var element: PrivateXMLHandler?
+            queue.sync {
+                element = cache[key]
+            }
+            return element
+        }
+        set {
+            queue.async(flags: .barrier) {
+                self.cache[key] = newValue
+            }
+        }
+    }
+}
+
+private class ThreadSafeXmlHandlersCache {
+    fileprivate var cache: [AlphaWallet.Address: PrivateXMLHandler] = [:]
+    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
+
+    subscript(key: AlphaWallet.Address) -> PrivateXMLHandler? {
+        get {
+            var element: PrivateXMLHandler?
+            queue.sync {
+                element = cache[key]
+            }
+            return element
+        }
+        set {
+            queue.async(flags: .barrier) {
+                self.cache[key] = newValue
+            }
+        }
+    }
+
+    func removeAll() {
+        queue.async(flags: .barrier) {
+            self.cache.removeAll()
+        }
+    }
+}
+
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinators: ServerDictionary<CallForAssetAttributeCoordinator>?
-    fileprivate static var xmlHandlers: [AlphaWallet.Address: PrivateXMLHandler] = [:]
-    fileprivate static var baseXmlHandlers: [String: PrivateXMLHandler] = [:]
+    fileprivate static var xmlHandlers = ThreadSafeXmlHandlersCache()
+    fileprivate static var baseXmlHandlers = ThreadSafeBaseXmlHandlersCache()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
 

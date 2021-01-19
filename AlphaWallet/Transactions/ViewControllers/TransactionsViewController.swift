@@ -84,12 +84,7 @@ class TransactionsViewController: UIViewController {
 
     func fetch() {
         startLoading()
-        //Since this is called at launch, we don't want it to block launching
-        DispatchQueue.global().async {
-            DispatchQueue.main.async { [weak self] in
-                self?.dataCoordinator.fetch()
-            }
-        }
+        dataCoordinator.fetch()
     }
 
     func configure(viewModel: TransactionsViewModel) {
@@ -97,8 +92,9 @@ class TransactionsViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
+
     fileprivate func headerView(for section: Int) -> UIView {
         let container = UIView()
         container.backgroundColor = viewModel.headerBackgroundColor
@@ -109,6 +105,7 @@ class TransactionsViewController: UIViewController {
         title.font = viewModel.headerTitleFont
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
         ])
@@ -130,15 +127,26 @@ extension TransactionsViewController: UITableViewDelegate {
 }
 
 extension TransactionsViewController: TransactionDataCoordinatorDelegate {
-    func didUpdate(result: Result<[Transaction], TransactionError>, reloadImmediately: Bool) {
+    func didUpdate(result: Result<[TransactionInstance], TransactionError>, reloadImmediately: Bool) {
         switch result {
         case .success(let items):
-        let viewModel = TransactionsViewModel(transactions: items)
-            configure(viewModel: viewModel)
-            endLoading()
+            //NOTE: avoid filtering events on main queue
+            let values = TransactionsViewModel.mapTransactions(transactions: items)
+            DispatchQueue.main.async {
+                self.configure(viewModel: .init(transactions: values))
+
+                self.endLoading()
+                self.reloadTableViewAndEndRefreshing()
+            }
         case .failure(let error):
-            endLoading(error: error)
+            DispatchQueue.main.async {
+                self.endLoading(error: error)
+                self.reloadTableViewAndEndRefreshing()
+            }
         }
+    }
+
+    private func reloadTableViewAndEndRefreshing() {
         tableView.reloadData()
 
         if refreshControl.isRefreshing {
@@ -156,13 +164,9 @@ extension TransactionsViewController: UITableViewDataSource {
         let transactionRow = viewModel.item(for: indexPath.row, section: indexPath.section)
         let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
         let session = sessions[transactionRow.server]
-        cell.configure(viewModel: .init(
-                transactionRow: transactionRow,
-                chainState: session.chainState,
-                currentWallet: session.account,
-                server: transactionRow.server
-            )
-        )
+        let viewModel: TransactionRowCellViewModel = .init(transactionRow: transactionRow, chainState: session.chainState, currentWallet: session.account, server: transactionRow.server)
+        cell.configure(viewModel: viewModel)
+        
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
