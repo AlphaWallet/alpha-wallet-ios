@@ -158,7 +158,6 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 guard let error = error as? JSONRPCError else { return }
                 switch error {
                 case .responseError:
-                    // NSLog("code \(code), error: \(message)")
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
                     if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
