@@ -67,23 +67,11 @@ class TransactionCoordinator: Coordinator {
     }
 
     func showTransaction(_ transaction: Transaction) {
-        let session = sessions[transaction.server]
-        let controller = TransactionViewController(
-                session: session,
-                transaction: transaction,
-                delegate: self
-        )
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .formSheet
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-            nav.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(nav, animated: true, completion: nil)
-        } else {
-            controller.hidesBottomBarWhenPushed = true
-            controller.navigationItem.largeTitleDisplayMode = .never
-            navigationController.pushViewController(controller, animated: true)
-        }
+        let controller = TransactionViewController(session: sessions[transaction.server], transaction: transaction, delegate: self)
+        controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
+
+        navigationController.pushViewController(controller, animated: true)
     }
 
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
@@ -97,7 +85,7 @@ class TransactionCoordinator: Coordinator {
         let nav = UINavigationController(rootViewController: controller)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
         nav.makePresentationFullScreenForiOS13Migration()
-        viewController.present(nav, animated: true, completion: nil)
+        viewController.present(nav, animated: true)
     }
 
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
@@ -112,7 +100,7 @@ class TransactionCoordinator: Coordinator {
     }
 
     @objc func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
+        navigationController.dismiss(animated: true)
     }
 
     func stop() {

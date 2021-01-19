@@ -209,8 +209,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
         controller.addAction(cancelAction)
 
-        controller.makePresentationFullScreenForiOS13Migration()
-
         navigationController.present(controller, animated: true)
     }
 
@@ -228,8 +226,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
 
         controller.addAction(alertAction)
         controller.addAction(cancelAction)
-
-        controller.makePresentationFullScreenForiOS13Migration()
 
         navigationController.present(controller, animated: true)
     }

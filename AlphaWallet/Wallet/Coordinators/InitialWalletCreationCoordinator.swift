@@ -48,25 +48,25 @@ class InitialWalletCreationCoordinator: Coordinator {
     func showCreateWallet() {
         let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
-        let _ = coordinator.start(entryPoint)
+        coordinator.start(entryPoint)
         addCoordinator(coordinator)
     }
 
     func presentImportOrWatchWallet() {
         let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
-        let _ = coordinator.start(entryPoint)
+        coordinator.start(entryPoint)
         coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        navigationController.present(coordinator.navigationController, animated: true)
         addCoordinator(coordinator)
     }
 
     func presentAddInitialWallet() {
         let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
-        let _ = coordinator.start(entryPoint)
+        coordinator.start(entryPoint)
         coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        navigationController.present(coordinator.navigationController, animated: true)
         addCoordinator(coordinator)
     }
 }
