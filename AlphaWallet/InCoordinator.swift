@@ -504,6 +504,7 @@ class InCoordinator: NSObject, Coordinator {
         coordinator.stop()
         removeAllCoordinators()
         OpenSea.resetInstances()
+        walletConnectCoordinator.disconnectAllSessions()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
