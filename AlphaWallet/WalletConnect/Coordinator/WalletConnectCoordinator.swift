@@ -101,7 +101,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                     seal.reject(PMKError.cancelled)
                 }
             }
-        }.then { Void -> Promise<WalletConnectServer.Callback> in
+        }.then { _ -> Promise<WalletConnectServer.Callback> in
             let account = session.account.address
             switch action.type {
             case .signTransaction(let transaction):
@@ -208,7 +208,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         firstly {
             GetNextNonce(server: session.server, wallet: session.account.address).promise()
         }.map {
-            if let data = Data(fromHexEncodedString: String(format:"%02X", $0)) {
+            if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
                 return .init(id: id, url: url, value: data)
             } else {
                 throw PMKError.badInput
