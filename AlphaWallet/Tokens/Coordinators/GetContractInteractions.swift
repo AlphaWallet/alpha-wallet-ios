@@ -8,73 +8,71 @@ import Alamofire
 import SwiftyJSON
 
 class GetContractInteractions {
-    func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([Transaction]) -> Void) {
+
+    private let queue: DispatchQueue
+
+    init(queue: DispatchQueue) {
+        self.queue = queue
+    }
+
+    func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
         guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
-        Alamofire.request(etherscanURL).validate().responseJSON { response in
+        
+        Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
             switch response.result {
             case .success(let value):
                 //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
-                DispatchQueue.global().async {
-                    let json = JSON(value)
-                    let filteredResult: [(String, JSON)]
-                    if let contractAddress = contractAddress {
-                        //filter based on what contract you are after
-                        filteredResult = json["result"].filter {
-                            $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
-                        }
-                    } else {
-                        filteredResult = json["result"].filter {
-                            $0.1["to"].stringValue.hasPrefix("0x")
-                        }
+                let json = JSON(value)
+                let filteredResult: [(String, JSON)]
+                if let contractAddress = contractAddress {
+                    //filter based on what contract you are after
+                    filteredResult = json["result"].filter {
+                        $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
                     }
-                    let transactions: [Transaction] = filteredResult.map { result in
-                        let transactionJson = result.1
-                        let localizedTokenObj = LocalizedOperationObject(
-                                from: transactionJson["from"].stringValue,
-                                to: transactionJson["to"].stringValue,
-                                contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                                type: OperationType.erc20TokenTransfer.rawValue,
-                                value: transactionJson["value"].stringValue,
-                                symbol: transactionJson["tokenSymbol"].stringValue,
-                                name: transactionJson["tokenName"].stringValue,
-                                decimals: transactionJson["tokenDecimal"].intValue
-                        )
-                        return Transaction(
-                                id: transactionJson["hash"].stringValue,
-                                server: server,
-                                blockNumber: transactionJson["blockNumber"].intValue,
-                                transactionIndex: transactionJson["transactionIndex"].intValue,
-                                from: transactionJson["from"].stringValue,
-                                to: transactionJson["to"].stringValue,
-                                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
-                                value: "0",
-                                gas: transactionJson["gas"].stringValue,
-                                gasPrice: transactionJson["gasPrice"].stringValue,
-                                gasUsed: transactionJson["gasUsed"].stringValue,
-                                nonce: transactionJson["nonce"].stringValue,
-                                date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
-                                localizedOperations: [localizedTokenObj],
-                                //The API only returns successful transactions
-                                state: .completed,
-                                isErc20Interaction: true
-                        )
-                    }
-                    var results: [Transaction] = .init()
-                    for each in transactions {
-                        if let found: Transaction = results.first(where: { $0.blockNumber == each.blockNumber }) {
-                            found.localizedOperations.append(objectsIn: each.localizedOperations)
-                        } else {
-                            results.append(each)
-                        }
-                    }
-                    DispatchQueue.main.async {
-                        completion(results)
+                } else {
+                    filteredResult = json["result"].filter {
+                        $0.1["to"].stringValue.hasPrefix("0x")
                     }
                 }
+                
+                let transactions: [TransactionInstance] = filteredResult.map { result in
+                    let transactionJson = result.1
+                    let localizedTokenObj = LocalizedOperationObjectInstance(
+                            from: transactionJson["from"].stringValue,
+                            to: transactionJson["to"].stringValue,
+                            contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                            type: OperationType.erc20TokenTransfer.rawValue,
+                            value: transactionJson["value"].stringValue,
+                            symbol: transactionJson["tokenSymbol"].stringValue,
+                            name: transactionJson["tokenName"].stringValue,
+                            decimals: transactionJson["tokenDecimal"].intValue
+                    )
+
+                    return TransactionInstance(
+                            id: transactionJson["hash"].stringValue,
+                            server: server,
+                            blockNumber: transactionJson["blockNumber"].intValue,
+                            transactionIndex: transactionJson["transactionIndex"].intValue,
+                            from: transactionJson["from"].stringValue,
+                            to: transactionJson["to"].stringValue,
+                            value: transactionJson["value"].stringValue,
+                            gas: transactionJson["gas"].stringValue,
+                            gasPrice: transactionJson["gasPrice"].stringValue,
+                            gasUsed: transactionJson["gasUsed"].stringValue,
+                            nonce: transactionJson["nonce"].stringValue,
+                            date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                            localizedOperations: [localizedTokenObj],
+                            //The API only returns successful transactions
+                            state: .completed,
+                            isErc20Interaction: true
+                    )
+                }
+
+                completion(transactions)
             case .failure:
                 completion([])
             }
-        }
+        })
     }
 
     func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, completion: @escaping ([AlphaWallet.Address], Int?) -> Void) {

@@ -2,11 +2,11 @@
 import Foundation
 
 enum TransactionRow {
-    case standalone(Transaction)
-    case group(Transaction)
-    case item(transaction: Transaction, operation: LocalizedOperationObject)
+    case standalone(TransactionInstance)
+    case group(TransactionInstance)
+    case item(transaction: TransactionInstance, operation: LocalizedOperationObjectInstance)
 
-    var transaction: Transaction {
+    var transaction: TransactionInstance {
         switch self {
         case .standalone(let transaction), .group(let transaction), .item(transaction: let transaction, _):
             return transaction
@@ -74,7 +74,7 @@ enum TransactionRow {
         transaction.server
     }
 
-    var operation: LocalizedOperationObject? {
+    var operation: LocalizedOperationObjectInstance? {
         switch self {
         case .standalone(let transaction):
             return transaction.operation

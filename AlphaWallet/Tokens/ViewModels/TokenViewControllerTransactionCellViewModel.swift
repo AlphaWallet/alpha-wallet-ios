@@ -4,11 +4,11 @@ import Foundation
 import UIKit
 
 struct TokenViewControllerTransactionCellViewModel {
-    private let transaction: Transaction
+    private let transaction: TransactionInstance
     private let transactionViewModel: TransactionViewModel
 
     init(
-            transaction: Transaction,
+            transaction: TransactionInstance,
             config: Config,
             chainState: ChainState,
             currentWallet: Wallet

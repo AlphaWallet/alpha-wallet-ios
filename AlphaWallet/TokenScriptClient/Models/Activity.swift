@@ -28,7 +28,7 @@ struct Activity {
     let id: Int
     let rowType: ActivityRowType
     //TODO safe to have TokenObject here? Maybe a struct is better
-    let tokenObject: TokenObject
+    let tokenObject: AssignedToken
     let server: RPCServer
     let name: String
     let eventName: String
@@ -42,6 +42,25 @@ struct Activity {
     let itemView: (html: String, style: String)
     let isBaseCard: Bool
     let state: State
+
+    init(id: Int, rowType: ActivityRowType, tokenObject: AssignedToken, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, style: String), itemView: (html: String, style: String), isBaseCard: Bool, state: State) {
+        self.id = id
+        self.tokenObject = tokenObject
+        self.server = server
+        self.name = name
+        self.eventName = eventName
+        self.blockNumber = blockNumber
+        self.transactionId = transactionId
+        self.transactionIndex = transactionIndex
+        self.logIndex = logIndex
+        self.date = date
+        self.values = values
+        self.view = view
+        self.itemView = itemView
+        self.isBaseCard = isBaseCard
+        self.state = state
+        self.rowType = rowType
+    }
 
     var viewHtml: (html: String, hash: Int) {
         let hash = "\(view.style)\(view.html)".hashForCachingHeight

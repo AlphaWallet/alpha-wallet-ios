@@ -2,12 +2,12 @@
 
 import Foundation
 import RealmSwift
+import PromiseKit
 
 protocol EventsActivityDataStoreProtocol {
-    func add(events: [EventActivity], forTokenContract contract: AlphaWallet.Address)
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> [EventActivity]
-    func getEvents(forContract contract: AlphaWallet.Address, forEventName eventName: String, filter: String, server: RPCServer) -> [EventActivity]
     func getRecentEvents() -> [EventActivity]
+    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?>
+    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
 }
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
@@ -20,13 +20,20 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         self.realm = realm
     }
 
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> [EventActivity] {
-        Array(realm.objects(EventActivity.self)
+    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
+
+        return Promise { seal in
+            let objects = realm.threadSafe.objects(EventActivity.self)
                 .filter("contract = '\(contract.eip55String)'")
                 .filter("tokenContract = '\(tokenContract.eip55String)'")
                 .filter("chainId = \(server.chainID)")
                 .filter("eventName = '\(eventName)'")
-                .sorted(byKeyPath: "blockNumber"))
+                .sorted(byKeyPath: "blockNumber")
+                .last
+                .map { EventActivityInstance(event: $0) }
+
+            seal.fulfill(objects)
+        }
     }
 
     func getEvents(forContract contract: AlphaWallet.Address, forEventName eventName: String, filter: String, server: RPCServer) -> [EventActivity] {
@@ -38,7 +45,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     }
 
     func getRecentEvents() -> [EventActivity] {
-        return Array(realm.objects(EventActivity.self)
+        return Array(realm.threadSafe.objects(EventActivity.self)
                 .sorted(byKeyPath: "date", ascending: false)
                 .prefix(Self.numberOfActivitiesToUse)
         )
@@ -50,12 +57,24 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         }
     }
 
-    func add(events: [EventActivity], forTokenContract contract: AlphaWallet.Address) {
-        guard !events.isEmpty else { return }
-        try! realm.write {
-            for each in events {
-                realm.add(each, update: .all)
+    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
+        if events.isEmpty {
+            return .value(())
+        } else {
+            return Promise { seal in
+                let eventsToSave = events.map { EventActivity(value: $0) }
+
+                do {
+                    let realm = self.realm.threadSafe
+                    try realm.write {
+                        realm.add(eventsToSave, update: .all)
+
+                        seal.fulfill(())
+                    }
+                } catch {
+                    seal.reject(error)
+                }
             }
         }
     }
-}
+} 

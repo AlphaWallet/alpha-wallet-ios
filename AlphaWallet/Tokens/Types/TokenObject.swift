@@ -4,6 +4,28 @@ import Foundation
 import RealmSwift
 import BigInt
 
+extension Activity {
+
+    struct AssignedToken {
+        var primaryKey: String
+        var contractAddress: AlphaWallet.Address
+        var symbol: String
+        var decimals: Int
+        var server: RPCServer
+        var icon: Subscribable<TokenImage>
+        var type: TokenType
+        init(tokenObject: TokenObject) {
+            primaryKey = tokenObject.primaryKey
+            server = tokenObject.server
+            contractAddress = tokenObject.contractAddress
+            symbol = tokenObject.symbol
+            decimals = tokenObject.decimals
+            icon = tokenObject.icon
+            type = tokenObject.type
+        }
+    }
+} 
+
 class TokenObject: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {
         return "\(contract.eip55String)-\(server.chainID)"
@@ -57,14 +79,9 @@ class TokenObject: Object {
         self.isDisabled = isDisabled
         self.type = type
     }
-
+    
     var contractAddress: AlphaWallet.Address {
-        get {
-            AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
-        }
-        set {
-            contract = newValue.eip55String
-        }
+        return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }
 
     var valueBigInt: BigInt {
@@ -81,6 +98,7 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
+        //NOTE: to improve perfomance seems like we can use check for primary key instead of checking contracts
         return object.contractAddress.sameContract(as: contractAddress)
     }
 
