@@ -551,7 +551,7 @@ class TokensDataStore {
                         anyNonFungible = each
                         listOfJson.append(jsonString)
                     } else {
-                        NSLog("Failed to convert ERC721 token from OpenSea to JSON")
+                        //no op
                     }
                 }
 
@@ -581,9 +581,7 @@ class TokensDataStore {
                 }
             }
             strongSelf.updateDelegate()
-        }.catch {
-            NSLog("Failed to retrieve tokens from OpenSea: \($0)")
-        }
+        }.cauterize()
     }
 
     func refreshETHBalance() {
