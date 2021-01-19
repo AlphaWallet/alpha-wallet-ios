@@ -124,8 +124,8 @@ class ButtonsBarBackgroundView: UIView {
             buttonsBar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -edgeInsets.bottom),
         ])
 
-        observation = buttonsBar.observe(\.buttons) { sender, _ in
-            self.isHidden = sender.buttons.isEmpty
+        observation = buttonsBar.observe(\.buttons) { [weak self] sender, _ in
+            self?.isHidden = sender.buttons.isEmpty
         }
     }
 
@@ -204,7 +204,7 @@ class ButtonsBar: UIView {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private func didUpdateView(with configuration: ButtonsBarConfiguration) {
@@ -214,7 +214,6 @@ class ButtonsBar: UIView {
         resetIsHiddenObservers()
 
         for view in buttonContainerViews {
-
             let observation = view.childView.observe(\.displayButton, options: [.new]) { [weak self] _, _ in
                 self?.updateButtonsTypes()
             }

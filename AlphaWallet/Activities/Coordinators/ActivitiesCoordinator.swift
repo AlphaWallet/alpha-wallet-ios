@@ -165,6 +165,7 @@ class ActivitiesCoordinator: Coordinator {
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
         reloadViewController(reloadImmediately: false)
+
         for (activity, tokenObject, tokenHolder) in activitiesAndTokens {
             refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity)
         }
@@ -269,9 +270,8 @@ class ActivitiesCoordinator: Coordinator {
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
     private func refreshActivity(tokenObject: TokenObject, tokenHolder: TokenHolder, activity: Activity, isFirstUpdate: Bool = true) {
         let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
-        let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
-            guard let strongSelf = self else { return }
-            guard isFirstUpdate else { return }
+        let resolvedAttributeNameValues = attributeValues.resolve { [weak self, weak tokenHolder] _ in
+            guard let strongSelf = self, let tokenHolder = tokenHolder, isFirstUpdate else { return }
             strongSelf.refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity, isFirstUpdate: false)
         }
         if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
