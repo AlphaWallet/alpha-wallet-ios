@@ -9,6 +9,7 @@ import Foundation
 
 extension UserDefaults {
     private static let walletConnectSessionsKey = "WalletConnectSessionsKey"
+    private static let urlToServerKey = "urlToServerKey"
 
     var walletConnectSessions: [WalletConnectSession] {
         get {
@@ -19,6 +20,8 @@ extension UserDefaults {
                     //no-op
                 } else {
                     self.walletConnectSessions = []
+                    //here we need to return an empty array [] if we removed all sessions
+                    return []
                 }
             }
             return sessions
@@ -26,6 +29,20 @@ extension UserDefaults {
         set {
             guard let data = try? JSONEncoder().encode(newValue) else { return }
             set(data, forKey: UserDefaults.walletConnectSessionsKey)
+        }
+    }
+
+    var urlToServer: [WalletConnectURL: RPCServer] {
+        get {
+            guard let data = object(forKey: UserDefaults.urlToServerKey) as? Data, let values = try? JSONDecoder().decode([WalletConnectURL: RPCServer].self, from: data) else {
+                return [:]
+            }
+            
+            return values
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            set(data, forKey: UserDefaults.urlToServerKey)
         }
     }
 }
