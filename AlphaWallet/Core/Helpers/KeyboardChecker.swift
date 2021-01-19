@@ -31,14 +31,18 @@ class KeyboardChecker: NSObject {
         self.resetHeightDefaultValue = resetHeightDefaultValue
         self.ignoreBottomSafeArea = ignoreBottomSafeArea
         super.init()
+
+        //NOTE: while protection has turned on, we want to sunscribe/unsubscribe from handling keyboard appearence, to prevent bottom inset
+        notificationCenter.addObserver(self, selector: #selector(viewWillDisappear), name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(viewWillAppear), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    func viewWillAppear() {
+    @objc func viewWillAppear() {
         notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    func viewWillDisappear() {
+    @objc func viewWillDisappear() {
         notificationCenter.removeObserver(self)
     }
 
