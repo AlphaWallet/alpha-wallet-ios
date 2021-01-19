@@ -201,6 +201,11 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
+                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                    guard let strongSelf = self else { return }
+                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    strongSelf.generateSubviews()
+                }
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }

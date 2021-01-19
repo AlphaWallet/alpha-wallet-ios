@@ -199,10 +199,12 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
 
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate)
+        confirmationViewController.reloadView()
     }
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
+        confirmationViewController.reloadView()
     }
 
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator) {
