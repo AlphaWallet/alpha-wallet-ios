@@ -39,6 +39,10 @@ class RateLimiter {
         shouldRunWhenWindowCloses = false
         block()
         timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: limit, target: self, selector: #selector(windowIsClosed), userInfo: nil, repeats: false)
+        //NOTE: avoid memory leak, remove capturing self
+        timer = Timer.scheduledTimer(withTimeInterval: limit, repeats: false) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.windowIsClosed()
+        }
     }
 }
