@@ -30,7 +30,7 @@ class WalletConnectSessionCoordinator: Coordinator {
         viewController = WalletConnectSessionViewController(viewModel: .init(server: server, session: session))
         viewController.delegate = self
 
-        server.sessions.subscribe { [weak self] sessions in
+        server.sessions.subscribe { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.viewController.reload()
         }
