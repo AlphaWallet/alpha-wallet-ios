@@ -21,6 +21,7 @@ class TransactionConfirmationViewController: UIViewController {
     private lazy var headerView: HeaderView = HeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransactionConfirmationViewModel
+    private var timerToReenableConfirmButton: Timer?
 
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -94,6 +95,7 @@ class TransactionConfirmationViewController: UIViewController {
     }()
 
     private var allowPresentationAnimation: Bool = true
+    private var canBeConfirmed = true
     private var allowDismissalAnimation: Bool = true
 
     var canBeDismissed = true
@@ -333,6 +335,20 @@ class TransactionConfirmationViewController: UIViewController {
         generateSubviews()
     }
 
+    func reloadViewWithGasChanges() {
+        canBeConfirmed = false
+        reloadView()
+        createTimerToRestoreConfirmButton()
+    }
+
+    private func createTimerToRestoreConfirmButton() {
+        timerToReenableConfirmButton?.invalidate()
+        let gap = TimeInterval(0.3)
+        timerToReenableConfirmButton = Timer.scheduledTimer(withTimeInterval: gap, repeats: false) { [weak self] _ in
+            self?.canBeConfirmed = true
+        }
+    }
+
     private func configure(for viewModel: TransactionConfirmationViewModel) {
         scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
@@ -346,6 +362,7 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     @objc func confirmButtonTapped(_ sender: UIButton) {
+        guard canBeConfirmed else { return }
         delegate?.controller(self, continueButtonTapped: sender)
     }
 
