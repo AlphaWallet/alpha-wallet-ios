@@ -94,7 +94,7 @@ class TransactionConfirmationViewController: UIViewController {
     }()
 
     private var allowPresentationAnimation: Bool = true
-    private var allowDismissialAnimation: Bool = true
+    private var allowDismissalAnimation: Bool = true
 
     var canBeDismissed = true
     weak var delegate: TransactionConfirmationViewControllerDelegate?
@@ -152,7 +152,7 @@ class TransactionConfirmationViewController: UIViewController {
         headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
 
         contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
-            guard let strongSelf = self, strongSelf.allowDismissialAnimation else { return }
+            guard let strongSelf = self, strongSelf.allowDismissalAnimation else { return }
 
             let statusBarHeight = UIApplication.shared.statusBarFrame.height
             let contentHeight = scrollView.contentSize.height + DataEntry.Metric.TransactionConfirmation.footerHeight + DataEntry.Metric.TransactionConfirmation.headerHeight + UIApplication.shared.bottomSafeAreaHeight
@@ -278,8 +278,8 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     func dismissViewAnimated(with completion: @escaping () -> Void) {
-        guard allowDismissialAnimation else { return }
-        allowDismissialAnimation = false
+        guard allowDismissalAnimation else { return }
+        allowDismissalAnimation = false
 
         bottomConstraint.constant = heightConstraint.constant
 
