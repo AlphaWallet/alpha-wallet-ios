@@ -117,7 +117,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
         let controller = TokensCardViewController(tokenObject: token, account: account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         return controller
@@ -132,7 +131,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
                                                                 in viewController: TransferTokensCardQuantitySelectionViewController) {
         let vc = makeChooseTokenCardTransferModeViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         vc.navigationItem.largeTitleDisplayMode = .never
-        vc.makePresentationFullScreenForiOS13Migration()
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -229,7 +227,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = RedeemTokenCardQuantitySelectionViewController(token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -238,7 +235,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
         let controller = EnterSellTokensCardPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -247,7 +243,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = SetTransferTokensCardExpiryDateViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -256,7 +251,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = TransferTokensCardViaWalletAddressViewController(token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -265,7 +259,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
         let controller = SetSellTokensCardExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -274,7 +267,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
         let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -283,7 +275,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = TransferTokensCardQuantitySelectionViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -292,7 +283,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         let controller = ChooseTokenCardTransferModeViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
-        controller.makePresentationFullScreenForiOS13Migration()
         controller.delegate = self
         return controller
     }
@@ -397,14 +387,14 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func showViewRedemptionInfo(in viewController: UIViewController) {
         let controller = TokenCardRedemptionInfoViewController(delegate: self)
         controller.navigationItem.largeTitleDisplayMode = .never
-        controller.makePresentationFullScreenForiOS13Migration()
+
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
     private func showViewEthereumInfo(in viewController: UIViewController) {
         let controller = WhatIsEthereumInfoViewController(delegate: self)
         controller.navigationItem.largeTitleDisplayMode = .never
-        controller.makePresentationFullScreenForiOS13Migration()
+
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
@@ -413,7 +403,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
-        vc.makePresentationFullScreenForiOS13Migration()
+
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -422,7 +412,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
-        vc.makePresentationFullScreenForiOS13Migration()
+
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -463,7 +453,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         let controller = SFSafariViewController(url: url)
         controller.makePresentationFullScreenForiOS13Migration()
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
-        viewController.present(controller, animated: true, completion: nil)
+        viewController.present(controller, animated: true)
     }
 
     func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
@@ -512,7 +502,7 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         controller.makePresentationFullScreenForiOS13Migration()
-        viewController.present(controller, animated: true, completion: nil)
+        viewController.present(controller, animated: true)
     }
 
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController) {
