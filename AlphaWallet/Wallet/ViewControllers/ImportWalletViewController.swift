@@ -514,10 +514,10 @@ class ImportWalletViewController: UIViewController {
             controller.makePresentationFullScreenForiOS13Migration()
         }
 
-        present(controller, animated: true, completion: nil)
+        present(controller, animated: true)
     }
 
-    @objc func openReader() {
+    @objc private func openReader() {
         delegate?.openQRCode(in: self)
     }
 
