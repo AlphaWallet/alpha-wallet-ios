@@ -136,9 +136,7 @@ class AccountsCoordinator: Coordinator {
 
             controller.addAction(cancelAction)
 
-            controller.makePresentationFullScreenForiOS13Migration()
-
-            navigationController.present(controller, animated: true, completion: nil)
+            navigationController.present(controller, animated: true)
         case .watch:
             let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
                 self?.promptRenameWallet(account.address)
@@ -151,8 +149,8 @@ class AccountsCoordinator: Coordinator {
             controller.addAction(copyAction)
             let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
             controller.addAction(cancelAction)
-            controller.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(controller, animated: true, completion: nil)
+
+            navigationController.present(controller, animated: true)
         }
     }
 
