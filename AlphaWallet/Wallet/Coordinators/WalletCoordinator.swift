@@ -114,9 +114,9 @@ class WalletCoordinator: Coordinator {
         let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         addCoordinator(coordinator)
-        let _ = coordinator.start(entryPoint)
+        coordinator.start(entryPoint)
         coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        navigationController.present(coordinator.navigationController, animated: true)
     }
 
     @objc func dismiss() {

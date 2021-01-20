@@ -715,7 +715,7 @@ extension InCoordinator: CanOpenURL {
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
         controller.makePresentationFullScreenForiOS13Migration()
-        viewController.present(controller, animated: true, completion: nil)
+        viewController.present(controller, animated: true)
     }
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
