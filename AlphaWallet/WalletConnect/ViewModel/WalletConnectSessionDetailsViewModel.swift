@@ -55,7 +55,6 @@ struct WalletConnectSessionDetailsViewModel {
         }
     }
 
-
     var dissconnectButtonText: String {
         return R.string.localizable.walletConnectSessionDisconnect()
     }
