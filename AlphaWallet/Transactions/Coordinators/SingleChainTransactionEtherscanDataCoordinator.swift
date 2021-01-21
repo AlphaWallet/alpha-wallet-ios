@@ -349,9 +349,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
         override func main() {
             guard let coordinator = self.coordinator else { return }
-            let promise = coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
-
-            promise.done { transactions in
+            firstly {
+                coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
+            }.done { transactions in
                 coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
                 coordinator.update(items: transactions)
             }.catch { e in
