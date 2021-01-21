@@ -64,15 +64,25 @@ class WalletConnectServer {
     private lazy var server: Server = Server(delegate: self)
     private let wallet: AlphaWallet.Address
 
-    var urlToServer: [WCURL: RPCServer] = .init()
+    var urlToServer: [WCURL: RPCServer] {
+        UserDefaults.standard.urlToServer
+    }
     var sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
 
     weak var delegate: WalletConnectServerDelegate?
+    private lazy var requestHandler: RequestHandlerToAvoidMemoryLeak = { [weak self] in
+        let handler = RequestHandlerToAvoidMemoryLeak()
+        handler.delegate = self
+
+        return handler
+    }()
 
     init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
         sessions.value = server.openSessions()
-        server.register(handler: self)
+
+        let handler = requestHandler
+        server.register(handler: handler)
     }
 
     func connect(url: WalletConnectURL) throws {
@@ -118,24 +128,52 @@ class WalletConnectServer {
     }
 }
 
-extension WalletConnectServer: RequestHandler {
+protocol WalletConnectServerRequestHandlerDelegate: class {
+    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectSwift.Request)
+    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectSwift.Request) -> Bool
+}
+
+//NOTE: if we manually pass `self` link to WalletConnect server it causes memory leak and object doesn't get deleted.
+class RequestHandlerToAvoidMemoryLeak {
+    weak var delegate: WalletConnectServerRequestHandlerDelegate?
+}
+
+extension RequestHandlerToAvoidMemoryLeak: RequestHandler {
 
     func canHandle(request: WalletConnectSwift.Request) -> Bool {
-        return true
+        guard let delegate = delegate else { return false }
+
+        return delegate.handler(self, canHandle: request)
     }
 
     func handle(request: WalletConnectSwift.Request) {
-        DispatchQueue.main.async {
-            guard let delegate = self.delegate, let id = request.id else { return }
+        guard let delegate = delegate else { return }
 
-            self.convert(request: request).map { type -> Action in
+        return delegate.handler(self, request: request)
+    }
+}
+
+extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
+
+    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectSwift.Request) {
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            guard let delegate = strongSelf.delegate, let id = request.id else { return }
+
+            strongSelf.convert(request: request).map { type -> Action in
                 return .init(id: id, url: request.url, type: type)
             }.done { action in
-                delegate.server(self, action: action, request: request)
+                delegate.server(strongSelf, action: action, request: request)
             }.catch { error in
-                delegate.server(self, didFail: error)
+                delegate.server(strongSelf, didFail: error)
+                //NOTE: we need to reject request if there is some arrays
+                strongSelf.reject(request)
             }
         }
+    }
+
+    func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectSwift.Request) -> Bool {
+        return true
     }
 
     private func convert(request: WalletConnectSwift.Request) -> Promise<Action.ActionType> {
@@ -180,21 +218,41 @@ extension WalletConnectServer: RequestHandler {
 }
 
 extension WalletConnectServer: ServerDelegate {
+    private func removeSession(for url: WalletConnectURL) {
+        guard var sessions = sessions.value else { return }
+
+        if let index = sessions.firstIndex(where: { $0.url.absoluteString == url.absoluteString }) {
+            set(server: nil, for: sessions[index].url)
+            sessions.remove(at: index)
+        }
+
+        UserDefaults.standard.walletConnectSessions = sessions
+        refresh(sessions: sessions)
+    }
+
     func server(_ server: Server, didFailToConnect url: WalletConnectURL) {
         DispatchQueue.main.async {
-            guard var sessions = self.sessions.value, let delegate = self.delegate else { return }
+            guard let delegate = self.delegate else { return }
 
-            if let index = sessions.firstIndex(where: { $0.url.absoluteString == url.absoluteString }) {
-                sessions.remove(at: index)
-            }
-            self.refresh(sessions: sessions)
-
+            self.removeSession(for: url)
             delegate.server(self, didFail: WalletConnectError.connect(url))
         }
     }
 
     private func refresh(sessions value: [Session]) {
         sessions.value = value
+    }
+
+    func set(server: RPCServer?, for url: WalletConnectURL) {
+        var urlToServer = UserDefaults.standard.urlToServer
+
+        if let server = server {
+            urlToServer[url] = server
+        } else {
+            urlToServer.removeValue(forKey: url)
+        }
+
+        UserDefaults.standard.urlToServer = urlToServer
     }
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
@@ -204,8 +262,10 @@ extension WalletConnectServer: ServerDelegate {
 
                 delegate.server(self, shouldConnectFor: connection) { [weak self] choice in
                     guard let strongSelf = self else { return }
+
                     let info = strongSelf.walletInfo(strongSelf.wallet, choice: choice)
-                    strongSelf.urlToServer[session.url] = choice.server
+                    strongSelf.set(server: choice.server, for: session.url)
+
                     completion(info)
                 }
             } else {
@@ -223,6 +283,7 @@ extension WalletConnectServer: ServerDelegate {
             } else {
                 sessions.append(session)
             }
+
             UserDefaults.standard.walletConnectSessions = sessions
             self.refresh(sessions: sessions)
         }
@@ -230,13 +291,7 @@ extension WalletConnectServer: ServerDelegate {
 
     func server(_ server: Server, didDisconnect session: Session) {
         DispatchQueue.main.async {
-            guard var sessions = self.sessions.value else { return }
-            if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
-                //TODO should we remove by WCURL instead? Is that safer?
-                sessions.remove(at: index)
-            }
-            UserDefaults.standard.walletConnectSessions = sessions
-            self.refresh(sessions: sessions)
+            self.removeSession(for: session.url)
         }
     }
 }
