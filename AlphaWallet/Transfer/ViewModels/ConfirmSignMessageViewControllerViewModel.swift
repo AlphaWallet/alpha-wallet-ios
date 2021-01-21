@@ -214,8 +214,6 @@ extension EIP712TypedData.JSON {
             return str
         case .bool(let value):
             return NSAttributedString(string: String(value).indented(indentationLevel), attributes: valueAttributes)
-        case .number(let value):
-            return NSAttributedString(string: String(value).indented(indentationLevel), attributes: valueAttributes)
         case .null:
             return NSAttributedString(string: "")
         }
