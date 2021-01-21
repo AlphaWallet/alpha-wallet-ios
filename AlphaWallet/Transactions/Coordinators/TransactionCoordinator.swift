@@ -66,8 +66,8 @@ class TransactionCoordinator: Coordinator {
         return controller
     }
 
-    private func showTransaction(_ transaction: Transaction, on navigationController: UINavigationController) {
-        let controller = TransactionViewController(session: sessions[transaction.server], transaction: transaction, delegate: self)
+    private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
+        let controller = TransactionViewController(session: sessions[transactionRow.server], transactionRow: transactionRow, delegate: self)
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
 
@@ -75,17 +75,20 @@ class TransactionCoordinator: Coordinator {
     }
 
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
-    func showTransaction(_ transaction: Transaction, inViewController viewController: UIViewController) {
+    func showTransaction(_ transactionRow: TransactionRow, inViewController viewController: UIViewController) {
         guard let navigationController = viewController.navigationController else { return }
-
-        showTransaction(transaction, on: navigationController)
+        showTransaction(transactionRow, on: navigationController)
     }
 
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
         //Quite likely we should have the transaction already
         //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
         guard let transaction = transactionsCollection.transaction(withTransactionId: transactionId, server: server) else { return }
-        showTransaction(transaction, inViewController: viewController)
+        if transaction.localizedOperations.count > 1 {
+            showTransaction(.group(transaction), inViewController: viewController)
+        } else {
+            showTransaction(.standalone(transaction), inViewController: viewController)
+        }
     }
 
     @objc func didEnterForeground() {
@@ -102,8 +105,8 @@ class TransactionCoordinator: Coordinator {
 }
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
-    func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController) {
-        showTransaction(transaction, on: navigationController)
+    func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController) {
+        showTransaction(transactionRow, on: navigationController)
     }
 }
 

@@ -26,6 +26,8 @@ class ActivitiesCoordinator: Coordinator {
     private var rateLimitedUpdater: RateLimiter?
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
+    private var lastActivitiesCount: Int = 0
+    private var lastTransactionRowsCount: Int = 0
 
     weak var delegate: ActivitiesCoordinatorDelegate?
 
@@ -217,7 +219,7 @@ class ActivitiesCoordinator: Coordinator {
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }
-            return (activity: .init(id: Int.random(in: 0..<Int.max), tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
+            return (activity: .init(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed), tokenObject: tokenObject, tokenHolder: tokenHolders[0])
         }
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
@@ -258,15 +260,80 @@ class ActivitiesCoordinator: Coordinator {
             hasLoadedActivitiesTheFirstTime = true
         }
 
-        let transactionAlreadyRepresentedAsActivities = Set(activities.map { $0.transactionId })
         let transactions: [Transaction]
         if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
             transactions = self.transactions.filter { $0.blockNumber >= blockNumberOfOldestActivity }
         } else {
             transactions = self.transactions
         }
-        let items: [ActivityOrTransaction] = activities.map { .activity($0) } + transactions.filter { txn in !transactionAlreadyRepresentedAsActivities.contains(txn.id) }.map { .transaction($0) }
-        rootViewController.configure(viewModel: .init(tokensStorages: tokensStorages, activities: items))
+
+        let items = combine(activities: activities, withTransactions: transactions)
+        if let items = items {
+            rootViewController.configure(viewModel: .init(tokensStorages: tokensStorages, activities: items))
+        }
+    }
+
+    //Combining includes filtering around activities (from events) for ERC20 send/receive transctions which are already covered by transactions
+    private func combine(activities: [Activity], withTransactions: [Transaction]) -> [ActivityOrTransactionRow]? {
+        var transactionRows: [TransactionRow] = .init()
+        for each in transactions {
+            if each.localizedOperations.isEmpty {
+                transactionRows.append(.standalone(each))
+            } else if each.localizedOperations.count == 1, each.value == "0" {
+                transactionRows.append(.standalone(each))
+            } else {
+                transactionRows.append(.group(each))
+                transactionRows.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
+            }
+        }
+
+        //Combining is an expensive operation which blocks the main thread. We avoid it if there are no new data
+        if lastActivitiesCount == activities.count && lastTransactionRowsCount == transactionRows.count { return nil }
+
+        lastActivitiesCount = activities.count
+        lastTransactionRowsCount = transactionRows.count
+        var items: [ActivityOrTransactionRow] = .init()
+        //We maintain the index to start looking in the array of `TransactionRow`s. Otherwise, the nested for-loops is very costly performance wise. This assumes activities and transactions are sorted by blockNumber in the same (descending) order
+        var transactionRowsIndex = 0
+        for each in activities {
+            var erc20TransactionsInSameBlock: [TransactionRow] = .init()
+            for rowIndex in transactionRowsIndex..<transactionRows.count {
+                let transactionRow = transactionRows[rowIndex]
+                guard transactionRow.blockNumber == each.blockNumber, transactionRow.operation?.operationType == .erc20TokenTransfer, transactionRow.operation?.value != nil else {
+                    transactionRowsIndex = rowIndex + 1
+                    break
+                }
+                guard transactionRow.operation?.value == each.values.card["amount"]?.uintValue.flatMap({ String($0) }) else { continue }
+                erc20TransactionsInSameBlock.append(transactionRow)
+            }
+
+            switch each.nativeViewType {
+            case .erc20Sent:
+                if erc20TransactionsInSameBlock.contains(where: { (transactionRow: TransactionRow) in
+                    let from: String? = transactionRow.operation?.from
+                    let sameSender: Bool = (each.values.card["from"]?.addressValue.flatMap { wallet.address.sameContract(as: $0) } ?? false) && (from.flatMap { each.values.card["from"]?.addressValue?.sameContract(as: $0) } ?? false)
+                    return sameSender
+                }) {
+                    //no-op
+                } else {
+                    items.append(.activity(each))
+                }
+            case .erc20Received:
+                if erc20TransactionsInSameBlock.contains(where: { (transactionRow: TransactionRow) in
+                    let to: String? = transactionRow.operation?.to
+                    let sameRecipient: Bool = (each.values.card["to"]?.addressValue.flatMap { wallet.address.sameContract(as: $0) } ?? false) && (to.flatMap { each.values.card["to"]?.addressValue?.sameContract(as: $0) } ?? false)
+                    return sameRecipient
+                }) {
+                    //no-op
+                } else {
+                    items.append(.activity(each))
+                }
+            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained, .none, .nativeCryptoSent, .nativeCryptoReceived:
+                items.append(.activity(each))
+            }
+        }
+        items += transactionRows.map { .transactionRow($0) }
+        return items
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
@@ -278,7 +345,7 @@ class ActivitiesCoordinator: Coordinator {
         }
         if let (index, oldActivity) = activitiesIndexLookup[activity.id] {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-            let updatedActivity: Activity = .init(id: oldActivity.id, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
+            let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
             activities[index] = updatedActivity
             reloadViewController(reloadImmediately: false)
             if let activityViewController = activityViewController, activityViewController.isForActivity(updatedActivity) {

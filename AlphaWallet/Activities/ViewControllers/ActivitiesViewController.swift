@@ -118,22 +118,31 @@ class ActivitiesViewController: UIViewController {
         return container
     }
 
-    private func createPseudoActivity(fromTransaction transaction: Transaction) -> Activity? {
+    private func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow) -> Activity? {
         let token: TokenObject
-        if transaction.operation == nil {
-            token = TokensDataStore.etherToken(forServer: transaction.server)
+        if transactionRow.operation == nil {
+            token = TokensDataStore.etherToken(forServer: transactionRow.server)
         } else {
+            let tokenCompletedTransfer: TokenObject?
             let tokenPendingTransfer: TokenObject?
-            switch (transaction.state, transaction.operation?.operationType) {
+            switch (transactionRow.state, transactionRow.operation?.operationType) {
             case (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
-                tokenPendingTransfer = transaction.operation?.contractAddress.flatMap { tokensStorages[transaction.server].token(forContract: $0) }
-                    //Explicitly listing out combinations so future changes to enums will be caught by compiler
+                tokenCompletedTransfer = nil
+                tokenPendingTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
+            case (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
+                tokenCompletedTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
+                tokenPendingTransfer = nil
+            //Explicitly listing out combinations so future changes to enums will be caught by compiler
             case (.pending, .nativeCurrencyTokenTransfer), (.pending, .unknown), (.pending, nil):
+                tokenCompletedTransfer = nil
                 tokenPendingTransfer = nil
             case (.unknown, _), (.error, _), (.failed, _), (.completed, _):
+                tokenCompletedTransfer = nil
                 tokenPendingTransfer = nil
             }
             if let t = tokenPendingTransfer {
+                token = t
+            } else if let t = tokenCompletedTransfer {
                 token = t
             } else {
                 return nil
@@ -141,39 +150,39 @@ class ActivitiesViewController: UIViewController {
         }
 
         let activityName: String
-        if wallet.sameContract(as: transaction.from) {
+        if wallet.sameContract(as: transactionRow.from) {
             activityName = "sent"
         } else {
             activityName = "received"
         }
         var cardAttributes = [AttributeId: AssetInternalValue]()
-        cardAttributes["symbol"] = .string(transaction.server.symbol)
+        cardAttributes["symbol"] = .string(transactionRow.server.symbol)
 
-        if let operation = transaction.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
+        if let operation = transactionRow.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
             cardAttributes["amount"] = .uint(value)
         } else {
-            if let value = BigUInt(transaction.value) {
+            if let value = BigUInt(transactionRow.value) {
                 cardAttributes["amount"] = .uint(value)
             }
         }
 
-        if let value = AlphaWallet.Address(string: transaction.from) {
+        if let value = AlphaWallet.Address(string: transactionRow.from) {
             cardAttributes["from"] = .address(value)
         }
 
-        if let toString = transaction.operation?.to, let to = AlphaWallet.Address(string: toString) {
+        if let toString = transactionRow.operation?.to, let to = AlphaWallet.Address(string: toString) {
             cardAttributes["to"] = .address(to)
         } else {
-            if let value = AlphaWallet.Address(string: transaction.to) {
+            if let value = AlphaWallet.Address(string: transactionRow.to) {
                 cardAttributes["to"] = .address(value)
             }
         }
 
         var timestamp: GeneralisedTime = .init()
-        timestamp.date = transaction.date
+        timestamp.date = transactionRow.date
         cardAttributes["timestamp"] = .generalisedTime(timestamp)
         let state: Activity.State
-        switch transaction.state {
+        switch transactionRow.state {
         case .pending:
             state = .pending
         case .completed:
@@ -184,19 +193,29 @@ class ActivitiesViewController: UIViewController {
         case .unknown:
             state = .completed
         }
+        let rowType: ActivityRowType
+        switch transactionRow {
+        case .standalone:
+            rowType = .standalone
+        case .group:
+            rowType = .group
+        case .item:
+            rowType = .item
+        }
         return .init(
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
-                id: transaction.blockNumber + 10000000,
+                id: transactionRow.blockNumber + 10000000,
+                rowType: rowType,
                 tokenObject: token,
-                server: transaction.server,
+                server: transactionRow.server,
                 name: activityName,
                 eventName: activityName,
-                blockNumber: transaction.blockNumber,
-                transactionId: transaction.id,
-                transactionIndex: transaction.transactionIndex,
+                blockNumber: transactionRow.blockNumber,
+                transactionId: transactionRow.id,
+                transactionIndex: transactionRow.transactionIndex,
                 //We don't use this for transactions, so it's ok
                 logIndex: 0,
-                date: transaction.date,
+                date: transactionRow.date,
                 values: (token: .init(), card: cardAttributes),
                 view: (html: "", style: ""),
                 itemView: (html: "", style: ""),
@@ -219,11 +238,11 @@ extension ActivitiesViewController: UITableViewDelegate {
         switch item {
         case .activity(let activity):
             delegate?.didPressActivity(activity: activity, in: self)
-        case .transaction(let transaction):
-            if let activity = createPseudoActivity(fromTransaction: transaction) {
+        case .transactionRow(let transactionRow):
+            if let activity = createPseudoActivity(fromTransactionRow: transactionRow) {
                 delegate?.didPressActivity(activity: activity, in: self)
             } else {
-                delegate?.didPressTransaction(transaction: transaction, in: self)
+                delegate?.didPressTransaction(transaction: transactionRow.transaction, in: self)
             }
         }
     }
@@ -256,21 +275,15 @@ extension ActivitiesViewController: UITableViewDataSource {
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             }
-        case .transaction(let transaction):
-            if let activity = createPseudoActivity(fromTransaction: transaction) {
+        case .transactionRow(let transactionRow):
+            if let activity = createPseudoActivity(fromTransactionRow: transactionRow) {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             } else {
                 let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
-                let session = sessions[transaction.server]
-                cell.configure(viewModel: .init(
-                        transaction: transaction,
-                        chainState: session.chainState,
-                        currentWallet: session.account,
-                        server: transaction.server
-                )
-                )
+                let session = sessions[transactionRow.server]
+                cell.configure(viewModel: .init(transactionRow: transactionRow, chainState: session.chainState, currentWallet: session.account, server: transactionRow.server))
                 return cell
             }
         }

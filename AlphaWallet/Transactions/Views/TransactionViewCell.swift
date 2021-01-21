@@ -9,6 +9,7 @@ class TransactionViewCell: UITableViewCell {
     private let amountLabel = UILabel()
     private let subTitleLabel = UILabel()
     private let blockchainLabel = UILabel()
+    private var leftEdgeConstraint: NSLayoutConstraint = .init()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -53,12 +54,17 @@ class TransactionViewCell: UITableViewCell {
 
         background.addSubview(stackView)
 
+        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
+
         NSLayoutConstraint.activate([
             blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
 
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
 
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 14, left: StyleLayout.sideMargin, bottom: 14, right: StyleLayout.sideMargin)),
+            leftEdgeConstraint,
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
+            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 14),
+            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -14),
 
             background.anchorsConstraint(to: contentView),
         ])
@@ -68,8 +74,9 @@ class TransactionViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TransactionCellViewModel) {
+    func configure(viewModel: TransactionRowCellViewModel) {
         selectionStyle = .none
+        leftEdgeConstraint.constant = viewModel.leftMargin
         background.backgroundColor = viewModel.contentsBackgroundColor
         background.layer.cornerRadius = viewModel.contentsCornerRadius
 

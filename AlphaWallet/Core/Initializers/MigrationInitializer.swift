@@ -13,7 +13,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 7
+        config.schemaVersion = 8
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
@@ -66,6 +66,15 @@ class MigrationInitializer: Initializer {
             if oldSchemaVersion < 7 {
                 //Fix bug where we marked all transactions as completed successfully without checking `isError` from Etherscan
                 migration.deleteData(forType: Transaction.className())
+                for each in RPCServer.allCases {
+                    Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
+                }
+                migration.deleteData(forType: EventActivity.className())
+            }
+            if oldSchemaVersion < 8 {
+                //Clear all transactions data so we can fetch them again and capture `LocalizedOperationObject` children correctly
+                migration.deleteData(forType: Transaction.className())
+                migration.deleteData(forType: LocalizedOperationObject.className())
                 for each in RPCServer.allCases {
                     Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
                 }

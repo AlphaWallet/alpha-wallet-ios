@@ -6,26 +6,26 @@ import UIKit
 
 struct TransactionDetailsViewModel {
     private let transactionViewModel: TransactionViewModel
-    private let transaction: Transaction
+    private let transactionRow: TransactionRow
     private let chainState: ChainState
     private let fullFormatter = EtherNumberFormatter.full
     private let currencyRate: CurrencyRate?
 
     private var server: RPCServer {
-        return transaction.server
+        return transactionRow.server
     }
 
     init(
-        transaction: Transaction,
-        chainState: ChainState,
-        currentWallet: Wallet,
-        currencyRate: CurrencyRate?
+            transactionRow: TransactionRow,
+            chainState: ChainState,
+            currentWallet: Wallet,
+            currencyRate: CurrencyRate?
     ) {
-        self.transaction = transaction
+        self.transactionRow = transactionRow
         self.chainState = chainState
         self.currencyRate = currencyRate
         self.transactionViewModel = TransactionViewModel(
-            transaction: transaction,
+            transactionRow: transactionRow,
             chainState: chainState,
             currentWallet: currentWallet
         )
@@ -40,7 +40,7 @@ struct TransactionDetailsViewModel {
     }
 
     var createdAt: String {
-        return Date.formatter(with: "dd MMM yyyy h:mm:ss a").string(from: transaction.date)
+        return Date.formatter(with: "dd MMM yyyy h:mm:ss a").string(from: transactionRow.date)
     }
 
     var createdAtLabelTitle: String {
@@ -60,11 +60,11 @@ struct TransactionDetailsViewModel {
     }
 
     var detailsURL: URL? {
-        return ConfigExplorer(server: server).transactionURL(for: transaction.id)?.url
+        return ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.url
     }
 
     var detailsButtonText: String {
-        if let name = ConfigExplorer(server: server).transactionURL(for: transaction.id)?.name {
+        if let name = ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.name {
             return R.string.localizable.viewIn(name)
         } else {
             return R.string.localizable.moreDetails()
@@ -72,7 +72,7 @@ struct TransactionDetailsViewModel {
     }
 
     var transactionID: String {
-        return transaction.id
+        return transactionRow.id
     }
 
     var transactionIDLabelTitle: String {
@@ -80,10 +80,14 @@ struct TransactionDetailsViewModel {
     }
 
     var to: String {
-        guard let to = transaction.operation?.to else {
+        switch transactionRow {
+        case .standalone(let transaction):
             return transaction.to
+        case .group(let transaction):
+            return transaction.to
+        case .item(transaction: let transaction, operation: let operation):
+            return operation.to
         }
-        return to
     }
 
     var toLabelTitle: String {
@@ -91,7 +95,7 @@ struct TransactionDetailsViewModel {
     }
 
     var from: String {
-        return transaction.from
+        return transactionRow.from
     }
 
     var fromLabelTitle: String {
@@ -99,11 +103,11 @@ struct TransactionDetailsViewModel {
     }
 
     var gasViewModel: GasViewModel {
-        let gasUsed = BigInt(transaction.gasUsed) ?? BigInt()
-        let gasPrice = BigInt(transaction.gasPrice) ?? BigInt()
-        let gasLimit = BigInt(transaction.gas) ?? BigInt()
+        let gasUsed = BigInt(transactionRow.gasUsed) ?? BigInt()
+        let gasPrice = BigInt(transactionRow.gasPrice) ?? BigInt()
+        let gasLimit = BigInt(transactionRow.gas) ?? BigInt()
         let gasFee: BigInt = {
-            switch transaction.state {
+            switch transactionRow.state {
             case .completed, .error: return gasPrice * gasUsed
             case .pending, .unknown, .failed: return gasPrice * gasLimit
             }
@@ -122,7 +126,7 @@ struct TransactionDetailsViewModel {
     }
 
     var confirmation: String {
-        guard let confirmation = chainState.confirmations(fromBlock: transaction.blockNumber) else {
+        guard let confirmation = chainState.confirmations(fromBlock: transactionRow.blockNumber) else {
             return "--"
         }
         return String(confirmation)
@@ -133,7 +137,7 @@ struct TransactionDetailsViewModel {
     }
 
     var blockNumber: String {
-        return String(transaction.blockNumber)
+        return String(transactionRow.blockNumber)
     }
 
     var blockNumberLabelTitle: String {
@@ -141,7 +145,7 @@ struct TransactionDetailsViewModel {
     }
 
     var nonce: String {
-        String(transaction.nonce)
+        String(transactionRow.nonce)
     }
 
     var nonceLabelTitle: String {
