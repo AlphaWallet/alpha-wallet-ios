@@ -217,4 +217,15 @@ struct DefaultActivityCellViewModel {
         let empiricallyBigLimit: Double = 90_000_000
         return Double(amount) / pow(10, activity.tokenObject.decimals).doubleValue > empiricallyBigLimit
     }
+
+    var leftMargin: CGFloat {
+        switch activity.rowType {
+        case .standalone:
+            return StyleLayout.sideMargin
+        case .group:
+            return StyleLayout.sideMargin
+        case .item:
+            return StyleLayout.sideMargin + 20
+        }
+    }
 }

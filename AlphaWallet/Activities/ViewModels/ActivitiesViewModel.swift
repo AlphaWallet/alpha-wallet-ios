@@ -12,18 +12,18 @@ struct ActivitiesViewModel {
         return Date.formatter(with: "dd MMM yyyy")
     }
 
-    typealias MappedToDateActivityOrTransaction = (date: String, items: [ActivityOrTransaction])
+    typealias MappedToDateActivityOrTransaction = (date: String, items: [ActivityOrTransactionRow])
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
     private let tokensStorages: ServerDictionary<TokensDataStore>
 
-    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [ActivityOrTransaction] = []) {
+    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [ActivityOrTransactionRow] = []) {
         items = ActivitiesViewModel.sorted(activities: activities)
         self.tokensStorages = tokensStorages
     }
 
-    private static func sorted(activities: [ActivityOrTransaction]) -> [MappedToDateActivityOrTransaction] {
+    private static func sorted(activities: [ActivityOrTransactionRow]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for each in activities {
@@ -34,7 +34,7 @@ struct ActivitiesViewModel {
         }
 
         return newItems.map { each in
-            (date: each.key, items: (each.value as! [ActivityOrTransaction]).sorted {
+            (date: each.key, items: (each.value as! [ActivityOrTransactionRow]).sorted {
                 //Show pending transactions at the top
                 if $0.blockNumber == 0 && $1.blockNumber != 0 {
                     return true
@@ -53,11 +53,11 @@ struct ActivitiesViewModel {
                         switch ($0, $1) {
                         case let (.activity(a0), .activity(a1)):
                             return a0.logIndex > a1.logIndex
-                        case (.transaction, .activity):
+                        case (.transactionRow, .activity):
                             return false
-                        case (.activity, .transaction):
+                        case (.activity, .transactionRow):
                             return true
-                        case let (.transaction(t0), .transaction(t1)):
+                        case let (.transactionRow(t0), .transactionRow(t1)):
                             if let n0 = Int(t0.nonce), let n1 = Int(t1.nonce) {
                                 return n0 > n1
                             } else {
@@ -80,7 +80,7 @@ struct ActivitiesViewModel {
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
                 let twoKeywords = splitIntoExactlyTwoKeywords(valueToSearch)
                 let results = newFilteredItems.compactMap { date, content -> MappedToDateActivityOrTransaction? in
-                    let data: [ActivityOrTransaction]
+                    let data: [ActivityOrTransactionRow]
                     if let twoKeywords = twoKeywords {
                         //Special case to support keywords like "Sent CoFi"
                         data = content.filter { data -> Bool in
@@ -132,7 +132,7 @@ struct ActivitiesViewModel {
         filteredItems[section].items.count
     }
 
-    func item(for row: Int, section: Int) -> ActivityOrTransaction {
+    func item(for row: Int, section: Int) -> ActivityOrTransactionRow {
         filteredItems[section].items[row]
     }
 

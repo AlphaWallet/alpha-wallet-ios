@@ -132,12 +132,8 @@ struct TokenViewControllerViewModel {
             self.recentTransactions = Array(transactionsStore.objects.lazy
                     .filter({ $0.state == .completed || $0.state == .pending })
                     .filter({
-                        if let operation = $0.operation {
-                            return operation.operationType == .erc20TokenTransfer
-                        } else {
-                            return false
-                        }})
-                    .filter({ $0.operation?.contract.flatMap { token.contractAddress.sameContract(as: $0) } ?? false })
+                        $0.localizedOperations.contains(where: { op in op.operationType == .erc20TokenTransfer && (op.contract.flatMap({ token.contractAddress.sameContract(as: $0) }) ?? false) })
+                    })
                     .prefix(3))
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             self.recentTransactions = []
