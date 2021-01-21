@@ -146,8 +146,8 @@ class InCoordinator: NSObject, Coordinator {
         super.init()
     }
 
-    func start() { 
-        
+    func start() {
+
         showTabBar(for: wallet)
         checkDevice()
 
@@ -498,16 +498,27 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
+    private func restart(for account: Wallet, in coordinator: TransactionCoordinator, reason: RestartReason) {
         navigationController.dismiss(animated: false)
         coordinator.navigationController.dismiss(animated: true)
         coordinator.stop()
         removeAllCoordinators()
         OpenSea.resetInstances()
-        walletConnectCoordinator.disconnectAllSessions()
+        disconnectWalletConnectSessionsSelectively(for: reason)
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
+    }
+
+    private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason) {
+        switch reason {
+        case .changeLocalization:
+            break //no op
+        case .serverChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
+        case .walletChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .all)
+        }
     }
 
     private func removeAllCoordinators() {
@@ -749,12 +760,12 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         delegate?.didCancel(in: self)
     }
 
-    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator) {
+    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
 
-        restart(for: account, in: transactionCoordinator)
+        restart(for: account, in: transactionCoordinator, reason: reason)
     }
 
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {

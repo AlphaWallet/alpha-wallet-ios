@@ -13,6 +13,11 @@ import Result
 typealias WalletConnectURL = WCURL
 typealias WalletConnectSession = Session
 
+enum SessionsToDisconnect {
+    case allExcept(_ servers: [RPCServer])
+    case all
+}
+
 class WalletConnectCoordinator: NSObject, Coordinator {
     private lazy var server: WalletConnectServer = {
         let server = WalletConnectServer(wallet: sessions.anyValue.account.address)
@@ -47,8 +52,29 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         start()
     }
 
-    func disconnectAllSessions() {
-        for each in UserDefaults.standard.walletConnectSessions {
+    //NOTE: we are using disconnection to notify dapp that we get disconnect, in other case dapp still stay connected
+    func disconnect(sessionsToDisconnect: SessionsToDisconnect) {
+
+        let walletConnectSessions = UserDefaults.standard.walletConnectSessions
+        let filteredSessions: [WalletConnectSession]
+
+        switch sessionsToDisconnect {
+        case .all:
+            filteredSessions = walletConnectSessions
+        case .allExcept(let servers):
+            //NOTE: as we got stored session urls mapped with rpc servers we can filter urls and exclude unused session
+            let sessionURLsToDisconnect = UserDefaults.standard.urlToServer.map {
+                (key: $0.key, server: $0.value)
+            }.filter {
+                !servers.contains($0.server)
+            }.map {
+                $0.key
+            }
+
+            filteredSessions = walletConnectSessions.filter { sessionURLsToDisconnect.contains($0.url) }
+        }
+
+        for each in filteredSessions {
             try? server.disconnect(session: each)
         }
     }

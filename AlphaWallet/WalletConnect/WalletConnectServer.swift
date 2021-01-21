@@ -94,6 +94,9 @@ class WalletConnectServer {
     }
 
     func disconnect(session: Session) throws {
+        //NOTE: for some reasons completion handler doesn't get called, when we do disconnect, for this we remove session before do disconnect
+        removeSession(for: session.url)
+
         try server.disconnect(from: session)
     }
 

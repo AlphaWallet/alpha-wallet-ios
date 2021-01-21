@@ -4,8 +4,14 @@
 import Foundation
 import UIKit
 
+enum RestartReason {
+    case walletChange
+    case changeLocalization
+    case serverChange
+}
+
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
-	func didRestart(with account: Wallet, in coordinator: SettingsCoordinator)
+    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
 	func didUpdateAccounts(in coordinator: SettingsCoordinator)
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
@@ -66,8 +72,8 @@ class SettingsCoordinator: Coordinator {
 		navigationController.viewControllers = [rootViewController]
 	}
 
-	func restart(for wallet: Wallet) {
-		delegate?.didRestart(with: wallet, in: self)
+    func restart(for wallet: Wallet, reason: RestartReason) {
+		delegate?.didRestart(with: wallet, in: self, reason: reason)
 	}
 }
 
@@ -170,7 +176,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 	func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.popViewController(animated: true)
 		removeCoordinator(coordinator)
-		restart(for: account)
+        restart(for: account, reason: .walletChange)
 	}
 }
 
@@ -178,7 +184,7 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
     func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator) {
 		coordinator.localesViewController.navigationController?.popViewController(animated: true)
 		removeCoordinator(coordinator)
-		restart(for: account)
+        restart(for: account, reason: .changeLocalization)
 	}
 }
 
@@ -193,7 +199,7 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 			removeCoordinator(coordinator)
 		} else {
 			config.enabledServers = servers
-			restart(for: account)
+            restart(for: account, reason: .serverChange)
 		}
 	}
 
