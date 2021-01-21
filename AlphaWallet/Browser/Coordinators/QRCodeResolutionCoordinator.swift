@@ -130,7 +130,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
     private func availableActions(forContract contract: AlphaWallet.Address) -> [ScanQRCodeAction] {
         switch usage {
         case .all(let tokensDataStores, _):
-            let isTokenFound = tokensDataStores.contains { $0.token(forContract: contract) != nil } ?? false
+            let isTokenFound = tokensDataStores.contains { $0.token(forContract: contract) != nil }
             if isTokenFound {
                 return [.sendToAddress, .watchWallet, .openInEtherscan]
             } else {
@@ -279,7 +279,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 
     private func serverFromEip681LinkOrDefault(_ serverInLink: RPCServer?) -> RPCServer? {
-        let server: RPCServer
         if let serverInLink = serverInLink {
             return serverInLink
         }

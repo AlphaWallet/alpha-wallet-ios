@@ -168,8 +168,8 @@ extension EIP712TypedData {
 extension EIP712TypedData.JSON {
     //TODO Better to follow the order define in the type
     func formattedString(indentationLevel: Int = 0) -> NSAttributedString {
-        let nameAttributes: [NSAttributedString.Key : Any] = [.foregroundColor: Colors.gray, .font: Fonts.light(size: 15)]
-        let valueAttributes: [NSAttributedString.Key : Any] = [.foregroundColor: R.color.dove(), .font: Fonts.regular(size: 15)]
+        let nameAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: Colors.gray, .font: Fonts.light(size: 15)]
+        let valueAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: R.color.dove()!, .font: Fonts.regular(size: 15)]
 
         switch self {
         case .object(let dictionary):
