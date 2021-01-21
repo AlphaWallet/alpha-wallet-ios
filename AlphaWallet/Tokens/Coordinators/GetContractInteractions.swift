@@ -63,7 +63,7 @@ class GetContractInteractions {
                         completion(transactions)
                     }
                 }
-            case .failure(let error):
+            case .failure:
                 completion([])
             }
         }
@@ -113,7 +113,7 @@ class GetContractInteractions {
                         completion(uniqueNonEmptyContracts, maxBlockNumber)
                     }
                 }
-            case .failure(let error):
+            case .failure:
                 completion([], nil)
             }
         }

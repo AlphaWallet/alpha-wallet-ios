@@ -19,8 +19,8 @@ extension Session {
                 case .success(let result):
                     seal.fulfill(result)
                 case .failure(let error):
-                    if case let .responseError(JSONRPCError.responseError(e)) = error {
-                        if e.message.hasPrefix("Insufficient funds") {
+                    if case let .responseError(JSONRPCError.responseError(_, message: message, _)) = error {
+                        if message.hasPrefix("Insufficient funds") {
                             seal.reject(InsufficientFundsError())
                             return
                         } else {

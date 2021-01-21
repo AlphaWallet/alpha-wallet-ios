@@ -244,7 +244,7 @@ class ConfigureTransactionViewController: UIViewController {
     private func recalculateTotalFeeForCustomGas() {
         cells.totalFee.value = viewModel.gasViewModel.feeText
         let configurationTypes = viewModel.configurationTypes
-        if let indexPath = configurationTypes.index(of: .custom).flatMap { IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }, let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
+        if let indexPath = configurationTypes.index(of: .custom).flatMap({ IndexPath(row: $0, section: ConfigureTransactionViewModel.Section.configurationTypes.rawValue) }), let cell = tableView.cellForRow(at: indexPath) as? GasSpeedTableViewCell {
             cell.configure(viewModel: viewModel.gasSpeedViewModel(indexPath: indexPath))
         }
         showGasPriceWarning()
@@ -530,7 +530,7 @@ extension UIBarButtonItem {
 
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
-    } 
+    }
 
     static func backBarButton(selectionClosure: @escaping () -> Void) -> UIBarButtonItem {
         let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
@@ -556,5 +556,5 @@ extension UIBarButtonItem {
 
     @objc func didTapButton(_ sender: Any) {
         selectionClosure?()
-    } 
+    }
 }
