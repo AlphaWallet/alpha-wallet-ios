@@ -11,11 +11,13 @@ enum ConfirmationError: LocalizedError {
 }
 
 extension UIViewController {
-    func displaySuccess(title: String? = .none, message: String? = .none) {
+    @discardableResult func displaySuccess(title: String? = .none, message: String? = .none) -> UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         alertController.popoverPresentationController?.sourceView = view
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true)
+
+        return alertController
     }
 
     func displayError(message: String) {

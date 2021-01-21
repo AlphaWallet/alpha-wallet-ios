@@ -31,7 +31,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator?
     private let config: Config
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
-
+    private weak var notificationAlertController: UIViewController?
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
@@ -45,6 +45,12 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         super.init()
         start()
+    }
+
+    func disconnectAllSessions() {
+        for each in UserDefaults.standard.walletConnectSessions {
+            try? server.disconnect(session: each)
+        }
     }
 
     private func start() {
@@ -175,7 +181,16 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, didFail error: Error) {
-        navigationController.displaySuccess(message: R.string.localizable.walletConnectFailureTitle())
+        let errorMessage = R.string.localizable.walletConnectFailureTitle()
+        if let presentedController = notificationAlertController {
+            presentedController.dismiss(animated: true) { [weak self] in
+                guard let strongSelf = self else { return }
+
+                strongSelf.notificationAlertController = strongSelf.navigationController.displaySuccess(message: errorMessage)
+            }
+        } else {
+            notificationAlertController = navigationController.displaySuccess(message: errorMessage)
+        }
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
