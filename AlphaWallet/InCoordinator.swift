@@ -826,12 +826,31 @@ extension InCoordinator: TokensCoordinatorDelegate {
         }
     }
 
+    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            open(url: url, onServer: server)
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+    }
+
     private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
 
         showTab(.browser)
 
         dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
+    }
+
+    private func open(url: URL, onServer server: RPCServer) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
+
+
+        //Server shouldn't be disabled since the action is selected
+        guard config.enabledServers.contains(server) else { return }
+        showTab(.browser)
+        dappBrowserCoordinator.switch(toServer: server, url: url)
     }
 
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {

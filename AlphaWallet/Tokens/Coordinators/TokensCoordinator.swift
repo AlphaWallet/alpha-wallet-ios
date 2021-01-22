@@ -6,6 +6,7 @@ import PromiseKit
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
+    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -384,6 +385,10 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
+    }
+
+    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.shouldOpen(url: url, onServer: server, forTransactionType: transactionType, in: self)
     }
 
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator) {
