@@ -40,13 +40,24 @@ struct TokenViewControllerViewModel {
                 return []
             case .erc721ForTickets:
                 return []
-            case .erc20, .nativeCryptocurrency:
+            case .erc20:
                 let actions: [TokenInstanceAction] = [
                     .init(type: .erc20Send),
                     .init(type: .erc20Receive)
                 ]
 
                 return actions + swapTokenActionsService.actions(token: token)
+            case .nativeCryptocurrency:
+                let actions: [TokenInstanceAction] = [
+                    .init(type: .erc20Send),
+                    .init(type: .erc20Receive)
+                ]
+                switch token.server {
+                case .xDai:
+                    return [.init(type: .xDaiBridge)] + actions + swapTokenActionsService.actions(token: token)
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom:
+                    return actions + swapTokenActionsService.actions(token: token)
+                }
             }
         } else {
             switch token.type {
@@ -55,10 +66,18 @@ struct TokenViewControllerViewModel {
             case .erc20:
                 return actionsFromTokenScript + swapTokenActionsService.actions(token: token)
             case .nativeCryptocurrency:
+                let xDaiBridgeActions: [TokenInstanceAction]
+                switch token.server {
+                case .xDai:
+                    xDaiBridgeActions = [.init(type: .xDaiBridge)]
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom:
+                    xDaiBridgeActions = []
+                }
+
                 //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
                 if let server = xmlHandler.server, server.matches(server: token.server) {
                     actionsFromTokenScript += swapTokenActionsService.actions(token: token)
-                    return actionsFromTokenScript
+                    return xDaiBridgeActions + actionsFromTokenScript
                 } else {
                     //TODO .erc20Send and .erc20Receive names aren't appropriate
                     let actions: [TokenInstanceAction] = [
@@ -66,7 +85,7 @@ struct TokenViewControllerViewModel {
                         .init(type: .erc20Receive)
                     ]
 
-                    return actions + swapTokenActionsService.actions(token: token)
+                    return xDaiBridgeActions + actions + swapTokenActionsService.actions(token: token)
                 }
             }
         }

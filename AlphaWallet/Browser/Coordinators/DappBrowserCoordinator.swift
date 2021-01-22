@@ -335,6 +335,19 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     func isMagicLink(_ url: URL) -> Bool {
         return RPCServer.allCases.contains { $0.magicLinkHost == url.host }
     }
+
+    func `switch`(toServer server: RPCServer, url: URL? = nil) {
+        self.server = server
+        withCurrentUrl { previousUrl in
+            //TODO extract method? Clean up
+            browserNavBar?.clearDisplay()
+            browserNavBar?.configure(server: server)
+            start()
+
+            guard let url = url ?? previousUrl else { return }
+            open(url: url, animated: false)
+        }
+    }
 }
 
 extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
@@ -710,19 +723,9 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         case .auto:
             break
         case .server(let server):
-            self.server = server
             coordinator.serversViewController.navigationController?.dismiss(animated: true)
             removeCoordinator(coordinator)
-
-            withCurrentUrl { url in
-                //TODO extract method? Clean up
-                browserNavBar?.clearDisplay()
-                browserNavBar?.configure(server: server)
-                start()
-
-                guard let url = url else { return }
-                open(url: url, animated: false)
-            }
+            `switch`(toServer: server)
         }
     }
 
