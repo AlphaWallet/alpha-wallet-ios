@@ -159,7 +159,7 @@ extension SendCoordinator: SendViewControllerDelegate {
 extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.localizedDescription)
+        coordinator.navigationController.displayError(message: error.prettyError)
     }
 
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
