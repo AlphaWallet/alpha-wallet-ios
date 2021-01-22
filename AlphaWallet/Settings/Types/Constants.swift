@@ -114,13 +114,15 @@ public struct Constants {
     public static let binanceTestnetContractPage = "https://testnet.bscscan.com/search?q="
     public static let hecoContractPage = "https://scan.hecochain.com/address/"
     public static let hecoTestnetContractPage = "https://scan-testnet.hecochain.com/address/"
-    
+
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
     public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
+
+    static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
 
     //ENS
     static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e")!

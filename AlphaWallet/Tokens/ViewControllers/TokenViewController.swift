@@ -7,6 +7,7 @@ import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
+    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
@@ -230,6 +231,8 @@ class TokenViewController: UIViewController {
                 } else {
                     delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
                 }
+            case .xDaiBridge:
+                delegate?.shouldOpen(url: Constants.xDaiBridge, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
             }
             break
         }
