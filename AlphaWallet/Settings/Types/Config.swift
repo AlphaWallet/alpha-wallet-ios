@@ -141,16 +141,6 @@ struct Config {
         }
     }
 
-    //TODO Only Dapp browser uses this. Shall we move it?
-    var server: RPCServer {
-        let chainId = Config.getChainId()
-        if let server = enabledServers.first(where: { $0.chainID == chainId }) {
-            return server
-        } else {
-            return .main
-        }
-    }
-
     init(defaults: UserDefaults = UserDefaults.standard) {
         self.defaults = defaults
     }
