@@ -333,13 +333,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
-        let coordinator = ServersCoordinator(defaultServer: server, config: config)
+        let coordinator = ServersCoordinator(defaultServer: server, config: config, navigationController: navigationController)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-        let nc = UINavigationController(rootViewController: coordinator.serversViewController)
-        nc.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(nc, animated: true)
+
+        browserNavBar?.setBrowserBar(hidden: true)
     }
 
     private func withCurrentUrl(handler: (URL?) -> Void) {
@@ -575,6 +574,7 @@ extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
         let viewController = MyDappsViewController(bookmarksStore: bookmarksStore)
         viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
         viewController.delegate = self
+        viewController.hidesBottomBarWhenPushed = true
         pushOntoNavigationController(viewController: viewController, animated: true)
     }
 
@@ -626,12 +626,14 @@ extension DappBrowserCoordinator: DiscoverDappsViewControllerDelegate {
 
 extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
     func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
-        let vc = EditMyDappViewController()
-        vc.delegate = self
-        vc.configure(viewModel: .init(dapp: dapp))
-        vc.hidesBottomBarWhenPushed = true
-        vc.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(vc, animated: true)
+        let viewController = EditMyDappViewController()
+        viewController.delegate = self
+        viewController.configure(viewModel: .init(dapp: dapp))
+        viewController.hidesBottomBarWhenPushed = true
+
+        browserNavBar?.setBrowserBar(hidden: true)
+
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     func didTapToSelect(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
@@ -716,12 +718,17 @@ extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
             dapp.title = title
             dapp.url = url
         }
-        viewController.dismiss(animated: true)
+
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        navigationController.popViewController(animated: true)
         refreshDapps()
     }
 
     func didTapCancel(inViewController viewController: EditMyDappViewController) {
-        viewController.dismiss(animated: true)
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        navigationController.popViewController(animated: true)
     }
 }
 
@@ -740,18 +747,22 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension DappBrowserCoordinator: ServersCoordinatorDelegate {
     func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+        browserNavBar?.setBrowserBar(hidden: false)
+
         switch server {
         case .auto:
             break
         case .server(let server):
-            coordinator.serversViewController.navigationController?.dismiss(animated: true)
+            coordinator.navigationController.popViewController(animated: true)
             removeCoordinator(coordinator)
             `switch`(toServer: server)
         }
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
-        coordinator.serversViewController.navigationController?.dismiss(animated: true)
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        coordinator.navigationController.popViewController(animated: true)
         removeCoordinator(coordinator)
     }
 }

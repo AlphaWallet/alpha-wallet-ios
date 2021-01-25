@@ -4,6 +4,7 @@ import UIKit
 
 protocol ServersViewControllerDelegate: class {
     func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController)
+    func didClose(in viewController: ServersViewController)
 }
 
 class ServersViewController: UIViewController {

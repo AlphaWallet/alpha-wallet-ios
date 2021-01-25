@@ -92,10 +92,8 @@ class InCoordinatorTests: XCTestCase {
 
         coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil)), server: .main)
 
-        let controller = (coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0]
-
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
-        XCTAssertTrue(controller is SendViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers.last is SendViewController)
     }
 
     func testShowRequstFlow() {

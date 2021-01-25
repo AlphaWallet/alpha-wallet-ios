@@ -10,7 +10,6 @@ protocol WalletCoordinatorDelegate: class {
 
 class WalletCoordinator: Coordinator {
     private let config: Config
-    private var entryPoint: WalletEntryPoint?
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
     private let analyticsCoordinator: AnalyticsCoordinator?
@@ -27,7 +26,6 @@ class WalletCoordinator: Coordinator {
     ) {
         self.config = config
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
@@ -35,7 +33,6 @@ class WalletCoordinator: Coordinator {
 
     ///Return true if caller should proceed to show UI (`navigationController`)
     @discardableResult func start(_ entryPoint: WalletEntryPoint) -> Bool {
-        self.entryPoint = entryPoint
         switch entryPoint {
         case .welcome:
             let controller = WelcomeViewController()

@@ -97,7 +97,6 @@ class TokensCoordinator: Coordinator {
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.sessions = sessions
         self.keystore = keystore
         self.config = config

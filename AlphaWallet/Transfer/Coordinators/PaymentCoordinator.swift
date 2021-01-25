@@ -23,7 +23,7 @@ class PaymentCoordinator: Coordinator {
     let navigationController: UINavigationController
 
     init(
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: UINavigationController,
             flow: PaymentFlow,
             session: WalletSession,
             keystore: Keystore,
@@ -34,7 +34,6 @@ class PaymentCoordinator: Coordinator {
             analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
         self.flow = flow
         self.keystore = keystore

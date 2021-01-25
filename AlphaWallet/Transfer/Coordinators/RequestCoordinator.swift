@@ -24,7 +24,6 @@ class RequestCoordinator: Coordinator {
 
     init(navigationController: UINavigationController = UINavigationController(), account: Wallet) {
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.navigationController.setNavigationBarHidden(false, animated: true)
 
         self.account = account

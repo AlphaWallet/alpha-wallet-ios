@@ -33,7 +33,7 @@ class SendCoordinator: Coordinator {
 
     init(
             transactionType: TransactionType,
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: UINavigationController,
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
@@ -45,7 +45,6 @@ class SendCoordinator: Coordinator {
     ) {
         self.transactionType = transactionType
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
         self.account = account
         self.keystore = keystore
@@ -54,6 +53,7 @@ class SendCoordinator: Coordinator {
         self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.navigationController.setNavigationBarHidden(false, animated: true)
     }
 
     func start() {
@@ -63,14 +63,9 @@ class SendCoordinator: Coordinator {
                         storage: sendViewController.storage
                         )
         )
-        //Make sure the pop up, especially the height, is enough to fit the content in iPad
-        sendViewController.preferredContentSize = CGSize(width: 540, height: 700)
-        if navigationController.viewControllers.isEmpty {
-            navigationController.viewControllers = [sendViewController]
-        } else {
-            sendViewController.navigationItem.largeTitleDisplayMode = .never
-            navigationController.pushViewController(sendViewController, animated: true)
-        }
+
+        sendViewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+        navigationController.pushViewController(sendViewController, animated: true)
     }
 
     private func makeSendViewController() -> SendViewController {
@@ -83,9 +78,6 @@ class SendCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore
         )
 
-        if navigationController.viewControllers.isEmpty {
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        }
         switch transactionType {
         case .nativeCryptocurrency(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
