@@ -379,6 +379,7 @@
 "Balance" = "잔고";
 "confirmSignMessage" = "이 메시지에 서명 확인:";
 "blockchain.ethereum" = "이더리움 블록체인";
+"blockchain.taichi" = "TAICHI Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "정의되지 않은 오류";

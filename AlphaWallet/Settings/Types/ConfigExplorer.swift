@@ -22,6 +22,8 @@ struct ConfigExplorer {
                 return .none
             case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
                 return endpoint + "/tx/" + ID
+            case .taiChi:
+                return endpoint + "/txscan/priTx?txHash=" + ID
             }
         }()
         guard let string = urlString, let url = URL(string: string) else { return .none }
@@ -49,6 +51,8 @@ struct ConfigExplorer {
             return "ARTIS"
         case .heco, .heco_testnet:
             return "Heco Explorer"
+        case .taiChi:
+            return "TaiChi"
         }
     }
 
@@ -87,7 +91,8 @@ struct ConfigExplorer {
             return ("https://scan.hecochain.com", nameForServer)
         case .heco_testnet:
             return ("https://scan-testnet.hecochain.com", nameForServer)
-
+        case .taiChi:
+            return ("https://api.taichi.network:10001", nameForServer)
         }
     }
 }

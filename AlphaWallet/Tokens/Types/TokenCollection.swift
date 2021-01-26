@@ -116,6 +116,7 @@ extension RPCServer {
         case .custom: return 11
         case .heco: return 14
         case .heco_testnet: return 15
+        case .taiChi: return 16
         }
     }
 }

@@ -68,7 +68,7 @@ class UniversalLinkCoordinator: Coordinator {
             return "xDAI"
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "BNB"
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .taiChi:
             return "ETH"
         case .heco, .heco_testnet:
             return "HT"
@@ -104,7 +104,7 @@ class UniversalLinkCoordinator: Coordinator {
             //Use string interpolation instead of concatenation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
             "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
             "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
-            "networkId": server.chainID.description,
+            "networkId": server.nonUniqueChainID.description,
             "contractAddress": signedOrder.order.contractAddress
         ]
         return (parameters, Constants.currencyDropServer)
@@ -129,7 +129,7 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": server.chainID.description,
+            "networkId": server.nonUniqueChainID.description,
         ]
 
         if isForTransfer {
@@ -441,7 +441,7 @@ class UniversalLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .taiChi:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
         if ethPrice.value == nil {

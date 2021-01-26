@@ -47,7 +47,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
                 return "/api"
             }
         case .register:
@@ -100,7 +100,7 @@ extension AlphaWalletService: TargetType {
                     "sort": sortOrder.rawValue,
                     "apikey": Constants.Credentials.etherscanKey,
                 ], encoding: URLEncoding())
-            case .classic, .callisto, .custom, .poa, .sokol, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            case .classic, .callisto, .custom, .poa, .sokol, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
                 return .requestParameters(parameters: [
                     "module": "account",
                     "action": "txlist",
@@ -125,7 +125,7 @@ extension AlphaWalletService: TargetType {
                 "ids": "dai",
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
-            return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
+            return .requestParameters(parameters: ["chainID": server.nonUniqueChainID], encoding: URLEncoding())
         case .gasPriceEstimate:
             return .requestPlain
         case .oneInchTokens, .honeySwapTokens, .rampAssets:
@@ -141,7 +141,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
                 return [
                     "Content-type": "application/json",
                     "client": Bundle.main.bundleIdentifier ?? "",

@@ -382,6 +382,7 @@
 "Balance" = "Balance";
 "confirmSignMessage" = "Confirm signing this message:";
 "blockchain.ethereum" = "Ethereum Blockchain";
+"blockchain.taichi" = "TAICHI Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "Undefined error";

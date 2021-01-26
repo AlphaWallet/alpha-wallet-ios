@@ -97,7 +97,7 @@ class HoneySwap: TokenActionsProvider, SwapTokenURLProviderType {
         switch token.server {
         case .xDai:
             return true
-        case .main, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+        case .main, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .poa, .callisto, .classic, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
             return false
         }
     }

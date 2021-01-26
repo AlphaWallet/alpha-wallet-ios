@@ -23,6 +23,7 @@ enum RPCServer: Hashable, CaseIterable {
     case heco
     case heco_testnet
     case custom(CustomRPC)
+    case taiChi
 
     var chainID: Int {
         switch self {
@@ -42,8 +43,20 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain_testnet: return 97
         case .heco: return 128
         case .heco_testnet: return 256
-        case .custom(let custom):
-            return custom.chainID
+        case .custom(let custom): return custom.chainID
+        case .taiChi: return 777777777
+        }
+    }
+
+    //NOTE: non safe chain ID, use only for signing transactions, sending as param for URL Requests.
+    var nonUniqueChainID: Int {
+        switch self {
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai:
+            return chainID
+        case .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom:
+            return chainID
+        case .taiChi:
+            return 1
         }
     }
 
@@ -67,12 +80,13 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco_testnet: return "Heco Testnet"
         case .custom(let custom):
             return custom.name
+        case .taiChi: return "TaiChi"
         }
     }
 
     var isTestnet: Bool {
         switch self {
-        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco:
+        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco, .taiChi:
             return false
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet:
             return true
@@ -98,6 +112,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
+        case .taiChi: return nil
         }
     }
     
@@ -121,6 +136,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
+        case .taiChi: return nil
         }
     }
 
@@ -143,6 +159,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         case .heco_testnet: return Constants.hecoTestnetContractPage
         case .heco: return Constants.hecoContractPage
+        case .taiChi: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
 
@@ -152,6 +169,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .main:
             return Constants.mainnetEtherscanTokenDetailsWebPageURL
         case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+            return etherscanContractDetailsWebPageURL
+        case .taiChi:
             return etherscanContractDetailsWebPageURL
         }
     }
@@ -186,7 +205,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var priceID: AlphaWallet.Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
             return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -207,7 +226,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var isTestNetwork: Bool {
         switch self {
-        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco: return false
+        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco, .taiChi: return false
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet: return true
         }
     }
@@ -224,8 +243,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
         case .heco, .heco_testnet: return "HT"
-        case .custom(let custom):
-            return custom.symbol
+        case .custom(let custom): return custom.symbol
+        case .taiChi: return "ETH"
         }
     }
 
@@ -241,6 +260,8 @@ enum RPCServer: Hashable, CaseIterable {
             return "ATS"
         case .heco, .heco_testnet:
             return "HT"
+        case .taiChi:
+            return "Ether"
         }
     }
 
@@ -254,7 +275,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .taiChi:
             return .Custom(networkID: BigUInt(chainID))
         case .custom:
             return .Custom(networkID: BigUInt(chainID))
@@ -302,6 +323,8 @@ enum RPCServer: Hashable, CaseIterable {
             return Constants.hecoMagicLinkHost
         case .heco_testnet:
             return Constants.hecoTestMagicLinkHost
+        case .taiChi:
+            return Constants.taiChiMagicLinkHost
         }
     }
 
@@ -325,6 +348,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
             case .custom(let custom): return custom.endpoint
+            case .taiChi: return "http://api.taichi.network:10000/rpc/\(Constants.Credentials.taiChiRPCKey)"
             }
         }()
         return URL(string: urlString)!
@@ -349,7 +373,9 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
             case .heco_testnet: return "https://scan-testnet.hecochain.com/tx/"
             case .heco: return "https://scan.hecochain.com/tx/"
+            case .taiChi: return "https://api.taichi.network:10000/txscan/priTx?txHash=:txHash" //?? not sure what right url to use here
             case .custom: return "" // Enable? make optional
+            //http://api.taichi.network:10000/rpc/48eb94c3c44d2de6ae495fdf6b293e60?txroute=private
             }
         }()
         return URL(string: urlString)!
@@ -363,6 +389,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .goerli: return Constants.ENSRegistrarGoerli
         case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             return Constants.ENSRegistrarAddress
+        case .taiChi: return Constants.ENSRegistrarAddress
         }
     }
 
@@ -370,7 +397,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .taiChi:
             return .low
         }
     }
@@ -393,6 +420,8 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainHecoTest()
         case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
+        case .taiChi:
+            return R.string.localizable.blockchainTaichi()
         }
     }
 
@@ -412,12 +441,13 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
         case .heco, .heco_testnet: return .init(hex: "1253FC")
+        case .taiChi: return .red
         }
     }
 
     var transactionDataCoordinatorType: SingleChainTransactionDataCoordinator.Type {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet:
+        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .taiChi:
             return SingleChainTransactionEtherscanDataCoordinator.self
         }
     }
@@ -444,6 +474,8 @@ enum RPCServer: Hashable, CaseIterable {
             return R.image.hthecoMainnet()
         case .heco_testnet:
             return R.image.hthecoTestnet()
+        case .taiChi:
+            return nil
         }
     }
 
@@ -466,12 +498,14 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.name: return .binance_smart_chain_testnet
             case RPCServer.heco.name: return .heco
             case RPCServer.heco_testnet.name: return .heco_testnet
+            case RPCServer.taiChi.name: return .taiChi
             default: return .main
             }
         }()
     }
 
     init(chainID: Int) {
+        NSLog("xxx \(chainID)")
         self = {
             switch chainID {
             case RPCServer.main.chainID: return .main
@@ -490,6 +524,7 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.chainID: return .binance_smart_chain_testnet
             case RPCServer.heco.chainID: return .heco
             case RPCServer.heco_testnet.chainID: return .heco_testnet
+            case RPCServer.taiChi.chainID: return .taiChi
             default: return .main
             }
         }()
@@ -514,6 +549,7 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.magicLinkHost: return .binance_smart_chain_testnet
             case RPCServer.heco.magicLinkHost: return .heco
             case RPCServer.heco_testnet.magicLinkHost: return .heco_testnet
+            case RPCServer.taiChi.magicLinkHost: return .taiChi
             default: return nil
             }
         }()
@@ -547,7 +583,8 @@ enum RPCServer: Hashable, CaseIterable {
             .binance_smart_chain_testnet,
             .binance_smart_chain,
             .heco,
-            .heco_testnet
+            .heco_testnet,
+            .taiChi
         ]
     }
 }

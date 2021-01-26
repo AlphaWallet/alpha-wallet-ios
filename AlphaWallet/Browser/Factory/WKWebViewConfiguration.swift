@@ -72,7 +72,7 @@ extension WKWebViewConfiguration {
                
                const addressHex = "\(address.eip55String)"
                const rpcURL = "\(server.rpcURL.absoluteString)"
-               const chainID = "\(server.chainID)"
+               const chainID = "\(server.nonUniqueChainID)"
 
                function executeCallback (id, error, value) {
                    AlphaWallet.executeCallback(id, error, value)

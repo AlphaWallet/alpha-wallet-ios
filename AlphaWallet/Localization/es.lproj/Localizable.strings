@@ -382,6 +382,7 @@
 "Balance" = "Saldo";
 "confirmSignMessage" = "Confirma la firma de este mensaje:";
 "blockchain.ethereum" = "Cadena de bloques de Ethereum";
+"blockchain.taichi" = "TAICHI Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "Error indefinido";

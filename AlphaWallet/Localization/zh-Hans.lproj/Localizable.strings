@@ -382,6 +382,7 @@
 "Balance" = "余额";
 "confirmSignMessage" = "确认签署此消息：";
 "blockchain.ethereum" = "基于以太坊智能合约";
+"blockchain.taichi" = "TAICHI Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "未定义错误";

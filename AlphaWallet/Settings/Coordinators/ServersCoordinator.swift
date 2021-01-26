@@ -25,6 +25,7 @@ class ServersCoordinator: Coordinator {
         .heco_testnet,
         .artis_sigma1,
         .artis_tau1,
+        .taiChi
     ]
 
     private let viewModel: ServersViewModel

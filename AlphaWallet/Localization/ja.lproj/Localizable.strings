@@ -380,6 +380,7 @@
 "Balance" = "残高";
 "confirmSignMessage" = "このメッセージの署名を確認してください:";
 "blockchain.ethereum" = "Ethereum ブロックチェーン";
+"blockchain.taichi" = "TAICHI Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "未定義のエラー";

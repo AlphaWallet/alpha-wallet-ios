@@ -27,7 +27,7 @@ struct EIP155Signer: Signer {
             transaction.to?.data ?? Data(),
             transaction.value,
             transaction.data,
-            transaction.server.chainID, 0, 0,
+            transaction.server.nonUniqueChainID, 0, 0,
         ]
 
         guard let data = rlpHash(values) else {
@@ -39,8 +39,8 @@ struct EIP155Signer: Signer {
     func values(transaction: UnsignedTransaction, signature: Data) -> (r: BigInt, s: BigInt, v: BigInt) {
         let (r, s, v) = HomesteadSigner().values(transaction: transaction, signature: signature)
         let newV: BigInt
-        if server.chainID != 0 {
-            newV = BigInt(signature[64]) + 35 + BigInt(server.chainID) + BigInt(server.chainID)
+        if server.nonUniqueChainID != 0 {
+            newV = BigInt(signature[64]) + 35 + BigInt(server.nonUniqueChainID) + BigInt(server.nonUniqueChainID)
         } else {
             newV = v
         }

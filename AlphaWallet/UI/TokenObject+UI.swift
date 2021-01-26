@@ -166,7 +166,7 @@ fileprivate extension RPCServer {
         switch self {
         case .rinkeby, .ropsten, .sokol, .kovan, .goerli:
             return .testNetTokensSource
-        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .taiChi:
             return .allTokensSource
         }
     }

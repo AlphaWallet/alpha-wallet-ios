@@ -27,6 +27,7 @@ public struct Constants {
     public static let binanceTestMagicLinkHost = "test-binance.aw.app"
     public static let hecoMagicLinkHost = "heco.aw.app"
     public static let hecoTestMagicLinkHost = "test-heco.aw.app"
+    public static let taiChiMagicLinkHost = "taiChi.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
 
     public enum Currency {

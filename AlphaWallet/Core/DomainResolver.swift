@@ -108,6 +108,8 @@ fileprivate extension RPCServer {
             return nil
         case .custom:
             return nil
+        case .taiChi:
+            return nil
         }
     }
 }

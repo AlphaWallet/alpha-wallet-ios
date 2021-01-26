@@ -197,7 +197,7 @@ class TransactionConfigurator {
 
     static func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
         switch server {
-        case .main:
+        case .main, .taiChi:
             return firstly {
                 estimateGasPriceForEthMainnetUsingThirdPartyApi()
             }.recover { _ in
@@ -212,6 +212,7 @@ class TransactionConfigurator {
 
     private static func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
         let estimator = GasNowGasPriceEstimator()
+
         return firstly {
             estimator.fetch()
         }.map { estimates in
@@ -276,7 +277,7 @@ class TransactionConfigurator {
             if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardGasThresholdGwei {
                 return .networkCongested
             }
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .taiChi:
             break
         }
         return nil
@@ -287,7 +288,7 @@ class TransactionConfigurator {
         case .xDai:
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .taiChi:
             if let gasPrice = transaction.gasPrice, gasPrice > 0 {
                 return min(max(gasPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice)
             } else {
