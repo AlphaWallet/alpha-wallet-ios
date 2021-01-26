@@ -74,6 +74,7 @@ class ActivitiesCoordinator: Coordinator {
         let viewModel = ActivitiesViewModel(tokensStorages: tokensStorages)
         let controller = ActivitiesViewController(viewModel: viewModel, wallet: wallet.address, sessions: sessions, tokensStorages: tokensStorages)
         controller.delegate = self
+
         return controller
     }
 
@@ -83,6 +84,7 @@ class ActivitiesCoordinator: Coordinator {
         activityViewController = controller
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
+
         navigationController.pushViewController(controller, animated: true)
     }
 
@@ -345,11 +347,6 @@ extension ActivitiesCoordinator: ActivityViewControllerDelegate {
     }
 
     func goToToken(viewController: ActivityViewController) {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            viewController.dismiss(animated: false)
-        } else {
-            navigationController.popViewController(animated: false)
-        }
         delegate?.show(tokenObject: viewController.viewModel.activity.tokenObject, fromCoordinator: self)
     }
 
