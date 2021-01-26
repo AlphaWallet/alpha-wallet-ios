@@ -255,7 +255,6 @@ class TokensViewController: UIViewController {
         super.viewWillAppear(animated)
 
         navigationController?.applyTintAdjustment()
-        navigationController?.navigationBar.prefersLargeTitles = true
         hidesBottomBarWhenPushed = false
 
         fetch()
