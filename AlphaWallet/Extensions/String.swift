@@ -1,18 +1,23 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit
+import UIKit 
 
 extension String {
     var hex: String {
-        let data = self.data(using: .utf8)!
+        guard let data = self.data(using: .utf8) else {
+            return String()
+        }
+        
         return data.map {
             String(format: "%02x", $0)
         }.joined()
     }
 
     var hexEncoded: String {
-        let data = self.data(using: .utf8)!
+        guard let data = self.data(using: .utf8) else {
+            return String()
+        }
         return data.hexEncoded
     }
 
@@ -153,5 +158,27 @@ extension String {
 
     func titleCasedWords() -> String {
         return split(separator: " ").map { String($0).capitalizingFirstLetter() }.joined(separator: " ")
+    }
+}
+
+extension StringProtocol {
+
+    public func chunked(into size: Int) -> [SubSequence] {
+        var chunks: [SubSequence] = []
+
+        var i = startIndex
+
+        while let nextIndex = index(i, offsetBy: size, limitedBy: endIndex) {
+            chunks.append(self[i ..< nextIndex])
+            i = nextIndex
+        }
+
+        let finalChunk = self[i ..< endIndex]
+
+        if finalChunk.isEmpty == false {
+            chunks.append(finalChunk)
+        }
+
+        return chunks
     }
 }
