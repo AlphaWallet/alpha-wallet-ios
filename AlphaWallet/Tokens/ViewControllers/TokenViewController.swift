@@ -76,15 +76,11 @@ class TokenViewController: UIViewController {
             self?.refreshHeaderView()
         }
         RunLoop.main.add(headerRefreshTimer, forMode: .default)
+        navigationItem.largeTitleDisplayMode = .never
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = false
     }
 
     override func viewDidLayoutSubviews() {
