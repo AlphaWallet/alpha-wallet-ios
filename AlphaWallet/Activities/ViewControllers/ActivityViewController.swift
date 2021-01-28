@@ -130,6 +130,11 @@ class ActivityViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.largeTitleDisplayMode = .never
+    }
+
     func configure(viewModel: ActivityViewModel) {
         self.viewModel = viewModel
 
