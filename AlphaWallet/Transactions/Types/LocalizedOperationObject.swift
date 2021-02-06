@@ -43,22 +43,3 @@ class LocalizedOperationObject: Object {
         return contract.flatMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }
     }
 }
-
-extension LocalizedOperationObject {
-    static func from(operations: [LocalizedOperation]?) -> [LocalizedOperationObject] {
-        guard let operations = operations else { return [] }
-        return operations.compactMap { operation in
-            guard let from = operation.fromAddress, let to = operation.toAddress else { return nil }
-            return LocalizedOperationObject(
-                from: from.description,
-                to: to.description,
-                contract: operation.contract.contractAddress,
-                type: operation.type.rawValue,
-                value: operation.value,
-                symbol: operation.contract.symbol,
-                name: operation.contract.name,
-                decimals: operation.contract.decimals
-            )
-        }
-    }
-}
