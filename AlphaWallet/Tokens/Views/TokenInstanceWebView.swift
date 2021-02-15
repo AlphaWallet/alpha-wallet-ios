@@ -426,7 +426,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         switch command.name {
         case .signPersonalMessage:
             break
-        case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown:
+        case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .ethCall, .unknown:
             return
         }
 
@@ -442,7 +442,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
                 signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3:
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall:
                 return
             }
         case .watch:

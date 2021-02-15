@@ -494,6 +494,7 @@
 		5E7C7B14B0D172F91D52F0BF /* EthereumSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */; };
 		5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */; };
 		5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */; };
+		5E7C7B3027F3A56EF3EE5B7F /* EthCalllRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ADC229B4038964F417C /* EthCalllRequest.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */; };
 		5E7C7B414FA8A428798D73EF /* OpenSeaNonFungibleTokenHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C758EEBD945A3451C96C8 /* OpenSeaNonFungibleTokenHandling.swift */; };
 		5E7C7B4778FF36371701242E /* BrowserHistoryViewControllerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryViewControllerHeaderView.swift */; };
@@ -1307,6 +1308,7 @@
 		5E7C7ACC1A14248A68E95F33 /* AssetAttributeToJavaScriptConvertor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetAttributeToJavaScriptConvertor.swift; sourceTree = "<group>"; };
 		5E7C7AD33AC8BE19F5C66489 /* BaseTokenCardTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTokenCardTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7AD8C4F68E49E1A5479A /* LegacyFileBasedKeystore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyFileBasedKeystore.swift; sourceTree = "<group>"; };
+		5E7C7ADC229B4038964F417C /* EthCalllRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthCalllRequest.swift; sourceTree = "<group>"; };
 		5E7C7AE608A39793F8BA3911 /* Eip681Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Eip681Parser.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultActivityView.swift; sourceTree = "<group>"; };
@@ -1957,6 +1959,7 @@
 				296AF9AA1F7380920058AF78 /* GetTransactionCountRequest.swift */,
 				294EC1D91FD8E4E60065EB20 /* GasPriceRequest.swift */,
 				664D11A02007D59F0041A0B0 /* EstimateGasRequest.swift */,
+				5E7C7ADC229B4038964F417C /* EthCalllRequest.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -5176,6 +5179,7 @@
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
 				5E7C712B11D9D9AAA02C022F /* WalletConnectSessionCellViewModel.swift in Sources */,
+				5E7C7B3027F3A56EF3EE5B7F /* EthCalllRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

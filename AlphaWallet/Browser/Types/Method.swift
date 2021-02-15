@@ -9,6 +9,7 @@ enum Method: String, Decodable {
     case signPersonalMessage
     case signMessage
     case signTypedMessage
+    case ethCall
     case unknown
 
     init(string: String) {
