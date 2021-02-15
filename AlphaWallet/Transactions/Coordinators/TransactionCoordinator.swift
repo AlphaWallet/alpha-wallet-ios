@@ -66,7 +66,7 @@ class TransactionCoordinator: Coordinator {
         return controller
     }
 
-    func showTransaction(_ transaction: Transaction) {
+    private func showTransaction(_ transaction: Transaction, on navigationController: UINavigationController) {
         let controller = TransactionViewController(session: sessions[transaction.server], transaction: transaction, delegate: self)
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
@@ -76,16 +76,9 @@ class TransactionCoordinator: Coordinator {
 
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
     func showTransaction(_ transaction: Transaction, inViewController viewController: UIViewController) {
-        let session = sessions[transaction.server]
-        let controller = TransactionViewController(
-                session: session,
-                transaction: transaction,
-                delegate: self
-        )
-        let nav = UINavigationController(rootViewController: controller)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
-        nav.makePresentationFullScreenForiOS13Migration()
-        viewController.present(nav, animated: true)
+        guard let navigationController = viewController.navigationController else { return }
+
+        showTransaction(transaction, on: navigationController)
     }
 
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
@@ -99,10 +92,6 @@ class TransactionCoordinator: Coordinator {
         rootViewController.fetch()
     }
 
-    @objc func dismiss() {
-        navigationController.dismiss(animated: true)
-    }
-
     func stop() {
         dataCoordinator.stop()
         //TODO seems not good to stop here because others call stop too
@@ -114,7 +103,7 @@ class TransactionCoordinator: Coordinator {
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController) {
-        showTransaction(transaction)
+        showTransaction(transaction, on: navigationController)
     }
 }
 
