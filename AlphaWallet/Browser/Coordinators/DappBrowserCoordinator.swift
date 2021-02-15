@@ -1,10 +1,12 @@
 // Copyright DApps Platform Inc. All rights reserved.
 
-import Foundation
 import UIKit
-import BigInt
-import RealmSwift
 import WebKit
+import APIKit
+import BigInt
+import JSONRPCKit
+import PromiseKit
+import RealmSwift
 import Result
 
 protocol DappBrowserCoordinatorDelegate: class {
@@ -151,6 +153,18 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
+    }
+
+    private func ethCall(callbackID: Int, from: AlphaWallet.Address, to: AlphaWallet.Address, data: String, server: RPCServer) {
+        let request = EthCallRequest(from: from, to: to, data: data)
+        firstly {
+            Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
+        }.done { result in
+            let callback = DappCallback(id: callbackID, value: .ethCall(result))
+            self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+        }.catch { error in
+            //TODO handle error. Can we let the dapp know?
+        }
     }
 
     func open(url: URL, animated: Bool = true, forceReload: Bool = false) {
@@ -419,6 +433,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             navigationController.topViewController?.displayError(error: InCoordinatorError.onlyWatchAccount)
             return
         }
+
         switch action {
         case .signTransaction(let unconfirmedTransaction):
             executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
@@ -434,6 +449,12 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
         case .signTypedMessageV3(let typedData):
             signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
+        case .ethCall(from: let from, to: let to, data: let data):
+            //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
+            guard let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from) else { return }
+            guard let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to) else { return }
+            ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
+            break
         case .unknown, .sendRawTransaction:
             break
         }

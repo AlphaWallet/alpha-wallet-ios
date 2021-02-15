@@ -61,6 +61,7 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTypedMessage.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: Method.ethCall.rawValue)
         //TODO extract like `Method.signTypedMessage.rawValue` when we have more than 1
         webViewConfig.userContentController.add(messageHandler, name: TokenInstanceWebView.SetProperties.setActionProps)
         return webViewConfig
@@ -106,6 +107,13 @@ extension WKWebViewConfiguration {
                        console.log("signing a typed message", msgParams)
                        AlphaWallet.addCallback(id, cb)
                        webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object":     { data }, id: id})
+                   },
+                   ethCall: function (msgParams, cb) {
+                       const data = msgParams
+                       const { id = 8888 } = msgParams
+                       console.log("eth_call", msgParams)
+                       AlphaWallet.addCallback(id, cb)
+                       webkit.messageHandlers.ethCall.postMessage({"name": "ethCall", "object": data, id: id})
                    },
                    enable: function() {
                       return new Promise(function(resolve, reject) {
