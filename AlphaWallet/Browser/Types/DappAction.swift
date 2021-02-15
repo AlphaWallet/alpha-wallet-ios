@@ -12,6 +12,7 @@ enum DappAction {
     case signTransaction(UnconfirmedTransaction)
     case sendTransaction(UnconfirmedTransaction)
     case sendRawTransaction(String)
+    case ethCall(from: String, to: String, data: String)
     case unknown
 }
 
@@ -38,6 +39,11 @@ extension DappAction {
             } else {
                 return .signTypedMessage([])
             }
+        case .ethCall:
+            let from = command.object["from"]?.value ?? ""
+            let to = command.object["to"]?.value ?? ""
+            let data = command.object["data"]?.value ?? ""
+            return .ethCall(from: from, to: to, data: data)
         case .unknown:
             return .unknown
         }
