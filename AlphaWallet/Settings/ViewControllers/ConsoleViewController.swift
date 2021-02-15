@@ -3,10 +3,15 @@
 import Foundation
 import UIKit
 
+protocol ConsoleViewControllerDelegate: class {
+    func didClose(in viewController: ConsoleViewController)
+}
+
 //TODO reload when the list of files (and hence list of messages change)
 class ConsoleViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var messages = [String]()
+    weak var delegate: ConsoleViewControllerDelegate?
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -38,8 +43,13 @@ class ConsoleViewController: UIViewController {
         tableView.reloadData()
     }
 
-    @objc func dismissConsole() {
-        dismiss(animated: true)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(in: self)
+            return
+        }
     }
 }
 

@@ -16,7 +16,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
-	func consoleViewController(for: SettingsCoordinator) -> UIViewController?
+    func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
 }
 
@@ -234,10 +234,7 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
 
     func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController) {
-        guard let controller = delegate?.consoleViewController(for: self) else { return }
-        controller.navigationItem.largeTitleDisplayMode = .never
-
-        navigationController.pushViewController(controller, animated: true)
+        delegate?.showConsole(in: self)
     }
 
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {

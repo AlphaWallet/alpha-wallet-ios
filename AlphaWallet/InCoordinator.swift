@@ -687,25 +687,7 @@ class InCoordinator: NSObject, Coordinator {
 
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
         tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
-    }
-
-    private func showConsole() {
-        let viewController = createConsoleViewController()
-        viewController.navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
-        if let topVC = navigationController.presentedViewController {
-            viewController.makePresentationFullScreenForiOS13Migration()
-            topVC.present(viewController, animated: true)
-        } else {
-            let nc = UINavigationController(rootViewController: viewController)
-            nc.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(nc, animated: true)
-        }
-    }
-
-    private func createConsoleViewController() -> ConsoleViewController {
-        let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore)
-        return coordinator.createConsoleViewController()
-    }
+    } 
 
     private func createWalletConnectCoordinator() -> WalletConnectCoordinator {
         let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices)
@@ -752,7 +734,24 @@ extension InCoordinator: CanOpenURL {
 extension InCoordinator: TransactionCoordinatorDelegate {
 }
 
+extension InCoordinator: ConsoleCoordinatorDelegate {
+    func didCancel(in coordinator: ConsoleCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
 extension InCoordinator: SettingsCoordinatorDelegate {
+    private func showConsole(navigationController: UINavigationController) {
+        let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore, navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
+
+    func showConsole(in coordinator: SettingsCoordinator) {
+        showConsole(navigationController: coordinator.navigationController)
+    }
+
     func didCancel(in coordinator: SettingsCoordinator) {
         removeCoordinator(coordinator)
 
@@ -780,10 +779,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? {
         return delegate?.assetDefinitionsOverrideViewController(for: self)
-    }
-
-    func consoleViewController(for: SettingsCoordinator) -> UIViewController? {
-        return createConsoleViewController()
     }
 
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
@@ -846,7 +841,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
     private func open(url: URL, onServer server: RPCServer) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
 
-
         //Server shouldn't be disabled since the action is selected
         guard config.enabledServers.contains(server) else { return }
         showTab(.browser)
@@ -866,7 +860,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func openConsole(inCoordinator coordinator: TokensCoordinator) {
-        showConsole()
+        showConsole(navigationController: coordinator.navigationController)
     }
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator) {
