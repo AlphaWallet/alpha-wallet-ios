@@ -541,28 +541,7 @@ class InCoordinator: NSObject, Coordinator {
         let tokenStorage = tokensStorages[server]
 
         switch (type, session.account.type) {
-        case (.send, .real):
-            let coordinator = PaymentCoordinator(
-                    flow: type,
-                    session: session,
-                    keystore: keystore,
-                    storage: tokenStorage,
-                    ethPrice: nativeCryptoCurrencyPrices[server],
-                    assetDefinitionStore: assetDefinitionStore,
-                    analyticsCoordinator: analyticsCoordinator
-            )
-            coordinator.delegate = self
-            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-
-            if let topVC = navigationController.presentedViewController {
-                topVC.present(coordinator.navigationController, animated: true)
-            } else {
-                navigationController.present(coordinator.navigationController, animated: true)
-            }
-
-            coordinator.start()
-            addCoordinator(coordinator)
-        case (.request, _):
+        case (.send, .real), (.request, _):
             let coordinator = PaymentCoordinator(
                     navigationController: navigationController,
                     flow: type,
@@ -881,11 +860,11 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             handlePendingTransaction(transaction: transaction)
             removeCoordinator(coordinator)
 
-            guard let currentTab = tabBarController?.selectedViewController else { return }
-            currentTab.dismiss(animated: true)
+            coordinator.navigationController.setNavigationBarHidden(true, animated: false)
+            coordinator.navigationController.popToRootViewController(animated: true)
 
             // Once transaction sent, show transactions screen.
-            showTab(.transactionsOrActivity)
+            self.showTab(.transactionsOrActivity)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
             }
@@ -895,13 +874,8 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
-        switch coordinator.flow {
-        case .request:
-            coordinator.navigationController.setNavigationBarHidden(true, animated: false)
-            coordinator.navigationController.popToRootViewController(animated: true)
-        case .send:
-            coordinator.navigationController.dismiss(animated: true)
-        }
+        coordinator.navigationController.setNavigationBarHidden(true, animated: false)
+        coordinator.navigationController.popToRootViewController(animated: true)
 
         removeCoordinator(coordinator)
     }

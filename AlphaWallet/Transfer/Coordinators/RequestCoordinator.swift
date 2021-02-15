@@ -22,11 +22,9 @@ class RequestCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), account: Wallet) {
+    init(navigationController: UINavigationController, account: Wallet) {
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.navigationController.setNavigationBarHidden(false, animated: true)
-
         self.account = account
     }
 

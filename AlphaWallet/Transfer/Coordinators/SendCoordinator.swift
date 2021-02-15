@@ -33,7 +33,7 @@ class SendCoordinator: Coordinator {
 
     init(
             transactionType: TransactionType,
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: UINavigationController,
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
@@ -45,7 +45,6 @@ class SendCoordinator: Coordinator {
     ) {
         self.transactionType = transactionType
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
         self.account = account
         self.keystore = keystore
@@ -54,23 +53,13 @@ class SendCoordinator: Coordinator {
         self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.navigationController.setNavigationBarHidden(false, animated: true)
     }
 
     func start() {
-        sendViewController.configure(viewModel:
-                .init(transactionType: sendViewController.transactionType,
-                        session: session,
-                        storage: sendViewController.storage
-                        )
-        )
-        //Make sure the pop up, especially the height, is enough to fit the content in iPad
-        sendViewController.preferredContentSize = CGSize(width: 540, height: 700)
-        if navigationController.viewControllers.isEmpty {
-            navigationController.viewControllers = [sendViewController]
-        } else {
-            sendViewController.navigationItem.largeTitleDisplayMode = .never
-            navigationController.pushViewController(sendViewController, animated: true)
-        }
+        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, storage: sendViewController.storage))
+
+        navigationController.pushViewController(sendViewController, animated: true)
     }
 
     private func makeSendViewController() -> SendViewController {
@@ -83,9 +72,6 @@ class SendCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore
         )
 
-        if navigationController.viewControllers.isEmpty {
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        }
         switch transactionType {
         case .nativeCryptocurrency(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
@@ -97,15 +83,13 @@ class SendCoordinator: Coordinator {
         case .ERC20Token(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
             controller.amountTextField.ethCost = amount ?? ""
-        case .ERC875Token: break
-        case .ERC875TokenOrder: break
-        case .ERC721Token: break
-        case .ERC721ForTicketToken: break
-        case .dapp: break
-        case .tokenScript: break
-        case .claimPaidErc875MagicLink: break
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            break
         }
         controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .never
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+
         return controller
     }
 
