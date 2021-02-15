@@ -192,6 +192,10 @@ final class DappBrowserNavigationBar: UINavigationBar {
         cancelEditingButton.setTitle(R.string.localizable.cancel(), for: .normal)
     }
 
+    func setBrowserBar(hidden: Bool) {
+        stackView.isHidden = hidden
+    }
+
     @objc private func goBackAction() {
         cancelEditing()
         navigationBarDelegate?.didTapBack(inNavigationBar: self)

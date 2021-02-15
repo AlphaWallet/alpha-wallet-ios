@@ -63,14 +63,10 @@ class NewTokenCoordinator: Coordinator {
     }
 
     private func showServers(inViewController viewController: UIViewController) {
-        let coordinator = ServersCoordinator(defaultServer: serverToAddCustomTokenOn, config: config)
+        let coordinator = ServersCoordinator(defaultServer: serverToAddCustomTokenOn, config: config, navigationController: navigationController)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-
-        let navigationController = UINavigationController(rootViewController: coordinator.serversViewController)
-        navigationController.makePresentationFullScreenForiOS13Migration()
-        viewController.present(navigationController, animated: true)
     }
 }
 
@@ -78,7 +74,7 @@ extension NewTokenCoordinator: ServersCoordinatorDelegate {
 
     func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
         serverToAddCustomTokenOn = server
-        coordinator.serversViewController.navigationController?.dismiss(animated: true) { [weak self] in
+        coordinator.navigationController.popViewController(animated: true) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.viewController.server = strongSelf.serverToAddCustomTokenOn
             strongSelf.viewController.configure()
@@ -89,7 +85,7 @@ extension NewTokenCoordinator: ServersCoordinatorDelegate {
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
-        coordinator.serversViewController.navigationController?.dismiss(animated: true)
+        coordinator.navigationController.popViewController(animated: true)
         removeCoordinator(coordinator)
     }
 }

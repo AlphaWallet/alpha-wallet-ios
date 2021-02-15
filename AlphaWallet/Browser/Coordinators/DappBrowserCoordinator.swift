@@ -333,13 +333,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
-        let coordinator = ServersCoordinator(defaultServer: server, config: config)
+        let coordinator = ServersCoordinator(defaultServer: server, config: config, navigationController: navigationController)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-        let nc = UINavigationController(rootViewController: coordinator.serversViewController)
-        nc.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(nc, animated: true)
+
+        browserNavBar?.setBrowserBar(hidden: true)
     }
 
     private func withCurrentUrl(handler: (URL?) -> Void) {
@@ -716,7 +715,10 @@ extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
             dapp.title = title
             dapp.url = url
         }
-        viewController.dismiss(animated: true)
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        navigationController.popViewController(animated: true)
+
         refreshDapps()
     }
 
@@ -740,18 +742,23 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension DappBrowserCoordinator: ServersCoordinatorDelegate {
     func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+        browserNavBar?.setBrowserBar(hidden: false)
+
         switch server {
         case .auto:
             break
         case .server(let server):
-            coordinator.serversViewController.navigationController?.dismiss(animated: true)
+            coordinator.navigationController.popViewController(animated: true)
             removeCoordinator(coordinator)
             `switch`(toServer: server)
         }
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
-        coordinator.serversViewController.navigationController?.dismiss(animated: true)
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        coordinator.navigationController.popViewController(animated: true)
+
         removeCoordinator(coordinator)
     }
 }
