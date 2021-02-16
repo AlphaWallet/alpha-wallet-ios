@@ -858,7 +858,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
-        transactionCoordinator?.showTransaction(transaction, inViewController: viewController)
+        if transaction.localizedOperations.count > 1 {
+            transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
+        } else {
+            transactionCoordinator?.showTransaction(.standalone(transaction), inViewController: viewController)
+        }
     }
 
     func openConsole(inCoordinator coordinator: TokensCoordinator) {
@@ -938,7 +942,11 @@ extension InCoordinator: EventSourceCoordinatorForActivitiesDelegate {
 
 extension InCoordinator: ActivitiesCoordinatorDelegate {
     func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController) {
-        transactionCoordinator?.showTransaction(transaction, inViewController: viewController)
+        if transaction.localizedOperations.count > 1 {
+            transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
+        } else {
+            transactionCoordinator?.showTransaction(.standalone(transaction), inViewController: viewController)
+        }
     }
 
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator) {

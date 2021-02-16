@@ -7,7 +7,7 @@ struct TransactionsViewModel {
     private var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
-    private var items: [(date: String, transactions: [Transaction])] = []
+    private var items: [(date: String, transactionRows: [TransactionRow])] = []
 
     init(transactions: [Transaction] = []) {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
@@ -21,8 +21,22 @@ struct TransactionsViewModel {
         let tuple = newItems.map { each in
             (date: each.key, transactions: (each.value as! [Transaction]).sorted { $0.date > $1.date })
         }
-        items = tuple.sorted { (object1, object2) -> Bool in
+        let collapsedTransactions: [(date: String, transactions: [Transaction])] = tuple.sorted { (object1, object2) -> Bool in
             return formatter.date(from: object1.date)! > formatter.date(from: object2.date)!
+        }
+        items = collapsedTransactions.map { date, transactions in
+            var items: [TransactionRow] = .init()
+            for each in transactions {
+                if each.localizedOperations.isEmpty {
+                    items.append(.standalone(each))
+                } else if each.localizedOperations.count == 1, each.value == "0" {
+                    items.append(.standalone(each))
+                } else {
+                    items.append(.group(each))
+                    items.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
+                }
+            }
+            return (date: date, transactionRows: items)
         }
     }
 
@@ -47,11 +61,11 @@ struct TransactionsViewModel {
     }
 
     func numberOfItems(for section: Int) -> Int {
-        return items[section].transactions.count
+        return items[section].transactionRows.count
     }
 
-    func item(for row: Int, section: Int) -> Transaction {
-        return items[section].transactions[row]
+    func item(for row: Int, section: Int) -> TransactionRow {
+        return items[section].transactionRows[row]
     }
 
     func titleForHeader(in section: Int) -> String {
@@ -66,4 +80,3 @@ struct TransactionsViewModel {
         return value.localizedUppercase
     }
 }
-

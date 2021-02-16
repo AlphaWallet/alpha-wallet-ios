@@ -83,11 +83,39 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 address: wallet,
                 server: session.server,
                 startBlock: startBlock
-        ) { result in
-            if let maxBlockNumber = result.map({ $0.blockNumber }).max() {
-                Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: self.session.server, wallet: wallet)
+        ) { [weak self] result in
+            guard let strongSelf = self else { return }
+            let blockNumbers = result.map(\.blockNumber)
+            if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
+                firstly {
+                    strongSelf.backFillErc20TransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                }.done { backFilledTransactions in
+                    Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
+                    strongSelf.update(items: backFilledTransactions)
+                }
+            } else {
+                strongSelf.update(items: result)
             }
-            self.update(items: result)
+        }
+    }
+
+    private func backFillErc20TransactionGroup(_ transactionsToFill: [Transaction], startBlock: Int, endBlock: Int) -> Promise<[Transaction]> {
+        return firstly {
+            fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
+        }.map { fillerTransactions -> [Transaction] in
+            var results: [Transaction] = .init()
+            for each in transactionsToFill {
+                //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
+                guard !each.localizedOperations.isEmpty else { continue }
+                if let transaction = fillerTransactions.first { $0.blockNumber == each.blockNumber } {
+                    transaction.isERC20Interaction = true
+                    transaction.localizedOperations = each.localizedOperations
+                    results.append(transaction)
+                } else {
+                    results.append(each)
+                }
+            }
+            return results
         }
     }
 

@@ -11,7 +11,7 @@ protocol TransactionViewControllerDelegate: class, CanOpenURL {
 class TransactionViewController: UIViewController {
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
-            transaction: transaction,
+            transactionRow: transactionRow,
             chainState: session.chainState,
             currentWallet: session.account,
             currencyRate: session.balanceCoordinator.currencyRate
@@ -21,17 +21,17 @@ class TransactionViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let session: WalletSession
-    private let transaction: Transaction
+    private let transactionRow: TransactionRow
 
     weak var delegate: TransactionViewControllerDelegate?
 
     init(
-        session: WalletSession,
-        transaction: Transaction,
-        delegate: TransactionViewControllerDelegate?
+            session: WalletSession,
+            transactionRow: TransactionRow,
+            delegate: TransactionViewControllerDelegate?
     ) {
         self.session = session
-        self.transaction = transaction
+        self.transactionRow = transactionRow
         self.delegate = delegate
 
         super.init(nibName: nil, bundle: nil)
