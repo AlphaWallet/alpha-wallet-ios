@@ -29,7 +29,7 @@ class ServersCoordinator: Coordinator {
     private let defaultServer: RPCServerOrAuto
     private let includeAny: Bool
     private let config: Config
-
+    let navigationController: UINavigationController
     private var serverChoices: [RPCServerOrAuto] {
         let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
         let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
@@ -46,27 +46,36 @@ class ServersCoordinator: Coordinator {
         let controller = ServersViewController()
         controller.configure(viewModel: ServersViewModel(servers: serverChoices, selectedServer: defaultServer))
         controller.delegate = self
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .done, target: self, action: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+        controller.hidesBottomBarWhenPushed = true
+
         return controller
     }()
     weak var delegate: ServersCoordinatorDelegate?
 
-    init(defaultServer: RPCServerOrAuto, config: Config) {
+    init(defaultServer: RPCServerOrAuto, config: Config, navigationController: UINavigationController) {
         self.defaultServer = defaultServer
         self.includeAny = true
         self.config = config
+        self.navigationController = navigationController
     }
 
-    init(defaultServer: RPCServer, config: Config) {
+    init(defaultServer: RPCServer, config: Config, navigationController: UINavigationController) {
         self.defaultServer = .server(defaultServer)
         self.includeAny = false
         self.config = config
+        self.navigationController = navigationController
     }
 
     func start() {
+        navigationController.pushViewController(serversViewController, animated: true)
     }
 
     @objc private func dismiss() {
+        delegate?.didSelectDismiss(in: self)
+    }
+    
+    func didClose(in viewController: ServersViewController) {
         delegate?.didSelectDismiss(in: self)
     }
 }
