@@ -625,12 +625,14 @@ extension DappBrowserCoordinator: DiscoverDappsViewControllerDelegate {
 
 extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
     func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
-        let vc = EditMyDappViewController()
-        vc.delegate = self
-        vc.configure(viewModel: .init(dapp: dapp))
-        vc.hidesBottomBarWhenPushed = true
-        vc.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(vc, animated: true)
+        let viewController = EditMyDappViewController()
+        viewController.delegate = self
+        viewController.configure(viewModel: .init(dapp: dapp))
+        viewController.hidesBottomBarWhenPushed = true
+
+        browserNavBar?.setBrowserBar(hidden: true)
+
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     func didTapToSelect(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
@@ -718,12 +720,13 @@ extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
         browserNavBar?.setBrowserBar(hidden: false)
 
         navigationController.popViewController(animated: true)
-
         refreshDapps()
     }
 
     func didTapCancel(inViewController viewController: EditMyDappViewController) {
-        viewController.dismiss(animated: true)
+        browserNavBar?.setBrowserBar(hidden: false)
+
+        navigationController.popViewController(animated: true)
     }
 }
 

@@ -14,7 +14,6 @@ class EditMyDappViewController: UIViewController {
     private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleTextField = TextField()
     private let urlTextField = TextField()
-    private let cancelButton = UIButton(type: .system)
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: EditMyDappViewControllerViewModel?
 
@@ -55,10 +54,6 @@ class EditMyDappViewController: UIViewController {
 
         footerBar.addSubview(buttonsBar)
 
-        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-        cancelButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(cancelButton)
-
         let marginToHideBottomRoundedCorners = CGFloat(30)
         NSLayoutConstraint.activate([
             imageHolder.widthAnchor.constraint(equalToConstant: 80),
@@ -84,13 +79,10 @@ class EditMyDappViewController: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -37),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
-            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 14),
-            cancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-
             //We don't use createConstraintsWithContainer() because the top rounded corners need to be lower
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: cancelButton.bottomAnchor, constant: 10),
+            roundedBackground.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
         ])
     }
@@ -135,9 +127,7 @@ class EditMyDappViewController: UIViewController {
         saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
         saveButton.setTitle(viewModel.saveButtonTitle, for: .normal)
 
-        cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
-        cancelButton.titleLabel?.font = viewModel.cancelButtonFont
-        cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
+        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(cancel))
     }
 
     override func viewDidLayoutSubviews() {
