@@ -83,14 +83,10 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
     func reader(_ reader: QRCodeReaderViewController!, myQRCodeSelected sender: UIButton!) {
         //Showing QR code functionality is not available if there's no account, specifically when importing wallet during onboarding
         guard let account = account else { return }
-        let coordinator = RequestCoordinator(account: account)
+        let coordinator = RequestCoordinator(navigationController: navigationController, account: account)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-
-        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-
-        navigationController.present(coordinator.navigationController, animated: true)
     }
 }
 
@@ -99,7 +95,7 @@ extension ScanQRCodeCoordinator: RequestCoordinatorDelegate {
     func didCancel(in coordinator: RequestCoordinator) {
         removeCoordinator(coordinator)
 
-        coordinator.navigationController.dismiss(animated: true)
+        coordinator.navigationController.popViewController(animated: true)
     }
 }
 
