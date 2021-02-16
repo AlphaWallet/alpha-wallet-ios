@@ -8,7 +8,6 @@ import Alamofire
 import SwiftyJSON
 
 class GetContractInteractions {
-
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([Transaction]) -> Void) {
         guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
@@ -47,7 +46,8 @@ class GetContractInteractions {
                                 transactionIndex: transactionJson["transactionIndex"].intValue,
                                 from: transactionJson["from"].stringValue,
                                 to: transactionJson["to"].stringValue,
-                                value: transactionJson["value"].stringValue,
+                                //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                                value: "0",
                                 gas: transactionJson["gas"].stringValue,
                                 gasPrice: transactionJson["gasPrice"].stringValue,
                                 gasUsed: transactionJson["gasUsed"].stringValue,
@@ -59,8 +59,16 @@ class GetContractInteractions {
                                 isErc20Interaction: true
                         )
                     }
+                    var results: [Transaction] = .init()
+                    for each in transactions {
+                        if let found: Transaction = results.first { $0.blockNumber == each.blockNumber} {
+                            found.localizedOperations.append(objectsIn: each.localizedOperations)
+                        } else {
+                            results.append(each)
+                        }
+                    }
                     DispatchQueue.main.async {
-                        completion(transactions)
+                        completion(results)
                     }
                 }
             case .failure:

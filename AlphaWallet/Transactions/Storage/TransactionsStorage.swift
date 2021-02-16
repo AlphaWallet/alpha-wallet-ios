@@ -90,22 +90,21 @@ class TransactionsStorage {
     }
 
     private func tokens(from transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
-        let tokens: [TokenUpdate] = transactions.compactMap { transaction in
-            guard
-                let operation = transaction.localizedOperations.first,
-                let contract = operation.contractAddress,
-                let name = operation.name,
-                let symbol = operation.symbol
-                else { return nil }
-
-            return TokenUpdate(
-                address: contract,
-                server: server,
-                name: name,
-                symbol: symbol,
-                decimals: operation.decimals,
-                tokenType: contractsAndTokenTypes[contract] ?? .erc20
-            )
+        let tokens: [TokenUpdate] = transactions.flatMap { transaction -> [TokenUpdate] in
+            let tokenUpdates: [TokenUpdate] = transaction.localizedOperations.compactMap { operation in
+                guard let contract = operation.contractAddress else { return nil }
+                guard let name = operation.name else { return nil }
+                guard let symbol = operation.symbol else { return nil }
+                return TokenUpdate(
+                        address: contract,
+                        server: server,
+                        name: name,
+                        symbol: symbol,
+                        decimals: operation.decimals,
+                        tokenType: contractsAndTokenTypes[contract] ?? .erc20
+                )
+            }
+            return tokenUpdates
         }
         return tokens
     }

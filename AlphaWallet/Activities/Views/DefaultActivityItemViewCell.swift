@@ -10,6 +10,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
     private let amountLabel = UILabel()
     private let subTitleLabel = UILabel()
     private let timestampLabel = UILabel()
+    private var leftEdgeConstraint: NSLayoutConstraint = .init()
     private var viewModel: DefaultActivityCellViewModel?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -52,6 +53,8 @@ class DefaultActivityItemViewCell: UITableViewCell {
         background.addSubview(stackView)
         background.addSubview(stateImageView)
 
+        leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
+
         NSLayoutConstraint.activate([
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
 
@@ -63,7 +66,10 @@ class DefaultActivityItemViewCell: UITableViewCell {
             stateImageView.trailingAnchor.constraint(equalTo: tokenImageView.trailingAnchor, constant: -2),
             stateImageView.bottomAnchor.constraint(equalTo: tokenImageView.bottomAnchor, constant: -2),
 
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 14, left: StyleLayout.sideMargin, bottom: 14, right: StyleLayout.sideMargin)),
+            leftEdgeConstraint,
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
+            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 14),
+            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -14),
 
             background.anchorsConstraint(to: contentView),
 
@@ -77,6 +83,9 @@ class DefaultActivityItemViewCell: UITableViewCell {
 
     func configure(viewModel: DefaultActivityCellViewModel) {
         self.viewModel = viewModel
+
+        leftEdgeConstraint.constant = viewModel.leftMargin
+        separatorInset = .init(top: 0, left: viewModel.leftMargin, bottom: 0, right: 0)
 
         selectionStyle = .none
         background.backgroundColor = viewModel.contentsBackgroundColor

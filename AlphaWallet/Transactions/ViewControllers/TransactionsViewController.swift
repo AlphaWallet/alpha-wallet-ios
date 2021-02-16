@@ -7,7 +7,7 @@ import StatefulViewController
 import Result
 
 protocol TransactionsViewControllerDelegate: class {
-    func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController)
+    func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController)
 }
 
 class TransactionsViewController: UIViewController {
@@ -125,7 +125,7 @@ extension TransactionsViewController: StatefulViewController {
 extension TransactionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true )
-        delegate?.didPressTransaction(transaction: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
+        delegate?.didPressTransaction(transactionRow: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
     }
 }
 
@@ -153,14 +153,14 @@ extension TransactionsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let transaction = viewModel.item(for: indexPath.row, section: indexPath.section)
+        let transactionRow = viewModel.item(for: indexPath.row, section: indexPath.section)
         let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
-        let session = sessions[transaction.server]
+        let session = sessions[transactionRow.server]
         cell.configure(viewModel: .init(
-                transaction: transaction,
+                transactionRow: transactionRow,
                 chainState: session.chainState,
                 currentWallet: session.account,
-                server: transaction.server
+                server: transactionRow.server
             )
         )
         return cell

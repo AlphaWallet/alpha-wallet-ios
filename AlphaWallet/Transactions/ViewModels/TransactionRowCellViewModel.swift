@@ -4,37 +4,49 @@ import BigInt
 import Foundation
 import UIKit
 
-struct TransactionCellViewModel {
-    private let transaction: Transaction
+struct TransactionRowCellViewModel {
+    private let transactionRow: TransactionRow
     private let chainState: ChainState
     private let currentWallet: Wallet
-    private let transactionViewModel: TransactionViewModel
+    private let transactionRowViewModel: TransactionRowViewModel
     private let server: RPCServer
 
     init(
-        transaction: Transaction,
-        chainState: ChainState,
-        currentWallet: Wallet,
-        server: RPCServer
+            transactionRow: TransactionRow,
+            chainState: ChainState,
+            currentWallet: Wallet,
+            server: RPCServer
     ) {
-        self.transaction = transaction
+        self.transactionRow = transactionRow
         self.chainState = chainState
         self.currentWallet = currentWallet
         self.server = server
-        self.transactionViewModel = TransactionViewModel(
-            transaction: transaction,
+        self.transactionRowViewModel = TransactionRowViewModel(
+            transactionRow: transactionRow,
             chainState: chainState,
             currentWallet: currentWallet
         )
     }
 
     private var operationTitle: String? {
-        guard let operation = transaction.operation else { return .none }
-        switch operation.operationType {
-        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
-            return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
-        case .unknown:
-            return .none
+        let operation: LocalizedOperationObject?
+        switch transactionRow {
+        case .standalone(let transaction):
+            operation = transaction.operation
+        case .group:
+            operation = nil
+        case .item(_, let op):
+            operation = op
+        }
+        if let operation = operation {
+            switch operation.operationType {
+            case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
+                return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
+            case .unknown:
+                return nil
+            }
+        } else {
+            return nil
         }
     }
 
@@ -46,9 +58,9 @@ struct TransactionCellViewModel {
         if let operationTitle = operationTitle {
             return operationTitle
         }
-        switch transaction.state {
+        switch transactionRow.state {
         case .completed:
-            switch transactionViewModel.direction {
+            switch transactionRowViewModel.direction {
             case .incoming: return R.string.localizable.transactionCellReceivedTitle()
             case .outgoing: return R.string.localizable.transactionCellSentTitle()
             }
@@ -64,9 +76,9 @@ struct TransactionCellViewModel {
     }
 
     var subTitle: String {
-        switch transactionViewModel.direction {
-        case .incoming: return "\(transaction.from)"
-        case .outgoing: return "\(transaction.to)"
+        switch transactionRowViewModel.direction {
+        case .incoming: return "\(transactionRow.from)"
+        case .outgoing: return "\(transactionRow.to)"
         }
     }
 
@@ -87,7 +99,7 @@ struct TransactionCellViewModel {
     }
 
     var contentsBackgroundColor: UIColor {
-        switch transaction.state {
+        switch transactionRow.state {
         case .completed, .error, .unknown, .failed:
             return .white
         case .pending:
@@ -104,27 +116,27 @@ struct TransactionCellViewModel {
     }
 
     var amountAttributedString: NSAttributedString {
-        let value = transactionViewModel.shortValue
+        let value = transactionRowViewModel.shortValue
         let amount: String
-        if let operation = transaction.operation, (operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer) {
-            amount = transactionViewModel.amountWithSign(for: value.amount)
+        if let operation = transactionRow.operation, (operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer) {
+            amount = transactionRowViewModel.amountWithSign(for: value.amount)
         } else {
-            amount = transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol
+            amount = transactionRowViewModel.amountWithSign(for: value.amount) + " " + value.symbol
         }
         return NSAttributedString(
                 string: amount,
                 attributes: [
                     .font: Fonts.light(size: 25),
-                    .foregroundColor: transactionViewModel.amountTextColor,
+                    .foregroundColor: transactionRowViewModel.amountTextColor,
                 ]
         )
     }
 
     var statusImage: UIImage? {
-        switch transaction.state {
+        switch transactionRow.state {
         case .error, .unknown, .failed: return R.image.transaction_error()
         case .completed:
-            switch transactionViewModel.direction {
+            switch transactionRowViewModel.direction {
             case .incoming: return R.image.received()
             case .outgoing: return R.image.sent()
             }
@@ -155,5 +167,16 @@ struct TransactionCellViewModel {
 
     var blockChainNameCornerRadius: CGFloat {
         return Screen.TokenCard.Metric.blockChainTagCornerRadius
+    }
+
+    var leftMargin: CGFloat {
+        switch transactionRow {
+        case .standalone:
+            return StyleLayout.sideMargin
+        case .group:
+            return StyleLayout.sideMargin
+        case .item:
+            return StyleLayout.sideMargin + 20
+        }
     }
 }
