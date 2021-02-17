@@ -163,7 +163,12 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             let callback = DappCallback(id: callbackID, value: .ethCall(result))
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
         }.catch { error in
-            //TODO handle error. Can we let the dapp know?
+            if case let SessionTaskError.responseError(JSONRPCError.responseError(e)) = error {
+                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(e.message)))
+            } else {
+                //TODO better handle. User didn't cancel
+                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
+            }
         }
     }
 
@@ -455,7 +460,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .unknown, .sendRawTransaction:
             break
         }
-    } 
+    }
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
