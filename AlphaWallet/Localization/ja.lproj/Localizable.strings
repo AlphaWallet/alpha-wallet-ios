@@ -461,6 +461,7 @@
 "token.transactionConfirmation.contract.title" = "Contract";
 "token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
+"token.transactionConfirmation.network" = "Network";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
 "token.transactionConfirmation.title" = "Confirm Transaction?";

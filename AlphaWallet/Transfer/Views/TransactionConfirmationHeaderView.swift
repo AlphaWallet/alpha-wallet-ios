@@ -37,9 +37,8 @@ class TransactionConfirmationHeaderView: UIView {
         return label
     }()
 
-    private let warningIcon: UIImageView = {
-        let imageView = UIImageView(image: R.image.gasWarning())
-        return imageView
+    private let titleIconImageView: UIImageView = {
+        return UIImageView()
     }()
 
     private let detailsLabel: UILabel = {
@@ -89,7 +88,7 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.backgroundColor = R.color.mercury()
 
         titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        let titleRow = [warningIcon, titleLabel].asStackView(axis: .horizontal, spacing: 6)
+        let titleRow = [titleIconImageView, titleLabel].asStackView(axis: .horizontal, spacing: 6)
 
         let col0 = nameLabel
         let col1 = [
@@ -130,8 +129,8 @@ class TransactionConfirmationHeaderView: UIView {
 
             titleLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
 
-            warningIcon.widthAnchor.constraint(equalToConstant: 24),
-            warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
+            titleIconImageView.widthAnchor.constraint(equalToConstant: 24),
+            titleIconImageView.widthAnchor.constraint(equalTo: titleIconImageView.heightAnchor),
 
             col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
             col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
@@ -162,10 +161,10 @@ class TransactionConfirmationHeaderView: UIView {
 
         chevronImageView.image = viewModel.chevronImage
 
-        warningIcon.isHidden = !viewModel.isWarning
+        titleIconImageView.isHidden = viewModel.isTitleIconHidden
+        titleIconImageView.image = viewModel.titleIcon
 
         titleLabel.alpha = viewModel.titleAlpha
-
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.isHidden = titleLabel.attributedText == nil
 
