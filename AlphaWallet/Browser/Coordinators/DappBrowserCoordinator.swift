@@ -163,7 +163,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             let callback = DappCallback(id: callbackID, value: .ethCall(result))
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
         }.catch { error in
-            //TODO handle error. Can we let the dapp know?
+            //TODO Pass the error to the dapp via the callback. Might not be because user cancelled
+            self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
         }
     }
 
