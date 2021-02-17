@@ -193,7 +193,7 @@ class TokensViewController: UIViewController {
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
 
-        self.viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
+        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
@@ -269,7 +269,7 @@ class TokensViewController: UIViewController {
         keyboardChecker.viewWillDisappear()
     }
 
-    @objc func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
+    @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
         delegate?.scanQRCodeSelected(in: self)
     }
 
