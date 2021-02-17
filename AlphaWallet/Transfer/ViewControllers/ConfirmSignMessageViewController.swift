@@ -17,6 +17,7 @@ class ConfirmSignMessageViewController: UIViewController {
     private let singleMessageTextView: UITextView = {
         let textView = UITextView()
         textView.contentInset = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
+        textView.isEditable = false
         return textView
     }()
     private let tableView = UITableView(frame: .zero, style: .plain)
