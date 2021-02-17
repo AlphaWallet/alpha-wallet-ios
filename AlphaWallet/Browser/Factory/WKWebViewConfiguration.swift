@@ -20,7 +20,6 @@ extension WKWebViewConfiguration {
             guard
                     let bundlePath = Bundle.main.path(forResource: "AlphaWalletWeb3Provider", ofType: "bundle"),
                     let bundle = Bundle(path: bundlePath) else { return webViewConfig }
-
             if let filepath = bundle.path(forResource: "AlphaWallet-min", ofType: "js") {
                 do {
                     js += try String(contentsOfFile: filepath)
@@ -110,7 +109,7 @@ extension WKWebViewConfiguration {
                    },
                    ethCall: function (msgParams, cb) {
                        const data = msgParams
-                       const { id = 8888 } = msgParams
+                       const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
                        console.log("eth_call", msgParams)
                        AlphaWallet.addCallback(id, cb)
                        webkit.messageHandlers.ethCall.postMessage({"name": "ethCall", "object": data, id: id})
