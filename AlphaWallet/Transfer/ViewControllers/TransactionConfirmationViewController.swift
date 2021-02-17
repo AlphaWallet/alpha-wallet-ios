@@ -18,7 +18,7 @@ class TransactionConfirmationViewController: UIViewController {
         case done(withError: Bool)
     }
 
-    private lazy var headerView: HeaderView = HeaderView(viewModel: .init(title: viewModel.navigationTitle))
+    private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransactionConfirmationViewModel
     private var timerToReenableConfirmButton: Timer?
@@ -388,102 +388,7 @@ class TransactionConfirmationViewController: UIViewController {
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
-}
-
-fileprivate struct HeaderViewModel {
-    let title: String
-    var backgroundColor: UIColor {
-        Colors.appBackground
-    }
-    var icon: UIImage? {
-        return R.image.awLogoSmall()
-    }
-    var attributedTitle: NSAttributedString {
-        let style = NSMutableParagraphStyle()
-        style.alignment = .center
-
-        return .init(string: title, attributes: [
-            .font: DataEntry.Font.text as Any,
-            .paragraphStyle: style,
-            .foregroundColor: Colors.darkGray
-        ])
-    }
-}
-
-fileprivate class HeaderView: UIView {
-    private let separatorLine: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.mercury()
-
-        return view
-    }()
-
-    private let titleLabel: UILabel = {
-        let titleLabel = UILabel(frame: .zero)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        return titleLabel
-    }()
-
-    private let iconImageView: UIImageView = {
-        let imageView = UIImageView(frame: .zero)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
-
-        return imageView
-    }()
-
-    let closeButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.contentMode = .scaleAspectFit
-        button.setImage(R.image.close(), for: .normal)
-
-        return button
-    }()
-
-    init(viewModel: HeaderViewModel) {
-        super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(separatorLine)
-        addSubview(titleLabel)
-        addSubview(iconImageView)
-        addSubview(closeButton)
-
-        NSLayoutConstraint.activate([
-            separatorLine.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.separatorHeight),
-            separatorLine.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
-
-            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
-
-            iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 30),
-            iconImageView.heightAnchor.constraint(equalToConstant: 30),
-
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            closeButton.widthAnchor.constraint(equalToConstant: 30),
-            closeButton.heightAnchor.constraint(equalToConstant: 30),
-
-            heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.headerHeight)
-        ])
-
-        titleLabel.attributedText = viewModel.attributedTitle
-        iconImageView.image = viewModel.icon
-        backgroundColor = viewModel.backgroundColor
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-}
+} 
 
 extension TransactionConfirmationViewController {
     // swiftlint:disable function_body_length

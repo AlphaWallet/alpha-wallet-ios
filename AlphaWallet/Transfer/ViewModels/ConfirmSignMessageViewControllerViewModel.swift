@@ -168,6 +168,57 @@ extension EIP712TypedData {
 }
 
 extension EIP712TypedData.JSON {
+
+    var keyValueRepresentationToFirstLevel: [(key: String, value: EIP712TypedData.JSON)] {
+        return flatArrayRepresentation(json: self, key: nil, indention: 0, maxIndention: 1)
+    }
+
+    var shortStringRepresentation: String {
+        switch self {
+        case .object:
+            return "{...}"
+        case .string(let value):
+            return value
+        case .number(let value):
+            return "\(value)"
+        case .bool(let value):
+            return "\(value)"
+        case .null:
+            return ""
+        case .array:
+            return "[...]"
+        }
+    } 
+
+    private func flatArrayRepresentation(json: EIP712TypedData.JSON, key: String?, indention: Int, maxIndention: Int) -> [(key: String, value: EIP712TypedData.JSON)] {
+        switch json {
+        case .object(let dictionary):
+            if indention != maxIndention {
+                return dictionary.flatMap { data -> [(key: String, value: EIP712TypedData.JSON)] in
+                    return flatArrayRepresentation(json: data.value, key: data.key, indention: indention + 1, maxIndention: maxIndention)
+                }
+            } else if let key = key {
+                return [(key: key, value: json)]
+            }
+        case .string, .number, .bool:
+            if let key = key {
+                return [(key: key, value: json)]
+            }
+        case .null:
+            break
+        case .array(let array):
+            if indention != maxIndention {
+                return array.flatMap {
+                    flatArrayRepresentation(json: $0, key: key, indention: indention + 1, maxIndention: maxIndention)
+                }
+            } else if let key = key {
+                return [(key: key, value: json)]
+            }
+        }
+
+        return []
+    }
+
     //TODO Better to follow the order define in the type
     func formattedString(indentationLevel: Int = 0) -> NSAttributedString {
         let nameAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: Colors.gray, .font: Fonts.light(size: 15)]

@@ -549,3 +549,7 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.connection.title" = "Connect To Site?";
 "send.allFunds" = "All Funds";
+"copiedToClipboard" = "Copied to clipboard";
+"signature.confirmation.message.title" = "Message";
+"signature.confirmation.personalmessage.title" = "Personal message";
+"signature.confirmation.title" = "Signature Request";
