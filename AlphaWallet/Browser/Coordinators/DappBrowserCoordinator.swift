@@ -155,7 +155,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         coordinator.start()
     }
 
-    private func ethCall(callbackID: Int, from: AlphaWallet.Address, to: AlphaWallet.Address, data: String, server: RPCServer) {
+    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, data: String, server: RPCServer) {
         let request = EthCallRequest(from: from, to: to, data: data)
         firstly {
             Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
@@ -451,8 +451,8 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
         case .ethCall(from: let from, to: let to, data: let data):
             //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
-            guard let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from) else { return }
-            guard let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to) else { return }
+            let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
+            let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
             ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
             break
         case .unknown, .sendRawTransaction:
