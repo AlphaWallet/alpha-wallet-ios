@@ -6,8 +6,8 @@ import JSONRPCKit
 struct EthCallRequest: JSONRPCKit.Request {
     typealias Response = String
 
-    let from: AlphaWallet.Address
-    let to: AlphaWallet.Address
+    let from: AlphaWallet.Address?
+    let to: AlphaWallet.Address?
     let data: String
 
     var method: String {
@@ -16,12 +16,17 @@ struct EthCallRequest: JSONRPCKit.Request {
 
     var parameters: Any? {
         //Explicit type declaration to speed up build time. 160msec -> <100ms, as of Xcode 11.7
+        var payload: [String: Any] = [
+            "data": data
+        ]
+        if let to = to {
+            payload["to"] = to.eip55String
+        }
+        if let from = from {
+            payload["from"] = from.eip55String
+        }
         let results: [Any] = [
-            [
-                "from": from.eip55String,
-                "to": to.eip55String,
-                "data": data
-            ],
+            payload,
             "latest",
         ]
         return results
