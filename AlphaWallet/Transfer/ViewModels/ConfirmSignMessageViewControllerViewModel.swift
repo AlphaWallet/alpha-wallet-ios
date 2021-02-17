@@ -103,12 +103,14 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var singleMessageLabelText: NSAttributedString? {
+        let attributes: [NSAttributedString.Key: Any] = [.font: singleMessageLabelFont, .foregroundColor: singleMessageLabelTextColor]
         switch message {
         case .message(let data), .personalMessage(let data):
             guard let message = String(data: data, encoding: .utf8) else {
-                return NSAttributedString(string: data.hexEncoded, attributes: [ .font: singleMessageLabelFont, .foregroundColor: singleMessageLabelTextColor ])
+                return NSAttributedString(string: data.hexEncoded, attributes: attributes)
             }
-            return NSAttributedString(string: message)
+
+            return NSAttributedString(string: message, attributes: attributes)
         case .typedMessage:
             return nil
         case .eip712v3And4(let data):

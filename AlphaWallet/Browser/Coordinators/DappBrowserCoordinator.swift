@@ -439,11 +439,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .sendTransaction(let unconfirmedTransaction):
             executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
         case .signMessage(let hexMessage):
-            let msg = convertMessageToHex(msg: hexMessage)
-            signMessage(with: .message(Data(hex: msg)), account: account, callbackID: callbackID)
+            signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: callbackID)
         case .signPersonalMessage(let hexMessage):
-            let msg = convertMessageToHex(msg: hexMessage)
-            signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
+            signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: callbackID)
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
         case .signTypedMessageV3(let typedData):
@@ -457,16 +455,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .unknown, .sendRawTransaction:
             break
         }
-    }
-
-    //allow the message to be passed in as a pure string, if it is then we convert it to hex
-    private func convertMessageToHex(msg: String) -> String {
-        if msg.hasPrefix("0x") {
-            return msg
-        } else {
-            return msg.hex
-        }
-    }
+    } 
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
