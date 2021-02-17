@@ -47,7 +47,6 @@ class WalletConnectSessionsViewController: UIViewController {
 
     init(sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>) {
         self.sessionsToURLServersMap = sessionsToURLServersMap
-//        self.urlToServer = urlToServer
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
@@ -76,10 +75,6 @@ class WalletConnectSessionsViewController: UIViewController {
 
         set(state: state)
     }
-
-//    func set(urlToServer: [WalletConnectURL: RPCServer]) {
-//        self.urlToServer = urlToServer
-//    }
 
     func set(state: State) {
         switch state {

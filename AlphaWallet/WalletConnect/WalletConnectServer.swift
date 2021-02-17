@@ -198,6 +198,8 @@ extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
                 let data = UnconfirmedTransaction(transactionType: transactionType, bridge: data)
 
                 return .value(.signTransaction(data))
+            case .signTypedMessage(let data):
+                return .value(.typedMessage(data))
             case .signTypedData(_, let data):
 
                 return .value(.signTypedMessageV3(data))

@@ -20,11 +20,11 @@ private class TransactionInProgressCoordinatorBridgeToPromise {
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 
-        _ = promiseToReturn.ensure {
+        promiseToReturn.ensure {
             // ensure we break the retain cycle
             self.retainCycle = nil
             coordinator.removeCoordinator(newCoordinator)
-        }
+        }.cauterize()
 
         newCoordinator.start()
     }
