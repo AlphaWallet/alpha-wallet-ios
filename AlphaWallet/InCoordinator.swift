@@ -11,6 +11,7 @@ protocol InCoordinatorDelegate: class {
     func didShowWallet(in coordinator: InCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
     func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
 }
 
 enum Tabs {
@@ -666,7 +667,7 @@ class InCoordinator: NSObject, Coordinator {
 
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
         tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
-    } 
+    }
 
     private func createWalletConnectCoordinator() -> WalletConnectCoordinator {
         let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices)
@@ -882,6 +883,10 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.importUniversalLink(url: url, forCoordinator: self)
+    }
+
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
+        delegate?.handleUniversalLink(url, forCoordinator: self)
     }
 }
 

@@ -329,6 +329,11 @@ extension AppCoordinator: InCoordinatorDelegate {
         guard universalLinkCoordinator == nil else { return }
         handleUniversalLink(url: url)
     }
+
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator) {
+        guard universalLinkCoordinator == nil else { return }
+        handleUniversalLink(url: url)
+    }
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
