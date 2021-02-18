@@ -12,6 +12,7 @@ import Result
 protocol DappBrowserCoordinatorDelegate: class {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -471,6 +472,10 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
+    }
+
+    func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
+        delegate?.handleUniversalLink(url, forCoordinator: self)
     }
 }
 

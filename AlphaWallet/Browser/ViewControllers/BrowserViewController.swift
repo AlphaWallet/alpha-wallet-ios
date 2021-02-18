@@ -11,6 +11,7 @@ protocol BrowserViewControllerDelegate: class {
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController)
     func dismissKeyboard(inBrowserViewController viewController: BrowserViewController)
     func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController)
+    func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController)
 }
 
 final class BrowserViewController: UIViewController {
@@ -221,8 +222,12 @@ extension BrowserViewController: WKNavigationDelegate {
             app.open(url)
             return decisionHandler(.cancel)
         }
-        decisionHandler(.allow)
+        if url.host == "aw.app" && url.path == UniversalLinkCoordinator.walletConnectPath {
+            delegate?.handleUniversalLink(url, inBrowserViewController: self)
+            return decisionHandler(.cancel)
+        }
 
+        decisionHandler(.allow)
     }
 }
 
