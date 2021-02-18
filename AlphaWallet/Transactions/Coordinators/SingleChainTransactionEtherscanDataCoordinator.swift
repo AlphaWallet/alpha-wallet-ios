@@ -107,7 +107,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             for each in transactionsToFill {
                 //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
                 guard !each.localizedOperations.isEmpty else { continue }
-                if let transaction = fillerTransactions.first { $0.blockNumber == each.blockNumber } {
+                if let transaction = fillerTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
                     transaction.isERC20Interaction = true
                     transaction.localizedOperations = each.localizedOperations
                     results.append(transaction)
