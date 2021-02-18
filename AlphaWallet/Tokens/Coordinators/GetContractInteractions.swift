@@ -61,7 +61,7 @@ class GetContractInteractions {
                     }
                     var results: [Transaction] = .init()
                     for each in transactions {
-                        if let found: Transaction = results.first { $0.blockNumber == each.blockNumber} {
+                        if let found: Transaction = results.first(where: { $0.blockNumber == each.blockNumber }) {
                             found.localizedOperations.append(objectsIn: each.localizedOperations)
                         } else {
                             results.append(each)

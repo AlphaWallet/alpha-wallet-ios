@@ -85,7 +85,7 @@ struct TransactionDetailsViewModel {
             return transaction.to
         case .group(let transaction):
             return transaction.to
-        case .item(transaction: let transaction, operation: let operation):
+        case .item(_, operation: let operation):
             return operation.to
         }
     }
