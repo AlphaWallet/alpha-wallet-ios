@@ -153,7 +153,7 @@ final class BrowserViewController: UIViewController {
             case .success(let result):
                 return "executeCallback(\(callbackID), null, \"\(result.value.object)\")"
             case .failure(let error):
-                return "executeCallback(\(callbackID), \"\(error)\", null)"
+                return "executeCallback(\(callbackID), \"\(error.message)\", null)"
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
