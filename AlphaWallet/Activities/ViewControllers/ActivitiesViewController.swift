@@ -118,6 +118,7 @@ class ActivitiesViewController: UIViewController {
         return container
     }
 
+// swiftlint:disable function_body_length
     private func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow) -> Activity? {
         let token: TokenObject
         if transactionRow.operation == nil {
@@ -223,6 +224,7 @@ class ActivitiesViewController: UIViewController {
                 state: state
         )
     }
+// swiftlint:enable function_body_length
 }
 
 extension ActivitiesViewController: StatefulViewController {
