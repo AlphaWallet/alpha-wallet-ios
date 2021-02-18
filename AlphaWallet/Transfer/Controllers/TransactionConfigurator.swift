@@ -75,7 +75,7 @@ class TransactionConfigurator {
     let session: WalletSession
     weak var delegate: TransactionConfiguratorDelegate?
 
-    let transaction: UnconfirmedTransaction
+    var transaction: UnconfirmedTransaction
     var selectedConfigurationType: TransactionConfigurationType = .standard
     var configurations: TransactionConfigurations
 
@@ -88,6 +88,10 @@ class TransactionConfigurator {
         case .custom:
             return configurations.custom
         }
+    }
+
+    var gasValue: BigInt {
+        return currentConfiguration.gasPrice * currentConfiguration.gasLimit
     }
 
     var toAddress: AlphaWallet.Address? {
@@ -122,6 +126,11 @@ class TransactionConfigurator {
         self.account = session.account.address
         self.transaction = transaction
         self.configurations = .init(standard: TransactionConfigurator.createConfiguration(server: session.server, transaction: transaction, account: account))
+    }
+
+    func updateTransaction(value: BigInt) {
+        let tx = self.transaction
+        self.transaction = .init(transactionType: tx.transactionType, value: value, recipient: tx.recipient, contract: tx.contract, data: tx.data, tokenId: tx.tokenId, indices: tx.indices, gasLimit: tx.gasLimit, gasPrice: tx.gasPrice, nonce: tx.nonce)
     }
 
     private func estimateGasLimit() {
@@ -164,7 +173,7 @@ class TransactionConfigurator {
 
     private func estimateGasPrice() {
         firstly {
-            estimateGasPrice(server: session.server)
+            Self.estimateGasPrice(server: session.server)
         }.done { estimates in
             let standard = estimates.standard
             var customConfig = self.configurations.custom
@@ -186,13 +195,13 @@ class TransactionConfigurator {
         }.cauterize()
     }
 
-    private func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
+    static func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
         switch server {
         case .main:
             return firstly {
                 estimateGasPriceForEthMainnetUsingThirdPartyApi()
             }.recover { _ in
-                self.estimateGasPriceForUseRpcNode(server: server)
+                estimateGasPriceForUseRpcNode(server: server)
             }
         case .xDai:
             return estimateGasPriceForXDai()
@@ -201,7 +210,7 @@ class TransactionConfigurator {
         }
     }
 
-    private func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
+    private static func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
         let estimator = GasNowGasPriceEstimator()
         return firstly {
             estimator.fetch()
@@ -214,12 +223,12 @@ class TransactionConfigurator {
         }
     }
 
-    private func estimateGasPriceForXDai() -> Promise<GasEstimates> {
+    private static func estimateGasPriceForXDai() -> Promise<GasEstimates> {
         //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
         .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
     }
 
-    private func estimateGasPriceForUseRpcNode(server: RPCServer) -> Guarantee<GasEstimates> {
+    private static func estimateGasPriceForUseRpcNode(server: RPCServer) -> Guarantee<GasEstimates> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
         return firstly {
             Session.send(request)
@@ -393,7 +402,7 @@ class TransactionConfigurator {
     }
 
     func formUnsignedTransaction() -> UnsignedTransaction {
-        UnsignedTransaction(
+        return UnsignedTransaction(
             value: value,
             account: account,
             to: toAddress,

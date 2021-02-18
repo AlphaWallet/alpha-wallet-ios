@@ -536,3 +536,4 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction"; 
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
+"send.allFunds" = "All Funds";

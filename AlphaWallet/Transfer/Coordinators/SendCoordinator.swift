@@ -111,6 +111,11 @@ extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 }
 
+struct FungiblesTransactionAmount {
+    var value: String
+    var isAllFunds: Bool = false
+}
+
 extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in controller: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
@@ -126,7 +131,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             confirmType: .signThenSend,
             keystore: keystore,
             assetDefinitionStore: assetDefinitionStore,
-            amount: amount,
+            amount: FungiblesTransactionAmount(value: amount, isAllFunds: viewController.isAllFunds),
             ethPrice: ethPrice
         )
         let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)

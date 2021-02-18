@@ -128,6 +128,19 @@ class AmountTextField: UIControl {
         return textField
     }()
 
+    var allFundsButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(R.string.localizable.sendAllFunds(), for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.setBackgroundColor(.clear, forState: .normal)
+        button.contentHorizontalAlignment = .right
+        button.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        
+        return button
+    }()
+
     private lazy var inputAccessoryButton: UIButton = {
         let button = UIButton()
         button.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
@@ -195,20 +208,28 @@ class AmountTextField: UIControl {
             }
         }
         set {
-            let valueToSet = newValue.optionalDecimalValue
-
-            ethCostRawValue = valueToSet
-            recalculate(amountValue: valueToSet, for: cryptoCurrency)
-
-            switch currentPair.left {
-            case .cryptoCurrency:
-                textField.text = formatValueToDisplayValue(ethCostRawValue)
-            case .usd:
-                textField.text = formatValueToDisplayValue(dollarCostRawValue)
-            }
-
-            updateAlternatePricingDisplay()
+            set(ethCost: newValue)
         }
+    }
+
+    func set(ethCost newValue: String, useFormatting: Bool = true) {
+        let valueToSet = newValue.optionalDecimalValue
+
+        ethCostRawValue = valueToSet
+        recalculate(amountValue: valueToSet, for: cryptoCurrency)
+
+        switch currentPair.left {
+        case .cryptoCurrency:
+            if useFormatting {
+                textField.text = formatValueToDisplayValue(ethCostRawValue)
+            } else {
+                textField.text = newValue
+            }
+        case .usd:
+            textField.text = formatValueToDisplayValue(dollarCostRawValue)
+        }
+
+        updateAlternatePricingDisplay()
     }
 
     ///Returns raw (calculated) value based on selected currency
@@ -306,7 +327,7 @@ class AmountTextField: UIControl {
         }
         set {
             //Intentionally not sure the equivalent amount for now
-            alternativeAmountLabelContainer.isHidden = !newValue//true //!newValue
+            alternativeAmountLabelContainer.isHidden = !newValue//true
         }
     }
 
@@ -319,8 +340,21 @@ class AmountTextField: UIControl {
         }
     }
 
+    var allFundsAvailable: Bool {
+        get {
+            return !allFundsContainer.isHidden
+        }
+        set {
+            allFundsContainer.isHidden = !newValue
+        }
+    }
+
     lazy var statusLabelContainer: UIView = {
         return [.spacerWidth(16), statusLabel].asStackView(axis: .horizontal)
+    }()
+
+    lazy var allFundsContainer: UIView = {
+        return [allFundsButton, .spacerWidth(8)].asStackView(axis: .horizontal)
     }()
 
     lazy var alternativeAmountLabelContainer: UIView = {
