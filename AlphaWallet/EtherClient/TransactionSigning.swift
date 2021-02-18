@@ -4,7 +4,7 @@ import BigInt
 import CryptoSwift
 
 protocol Signer {
-    func hash(transaction: UnsignedTransaction) -> Data
+    func hash(transaction: UnsignedTransaction) throws -> Data
     func values(transaction: UnsignedTransaction, signature: Data) -> (r: BigInt, s: BigInt, v: BigInt)
 }
 
@@ -15,8 +15,12 @@ struct EIP155Signer: Signer {
         self.server = server
     }
 
-    func hash(transaction: UnsignedTransaction) -> Data {
-        return rlpHash([
+    func hash(transaction: UnsignedTransaction) throws -> Data {
+        enum AnyError: Error {
+            case invalid
+        }
+
+        let values: [Any] = [
             transaction.nonce,
             transaction.gasPrice,
             transaction.gasLimit,
@@ -24,7 +28,12 @@ struct EIP155Signer: Signer {
             transaction.value,
             transaction.data,
             transaction.server.chainID, 0, 0,
-        ] as [Any])!
+        ]
+
+        guard let data = rlpHash(values) else {
+            throw AnyError.invalid
+        }
+        return data
     }
 
     func values(transaction: UnsignedTransaction, signature: Data) -> (r: BigInt, s: BigInt, v: BigInt) {

@@ -549,14 +549,14 @@ open class EtherKeystore: Keystore {
         }
 
         do {
-            let hash = signer.hash(transaction: transaction)
+            let hash = try signer.hash(transaction: transaction)
             switch getPrivateKeyForSigning(forAccount: transaction.account) {
             case .seed, .seedPhrase:
                 return .failure(.failedToExportPrivateKey)
             case .key(let key):
                 let signature = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
                 let (r, s, v) = signer.values(transaction: transaction, signature: signature)
-                let data = RLP.encode([
+                let values: [Any] = [
                     transaction.nonce,
                     transaction.gasPrice,
                     transaction.gasLimit,
@@ -564,7 +564,11 @@ open class EtherKeystore: Keystore {
                     transaction.value,
                     transaction.data,
                     v, r, s,
-                ])!
+                ]
+                //NOTE: avoid app crash, returns with return error, Happens when amount to send less then 0
+                guard let data = RLP.encode(values) else {
+                    return .failure(.failedToSignTransaction)
+                }
                 return .success(data)
             case .userCancelled:
                 return .failure(.userCancelled)

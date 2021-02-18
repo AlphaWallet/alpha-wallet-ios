@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 
 struct BalanceViewModel: BalanceBaseViewModel {
     private let server: RPCServer
@@ -16,6 +17,10 @@ struct BalanceViewModel: BalanceBaseViewModel {
         self.server = server
         self.balance = balance
         self.rate = rate
+    }
+
+    var value: BigInt {
+        balance?.value ?? BigInt(0)
     }
 
     var amount: Double {
