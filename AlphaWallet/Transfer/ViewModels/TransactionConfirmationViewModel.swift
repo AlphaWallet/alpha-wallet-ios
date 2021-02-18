@@ -99,12 +99,15 @@ extension TransactionConfirmationViewModel {
     class SendFungiblesTransactionViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case balance
+            case network
             case gas
             case recipient
             case amount
 
             var title: String {
                 switch self {
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
                 case .gas:
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .balance:
@@ -216,7 +219,7 @@ extension TransactionConfirmationViewModel {
             let isOpened = openedSections.contains(section)
 
             switch sections[section] {
-            case .balance, .amount, .gas:
+            case .balance, .amount, .gas, .network:
                 return isOpened
             case .recipient:
                 if isOpened {
@@ -228,7 +231,7 @@ extension TransactionConfirmationViewModel {
                     }
                 } else {
                     return true
-                }
+                } 
             }
         }
 
@@ -240,6 +243,8 @@ extension TransactionConfirmationViewModel {
             )
             let headerName = sections[section].title
             switch sections[section] {
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             case .balance:
                 let title = R.string.localizable.tokenTransactionConfirmationDefault()
                 return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
@@ -261,11 +266,14 @@ extension TransactionConfirmationViewModel {
     class DappTransactionViewModel: SectionProtocol {
         enum Section {
             case gas
+            case network
             case amount
             case function(DecodedFunctionCall)
 
             var title: String {
                 switch self {
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
                 case .gas:
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
@@ -277,9 +285,7 @@ extension TransactionConfirmationViewModel {
 
             var isExpandable: Bool {
                 switch self {
-                case .gas:
-                    return false
-                case .amount:
+                case .gas, .amount, .network:
                     return false
                 case .function:
                     return true
@@ -290,6 +296,7 @@ extension TransactionConfirmationViewModel {
         private var configurationTitle: String {
             return configurator.selectedConfigurationType.title
         }
+        let session: WalletSession
         private var formattedAmountValue: String {
             let cryptoToDollarSymbol = Constants.Currency.usd
             let amount = Double(configurator.transaction.value) / Double(EthereumUnit.ether.rawValue)
@@ -320,12 +327,15 @@ extension TransactionConfirmationViewModel {
             self.configurator = configurator
             self.ethPrice = ethPrice
             self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
+            self.session = configurator.session
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
             let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
             let headerName = sections[section].title
             switch sections[section] {
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 if let warning = configurator.gasPriceWarning {
@@ -348,12 +358,15 @@ extension TransactionConfirmationViewModel {
     class TokenScriptTransactionViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case gas
+            case network
             case contract
             case function
             case amount
 
             var title: String {
                 switch self {
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
                 case .gas:
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .contract:
@@ -391,12 +404,14 @@ extension TransactionConfirmationViewModel {
         var sections: [Section] {
             return Section.allCases
         }
+        let session: WalletSession
 
         init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>) {
             self.address = address
             self.configurator = configurator
             self.functionCallMetaData = functionCallMetaData
             self.ethPrice = ethPrice
+            self.session = configurator.session
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -416,6 +431,8 @@ extension TransactionConfirmationViewModel {
                 return .init(title: .normal(functionCallMetaData.name), headerName: headerName, configuration: configuration)
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             }
         }
 
@@ -427,11 +444,14 @@ extension TransactionConfirmationViewModel {
     class SendNftTransactionViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case gas
+            case network
             case recipient
             case tokenId
 
             var title: String {
                 switch self {
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
                 case .gas:
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .recipient:
@@ -473,7 +493,7 @@ extension TransactionConfirmationViewModel {
         func isSubviewsHidden(section: Int, row: Int) -> Bool {
             let isOpened = openedSections.contains(section)
             switch sections[section] {
-            case .gas, .tokenId:
+            case .gas, .tokenId, .network:
                 return isOpened
             case .recipient:
                 if isOpened {
@@ -498,6 +518,8 @@ extension TransactionConfirmationViewModel {
 
             let headerName = sections[section].title
             switch sections[section] {
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 if let warning = configurator.gasPriceWarning {
@@ -527,11 +549,14 @@ extension TransactionConfirmationViewModel {
     class ClaimPaidErc875MagicLinkViewModel: SectionProtocol {
         enum Section: Int, CaseIterable {
             case gas
+            case network
             case amount
             case numberOfTokens
 
             var title: String {
                 switch self {
+                case .network:
+                    return R.string.localizable.tokenTransactionConfirmationNetwork()
                 case .gas:
                     return R.string.localizable.tokenTransactionConfirmationGasTitle()
                 case .amount:
@@ -544,7 +569,7 @@ extension TransactionConfirmationViewModel {
         private let configurator: TransactionConfigurator
         private let price: BigUInt
         private let numberOfTokens: UInt
-
+        let session: WalletSession
         private var defaultTitle: String {
             return R.string.localizable.tokenTransactionConfirmationDefault()
         }
@@ -565,6 +590,7 @@ extension TransactionConfirmationViewModel {
             self.price = price
             self.ethPrice = ethPrice
             self.numberOfTokens = numberOfTokens
+            self.session = configurator.session
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -576,6 +602,8 @@ extension TransactionConfirmationViewModel {
 
             let headerName = sections[section].title
             switch sections[section] {
+            case .network:
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             case .gas:
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, configuration: configuration)
