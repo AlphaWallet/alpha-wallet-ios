@@ -15,6 +15,7 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
     func openQRCode(in controller: SendViewController)
 }
 
+// swiftlint:disable type_body_length
 class SendViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
@@ -54,7 +55,7 @@ class SendViewController: UIViewController {
 
     let storage: TokensDataStore
     private (set) var isAllFunds: Bool = false
-    
+
 // swiftlint:disable function_body_length
     init(
             session: WalletSession,
@@ -278,7 +279,7 @@ class SendViewController: UIViewController {
             break
         }
     }
-    
+
     //Represents all funds string value in eth
     private var allFunds: String? {
         switch transactionType {
@@ -446,6 +447,7 @@ class SendViewController: UIViewController {
         configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
+// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 

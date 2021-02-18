@@ -451,11 +451,10 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
             let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
             ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
-            break
         case .unknown, .sendRawTransaction:
             break
         }
-    } 
+    }
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
