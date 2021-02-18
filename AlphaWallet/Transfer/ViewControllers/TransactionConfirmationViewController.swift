@@ -482,7 +482,7 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                case .amount:
+                case .amount, .network:
                     break
                 case .function(let functionCallMetaData):
                     let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
@@ -518,7 +518,7 @@ extension TransactionConfirmationViewController {
                         view.isHidden = isSubViewsHidden
                         children.append(view)
                     }
-                case .contract, .amount:
+                case .contract, .amount, .network:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
@@ -545,7 +545,7 @@ extension TransactionConfirmationViewController {
                     }
                 case .gas:
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                case .amount, .balance:
+                case .amount, .balance, .network:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
@@ -572,7 +572,7 @@ extension TransactionConfirmationViewController {
                     }
                 case .gas:
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                case .tokenId:
+                case .tokenId, .network:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
@@ -585,7 +585,7 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                case .amount, .numberOfTokens:
+                case .amount, .numberOfTokens, .network:
                     break
                 }
                 views.append(header)
@@ -608,14 +608,14 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
             return true
         case .sendFungiblesTransaction(let viewModel):
             switch viewModel.sections[section] {
-            case .recipient:
+            case .recipient, .network:
                 return !viewModel.isSubviewsHidden(section: section, row: index)
             case .gas, .amount, .balance:
                 return true
             }
         case .sendNftTransaction(let viewModel):
             switch viewModel.sections[section] {
-            case .recipient:
+            case .recipient, .network:
                 //NOTE: Here we need to make sure that this view is available to display
                 return !viewModel.isSubviewsHidden(section: section, row: index)
             case .gas, .tokenId:
