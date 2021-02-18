@@ -187,10 +187,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
 
         browserViewController.goTo(url: url)
-        //FIXME: for some reasons webView doesn't reload itself when load(URLRequest) method is called. we need to force reload it
-        if forceReload {
-            browserViewController.reload()
-        }
     }
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
@@ -455,7 +451,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .unknown, .sendRawTransaction:
             break
         }
-    } 
+    }
 
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController) {
         browserNavBar?.display(url: url)
