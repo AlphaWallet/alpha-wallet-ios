@@ -29,6 +29,7 @@
 "transaction.blockNumber.label.title" = "ブロック番号";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "確認";
+"confirmPayment.reject.button.title" = "Reject";
 "confirmPayment.from.label.title" = "送信元";
 "confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "ガスの制限";
@@ -538,4 +539,5 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
+"walletConnect.connection.title" = "Connect To Site?";
 "send.allFunds" = "All Funds";

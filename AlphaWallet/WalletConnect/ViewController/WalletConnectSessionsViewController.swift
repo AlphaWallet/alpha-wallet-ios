@@ -4,10 +4,25 @@ import UIKit
 
 protocol WalletConnectSessionsViewControllerDelegate: class {
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
+    func didClose(in viewController: WalletConnectSessionsViewController)
+}
+
+extension WalletConnectSessionsViewController {
+    enum State {
+        case sessions
+        case loading
+    }
 }
 
 class WalletConnectSessionsViewController: UIViewController {
-    private let sessions: Subscribable<[WalletConnectSession]>
+    private var sessionsValue: [WalletConnectSession] {
+        return sessionsToURLServersMap.value?.sessions ?? []
+    }
+    private var urlToServer: [WalletConnectURL: RPCServer] {
+        return sessionsToURLServersMap.value?.urlToServer ?? [:]
+    }
+
+    private let sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.register(WalletConnectSessionCell.self)
@@ -19,49 +34,82 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
-    private let urlToServer: [WalletConnectURL: RPCServer]
 
     weak var delegate: WalletConnectSessionsViewControllerDelegate?
 
-    init(sessions: Subscribable<[WalletConnectSession]>, urlToServer: [WalletConnectURL: RPCServer]) {
-        self.sessions = sessions
-        self.urlToServer = urlToServer
+    private lazy var spinner: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .gray)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.hidesWhenStopped = true
+        view.tintColor = .red
+        return view
+    }()
+
+    init(sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>) {
+        self.sessionsToURLServersMap = sessionsToURLServersMap
+//        self.urlToServer = urlToServer
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
+        view.addSubview(spinner)
 
-        sessions.subscribe { _ in
+        sessionsToURLServersMap.subscribe { _ in
             self.tableView.reloadData()
         }
 
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view),
+            spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
         ])
+        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(closeButtonSelected))
     }
 
     required init?(coder aDecoder: NSCoder) {
         nil
     }
 
-    func configure() {
+    func configure(state: State) {
         navigationItem.largeTitleDisplayMode = .never
         hidesBottomBarWhenPushed = true
         title = R.string.localizable.walletConnectTitle()
+
+        set(state: state)
+    }
+
+//    func set(urlToServer: [WalletConnectURL: RPCServer]) {
+//        self.urlToServer = urlToServer
+//    }
+
+    func set(state: State) {
+        switch state {
+        case .loading:
+            spinner.startAnimating()
+        case .sessions:
+            spinner.stopAnimating()
+        }
+    }
+
+    @objc private func closeButtonSelected(_ sender: UIBarButtonItem) {
+        guard let delegate = self.delegate else { return }
+
+        delegate.didClose(in: self)
     }
 }
 
 extension WalletConnectSessionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let session = sessions.value?[indexPath.row] else { return }
-        delegate?.didSelect(session: session, in: self)
+
+        delegate?.didSelect(session: sessionsValue[indexPath.row], in: self)
     }
 }
 
 extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(for: indexPath) as WalletConnectSessionCell
-        guard let session = sessions.value?[indexPath.row] else { return cell }
+        let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
+
+        let session = sessionsValue[indexPath.row]
         if let server = urlToServer[session.url] {
             let viewModel = WalletConnectSessionCellViewModel(session: session, server: server)
             cell.configure(viewModel: viewModel)
@@ -72,6 +120,6 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        sessions.value?.count ?? 0
+        return sessionsValue.count
     }
 }

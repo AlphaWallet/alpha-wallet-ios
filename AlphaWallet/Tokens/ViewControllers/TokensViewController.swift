@@ -240,12 +240,12 @@ class TokensViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
 
-        walletConnectCoordinator.walletConnectSessions.subscribe { [weak self] sessions in
-            guard let strongSelf = self, let sessions = sessions else { return }
-            if sessions.isEmpty {
+        walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
+            guard let strongSelf = self, let sessionsToURLServersMap = value else { return }
+            if sessionsToURLServersMap.sessions.isEmpty {
                 strongSelf.sections = [.filters, .addHideToken, .tokens]
             } else {
-                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession(count: sessions.count), .tokens]
+                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession(count: sessionsToURLServersMap.sessions.count), .tokens]
             }
             strongSelf.tableView.reloadData()
         }

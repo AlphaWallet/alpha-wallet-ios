@@ -4,6 +4,17 @@ import Foundation
 import UIKit 
 
 extension String {
+
+    var toHexData: Data {
+        if self.hasPrefix("0x") {
+            return Data(hex: self)
+        } else {
+            return Data(hex: self.hex)
+        }
+    }
+}
+
+extension String {
     var hex: String {
         guard let data = self.data(using: .utf8) else {
             return String()

@@ -29,6 +29,7 @@
 "transaction.blockNumber.label.title" = "区块 #";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "确认";
+"confirmPayment.reject.button.title" = "Reject";
 "confirmPayment.from.label.title" = "来源地址";
 "confirmPayment.gasFee.label.title" = "估计网络费用";
 "confirmPayment.gasLimit.label.title" = "燃料限制";
@@ -538,4 +539,5 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
+"walletConnect.connection.title" = "Connect To Site?";
 "send.allFunds" = "All Funds";
