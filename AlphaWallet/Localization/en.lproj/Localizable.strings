@@ -471,6 +471,7 @@
 "a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Exchange with Uniswap";
 "a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
 "a.wallet.token.xDaiBridge.button.title" = "Convert to DAI";
+"a.wallet.token.buy.xDai.title" = "Buy xDai";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";
 "qrCode.watchWallet.title" = "Watch Wallet";
