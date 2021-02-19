@@ -22,7 +22,7 @@ class UniversalLinkCoordinator: Coordinator {
         case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
     }
 
-    private static let walletConnectPath = "/wc"
+    static let walletConnectPath = "/wc"
 
     private let wallet: Wallet
     private let config: Config
