@@ -441,7 +441,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             case .signPersonalMessage(let hexMessage):
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
-                signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
+                signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall:
                 return
             }

@@ -203,7 +203,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             return uint.serialize() as AnyObject
         case .string(let string):
             if string.hasPrefix("0x"), string.count > 2, string.count % 2 == 0 {
-                return Data(hex: string) as AnyObject
+                return Data(_hex: string) as AnyObject
             } else {
                 return string.data(using: .utf8) as AnyObject
             }
