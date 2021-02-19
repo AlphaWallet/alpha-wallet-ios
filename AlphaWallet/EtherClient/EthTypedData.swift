@@ -73,7 +73,7 @@ struct EthTypedData: Decodable {
             let byte: UInt8 = bool ? 0x01 : 0x00
             return Data(bytes: [byte])
         case .address(let address):
-            let data = Data(hex: String(address.dropFirst(2)))
+            let data = Data(_hex: String(address.dropFirst(2)))
             return data
         case .uint(let uint):
             if type.starts(with: "bytes") {
@@ -92,7 +92,7 @@ struct EthTypedData: Decodable {
         case .string(let string):
             if type.starts(with: "bytes") {
                 if string.isHexEncoded {
-                    return Data(hex: string)
+                    return Data(_hex: string)
                 }
             } else if type.starts(with: "uint") {
                 let size = parseIntSize(type: type, prefix: "uint")
@@ -129,7 +129,7 @@ extension FixedWidthInteger {
             //pad to even
             string = "0" + string
         }
-        let data = Data(hex: string)
+        let data = Data(_hex: string)
         return data
     }
 

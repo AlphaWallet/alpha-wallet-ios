@@ -333,8 +333,8 @@ class TransactionConfigurator {
                     transaction.expiry!,
                     transaction.indices!.map({ BigUInt($0) }),
                     BigUInt(transaction.v!),
-                    Data(hex: transaction.r!),
-                    Data(hex: transaction.s!)
+                    Data(_hex: transaction.r!),
+                    Data(_hex: transaction.s!)
                 ]
 
                 let arrayType: ABIType
