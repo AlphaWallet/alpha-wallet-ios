@@ -229,6 +229,12 @@ class TokenViewController: UIViewController {
                 }
             case .xDaiBridge:
                 delegate?.shouldOpen(url: Constants.xDaiBridge, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
+            case .buyXDai:
+                guard let url = URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(session.account.address.eip55String)") else {
+                    //TODO log
+                    return
+                }
+                delegate?.shouldOpen(url: url, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
             }
             break
         }
