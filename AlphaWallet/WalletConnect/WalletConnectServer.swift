@@ -17,6 +17,7 @@ enum WalletConnectError: Error {
 }
 
 protocol WalletConnectServerDelegate: class {
+    func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession)
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void)
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest)
     func server(_ server: WalletConnectServer, didFail error: Error)
@@ -289,6 +290,10 @@ extension WalletConnectServer: ServerDelegate {
 
             UserDefaults.standard.walletConnectSessions = sessions
             self.refresh(sessions: sessions)
+            
+            if let delegate = self.delegate {
+                delegate.server(self, didConnect: session)
+            }
         }
     }
 

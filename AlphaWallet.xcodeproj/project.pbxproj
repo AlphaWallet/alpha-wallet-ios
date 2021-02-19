@@ -696,6 +696,10 @@
 		874DED1924C1BD2C006C8FCE /* SelectAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectAssetViewModel.swift */; };
 		8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91624EE5AE100E19DFF /* RecipientResolver.swift */; };
 		8750F91924EE66D700E19DFF /* GasSpeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91824EE66D700E19DFF /* GasSpeedTableViewCell.swift */; };
+		8757E5E025DE5A9D00812392 /* WalletConnectToSessionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5DF25DE5A9D00812392 /* WalletConnectToSessionViewController.swift */; };
+		8757E5E225DE5ADB00812392 /* WalletConnectToSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E125DE5ADB00812392 /* WalletConnectToSessionViewModel.swift */; };
+		8757E5E425DE5EC400812392 /* WalletConnectToSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E325DE5EC400812392 /* WalletConnectToSessionCoordinator.swift */; };
+		8757E5E625DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */; };
 		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
@@ -1542,6 +1546,10 @@
 		8750F91624EE5AE100E19DFF /* RecipientResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientResolver.swift; sourceTree = "<group>"; };
 		8750F91824EE66D700E19DFF /* GasSpeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCell.swift; sourceTree = "<group>"; };
 		8750F91A24EFEC0300E19DFF /* Uniswap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
+		8757E5DF25DE5A9D00812392 /* WalletConnectToSessionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionViewController.swift; sourceTree = "<group>"; };
+		8757E5E125DE5ADB00812392 /* WalletConnectToSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionViewModel.swift; sourceTree = "<group>"; };
+		8757E5E325DE5EC400812392 /* WalletConnectToSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionCoordinator.swift; sourceTree = "<group>"; };
+		8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionCoordinatorBridgeToPromise.swift; sourceTree = "<group>"; };
 		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
@@ -3863,6 +3871,7 @@
 				87BBF96B2563DD7500FF4846 /* WalletConnectSessionDetailsViewModel.swift */,
 				87BBF96C2563DD7500FF4846 /* WallerConnectRawViewModel.swift */,
 				5E7C7DC4B06C1A623788EEED /* WalletConnectSessionCellViewModel.swift */,
+				8757E5E125DE5ADB00812392 /* WalletConnectToSessionViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -3872,6 +3881,7 @@
 			children = (
 				87BBF9722563DD7500FF4846 /* WalletConnectSessionCoordinator.swift */,
 				87BBF9732563DD7500FF4846 /* WalletConnectCoordinator.swift */,
+				8757E5E325DE5EC400812392 /* WalletConnectToSessionCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -3903,7 +3913,7 @@
 				87BBF97E2563DD7500FF4846 /* SignMessageCoordinatorBridgeToPromise.swift */,
 				87BBF97F2563DD7500FF4846 /* TransactionInProgressCoordinatorBridgeToPromise.swift */,
 				87BBF9802563DD7500FF4846 /* TransactionConfirmationCoordinatorBridgeToPromise.swift */,
-				5E7C75F0DB84DB0F5449D6C1 /* WalletConnectSessionsViewController.swift */,
+				8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -3911,7 +3921,9 @@
 		87BBF9812563DD7500FF4846 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				5E7C75F0DB84DB0F5449D6C1 /* WalletConnectSessionsViewController.swift */,
 				87BBF9822563DD7500FF4846 /* WalletConnectSessionDetailsViewController.swift */,
+				8757E5DF25DE5A9D00812392 /* WalletConnectToSessionViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -4543,6 +4555,7 @@
 				87BBF9962563DD7600FF4846 /* SignMessageCoordinatorBridgeToPromise.swift in Sources */,
 				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
 				29FC9BC61F830899000209CD /* MigrationInitializerForOneChainPerDatabase.swift in Sources */,
+				8757E5E425DE5EC400812392 /* WalletConnectToSessionCoordinator.swift in Sources */,
 				29AD8A091F93F8B2008E10E7 /* Session.swift in Sources */,
 				29BB94971F6FCD60009B09CC /* SendViewModel.swift in Sources */,
 				296106D01F778A8D0006164B /* TransactionType.swift in Sources */,
@@ -4826,6 +4839,7 @@
 				5E7C75E5C64619ABFD246183 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */,
 				5E7C7EAEBB435F3909DA36FB /* TransferTokensCardViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */,
+				8757E5E225DE5ADB00812392 /* WalletConnectToSessionViewModel.swift in Sources */,
 				5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */,
 				5E7C78F1D29280E3FF4EAF5E /* RoundedBackground.swift in Sources */,
 				5E7C7E68425E20834B898D06 /* AppLocale.swift in Sources */,
@@ -4854,6 +4868,7 @@
 				5E7C741353DDF87133054FCC /* DeletedContract.swift in Sources */,
 				5E7C7788FA549A0402BB33CB /* HiddenContract.swift in Sources */,
 				5E7C7F60056FDD6ACC390400 /* UniversalLinkInPasteboardCoordinator.swift in Sources */,
+				8757E5E625DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift in Sources */,
 				5E7C7402B29A987B0AF7061D /* VerifiableStatusViewController.swift in Sources */,
 				76F1DBCA8BAAA42BAEB14719 /* GetERC721BalanceCoordinator.swift in Sources */,
 				87D175EB24AEF8B5002130D2 /* UITableView.swift in Sources */,
@@ -5187,6 +5202,7 @@
 				5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
+				8757E5E025DE5A9D00812392 /* WalletConnectToSessionViewController.swift in Sources */,
 				5E7C712B11D9D9AAA02C022F /* WalletConnectSessionCellViewModel.swift in Sources */,
 				5E7C7B3027F3A56EF3EE5B7F /* EthCalllRequest.swift in Sources */,
 				5E7C7E38EE25F8837CDF6875 /* TransactionRowViewModel.swift in Sources */,
