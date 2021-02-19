@@ -11,6 +11,9 @@ struct InsufficientFundsError: LocalizedError {
     }
 }
 
+struct PossibleBinanceTestnetTimeoutError: LocalizedError {
+}
+
 extension Session {
     class func send<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         Promise { seal in
@@ -26,6 +29,11 @@ extension Session {
                         } else {
                             //no-op
                         }
+                    }
+                    if case let SessionTaskError.responseError(e) = error, RPCServer.binance_smart_chain_testnet.rpcURL.absoluteString == request.baseURL.absoluteString, e.localizedDescription == "The data couldn’t be read because it isn’t in the correct format." {
+                        //This is potentially Binance testnet timing out
+                        seal.reject(PossibleBinanceTestnetTimeoutError())
+                        return
                     }
                     seal.reject(error)
                 }
