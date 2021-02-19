@@ -310,7 +310,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     //Returns true if handled
     func handleUniversalLink() -> Bool {
-        //Eg. https://aw.app/wc?uri=wc:4dc404c9-d685-40f9-9813-ac85676dc845@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=0de792fc767d5cb2410f44e76b5f4cf599d04d53ffdc8caf49ed0fb1c22276ab
+        //E.g. https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202
         if url.path == Self.walletConnectPath {
             return handleWalletConnect()
         } else {
@@ -320,9 +320,8 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func handleWalletConnect() -> Bool {
         assert(url.path == Self.walletConnectPath)
-        let namePrefix = "uri="
-        //Can't use `URLComponents `because the URL is not well-formed, e.g.: https://example.wallet/wc?uri=wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=91303dedf64285cbbaf9120f6e9d160a5c8aa3deb67017a3874cd272323f48ae
-        let string = url.query!.substring(from: namePrefix.count)
+        guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return false }
+        guard let string = queryItems.first(where: { $0.name == "uri" })?.value else { return false }
         if let walletConnectUrl = WalletConnectURL(string) {
             delegate?.handle(walletConnectUrl: walletConnectUrl)
         } else {
