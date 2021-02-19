@@ -688,6 +688,8 @@
 		8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DE2565269400A6A7DA /* Oneinch.swift */; };
 		8731E6E32565269400A6A7DA /* ERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DF2565269400A6A7DA /* ERC20Token.swift */; };
 		8733474E24ED008A002D649D /* TransactionConfirmationRowInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8733474D24ED008A002D649D /* TransactionConfirmationRowInfoView.swift */; };
+		87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4225DFAF7800267160 /* HoneySwap.swift */; };
+		87374A4525DFB17600267160 /* HoneySwapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */; };
 		873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */; };
 		8743CB50255059780039E469 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8743CB4F255059780039E469 /* DomainResolver.swift */; };
 		874DED0C24C05E88006C8FCE /* TransactionConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED0A24C05E88006C8FCE /* TransactionConfirmationViewModel.swift */; };
@@ -1537,6 +1539,8 @@
 		8731E6DE2565269400A6A7DA /* Oneinch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Oneinch.swift; sourceTree = "<group>"; };
 		8731E6DF2565269400A6A7DA /* ERC20Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC20Token.swift; sourceTree = "<group>"; };
 		8733474D24ED008A002D649D /* TransactionConfirmationRowInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationRowInfoView.swift; sourceTree = "<group>"; };
+		87374A4225DFAF7800267160 /* HoneySwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwap.swift; sourceTree = "<group>"; };
+		87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwapERC20Token.swift; sourceTree = "<group>"; };
 		873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyButton.swift; sourceTree = "<group>"; };
 		8743CB4F255059780039E469 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
 		874DED0A24C05E88006C8FCE /* TransactionConfirmationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationViewModel.swift; sourceTree = "<group>"; };
@@ -3811,6 +3815,15 @@
 			path = Oneinch;
 			sourceTree = "<group>";
 		};
+		87374A4125DFAEF200267160 /* HoneySwap */ = {
+			isa = PBXGroup;
+			children = (
+				87374A4225DFAF7800267160 /* HoneySwap.swift */,
+				87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */,
+			);
+			path = HoneySwap;
+			sourceTree = "<group>";
+		};
 		8783EFC8256D11A700120C0D /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -3843,6 +3856,7 @@
 		87B65268256FBF22000EF927 /* SwapToken */ = {
 			isa = PBXGroup;
 			children = (
+				87374A4125DFAEF200267160 /* HoneySwap */,
 				8731E6DD2565269400A6A7DA /* Oneinch */,
 				8731E6DA2565269400A6A7DA /* Uniswap */,
 				87B65269256FBF36000EF927 /* SwapTokenService.swift */,
@@ -4704,6 +4718,7 @@
 				29F114F41FA8117C00114A29 /* SendCoordinator.swift in Sources */,
 				87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */,
 				293B8B411F707F4600356286 /* TransactionViewModel.swift in Sources */,
+				87374A4525DFB17600267160 /* HoneySwapERC20Token.swift in Sources */,
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
 				29C70C712016C7780072E454 /* SentTransaction.swift in Sources */,
 				87ED8F99248541380005C69B /* AdvancedSettingsViewModel.swift in Sources */,
@@ -4798,6 +4813,7 @@
 				5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */,
 				5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */,
 				5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */,
+				87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */,
 				5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */,
 				5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */,
 				5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */,

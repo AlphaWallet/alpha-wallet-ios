@@ -14,8 +14,14 @@ protocol SwapTokenActionsService {
 
 protocol SwapTokenURLProviderType {
     var action: String { get }
-
+    var rpcServer: RPCServer? { get }
     func url(token: TokenObject) -> URL?
+}
+
+extension SwapTokenURLProviderType {
+    var rpcServer: RPCServer? {
+        return nil
+    }
 }
 
 protocol SwapTokenServiceType: SwapTokenActionsService {

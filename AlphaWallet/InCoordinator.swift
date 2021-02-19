@@ -111,6 +111,10 @@ class InCoordinator: NSObject, Coordinator {
         let service = SwapTokenService()
         service.register(service: oneInchSwapService)
 
+        let honeySwapService = HoneySwap()
+        honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
+        service.register(service: honeySwapService)
+
         //NOTE: Disable uniswap swap provider
 
         //var uniswap = Uniswap()
@@ -795,19 +799,27 @@ extension InCoordinator: UrlSchemeResolver {
     }
 }
 
+private extension TransactionType {
+    var swapServiceInputToken: TokenObject? {
+        switch self {
+        case .nativeCryptocurrency(let token, _, _):
+            return token
+        case .ERC20Token(let token, _, _):
+            return token
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            return nil
+        }
+    }
+}
+
 extension InCoordinator: TokensCoordinatorDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
-        switch transactionType {
-        case .nativeCryptocurrency(let token, _, _):
-            guard let url = service.url(token: token) else { return }
+        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
-            openSwapToken(for: url, coordinator: coordinator)
-        case .ERC20Token(let token, _, _):
-            guard let url = service.url(token: token) else { return }
-
-            openSwapToken(for: url, coordinator: coordinator)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            break
+        if let server = service.rpcServer {
+            open(url: url, onServer: server)
+        } else {
+            openSwapToken(for: url)
         }
     }
 
@@ -820,7 +832,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         }
     }
 
-    private func openSwapToken(for url: URL, coordinator: TokensCoordinator) {
+    private func openSwapToken(for url: URL) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
 
         showTab(.browser)

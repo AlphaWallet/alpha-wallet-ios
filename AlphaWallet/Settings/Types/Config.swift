@@ -171,6 +171,8 @@ struct Config {
     }
 
     let oneInch = URL(string: "https://api.1inch.exchange")!
+    let honeySwapTokens = URL(string: "https://tokens.honeyswap.org/")!
+
 }
 
 extension Config {
