@@ -136,7 +136,7 @@ extension EIP712TypedData {
         if type == "string", let value = data?.stringValue, let valueData = value.data(using: .utf8) {
             return try? ABIValue(Crypto.hash(valueData), type: .bytes(32))
         } else if type == "bytes", let value = data?.stringValue {
-            let data = Data(hex: value.drop0x)
+            let data = Data(_hex: value.drop0x)
             return try? ABIValue(Crypto.hash(data), type: .bytes(32))
         } else if type == "bool", let value = data?.boolValue {
             return try? ABIValue(value, type: .bool)

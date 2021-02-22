@@ -207,7 +207,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signedTransaction(let data):
                 return .init(id: id, url: url, value: data)
             case .sentTransaction(let transaction):
-                let data = Data(hex: transaction.id)
+                let data = Data(_hex: transaction.id)
                 return .init(id: id, url: url, value: data)
             case .sentRawTransaction:
                 //NOTE: Doesn't support sentRawTransaction for TransactionConfirmationCoordinator, for it we are using another function
@@ -271,7 +271,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signedTransaction, .sentTransaction:
                 throw PMKError.cancelled
             case .sentRawTransaction(let transactionId, _):
-                let data = Data(hex: transactionId)
+                let data = Data(_hex: transactionId)
                 return .init(id: id, url: url, value: data)
             }
         }.then { callback -> Promise<WalletConnectServer.Callback> in
@@ -335,4 +335,4 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
 
         display(session: session, withNavigationController: navigationController)
     }
-}
+} 

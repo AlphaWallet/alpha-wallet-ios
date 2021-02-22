@@ -409,7 +409,7 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
     //                    strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
                 case .sentTransaction(let transaction):
                     // on send transaction we pass transaction ID only.
-                    let data = Data(hex: transaction.id)
+                    let data = Data(_hex: transaction.id)
                     let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
                     strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
 
