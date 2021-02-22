@@ -213,9 +213,9 @@ class InCoordinator: NSObject, Coordinator {
         let tokensStorage = tokensStorages[server]
         let etherToken = TokensDataStore.etherToken(forServer: server)
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
-            guard let tokensStorage = tokensStorage else { return }
+            
             if let ticker = tokensStorage.coinTicker(for: eth) {
                 strongSelf.nativeCryptoCurrencyPrices[server].value = Double(ticker.price_usd)
             } else {
@@ -231,7 +231,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupCallForAssetAttributeCoordinators() {
         callForAssetAttributeCoordinators = .init()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             let session = walletSessions[each]
             callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, session: session, assetDefinitionStore: self.assetDefinitionStore)
         }
@@ -248,8 +248,8 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func setupTokenDataStores() {
-        tokensStorages = .init()
-        for each in RPCServer.allCases {
+        tokensStorages = .init() 
+        for each in config.enabledServers {
             let tokensStorage = createTokensDatastore(forConfig: config, server: each)
             tokensStorages[each] = tokensStorage
         }
@@ -257,7 +257,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupTransactionsStorages() {
         transactionsStorages = .init()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             let transactionsStorage = createTransactionsStorage(server: each)
             transactionsStorage.removeTransactions(for: [.failed, .pending, .unknown])
             transactionsStorages[each] = transactionsStorage
@@ -266,7 +266,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupEtherBalances() {
         nativeCryptoCurrencyBalances = .init()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             let price = createCryptoCurrencyBalanceSubscribable(forServer: each)
             let tokensStorage = tokensStorages[each]
             let etherToken = TokensDataStore.etherToken(forServer: each)
@@ -288,7 +288,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupWalletSessions() {
         walletSessions = .init()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             let tokensStorage = tokensStorages[each]
             let session = WalletSession(
                     account: wallet,
@@ -304,6 +304,8 @@ class InCoordinator: NSObject, Coordinator {
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupTokenDataStores()
+        setupNativeCryptoCurrencyPrices()
+        setupNativeCryptoCurrencyBalances()
         setupTransactionsStorages()
         setupEtherBalances()
         setupWalletSessions()
@@ -311,6 +313,14 @@ class InCoordinator: NSObject, Coordinator {
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinator()
         setUpEventSourceCoordinatorForActivities()
+    }
+
+    private func setupNativeCryptoCurrencyPrices() {
+        nativeCryptoCurrencyPrices = createEtherPricesSubscribablesForAllChains()
+    }
+
+    private func setupNativeCryptoCurrencyBalances() {
+        nativeCryptoCurrencyBalances = createEtherBalancesSubscribablesForAllChains()
     }
 
     private func fetchEthereumEvents() {
@@ -611,7 +621,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createEtherPricesSubscribablesForAllChains() -> ServerDictionary<Subscribable<Double>> {
         var result = ServerDictionary<Subscribable<Double>>()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             result[each] = createNativeCryptoCurrencyPriceSubscribable(forServer: each)
         }
         return result
@@ -625,7 +635,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createEtherBalancesSubscribablesForAllChains() -> ServerDictionary<Subscribable<BigInt>> {
         var result = ServerDictionary<Subscribable<BigInt>>()
-        for each in RPCServer.allCases {
+        for each in config.enabledServers {
             result[each] = createCryptoCurrencyBalanceSubscribable(forServer: each)
         }
         return result
