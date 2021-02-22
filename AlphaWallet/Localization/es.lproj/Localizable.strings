@@ -29,6 +29,7 @@
 "transaction.blockNumber.label.title" = "Bloque n.º";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "Confirmar";
+"confirmPayment.reject.button.title" = "Reject";
 "confirmPayment.from.label.title" = "De";
 "confirmPayment.gasFee.label.title" = "Estimación de la tarifa de red";
 "confirmPayment.gasLimit.label.title" = "Límite de gas";
@@ -538,4 +539,5 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
+"walletConnect.connection.title" = "Connect To Site?";
 "send.allFunds" = "All Funds";
