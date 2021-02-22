@@ -29,6 +29,7 @@
 "transaction.blockNumber.label.title" = "블록 번호";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "확인";
+"confirmPayment.reject.button.title" = "Reject";
 "confirmPayment.from.label.title" = "발신인";
 "confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "가스 한도";
@@ -538,4 +539,5 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
+"walletConnect.connection.title" = "Connect To Site?";
 "send.allFunds" = "All Funds";

@@ -43,7 +43,7 @@ extension TransactionInProgressCoordinatorBridgeToPromise: TransactionInProgress
 
 extension TransactionInProgressCoordinator {
 
-    static func promise(navigationController: UINavigationController, coordinator: Coordinator) -> Promise<Void> {
+    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator) -> Promise<Void> {
         return TransactionInProgressCoordinatorBridgeToPromise(navigationController: navigationController, coordinator: coordinator).promise
     }
 }

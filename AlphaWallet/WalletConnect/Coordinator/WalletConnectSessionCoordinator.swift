@@ -42,6 +42,7 @@ class WalletConnectSessionCoordinator: Coordinator {
 }
 
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
+
     func didDismiss(in controller: WalletConnectSessionViewController) {
         guard let delegate = delegate else { return }
         navigationController.popViewController(animated: true)
@@ -50,6 +51,7 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
 
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
         guard let delegate = delegate else { return }
+
         do {
             try server.disconnect(session: session)
         } catch {
