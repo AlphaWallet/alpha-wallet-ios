@@ -116,7 +116,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                    contractAddress: AlphaWallet.Address,
                                    completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
         do {
-            let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(hex: r), Data(hex: s)]
+            let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(_hex: r), Data(_hex: s)]
             let arrayType: ABIType
             if contractAddress.isLegacy875Contract {
                 arrayType = ABIType.uint(bits: 16)
@@ -148,7 +148,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                       completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
 
         do {
-            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), TrustKeystore.Address(address: recipient)]
+            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), TrustKeystore.Address(address: recipient)]
             let functionEncoder = Function(name: "spawnPassTo", parameters: [
                 .uint(bits: 256),
                 .dynamicArray(.uint(bits: 256)),
@@ -179,8 +179,8 @@ class ClaimPaidOrderCoordinator: Coordinator {
                 signedOrder.order.expiry,
                 signedOrder.order.count,
                 BigUInt(v),
-                Data(hex: r),
-                Data(hex: s),
+                Data(_hex: r),
+                Data(_hex: s),
                 Address(address: recipient)
             ]
             let functionEncoder = Function(name: "dropCurrency", parameters: [

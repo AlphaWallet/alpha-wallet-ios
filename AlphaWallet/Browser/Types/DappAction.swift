@@ -64,7 +64,7 @@ extension DappAction {
             guard let value = object["gasPrice"]?.value else { return .none }
             return BigInt((value).drop0x, radix: 16)
         }()
-        let data = Data(hex: object["data"]?.value ?? "0x")
+        let data = Data(_hex: object["data"]?.value ?? "0x")
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,
