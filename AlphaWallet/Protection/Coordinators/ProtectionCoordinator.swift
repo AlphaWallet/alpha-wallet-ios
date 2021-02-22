@@ -21,7 +21,7 @@ class ProtectionCoordinator: Coordinator {
 	}
 
 	func didFinishLaunchingWithOptions() {
-		splashCoordinator.start()
+		//Not calling `splashCoordinator.start()` here because it seems unnecessary, and most importantly, the implementation (changing `UIWindow.rootViewController`) seems to be (one of?) the reason why the app hangs at the splash screen at launch sometimes
 		lockEnterPasscodeCoordinator.start()
 		lockEnterPasscodeCoordinator.showAuthentication()
 	}
