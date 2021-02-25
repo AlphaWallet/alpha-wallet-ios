@@ -5,11 +5,6 @@ import UIKit
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
-    private lazy var welcomeViewController: WelcomeViewController = {
-        let controller = WelcomeViewController()
-        controller.delegate = self
-        return controller
-    }()
     private let lock = Lock()
     private var keystore: Keystore
     private let assetDefinitionStore = AssetDefinitionStore()
@@ -26,6 +21,10 @@ class AppCoordinator: NSObject, Coordinator {
     }
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
+    }
+
+    private var initialWalletCreationCoordinator: InitialWalletCreationCoordinator? {
+        return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
 
     private lazy var urlSchemeCoordinator: UrlSchemeCoordinatorType = {
@@ -50,13 +49,16 @@ class AppCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.window = window
         super.init()
-        window.rootViewController = SplashViewController()
+
+        window.rootViewController = navigationController
         window.makeKeyAndVisible()
+
+        setupSplashViewController(on: navigationController)
     }
 
     func start() {
         if isRunningTests() {
-            _ = startImpl()
+            startImpl()
         } else {
             DispatchQueue.main.async {
                 let succeeded = self.startImpl()
@@ -67,6 +69,13 @@ class AppCoordinator: NSObject, Coordinator {
                 }
             }
         }
+    }
+
+    private func setupSplashViewController(on navigationController: UINavigationController) {
+        navigationController.viewControllers = [
+            SplashViewController()
+        ]
+        navigationController.setNavigationBarHidden(true, animated: false)
     }
 
     private func retryStart() {
@@ -81,27 +90,26 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
-    private func startImpl() -> Bool {
+    @discardableResult private func startImpl() -> Bool {
         if MigrationInitializer.hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
             return false
         }
 
         MigrationInitializer.removeWalletsIfRealmFilesMissed(keystore: keystore)
 
-        setupAnalytics()
-        window.rootViewController = navigationController
+        setupAnalytics() 
         initializers()
         appTracker.start()
         handleNotifications()
         applyStyle()
-        resetToWelcomeScreen()
+
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.currentWallet)
         } else {
-            resetToWelcomeScreen()
+            showInitialWalletCoordinator()
         }
 
         assetDefinitionStore.delegate = self
@@ -152,7 +160,11 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.start()
     }
 
-    func showTransactions(for wallet: Wallet) {
+    @discardableResult func showTransactions(for wallet: Wallet) -> InCoordinator {
+        if let coordinator = initialWalletCreationCoordinator {
+            removeCoordinator(coordinator)
+        }
+        
         let coordinator = InCoordinator(
                 navigationController: navigationController,
                 wallet: wallet,
@@ -167,14 +179,16 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
+
+        return coordinator
     }
 
-    private func closeWelcomeWindow() {
-        guard navigationController.viewControllers.contains(welcomeViewController) else {
-            return
+    @discardableResult private func showTransactionsIfNeeded() -> InCoordinator {
+        if let coordinator = inCoordinator {
+            return coordinator
+        } else {
+            return showTransactions(for: keystore.currentWallet)
         }
-        navigationController.dismiss(animated: true, completion: nil)
-        showTransactions(for: keystore.currentWallet)
     }
 
     private func initializers() {
@@ -198,26 +212,16 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func resetToWelcomeScreen() {
-        navigationController.setNavigationBarHidden(true, animated: false)
-        navigationController.viewControllers = [welcomeViewController]
-    }
-
     @objc func reset() {
         lock.deletePasscode()
         coordinators.removeAll()
         navigationController.dismiss(animated: true)
-        resetToWelcomeScreen()
+
+        showInitialWalletCoordinator()
     }
 
-    func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
-        let coordinator = InitialWalletCreationCoordinator(
-                config: config,
-                navigationController: navigationController,
-                keystore: keystore,
-                entryPoint: entryPoint,
-                analyticsCoordinator: analyticsCoordinator
-        )
+    func showInitialWalletCoordinator() {
+        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -229,9 +233,8 @@ class AppCoordinator: NSObject, Coordinator {
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
         createInitialWalletIfMissing()
-        closeWelcomeWindow()
-        //TODO refactor. Some of these should be moved into InCoordinator instead of reaching into its internals
-        guard let inCoordinator = self.inCoordinator else { return false }
+        let inCoordinator = showTransactionsIfNeeded()
+
         let prices = inCoordinator.nativeCryptoCurrencyPrices
         let balances = inCoordinator.nativeCryptoCurrencyBalances
         guard let universalLinkCoordinator = UniversalLinkCoordinator(
@@ -275,23 +278,6 @@ class AppCoordinator: NSObject, Coordinator {
     }
 }
 
-//Disable creating and importing wallets from welcome screen
-//extension AppCoordinator: WelcomeViewControllerDelegate {
-//    func didPressCreateWallet(in viewController: WelcomeViewController) {
-//        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
-//    }
-
-//    func didPressImportWallet(in viewController: WelcomeViewController) {
-//        showInitialWalletCoordinator(entryPoint: .importWallet)
-//    }
-//}
-
-extension AppCoordinator: WelcomeViewControllerDelegate {
-    func didPressGettingStartedButton(in viewController: WelcomeViewController) {
-        showInitialWalletCoordinator(entryPoint: .addInitialWallet)
-    }
-}
-
 extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 
     func didCancel(in coordinator: InitialWalletCreationCoordinator) {
@@ -300,7 +286,7 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
     }
 
     func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
-        navigationController.dismiss(animated: true)
+        coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
         showTransactions(for: account)
@@ -315,6 +301,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     }
 
     func didUpdateAccounts(in coordinator: InCoordinator) {
+        //no-op
     }
 
     func didShowWallet(in coordinator: InCoordinator) {

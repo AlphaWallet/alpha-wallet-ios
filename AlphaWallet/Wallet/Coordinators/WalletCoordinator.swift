@@ -10,7 +10,6 @@ protocol WalletCoordinatorDelegate: class {
 
 class WalletCoordinator: Coordinator {
     private let config: Config
-    private var entryPoint: WalletEntryPoint?
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
     private let analyticsCoordinator: AnalyticsCoordinator?
@@ -27,7 +26,6 @@ class WalletCoordinator: Coordinator {
     ) {
         self.config = config
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
@@ -35,13 +33,7 @@ class WalletCoordinator: Coordinator {
 
     ///Return true if caller should proceed to show UI (`navigationController`)
     @discardableResult func start(_ entryPoint: WalletEntryPoint) -> Bool {
-        self.entryPoint = entryPoint
         switch entryPoint {
-        case .welcome:
-            let controller = WelcomeViewController()
-            controller.delegate = self
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-            navigationController.viewControllers = [controller]
         case .importWallet:
             let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
@@ -130,23 +122,6 @@ class WalletCoordinator: Coordinator {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             SuccessOverlayView.show()
         }
-    }
-}
-
-//Disable creating and importing wallets from welcome screen
-//extension WalletCoordinator: WelcomeViewControllerDelegate {
-//    func didPressImportWallet(in viewController: WelcomeViewController) {
-//        pushImportWallet()
-//    }
-
-//    func didPressCreateWallet(in viewController: WelcomeViewController) {
-//        createInstantWallet()
-//    }
-//}
-
-extension WalletCoordinator: WelcomeViewControllerDelegate {
-    func didPressGettingStartedButton(in viewController: WelcomeViewController) {
-//        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
     }
 }
 

@@ -10,12 +10,11 @@ class InitialWalletCreationCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore(),
-            entryPoint: .importWallet,
             analyticsCoordinator: nil
         )
 
         coordinator.start()
 
-        XCTAssertTrue((coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0] is ImportWalletViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
     }
 }
