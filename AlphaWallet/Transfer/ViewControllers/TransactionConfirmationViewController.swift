@@ -341,6 +341,25 @@ class TransactionConfirmationViewController: UIViewController {
         createTimerToRestoreConfirmButton()
     }
 
+    //NOTE: we need to recalculate all funds value to send according to updated gas estimates, nativecrypto only
+    func reloadViewWithCurrentBalanceValue() {
+        switch viewModel {
+        case .dappTransaction, .tokenScriptTransaction:
+            break
+        case .sendFungiblesTransaction(let sendFungiblesViewModel):
+            switch sendFungiblesViewModel.transactionType {
+            case .nativeCryptocurrency:
+                guard let balanceBaseViewModel = sendFungiblesViewModel.session.balanceViewModel.value else { return }
+
+                sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
+            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+                break
+            }
+        case .sendNftTransaction, .claimPaidErc875MagicLink:
+            break
+        }
+    }
+
     private func createTimerToRestoreConfirmButton() {
         timerToReenableConfirmButton?.invalidate()
         let gap = TimeInterval(0.3)
