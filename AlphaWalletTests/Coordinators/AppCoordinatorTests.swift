@@ -4,92 +4,143 @@ import XCTest
 @testable import AlphaWallet
 
 class AppCoordinatorTests: XCTestCase {
-    
-    func testStart() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore()
-        )
-        
-        coordinator.start()
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UIViewController)
-    }
-    
-    func testStartWithAccounts() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore(
-                wallets: [.make()]
-            )
-        )
-        
-        coordinator.start()
 
-        XCTAssertEqual(3, coordinator.coordinators.count)
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
-    }
-    
-    func testReset() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore(
-                wallets: [.make()]
+    func testStart() {
+        do {
+            let coordinator = try AppCoordinator(
+                window: UIWindow(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore()
             )
-        )
-        coordinator.start()
-        coordinator.reset()
-        
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
+
+            coordinator.start()
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UIViewController)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
+    }
+
+    func testStartWithAccounts() {
+        do {
+            let coordinator = try AppCoordinator(
+                window: UIWindow(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore(
+                    wallets: [.make()]
+                ),
+                navigationController: FakeNavigationController()
+            )
+
+            coordinator.start()
+
+            XCTAssertEqual(3, coordinator.coordinators.count)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
+    }
+
+    func testReset() {
+        do {
+            let coordinator = try AppCoordinator(
+                window: UIWindow(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore(
+                    wallets: [.make()]
+                )
+            )
+            coordinator.start()
+            coordinator.reset()
+
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
 
     func testImportWalletCoordinator() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore(
-                wallets: [.make()]
-            ),
-            navigationController: FakeNavigationController()
-        )
-        coordinator.start()
-        coordinator.showInitialWalletCoordinator()
+        do {
+            let coordinator = try AppCoordinator(
+                window: UIWindow(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore(
+                    wallets: [.make()]
+                ),
+                navigationController: FakeNavigationController()
+            )
+            coordinator.start()
+            coordinator.showInitialWalletCoordinator()
 
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
 
     func testShowTransactions() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore(),
-            navigationController: FakeNavigationController()
-        )
-        coordinator.start()
-        coordinator.showTransactions(for: .make())
+        do {
+            let coordinator = try AppCoordinator(
+                window: UIWindow(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore(),
+                navigationController: FakeNavigationController()
+            )
+            coordinator.start()
 
-        XCTAssertEqual(3, coordinator.coordinators.count)
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
+            coordinator.showTransactions(for: .make())
+
+            XCTAssertEqual(3, coordinator.coordinators.count)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
 
     func testHasInCoordinatorWithWallet() {
-        let coordinator = AppCoordinator(
-                window: UIWindow(),
-                keystore: FakeKeystore(
-                        wallets: [.make()]
-                )
-        )
+        do {
+            let coordinator = try AppCoordinator(
+                window: .init(),
+                analyticsService: FakeAnalyticsService(),
+                keystore: FakeKeystore(wallets: [.make()])
+            )
 
-        coordinator.start()
+            coordinator.start()
 
-        XCTAssertNotNil(coordinator.inCoordinator)
+            XCTAssertNotNil(coordinator.inCoordinator)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
 
     func testHasNoInCoordinatorWithoutWallets() {
-        let coordinator = AppCoordinator(
-                window: UIWindow(),
+        do {
+            let coordinator = try AppCoordinator(
+                window: .init(),
+                analyticsService: FakeAnalyticsService(),
                 keystore: FakeKeystore()
-        )
+            )
 
-        coordinator.start()
+            coordinator.start()
 
-        XCTAssertNil(coordinator.inCoordinator)
+            XCTAssertNil(coordinator.inCoordinator)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
     }
+}
+
+class FakeAnalyticsService: AnalyticsServiceType {
+    func log(action: AnalyticsAction, properties: [String : AnalyticsEventPropertyValue]?) { }
+    func applicationDidBecomeActive() { }
+    func application(continue userActivity: NSUserActivity) { }
+    func application(open url: URL, sourceApplication: String?, annotation: Any) { }
+    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) { }
+    func application(didReceiveRemoteNotification userInfo: [AnyHashable : Any]) { }
+    func add(pushDeviceToken token: Data) { }
+    func log(navigation: AnalyticsNavigation, properties: [String : AnalyticsEventPropertyValue]?) {}
+    func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) { }
+    func incrementUser(property: AnalyticsUserProperty, by value: Int) { }
+    func incrementUser(property: AnalyticsUserProperty, by value: Double) { }
+
+    init() {}
 }
