@@ -5,6 +5,7 @@ import UIKit
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
+    private let legacyFileBasedKeystore: LegacyFileBasedKeystore
     private let lock = Lock()
     private var keystore: Keystore
     private let assetDefinitionStore = AssetDefinitionStore()
@@ -15,9 +16,6 @@ class AppCoordinator: NSObject, Coordinator {
     }
     private var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
-    }
-    private var analyticsCoordinator: AnalyticsCoordinator? {
-        coordinators.compactMap { $0 as? AnalyticsCoordinator }.first
     }
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
@@ -34,20 +32,20 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
 
+    private var analyticsService: AnalyticsServiceType
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
 
-    init(
-        window: UIWindow,
-        keystore: Keystore,
-        navigationController: UINavigationController = UINavigationController()
-    ) {
+    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = UINavigationController()) throws {
         self.navigationController = navigationController
-        self.keystore = keystore
         self.window = window
+        self.analyticsService = analyticsService
+        self.keystore = keystore
+        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(analyticsCoordinator: analyticsService)
+
         super.init()
 
         window.rootViewController = navigationController
@@ -97,7 +95,6 @@ class AppCoordinator: NSObject, Coordinator {
 
         MigrationInitializer.removeWalletsIfRealmFilesMissed(keystore: keystore)
 
-        setupAnalytics() 
         initializers()
         appTracker.start()
         handleNotifications()
@@ -116,21 +113,8 @@ class AppCoordinator: NSObject, Coordinator {
         return true
     }
 
-    private func setupAnalytics() {
-        guard !Constants.Credentials.analyticsKey.isEmpty else { return }
-
-        let coordinator = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
-        addCoordinator(coordinator)
-        coordinator.start()
-        if let keystore = keystore as? EtherKeystore {
-            //TODO improve so we don't to set this here
-            keystore.analyticsCoordinator = analyticsCoordinator
-        }
-    }
-
     private func migrateToStoringRawPrivateKeysInKeychain() {
-        //TODO enable analytics, instead of nil
-        (try? LegacyFileBasedKeystore(analyticsCoordinator: nil))?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
+        legacyFileBasedKeystore.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
     /// Return true if handled
@@ -164,7 +148,7 @@ class AppCoordinator: NSObject, Coordinator {
         if let coordinator = initialWalletCreationCoordinator {
             removeCoordinator(coordinator)
         }
-        
+
         let coordinator = InCoordinator(
                 navigationController: navigationController,
                 wallet: wallet,
@@ -172,7 +156,7 @@ class AppCoordinator: NSObject, Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 config: config,
                 appTracker: appTracker,
-                analyticsCoordinator: analyticsCoordinator,
+                analyticsCoordinator: analyticsService,
                 urlSchemeCoordinator: urlSchemeCoordinator
         )
 
@@ -193,7 +177,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
-        paths.append((try! LegacyFileBasedKeystore(analyticsCoordinator: nil)).keystoreDirectory)
+        paths.append(legacyFileBasedKeystore.keystoreDirectory)
 
         let initializers: [Initializer] = [
             SkipBackupFilesInitializer(paths: paths),
@@ -221,14 +205,14 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func showInitialWalletCoordinator() {
-        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func createInitialWalletIfMissing() {
-        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator).createInitialWalletIfMissing()
+        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService).createInitialWalletIfMissing()
     }
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {

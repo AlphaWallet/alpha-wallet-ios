@@ -23,9 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window = UIWindow(frame: UIScreen.main.bounds)
         //Necessary to make UIAlertController have the correct tint colors, despite already doing: `UIWindow.appearance().tintColor = Colors.appTint`
         window?.tintColor = Colors.appTint
+        
         do {
-            let keystore = try EtherKeystore(analyticsCoordinator: nil)
-            appCoordinator = AppCoordinator(window: window!, keystore: keystore)
+            //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
+            let analyticsService = AnalyticsService()
+            let keystore = try EtherKeystore(analyticsCoordinator: analyticsService)
+
+            let navigationController = UINavigationController()
+            navigationController.view.backgroundColor = Colors.appWhite
+
+            appCoordinator = try AppCoordinator(window: window!, analyticsService: analyticsService, keystore: keystore, navigationController: navigationController)
             appCoordinator.start()
 
             if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem, shortcutItem.type == Constants.launchShortcutKey {
