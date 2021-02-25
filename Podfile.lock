@@ -12,6 +12,12 @@ PODS:
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
   - BlockiesSwift (0.1.2)
+  - CocoaAsyncSocket (7.6.5)
+  - CocoaLumberjack (3.7.0):
+    - CocoaLumberjack/Core (= 3.7.0)
+  - CocoaLumberjack/Core (3.7.0)
+  - CocoaLumberjack/Swift (3.7.0):
+    - CocoaLumberjack/Core
   - CryptoSwift (1.3.2)
   - EthereumABI (1.3.0):
     - BigInt (~> 3.1)
@@ -45,6 +51,12 @@ PODS:
   - Moya/Core (10.0.2):
     - Alamofire (~> 4.1)
     - Result (~> 3.0)
+  - PaperTrailLumberjack/Core (0.1.9):
+    - CocoaAsyncSocket (~> 7.6)
+    - CocoaLumberjack (~> 3.4)
+  - PaperTrailLumberjack/Swift (0.1.9):
+    - CocoaLumberjack/Swift (~> 3.4)
+    - PaperTrailLumberjack/Core
   - PromiseKit (6.3.5):
     - PromiseKit/CorePromise (= 6.3.5)
     - PromiseKit/Foundation (= 6.3.5)
@@ -123,6 +135,7 @@ DEPENDENCIES:
   - MBProgressHUD
   - Mixpanel-swift
   - Moya (~> 10.0.1)
+  - PaperTrailLumberjack/Swift
   - PromiseKit/Alamofire
   - PromiseKit/CorePromise
   - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
@@ -152,6 +165,8 @@ SPEC REPOS:
     - Base58Swift
     - BigInt
     - BlockiesSwift
+    - CocoaAsyncSocket
+    - CocoaLumberjack
     - CryptoSwift
     - EthereumABI
     - EthereumAddress
@@ -163,6 +178,7 @@ SPEC REPOS:
     - MBProgressHUD
     - Mixpanel-swift
     - Moya
+    - PaperTrailLumberjack
     - PromiseKit
     - R.swift
     - R.swift.Library
@@ -261,6 +277,8 @@ SPEC CHECKSUMS:
   Base58Swift: 149c9dd95d8712f00e4695b36baafb3031927256
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
@@ -276,6 +294,7 @@ SPEC CHECKSUMS:
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   Mixpanel-swift: c16e5d3f7862b4a2f9b6b69b7e19ccacc3b12007
   Moya: 2b0531a9fef318e0bc484030c3db1e6f279ccb66
+  PaperTrailLumberjack: 449587968d5aeb3eab2d4de041ffc61ee2d49f25
   PromiseKit: 32c36425387e9cfc7f1206f27bfd906d0b53c0d6
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
@@ -301,6 +320,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: cd5e056cec5a2f44e92b8595199e7f2f9f0bd92d
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 58033461d0b2f883b8e85704188a972a51ff568f
+PODFILE CHECKSUM: 35dfce402c6b37106ab2f8c0cb48bd44437962a2
 
 COCOAPODS: 1.10.0

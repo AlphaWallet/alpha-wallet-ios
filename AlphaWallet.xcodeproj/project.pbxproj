@@ -361,6 +361,7 @@
 		5E7C757F9E9F7738B213C8B8 /* AssetDefinitionDiskBackingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C787E1D2A6529C07709DB /* AssetDefinitionDiskBackingStore.swift */; };
 		5E7C7582387C12CE25D7FE78 /* TokenListFormatTableViewCellWithCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7477E69BEDF0C4950D5A /* TokenListFormatTableViewCellWithCheckbox.swift */; };
 		5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */; };
+		5E7C7594F29C8C9FE7BE0BEE /* RemoteLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B80946D854599838AD1 /* RemoteLogger.swift */; };
 		5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D5F3CAE69CF932AB236 /* LockPasscodeViewController.swift */; };
 		5E7C75CE1F8F94D538A48FAD /* Web3Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6FAFE62FBAADB85228 /* Web3Error.swift */; };
 		5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */; };
@@ -1339,6 +1340,7 @@
 		5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnabledServersViewController.swift; sourceTree = "<group>"; };
 		5E7C7B6FAFE62FBAADB85228 /* Web3Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3Error.swift; sourceTree = "<group>"; };
 		5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendHeaderViewViewModel.swift; sourceTree = "<group>"; };
+		5E7C7B80946D854599838AD1 /* RemoteLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteLogger.swift; sourceTree = "<group>"; };
 		5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewController.swift; sourceTree = "<group>"; };
 		5E7C7B878AC9FDC342C435F7 /* AssetAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetAttribute.swift; sourceTree = "<group>"; };
 		5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinator.swift; sourceTree = "<group>"; };
@@ -4045,6 +4047,7 @@
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
 				878EE953255BFFB9000210DE /* FeedbackGenerator.swift */,
 				87FF2E412567F0A3002350EB /* BlockieGenerator.swift */,
+				5E7C7B80946D854599838AD1 /* RemoteLogger.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4343,6 +4346,8 @@
 				"${BUILT_PRODUCTS_DIR}/Base58Swift/Base58Swift.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/BlockiesSwift/BlockiesSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
+				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumABI/EthereumABI.framework",
 				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
@@ -4356,6 +4361,7 @@
 				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
 				"${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/PaperTrailLumberjack/PaperTrailLumberjack.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCodeReaderViewController/QRCodeReaderViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/R.swift.Library/Rswift.framework",
@@ -4390,6 +4396,8 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Base58Swift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BlockiesSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumABI.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
@@ -4403,6 +4411,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mixpanel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PaperTrailLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCodeReaderViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Rswift.framework",
@@ -5224,6 +5233,7 @@
 				5E7C7E38EE25F8837CDF6875 /* TransactionRowViewModel.swift in Sources */,
 				5E7C73FB906BF267F28B0205 /* ActivityRowType.swift in Sources */,
 				5E7C7AAA6892660CDBD84551 /* TransactionRow.swift in Sources */,
+				5E7C7594F29C8C9FE7BE0BEE /* RemoteLogger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
