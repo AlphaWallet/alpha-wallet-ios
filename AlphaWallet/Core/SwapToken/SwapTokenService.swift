@@ -18,12 +18,6 @@ protocol SwapTokenURLProviderType {
     func url(token: TokenObject) -> URL?
 }
 
-extension SwapTokenURLProviderType {
-    var rpcServer: RPCServer? {
-        return nil
-    }
-}
-
 protocol SwapTokenServiceType: SwapTokenActionsService {
     func register(service: SwapTokenActionsService)
 }
@@ -47,7 +41,7 @@ class SwapTokenService: SwapTokenServiceType {
     func isSupport(token: TokenObject) -> Bool {
         return services.compactMap {
             $0.isSupport(token: token) ? $0 : nil
-        }.isEmpty 
+        }.isEmpty
     }
 
 }

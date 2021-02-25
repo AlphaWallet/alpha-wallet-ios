@@ -14,6 +14,9 @@ class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()
     }
+    var rpcServer: RPCServer? {
+        .main
+    }
 
     private static let baseURL = "https://1inch.exchange/#"
     private static let referralSlug = "/r/0x98f21584006c79871F176F8D474958a69e04595B"
