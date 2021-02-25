@@ -5,19 +5,6 @@ import XCTest
 
 class WalletCoordinatorTests: XCTestCase {
 
-    func testWelcome() {
-        let coordinator = WalletCoordinator(
-            config: .make(),
-            navigationController: FakeNavigationController(),
-            keystore: FakeKeystore(),
-            analyticsCoordinator: nil
-        )
-
-        coordinator.start(.welcome)
-
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
-    }
-
     func testImportWallet() {
         let coordinator = WalletCoordinator(
             config: .make(),
@@ -52,7 +39,7 @@ class WalletCoordinatorTests: XCTestCase {
             analyticsCoordinator: nil
         )
 
-        coordinator.start(.welcome)
+        coordinator.start(.addInitialWallet)
 
         coordinator.pushImportWallet()
 
