@@ -42,16 +42,11 @@ class SendTransactionCoordinator {
     }
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
-        return Promise { seal in
-            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)))
-            Session.send(request) { result in
-                switch result {
-                case .success(let transactionID):
-                    seal.fulfill(.sentRawTransaction(id: transactionID, original: rawTransaction))
-                case .failure(let error):
-                    seal.reject(AnyError(error))
-                }
-            }
+        let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)))
+        return firstly {
+            Session.send(request)
+        }.map { transactionID in
+            .sentRawTransaction(id: transactionID, original: rawTransaction)
         }
     }
 
