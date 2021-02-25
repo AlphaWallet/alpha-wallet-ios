@@ -23,7 +23,7 @@ extension Session {
                     seal.fulfill(result)
                 case .failure(let error):
                     if case let .responseError(JSONRPCError.responseError(_, message: message, _)) = error {
-                        if message.hasPrefix("Insufficient funds") {
+                        if message.lowercased().hasPrefix("insufficient funds") {
                             seal.reject(InsufficientFundsError())
                             return
                         } else {
