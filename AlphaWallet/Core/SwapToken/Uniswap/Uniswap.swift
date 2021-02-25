@@ -12,6 +12,9 @@ struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
     }
+    var rpcServer: RPCServer? {
+        .main
+    }
 
     private static let baseURL = "https://app.uniswap.org/#"
 
