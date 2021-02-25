@@ -3,19 +3,12 @@
 import Foundation
 import Mixpanel
 
-class MixpanelCoordinator: Coordinator {
-    private let key: String
+class MixpanelCoordinator {
     private var mixpanelInstance: MixpanelInstance {
         Mixpanel.mainInstance()
     }
 
-    var coordinators: [Coordinator] = []
-
     init(withKey key: String) {
-        self.key = key
-    }
-
-    func start() {
         Mixpanel.initialize(token: key)
         mixpanelInstance.identify(distinctId: mixpanelInstance.distinctId)
     }
@@ -24,30 +17,8 @@ class MixpanelCoordinator: Coordinator {
         mixpanelInstance.people.addPushDeviceToken(token)
     }
 
-    private func convertParameterToSdkSpecificVersion(_ parameter: AnalyticsEventPropertyValue) -> MixpanelType? {
-        switch parameter {
-        case let string as String:
-            return string
-        case let int as Int:
-            return int
-        case let uint as UInt:
-            return uint
-        case let double as Double:
-            return double
-        case let float as Float:
-            return float
-        case let bool as Bool:
-            return bool
-        case let date as Date:
-            return date
-        case let url as URL:
-            return url
-        case let address as AlphaWallet.Address:
-            return address.eip55String
-
-        default:
-            return nil
-        }
+    func convertParameterToSdkSpecificVersion(_ parameter: AnalyticsEventPropertyValue) -> MixpanelType? {
+        return parameter.value as? MixpanelType
     }
 }
 
