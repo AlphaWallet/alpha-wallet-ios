@@ -12,7 +12,7 @@ class AppCoordinatorTests: XCTestCase {
         )
         
         coordinator.start()
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UIViewController)
     }
     
     func testStartWithAccounts() {
@@ -37,23 +37,9 @@ class AppCoordinatorTests: XCTestCase {
             )
         )
         coordinator.start()
-        
         coordinator.reset()
         
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
-    }
-
-    func testStartWelcomeWalletCoordinator() {
-        let coordinator = AppCoordinator(
-            window: UIWindow(),
-            keystore: FakeKeystore(),
-            navigationController: FakeNavigationController()
-        )
-        coordinator.start()
-        
-        coordinator.showInitialWalletCoordinator(entryPoint: .welcome)
-        
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
     }
 
     func testImportWalletCoordinator() {
@@ -65,9 +51,9 @@ class AppCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController()
         )
         coordinator.start()
-        coordinator.showInitialWalletCoordinator(entryPoint: .importWallet)
+        coordinator.showInitialWalletCoordinator()
 
-        XCTAssertTrue((coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0] is ImportWalletViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
     }
 
     func testShowTransactions() {
@@ -77,7 +63,6 @@ class AppCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController()
         )
         coordinator.start()
-        
         coordinator.showTransactions(for: .make())
 
         XCTAssertEqual(3, coordinator.coordinators.count)

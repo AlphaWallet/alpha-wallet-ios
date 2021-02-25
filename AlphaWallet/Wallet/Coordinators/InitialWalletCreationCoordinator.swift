@@ -9,8 +9,7 @@ protocol InitialWalletCreationCoordinatorDelegate: class {
 }
 
 class InitialWalletCreationCoordinator: Coordinator {
-    private let keystore: Keystore
-    private let entryPoint: WalletEntryPoint
+    private let keystore: Keystore 
     private let config: Config
     private let analyticsCoordinator: AnalyticsCoordinator?
 
@@ -20,64 +19,38 @@ class InitialWalletCreationCoordinator: Coordinator {
 
     init(
         config: Config,
-        navigationController: UINavigationController = UINavigationController(),
+        navigationController: UINavigationController,
         keystore: Keystore,
-        entryPoint: WalletEntryPoint,
         analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
-        self.entryPoint = entryPoint
         self.analyticsCoordinator = analyticsCoordinator
+
+        navigationController.setNavigationBarHidden(false, animated: true)
     }
 
     func start() {
-        switch entryPoint {
-        case .createInstantWallet, .welcome:
-            showCreateWallet()
-        case .addInitialWallet:
-            presentAddInitialWallet()
-        case .importWallet:
-            presentImportOrWatchWallet()
-        case .watchWallet:
-            presentImportOrWatchWallet()
-        }
-    }
-
-    func showCreateWallet() {
         let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
-        coordinator.start(entryPoint)
-        addCoordinator(coordinator)
-    }
+        coordinator.start(.addInitialWallet)
 
-    func presentImportOrWatchWallet() {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
-        coordinator.delegate = self
-        coordinator.start(entryPoint)
-        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true)
         addCoordinator(coordinator)
-    }
-
-    func presentAddInitialWallet() {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
-        coordinator.delegate = self
-        coordinator.start(entryPoint)
-        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(coordinator.navigationController, animated: true)
-        addCoordinator(coordinator)
-    }
+    } 
 }
 
 extension InitialWalletCreationCoordinator: WalletCoordinatorDelegate {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
+        navigationController.setNavigationBarHidden(true, animated: true)
+
         delegate?.didAddAccount(account, in: self)
         removeCoordinator(coordinator)
     }
 
     func didCancel(in coordinator: WalletCoordinator) {
+        navigationController.setNavigationBarHidden(true, animated: true)
+
         delegate?.didCancel(in: self)
         removeCoordinator(coordinator)
     }
