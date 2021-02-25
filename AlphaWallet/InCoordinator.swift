@@ -219,7 +219,7 @@ class InCoordinator: NSObject, Coordinator {
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
             guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
-            
+
             if let ticker = tokensStorage.coinTicker(for: eth) {
                 strongSelf.nativeCryptoCurrencyPrices[server].value = Double(ticker.price_usd)
             } else {
@@ -252,7 +252,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func setupTokenDataStores() {
-        tokensStorages = .init() 
+        tokensStorages = .init()
         for each in config.enabledServers {
             let tokensStorage = createTokensDatastore(forConfig: config, server: each)
             tokensStorages[each] = tokensStorage
