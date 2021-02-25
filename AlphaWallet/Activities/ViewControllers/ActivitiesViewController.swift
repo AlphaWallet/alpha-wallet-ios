@@ -56,23 +56,7 @@ class ActivitiesViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomConstraint,
         ])
-
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.startLoading()
-        })
-        loadingView = LoadingView()
-        //TODO move into StateViewModel once this change is global
-        if let loadingView = loadingView as? LoadingView {
-            loadingView.backgroundColor = Colors.appGrayLabel
-            loadingView.label.textColor = Colors.appWhite
-            loadingView.loadingIndicator.color = Colors.appWhite
-            loadingView.label.font = Fonts.regular(size: 18)
-        }
-        //TODO empty view
-        //emptyView = {
-        //    let view = TransactionsEmptyView()
-        //    return view
-        //}()
+        emptyView = TransactionsEmptyView(title: R.string.localizable.activityEmpty(), image: R.image.activities_empty_list())
 
         setupFilteringWithKeyword()
         processSearchWithKeywords()
@@ -80,8 +64,16 @@ class ActivitiesViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         keyboardChecker.viewWillAppear()
         navigationItem.largeTitleDisplayMode = .always
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //NOTE: we call it here to show empty view if needed, as the reason that we don't have manually called callback where we can handle that loaded activities
+        //next time view will be updated when configure with viewModel method get called.
+        endLoading()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -92,6 +84,8 @@ class ActivitiesViewController: UIViewController {
     func configure(viewModel: ActivitiesViewModel) {
         self.viewModel = viewModel
         processSearchWithKeywords()
+
+        endLoading()
     }
 
     required init?(coder aDecoder: NSCoder) {

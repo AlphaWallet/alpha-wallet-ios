@@ -491,6 +491,7 @@
 "activity.send.pending" = "Sending %@";
 "activity.send.failed" = "Failed to Send %@";
 "activity.goToToken" = "Go to Token";
+"activity.empty" = "Activities will appear here";
 "configureTransaction.error.gasPriceTooLow" = "Gas Price must be a positive number";
 "configureTransaction.navigationBar.title" = "Set Speed";
 "configureTransaction.barButton.useDefault" = "Use Default";
