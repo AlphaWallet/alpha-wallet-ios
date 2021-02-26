@@ -46,6 +46,6 @@ class GasSpeedTableViewHeaderView: UITableViewHeaderFooterView {
 
     func configure(viewModel: GasSpeedTableViewHeaderViewModel) {
         titleLabel.attributedText = viewModel.titleAttributedString
-        backgroundColor = viewModel.backgroundColor
+        contentView.backgroundColor = viewModel.backgroundColor
     }
 }
