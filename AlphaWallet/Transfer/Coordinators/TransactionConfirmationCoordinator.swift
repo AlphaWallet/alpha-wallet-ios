@@ -185,6 +185,11 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
             Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
         ])
+        if configurator.session.server.isTestnet {
+            analyticsCoordinator?.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
+        } else {
+            analyticsCoordinator?.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
+        }
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {
