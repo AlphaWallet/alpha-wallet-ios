@@ -12,6 +12,7 @@ protocol AddHideTokensCoordinatorDelegate: class {
 }
 
 class AddHideTokensCoordinator: Coordinator {
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private let navigationController: UINavigationController
     private var viewModel: AddHideTokensViewModel
     private lazy var viewController: AddHideTokensViewController = .init(
@@ -29,11 +30,12 @@ class AddHideTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]], sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]], sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator?, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
         self.sessions = sessions
 
+        self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
@@ -87,6 +89,7 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
 
     func didPressAddToken(in viewController: UIViewController) {
         let coordinator = NewTokenCoordinator(
+            analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             tokenCollection: tokenCollection,
             config: config,

@@ -120,10 +120,10 @@ extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in controller: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: session.account)
         coordinator.delegate = self
         addCoordinator(coordinator)
-        coordinator.start()
+        coordinator.start(fromSource: .sendFungibleScreen)
     }
 
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String) {

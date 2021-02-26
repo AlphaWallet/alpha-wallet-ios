@@ -156,16 +156,16 @@ class TokensCoordinator: Coordinator {
         tokensViewController.listOfBadTokenScriptFiles = fileNames
     }
 
-    func launchUniversalScanner() {
+    func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         let account = sessions.anyValue.account
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: account)
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: account)
         let tokensDatastores = tokenCollection.tokenDataStores
 
         let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore))
         coordinator.delegate = self
 
         addCoordinator(coordinator)
-        coordinator.start()
+        coordinator.start(fromSource: source)
     }
 }
 
@@ -181,6 +181,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             filterTokensCoordinator: filterTokensCoordinator,
             tickers: viewModel.tickers,
             sessions: sessions,
+            analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             tokenCollection: tokenCollection,
             config: config,
@@ -220,7 +221,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func scanQRCodeSelected(in viewController: UIViewController) {
-        launchUniversalScanner()
+        launchUniversalScanner(fromSource: .walletScreen)
     }
 }
 
@@ -293,6 +294,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
     private func handleAddCustomToken(_ address: AlphaWallet.Address) {
         let coordinator = NewTokenCoordinator(
+            analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             tokenCollection: tokenCollection,
             config: config,
