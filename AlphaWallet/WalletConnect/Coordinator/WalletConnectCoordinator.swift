@@ -201,7 +201,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         let ethPrice = nativeCryptoCurrencyPrices[rpcServer]
         let configuration: TransactionConfirmationConfiguration = .dappTransaction(confirmType: type, keystore: keystore, ethPrice: ethPrice)
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: session.account.address, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: session.account.address, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect)
         }.map { data -> WalletConnectServer.Callback in
             switch data {
             case .signedTransaction(let data):
@@ -335,4 +335,4 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
 
         display(session: session, withNavigationController: navigationController)
     }
-} 
+}

@@ -649,7 +649,7 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
             let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
-            coordinator.start()
+            coordinator.start(fromSource: .tokenScript)
         case .failure:
             //TODO throw an error
             break
