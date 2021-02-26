@@ -10,6 +10,10 @@ protocol AnalyticsAction {
     var rawValue: String { get }
 }
 
+protocol AnalyticsUserProperty {
+    var rawValue: String { get }
+}
+
 enum Analytics {
     enum Navigation: String, AnalyticsNavigation {
         case actionSheetForTransactionConfirmation = "Screen: Txn Confirmation"
@@ -77,5 +81,9 @@ enum Analytics {
         case erc20Transfer
         case nativeCryptoTransfer
         case unknown
+    }
+
+    enum UserProperty: String {
+        case placeholder
     }
 }
