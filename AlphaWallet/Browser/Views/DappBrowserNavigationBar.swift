@@ -162,7 +162,6 @@ final class DappBrowserNavigationBar: UINavigationBar {
         trailingAnchorConstraint.priority = .required - 1
 
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: 54),
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
             leadingAnchorConstraint,
             trailingAnchorConstraint,
