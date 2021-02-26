@@ -34,12 +34,12 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
         }.cauterize()
     }
 
-    func promise(account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration) -> Promise<ConfirmResult> {
+    func promise(account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
         let confirmationCoordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
 
         confirmationCoordinator.delegate = self
         coordinator.addCoordinator(confirmationCoordinator)
-        confirmationCoordinator.start()
+        confirmationCoordinator.start(fromSource: source)
 
         return promise
     }
@@ -93,8 +93,8 @@ extension UIViewController {
 extension TransactionConfirmationCoordinator {
 
     //session contains account already
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?) -> Promise<ConfirmResult> {
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator)
-        return bridge.promise(account: account, transaction: transaction, configuration: configuration)
+        return bridge.promise(account: account, transaction: transaction, configuration: configuration, source: source)
     }
 }
