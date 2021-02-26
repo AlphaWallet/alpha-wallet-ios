@@ -30,6 +30,9 @@ enum Analytics {
         case amount
         case source
         case resultType
+        case speedType
+        case chain
+        case transactionType
     }
 
     enum ScanQRCodeSource: String {
@@ -51,5 +54,28 @@ enum Analytics {
         case seedPhase
         case json
         case address
+    }
+
+    enum TransactionConfirmationSource: String {
+        case walletConnect
+        case sendFungible
+        case tokenScript
+        case sendNft
+        case browser
+        case claimPaidMagicLink
+    }
+
+    enum TransactionConfirmationSpeedType: String {
+        case slow
+        case standard
+        case fast
+        case rapid
+        case custom
+    }
+
+    enum TransactionType: String {
+        case erc20Transfer
+        case nativeCryptoTransfer
+        case unknown
     }
 }

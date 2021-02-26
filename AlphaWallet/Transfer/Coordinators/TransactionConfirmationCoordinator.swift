@@ -90,13 +90,13 @@ class TransactionConfirmationCoordinator: Coordinator {
         presentationNavigationController = navigationController
     }
 
-    func start() {
+    func start(fromSource source: Analytics.TransactionConfirmationSource) {
         presentationNavigationController.present(navigationController, animated: false)
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()
 
-        analyticsCoordinator?.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation)
+        analyticsCoordinator?.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
     }
 
     func close(completion: @escaping () -> Void) {
@@ -137,6 +137,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
             sendTransaction()
         }.done { result in
             self.showSuccess(result: result)
+            self.logAnalytics()
         }.catch { error in
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -145,8 +146,45 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }.finally {
             sender.isEnabled = true
             self.confirmationViewController.canBeDismissed = true
-            self.analyticsCoordinator?.log(action: Analytics.Action.confirmsTransactionInActionSheet)
         }
+    }
+
+    private func logAnalytics() {
+        let speedType: Analytics.TransactionConfirmationSpeedType
+        switch configurator.selectedConfigurationType {
+        case .slow:
+            speedType = .slow
+        case .standard:
+            speedType = .standard
+        case .fast:
+            speedType = .fast
+        case .rapid:
+            speedType = .rapid
+        case .custom:
+            speedType = .custom
+        }
+
+        let transactionType: Analytics.TransactionType
+        if let functionCallMetaData = DecodedFunctionCall(data: configurator.currentConfiguration.data) {
+            switch functionCallMetaData.type {
+            case .erc20Transfer:
+                transactionType = .erc20Transfer
+            case .nativeCryptoTransfer:
+                transactionType = .nativeCryptoTransfer
+            case .others:
+                transactionType = .unknown
+            }
+        } else if configurator.currentConfiguration.data.isEmpty {
+            transactionType = .nativeCryptoTransfer
+        } else {
+            transactionType = .unknown
+        }
+
+        analyticsCoordinator?.log(action: Analytics.Action.confirmsTransactionInActionSheet, properties: [
+            Analytics.Properties.speedType.rawValue: speedType.rawValue,
+            Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
+            Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
+        ])
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {

@@ -137,7 +137,7 @@ extension SendCoordinator: SendViewControllerDelegate {
         let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
-        coordinator.start()
+        coordinator.start(fromSource: .sendFungible)
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {

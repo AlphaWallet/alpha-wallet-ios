@@ -47,7 +47,7 @@ class TransferNFTCoordinator: Coordinator {
         let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
-        coordinator.start()
+        coordinator.start(fromSource: .sendNft)
     }
 }
 
