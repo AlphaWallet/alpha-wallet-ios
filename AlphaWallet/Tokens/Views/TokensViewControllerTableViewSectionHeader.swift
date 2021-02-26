@@ -24,7 +24,6 @@ extension TokensViewController {
 
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
-            backgroundColor = Colors.appWhite
             contentView.backgroundColor = Colors.appWhite
         }
 
