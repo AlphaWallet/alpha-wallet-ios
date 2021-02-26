@@ -39,6 +39,11 @@ enum Analytics {
         case transactionType
     }
 
+    enum UserProperties: String, AnalyticsUserProperty {
+        case transactionCount
+        case testnetTransactionCount
+    }
+
     enum ScanQRCodeSource: String {
         case sendFungibleScreen
         case addressTextField
@@ -81,9 +86,5 @@ enum Analytics {
         case erc20Transfer
         case nativeCryptoTransfer
         case unknown
-    }
-
-    enum UserProperty: String {
-        case placeholder
     }
 }
