@@ -5,6 +5,9 @@ import Foundation
 protocol AnalyticsCoordinator {
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?)
     func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?)
+    func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue)
+    func incrementUser(property: AnalyticsUserProperty, by value: Int)
+    func incrementUser(property: AnalyticsUserProperty, by value: Double)
 }
 
 extension AnalyticsCoordinator {

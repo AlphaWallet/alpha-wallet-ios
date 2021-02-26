@@ -77,7 +77,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                 let coordinator = TransactionConfirmationCoordinator(navigationController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, ethPrice: strongSelf.ethPrice, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
                 coordinator.delegate = self
                 strongSelf.addCoordinator(coordinator)
-                coordinator.start()
+                coordinator.start(fromSource: .claimPaidMagicLink)
             case .failure:
                 break
             }

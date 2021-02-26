@@ -167,7 +167,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func launchUniversalScanner() {
-        tokensCoordinator?.launchUniversalScanner()
+        tokensCoordinator?.launchUniversalScanner(fromSource: .quickAction)
     }
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {

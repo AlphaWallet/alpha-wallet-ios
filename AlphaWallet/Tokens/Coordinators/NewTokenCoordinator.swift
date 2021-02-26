@@ -33,6 +33,7 @@ class NewTokenCoordinator: Coordinator {
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
     private let tokenCollection: TokenCollection
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private let navigationController: UINavigationController
     private lazy var viewController: NewTokenViewController = .init(server: serverToAddCustomTokenOn, initialState: initialState)
     private let initialState: NewTokenInitialState
@@ -40,8 +41,9 @@ class NewTokenCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: NewTokenCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator?, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
         self.config = config
+        self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.tokenCollection = tokenCollection
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
@@ -192,11 +194,11 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
         guard let nc = controller.navigationController, nc.ensureHasDeviceAuthorization() else { return }
 
         let account = sessions.anyValue.account
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: account)
+        let coordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: account)
         coordinator.delegate = self
         addCoordinator(coordinator)
 
-        coordinator.start()
+        coordinator.start(fromSource: .addCustomTokenScreen)
     }
 }
 

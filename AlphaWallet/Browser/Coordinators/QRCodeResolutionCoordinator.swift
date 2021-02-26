@@ -42,7 +42,7 @@ enum ScanQRCodeAction: CaseIterable {
     }
 }
 
-private enum ScanQRCodeResolution {
+enum ScanQRCodeResolution {
     case value(value: QRCodeValue)
     case walletConnect(WalletConnectURL)
     case other(String)
@@ -106,11 +106,11 @@ final class QRCodeResolutionCoordinator: Coordinator {
         self.scanQRCodeCoordinator = coordinator
     }
 
-    func start() {
+    func start(fromSource source: Analytics.ScanQRCodeSource) {
         scanQRCodeCoordinator.delegate = self
         addCoordinator(scanQRCodeCoordinator)
 
-        scanQRCodeCoordinator.start()
+        scanQRCodeCoordinator.start(fromSource: source)
     }
 }
 
