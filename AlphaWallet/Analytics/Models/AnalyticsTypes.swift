@@ -18,6 +18,8 @@ enum Analytics {
     enum Navigation: String, AnalyticsNavigation {
         case actionSheetForTransactionConfirmation = "Screen: Txn Confirmation"
         case scanQrCode = "Screen: QR Code Scanner"
+        case onRamp = "Screen: Fiat On-Ramp"
+        case tokenSwap = "Screen: Token Swap"
     }
 
     enum Action: String, AnalyticsAction {
@@ -37,11 +39,13 @@ enum Analytics {
         case speedType
         case chain
         case transactionType
+        case name
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
         case transactionCount
         case testnetTransactionCount
+        case enabledChains
     }
 
     enum ScanQRCodeSource: String {
