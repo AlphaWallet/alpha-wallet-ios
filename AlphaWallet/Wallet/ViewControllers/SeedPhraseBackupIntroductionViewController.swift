@@ -18,11 +18,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
-        if ScreenChecker().isNarrowScreen {
-            return 180
-        } else {
-            return 250
-        }
+        return ScreenChecker.size(big: 250, medium: 180, small: 180)
     }
 
     weak var delegate: SeedPhraseBackupIntroductionViewControllerDelegate?
@@ -39,24 +35,20 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
 
         let stackView = [
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 22 : 32),
+            UIView.spacer(height: ScreenChecker.size(big: 32, medium: 22, small: 18)),
             subtitleLabel,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 24),
+            UIView.spacer(height: ScreenChecker.size(big: 24, medium: 20, small: 18)),
             imageView,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 7 : 17),
+            UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel1,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 7 : 17),
+            UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel2
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
         roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
@@ -64,22 +56,14 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            footerBar.anchorsConstraint(to: view)
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func viewDidDisappear(_ animated: Bool) {
