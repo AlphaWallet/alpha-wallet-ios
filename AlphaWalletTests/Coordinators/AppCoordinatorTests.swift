@@ -13,8 +13,9 @@ class AppCoordinatorTests: XCTestCase {
                 keystore: FakeKeystore()
             )
 
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0].isSplashScreen)
             coordinator.start()
-            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UIViewController)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is CreateInitialWalletViewController)
         } catch {
             XCTAssertThrowsError(error)
         }
