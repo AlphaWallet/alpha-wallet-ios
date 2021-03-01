@@ -8,13 +8,17 @@
 import UIKit
 
 class HoneySwap: SwapTokenActionsService, SwapTokenURLProviderType {
-    
+
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle()
     }
     //NOTE: While selection on action browser will be automatically switched to defined server `rpcServer`
     var rpcServer: RPCServer? {
         return .xDai
+    }
+
+    var analyticsName: String {
+        "Honeyswap"
     }
 
     private static let baseURL = "https://app.honeyswap.org/#"
