@@ -3,6 +3,19 @@
 import Foundation
 import UIKit
 
+private var splashViewController: UIViewController?
+
 func SplashViewController() -> UIViewController {
-    return UIStoryboard(name: "LaunchScreen", bundle: nil).instantiateInitialViewController()!
+    if let value = splashViewController {
+        return value
+    } else {
+        splashViewController = UIStoryboard(name: "LaunchScreen", bundle: nil).instantiateInitialViewController()
+    }
+    return splashViewController!
+}
+
+extension UIViewController {
+    var isSplashScreen: Bool {
+        self == SplashViewController()
+    }
 }
