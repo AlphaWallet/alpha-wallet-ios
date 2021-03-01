@@ -22,7 +22,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
@@ -111,7 +111,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         sharedRealm: Realm,
         browserOnly: Bool,
         nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
-        analyticsCoordinator: AnalyticsCoordinator?
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions

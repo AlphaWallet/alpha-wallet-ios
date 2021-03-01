@@ -17,7 +17,7 @@ class AccountsCoordinator: Coordinator {
     private let balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: .main)
     private let keystore: Keystore
     private let promptBackupCoordinator: PromptBackupCoordinator
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -39,7 +39,7 @@ class AccountsCoordinator: Coordinator {
         navigationController: UINavigationController,
         keystore: Keystore,
         promptBackupCoordinator: PromptBackupCoordinator,
-        analyticsCoordinator: AnalyticsCoordinator?
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.config = config
         self.navigationController = navigationController

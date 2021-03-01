@@ -46,7 +46,7 @@ class InCoordinator: NSObject, Coordinator {
     private let appTracker: AppTracker
     private var transactionsStorages = ServerDictionary<TransactionsStorage>()
     private var walletSessions = ServerDictionary<WalletSession>()
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
         didSet {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
@@ -134,7 +134,7 @@ class InCoordinator: NSObject, Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             config: Config,
             appTracker: AppTracker = AppTracker(),
-            analyticsCoordinator: AnalyticsCoordinator?,
+            analyticsCoordinator: AnalyticsCoordinator,
             urlSchemeCoordinator: UrlSchemeCoordinatorType
     ) {
         self.navigationController = navigationController
@@ -424,7 +424,7 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
-    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator?) -> DappBrowserCoordinator {
+    private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator) -> DappBrowserCoordinator {
         let realm = self.realm(forAccount: wallet)
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
@@ -816,7 +816,7 @@ private extension TransactionType {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
-        analyticsCoordinator?.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
+        analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
         if let server = service.rpcServer {
@@ -983,6 +983,6 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
 extension InCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
-        analyticsCoordinator?.setUser(property: Analytics.UserProperties.enabledChains, value: list)
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.enabledChains, value: list)
     }
 }

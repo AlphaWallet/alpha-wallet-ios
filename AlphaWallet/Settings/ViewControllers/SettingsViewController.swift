@@ -17,7 +17,7 @@ class SettingsViewController: UIViewController {
     private let config: Config
     private let keystore: Keystore
     private let account: Wallet
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let promptBackupWalletViewHolder = UIView()
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -57,7 +57,7 @@ class SettingsViewController: UIViewController {
         view = tableView
     }
 
-    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
         self.config = config
         self.keystore = keystore
         self.account = account

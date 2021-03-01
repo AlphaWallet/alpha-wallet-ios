@@ -23,7 +23,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
         return createVerifySeedPhraseViewController()
     }()
     private let account: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let keystore: Keystore
     private var _context: LAContext?
     private var context: LAContext {
@@ -49,7 +49,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: BackupSeedPhraseCoordinatorDelegate?
 
-    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController = UINavigationController(), keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account

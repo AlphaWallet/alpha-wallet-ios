@@ -16,7 +16,7 @@ class PaymentCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -31,7 +31,7 @@ class PaymentCoordinator: Coordinator {
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator?
+            analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.navigationController = navigationController
         self.session = session

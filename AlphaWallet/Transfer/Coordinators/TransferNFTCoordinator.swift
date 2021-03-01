@@ -17,11 +17,11 @@ class TransferNFTCoordinator: Coordinator {
     private let keystore: Keystore
     private let session: WalletSession
     private let ethPrice: Subscribable<Double>
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, transactionType: TransactionType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, transactionType: TransactionType, tokenHolder: TokenHolder, recipient: AlphaWallet.Address, keystore: Keystore, session: WalletSession, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.transactionType = transactionType
         self.tokenHolder = tokenHolder

@@ -24,7 +24,7 @@ class EtherKeystoreTests: XCTestCase {
     }
 
     func testEmptyPassword() {
-        let keystore = try! LegacyFileBasedKeystore(analyticsCoordinator: nil)
+        let keystore = try! LegacyFileBasedKeystore(analyticsCoordinator: FakeAnalyticsService())
         let password = keystore.getPassword(for: .make())
         XCTAssertNil(password)
     }
@@ -140,7 +140,7 @@ class EtherKeystoreTests: XCTestCase {
     func testConvertPrivateKeyToKeyStore() {
         let passphrase = "MyHardPassword!"
         let keystore = FakeEtherKeystore()
-        let result = (try! LegacyFileBasedKeystore(analyticsCoordinator: nil)).convertPrivateKeyToKeystoreFile(privateKey: Data(hexString: TestKeyStore.testPrivateKey)!, passphrase: passphrase)
+        let result = (try! LegacyFileBasedKeystore(analyticsCoordinator: FakeAnalyticsService())).convertPrivateKeyToKeystoreFile(privateKey: Data(hexString: TestKeyStore.testPrivateKey)!, passphrase: passphrase)
         let dict = try! result.dematerialize()
         keystore.importWallet(type: .keystore(string: dict.jsonString!, password: passphrase)) { result in
             let wallet = try! result.dematerialize()

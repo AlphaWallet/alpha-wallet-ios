@@ -34,7 +34,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
 
     private let keystore: Keystore
     private let sessions: ServerDictionary<WalletSession>
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
     private weak var notificationAlertController: UIViewController?
@@ -43,7 +43,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
     private weak var sessionsViewController: WalletConnectSessionsViewController?
 
-    init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator?, config: Config, nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>) {
+    init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, config: Config, nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>) {
         self.config = config
         self.sessions = sessions
         self.keystore = keystore
