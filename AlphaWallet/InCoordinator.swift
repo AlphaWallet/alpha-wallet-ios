@@ -358,6 +358,8 @@ class InCoordinator: NSObject, Coordinator {
 
         let inCoordinatorViewModel = InCoordinatorViewModel()
         showTab(inCoordinatorViewModel.initialTab)
+
+        logEnabledChains()
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
@@ -814,6 +816,7 @@ private extension TransactionType {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
+        analyticsCoordinator?.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
         if let server = service.rpcServer {
@@ -973,5 +976,13 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
+    }
+}
+
+//MARK: Analytics
+extension InCoordinator {
+    private func logEnabledChains() {
+        let list = config.enabledServers.map(\.chainID).sorted()
+        analyticsCoordinator?.setUser(property: Analytics.UserProperties.enabledChains, value: list)
     }
 }
