@@ -9,9 +9,9 @@ protocol InitialWalletCreationCoordinatorDelegate: class {
 }
 
 class InitialWalletCreationCoordinator: Coordinator {
-    private let keystore: Keystore 
+    private let keystore: Keystore
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -21,7 +21,7 @@ class InitialWalletCreationCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
-        analyticsCoordinator: AnalyticsCoordinator?
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.config = config
         self.navigationController = navigationController
@@ -37,7 +37,7 @@ class InitialWalletCreationCoordinator: Coordinator {
         coordinator.start(.addInitialWallet)
 
         addCoordinator(coordinator)
-    } 
+    }
 }
 
 extension InitialWalletCreationCoordinator: WalletCoordinatorDelegate {

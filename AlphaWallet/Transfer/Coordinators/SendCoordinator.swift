@@ -20,7 +20,7 @@ class SendCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var transactionConfirmationResult: TransactionConfirmationResult = .noData
 
     lazy var sendViewController: SendViewController = {
@@ -41,7 +41,7 @@ class SendCoordinator: Coordinator {
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,
-            analyticsCoordinator: AnalyticsCoordinator?
+            analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.transactionType = transactionType
         self.navigationController = navigationController

@@ -6,7 +6,7 @@ import BigInt
 class OrderSigningTests: XCTestCase {
 
     func testSigningOrders() {
-        let keystore = try! EtherKeystore(analyticsCoordinator: nil)
+        let keystore = try! EtherKeystore(analyticsCoordinator: FakeAnalyticsService())
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
         let account = try! keystore.createAccount().dematerialize()
         var testOrdersList = [Order]()

@@ -105,7 +105,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    var analyticsCoordinator: AnalyticsCoordinator?
+    private var analyticsCoordinator: AnalyticsCoordinator
 
     //i.e if passcode is enabled. Face ID/Touch ID wouldn't work without passcode being enabled and we can't write to the keychain or generate a key in secure enclave when passcode is disabled
     var isUserPresenceCheckPossible: Bool {
@@ -157,10 +157,10 @@ open class EtherKeystore: Keystore {
     //TODO improve
     static var currentWallet: Wallet {
         //Better crash now instead of populating callers with optionals
-        (try! EtherKeystore(analyticsCoordinator: nil)).currentWallet
+        (try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())).currentWallet
     }
 
-    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standard, analyticsCoordinator: AnalyticsCoordinator?) throws {
+    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standard, analyticsCoordinator: AnalyticsCoordinator) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
         }

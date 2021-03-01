@@ -12,7 +12,7 @@ class WalletCoordinator: Coordinator {
     private let config: Config
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
@@ -22,7 +22,7 @@ class WalletCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
-        analyticsCoordinator: AnalyticsCoordinator?
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.config = config
         self.navigationController = navigationController

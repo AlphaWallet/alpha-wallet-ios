@@ -28,7 +28,7 @@ class TokenViewController: UIViewController {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let transactionType: TransactionType
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
     private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -36,7 +36,7 @@ class TokenViewController: UIViewController {
 
     weak var delegate: TokenViewControllerDelegate?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator?, token: TokenObject) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject) {
         self.token = token
         self.session = session
         self.tokensDataStore = tokensDataStore
@@ -236,7 +236,7 @@ class TokenViewController: UIViewController {
                     //TODO log
                     return
                 }
-                analyticsCoordinator?.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: "Ramp"])
+                analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: "Ramp"])
                 delegate?.shouldOpen(url: url, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
             }
             break

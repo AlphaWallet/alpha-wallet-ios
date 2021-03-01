@@ -20,6 +20,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var timer: Timer!
     private var session: WalletSession
     private let token: TokenObject
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -30,11 +31,12 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore) {
+    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
@@ -115,7 +117,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         switch session.account.type {
         case .real(let account):
             do {
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account) else { break }
+                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, analyticsCoordinator: analyticsCoordinator) else { break }
                 let qrCodeInfo = redeemData.qrCode + decimalSignature
                 imageView.image = qrCodeInfo.toQRCode()
             } catch {

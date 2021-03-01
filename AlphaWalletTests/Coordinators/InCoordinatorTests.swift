@@ -31,7 +31,7 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
-            analyticsCoordinator: nil,
+            analyticsCoordinator: FakeAnalyticsService(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
 
@@ -64,7 +64,7 @@ class InCoordinatorTests: XCTestCase {
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil,
+            analyticsCoordinator: FakeAnalyticsService(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
 
@@ -85,7 +85,7 @@ class InCoordinatorTests: XCTestCase {
                 keystore: FakeKeystore(wallets: [wallet]),
                 assetDefinitionStore: AssetDefinitionStore(),
                 config: .make(),
-                analyticsCoordinator: nil,
+                analyticsCoordinator: FakeAnalyticsService(),
                 urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
@@ -104,7 +104,7 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil,
+            analyticsCoordinator: FakeAnalyticsService(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
@@ -122,7 +122,7 @@ class InCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
-            analyticsCoordinator: nil,
+            analyticsCoordinator: FakeAnalyticsService(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
         )
         coordinator.showTabBar(for: .make())
@@ -161,7 +161,7 @@ class InCoordinatorTests: XCTestCase {
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
                     config: .make(),
-                    analyticsCoordinator: nil,
+                    analyticsCoordinator: FakeAnalyticsService(),
                     urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
             )
             coordinator.showTabBar(for: wallet)

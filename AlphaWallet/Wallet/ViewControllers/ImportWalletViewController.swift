@@ -20,7 +20,7 @@ class ImportWalletViewController: UIViewController {
     private static let mnemonicSuggestionsBarHeight: CGFloat = ScreenChecker().isNarrowScreen ? 40 : 60
 
     private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let viewModel = ImportWalletViewModel()
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
@@ -176,7 +176,7 @@ class ImportWalletViewController: UIViewController {
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
-    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator) {
         self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
 

@@ -10,8 +10,9 @@ import Foundation
 import BigInt
 
 class SignatureHelper {
-    class func signatureAsHex(for message: String, account: AlphaWallet.Address) throws -> String? {
-        let keystore = try EtherKeystore(analyticsCoordinator: nil)
+    //TODO better to pass in keystore instead of analyticsCoordinator
+    class func signatureAsHex(for message: String, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) throws -> String? {
+        let keystore = try EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         let signature = keystore.signMessageData(message.data(using: String.Encoding.utf8), for: account)
         let signatureHex = try? signature.dematerialize().hex(options: .upperCase)
         guard let data = signatureHex else {
@@ -20,8 +21,8 @@ class SignatureHelper {
         return data
     }
 
-    class func signatureAsDecimal(for message: String, account: AlphaWallet.Address) throws -> String? {
-        guard let signatureHex = try signatureAsHex(for: message, account: account) else { return nil }
+    class func signatureAsDecimal(for message: String, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) throws -> String? {
+        guard let signatureHex = try signatureAsHex(for: message, account: account, analyticsCoordinator: analyticsCoordinator) else { return nil }
         guard let signatureDecimalString = BigInt(signatureHex, radix: 16)?.description else { return nil }
         return signatureDecimalString
     }

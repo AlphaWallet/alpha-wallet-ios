@@ -26,7 +26,7 @@ class TokensCoordinator: Coordinator {
     private let eventsDataStore: EventsDataStoreProtocol
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let filterTokensCoordinator: FilterTokensCoordinator
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let swapTokenService: SwapTokenServiceType
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
@@ -91,7 +91,7 @@ class TokensCoordinator: Coordinator {
             eventsDataStore: EventsDataStoreProtocol,
             promptBackupCoordinator: PromptBackupCoordinator,
             filterTokensCoordinator: FilterTokensCoordinator,
-            analyticsCoordinator: AnalyticsCoordinator?,
+            analyticsCoordinator: AnalyticsCoordinator,
             swapTokenService: SwapTokenServiceType,
             walletConnectCoordinator: WalletConnectCoordinator
     ) {

@@ -485,7 +485,7 @@ extension TokenInstanceWebView {
         //TODO pass in keystore
         let coordinator = SignMessageCoordinator(
                 navigationController: navigationController,
-                keystore: try! EtherKeystore(analyticsCoordinator: nil),
+                keystore: try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService()),
                 account: account
         )
         coordinator.didComplete = { [weak self] result in
@@ -577,4 +577,22 @@ extension String {
     var hashForCachingHeight: Int {
         return hashValue
     }
+}
+
+//TODO to remove this.
+//TODO Do not use this unless it's absolutely necessary — e.g. it requires a big re-architecting of code
+class NoOpAnalyticsService: AnalyticsServiceType {
+    func log(action: AnalyticsAction, properties: [String : AnalyticsEventPropertyValue]?) { }
+    func applicationDidBecomeActive() { }
+    func application(continue userActivity: NSUserActivity) { }
+    func application(open url: URL, sourceApplication: String?, annotation: Any) { }
+    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) { }
+    func application(didReceiveRemoteNotification userInfo: [AnyHashable : Any]) { }
+    func add(pushDeviceToken token: Data) { }
+    func log(navigation: AnalyticsNavigation, properties: [String : AnalyticsEventPropertyValue]?) {}
+    func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) { }
+    func incrementUser(property: AnalyticsUserProperty, by value: Int) { }
+    func incrementUser(property: AnalyticsUserProperty, by value: Double) { }
+
+    init() {}
 }
