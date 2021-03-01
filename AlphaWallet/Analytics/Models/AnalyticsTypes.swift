@@ -42,6 +42,7 @@ enum Analytics {
     enum UserProperties: String, AnalyticsUserProperty {
         case transactionCount
         case testnetTransactionCount
+        case enabledChains
     }
 
     enum ScanQRCodeSource: String {
