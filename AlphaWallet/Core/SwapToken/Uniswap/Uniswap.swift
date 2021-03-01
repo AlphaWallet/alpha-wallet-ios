@@ -16,6 +16,10 @@ struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
         .main
     }
 
+    var analyticsName: String {
+        "Uniswap"
+    }
+
     private static let baseURL = "https://app.uniswap.org/#"
 
     var version: Version = .v2

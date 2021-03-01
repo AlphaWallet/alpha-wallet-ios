@@ -816,6 +816,7 @@ private extension TransactionType {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
+        analyticsCoordinator?.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
         if let server = service.rpcServer {

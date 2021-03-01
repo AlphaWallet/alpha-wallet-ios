@@ -15,6 +15,7 @@ protocol SwapTokenActionsService {
 protocol SwapTokenURLProviderType {
     var action: String { get }
     var rpcServer: RPCServer? { get }
+    var analyticsName: String { get }
     func url(token: TokenObject) -> URL?
 }
 

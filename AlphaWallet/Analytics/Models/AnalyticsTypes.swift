@@ -19,6 +19,7 @@ enum Analytics {
         case actionSheetForTransactionConfirmation = "Screen: Txn Confirmation"
         case scanQrCode = "Screen: QR Code Scanner"
         case onRamp = "Screen: Fiat On-Ramp"
+        case tokenSwap = "Screen: Token Swap"
     }
 
     enum Action: String, AnalyticsAction {
