@@ -51,3 +51,8 @@ extension AlphaWallet.Address: AnalyticsEventPropertyValue {
         return self.eip55String
     }
 }
+extension Array: AnalyticsEventPropertyValue where Iterator.Element == Int {
+    var value: Any {
+        self
+    }
+}

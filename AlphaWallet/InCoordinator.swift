@@ -358,6 +358,8 @@ class InCoordinator: NSObject, Coordinator {
 
         let inCoordinatorViewModel = InCoordinatorViewModel()
         showTab(inCoordinatorViewModel.initialTab)
+
+        logEnabledChains()
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
@@ -973,5 +975,13 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
+    }
+}
+
+//MARK: Analytics
+extension InCoordinator {
+    private func logEnabledChains() {
+        let list = config.enabledServers.map(\.chainID).sorted()
+        analyticsCoordinator?.setUser(property: Analytics.UserProperties.enabledChains, value: list)
     }
 }
