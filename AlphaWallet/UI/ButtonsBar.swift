@@ -103,7 +103,7 @@ class ButtonsBarBackgroundView: UIView {
     }()
     private var observation: NSKeyValueObservation?
 
-    init(buttonsBar: ButtonsBar, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets) {
+    init(buttonsBar: ButtonsBar, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets, separatorHeight: CGFloat = DataEntry.Metric.ButtonsBar.separatorHeight) {
         self.buttonsBar = buttonsBar
         super.init(frame: .zero)
 
@@ -116,7 +116,7 @@ class ButtonsBarBackgroundView: UIView {
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorLine.topAnchor.constraint(equalTo: topAnchor),
-            separatorLine.heightAnchor.constraint(equalToConstant: DataEntry.Metric.ButtonsBar.separatorHeight),
+            separatorLine.heightAnchor.constraint(equalToConstant: separatorHeight),
 
             buttonsBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: edgeInsets.left),
             buttonsBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -edgeInsets.right),
