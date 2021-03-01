@@ -51,6 +51,22 @@ extension Session {
                         return
                     }
 
+                    if case let SessionTaskError.connectionError(e) = error {
+                        RemoteLogger.instance.logRpcOrOtherWebError("Connection Error: \(e.localizedDescription)", url: request.baseURL.absoluteString)
+                        seal.reject(error)
+                        return
+                    }
+                    if case let SessionTaskError.requestError(e) = error {
+                        RemoteLogger.instance.logRpcOrOtherWebError("Request Error: \(e.localizedDescription)", url: request.baseURL.absoluteString)
+                        seal.reject(error)
+                        return
+                    }
+                    if case let SessionTaskError.responseError(e) = error {
+                        RemoteLogger.instance.logRpcOrOtherWebError("Response Error: \(e.localizedDescription)", url: request.baseURL.absoluteString)
+                        seal.reject(error)
+                        return
+                    }
+
                     RemoteLogger.instance.logRpcOrOtherWebError(error.localizedDescription, url: request.baseURL.absoluteString)
                     seal.reject(error)
                 }
