@@ -46,6 +46,10 @@ enum Analytics {
         case transactionCount
         case testnetTransactionCount
         case enabledChains
+        case walletsCount
+        case hdWalletsCount
+        case keystoreWalletsCount
+        case watchedWalletsCount
     }
 
     enum ScanQRCodeSource: String {
