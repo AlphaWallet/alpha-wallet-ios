@@ -21,7 +21,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
     private let tokenObject: TokenObject
     private let signedOrder: SignedOrder
     private let ethPrice: Subscribable<Double>
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     private var numberOfTokens: UInt {
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
@@ -36,7 +36,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.session = session

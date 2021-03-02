@@ -33,7 +33,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private var viewModel: VerifySeedPhraseViewModel
     private let keystore: Keystore
     private let account: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let seedPhraseTextView = UITextView()
@@ -98,7 +98,7 @@ class VerifySeedPhraseViewController: UIViewController {
 
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
-    init(keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
         self.keystore = keystore
         self.account = account
         self.analyticsCoordinator = analyticsCoordinator

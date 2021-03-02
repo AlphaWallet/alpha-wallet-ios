@@ -10,14 +10,14 @@ import PromiseKit
 import Result
 
 private class TransactionConfirmationCoordinatorBridgeToPromise {
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private let session: WalletSession
     private let coordinator: Coordinator
     private let (promise, seal) = Promise<ConfirmResult>.pending()
     private var retainCycle: TransactionConfirmationCoordinatorBridgeToPromise?
 
-    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.session = session
         self.coordinator = coordinator
@@ -93,7 +93,7 @@ extension UIViewController {
 extension TransactionConfirmationCoordinator {
 
     //session contains account already
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator)
         return bridge.promise(account: account, transaction: transaction, configuration: configuration, source: source)
     }

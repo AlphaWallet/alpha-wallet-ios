@@ -16,7 +16,7 @@ class SendCoordinatorTests: XCTestCase {
             account: .make(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: FakeAnalyticsService()
         )
 
         coordinator.start()
@@ -35,7 +35,7 @@ class SendCoordinatorTests: XCTestCase {
             account: .make(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: FakeAnalyticsService()
         )
         coordinator.start()
 

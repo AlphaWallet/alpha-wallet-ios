@@ -10,7 +10,7 @@ extension WalletConnectCoordinator {
         var sessions = ServerDictionary<WalletSession>()
         let session = WalletSession.make()
         sessions[session.server] = session
-        return .init(keystore: keystore, sessions: sessions, navigationController: .init(), analyticsCoordinator: nil, config: .make(), nativeCryptoCurrencyPrices: .init())
+        return .init(keystore: keystore, sessions: sessions, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), nativeCryptoCurrencyPrices: .init())
     }
 }
 

@@ -71,7 +71,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }()
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     lazy var navigationController: UINavigationController = {
         let controller = UINavigationController(rootViewController: confirmationViewController)
         controller.modalPresentationStyle = .overFullScreen
@@ -83,7 +83,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator) {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
@@ -96,7 +96,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         configurator.start()
         confirmationViewController.reloadView()
 
-        analyticsCoordinator?.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
     }
 
     func close(completion: @escaping () -> Void) {
@@ -122,7 +122,7 @@ class TransactionConfirmationCoordinator: Coordinator {
 extension TransactionConfirmationCoordinator: TransactionConfirmationViewControllerDelegate {
 
     func didClose(in controller: TransactionConfirmationViewController) {
-        analyticsCoordinator?.log(action: Analytics.Action.cancelsTransactionInActionSheet)
+        analyticsCoordinator.log(action: Analytics.Action.cancelsTransactionInActionSheet)
         navigationController.dismiss(animated: false) { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
             delegate.didClose(in: strongSelf)
@@ -180,15 +180,15 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
             transactionType = .unknown
         }
 
-        analyticsCoordinator?.log(action: Analytics.Action.confirmsTransactionInActionSheet, properties: [
+        analyticsCoordinator.log(action: Analytics.Action.confirmsTransactionInActionSheet, properties: [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
         ])
         if configurator.session.server.isTestnet {
-            analyticsCoordinator?.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
+            analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
         } else {
-            analyticsCoordinator?.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
+            analyticsCoordinator.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
         }
     }
 

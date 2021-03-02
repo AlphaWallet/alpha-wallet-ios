@@ -31,7 +31,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     weak var delegate: TokensCardCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -52,7 +52,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
-            analyticsCoordinator: AnalyticsCoordinator?
+            analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.session = session
         self.keystore = keystore
@@ -264,7 +264,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTokenCardRedemptionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> TokenCardRedemptionViewController {
         let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         controller.configure()
         controller.delegate = self
         return controller

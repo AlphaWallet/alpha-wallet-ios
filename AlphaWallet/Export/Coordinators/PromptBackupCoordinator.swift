@@ -26,7 +26,7 @@ class PromptBackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let wallet: Wallet
     private let config: Config
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     //TODO this should be the total of mainnets instead of just Ethereum mainnet
     private var nativeCryptoCurrencyDollarValueInUsd: Double = 0
 
@@ -36,7 +36,7 @@ class PromptBackupCoordinator: Coordinator {
     weak var prominentPromptDelegate: PromptBackupCoordinatorProminentPromptDelegate?
     weak var subtlePromptDelegate: PromptBackupCoordinatorSubtlePromptDelegate?
 
-    init(keystore: Keystore, wallet: Wallet, config: Config, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(keystore: Keystore, wallet: Wallet, config: Config, analyticsCoordinator: AnalyticsCoordinator) {
         self.keystore = keystore
         self.wallet = wallet
         self.config = config

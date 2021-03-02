@@ -7,6 +7,6 @@ import KeychainSwift
 class FakeEtherKeystore: EtherKeystore {
     convenience init() {
         let uniqueString = NSUUID().uuidString
-        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), userDefaults: UserDefaults.test, analyticsCoordinator: nil)
+        try! self.init(keychain: KeychainSwift(keyPrefix: "fake" + uniqueString), userDefaults: UserDefaults.test, analyticsCoordinator: FakeAnalyticsService())
     }
 }

@@ -10,7 +10,7 @@ class InitialWalletCreationCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore(),
-            analyticsCoordinator: nil
+            analyticsCoordinator: FakeAnalyticsService()
         )
 
         coordinator.start()

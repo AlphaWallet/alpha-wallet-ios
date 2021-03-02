@@ -41,7 +41,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let cryptoPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private var isAutoDetectingTransactedTokens = false
@@ -58,7 +58,7 @@ class SingleChainTokenCoordinator: Coordinator {
             ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
-            analyticsCoordinator: AnalyticsCoordinator?,
+            analyticsCoordinator: AnalyticsCoordinator,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             swapTokenActionsService: SwapTokenActionsService

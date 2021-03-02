@@ -33,7 +33,7 @@ class NewTokenCoordinator: Coordinator {
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
     private let tokenCollection: TokenCollection
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private lazy var viewController: NewTokenViewController = .init(server: serverToAddCustomTokenOn, initialState: initialState)
     private let initialState: NewTokenInitialState
@@ -41,7 +41,7 @@ class NewTokenCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: NewTokenCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator?, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
         self.config = config
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
