@@ -20,6 +20,10 @@ enum Analytics {
         case scanQrCode = "Screen: QR Code Scanner"
         case onRamp = "Screen: Fiat On-Ramp"
         case tokenSwap = "Screen: Token Swap"
+        case switchServers = "Screen: Switch Servers"
+        case showDapps = "Screen: Dapps"
+        case showHistory = "Screen: Dapp History"
+        case tapBrowserMore = "Screen: Browser More Options"
     }
 
     enum Action: String, AnalyticsAction {
@@ -27,6 +31,10 @@ enum Analytics {
         case cancelsTransactionInActionSheet = "Txn Confirmation Cancelled"
         case cancelScanQrCode = "Scan QR Code Cancelled"
         case completeScanQrCode = "Scan QR Code Completed"
+        case reloadBrowser = "Reload Browser"
+        case shareUrl = "Share URL"
+        case addDapp = "Add Dapp"
+        case enterUrl = "Enter URL"
     }
 
     enum Properties: String {

@@ -238,6 +238,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
         let reloadAction = UIAlertAction(title: R.string.localizable.reload(), style: .default) { [weak self] _ in
+            self?.logReload()
             self?.browserViewController.reload()
         }
         reloadAction.isEnabled = hasWebPageLoaded
@@ -276,6 +277,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func share(sender: UIView) {
+        logShare()
         guard let url = currentUrl else { return }
         rootViewController.displayLoading()
         rootViewController.showShareActivity(fromSource: .view(sender), with: [url]) { [weak self] in
@@ -314,6 +316,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCurrentPageAsBookmark() {
+        logAddDapp()
         if let url = currentUrl?.absoluteString, let title = browserViewController.webView.title {
             let bookmark = Bookmark(url: url, title: title)
             bookmarksStore.add(bookmarks: [bookmark])
@@ -335,6 +338,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
+        logSwitchServer()
         let coordinator = ServersCoordinator(defaultServer: server, config: config, navigationController: navigationController)
         coordinator.delegate = self
         coordinator.start()
@@ -565,6 +569,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
 
 extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
     func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController) {
+        logShowDapps()
         let viewController = MyDappsViewController(bookmarksStore: bookmarksStore)
         viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
         viewController.delegate = self
@@ -572,6 +577,7 @@ extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
     }
 
     func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController) {
+        logShowHistory()
         pushOntoNavigationController(viewController: historyViewController, animated: true)
     }
 
@@ -678,6 +684,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 
     func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+        logTapMore()
         let alertController = makeMoreAlertSheet(sender: sender)
         navigationController.present(alertController, animated: true, completion: nil)
     }
@@ -700,6 +707,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 
     func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+        logEnterUrl()
         guard let url = urlParser.url(from: text.trimmed) else { return }
         open(url: url, animated: false)
     }
@@ -757,5 +765,40 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         coordinator.navigationController.popViewController(animated: true)
 
         removeCoordinator(coordinator)
+    }
+}
+
+//MARK: Analytics
+extension DappBrowserCoordinator {
+    private func logReload() {
+        analyticsCoordinator.log(action: Analytics.Action.reloadBrowser)
+    }
+
+    private func logShare() {
+        analyticsCoordinator.log(action: Analytics.Action.shareUrl, properties: [Analytics.Properties.source.rawValue: "browser"])
+    }
+
+    private func logAddDapp() {
+        analyticsCoordinator.log(action: Analytics.Action.addDapp)
+    }
+
+    private func logSwitchServer() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.switchServers, properties: [Analytics.Properties.source.rawValue: "browser"])
+    }
+
+    private func logShowDapps() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.showDapps)
+    }
+
+    private func logShowHistory() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.showHistory)
+    }
+
+    private func logTapMore() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.tapBrowserMore)
+    }
+
+    private func logEnterUrl() {
+        analyticsCoordinator.log(action: Analytics.Action.enterUrl)
     }
 }
