@@ -360,6 +360,7 @@ class InCoordinator: NSObject, Coordinator {
         showTab(inCoordinatorViewModel.initialTab)
 
         logEnabledChains()
+        logWallets()
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
@@ -984,6 +985,17 @@ extension InCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
         analyticsCoordinator.setUser(property: Analytics.UserProperties.enabledChains, value: list)
+    }
+
+    private func logWallets() {
+        let totalCount = keystore.wallets.count
+        let hdWalletsCount = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.count
+        let keystoreWalletsCount = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.count
+        let watchedWalletsCount = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.count
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.walletsCount, value: totalCount)
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.hdWalletsCount, value: hdWalletsCount)
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.keystoreWalletsCount, value: keystoreWalletsCount)
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.watchedWalletsCount, value: watchedWalletsCount)
     }
 
     private func logTappedSwap(service: SwapTokenURLProviderType) {
