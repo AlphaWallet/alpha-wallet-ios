@@ -816,7 +816,7 @@ private extension TransactionType {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
+        logTappedSwap(service: service)
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
         if let server = service.rpcServer {
@@ -984,5 +984,9 @@ extension InCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
         analyticsCoordinator.setUser(property: Analytics.UserProperties.enabledChains, value: list)
+    }
+
+    private func logTappedSwap(service: SwapTokenURLProviderType) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
     }
 }

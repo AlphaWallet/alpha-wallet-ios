@@ -236,7 +236,7 @@ class TokenViewController: UIViewController {
                     //TODO log
                     return
                 }
-                analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: "Ramp"])
+                logStartOnRamp(name: "Ramp")
                 delegate?.shouldOpen(url: url, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
             }
             break
@@ -326,5 +326,12 @@ extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     @objc private func refreshHeaderView() {
         headerViewModel.isShowingValue.toggle()
         header.sendHeaderView.configure(viewModel: headerViewModel)
+    }
+}
+
+//MARK: Analytics
+extension TokenViewController {
+    private func logStartOnRamp(name: String) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name])
     }
 }
