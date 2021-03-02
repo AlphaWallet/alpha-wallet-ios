@@ -25,7 +25,7 @@ class SettingsCoordinator: Coordinator {
 	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
     private let promptBackupCoordinator: PromptBackupCoordinator
-	private let analyticsCoordinator: AnalyticsCoordinator?
+	private let analyticsCoordinator: AnalyticsCoordinator
 
 	private var account: Wallet {
 		return sessions.anyValue.account
@@ -55,7 +55,7 @@ class SettingsCoordinator: Coordinator {
         config: Config,
         sessions: ServerDictionary<WalletSession>,
         promptBackupCoordinator: PromptBackupCoordinator,
-        analyticsCoordinator: AnalyticsCoordinator?
+        analyticsCoordinator: AnalyticsCoordinator
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet

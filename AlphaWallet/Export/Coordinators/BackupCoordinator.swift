@@ -12,13 +12,13 @@ protocol BackupCoordinatorDelegate: class {
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let account: AlphaWallet.Address
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account

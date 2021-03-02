@@ -15,11 +15,11 @@ class LegacyFileBasedKeystore {
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: KeyStore
-    private let analyticsCoordinator: AnalyticsCoordinator?
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     let keystoreDirectory: URL
 
-    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", analyticsCoordinator: AnalyticsCoordinator?) throws {
+    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", analyticsCoordinator: AnalyticsCoordinator) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw FileBasedKeystoreError.protectionDisabled
         }
