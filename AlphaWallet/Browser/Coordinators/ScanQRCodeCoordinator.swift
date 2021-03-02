@@ -52,7 +52,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.scanQrCode, properties: [Analytics.Properties.source.rawValue: source.rawValue])
+        logStartScan(source: source)
         navigationController.makePresentationFullScreenForiOS13Migration()
         parentNavigationController.present(navigationController, animated: true)
     }
@@ -68,34 +68,6 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         reader.stopScanning()
         navigationController.dismiss(animated: true, completion: completion)
     }
-
-    private func convertToAnalyticsResultType(value: String!) -> Analytics.ScanQRCodeResultType {
-        if let resultType = QRCodeValueParser.from(string: value) {
-            switch resultType {
-            case .address:
-                return .address
-            case .eip681:
-                break
-            }
-        }
-
-        switch ScanQRCodeResolution(rawValue: value) {
-        case .value:
-            return .value
-        case .other:
-            return .other
-        case .walletConnect:
-            return .walletConnect
-        case .url:
-            return .url
-        case .json:
-            return .json
-        case .privateKey:
-            return .privateKey
-        case .seedPhase:
-            return .seedPhase
-        }
-    }
 }
 
 extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
@@ -108,9 +80,8 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
     }
 
     func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
-        let resultType = convertToAnalyticsResultType(value: result)
         stopScannerAndDismiss {
-            self.analyticsCoordinator.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
+            self.logCompleteScan(result: result)
             self.delegate?.didScan(result: result, in: self)
         }
     }
@@ -146,5 +117,45 @@ extension UIBarButtonItem {
 
     static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
+    }
+}
+
+//MARK: Analytics
+extension ScanQRCodeCoordinator {
+    private func logCompleteScan(result: String) {
+        let resultType = convertToAnalyticsResultType(value: result)
+        analyticsCoordinator.log(action: Analytics.Action.completeScanQrCode, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])
+    }
+
+    private func convertToAnalyticsResultType(value: String!) -> Analytics.ScanQRCodeResultType {
+        if let resultType = QRCodeValueParser.from(string: value) {
+            switch resultType {
+            case .address:
+                return .address
+            case .eip681:
+                break
+            }
+        }
+
+        switch ScanQRCodeResolution(rawValue: value) {
+        case .value:
+            return .value
+        case .other:
+            return .other
+        case .walletConnect:
+            return .walletConnect
+        case .url:
+            return .url
+        case .json:
+            return .json
+        case .privateKey:
+            return .privateKey
+        case .seedPhase:
+            return .seedPhase
+        }
+    }
+
+    private func logStartScan(source: Analytics.ScanQRCodeSource) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.scanQrCode, properties: [Analytics.Properties.source.rawValue: source.rawValue])
     }
 }
