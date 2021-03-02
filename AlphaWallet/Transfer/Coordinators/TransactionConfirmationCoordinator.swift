@@ -139,6 +139,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
             self.showSuccess(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
         }.catch { error in
+            self.logActionSheetForTransactionConfirmationFailed()
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 self.showError(error)
@@ -248,7 +249,7 @@ extension TransactionConfirmationCoordinator {
             transactionType = .unknown
         }
 
-        analyticsCoordinator.log(action: Analytics.Action.confirmsTransactionInActionSheet, properties: [
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
@@ -258,6 +259,11 @@ extension TransactionConfirmationCoordinator {
         } else {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
         }
+    }
+
+    //TODO log a finite list of error types
+    private func logActionSheetForTransactionConfirmationFailed() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationFailed)
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {

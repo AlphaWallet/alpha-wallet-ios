@@ -17,13 +17,14 @@ protocol AnalyticsUserProperty {
 enum Analytics {
     enum Navigation: String, AnalyticsNavigation {
         case actionSheetForTransactionConfirmation = "Screen: Txn Confirmation"
+        case actionSheetForTransactionConfirmationSuccessful = "Screen: Txn Confirmation Successful"
+        case actionSheetForTransactionConfirmationFailed = "Screen: Txn Confirmation Failed"
         case scanQrCode = "Screen: QR Code Scanner"
         case onRamp = "Screen: Fiat On-Ramp"
         case tokenSwap = "Screen: Token Swap"
     }
 
     enum Action: String, AnalyticsAction {
-        case confirmsTransactionInActionSheet = "Txn Confirmation Confirm Tapped"
         case cancelsTransactionInActionSheet = "Txn Confirmation Cancelled"
         case cancelScanQrCode = "Scan QR Code Cancelled"
         case completeScanQrCode = "Scan QR Code Completed"
