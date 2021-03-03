@@ -83,6 +83,18 @@ extension SettingsCoordinator: SupportViewControllerDelegate {
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
 
+    func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController) {
+        switch account.type {
+        case .real(let account):
+            let coordinator = ShowSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        case .watch:
+            break
+        }
+    }
+
     func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
         let viewController = SupportViewController()
         viewController.delegate = self
@@ -135,6 +147,12 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
         navigationController.pushViewController(advancedSettingsViewController, animated: true)
+    }
+}
+
+extension SettingsCoordinator: ShowSeedPhraseCoordinatorDelegate {
+    func didCancel(in coordinator: ShowSeedPhraseCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
