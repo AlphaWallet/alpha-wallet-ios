@@ -75,6 +75,7 @@
 "settings.enabledNetworks.button.title" = "已启用网络";
 "settings.language.button.title" = "更换语言";
 "settings.backupWallet.button.title" = "备份此钱包";
+"settings.showSeedPhrase.button.title" = "Show Seed Phrase";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
 "settings.tokenScriptStandard.title" = "TokenScript 兼容性";
@@ -109,6 +110,11 @@
 "wallets.backupHdWallet.alertSheet.title" = "显示助记词";
 "wallets.backupHdWallet.introduction.button.title" = "备份我的钱包";
 "wallets.backupHdWallet.introduction.title" = "通过助记词备份您的钱包";
+"wallets.showSeedPhrase.introduction.button.title" = "Got it, show my seed phrase";
+"wallets.showSeedPhrase.introduction.title" = "Beware of scammers!\nDon’t share seed phrase.";
+"wallets.showSeedPhrase.introduction.subtitle" = "AlphaWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
+"wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
+"wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "您的助记词";
 "wallets.showSeedPhrase.subtitle" = "在纸上写下助记词：\n只需写下 12 个单词，并将其保存在一个安全的线下之地。";
 "wallets.showSeedPhrase.testSeedPhrase" = "好的，我记下来了";
