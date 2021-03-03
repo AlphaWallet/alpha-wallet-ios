@@ -5,7 +5,7 @@ import Foundation
 This comment is here with the wrong syntax (no leading //) to force a build error if this file is accidentally included
 enum OriginalDapps {
     static let masterList = [
-        Dapp(name: "Rare Coin", description: "Free Crypto Faucet & Yeild Farming", url: "https://make.rare.claims", cat: "Tools"),
+        Dapp(name: "Rare Coin", description: "Free Crypto Faucet & Yeild Farming", url: "make.rare.claims", cat: "Tools"),
         Dapp(name: "Eporio", description: "The cheaper marketplace for NFT - Non Fungible Tokens", url: "https://epor.io", cat: "Marketplace"),
         Dapp(name: "TokenSets", description: "Enhance your portfolio with automated asset management strategies.", url: "https://www.tokensets.com/", cat: "Finance"),
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
