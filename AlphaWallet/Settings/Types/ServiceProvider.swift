@@ -9,6 +9,7 @@ enum URLServiceProvider {
     case twitter
     case reddit
     case facebook
+    case faq
 
     var title: String {
         switch self {
@@ -22,6 +23,8 @@ enum URLServiceProvider {
             return "Reddit"
         case .facebook:
             return "Facebook"
+        case .faq:
+            return "faq".uppercased()
         }
     }
 
@@ -38,6 +41,8 @@ enum URLServiceProvider {
             return URL(string: "reddit.com\(Constants.redditGroupName)")
         case .facebook:
             return URL(string: "fb://profile?id=\(Constants.facebookUsername)")
+        case .faq:
+            return nil
         }
     }
 
@@ -53,6 +58,8 @@ enum URLServiceProvider {
             return URL(string: "https://reddit.com/\(Constants.redditGroupName)")!
         case .facebook:
             return URL(string: "https://www.facebook.com/\(Constants.facebookUsername)")!
+        case .faq:
+            return URL(string: "https://alphawallet.com/faq/")!
         }
     }
 
@@ -66,6 +73,8 @@ enum URLServiceProvider {
             return R.image.settings_reddit()
         case .facebook:
             return R.image.settings_facebook()
+        case .faq:
+            return R.image.settings_faq()
         }
     }
 }
