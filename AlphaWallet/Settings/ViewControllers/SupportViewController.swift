@@ -113,11 +113,7 @@ extension SupportViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
         case .faq:
-            let viewController = HelpViewController(delegate: self)
-            viewController.navigationItem.largeTitleDisplayMode = .never
-            viewController.hidesBottomBarWhenPushed = true
-
-            navigationController?.pushViewController(viewController, animated: true)
+            openURL(.faq)
         case .telegramPublic:
             openURL(.telegramPublic)
         case .telegramCustomer:
