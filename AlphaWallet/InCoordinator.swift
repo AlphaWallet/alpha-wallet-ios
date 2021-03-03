@@ -93,7 +93,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
-        return .init(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService)
+        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService)
     }()
 
     let navigationController: UINavigationController
@@ -107,8 +107,10 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private lazy var oneInchSwapService = Oneinch()
-    private lazy var swapTokenService: SwapTokenServiceType = {
-        let service = SwapTokenService()
+    private lazy var rampBuyService = Ramp(account: wallet)
+    private lazy var tokenActionsService: TokenActionsServiceType = {
+        let service = TokenActionsService()
+        service.register(service: rampBuyService)
         service.register(service: oneInchSwapService)
 
         let honeySwapService = HoneySwap()
@@ -164,6 +166,7 @@ class InCoordinator: NSObject, Coordinator {
 
         urlSchemeCoordinator.processPendingURL(in: self)
         oneInchSwapService.fetchSupportedTokens()
+        rampBuyService.fetchSupportedTokens()
     }
 
     func launchUniversalScanner() {
@@ -343,6 +346,7 @@ class InCoordinator: NSObject, Coordinator {
 
     func showTabBar(for account: Wallet) {
         keystore.recentlyUsedWallet = account
+        rampBuyService.account = account
         wallet = account
         setupResourcesOnMultiChain()
         walletConnectCoordinator = createWalletConnectCoordinator()
@@ -379,7 +383,7 @@ class InCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-                swapTokenService: swapTokenService,
+                tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator
         )
 
@@ -823,20 +827,24 @@ extension InCoordinator: TokensCoordinatorDelegate {
         if let server = service.rpcServer {
             open(url: url, onServer: server)
         } else {
-            openSwapToken(for: url)
+            open(for: url)
         }
     }
 
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
         switch transactionType {
-        case .nativeCryptocurrency:
-            open(url: url, onServer: server)
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .nativeCryptocurrency(let token, _, _), .ERC20Token(let token, _, _), .ERC875Token(let token), .ERC721Token(let token):
+            if shouldSwitchServer {
+                open(url: url, onServer: token.server)
+            } else {
+                open(for: url)
+            }
+        case .ERC875TokenOrder, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
 
-    private func openSwapToken(for url: URL) {
+    private func open(for url: URL) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
 
         showTab(.browser)

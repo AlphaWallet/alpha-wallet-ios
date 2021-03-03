@@ -13,11 +13,11 @@ class FilterTokensCoordinator {
     }
 
     private let assetDefinitionStore: AssetDefinitionStore
-    private let swapTokenService: SwapTokenServiceType
+    private let tokenActionsService: TokenActionsServiceType
 
-    init(assetDefinitionStore: AssetDefinitionStore, swapTokenService: SwapTokenServiceType) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsServiceType) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.swapTokenService = swapTokenService
+        self.tokenActionsService = tokenActionsService
     }
 
     func filterTokens(tokens: [TokenObject], filter: WalletFilter) -> [TokenObject] {
@@ -49,7 +49,7 @@ class FilterTokensCoordinator {
                         let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
                     } else if lowercasedKeyword == FilterKeys.swap.rawValue {
-                        return swapTokenService.isSupport(token: $0)
+                        return tokenActionsService.isSupport(token: $0)
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||

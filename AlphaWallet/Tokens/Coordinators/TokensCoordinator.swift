@@ -6,7 +6,7 @@ import PromiseKit
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -27,7 +27,7 @@ class TokensCoordinator: Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let swapTokenService: SwapTokenServiceType
+    private let tokenActionsService: TokenActionsServiceType
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -92,7 +92,7 @@ class TokensCoordinator: Coordinator {
             promptBackupCoordinator: PromptBackupCoordinator,
             filterTokensCoordinator: FilterTokensCoordinator,
             analyticsCoordinator: AnalyticsCoordinator,
-            swapTokenService: SwapTokenServiceType,
+            tokenActionsService: TokenActionsServiceType,
             walletConnectCoordinator: WalletConnectCoordinator
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
@@ -107,7 +107,7 @@ class TokensCoordinator: Coordinator {
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
-        self.swapTokenService = swapTokenService
+        self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
 
         promptBackupCoordinator.prominentPromptDelegate = self
@@ -127,7 +127,7 @@ class TokensCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, swapTokenActionsService: swapTokenService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -389,8 +389,8 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.shouldOpen(url: url, onServer: server, forTransactionType: transactionType, in: self)
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.shouldOpen(url: url, shouldSwitchServer: shouldSwitchServer, forTransactionType: transactionType, in: self)
     }
 
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator) {

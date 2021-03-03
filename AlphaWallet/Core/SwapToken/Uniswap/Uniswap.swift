@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct Uniswap: SwapTokenActionsService, SwapTokenURLProviderType {
+struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
