@@ -9,7 +9,7 @@ import Foundation
 import PromiseKit
 import Moya
 
-class Oneinch: SwapTokenActionsService, SwapTokenURLProviderType {
+class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()

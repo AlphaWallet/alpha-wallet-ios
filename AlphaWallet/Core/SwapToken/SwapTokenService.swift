@@ -1,5 +1,5 @@
 //
-//  SwapTokenService.swift
+//  TokenActionsService.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 26.11.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SwapTokenActionsService {
+protocol TokenActionsProvider {
     func isSupport(token: TokenObject) -> Bool
     func actions(token: TokenObject) -> [TokenInstanceAction]
 }
@@ -19,15 +19,15 @@ protocol SwapTokenURLProviderType {
     func url(token: TokenObject) -> URL?
 }
 
-protocol SwapTokenServiceType: SwapTokenActionsService {
-    func register(service: SwapTokenActionsService)
+protocol TokenActionsServiceType: TokenActionsProvider {
+    func register(service: TokenActionsProvider)
 }
 
-class SwapTokenService: SwapTokenServiceType {
+class TokenActionsService: TokenActionsServiceType {
 
-    private var services: [SwapTokenActionsService] = []
+    private var services: [TokenActionsProvider] = []
 
-    func register(service: SwapTokenActionsService) {
+    func register(service: TokenActionsProvider) {
         services.append(service)
     }
 
@@ -44,6 +44,5 @@ class SwapTokenService: SwapTokenServiceType {
             $0.isSupport(token: token) ? $0 : nil
         }.isEmpty
     }
-
 }
 

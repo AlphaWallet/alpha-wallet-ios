@@ -127,6 +127,10 @@ public struct Constants {
     private static let rampApiKey = "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
     static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
 
+    static func buyWitRampUrl(asset: String) -> String {
+        "https://buy.ramp.network/?hostApiKey=\(rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
+    }
+
     //ENS
     static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e")!
     static let ENSRegistrarRopsten = ENSRegistrarAddress
