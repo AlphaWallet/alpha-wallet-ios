@@ -409,7 +409,6 @@ class UniversalLinkCoordinator: Coordinator {
             }
         }
     }
-
     private func ecrecover(signedOrder: SignedOrder) -> ResultResult<web3swift.EthereumAddress, web3swift.Web3Error>.t {
         //need to hash message here because the web3swift implementation adds prefix
         let messageHash = Data(bytes: signedOrder.message).sha3(.keccak256)
@@ -420,9 +419,11 @@ class UniversalLinkCoordinator: Coordinator {
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
         let nodeURL = server.rpcURL
         let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
-        return web3(provider: provider).personal.ecrecover(
-                hash: messageHash,
-                signature: Data(bytes: signature.hexToBytes)
+        let web3Instance = web3swift.web3(provider: provider)
+
+        return web3swift.web3.Personal(provider: provider, web3: web3Instance).ecrecover(
+            hash: messageHash,
+            signature: Data(bytes: signature.hexToBytes)
         )
     }
 
