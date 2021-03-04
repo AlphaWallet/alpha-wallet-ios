@@ -138,8 +138,8 @@ class TokenViewController: UIViewController {
             let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
             navigationItem.rightBarButtonItem = label
 
-            tokenScriptStatusPromise.done { _ in
-                self.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+            tokenScriptStatusPromise.done { [weak self] _ in
+                self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
             }.cauterize()
         }
 
