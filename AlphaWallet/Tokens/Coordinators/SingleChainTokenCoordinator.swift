@@ -414,14 +414,14 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransactionType transactionType: TransactionType, transactionsStore: TransactionsStorage) {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
+        assetDefinitionStore.subscribeToBodyChanges { [weak self, weak viewController] contract in
+            guard let strongSelf = self, let viewController = viewController else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
             let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
         }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
+        assetDefinitionStore.subscribeToSignatureChanges { [weak self, weak viewController] contract in
+            guard let strongSelf = self, let viewController = viewController else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
             let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
