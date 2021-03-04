@@ -379,6 +379,7 @@ class InCoordinator: NSObject, Coordinator {
         let tokenCollection = TokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokenDataStores: tokensStoragesForEnabledServers)
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
         pollEthereumEvents(tokenCollection: tokenCollection)
+
         let coordinator = TokensCoordinator(
                 sessions: walletSessions,
                 keystore: keystore,
@@ -391,7 +392,8 @@ class InCoordinator: NSObject, Coordinator {
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
                 tokenActionsService: tokenActionsService,
-                walletConnectCoordinator: walletConnectCoordinator
+                walletConnectCoordinator: walletConnectCoordinator,
+                transactionsStorages: transactionsStorages
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
