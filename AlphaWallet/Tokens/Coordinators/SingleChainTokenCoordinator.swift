@@ -30,7 +30,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
-    func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
+    func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
 }
 
@@ -109,7 +109,7 @@ class SingleChainTokenCoordinator: Coordinator {
             } else {
                 startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
             }
-            GetContractInteractions().getContractList(address: wallet, server: session.server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
+            GetContractInteractions(queue: .main).getContractList(address: wallet, server: session.server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
                 guard let strongSelf = self else { return }
                 defer {
                     seal.fulfill(())
@@ -574,7 +574,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         delegate?.didPress(for: .request, inCoordinator: self)
     }
 
-    func didTap(transaction: Transaction, inViewController viewController: TokenViewController) {
+    func didTap(transaction: TransactionInstance, inViewController viewController: TokenViewController) {
         delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
     }
 

@@ -100,7 +100,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .custom: return nil
         }
     }
-
+    
     //TODO fix up all the networks
     var getEtherscanURLERC20Events: String? {
         switch self {

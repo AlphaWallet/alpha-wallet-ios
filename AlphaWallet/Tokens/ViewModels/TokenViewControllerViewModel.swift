@@ -25,7 +25,7 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    let recentTransactions: [Transaction]
+    let recentTransactions: [TransactionInstance]
 
     var actions: [TokenInstanceAction] {
         guard let token = token else { return [] }
@@ -124,20 +124,29 @@ struct TokenViewControllerViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             self.recentTransactions = Array(transactionsStore.objects.lazy
-                    .filter({ $0.state == .completed || $0.state == .pending })
-                    .filter({ $0.operation == nil })
-                    .filter({ $0.value != "" && $0.value != "0" })
-                    .prefix(3))
+                    .filter({ TokenViewControllerViewModel.filterTransactionsForNativeCryptocurrency(transaction: $0) })
+                    .prefix(3)
+                    .map { TransactionInstance(transaction: $0) })
+
         case .ERC20Token(let token, _, _):
             self.recentTransactions = Array(transactionsStore.objects.lazy
-                    .filter({ $0.state == .completed || $0.state == .pending })
-                    .filter({
-                        $0.localizedOperations.contains(where: { op in op.operationType == .erc20TokenTransfer && (op.contract.flatMap({ token.contractAddress.sameContract(as: $0) }) ?? false) })
-                    })
+                    .filter({ TokenViewControllerViewModel.filterTransactionsForERC20Token(transaction: $0, tokenObject: token) })
                     .prefix(3))
+                    .map { TransactionInstance(transaction: $0) }
+            
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             self.recentTransactions = []
         }
+    }
+
+    private static func filterTransactionsForNativeCryptocurrency(transaction: Transaction) -> Bool {
+        (transaction.state == .completed || transaction.state == .pending) && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
+    }
+
+    private static func filterTransactionsForERC20Token(transaction: Transaction, tokenObject token: TokenObject) -> Bool {
+        (transaction.state == .completed || transaction.state == .pending) && transaction.localizedOperations.contains(where: { op in
+            op.operationType == .erc20TokenTransfer && (op.contract.flatMap({ token.contractAddress.sameContract(as: $0) }) ?? false)
+        })
     }
 
     var destinationAddress: AlphaWallet.Address {
