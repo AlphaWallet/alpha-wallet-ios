@@ -274,22 +274,22 @@ class InCoordinator: NSObject, Coordinator {
     private func setupEtherBalances() {
         nativeCryptoCurrencyBalances = .init()
         for each in config.enabledServers {
-            let price = createCryptoCurrencyBalanceSubscribable(forServer: each)
+            nativeCryptoCurrencyBalances[each] = createCryptoCurrencyBalanceSubscribable(forServer: each)
             let tokensStorage = tokensStorages[each]
             let etherToken = TokensDataStore.etherToken(forServer: each)
-            tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
-                guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
+
+            tokensStorage.tokensModel.subscribe { [weak self] tokensModel in
+                guard let strongSelf = self, let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                     return
                 }
+
                 if let balance = BigInt(eth.value) {
-                    guard let strongSelf = self else { return }
                     strongSelf.nativeCryptoCurrencyBalances[each].value = BigInt(eth.value)
                     guard !(balance.isZero) else { return }
                     //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
                     guard !isRunningTests() else { return }
                 }
             }
-            nativeCryptoCurrencyBalances[each] = price
         }
     }
 
@@ -311,12 +311,12 @@ class InCoordinator: NSObject, Coordinator {
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupTokenDataStores()
+        setupWalletSessions()
         setupNativeCryptoCurrencyPrices()
         setupNativeCryptoCurrencyBalances()
         setupEventsStorages()
         setupTransactionsStorages()
         setupEtherBalances()
-        setupWalletSessions()
         setupCallForAssetAttributeCoordinators()
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinator()

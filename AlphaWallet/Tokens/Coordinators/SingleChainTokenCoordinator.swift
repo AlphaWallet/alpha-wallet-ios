@@ -97,7 +97,7 @@ class SingleChainTokenCoordinator: Coordinator {
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(forSession: session, coordinator: self, wallet: keystore.currentWallet.address)
+        let operation = AutoDetectTransactedTokensOperation(forServer: session.server, coordinator: self, wallet: keystore.currentWallet.address)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -189,7 +189,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
         let address = keystore.currentWallet.address
         isAutoDetectingTokens = true
-        let operation = AutoDetectTokensOperation(forSession: session, coordinator: self, wallet: address, tokens: contractsToDetect)
+        let operation = AutoDetectTokensOperation(forServer: session.server, coordinator: self, wallet: address, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
@@ -453,7 +453,6 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     class AutoDetectTransactedTokensOperation: Operation {
-        private let session: WalletSession
         weak private var coordinator: SingleChainTokenCoordinator?
         private let wallet: AlphaWallet.Address
         override var isExecuting: Bool {
@@ -466,30 +465,31 @@ class SingleChainTokenCoordinator: Coordinator {
             return true
         }
 
-        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address) {
-            self.session = session
+        init(forServer server: RPCServer, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address) {
             self.coordinator = coordinator
             self.wallet = wallet
             super.init()
-            self.queuePriority = session.server.networkRequestsQueuePriority
+            self.queuePriority = server.networkRequestsQueuePriority
         }
 
         override func main() {
             guard let strongCoordinator = coordinator else { return }
             let fetchErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
             let fetchNonErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
-            when(fulfilled: [fetchErc20Tokens, fetchNonErc20Tokens]).done { _ in
-                self.willChangeValue(forKey: "isExecuting")
-                self.willChangeValue(forKey: "isFinished")
-                self.coordinator?.isAutoDetectingTransactedTokens = false
-                self.didChangeValue(forKey: "isExecuting")
-                self.didChangeValue(forKey: "isFinished")
+
+            when(fulfilled: [fetchErc20Tokens, fetchNonErc20Tokens]).done { [weak self] _ in
+                guard let strongSelf = self else { return }
+
+                strongSelf.willChangeValue(forKey: "isExecuting")
+                strongSelf.willChangeValue(forKey: "isFinished")
+                strongCoordinator.isAutoDetectingTransactedTokens = false
+                strongSelf.didChangeValue(forKey: "isExecuting")
+                strongSelf.didChangeValue(forKey: "isFinished")
             }.cauterize()
         }
     }
 
     class AutoDetectTokensOperation: Operation {
-        private let session: WalletSession
         weak private var coordinator: SingleChainTokenCoordinator?
         private let wallet: AlphaWallet.Address
         private let tokens: [(name: String, contract: AlphaWallet.Address)]
@@ -503,23 +503,22 @@ class SingleChainTokenCoordinator: Coordinator {
             return true
         }
 
-        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address, tokens: [(name: String, contract: AlphaWallet.Address)]) {
-            self.session = session
+        init(forServer server: RPCServer, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address, tokens: [(name: String, contract: AlphaWallet.Address)]) {
             self.coordinator = coordinator
             self.wallet = wallet
             self.tokens = tokens
             super.init()
-            self.queuePriority = session.server.networkRequestsQueuePriority
+            self.queuePriority = server.networkRequestsQueuePriority
         }
 
         override func main() {
             DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.coordinator?.autoDetectTokensImpl(withContracts: strongSelf.tokens) { [weak self] in
-                    guard let strongSelf = self else { return }
+                guard let strongSelf = self, let coordinator = strongSelf.coordinator else { return }
+
+                coordinator.autoDetectTokensImpl(withContracts: strongSelf.tokens) {
                     strongSelf.willChangeValue(forKey: "isExecuting")
                     strongSelf.willChangeValue(forKey: "isFinished")
-                    strongSelf.coordinator?.isAutoDetectingTokens = false
+                    coordinator.isAutoDetectingTokens = false
                     strongSelf.didChangeValue(forKey: "isExecuting")
                     strongSelf.didChangeValue(forKey: "isFinished")
                 }
