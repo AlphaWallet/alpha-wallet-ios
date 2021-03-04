@@ -50,7 +50,7 @@ class SingleChainTokenCoordinator: Coordinator {
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
-
+    private let transactionsStorage: TransactionsStorage
     init(
             session: WalletSession,
             keystore: Keystore,
@@ -61,7 +61,8 @@ class SingleChainTokenCoordinator: Coordinator {
             analyticsCoordinator: AnalyticsCoordinator,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-            tokenActionsProvider: TokenActionsProvider
+            tokenActionsProvider: TokenActionsProvider,
+            transactionsStorage: TransactionsStorage
     ) {
         self.session = session
         self.keystore = keystore
@@ -73,6 +74,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
         self.tokenActionsProvider = tokenActionsProvider
+        self.transactionsStorage = transactionsStorage
     }
 
     func start() {
@@ -383,25 +385,12 @@ class SingleChainTokenCoordinator: Coordinator {
                 coordinator.isReadOnly = true
             }
         }
-    }
-
-    private func createTransactionsStore() -> TransactionsStorage? {
-        let realm = self.realm(forAccount: keystore.currentWallet)
-        return TransactionsStorage(realm: realm, server: session.server, delegate: self)
-    }
-
-    private func realm(forAccount account: Wallet) -> Realm {
-        let migration = MigrationInitializer(account: account)
-        migration.perform()
-        return try! Realm(configuration: migration.config)
-    }
+    } 
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
-        guard let transactionsStore = createTransactionsStore() else { return }
-
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token)
         viewController.delegate = self
-        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
+        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStorage, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
         viewController.configure(viewModel: viewModel)
 
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: {
@@ -410,7 +399,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
         navigationController.pushViewController(viewController, animated: true)
 
-        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransactionType: transactionType, transactionsStore: transactionsStore)
+        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransactionType: transactionType, transactionsStore: transactionsStorage)
     }
 
     private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransactionType transactionType: TransactionType, transactionsStore: TransactionsStorage) {
