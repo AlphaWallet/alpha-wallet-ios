@@ -21,7 +21,7 @@ class GetBlockTimestampCoordinator {
 
         let promise: Promise<Date> = Promise { seal in
             firstly {
-                web3.eth.getBlockByNumberPromise(blockNumber)
+                web3swift.web3.Eth(provider: web3.provider, web3: web3).getBlockByNumberPromise(blockNumber)
             }.map {
                 $0.timestamp
             }.done {
@@ -30,8 +30,10 @@ class GetBlockTimestampCoordinator {
                 seal.reject($0)
             }
         }
+
         cacheForServer[blockNumber] = promise
         Self.blockTimestampCache[server] = cacheForServer
+
         return promise
     }
 }
