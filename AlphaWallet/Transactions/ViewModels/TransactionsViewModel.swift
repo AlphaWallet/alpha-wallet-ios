@@ -4,12 +4,16 @@ import Foundation
 import UIKit
 
 struct TransactionsViewModel {
-    private var formatter: DateFormatter {
+    private static var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
     private var items: [(date: String, transactionRows: [TransactionRow])] = []
 
-    init(transactions: [Transaction] = []) {
+    init(transactions: [(date: String, transactionRows: [TransactionRow])] = []) {
+        self.items = transactions
+    }
+
+    static func mapTransactions(transactions: [TransactionInstance]) -> [(date: String, transactionRows: [TransactionRow])] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
         for transaction in transactions {
@@ -19,12 +23,13 @@ struct TransactionsViewModel {
             newItems[date] = currentItems
         }
         let tuple = newItems.map { each in
-            (date: each.key, transactions: (each.value as! [Transaction]).sorted { $0.date > $1.date })
+            (date: each.key, transactions: (each.value as! [TransactionInstance]).sorted { $0.date > $1.date })
         }
-        let collapsedTransactions: [(date: String, transactions: [Transaction])] = tuple.sorted { (object1, object2) -> Bool in
+        let collapsedTransactions: [(date: String, transactions: [TransactionInstance])] = tuple.sorted { (object1, object2) -> Bool in
             return formatter.date(from: object1.date)! > formatter.date(from: object2.date)!
         }
-        items = collapsedTransactions.map { date, transactions in
+
+        return collapsedTransactions.map { date, transactions in
             var items: [TransactionRow] = .init()
             for each in transactions {
                 if each.localizedOperations.isEmpty {
@@ -70,7 +75,7 @@ struct TransactionsViewModel {
 
     func titleForHeader(in section: Int) -> String {
         let value = items[section].date
-        let date = formatter.date(from: value)!
+        let date = Self.formatter.date(from: value)!
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }

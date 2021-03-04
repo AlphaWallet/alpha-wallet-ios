@@ -313,6 +313,7 @@ class InCoordinator: NSObject, Coordinator {
         setupTokenDataStores()
         setupNativeCryptoCurrencyPrices()
         setupNativeCryptoCurrencyBalances()
+        setupEventsStorages()
         setupTransactionsStorages()
         setupEtherBalances()
         setupWalletSessions()
@@ -322,6 +323,12 @@ class InCoordinator: NSObject, Coordinator {
         setUpEventSourceCoordinatorForActivities()
     }
 
+    private func setupEventsStorages() {
+        let realm = self.realm(forAccount: wallet)
+
+        eventsDataStore = EventsDataStore(realm: realm)
+        eventsActivityDataStore = EventsActivityDataStore(realm: realm)
+    }
     private func setupNativeCryptoCurrencyPrices() {
         nativeCryptoCurrencyPrices = createEtherPricesSubscribablesForAllChains()
     }
@@ -865,7 +872,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         showPaymentFlow(for: type, server: server)
     }
 
-    func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
+    func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
         } else {
@@ -948,7 +955,8 @@ extension InCoordinator: EventSourceCoordinatorForActivitiesDelegate {
 }
 
 extension InCoordinator: ActivitiesCoordinatorDelegate {
-    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController) {
+
+    func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
         } else {

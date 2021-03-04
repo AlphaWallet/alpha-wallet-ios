@@ -34,18 +34,19 @@ class EventInstance: Object {
         }
     }
 
-    convenience init(contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, blockNumber: Int, logIndex: Int, filter: String, json: String) {
+    convenience init(event: EventInstanceValue) {
         self.init()
-        self.primaryKey = EventInstance.generatePrimaryKey(fromContract: contract, tokenContract: tokenContract, server: server, eventName: eventName, blockNumber: blockNumber, logIndex: logIndex, filter: filter)
-        self.contract = contract.eip55String
-        self.tokenContract = tokenContract.eip55String
-        self.chainId = server.chainID
-        self.eventName = eventName
-        self.blockNumber = blockNumber
-        self.logIndex = logIndex
-        self.filter = filter
-        self.json = json
-        self._data = EventInstance.convertJsonToDictionary(json)
+
+        self.primaryKey = event.primaryKey
+        self.contract = event.contract
+        self.tokenContract = event.tokenContract
+        self.chainId = event.chainId
+        self.eventName = event.eventName
+        self.blockNumber = event.blockNumber
+        self.logIndex = event.logIndex
+        self.filter = event.filter
+        self.json = event.json
+        self._data = event._data
     }
 
     override static func primaryKey() -> String? {
@@ -70,4 +71,3 @@ class EventInstance: Object {
         })
     }
 }
-

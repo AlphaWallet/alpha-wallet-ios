@@ -25,11 +25,7 @@ class TransactionViewController: UIViewController {
 
     weak var delegate: TransactionViewControllerDelegate?
 
-    init(
-            session: WalletSession,
-            transactionRow: TransactionRow,
-            delegate: TransactionViewControllerDelegate?
-    ) {
+    init(session: WalletSession, transactionRow: TransactionRow, delegate: TransactionViewControllerDelegate?) {
         self.session = session
         self.transactionRow = transactionRow
         self.delegate = delegate
@@ -172,7 +168,7 @@ class TransactionViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     @objc func dismiss() {

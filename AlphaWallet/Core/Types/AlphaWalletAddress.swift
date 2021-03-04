@@ -8,11 +8,35 @@ import WalletCore
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}
 
+extension AlphaWallet.Address {
+    private class TheadSafeAddressCache {
+        private var cache: [String: AlphaWallet.Address] = .init()
+        private let accessQueue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
+
+        subscript(key: String) -> AlphaWallet.Address? {
+            get {
+                var element: AlphaWallet.Address?
+                accessQueue.sync {
+                    element = cache[key]
+                }
+
+                return element
+            }
+            set {
+                accessQueue.async(flags: .barrier) {
+                    self.cache[key] = newValue
+                }
+            }
+        }
+    }
+}
+
 //TODO move this to a standard alone internal Pod with 0 external dependencies so main app and TokenScript can use it?
 extension AlphaWallet {
     public enum Address: Hashable, Codable {
         //Computing EIP55 is really slow. Cache needed when we need to create many addresses, like parsing a whole lot of Ethereum event logs
-        private static var cache: [String: Address] = .init()
+        //there is cases when cache accessing from different treads, fro this case we need to use sync access for it
+        private static var cache: TheadSafeAddressCache = .init()
 
         case ethereumAddress(eip55String: String)
 
@@ -36,10 +60,16 @@ extension AlphaWallet {
 
         //TODO not sure if we should keep this
         init?(uncheckedAgainstNullAddress string: String) {
+            if let value = Self.cache[string] {
+                self = value
+                return
+            }
+
             let string = string.add0x
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
+            Self.cache[string] = self
         }
 
         init(fromPrivateKey privateKey: Data) {

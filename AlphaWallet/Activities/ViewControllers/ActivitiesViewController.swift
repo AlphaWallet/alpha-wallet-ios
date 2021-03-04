@@ -6,7 +6,7 @@ import StatefulViewController
 
 protocol ActivitiesViewControllerDelegate: class {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController)
-    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController)
+    func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
 }
 
 class ActivitiesViewController: UIViewController {
@@ -143,6 +143,7 @@ class ActivitiesViewController: UIViewController {
                 return nil
             }
         }
+        let t = Activity.AssignedToken(tokenObject: token)
 
         let activityName: String
         if wallet.sameContract(as: transactionRow.from) {
@@ -201,7 +202,7 @@ class ActivitiesViewController: UIViewController {
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transactionRow.blockNumber + 10000000,
                 rowType: rowType,
-                tokenObject: token,
+                tokenObject: t,
                 server: transactionRow.server,
                 name: activityName,
                 eventName: activityName,
@@ -301,16 +302,16 @@ extension ActivitiesViewController: UISearchResultsUpdating {
     //At least on iOS 13 beta on a device. updateSearchResults(for:) is called when we set `searchController.isActive = false` to dismiss search (because user tapped on a filter), but the value of `searchController.isActive` remains `false` during the call, hence the async.
     //This behavior is not observed in iOS 12, simulator
     public func updateSearchResults(for searchController: UISearchController) {
-        DispatchQueue.main.async {
-            self.processSearchWithKeywords()
-        }
+        processSearchWithKeywords()
     }
 
     private func processSearchWithKeywords() {
         let keyword = searchController.searchBar.text
         viewModel.filter(.keyword(keyword))
+
         tableView.reloadData()
     }
+
 }
 
 extension ActivitiesViewController {
