@@ -42,7 +42,9 @@ enum SupportRow {
             return URLServiceProvider.reddit
         case .facebook:
             return URLServiceProvider.facebook
-        case .faq, .blog:
+        case .faq:
+            return URLServiceProvider.faq
+        case .blog:
             return nil
         }
     }
@@ -60,7 +62,7 @@ enum SupportRow {
         case .facebook:
             return URLServiceProvider.facebook.title
         case .faq:
-            return "faq".uppercased()
+            return URLServiceProvider.faq.title
         case .blog:
             return "Blog"
         }
