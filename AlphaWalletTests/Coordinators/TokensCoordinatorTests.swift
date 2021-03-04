@@ -3,8 +3,8 @@
 import XCTest
 @testable import AlphaWallet
 
-class FakeSwapTokenService: SwapTokenServiceType {
-    func register(service: SwapTokenActionsService) {
+class FakeSwapTokenService: TokenActionsServiceType {
+    func register(service: TokenActionsProvider) {
 
     }
 
@@ -23,20 +23,20 @@ class TokensCoordinatorTests: XCTestCase {
         sessions[.main] = WalletSession.make()
         let config: Config = .make()
         let assetDefinitionStore = AssetDefinitionStore()
-        let swapTokenService = FakeSwapTokenService()
+        let tokenActionsService = FakeSwapTokenService()
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService), tokenDataStores: []),
+            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService), tokenDataStores: []),
             nativeCryptoCurrencyPrices: .init(),
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
             analyticsCoordinator: FakeAnalyticsService(),
-            swapTokenService: swapTokenService,
+            tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake()
         )
         coordinator.start()

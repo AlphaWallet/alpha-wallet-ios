@@ -11,7 +11,7 @@ struct TokenViewControllerViewModel {
     private let tokensStore: TokensDataStore
     private let transactionsStore: TransactionsStorage
     private let assetDefinitionStore: AssetDefinitionStore
-    private let swapTokenActionsService: SwapTokenActionsService
+    private let tokenActionsProvider: TokenActionsProvider
 
     var token: TokenObject? {
         switch transactionType {
@@ -46,7 +46,7 @@ struct TokenViewControllerViewModel {
                     .init(type: .erc20Receive)
                 ]
 
-                return actions + swapTokenActionsService.actions(token: token)
+                return actions + tokenActionsProvider.actions(token: token)
             case .nativeCryptocurrency:
                 let actions: [TokenInstanceAction] = [
                     .init(type: .erc20Send),
@@ -54,9 +54,9 @@ struct TokenViewControllerViewModel {
                 ]
                 switch token.server {
                 case .xDai:
-                    return [.init(type: .erc20Send), .init(type: .xDaiBridge), .init(type: .erc20Receive), .init(type: .buyXDai)] + swapTokenActionsService.actions(token: token)
+                    return [.init(type: .erc20Send), .init(type: .xDaiBridge), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: token)
                 case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom:
-                    return actions + swapTokenActionsService.actions(token: token)
+                    return actions + tokenActionsProvider.actions(token: token)
                 }
             }
         } else {
@@ -64,7 +64,7 @@ struct TokenViewControllerViewModel {
             case .erc875, .erc721, .erc721ForTickets:
                 return actionsFromTokenScript
             case .erc20:
-                return actionsFromTokenScript + swapTokenActionsService.actions(token: token)
+                return actionsFromTokenScript + tokenActionsProvider.actions(token: token)
             case .nativeCryptocurrency:
                 let xDaiBridgeActions: [TokenInstanceAction]
                 switch token.server {
@@ -76,7 +76,7 @@ struct TokenViewControllerViewModel {
 
                 //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
                 if let server = xmlHandler.server, server.matches(server: token.server) {
-                    actionsFromTokenScript += swapTokenActionsService.actions(token: token)
+                    actionsFromTokenScript += tokenActionsProvider.actions(token: token)
                     return xDaiBridgeActions + actionsFromTokenScript
                 } else {
                     //TODO .erc20Send and .erc20Receive names aren't appropriate
@@ -85,7 +85,7 @@ struct TokenViewControllerViewModel {
                         .init(type: .erc20Receive)
                     ]
 
-                    return xDaiBridgeActions + actions + swapTokenActionsService.actions(token: token)
+                    return xDaiBridgeActions + actions + tokenActionsProvider.actions(token: token)
                 }
             }
         }
@@ -113,13 +113,13 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    init(transactionType: TransactionType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage, assetDefinitionStore: AssetDefinitionStore, swapTokenActionsService: SwapTokenActionsService) {
+    init(transactionType: TransactionType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: TokenActionsProvider) {
         self.transactionType = transactionType
         self.session = session
         self.tokensStore = tokensStore
         self.transactionsStore = transactionsStore
         self.assetDefinitionStore = assetDefinitionStore
-        self.swapTokenActionsService = swapTokenActionsService
+        self.tokenActionsProvider = tokenActionsProvider
 
         switch transactionType {
         case .nativeCryptocurrency:
