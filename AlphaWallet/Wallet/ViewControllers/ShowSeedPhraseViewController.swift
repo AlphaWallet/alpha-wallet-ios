@@ -32,6 +32,7 @@ class ShowSeedPhraseViewController: UIViewController {
     private let errorLabel = UILabel()
     private var state: State = .notDisplayedSeedPhrase {
         didSet {
+            let prevViewModel = viewModel
             switch state {
             case .notDisplayedSeedPhrase:
                 viewModel = .init(words: [])
@@ -42,6 +43,10 @@ class ShowSeedPhraseViewController: UIViewController {
             case .done:
                 viewModel = .init(words: [])
             }
+
+            viewModel.subtitle = prevViewModel.subtitle
+            viewModel.buttonTitle = prevViewModel.buttonTitle
+
             configure()
         }
     }
@@ -73,10 +78,10 @@ class ShowSeedPhraseViewController: UIViewController {
     }
     weak var delegate: ShowSeedPhraseViewControllerDelegate?
 
-    init(keystore: Keystore, account: AlphaWallet.Address) {
+    init(keystore: Keystore, account: AlphaWallet.Address, viewModel: ShowSeedPhraseViewModel = .init(words: [])) {
         self.keystore = keystore
         self.account = account
-        self.viewModel = .init(words: [])
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
@@ -128,7 +133,7 @@ class ShowSeedPhraseViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -187,7 +192,7 @@ class ShowSeedPhraseViewController: UIViewController {
 
         buttonsBar.configure()
         let testSeedPhraseButton = buttonsBar.buttons[0]
-        testSeedPhraseButton.setTitle(R.string.localizable.walletsShowSeedPhraseTestSeedPhrase(), for: .normal)
+        testSeedPhraseButton.setTitle(viewModel.buttonTitle, for: .normal)
         testSeedPhraseButton.addTarget(self, action: #selector(testSeedPhrase), for: .touchUpInside)
     }
 
