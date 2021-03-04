@@ -707,12 +707,15 @@
 		8757E5E625DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */; };
 		87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4325EFAFEC0070063B /* BuyTokenService.swift */; };
 		87584B4725EFB0950070063B /* Ramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4625EFB0950070063B /* Ramp.swift */; };
+		87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */; };
 		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
+		87897B9C25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */; };
+		87897B9E25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87897B9D25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift */; };
 		878EE8EE255ADA49000210DE /* ShareContextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE8ED255ADA49000210DE /* ShareContextHandler.swift */; };
 		878EE8F5255ADA49000210DE /* AlphaWalletShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 878EE8EB255ADA49000210DE /* AlphaWalletShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		878EE941255BBF9B000210DE /* ItemProviderValueResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE940255BBF9B000210DE /* ItemProviderValueResolver.swift */; };
@@ -1564,12 +1567,15 @@
 		8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionCoordinatorBridgeToPromise.swift; sourceTree = "<group>"; };
 		87584B4325EFAFEC0070063B /* BuyTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenService.swift; sourceTree = "<group>"; };
 		87584B4625EFB0950070063B /* Ramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ramp.swift; sourceTree = "<group>"; };
+		87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
+		87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseIntroductionViewController.swift; sourceTree = "<group>"; };
+		87897B9D25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseIntroductionViewModel.swift; sourceTree = "<group>"; };
 		878EE8EB255ADA49000210DE /* AlphaWalletShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AlphaWalletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		878EE8ED255ADA49000210DE /* ShareContextHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareContextHandler.swift; sourceTree = "<group>"; };
 		878EE8F2255ADA49000210DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2161,6 +2167,7 @@
 				5E7C78454B11E39CF8B5E695 /* EnterPasswordCoordinator.swift */,
 				5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */,
 				5E7C7CE6E3560E773D2287E2 /* ElevateWalletSecurityCoordinator.swift */,
+				87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2231,6 +2238,7 @@
 				5E7C74A5B5B9D8AD0BD913C1 /* CreateInitialWalletViewController.swift */,
 				5E7C753A2216F043CBDEC07C /* ElevateWalletSecurityViewController.swift */,
 				5E7C78CF45AA54EF8647C44B /* SeedPhraseBackupIntroductionViewController.swift */,
+				87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2249,6 +2257,7 @@
 				5E7C788BDFBDF222B3F4BEAF /* SeedPhraseCollectionViewModel.swift */,
 				5E7C77E2559C7C9117C0F75F /* ElevateWalletSecurityViewModel.swift */,
 				5E7C77AED5BC29ED8D075D08 /* SeedPhraseBackupIntroductionViewModel.swift */,
+				87897B9D25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -4645,6 +4654,7 @@
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
 				87C447AA255970C5009DF2D2 /* ActiveWalletSessionView.swift in Sources */,
+				87897B9E25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift in Sources */,
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
@@ -5051,6 +5061,7 @@
 				5E7C7C0D3181CD31A581AEBE /* EditMyDappViewController.swift in Sources */,
 				5E7C76D28BB14C7685296BEF /* DappsHomeEmptyViewViewModel.swift in Sources */,
 				5E7C741CA88EFAC66756DE7F /* EditMyDappViewControllerViewModel.swift in Sources */,
+				87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */,
 				5E7C71AE5E97BDA5BB685A9F /* Dapp.swift in Sources */,
 				5E7C7DC485AD4401A3F6D071 /* TokenViewController.swift in Sources */,
 				5E7C7EC8E473526629825ADA /* TokenViewControllerViewModel.swift in Sources */,
@@ -5191,6 +5202,7 @@
 				5E7C783EA4C21609101A0F99 /* EmptyDapps.swift in Sources */,
 				5E7C739611741D5E61900992 /* Eip681Parser.swift in Sources */,
 				5E7C77217AFE4BD40C25FD8C /* AddressOrEnsName.swift in Sources */,
+				87897B9C25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift in Sources */,
 				87ED8FAD2488EA610005C69B /* SupportViewController.swift in Sources */,
 				5E7C72D6C4AB97A1FCB3AA32 /* MnemonicInWordListRule.swift in Sources */,
 				87D1757824ADAEEB002130D2 /* BlockchainTagLabel.swift in Sources */,

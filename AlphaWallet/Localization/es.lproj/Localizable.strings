@@ -75,6 +75,7 @@
 "settings.enabledNetworks.button.title" = "Redes activadas";
 "settings.language.button.title" = "Cambiar idioma";
 "settings.backupWallet.button.title" = "Hacer una copia de seguridad de este monedero";
+"settings.showSeedPhrase.button.title" = "Show Seed Phrase";
 "settings.language.useSystem.title" = "Usar la configuración del sistema";
 "settings.version.label.title" = "Versión";
 "settings.tokenScriptStandard.title" = "Compatibilidad de TokenScript";
@@ -109,6 +110,11 @@
 "wallets.backupHdWallet.alertSheet.title" = "Mostrar frase semilla";
 "wallets.backupHdWallet.introduction.button.title" = "Hacer una copia de seguridad de mi monedero";
 "wallets.backupHdWallet.introduction.title" = "Haz una copia de seguridad de tu monedero con la frase semilla";
+"wallets.showSeedPhrase.introduction.button.title" = "Got it, show my seed phrase";
+"wallets.showSeedPhrase.introduction.title" = "Beware of scammers!\nDon’t share seed phrase.";
+"wallets.showSeedPhrase.introduction.subtitle" = "AlphaWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
+"wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
+"wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Tu frase semilla";
 "wallets.showSeedPhrase.subtitle" = "Escribe la frase semilla en un papel: \nsolo tienes que escribir 12 palabras y guardarlas en un lugar seguro, fuera de línea.";
 "wallets.showSeedPhrase.testSeedPhrase" = "Vale, he escrito esto";

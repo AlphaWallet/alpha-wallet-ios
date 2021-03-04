@@ -14,8 +14,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
-    let descriptionLabel2 = UILabel()
-    let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
         return ScreenChecker.size(big: 250, medium: 180, small: 180)
@@ -41,8 +40,6 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             imageView,
             UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel1,
-            UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
-            descriptionLabel2
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -84,9 +81,6 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
         descriptionLabel1.numberOfLines = 0
         descriptionLabel1.attributedText = viewModel.attributedDescription
-
-        descriptionLabel2.numberOfLines = 0
-        descriptionLabel2.attributedText = viewModel.attributedWarningDescription
 
         buttonsBar.configure()
         let exportButton = buttonsBar.buttons[0]

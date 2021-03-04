@@ -8,6 +8,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController)
     func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController)
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
+    func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController)
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
     func settingsViewControllerHelpSelected(in controller: SettingsViewController)
 }
@@ -29,7 +30,7 @@ class SettingsViewController: UIViewController {
 
         return tableView
     }()
-    private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account)
+    private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account, keystore: keystore)
 
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
@@ -115,7 +116,7 @@ class SettingsViewController: UIViewController {
     private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
         cell.configure(viewModel: .init(
             titleText: row.title,
-            subTitleText: self.viewModel.addressReplacedWithENSOrWalletName(),
+            subTitleText: viewModel.addressReplacedWithENSOrWalletName(),
             icon: row.icon)
         )
 
@@ -210,10 +211,10 @@ extension SettingsViewController: UITableViewDataSource {
                 configureChangeWalletCellWithResolvedENS(row, cell: cell)
             case .backup:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
-                let walletSecurityLevel = PromptBackupCoordinator(keystore: self.keystore, wallet: self.account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
+                let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
                 cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 cell.accessoryType = .disclosureIndicator
-            case .showMyWallet:
+            case .showMyWallet, .showSeedPhrase:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
             }
 
@@ -249,6 +250,8 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerChangeWalletSelected(in: self)
             case .showMyWallet:
                 delegate?.settingsViewControllerMyWalletAddressSelected(in: self)
+            case .showSeedPhrase:
+                delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {
