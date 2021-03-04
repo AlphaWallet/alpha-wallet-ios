@@ -7,7 +7,7 @@ import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
@@ -230,14 +230,22 @@ class TokenViewController: UIViewController {
                     delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
                 }
             case .xDaiBridge:
-                delegate?.shouldOpen(url: Constants.xDaiBridge, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
-            case .buyXDai:
-                guard let url = URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(session.account.address.eip55String)") else {
-                    //TODO log
-                    return
+                delegate?.shouldOpen(url: Constants.xDaiBridge, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
+            case .buy(let service):
+                var tokenObject: TokenObject?
+                switch transactionType {
+                case .nativeCryptocurrency(let token, _, _):
+                    tokenObject = token
+                case .ERC20Token(let token, _, _):
+                    tokenObject = token
+                case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+                    tokenObject = .none
                 }
+
+                guard let token = tokenObject, let url = service.url(token: token) else { return }
+
                 logStartOnRamp(name: "Ramp")
-                delegate?.shouldOpen(url: url, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
+                delegate?.shouldOpen(url: url, shouldSwitchServer: false, forTransactionType: transactionType, inViewController: self)
             }
             break
         }

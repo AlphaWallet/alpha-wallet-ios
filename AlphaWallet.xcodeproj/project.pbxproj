@@ -705,6 +705,8 @@
 		8757E5E225DE5ADB00812392 /* WalletConnectToSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E125DE5ADB00812392 /* WalletConnectToSessionViewModel.swift */; };
 		8757E5E425DE5EC400812392 /* WalletConnectToSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E325DE5EC400812392 /* WalletConnectToSessionCoordinator.swift */; };
 		8757E5E625DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */; };
+		87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4325EFAFEC0070063B /* BuyTokenService.swift */; };
+		87584B4725EFB0950070063B /* Ramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4625EFB0950070063B /* Ramp.swift */; };
 		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
@@ -1559,6 +1561,8 @@
 		8757E5E125DE5ADB00812392 /* WalletConnectToSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionViewModel.swift; sourceTree = "<group>"; };
 		8757E5E325DE5EC400812392 /* WalletConnectToSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionCoordinator.swift; sourceTree = "<group>"; };
 		8757E5E525DE676100812392 /* WalletConnectToSessionCoordinatorBridgeToPromise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectToSessionCoordinatorBridgeToPromise.swift; sourceTree = "<group>"; };
+		87584B4325EFAFEC0070063B /* BuyTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenService.swift; sourceTree = "<group>"; };
+		87584B4625EFB0950070063B /* Ramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ramp.swift; sourceTree = "<group>"; };
 		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
@@ -2769,6 +2773,7 @@
 		29FC9BC31F830880000209CD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				87584B4225EFAFB60070063B /* BuyToken */,
 				87B65268256FBF22000EF927 /* SwapToken */,
 				295B61D21FE7D5AB00642E60 /* Formatters */,
 				29E9CFD01FE737EE00017744 /* Types */,
@@ -3824,6 +3829,23 @@
 			path = HoneySwap;
 			sourceTree = "<group>";
 		};
+		87584B4225EFAFB60070063B /* BuyToken */ = {
+			isa = PBXGroup;
+			children = (
+				87584B4525EFB07F0070063B /* Ramp */,
+				87584B4325EFAFEC0070063B /* BuyTokenService.swift */,
+			);
+			path = BuyToken;
+			sourceTree = "<group>";
+		};
+		87584B4525EFB07F0070063B /* Ramp */ = {
+			isa = PBXGroup;
+			children = (
+				87584B4625EFB0950070063B /* Ramp.swift */,
+			);
+			path = Ramp;
+			sourceTree = "<group>";
+		};
 		8783EFC8256D11A700120C0D /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -4826,6 +4848,7 @@
 				5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */,
 				5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */,
 				5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */,
+				87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */,
 				5E7C71F8050CCF990539B293 /* LockView.swift in Sources */,
 				8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */,
 				87BBF98E2563DD7600FF4846 /* WalletConnectCoordinator.swift in Sources */,
@@ -5047,6 +5070,7 @@
 				5E7C751D847B47B2BA67F6B5 /* CustomUrlSchemeCoordinator.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
+				87584B4725EFB0950070063B /* Ramp.swift in Sources */,
 				5E7C7A656817D7E5AADF310E /* TokenInstanceViewController.swift in Sources */,
 				5E7C72402E57B627B6E56934 /* TokenInstanceViewModel.swift in Sources */,
 				87D163A7242CD9A2002662D2 /* AddHideTokenSectionHeaderView.swift in Sources */,

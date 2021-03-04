@@ -13,6 +13,7 @@ enum AlphaWalletService {
     case gasPriceEstimate
     case oneInchTokens(config: Config)
     case honeySwapTokens(config: Config)
+    case rampAssets(config: Config)
 
     enum SortOrder: String {
         case asc
@@ -37,6 +38,8 @@ extension AlphaWalletService: TargetType {
             return config.oneInch
         case .honeySwapTokens(let config):
             return config.honeySwapTokens
+        case .rampAssets(let config):
+            return URL(string: "https://api-instant.ramp.network")!
         }
     }
 
@@ -63,6 +66,8 @@ extension AlphaWalletService: TargetType {
             return "/v1.1/tokens"
         case .honeySwapTokens:
             return ""
+        case .rampAssets:
+            return "/api/host-api/assets"
         }
     }
 
@@ -77,6 +82,7 @@ extension AlphaWalletService: TargetType {
         case .gasPriceEstimate: return .get
         case .oneInchTokens: return .get
         case .honeySwapTokens: return .get
+        case .rampAssets: return .get
         }
     }
 
@@ -122,7 +128,7 @@ extension AlphaWalletService: TargetType {
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
         case .gasPriceEstimate:
             return .requestPlain
-        case .oneInchTokens, .honeySwapTokens:
+        case .oneInchTokens, .honeySwapTokens, .rampAssets:
             return .requestPlain
         }
     }
@@ -148,7 +154,7 @@ extension AlphaWalletService: TargetType {
                 "client": Bundle.main.bundleIdentifier ?? "",
                 "client-build": Bundle.main.buildNumber ?? "",
             ]
-        case .oneInchTokens, .honeySwapTokens:
+        case .oneInchTokens, .honeySwapTokens, .rampAssets:
             return nil
         }
     }

@@ -28,7 +28,7 @@ struct NoTokenError: LocalizedError {
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
@@ -46,7 +46,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let autoDetectTokensQueue: OperationQueue
     private var isAutoDetectingTransactedTokens = false
     private var isAutoDetectingTokens = false
-    private let swapTokenActionsService: SwapTokenActionsService
+    private let tokenActionsProvider: TokenActionsProvider
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -61,7 +61,7 @@ class SingleChainTokenCoordinator: Coordinator {
             analyticsCoordinator: AnalyticsCoordinator,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
-            swapTokenActionsService: SwapTokenActionsService
+            tokenActionsProvider: TokenActionsProvider
     ) {
         self.session = session
         self.keystore = keystore
@@ -72,7 +72,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
-        self.swapTokenActionsService = swapTokenActionsService
+        self.tokenActionsProvider = tokenActionsProvider
     }
 
     func start() {
@@ -401,7 +401,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token)
         viewController.delegate = self
-        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore, swapTokenActionsService: swapTokenActionsService)
+        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
         viewController.configure(viewModel: viewModel)
 
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: {
@@ -417,13 +417,13 @@ class SingleChainTokenCoordinator: Coordinator {
         assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, swapTokenActionsService: strongSelf.swapTokenActionsService)
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
         }
         assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, swapTokenActionsService: strongSelf.swapTokenActionsService)
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
         }
     }
@@ -562,8 +562,8 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
-        delegate?.shouldOpen(url: url, onServer: server, forTransactionType: transactionType, in: self)
+    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
+        delegate?.shouldOpen(url: url, shouldSwitchServer: shouldSwitchServer, forTransactionType: transactionType, in: self)
     }
 
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
@@ -595,7 +595,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .xDaiBridge, .buyXDai:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .xDaiBridge, .buy:
             //Couldn't have reached here
             break
         }
