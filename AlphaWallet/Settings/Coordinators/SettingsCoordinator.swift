@@ -26,7 +26,7 @@ class SettingsCoordinator: Coordinator {
 	private let sessions: ServerDictionary<WalletSession>
     private let promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
-
+    private let walletConnectCoordinator: WalletConnectCoordinator
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
@@ -55,7 +55,8 @@ class SettingsCoordinator: Coordinator {
         config: Config,
         sessions: ServerDictionary<WalletSession>,
         promptBackupCoordinator: PromptBackupCoordinator,
-        analyticsCoordinator: AnalyticsCoordinator
+        analyticsCoordinator: AnalyticsCoordinator,
+        walletConnectCoordinator: WalletConnectCoordinator
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -64,7 +65,7 @@ class SettingsCoordinator: Coordinator {
 		self.sessions = sessions
         self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
-
+        self.walletConnectCoordinator = walletConnectCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -82,6 +83,10 @@ extension SettingsCoordinator: SupportViewControllerDelegate {
 }
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
+    
+    func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {
+        walletConnectCoordinator.showSessions()
+    }
 
     func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController) {
         switch account.type {

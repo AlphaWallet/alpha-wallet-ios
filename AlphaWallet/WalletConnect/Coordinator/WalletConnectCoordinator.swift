@@ -20,6 +20,10 @@ enum SessionsToDisconnect {
 
 typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServer: [WCURL: RPCServer])
 
+protocol WalletConnectCoordinatorDelegate: class {
+    func universalScannerSelected(in coordinator: WalletConnectCoordinator)
+}
+
 class WalletConnectCoordinator: NSObject, Coordinator {
     private lazy var server: WalletConnectServer = {
         let server = WalletConnectServer(wallet: sessions.anyValue.account.address)
@@ -42,6 +46,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
     private weak var sessionsViewController: WalletConnectSessionsViewController?
+    weak var delegate: WalletConnectCoordinatorDelegate?
 
     init(keystore: Keystore, sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, config: Config, nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>) {
         self.config = config
@@ -101,29 +106,38 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         }
     }
 
-    func showSessionDetails(inNavigationController navigationController: UINavigationController) {
-        guard let sessions = server.sessions.value, !sessions.isEmpty else { return }
+    func showSessionDetails(in navigationController: UINavigationController) {
+        guard let sessions = server.sessions.value else { return }
 
         if sessions.count == 1 {
             let session = sessions[0]
-            display(session: session, withNavigationController: navigationController)
+            display(session: session, in: navigationController)
         } else {
             showSessions(state: .sessions, navigationController: navigationController)
         }
     }
 
-    private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping (() -> Void) = {}) {
-
-        let viewController = WalletConnectSessionsViewController(sessionsToURLServersMap: sessionsToURLServersMap)
-        viewController.delegate = self
-        viewController.configure(state: state)
-
-        self.sessionsViewController = viewController
-
-        navigationController.pushViewController(viewController, animated: true, completion: completion)
+    func showSessions() {
+        navigationController.setNavigationBarHidden(false, animated: false)
+        showSessions(state: .sessions, navigationController: navigationController)
     }
 
-    private func display(session: WalletConnectSession, withNavigationController navigationController: UINavigationController) {
+    private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping (() -> Void) = {}) {
+        if let viewController = sessionsViewController {
+            viewController.configure(state: state)
+            completion()
+        } else {
+            let viewController = WalletConnectSessionsViewController(sessionsToURLServersMap: sessionsToURLServersMap)
+            viewController.delegate = self
+            viewController.configure(state: state)
+
+            sessionsViewController = viewController
+
+            navigationController.pushViewController(viewController, animated: true, completion: completion)
+        }
+    }
+
+    private func display(session: WalletConnectSession, in navigationController: UINavigationController) {
         let coordinator = WalletConnectSessionCoordinator(navigationController: navigationController, server: server, session: session)
         coordinator.delegate = self
         coordinator.start()
@@ -139,10 +153,14 @@ extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
 
 extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
-    func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession) {
+    private func resetSessionsToRemoveLoadingIfNeeded() {
         if let viewController = sessionsViewController {
             viewController.set(state: .sessions)
         }
+    }
+
+    func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession) {
+        resetSessionsToRemoveLoadingIfNeeded()
     }
 
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest) {
@@ -247,6 +265,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         } else {
             notificationAlertController = navigationController.displaySuccess(message: errorMessage)
         }
+
+        resetSessionsToRemoveLoadingIfNeeded()
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
@@ -256,6 +276,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             completion(choise)
         }.catch { _ in
             completion(.cancel)
+        }.finally {
+            self.resetSessionsToRemoveLoadingIfNeeded()
         }
     }
 
@@ -277,7 +299,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                 return .init(id: id, url: url, value: data)
             }
         }.then { callback -> Promise<WalletConnectServer.Callback> in
-            return self.showFeedbackOnSuccess(callback)
+            return UINotificationFeedbackGenerator.showFeedbackPromise(value: callback, feedbackType: .success)
         }
     }
 
@@ -312,21 +334,17 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             navigationController.present(alertViewController, animated: true)
         }
     }
-
-    private func showFeedbackOnSuccess<T>(_ value: T) -> Promise<T> {
-        return Promise { seal in
-            UINotificationFeedbackGenerator.show(feedbackType: .success) {
-                seal.fulfill(value)
-            }
-        }
-    }
 }
 
 extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate {
 
+    func qrCodeSelected(in viewController: WalletConnectSessionsViewController) {
+        delegate?.universalScannerSelected(in: self)
+    }
+
     func didClose(in viewController: WalletConnectSessionsViewController) {
         //NOTE: even if we haven't sessions view controller pushed to navigation stack, we need to make sure that root NavigationBar will be hidden
-        navigationController.setNavigationBarHidden(true, animated: true)
+        navigationController.setNavigationBarHidden(true, animated: false)
 
         guard let navigationController = viewController.navigationController else { return }
         navigationController.popViewController(animated: true)
@@ -335,6 +353,6 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController) {
         guard let navigationController = viewController.navigationController else { return }
 
-        display(session: session, withNavigationController: navigationController)
+        display(session: session, in: navigationController)
     }
 }

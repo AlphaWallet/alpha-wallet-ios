@@ -70,10 +70,10 @@ class WalletConnectRowView: UIView {
 
         topSeparatorLine.backgroundColor = viewModel.separatorLineColor
         bottomSeparatorLine.backgroundColor = viewModel.separatorLineColor
-        updateSeparators(options: viewModel.separatorOptions)
+        hideSeparators(for: viewModel.hideSeparatorOptions)
     }
 
-    private func updateSeparators(options: HideSeparatorOption) {
+    private func hideSeparators(for options: HideSeparatorOption) {
         switch options {
         case .top:
             bottomSeparatorLine.isHidden = false

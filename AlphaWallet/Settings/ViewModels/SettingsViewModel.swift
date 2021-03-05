@@ -35,12 +35,12 @@ struct SettingsViewModel {
 
         if account.allowBackup {
             if keystore.isHdWallet(wallet: account) {
-                walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase]
+                walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase, .walletConnect]
             } else {
-                walletRows = [.showMyWallet, .changeWallet, .backup]
+                walletRows = [.showMyWallet, .changeWallet, .backup, .walletConnect]
             }
         } else {
-            walletRows = [.showMyWallet, .changeWallet]
+            walletRows = [.showMyWallet, .changeWallet, .walletConnect]
         }
 
         sections = [
@@ -75,6 +75,7 @@ enum SettingsWalletRow: CaseIterable {
     case changeWallet
     case backup
     case showSeedPhrase
+    case walletConnect
 
     var title: String {
         switch self {
@@ -86,7 +87,8 @@ enum SettingsWalletRow: CaseIterable {
             return R.string.localizable.settingsBackupWalletButtonTitle()
         case .showSeedPhrase:
             return R.string.localizable.settingsShowSeedPhraseButtonTitle()
-
+        case .walletConnect:
+            return R.string.localizable.settingsWalletConnectButtonTitle()
         }
     }
 
@@ -100,6 +102,8 @@ enum SettingsWalletRow: CaseIterable {
             return R.image.backupCircle()!
         case .showSeedPhrase:
             return R.image.iconsSettingsSeed2()!
+        case .walletConnect:
+            return R.image.iconsSettingsWalletConnect()!
         }
     }
 }

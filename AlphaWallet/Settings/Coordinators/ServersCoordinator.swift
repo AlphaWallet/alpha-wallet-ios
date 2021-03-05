@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 protocol ServersCoordinatorDelegate: class {
     func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator)
@@ -26,11 +27,39 @@ class ServersCoordinator: Coordinator {
         .artis_tau1,
     ]
 
-    private let defaultServer: RPCServerOrAuto
-    private let includeAny: Bool
-    private let config: Config
+    private let viewModel: ServersViewModel
+    private lazy var serversViewController: ServersViewController = {
+        let controller = ServersViewController(viewModel: viewModel)
+        controller.delegate = self
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+        controller.hidesBottomBarWhenPushed = true
+
+        return controller
+    }()
+
     let navigationController: UINavigationController
-    private var serverChoices: [RPCServerOrAuto] {
+    var coordinators: [Coordinator] = []
+    weak var delegate: ServersCoordinatorDelegate?
+
+    init(defaultServer: RPCServerOrAuto, config: Config, navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        let serverChoices = ServersCoordinator.serverChoices(includeAny: true, config: config)
+
+        self.viewModel = ServersViewModel(servers: serverChoices, selectedServer: defaultServer)
+    }
+
+    init(defaultServer: RPCServer, config: Config, navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        let serverChoices = ServersCoordinator.serverChoices(includeAny: false, config: config)
+        self.viewModel = ServersViewModel(servers: serverChoices, selectedServer: .server(defaultServer))
+    }
+
+    init(viewModel: ServersViewModel, navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        self.viewModel = viewModel
+    }
+
+    private static func serverChoices(includeAny: Bool, config: Config) -> [RPCServerOrAuto] {
         let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
         let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
         if includeAny {
@@ -40,42 +69,11 @@ class ServersCoordinator: Coordinator {
         }
     }
 
-    var coordinators: [Coordinator] = []
-
-    lazy var serversViewController: ServersViewController = {
-        let controller = ServersViewController()
-        controller.configure(viewModel: ServersViewModel(servers: serverChoices, selectedServer: defaultServer))
-        controller.delegate = self
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
-        controller.hidesBottomBarWhenPushed = true
-
-        return controller
-    }()
-    weak var delegate: ServersCoordinatorDelegate?
-
-    init(defaultServer: RPCServerOrAuto, config: Config, navigationController: UINavigationController) {
-        self.defaultServer = defaultServer
-        self.includeAny = true
-        self.config = config
-        self.navigationController = navigationController
-    }
-
-    init(defaultServer: RPCServer, config: Config, navigationController: UINavigationController) {
-        self.defaultServer = .server(defaultServer)
-        self.includeAny = false
-        self.config = config
-        self.navigationController = navigationController
-    }
-
     func start() {
         navigationController.pushViewController(serversViewController, animated: true)
     }
 
     @objc private func dismiss() {
-        delegate?.didSelectDismiss(in: self)
-    }
-    
-    func didClose(in viewController: ServersViewController) {
         delegate?.didSelectDismiss(in: self)
     }
 }
@@ -84,5 +82,64 @@ extension ServersCoordinator: ServersViewControllerDelegate {
     func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController) {
         delegate?.didSelectServer(server: server, in: self)
     }
+
+    func didClose(in viewController: ServersViewController) {
+        delegate?.didSelectDismiss(in: self)
+    }
 }
 
+private class ServersCoordinatorBridgeToPromise {
+
+    private let navigationController: UINavigationController
+    private let (promiseToReturn, seal) = Promise<RPCServer>.pending()
+    private var retainCycle: ServersCoordinatorBridgeToPromise?
+
+    init(_ navigationController: UINavigationController, coordinator: Coordinator, viewModel: ServersViewModel) {
+        self.navigationController = navigationController
+
+        retainCycle = self
+
+        let newCoordinator = ServersCoordinator(viewModel: viewModel, navigationController: navigationController)
+        newCoordinator.delegate = self
+        coordinator.addCoordinator(newCoordinator)
+
+        promiseToReturn.ensure {
+            // ensure we break the retain cycle
+            self.retainCycle = nil
+            coordinator.removeCoordinator(newCoordinator)
+        }.cauterize()
+        
+        newCoordinator.start()
+    }
+
+    var promise: Promise<RPCServer> {
+        return promiseToReturn
+    } 
+}
+
+extension ServersCoordinatorBridgeToPromise: ServersCoordinatorDelegate {
+
+    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+        navigationController.popViewController(animated: true) {
+            switch server {
+            case .server(let value):
+                self.seal.fulfill(value)
+            case .auto:
+                self.seal.fulfill(.main)
+            }
+        }
+    }
+
+    func didSelectDismiss(in coordinator: ServersCoordinator) {
+        navigationController.popViewController(animated: true) {
+            self.seal.reject(PMKError.cancelled)
+        }
+    }
+}
+
+extension ServersCoordinator {
+    static func promise(_ navigationController: UINavigationController, viewModel: ServersViewModel, coordinator: Coordinator) -> Promise<RPCServer> {
+        let bridge = ServersCoordinatorBridgeToPromise(navigationController, coordinator: coordinator, viewModel: viewModel)
+        return bridge.promise
+    }
+}

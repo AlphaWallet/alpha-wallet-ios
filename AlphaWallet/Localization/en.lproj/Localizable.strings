@@ -76,6 +76,7 @@
 "settings.language.button.title" = "Change Language";
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
+"settings.walletConnect.button.title" = "Wallet Connect";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
 "settings.tokenScriptStandard.title" = "TokenScript Compatibility";
@@ -517,7 +518,6 @@
 "transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
 "transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
 "transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
-
 "transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
 "transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
 "transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
@@ -548,6 +548,9 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
 "walletConnect.connection.title" = "Connect To Site?";
+"walletConnect.connection.name.title" = "Name";
+"walletConnect.connection.network.title" = "Network";
+"walletConnect.connection.url.title" = "Connected To";
 "send.allFunds" = "All Funds";
 "copiedToClipboard" = "Copied to clipboard";
 "signature.confirmation.message.title" = "Message";
