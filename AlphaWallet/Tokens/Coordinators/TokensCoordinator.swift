@@ -173,7 +173,7 @@ class TokensCoordinator: Coordinator {
 
 extension TokensCoordinator: TokensViewControllerDelegate {
     func walletConnectSelected(in viewController: UIViewController) {
-        walletConnectCoordinator.showSessionDetails(inNavigationController: navigationController)
+        walletConnectCoordinator.showSessionDetails(in: navigationController)
     }
 
     func didPressAddHideTokens(viewModel: TokensViewModel) {
@@ -224,12 +224,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     func scanQRCodeSelected(in viewController: UIViewController) {
         launchUniversalScanner(fromSource: .walletScreen)
-    }
-}
-
-func -<T: Equatable>(left: [T], right: [T]) -> [T] {
-    return left.filter { l in
-        !right.contains { $0 == l }
     }
 }
 

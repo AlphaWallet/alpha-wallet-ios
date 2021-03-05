@@ -4,6 +4,7 @@ import UIKit
 
 protocol WalletConnectSessionsViewControllerDelegate: class {
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
+    func qrCodeSelected(in viewController: WalletConnectSessionsViewController)
     func didClose(in viewController: WalletConnectSessionsViewController)
 }
 
@@ -52,8 +53,8 @@ class WalletConnectSessionsViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(spinner)
 
-        sessionsToURLServersMap.subscribe { _ in
-            self.tableView.reloadData()
+        sessionsToURLServersMap.subscribe { [weak self] _ in
+            self?.tableView.reloadData()
         }
 
         NSLayoutConstraint.activate([
@@ -62,17 +63,22 @@ class WalletConnectSessionsViewController: UIViewController {
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
         ])
         navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(closeButtonSelected))
+        navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
     }
 
     required init?(coder aDecoder: NSCoder) {
         nil
     }
 
-    func configure(state: State) {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
         navigationItem.largeTitleDisplayMode = .never
         hidesBottomBarWhenPushed = true
-        title = R.string.localizable.walletConnectTitle()
+    }
 
+    func configure(state: State) {
+        title = R.string.localizable.walletConnectTitle()
         set(state: state)
     }
 
@@ -83,6 +89,12 @@ class WalletConnectSessionsViewController: UIViewController {
         case .sessions:
             spinner.stopAnimating()
         }
+    }
+
+    @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
+        guard let delegate = self.delegate else { return }
+
+        delegate.qrCodeSelected(in: self)
     }
 
     @objc private func closeButtonSelected(_ sender: UIBarButtonItem) {

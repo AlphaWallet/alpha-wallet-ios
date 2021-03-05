@@ -43,7 +43,7 @@ extension UIViewController {
         present(alertController, animated: true)
     }
 
-    func displayError(title: String = "", error: Error) {
+    @discardableResult func displayError(title: String = "", error: Error) -> UIViewController {
         var title = title
         let message: String
         if title.isEmpty {
@@ -55,7 +55,9 @@ extension UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true)
+
+        return alertController
     }
 
     func confirm(

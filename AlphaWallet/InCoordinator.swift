@@ -454,7 +454,8 @@ class InCoordinator: NSObject, Coordinator {
                 config: config,
                 sessions: walletSessions,
                 promptBackupCoordinator: promptBackupCoordinator,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                walletConnectCoordinator: walletConnectCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
@@ -494,7 +495,6 @@ class InCoordinator: NSObject, Coordinator {
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.viewControllers = viewControllers
-        tabBarController.delegate = self
 
         promptBackupCoordinator.start()
 
@@ -607,13 +607,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func showTransactionSent(transaction: SentTransaction) {
-        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: .alert)
-        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertAction.Style.default, handler: { _ in
-            UIPasteboard.general.string = transaction.id
-        })
-        alertController.addAction(copyAction)
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        presentationViewController.present(alertController, animated: true, completion: nil)
+        UIAlertController.showTransactionSent(transaction: transaction, on: presentationViewController)
     }
 
     private func fetchXMLAssetDefinitions() {
@@ -701,6 +695,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createWalletConnectCoordinator() -> WalletConnectCoordinator {
         let coordinator = WalletConnectCoordinator(keystore: keystore, sessions: walletSessions, navigationController: navigationController, analyticsCoordinator: analyticsCoordinator, config: config, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices)
+        coordinator.delegate = self
         addCoordinator(coordinator)
         return coordinator
     }
@@ -710,10 +705,14 @@ class InCoordinator: NSObject, Coordinator {
     }
 }
 // swiftlint:enable type_body_length
+extension InCoordinator: WalletConnectCoordinatorDelegate {
+    func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
+        tokensCoordinator?.launchUniversalScanner(fromSource: .walletScreen)
+    }
+}
 
 extension InCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
-//        let account = keystore.currentWallet
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, browserOnly: true, analyticsCoordinator: analyticsCoordinator)
         let controller = browserCoordinator.navigationController
@@ -751,6 +750,7 @@ extension InCoordinator: ConsoleCoordinatorDelegate {
 }
 
 extension InCoordinator: SettingsCoordinatorDelegate {
+
     private func showConsole(navigationController: UINavigationController) {
         let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore, navigationController: navigationController)
         coordinator.delegate = self
@@ -765,7 +765,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func didCancel(in coordinator: SettingsCoordinator) {
         removeCoordinator(coordinator)
 
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        coordinator.navigationController.dismiss(animated: true)
         delegate?.didCancel(in: self)
     }
 
@@ -808,23 +808,8 @@ extension InCoordinator: UrlSchemeResolver {
 
     func openURLInBrowser(url: URL, forceReload: Bool) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
-
         showTab(.browser)
-
-        dappBrowserCoordinator.open(url: url, animated: true, forceReload: false)
-    }
-}
-
-private extension TransactionType {
-    var swapServiceInputToken: TokenObject? {
-        switch self {
-        case .nativeCryptocurrency(let token, _, _):
-            return token
-        case .ERC20Token(let token, _, _):
-            return token
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            return nil
-        }
+        dappBrowserCoordinator.open(url: url, animated: true, forceReload: forceReload)
     }
 }
 
@@ -855,17 +840,13 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     private func open(for url: URL) {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
-
         showTab(.browser)
-
         dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
     }
 
     private func open(url: URL, onServer server: RPCServer) {
-        guard let dappBrowserCoordinator = dappBrowserCoordinator else { return }
-
         //Server shouldn't be disabled since the action is selected
-        guard config.enabledServers.contains(server) else { return }
+        guard let dappBrowserCoordinator = dappBrowserCoordinator, config.enabledServers.contains(server) else { return }
         showTab(.browser)
         dappBrowserCoordinator.switch(toServer: server, url: url)
     }
@@ -934,12 +915,6 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 }
 
 extension InCoordinator: StaticHTMLViewControllerDelegate {
-}
-
-extension InCoordinator: UITabBarControllerDelegate {
-    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        return true
-    }
 }
 
 extension InCoordinator: TransactionsStorageDelegate {
