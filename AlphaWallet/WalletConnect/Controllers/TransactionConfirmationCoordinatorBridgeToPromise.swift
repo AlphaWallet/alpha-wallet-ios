@@ -16,6 +16,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let coordinator: Coordinator
     private let (promise, seal) = Promise<ConfirmResult>.pending()
     private var retainCycle: TransactionConfirmationCoordinatorBridgeToPromise?
+    private weak var confirmationCoordinator: TransactionConfirmationCoordinator?
 
     init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
@@ -28,7 +29,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
             //NOTE: Ensure we break the retain cycle, and remove coordinator from list
             self.retainCycle = nil
 
-            if let coordinatorToRemove = coordinator.coordinators.first(where: { $0 is TransactionConfirmationCoordinator }) {
+            if let coordinatorToRemove = coordinator.coordinators.first(where: { $0 === self.confirmationCoordinator }) {
                 coordinator.removeCoordinator(coordinatorToRemove)
             }
         }.cauterize()
@@ -38,6 +39,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
         let confirmationCoordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
 
         confirmationCoordinator.delegate = self
+        self.confirmationCoordinator = confirmationCoordinator
         coordinator.addCoordinator(confirmationCoordinator)
         confirmationCoordinator.start(fromSource: source)
 

@@ -91,7 +91,14 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
-        presentationNavigationController.present(navigationController, animated: false)
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            controller.present(navigationController, animated: false)
+        } else {
+            presentationNavigationController.present(navigationController, animated: false)
+        }
+        
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()
