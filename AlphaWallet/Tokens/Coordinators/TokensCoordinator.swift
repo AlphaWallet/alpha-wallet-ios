@@ -75,7 +75,7 @@ class TokensCoordinator: Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
-
+    private let transactionsStorages: ServerDictionary<TransactionsStorage>
     lazy var rootViewController: TokensViewController = {
         return tokensViewController
     }()
@@ -93,7 +93,8 @@ class TokensCoordinator: Coordinator {
             filterTokensCoordinator: FilterTokensCoordinator,
             analyticsCoordinator: AnalyticsCoordinator,
             tokenActionsService: TokenActionsServiceType,
-            walletConnectCoordinator: WalletConnectCoordinator
+            walletConnectCoordinator: WalletConnectCoordinator,
+            transactionsStorages: ServerDictionary<TransactionsStorage>
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -109,7 +110,7 @@ class TokensCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokenActionsService = tokenActionsService
         self.walletConnectCoordinator = walletConnectCoordinator
-
+        self.transactionsStorages = transactionsStorages
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
@@ -127,7 +128,8 @@ class TokensCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService)
+            let transactionsStorage = transactionsStorages[server]
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
