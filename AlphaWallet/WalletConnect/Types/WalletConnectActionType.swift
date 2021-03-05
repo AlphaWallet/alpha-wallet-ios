@@ -17,6 +17,7 @@ extension WalletConnectServer {
             case signTypedMessageV3(EIP712TypedData)
             case signTransaction(UnconfirmedTransaction)
             case sendTransaction(UnconfirmedTransaction)
+            case typedMessage([EthTypedData])
             case sendRawTransaction(String)
             case getTransactionCount(String)
             case unknown

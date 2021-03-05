@@ -196,36 +196,25 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
-        let coordinator = SignMessageCoordinator(
-            navigationController: navigationController,
-            keystore: keystore,
-            account: account
-        )
-        coordinator.didComplete = { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let data):
-                let callback: DappCallback
-                switch type {
-                case .message:
-                    callback = DappCallback(id: callbackID, value: .signMessage(data))
-                case .personalMessage:
-                    callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
-                case .typedMessage:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712v3And4:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
-                }
-                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-            case .failure:
-                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+        firstly {
+            SignMessageCoordinator.promise(navigationController, keystore: keystore, coordinator: self, signType: type, account: account)
+        }.done { data in
+            let callback: DappCallback
+            switch type {
+            case .message:
+                callback = DappCallback(id: callbackID, value: .signMessage(data))
+            case .personalMessage:
+                callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
+            case .typedMessage:
+                callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+            case .eip712v3And4:
+                callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
             }
-            coordinator.didComplete = nil
-            strongSelf.removeCoordinator(coordinator)
+
+            self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+        }.catch { _ in
+            self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
         }
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start(with: type)
     }
 
     private func makeMoreAlertSheet(sender: UIView) -> UIAlertController {
@@ -480,13 +469,6 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
-    }
-}
-
-extension DappBrowserCoordinator: SignMessageCoordinatorDelegate {
-    func didCancel(in coordinator: SignMessageCoordinator) {
-        coordinator.didComplete = nil
-        removeCoordinator(coordinator)
     }
 }
 

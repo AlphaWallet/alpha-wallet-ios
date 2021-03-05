@@ -10,6 +10,19 @@ enum ConfirmationError: LocalizedError {
     case cancel
 }
 
+extension UIView {
+    func showCopiedToClipboard(title: String, feedbackType: NotificationFeedbackType? = .success) {
+        let hud = MBProgressHUD.showAdded(to: self, animated: true)
+        hud.mode = .text
+        hud.label.text = title
+        hud.hide(animated: true, afterDelay: 1.5)
+
+        if let feedback = feedbackType {
+            UINotificationFeedbackGenerator.show(feedbackType: feedback)
+        }
+    }
+}
+
 extension UIViewController {
     @discardableResult func displaySuccess(title: String? = .none, message: String? = .none) -> UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)

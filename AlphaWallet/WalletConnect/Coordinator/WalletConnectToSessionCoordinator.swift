@@ -43,7 +43,14 @@ class WalletConnectToSessionCoordinator: Coordinator {
     }
 
     func start() {
-        presentationNavigationController.present(navigationController, animated: false)
+        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            controller.present(navigationController, animated: false)
+        } else {
+            presentationNavigationController.present(navigationController, animated: false)
+        }
+
         viewController.configure(for: viewModel)
         viewController.reloadView()
     }

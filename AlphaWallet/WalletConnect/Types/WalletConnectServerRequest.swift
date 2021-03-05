@@ -30,6 +30,7 @@ extension WalletConnectServer {
         case sign(address: AlphaWallet.Address, message: String)
         case signPersonalMessage(address: AlphaWallet.Address, message: String)
         case signTypedData(address: AlphaWallet.Address, data: EIP712TypedData)
+        case signTypedMessage(data: [EthTypedData])
         case sendTransaction(_ transaction: RawTransactionBridge)
         case sendRawTransaction(_ value: String)
         case getTransactionCount(_ filter: String)
@@ -56,12 +57,21 @@ extension WalletConnectServer {
 
                 self = .signTransaction(data)
             case .signTypedData:
-                let addressRawValue = try request.parameter(of: String.self, at: 0)
-                let rawValue = try request.parameter(of: String.self, at: 1)
+                do {
+                    let addressRawValue = try request.parameter(of: String.self, at: 0)
+                    let rawValue = try request.parameter(of: String.self, at: 1)
 
-                guard let address = AlphaWallet.Address(string: addressRawValue), let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
-                let typed = try JSONDecoder().decode(EIP712TypedData.self, from: data)
-                self = .signTypedData(address: address, data: typed)
+                    guard let address = AlphaWallet.Address(string: addressRawValue), let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
+
+                    let typed = try JSONDecoder().decode(EIP712TypedData.self, from: data)
+                    self = .signTypedData(address: address, data: typed)
+                } catch {
+                    let rawValue = try request.parameter(of: String.self, at: 1)
+                    guard let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
+
+                    let typed = try JSONDecoder().decode([EthTypedData].self, from: data)
+                    self = .signTypedMessage(data: typed)
+                }
             case .sendTransaction:
                 let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
 

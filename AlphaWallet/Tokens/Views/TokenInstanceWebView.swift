@@ -482,34 +482,27 @@ extension TokenInstanceWebView {
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
 
-        //TODO pass in keystore
-        let coordinator = SignMessageCoordinator(
-                navigationController: navigationController,
-                keystore: try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService()),
-                account: account
-        )
-        coordinator.didComplete = { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let data):
-                let callback: DappCallback
-                switch type {
-                case .message:
-                    callback = DappCallback(id: callbackID, value: .signMessage(data))
-                case .personalMessage:
-                    callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
-                case .typedMessage:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
-                case .eip712v3And4:
-                    callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
-                }
-                strongSelf.notifyFinish(callbackID: callbackID, value: .success(callback))
-            case .failure:
-                strongSelf.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+        let keystore = try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())
+
+        firstly {
+            SignMessageCoordinator.promise(navigationController, keystore: keystore, signType: type, account: account)
+        }.done { data in
+            let callback: DappCallback
+            switch type {
+            case .message:
+                callback = DappCallback(id: callbackID, value: .signMessage(data))
+            case .personalMessage:
+                callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
+            case .typedMessage:
+                callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+            case .eip712v3And4:
+                callback = DappCallback(id: callbackID, value: .signTypedMessageV3(data))
             }
-            coordinator.didComplete = nil
+
+            self.notifyFinish(callbackID: callbackID, value: .success(callback))
+        }.catch { _ in
+            self.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
         }
-        coordinator.start(with: type)
     }
 }
 

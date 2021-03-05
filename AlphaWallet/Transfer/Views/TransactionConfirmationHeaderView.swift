@@ -223,7 +223,9 @@ extension TransactionConfirmationHeaderView {
             .paragraphStyle: paragraph
         ])
         label.translatesAutoresizingMaskIntoConstraints = false
-
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        
         let wrapper = UIView()
         wrapper.addSubview(label)
 
