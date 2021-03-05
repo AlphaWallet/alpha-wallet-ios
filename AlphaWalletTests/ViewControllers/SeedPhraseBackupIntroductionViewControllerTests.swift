@@ -15,7 +15,7 @@ class SeedPhraseBackupIntroductionViewControllerTests: XCTestCase {
         controller.configure()
         controller.view.layoutIfNeeded()
 
-        XCTAssertFalse(controller.descriptionLabel2.overlaps(other: controller.buttonsBar, in: controller))
+        XCTAssertFalse(controller.descriptionLabel1.overlaps(other: controller.buttonsBar, in: controller))
     }
 
 }
