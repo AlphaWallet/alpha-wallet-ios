@@ -37,7 +37,8 @@ class TokensCoordinatorTests: XCTestCase {
             filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
-            walletConnectCoordinator: .fake()
+            walletConnectCoordinator: .fake(),
+            transactionsStorages: .init()
         )
         coordinator.start()
 
