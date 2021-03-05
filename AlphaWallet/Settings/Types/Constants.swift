@@ -203,6 +203,8 @@ public struct Constants {
         (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
+    static let ensContractOnMainnet = AlphaWallet.Address.ethereumAddress(eip55String: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85")
+
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
