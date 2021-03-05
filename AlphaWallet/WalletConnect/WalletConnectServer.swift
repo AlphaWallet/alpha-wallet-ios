@@ -62,8 +62,19 @@ class WalletConnectServer {
     }
 
     private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: URL(string: Constants.website)!)
-    private lazy var server: Server = Server(delegate: self)
     private let wallet: AlphaWallet.Address
+    static var server: Server?
+    //NOTE: We are using singleton server value because while every creation server object dones't release prev instances, WalletConnect meamory issue.
+    private var server: Server {
+        if let server = WalletConnectServer.server {
+            return server
+        } else {
+            let server = Server(delegate: self)
+            WalletConnectServer.server = server
+
+            return server
+        }
+    }
 
     var urlToServer: [WCURL: RPCServer] {
         UserDefaults.standard.urlToServer
@@ -82,8 +93,11 @@ class WalletConnectServer {
         self.wallet = wallet
         sessions.value = server.openSessions()
 
-        let handler = requestHandler
-        server.register(handler: handler)
+        server.register(handler: requestHandler)
+    }
+
+    deinit {
+        server.unregister(handler: requestHandler)
     }
 
     func connect(url: WalletConnectURL) throws {
@@ -97,7 +111,6 @@ class WalletConnectServer {
     func disconnect(session: Session) throws {
         //NOTE: for some reasons completion handler doesn't get called, when we do disconnect, for this we remove session before do disconnect
         removeSession(for: session.url)
-
         try server.disconnect(from: session)
     }
 
