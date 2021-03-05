@@ -38,7 +38,7 @@ class UniversalLinkCoordinator: Coordinator {
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
-    private let tokensDatastores: ServerDictionary<TokensDataStore>
+    private let tokensDatastore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let url: URL
 
@@ -75,14 +75,12 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    init?(wallet: Wallet, config: Config, ethPrices: ServerDictionary<Subscribable<Double>>, ethBalances: ServerDictionary<Subscribable<BigInt>>, tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, url: URL) {
-        guard let server = RPCServer(withMagicLink: url) else { return nil }
-
+    init(wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer) {
         self.wallet = wallet
         self.config = config
-        self.ethPrice = ethPrices[server]
-        self.ethBalance = ethBalances[server]
-        self.tokensDatastores = tokensDatastores
+        self.ethPrice = ethPrice
+        self.ethBalance = ethBalance
+        self.tokensDatastore = tokensDatastore
         self.assetDefinitionStore = assetDefinitionStore
         self.url = url
         self.server = server
@@ -497,7 +495,7 @@ class UniversalLinkCoordinator: Coordinator {
                 strongSelf.updateTokenFields()
             }
 
-            let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
+            let tokensDatastore = strongSelf.tokensDatastore
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
                 let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
@@ -518,8 +516,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
-        //TODO pass in the wallet instead
-        let tokensDatastore = tokensDatastores[server]
+        //TODO pass in the wallet instead 
         guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
