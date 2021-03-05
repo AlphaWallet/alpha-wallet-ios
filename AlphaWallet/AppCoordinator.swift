@@ -219,24 +219,36 @@ class AppCoordinator: NSObject, Coordinator {
         createInitialWalletIfMissing()
         let inCoordinator = showTransactionsIfNeeded()
 
-        let prices = inCoordinator.nativeCryptoCurrencyPrices
-        let balances = inCoordinator.nativeCryptoCurrencyBalances
-        guard let universalLinkCoordinator = UniversalLinkCoordinator(
+        guard let server = RPCServer(withMagicLink: url) else { return false }
+
+        if config.enabledServers.contains(server) {
+            let universalLinkCoordinator = UniversalLinkCoordinator(
                 wallet: keystore.currentWallet,
                 config: config,
-                ethPrices: prices,
-                ethBalances: balances,
-                tokensDatastores: inCoordinator.tokensStorages,
+                ethPrice: inCoordinator.nativeCryptoCurrencyPrices[server],
+                ethBalance: inCoordinator.nativeCryptoCurrencyBalances[server],
+                tokensDatastore: inCoordinator.tokensStorages[server],
                 assetDefinitionStore: assetDefinitionStore,
-                url: url
-        ) else { return false }
-        universalLinkCoordinator.delegate = self
-        universalLinkCoordinator.start()
-        let handled = universalLinkCoordinator.handleUniversalLink()
-        if handled {
-            addCoordinator(universalLinkCoordinator)
+                url: url,
+                server: server
+            )
+
+            universalLinkCoordinator.delegate = self
+            universalLinkCoordinator.start()
+
+            let handled = universalLinkCoordinator.handleUniversalLink()
+            if handled {
+                addCoordinator(universalLinkCoordinator)
+            }
+            return handled
+        } else {
+            let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, server: server, coordinator: self)
+            coordinator.start().done { _ in
+                //no-op
+            }.cauterize()
+
+            return false
         }
-        return handled
     }
 
     func handleUniversalLinkInPasteboard() {

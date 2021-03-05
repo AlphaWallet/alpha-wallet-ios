@@ -33,10 +33,12 @@ extension UIViewController {
         return alertController
     }
 
-    func displayError(message: String) {
+    func displayError(message: String, completion: @escaping () -> Void = {}) {
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+            completion()
+        })
 
         present(alertController, animated: true)
     }
