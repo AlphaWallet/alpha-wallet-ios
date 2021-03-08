@@ -8,20 +8,25 @@
 import Foundation
 
 enum ShareContentAction {
-    
     static let scheme = "awallet"
 
     private enum Host: String {
         case openURL
         case openText
+        case openApp
     }
 
     case url(URL)
     case string(String)
+    case openApp
 
     init?(_ url: URL) {
-        guard let scheme = url.scheme, scheme == ShareContentAction.scheme, let hostValue = url.host, let host = Host(rawValue: hostValue) else {
+        guard let scheme = url.scheme, scheme == ShareContentAction.scheme else {
             return nil
+        }
+        guard let hostValue = url.host, let host = Host(rawValue: hostValue) else {
+            self = .openApp
+            return
         }
 
         let components = URLComponents(url: url, resolvingAgainstBaseURL: true)
@@ -36,6 +41,9 @@ enum ShareContentAction {
                 return nil
             }
             self = .string(value)
+        case .openApp:
+            //Impossible to reach here
+            return nil
         }
     }
 
@@ -45,6 +53,8 @@ enum ShareContentAction {
             return Host.openURL.rawValue
         case .string:
             return Host.openText.rawValue
+        case .openApp:
+            return ""
         }
     }
 
@@ -67,6 +77,8 @@ enum ShareContentAction {
             components.queryItems = [
                 .init(name: "q", value: text)
             ]
+        case .openApp:
+            return .init()
         }
 
         return components
