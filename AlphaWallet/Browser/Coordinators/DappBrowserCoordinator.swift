@@ -13,6 +13,7 @@ protocol DappBrowserCoordinatorDelegate: class {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
+    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -469,6 +470,10 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
+    }
+
+    func handleCustomUrlScheme(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
+        delegate?.handleCustomUrlScheme(url, forCoordinator: self)
     }
 }
 
