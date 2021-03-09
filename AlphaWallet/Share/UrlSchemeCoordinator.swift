@@ -51,9 +51,12 @@ class UrlSchemeCoordinator: UrlSchemeCoordinatorType {
             break //NOTE: here we can add parsing Addresses from string
         case .url(let url):
             inCoordinator.openURLInBrowser(url: url)
+        case .openApp:
+            //No-op. Just switching to the app
+            break
         }
 
-        pendingUrl = .none 
+        pendingUrl = .none
     }
 
     private func canHandle(url: URL) -> Bool {

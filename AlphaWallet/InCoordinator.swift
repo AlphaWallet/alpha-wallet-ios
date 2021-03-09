@@ -12,6 +12,7 @@ protocol InCoordinatorDelegate: class {
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
     func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
+    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator)
 }
 
 enum Tabs {
@@ -911,6 +912,10 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
+    }
+
+    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
+        delegate?.handleCustomUrlScheme(url, forCoordinator: self)
     }
 }
 
