@@ -9,6 +9,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController)
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
     func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController)
+    func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController)
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
     func settingsViewControllerHelpSelected(in controller: SettingsViewController)
 }
@@ -214,7 +215,7 @@ extension SettingsViewController: UITableViewDataSource {
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
                 cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 cell.accessoryType = .disclosureIndicator
-            case .showMyWallet, .showSeedPhrase:
+            case .showMyWallet, .showSeedPhrase, .walletConnect:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
             }
 
@@ -252,6 +253,8 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerMyWalletAddressSelected(in: self)
             case .showSeedPhrase:
                 delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
+            case .walletConnect:
+                delegate?.settingsViewControllerWalletConnectSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {

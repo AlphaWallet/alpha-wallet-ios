@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 protocol WalletConnectToSessionCoordinatorDelegate: class {
     func coordinator(_ coordinator: WalletConnectToSessionCoordinator, didCompleteWithConnection result: WalletConnectServer.ConnectionChoice)
@@ -55,10 +56,18 @@ class WalletConnectToSessionCoordinator: Coordinator {
         viewController.reloadView()
     }
 
-    func dissmissAnimated(completion: @escaping () -> Void) {
-        viewController.dismissViewAnimated {
-            //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
-            self.navigationController.dismiss(animated: true, completion: completion)
+    deinit {
+        print("\(self).deinit")
+    }
+
+    func dissmissAnimated(animated: Bool = true) -> Promise<Void> {
+        return Promise<Void> { seal in
+            viewController.dismissViewAnimated {
+                //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
+                self.navigationController.dismiss(animated: animated, completion: {
+                    seal.fulfill(())
+                })
+            }
         }
     }
 }
@@ -66,54 +75,35 @@ class WalletConnectToSessionCoordinator: Coordinator {
 extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControllerDelegate {
 
     func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController) {
-        showAvailableToConnectServers(completion: { [weak self] result in
-            guard let strongSelf = self else { return }
+        let servers = serverChoices.compactMap { RPCServerOrAuto.server($0) }
+        let viewModel = ServersViewModel(servers: servers, selectedServer: .auto, displayWarningFooter: false)
 
-            switch result {
-            case .connect(let server):
-                strongSelf.serverToConnect = server
-                strongSelf.viewModel.set(serverToConnect: server)
-            case .cancel:
-                break
-            }
-
-            strongSelf.viewController.configure(for: strongSelf.viewModel)
-            strongSelf.viewController.reloadView()
-        })
+        ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self).done { server in
+            self.serverToConnect = server
+            self.viewModel.set(serverToConnect: server)
+        }.cauterize().finally {
+            self.viewController.configure(for: self.viewModel)
+            self.viewController.reloadView()
+        }
     }
 
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton) {
-        dissmissAnimated(completion: {
+        firstly {
+            dissmissAnimated(animated: true)
+        }.done { _ in
             guard let delegate = self.delegate else { return }
 
             delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
-        })
+        }.cauterize()
     }
 
     func didClose(in controller: WalletConnectToSessionViewController) {
-        navigationController.dismiss(animated: false) { [weak self] in
-            guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
+        firstly {
+            dissmissAnimated(animated: false)
+        }.done { _ in
+            guard let delegate = self.delegate else { return }
 
-            delegate.coordinator(strongSelf, didCompleteWithConnection: .cancel)
-        }
+            delegate.coordinator(self, didCompleteWithConnection: .cancel)
+        }.cauterize()
     }
-
-    private func showAvailableToConnectServers(completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
-        let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
-        let alertViewController = UIAlertController(title: connection.name, message: R.string.localizable.walletConnectStart(connection.url.absoluteString), preferredStyle: style)
-        for each in serverChoices {
-            let action = UIAlertAction(title: each.name, style: .default) { _ in
-                completion(.connect(each))
-            }
-            alertViewController.addAction(action)
-        }
-
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
-            completion(.cancel)
-        }
-        alertViewController.addAction(cancelAction)
-
-        navigationController.present(alertViewController, animated: true)
-    }
-
 }

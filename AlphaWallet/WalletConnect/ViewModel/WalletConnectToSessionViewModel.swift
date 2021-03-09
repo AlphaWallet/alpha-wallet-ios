@@ -57,11 +57,11 @@ struct WalletConnectToSessionViewModel {
         var title: String {
             switch self {
             case .name:
-                return "Name"
+                return R.string.localizable.walletConnectConnectionNameTitle()
             case .network:
-                return "Network"
+                return R.string.localizable.walletConnectConnectionNetworkTitle()
             case .url:
-                return "Connected To"
+                return R.string.localizable.walletConnectConnectionUrlTitle()
             }
         }
     }
@@ -71,14 +71,13 @@ struct WalletConnectToSessionViewModel {
     }
 
     func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
-        let headerName = sections[section].title
         switch sections[section] {
         case .name:
-            return .init(title: .normal(connection.name), headerName: headerName, configuration: .init(section: section))
+            return .init(title: .normal(connection.name), headerName: sections[section].title, configuration: .init(section: section))
         case .network:
-            return .init(title: .normal(serverToConnect.displayName), headerName: headerName, configuration: .init(section: section))
+            return .init(title: .normal(serverToConnect.displayName), headerName: sections[section].title, configuration: .init(section: section))
         case .url:
-            return .init(title: .normal(connection.url.absoluteString), headerName: headerName, configuration: .init(section: section))
+            return .init(title: .normal(connection.url.absoluteString), headerName: sections[section].title, configuration: .init(section: section))
         }
     }
 }
