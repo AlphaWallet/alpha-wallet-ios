@@ -16,7 +16,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 
 class SettingsViewController: UIViewController {
     private let lock = Lock()
-    private let config: Config
+    private var config: Config
     private let keystore: Keystore
     private let account: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -158,12 +158,31 @@ extension SettingsViewController: CanOpenURL {
 extension SettingsViewController: SwitchTableViewCellDelegate {
 
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
-        if isOn {
-            setPasscode { result in
-                cell.isOn = result
+        guard let indexPath = cell.indexPath else { return }
+
+        switch viewModel.sections[indexPath.section] {
+        case .system(let rows):
+            switch rows[indexPath.row] {
+            case .passcode:
+                if isOn {
+                    setPasscode { result in
+                        cell.isOn = result
+                    }
+                } else {
+                    lock.deletePasscode()
+                }
+            case .notifications, .selectActiveNetworks, .advanced:
+                break
             }
-        } else {
-            lock.deletePasscode()
+        case .help, .tokenStandard, .version:
+            break
+        case .wallet(let rows):
+            switch rows[indexPath.row] {
+            case .changeWallet, .backup, .showMyWallet, .showSeedPhrase, .walletConnect:
+                break
+            case .useTaiChiNetwork:
+                config.useTaiChiNetwork = isOn
+            }
         }
     }
 }
@@ -210,16 +229,26 @@ extension SettingsViewController: UITableViewDataSource {
             switch row {
             case .changeWallet:
                 configureChangeWalletCellWithResolvedENS(row, cell: cell)
+
+                return cell
             case .backup:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: keystore, wallet: account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel
                 cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 cell.accessoryType = .disclosureIndicator
+
+                return cell
             case .showMyWallet, .showSeedPhrase, .walletConnect:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
-            }
 
-            return cell
+                return cell
+            case .useTaiChiNetwork:
+                let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.useTaiChiNetwork))
+                cell.delegate = self
+
+                return cell
+            }
         case .tokenStandard, .version:
             return UITableViewCell()
         }
@@ -255,6 +284,8 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
             case .walletConnect:
                 delegate?.settingsViewControllerWalletConnectSelected(in: self)
+            case .useTaiChiNetwork:
+                break
             }
         case .system(let rows):
             switch rows[indexPath.row] {

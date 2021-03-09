@@ -77,6 +77,7 @@
 "settings.backupWallet.button.title" = "Hacer una copia de seguridad de este monedero";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
 "settings.walletConnect.button.title" = "Wallet Connect";
+"settings.useTaichiNetwork.button.title" = "Use TaiChi for Ethereum";
 "settings.language.useSystem.title" = "Usar la configuración del sistema";
 "settings.version.label.title" = "Versión";
 "settings.tokenScriptStandard.title" = "Compatibilidad de TokenScript";
