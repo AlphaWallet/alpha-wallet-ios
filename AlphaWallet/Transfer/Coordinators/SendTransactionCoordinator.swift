@@ -10,56 +10,29 @@ import Result
 class SendTransactionCoordinator {
     private let keystore: Keystore
     private let session: WalletSession
-    private let formatter = EtherNumberFormatter.full
     private let confirmType: ConfirmType
+    private let config: Config
 
     init(
         session: WalletSession,
         keystore: Keystore,
-        confirmType: ConfirmType
+        confirmType: ConfirmType,
+        config: Config
     ) {
         self.session = session
         self.keystore = keystore
         self.confirmType = confirmType
-    }
-
-    func send(
-        transaction: UnsignedTransaction,
-        completion: @escaping (ResultResult<ConfirmResult, AnyError>.t) -> Void
-    ) {
-        if transaction.nonce >= 0 {
-            signAndSend(transaction: transaction, completion: completion)
-        } else {
-            firstly {
-                GetNextNonce(server: session.server, wallet: session.account.address).promise()
-            }.done {
-                let transaction = self.appendNonce(to: transaction, currentNonce: $0)
-                self.signAndSend(transaction: transaction, completion: completion)
-            }.catch {
-                completion(.failure(AnyError($0)))
-            }
-        }
+        self.config = config
     }
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
-        let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)))
+        let rawRequest = SendRawTransactionRequest(signedTransaction: rawTransaction.add0x)
+        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawRequest))
+
         return firstly {
             Session.send(request)
         }.map { transactionID in
             .sentRawTransaction(id: transactionID, original: rawTransaction)
-        }
-    }
-
-    func send(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
-        Promise { seal in
-            send(transaction: transaction) { result in
-                switch result {
-                case .success(let result):
-                    seal.fulfill(result)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
         }
     }
 
@@ -76,28 +49,80 @@ class SendTransactionCoordinator {
         )
     }
 
-    func signAndSend(
-        transaction: UnsignedTransaction,
-        completion: @escaping (ResultResult<ConfirmResult, AnyError>.t) -> Void
-    ) {
-        let signedTransaction = keystore.signTransaction(transaction)
-        switch signedTransaction {
-        case .success(let data):
-            switch confirmType {
-            case .sign:
-                completion(.success(.signedTransaction(data)))
-            case .signThenSend:
-                let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: data.hexEncoded)))
-                firstly {
-                    Session.send(request)
-                }.done { transactionID in
-                    completion(.success(.sentTransaction(SentTransaction(id: transactionID, original: transaction))))
-                }.catch { error in
-                    completion(.failure(AnyError(error)))
-                }
+    func send(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+        if transaction.nonce >= 0 {
+            return signAndSend(transaction: transaction)
+        } else {
+            return firstly {
+                resolveNextNonce(for: transaction)
+            }.then { transaction -> Promise<ConfirmResult> in
+                return self.signAndSend(transaction: transaction)
             }
-        case .failure(let error):
-            completion(.failure(AnyError(error)))
+        }
+    }
+
+    private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
+        return firstly {
+            GetNextNonce(server: session.server, wallet: session.account.address).promise()
+        }.map { nonce -> UnsignedTransaction in
+            let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
+            return transaction
+        }
+    }
+
+    private func signAndSend(transaction: UnsignedTransaction) -> Promise<ConfirmResult> {
+        firstly {
+            keystore.signTransactionPromise(transaction)
+        }.then { data -> Promise<ConfirmResult> in
+            switch self.confirmType {
+            case .sign:
+                return .value(.signedTransaction(data))
+            case .signThenSend:
+                return self.sendTransactionRequest(transaction: transaction, data: data)
+            }
+        }
+    }
+
+    private func sendTransactionRequest(transaction: UnsignedTransaction, data: Data) -> Promise<ConfirmResult> {
+        let rawTransaction = SendRawTransactionRequest(signedTransaction: data.hexEncoded)
+        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(rawTransaction))
+
+        return firstly {
+            Session.send(request)
+        }.map { transactionID in
+            .sentTransaction(SentTransaction(id: transactionID, original: transaction))
+        }
+    }
+
+    private var rpcURL: URL {
+        session.server.rpcURLReplaceMainWithTaichiIfNeeded(config: config)
+    }
+}
+
+fileprivate extension RPCServer {
+    func rpcURLReplaceMainWithTaichiIfNeeded(config: Config) -> URL {
+        switch self {
+        case .main where config.useTaiChiNetwork:
+            if let url = config.taichiPrivateRpcUrl {
+                return url
+            } else {
+                return rpcURL
+            }
+        case .xDai, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .main:
+            return self.rpcURL
+        }
+    }
+}
+
+extension Keystore {
+    func signTransactionPromise(_ transaction: UnsignedTransaction) -> Promise<Data> {
+        return Promise { seal in
+            switch signTransaction(transaction) {
+            case .success(let data):
+                seal.fulfill(data)
+            case .failure(let error):
+                seal.reject(error)
+            }
         }
     }
 }

@@ -8,5 +8,6 @@ extension Constants {
         static let etherscanKey = "1PX7RG8H4HTDY8X55YRMCAKPZK476M23ZR"
         static let analyticsKey = ""
         static let paperTrail = (host: "", port: UInt(0))
+        static let taiChiRPCKey = ""
     }
 }

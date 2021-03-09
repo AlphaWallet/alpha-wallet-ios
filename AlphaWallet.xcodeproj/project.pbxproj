@@ -685,6 +685,8 @@
 		871E684324E56A4200F220A7 /* TransactionConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */; };
 		871E684524E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */; };
 		871E684B24E574F100F220A7 /* ActivityIndicatorControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */; };
+		8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86A25F79A2E00293D89 /* UIResponder.swift */; };
+		8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8722F86C25F79A4700293D89 /* UITableViewCell.swift */; };
 		8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DB2565269400A6A7DA /* Uniswap.swift */; };
 		8731E6E12565269400A6A7DA /* UniswapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */; };
 		8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DE2565269400A6A7DA /* Oneinch.swift */; };
@@ -1557,6 +1559,8 @@
 		871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationHeaderView.swift; sourceTree = "<group>"; };
 		871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationTableHeaderViewModel.swift; sourceTree = "<group>"; };
 		871E684824E574F000F220A7 /* ActivityIndicatorControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorControl.swift; sourceTree = "<group>"; };
+		8722F86A25F79A2E00293D89 /* UIResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
+		8722F86C25F79A4700293D89 /* UITableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
 		8731E6DB2565269400A6A7DA /* Uniswap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uniswap.swift; sourceTree = "<group>"; };
 		8731E6DC2565269400A6A7DA /* UniswapERC20Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniswapERC20Token.swift; sourceTree = "<group>"; };
 		8731E6DE2565269400A6A7DA /* Oneinch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Oneinch.swift; sourceTree = "<group>"; };
@@ -2471,6 +2475,8 @@
 				87D175EA24AEF8B4002130D2 /* UITableView.swift */,
 				5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */,
 				87CDD48F25F100AE0009B6AC /* Array.swift */,
+				8722F86A25F79A2E00293D89 /* UIResponder.swift */,
+				8722F86C25F79A4700293D89 /* UITableViewCell.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4716,6 +4722,7 @@
 				298542F91FBE9A0100CB5081 /* CryptoAddressValidator.swift in Sources */,
 				87ED8FAB2488E4610005C69B /* SendViewSectionHeaderViewModel.swift in Sources */,
 				291F52C11F6C8A1F00B369AB /* AccountsViewModel.swift in Sources */,
+				8722F86B25F79A2E00293D89 /* UIResponder.swift in Sources */,
 				77872D322027AA4A0032D687 /* SliderTextFieldRow.swift in Sources */,
 				2923D9B11FDA49D8000CF3F8 /* Initializer.swift in Sources */,
 				294DFBAE1FE6F254004CEB56 /* TokenObject.swift in Sources */,
@@ -4892,6 +4899,7 @@
 				5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */,
 				87ED8FA92488E4430005C69B /* SendViewSectionHeader.swift in Sources */,
 				5E7C76F8CB67466725C590CE /* FungibleTokenViewCellViewModel.swift in Sources */,
+				8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */,
 				5E7C78407F6DCB0EDD562DF6 /* NonFungibleTokenViewCellViewModel.swift in Sources */,
 				5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */,
 				5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */,

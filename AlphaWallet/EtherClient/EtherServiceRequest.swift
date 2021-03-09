@@ -5,13 +5,23 @@ import APIKit
 import JSONRPCKit
 
 struct EtherServiceRequest<Batch: JSONRPCKit.Batch>: APIKit.Request {
-    let server: RPCServer
-    let batch: Batch
+    private let rpcURL: URL
+    private let batch: Batch
+
+    init(server: RPCServer, batch: Batch) {
+        self.batch = batch
+        self.rpcURL = server.rpcURL
+    }
+
+    init(rpcURL: URL, batch: Batch) {
+        self.batch = batch
+        self.rpcURL = rpcURL
+    }
 
     typealias Response = Batch.Responses
 
     var baseURL: URL {
-        return server.rpcURL
+        return rpcURL
     }
 
     var method: HTTPMethod {
