@@ -207,10 +207,10 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
         firstly {
             Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
-        }.done { _ in
-            if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
+        }.done { pendingTransaction in
+            if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 //NOTE: We dont want to call function handleUpdateItems: twice because it will be updated in update(items:
-                self.update(state: .completed, for: transaction, shouldUpdateItems: false)
+                self.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction, shouldUpdateItems: false)
                 self.update(items: [transaction])
             }
         }.catch { error in
@@ -222,7 +222,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
                     if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
-                        self.update(state: .failed, for: transaction)
+                        self.update(state: .failed, for: transaction, withPendingTransaction: nil)
                     }
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                     break
@@ -239,8 +239,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }).cauterize()
     }
 
-    private func update(state: TransactionState, for transaction: TransactionInstance, shouldUpdateItems: Bool = true) {
-        storage.update(state: state, for: transaction.primaryKey).done(on: self.queue, { _ in
+    private func update(state: TransactionState, for transaction: TransactionInstance, withPendingTransaction pendingTransaction: PendingTransaction?, shouldUpdateItems: Bool = true) {
+        storage.update(state: state, for: transaction.primaryKey, withPendingTransaction: pendingTransaction).done(on: self.queue, { _ in
             guard shouldUpdateItems else { return }
 
             self.delegate?.handleUpdateItems(inCoordinator: self)

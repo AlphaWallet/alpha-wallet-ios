@@ -66,7 +66,7 @@ class TransactionsStorage {
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(transactions, realm: realm)
         realm.beginWrite()
         realm.add(transactionsToCommit, update: .all)
-        
+
         try! realm.commitWrite()
         addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
     }
@@ -108,7 +108,7 @@ class TransactionsStorage {
         }
     }
 
-    func update(state: TransactionState, for primaryKey: String) -> Promise<TransactionInstance> {
+    func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: PendingTransaction?) -> Promise<TransactionInstance> {
         enum AnyError: Error {
             case invalid
         }
@@ -118,12 +118,19 @@ class TransactionsStorage {
             if let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) {
                 realm.beginWrite()
 
+                if let pendingTransaction = pendingTransaction {
+                    value.gas = pendingTransaction.gas
+                    value.gasPrice = pendingTransaction.gasPrice
+                    value.nonce = pendingTransaction.nonce
+                    //We assume that by the time we get here, the block number is valid
+                    value.blockNumber = Int(pendingTransaction.blockNumber)!
+                }
                 value.internalState = state.rawValue
 
                 do {
                     try realm.commitWrite()
                     let transaction = TransactionInstance(transaction: value)
-                    
+
                     seal.fulfill(transaction)
                 } catch {
                     seal.reject(error)
