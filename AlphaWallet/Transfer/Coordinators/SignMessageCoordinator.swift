@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 import CryptoSwift
-import Result 
+import Result
 
 enum SignMessageType {
     case message(Data)
@@ -71,7 +71,8 @@ class SignMessageCoordinator: Coordinator {
         let result: Result<Data, KeystoreError>
         switch type {
         case .message(let data):
-            result = keystore.signMessage(data, for: account)
+            //This was previously `signMessage(_:for:). Changed it to `signPersonalMessage` because web3.js v1 (unlike v0.20.x) and probably other libraries expect so
+            result  = keystore.signPersonalMessage(data, for: account)
         case .personalMessage(let data):
             result = keystore.signPersonalMessage(data, for: account)
         case .typedMessage(let typedData):
