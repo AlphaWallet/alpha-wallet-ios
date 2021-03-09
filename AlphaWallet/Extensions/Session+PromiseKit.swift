@@ -10,11 +10,52 @@ struct InsufficientFundsError: LocalizedError {
         R.string.localizable.configureTransactionNotEnoughFunds()
     }
 }
-
 struct PossibleBinanceTestnetTimeoutError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "Request has timed out. Please try again"
+    }
 }
-
 struct RateLimitError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "There might have been too many requests. Please try again later"
+    }
+}
+struct ExecutionRevertedError: LocalizedError {
+    private let message: String
+
+    init(message: String) {
+        self.message = message
+    }
+
+    var errorDescription: String? {
+        message
+    }
+}
+struct NonceTooLowError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "The nonce of the transaction is too low"
+    }
+}
+struct NetworkConnectionWasLostError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "The network connection was lost. Please try again"
+    }
+}
+struct InvalidCertificationError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "It seems like there is a problem with the RPC node certificate. Please try again later"
+    }
+}
+struct RequestTimedOutError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "Request has timed out. Please try again"
+    }
 }
 
 extension Session {
@@ -38,6 +79,17 @@ extension Session {
     private static func convertToUSerFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
         switch error {
         case .connectionError(let e):
+            let message = e.localizedDescription
+            if message.hasPrefix("The network connection was lost") {
+                RemoteLogger.instance.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: NetworkConnectionWasLostError()", url: baseUrl.absoluteString)
+                return NetworkConnectionWasLostError()
+            } else if message.hasPrefix("The certificate for this server is invalid") {
+                RemoteLogger.instance.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: InvalidCertificationError()", url: baseUrl.absoluteString)
+                return InvalidCertificationError()
+            } else if message.hasPrefix("The request timed out") {
+                RemoteLogger.instance.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription) | as: RequestTimedOutError()", url: baseUrl.absoluteString)
+                return RequestTimedOutError()
+            }
             RemoteLogger.instance.logRpcOrOtherWebError("Connection Error | \(e.localizedDescription)", url: baseUrl.absoluteString)
             return nil
         case .requestError(let e):
@@ -47,9 +99,16 @@ extension Session {
             if let jsonRpcError = e as? JSONRPCError {
                 switch jsonRpcError {
                 case .responseError(let code, let message, _):
+                    //Lowercased as RPC nodes implementation differ
                     if message.lowercased().hasPrefix("insufficient funds") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: InsufficientFundsError()", url: baseUrl.absoluteString)
                         return InsufficientFundsError()
+                    } else if message.lowercased().hasPrefix("execution reverted") || message.lowercased().hasPrefix("vm execution error") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: ExecutionRevertedError()", url: baseUrl.absoluteString)
+                        return ExecutionRevertedError(message: "message")
+                    } else if message.lowercased().hasPrefix("nonce too low") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: NonceTooLowError()", url: baseUrl.absoluteString)
+                        return NonceTooLowError()
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
                     }
