@@ -29,6 +29,7 @@ class ActivitiesCoordinator: Coordinator {
     private var hasLoadedActivitiesTheFirstTime = false
     private var lastActivitiesCount: Int = 0
     private var lastTransactionRowsCount: Int = 0
+    private var lastTransactionBlockNumbers: [Int] = .init()
 
     weak var delegate: ActivitiesCoordinatorDelegate?
 
@@ -266,7 +267,7 @@ class ActivitiesCoordinator: Coordinator {
             if rateLimitedViewControllerReloader == nil {
                 rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
                     guard let strongSelf = self else { return }
-                    
+
                     strongSelf.queue.async {
                         strongSelf.reloadViewControllerImpl()
                     }
@@ -278,7 +279,7 @@ class ActivitiesCoordinator: Coordinator {
             reloadViewControllerImpl()
         }
     }
-    
+
     private func reloadViewControllerImpl() {
         if !activities.isEmpty {
             hasLoadedActivitiesTheFirstTime = true
@@ -296,7 +297,7 @@ class ActivitiesCoordinator: Coordinator {
 
         if let items = items {
             let activities = ActivitiesViewModel.sorted(activities: items)
-            
+
             DispatchQueue.main.async {
                 self.rootViewController.configure(viewModel: .init(tokensStorages: self.tokensStorages, activities: activities))
             }
@@ -304,7 +305,7 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transctions which are already covered by transactions
-    private func combine(activities: [Activity], withTransactions: [TransactionInstance]) -> [ActivityOrTransactionRow]? {
+    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityOrTransactionRow]? {
         var transactionRows: [TransactionRow] = .init()
         for each in transactions {
             if each.localizedOperations.isEmpty {
@@ -316,12 +317,14 @@ class ActivitiesCoordinator: Coordinator {
                 transactionRows.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
             }
         }
-
+        let maximumNumberOfPendingTransactionsAtTheSameTime = 5
+        let transactionBlockNumbers = transactionInstances[0..<min(transactionInstances.count, maximumNumberOfPendingTransactionsAtTheSameTime)].map(\.blockNumber)
         //Combining is an expensive operation which blocks the main thread. We avoid it if there are no new data
-        if lastActivitiesCount == activities.count && lastTransactionRowsCount == transactionRows.count { return nil }
+        if lastActivitiesCount == activities.count && lastTransactionRowsCount == transactionRows.count && transactionBlockNumbers == lastTransactionBlockNumbers { return nil }
 
         lastActivitiesCount = activities.count
         lastTransactionRowsCount = transactionRows.count
+        lastTransactionBlockNumbers = transactionBlockNumbers
         var items: [ActivityOrTransactionRow] = .init()
         //We maintain the index to start looking in the array of `TransactionRow`s. Otherwise, the nested for-loops is very costly performance wise. This assumes activities and transactions are sorted by blockNumber in the same (descending) order
         var transactionRowsIndex = 0
