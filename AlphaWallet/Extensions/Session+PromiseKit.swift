@@ -39,6 +39,18 @@ struct NonceTooLowError: LocalizedError {
         "The nonce of the transaction is too low"
     }
 }
+struct GasPriceTooLow: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "The gas price specified for this transaction is too low"
+    }
+}
+struct GasLimitTooLow: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "The gas limit specified for this transaction is too low"
+    }
+}
 struct NetworkConnectionWasLostError: LocalizedError {
     var errorDescription: String? {
         //TODO remove after mapping to better UI and message. Hence not localized yet
@@ -109,6 +121,12 @@ extension Session {
                     } else if message.lowercased().hasPrefix("nonce too low") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: NonceTooLowError()", url: baseUrl.absoluteString)
                         return NonceTooLowError()
+                    } else if message.lowercased().hasPrefix("transaction underpriced") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasPriceTooLow()", url: baseUrl.absoluteString)
+                        return GasPriceTooLow()
+                    } else if message.lowercased().hasPrefix("intrinsic gas too low") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasLimitTooLow()", url: baseUrl.absoluteString)
+                        return GasLimitTooLow()
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
                     }
