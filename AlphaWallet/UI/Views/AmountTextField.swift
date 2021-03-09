@@ -150,7 +150,7 @@ class AmountTextField: UIControl {
     }()
 
     private var allowedCharacters: String = {
-        let decimalSeparator = Locale.current.decimalSeparator ?? ""
+        let decimalSeparator = Config.locale.decimalSeparator ?? ""
         return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
     }()
 
@@ -563,7 +563,7 @@ extension String {
 
     var droppedTrailingZeros: String {
         var string = self
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
+        let decimalSeparator = Config.locale.decimalSeparator ?? "."
 
         //NOTE: it seems like we need to remove trailing zeros only in case when string contains `decimalSeparator`
         guard string.contains(decimalSeparator) else { return string }
@@ -594,7 +594,7 @@ extension Optional where Self.Wrapped == NSDecimalNumber {
 
 extension NSDecimalNumber {
     var localizedString: String {
-        return self.description(withLocale: Locale.current)
+        return self.description(withLocale: Config.locale)
     }
 }
 

@@ -28,6 +28,23 @@ enum AppLocale {
         }
     }
 
+    var localeIdentifier: String? {
+        switch self {
+        case .system:
+            return nil
+        case .english:
+            return "en_US"
+        case .simplifiedChinese:
+            return "zh_Hans_CN"
+        case .spanish:
+            return "es_ES"
+        case .korean:
+            return "ko"
+        case .japanese:
+             return "ja_JP"
+        }
+    }
+
     var displayName: String {
         //Only .system should be localized. The rest should each be in their own language
         switch self {
