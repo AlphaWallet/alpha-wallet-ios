@@ -41,7 +41,7 @@ final class DecimalFormatter {
         return formatter
     }()
     /// Initializes a `DecimalFormatter` with a `Locale`.
-    init(locale: Locale = .current) {
+    init(locale: Locale = Config.locale) {
         self.locale = locale
         self.numberFormatter = NumberFormatter()
         self.numberFormatter.locale = self.locale

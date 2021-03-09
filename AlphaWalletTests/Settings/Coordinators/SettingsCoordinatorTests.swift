@@ -3,6 +3,14 @@
 import XCTest
 @testable import AlphaWallet
 
+extension ServerDictionary {
+    static func make(server: RPCServer = .main) -> ServerDictionary<WalletSession> {
+        var sessons: ServerDictionary<WalletSession> = .init()
+        sessons[.main] = WalletSession.make()
+        return sessons
+    }
+}
+
 class SettingsCoordinatorTests: XCTestCase {
     func testOnDeleteCleanStorage() {
         class Delegate: SettingsCoordinatorDelegate, CanOpenURL {
@@ -24,12 +32,14 @@ class SettingsCoordinatorTests: XCTestCase {
 
         let storage = FakeTransactionsStorage()
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make(), analyticsCoordinator: FakeAnalyticsService())
-        let walletConnectCoordinator = WalletConnectCoordinator(keystore: FakeKeystore(), sessions: .init(), navigationController: FakeNavigationController(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), nativeCryptoCurrencyPrices: .init())
+        let sessons = ServerDictionary<Any>.make(server: .main)
+
+        let walletConnectCoordinator = WalletConnectCoordinator(keystore: FakeKeystore(), sessions: sessons, navigationController: FakeNavigationController(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), nativeCryptoCurrencyPrices: .init())
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             config: .make(),
-            sessions: .init(),
+            sessions: sessons,
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
             walletConnectCoordinator: walletConnectCoordinator

@@ -30,9 +30,6 @@ class SendViewController: UIViewController {
     private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
-    private lazy var decimalFormatter: DecimalFormatter = {
-        return DecimalFormatter()
-    }()
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
     private let amountViewModel = SendViewSectionHeaderViewModel(
@@ -292,13 +289,13 @@ class SendViewController: UIViewController {
         case .nativeCryptocurrency:
             guard let balance = session.balance else { return nil }
 
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether)
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether)
+            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .ERC20Token(let token, _, _):
-            let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals)
+            let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
