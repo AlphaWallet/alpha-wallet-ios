@@ -4,5 +4,5 @@ import Foundation
 
 enum Features {
     static let isActivityEnabled = true
-    static let isSendAllFundsFungibleEnabled = false
+    static let isSendAllFundsFungibleEnabled = true
 }
