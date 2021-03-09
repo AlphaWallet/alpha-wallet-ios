@@ -7,6 +7,7 @@
 
 import UIKit
 import WalletConnectSwift
+import Kingfisher
 
 protocol WalletConnectSessionViewControllerDelegate: class {
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton)
@@ -27,13 +28,6 @@ class WalletConnectSessionViewController: UIViewController {
     private let connectedToRow = WalletConnectRowView()
     private let chainRow = WalletConnectRowView()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
-    private let roundedBackground = RoundedBackground()
-    private let separatorList: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.mercury()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
 
     weak var delegate: WalletConnectSessionViewControllerDelegate?
 
@@ -47,29 +41,23 @@ class WalletConnectSessionViewController: UIViewController {
             nameRow,
             connectedToRow,
             chainRow,
-            separatorList
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        roundedBackground.addSubview(stackView)
-
+        view.addSubview(stackView)
         view.backgroundColor = Colors.appBackground
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
-        roundedBackground.addSubview(footerBar)
+        view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            separatorList.heightAnchor.constraint(equalToConstant: 1),
             imageView.heightAnchor.constraint(equalToConstant: 250),
-            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
 
             footerBar.anchorsConstraint(to: view),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ])
 
     }
 
@@ -109,7 +97,7 @@ class WalletConnectSessionViewController: UIViewController {
         nameRow.configure(viewModel: viewModel.nameRowViewModel)
         connectedToRow.configure(viewModel: viewModel.connectedToRowViewModel)
         chainRow.configure(viewModel: viewModel.chainRowViewModel)
-        imageView.image = viewModel.walletImageIcon
+        imageView.setImage(url: viewModel.sessionIconURL, placeholder: viewModel.walletImageIcon)
 
         let button0 = buttonsBar.buttons[0]
         button0.setTitle(viewModel.dissconnectButtonText, for: .normal)
@@ -119,5 +107,23 @@ class WalletConnectSessionViewController: UIViewController {
 
     @objc private func disconnectButtonSelected(_ sender: UIButton) {
         delegate?.controller(self, disconnectSelected: sender)
+    }
+}
+
+extension UIImageView {
+
+    func setImage(url urlValue: URL?, placeholder: UIImage? = .none) {
+        if let url = urlValue {
+            let resource = ImageResource(downloadURL: url)
+            var options: KingfisherOptionsInfo = []
+
+            if let value = placeholder {
+                options.append(.onFailureImage(value))
+            }
+
+            kf.setImage(with: resource, placeholder: placeholder, options: options)
+        } else {
+            image = placeholder
+        }
     }
 }

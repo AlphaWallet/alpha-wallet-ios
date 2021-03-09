@@ -46,3 +46,15 @@ class TokenActionsService: TokenActionsServiceType {
     }
 }
 
+extension TransactionType {
+    var swapServiceInputToken: TokenObject? {
+        switch self {
+        case .nativeCryptocurrency(let token, _, _):
+            return token
+        case .ERC20Token(let token, _, _):
+            return token
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            return nil
+        }
+    }
+}

@@ -7,85 +7,91 @@ protocol ServersViewControllerDelegate: class {
 }
 
 class ServersViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .plain)
-    private var viewModel: ServersViewModel?
-
-    weak var delegate: ServersViewControllerDelegate?
-
-    init() {
-        super.init(nibName: nil, bundle: nil)
-
-        view.backgroundColor = GroupedTable.Color.background
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
+        tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerViewCell.self)
-        roundedBackground.addSubview(tableView)
+
+        return tableView
+    }()
+    private var viewModel: ServersViewModel
+
+    weak var delegate: ServersViewControllerDelegate?
+
+    init(viewModel: ServersViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+
+        view.backgroundColor = GroupedTable.Color.background
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
+    } 
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure(viewModel: viewModel)
     }
 
     func configure(viewModel: ServersViewModel) {
         self.viewModel = viewModel
-        tableView.dataSource = self
-        title = viewModel.title
+        navigationItem.title = viewModel.title
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 }
 
 extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let viewModel = viewModel else { return 0 }
         return viewModel.servers.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
-        if let viewModel = viewModel {
-            let server = viewModel.server(for: indexPath)
-            let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
-            cell.configure(viewModel: cellViewModel)
-        }
+        let server = viewModel.server(for: indexPath)
+        let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
+        cell.configure(viewModel: cellViewModel)
+
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let viewModel = viewModel else { return }
+
         let server = viewModel.server(for: indexPath)
         delegate?.didSelectServer(server: server, in: self)
     }
 
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNonzeroMagnitude
+    }
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        if let viewModel = viewModel, viewModel.servers.count == EnabledServersCoordinator.serversOrdered.count {
+        guard viewModel.displayWarningFooter else {
             return nil
         }
 
         let footer = UIView()
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = viewModel?.descriptionColor
-        label.text = viewModel?.descriptionText
+        label.textColor = viewModel.descriptionColor
+        label.text = viewModel.descriptionText
         label.translatesAutoresizingMaskIntoConstraints = false
         footer.addSubview(label)
         NSLayoutConstraint.activate([
             label.anchorsConstraint(to: footer, edgeInsets: .init(top: 7, left: 20, bottom: 0, right: 20))
         ])
+
         return footer
     }
 }

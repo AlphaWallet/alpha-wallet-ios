@@ -99,3 +99,16 @@ extension UIAlertController {
         return alertController
     }
 }
+
+extension UIAlertController {
+    static func showTransactionSent(transaction: SentTransaction, on target: UIViewController) {
+        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: .alert)
+        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertAction.Style.default, handler: { _ in
+            UIPasteboard.general.string = transaction.id
+        })
+        alertController.addAction(copyAction)
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+
+        target.present(alertController, animated: true)
+    }
+}
