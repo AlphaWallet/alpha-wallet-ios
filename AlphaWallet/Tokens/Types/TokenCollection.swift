@@ -116,6 +116,12 @@ extension RPCServer {
         case .custom: return 11
         case .heco: return 14
         case .heco_testnet: return 15
+        case .fantom: return 16
+        case .fantom_testnet: return 17
+        case .avalanche: return 18
+        case .avalanche_testnet: return 19
+        case .polygon: return 20
+        case .mumbai_testnet: return 21
         }
     }
 }
