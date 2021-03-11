@@ -3,7 +3,7 @@
 import Foundation
 
 protocol SingleChainTransactionDataCoordinatorDelegate: class {
-    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator)
+    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator, reloadImmediately: Bool)
 }
 
 protocol SingleChainTransactionDataCoordinator: Coordinator {

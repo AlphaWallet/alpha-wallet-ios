@@ -68,7 +68,7 @@ struct ActivitiesViewModel {
                 }
             })
         }.sorted { (object1, object2) -> Bool in
-            //NOTE: Remove force unwrap to prevent crash 
+            //NOTE: Remove force unwrap to prevent crash
             guard let date1 = ActivitiesViewModel.formatter.date(from: object1.date), let date2 = ActivitiesViewModel.formatter.date(from: object2.date) else {
                 return false
             }

@@ -135,7 +135,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds),
             ethPrice: ethPrice
         )
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendFungible)
@@ -160,7 +160,7 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
 
             strongSelf.transactionConfirmationResult = result
 
-            let coordinator = TransactionInProgressCoordinator(navigationController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

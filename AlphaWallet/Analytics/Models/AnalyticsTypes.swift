@@ -99,6 +99,8 @@ enum Analytics {
         case sendNft
         case browser
         case claimPaidMagicLink
+        case speedupTransaction
+        case cancelTransaction
     }
 
     enum TransactionConfirmationSpeedType: String {

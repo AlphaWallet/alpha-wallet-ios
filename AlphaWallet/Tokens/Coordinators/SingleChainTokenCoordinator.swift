@@ -619,7 +619,7 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
 
-            let coordinator = TransactionInProgressCoordinator(navigationController: coordinator.presentationNavigationController)
+            let coordinator = TransactionInProgressCoordinator(presentingViewController: coordinator.presentingViewController)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 
@@ -634,7 +634,7 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
         case .success((let transaction, let functionCallMetaData)):
-            let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

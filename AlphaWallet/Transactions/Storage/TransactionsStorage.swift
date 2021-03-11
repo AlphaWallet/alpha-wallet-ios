@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 import RealmSwift
 import PromiseKit
 
@@ -7,6 +8,9 @@ protocol TransactionsStorageDelegate: class {
 }
 
 class TransactionsStorage {
+    //TODO if we move this to instance-side, we have to be careful it's the same instance we are accessing, otherwise we wouldn't find the pending transaction information when we need it
+    static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
+
     private let realm: Realm
     weak private var delegate: TransactionsStorageDelegate?
 
@@ -43,6 +47,14 @@ class TransactionsStorage {
             .filter("chainId = \(server.chainID)")
             .map { TransactionInstance(transaction: $0) }
             .first
+    }
+
+    func hasCompletedTransaction(withNonce nonce: String) -> Bool {
+        !realm.threadSafe.objects(Transaction.self)
+                .filter("nonce = '\(nonce)'")
+                .filter("chainId = \(server.chainID)")
+                .filter("internalState = \(TransactionState.completed.rawValue)")
+                .isEmpty
     }
 
     private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {

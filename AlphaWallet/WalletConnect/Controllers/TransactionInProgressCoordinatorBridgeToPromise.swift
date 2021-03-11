@@ -16,7 +16,7 @@ private class TransactionInProgressCoordinatorBridgeToPromise {
     init(navigationController: UINavigationController, coordinator: Coordinator) {
         retainCycle = self
 
-        let newCoordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+        let newCoordinator = TransactionInProgressCoordinator(presentingViewController: navigationController)
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 

@@ -150,7 +150,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
         filterTransactionsToPullContractsFrom(items).done(on: self.queue, { transactionsToPullContractsFrom, contractsAndTokenTypes in
             self.storage.add(transactions: items, transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-            self.delegate?.handleUpdateItems(inCoordinator: self)
+            self.delegate?.handleUpdateItems(inCoordinator: self, reloadImmediately: false)
         }).cauterize()
     }
 
@@ -222,6 +222,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 case .responseError:
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
+                    if self.storage.hasCompletedTransaction(withNonce: transaction.nonce) {
+                        self.delete(transactions: [transaction])
+                    }
                     //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to TaiChi and fetch pending status through Etherscan
                     break
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
@@ -234,8 +237,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func delete(transactions: [TransactionInstance]) {
-        storage.delete(transactions: transactions).done(on: self.queue, { _ in
-            self.delegate?.handleUpdateItems(inCoordinator: self)
+        storage.delete(transactions: transactions).done({ _ in
+            self.delegate?.handleUpdateItems(inCoordinator: self, reloadImmediately: true)
         }).cauterize()
     }
 
@@ -243,7 +246,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         storage.update(state: state, for: transaction.primaryKey, withPendingTransaction: pendingTransaction).done(on: self.queue, { _ in
             guard shouldUpdateItems else { return }
 
-            self.delegate?.handleUpdateItems(inCoordinator: self)
+            self.delegate?.handleUpdateItems(inCoordinator: self, reloadImmediately: false)
         }).cauterize()
     }
 

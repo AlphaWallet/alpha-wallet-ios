@@ -5,6 +5,8 @@ import UIKit
 protocol ActivitiesCoordinatorDelegate: class {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator)
+    func speedup(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator)
+    func cancel(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator)
     func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator)
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController)
 }
@@ -458,6 +460,14 @@ extension ActivitiesCoordinator: ActivityViewControllerDelegate {
         guard let tokenObject = tokensStorages[token.server].token(forContract: token.contractAddress) else { return }
 
         delegate?.show(tokenObject: tokenObject, fromCoordinator: self)
+    }
+
+    func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
+        delegate?.speedup(transactionWithId: transactionId, forServer: server, viewController: viewController, fromCoordinator: self)
+    }
+
+    func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
+        delegate?.cancel(transactionWithId: transactionId, forServer: server, viewController: viewController, fromCoordinator: self)
     }
 
     func goToTransaction(viewController: ActivityViewController) {
