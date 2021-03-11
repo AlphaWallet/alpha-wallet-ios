@@ -16,23 +16,27 @@ enum TransactionConfirmationConfiguration {
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount, ethPrice: Subscribable<Double>)
     case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceName: String?)
     case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
+    case speedupTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
+    case cancelTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
     var confirmType: ConfirmType {
         switch self {
         case .dappTransaction(let confirmType, _, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _, _, _), .tokenScriptTransaction(let confirmType, _, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
             return confirmType
+        case .speedupTransaction, .cancelTransaction:
+            return .signThenSend
         }
     }
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _):
+        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .speedupTransaction(let keystore, _), .cancelTransaction(let keystore, _):
             return keystore
         }
     }
 
     var ethPrice: Subscribable<Double> {
         switch self {
-        case .dappTransaction(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _):
+        case .dappTransaction(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _), .speedupTransaction(_, let ethPrice), .cancelTransaction(_, let ethPrice):
             return ethPrice
         }
     }
@@ -62,7 +66,6 @@ protocol TransactionConfirmationCoordinatorDelegate: class {
 
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
-    let presentationNavigationController: UINavigationController
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
@@ -72,6 +75,8 @@ class TransactionConfirmationCoordinator: Coordinator {
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analyticsCoordinator: AnalyticsCoordinator
+
+    let presentingViewController: UIViewController
     lazy var navigationController: UINavigationController = {
         let controller = UINavigationController(rootViewController: confirmationViewController)
         controller.modalPresentationStyle = .overFullScreen
@@ -83,11 +88,11 @@ class TransactionConfirmationCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator) {
+    init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator) {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
-        presentationNavigationController = navigationController
+        self.presentingViewController = presentingViewController
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
@@ -96,7 +101,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)
         } else {
-            presentationNavigationController.present(navigationController, animated: false)
+            presentingViewController.present(navigationController, animated: false)
         }
 
         configurator.delegate = self

@@ -74,7 +74,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                         gasPrice: nil,
                         nonce: nil
                 )
-                let coordinator = TransactionConfirmationCoordinator(navigationController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, ethPrice: strongSelf.ethPrice, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
+                let coordinator = TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, ethPrice: strongSelf.ethPrice, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
                 coordinator.delegate = self
                 strongSelf.addCoordinator(coordinator)
                 coordinator.start(fromSource: .claimPaidMagicLink)

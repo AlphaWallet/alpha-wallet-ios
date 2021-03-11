@@ -12,4 +12,5 @@ public struct UnsignedTransaction {
     let gasPrice: BigInt
     let gasLimit: BigInt
     let server: RPCServer
+    let transactionType: TransactionType
 }

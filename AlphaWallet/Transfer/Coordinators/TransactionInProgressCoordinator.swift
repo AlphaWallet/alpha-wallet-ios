@@ -12,7 +12,7 @@ protocol TransactionInProgressCoordinatorDelegate: class {
 }
 
 class TransactionInProgressCoordinator: Coordinator {
-    
+
     private lazy var viewControllerToPresent: UINavigationController = {
         let controller = TransactionInProgressViewController(viewModel: .init())
         controller.delegate = self
@@ -20,17 +20,17 @@ class TransactionInProgressCoordinator: Coordinator {
         navigationController.makePresentationFullScreenForiOS13Migration()
         return navigationController
     }()
-    private let navigationController: UINavigationController
+    private let presentingViewController: UIViewController
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionInProgressCoordinatorDelegate?
 
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(presentingViewController: UIViewController) {
+        self.presentingViewController = presentingViewController
     }
 
     func start() {
-        navigationController.present(viewControllerToPresent, animated: true)
+        presentingViewController.present(viewControllerToPresent, animated: true)
     }
 }
 

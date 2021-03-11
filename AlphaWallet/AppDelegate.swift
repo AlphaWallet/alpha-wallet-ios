@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window = UIWindow(frame: UIScreen.main.bounds)
         //Necessary to make UIAlertController have the correct tint colors, despite already doing: `UIWindow.appearance().tintColor = Colors.appTint`
         window?.tintColor = Colors.appTint
-        
+
         do {
             //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
             let analyticsService = AnalyticsService()

@@ -178,10 +178,12 @@ class TransactionConfigurator {
             let standard = estimates.standard
             var customConfig = self.configurations.custom
             customConfig.setEstimated(gasPrice: standard)
-            self.configurations.custom = customConfig
             var defaultConfig = self.configurations.standard
             defaultConfig.setEstimated(gasPrice: standard)
-            self.configurations.standard = defaultConfig
+            if self.shouldUseEstimatedGasPrice(standard) {
+                self.configurations.custom = customConfig
+                self.configurations.standard = defaultConfig
+            }
 
             for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
                 guard let estimate = estimates[each] else { continue }
@@ -193,6 +195,15 @@ class TransactionConfigurator {
 
             self.delegate?.gasPriceEstimateUpdated(to: standard, in: self)
         }.cauterize()
+    }
+
+    private func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigInt) -> Bool {
+        //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
+        if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice > estimatedGasPrice {
+            return false
+        } else {
+            return true
+        }
     }
 
     static func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
@@ -387,18 +398,41 @@ class TransactionConfigurator {
         if !isGasLimitSpecifiedByTransaction {
             estimateGasLimit()
         }
-        firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address).promise()
-        }.done {
-            var customConfig = self.configurations.custom
-            if let existingNonce = customConfig.nonce, existingNonce > 0 {
-                //no-op
-            } else {
-                customConfig.set(nonce: $0)
-                self.configurations.custom = customConfig
-                self.delegate?.updateNonce(to: $0, in: self)
+        computeNonce()
+    }
+
+    private func useNonce(_ nonce: Int) {
+        var customConfig = configurations.custom
+        if let existingNonce = customConfig.nonce, existingNonce > 0 {
+            //no-op
+        } else {
+            customConfig.set(nonce: nonce)
+            configurations.custom = customConfig
+            var defaultConfig = self.configurations.standard
+            defaultConfig.set(nonce: nonce)
+            configurations.standard = defaultConfig
+
+            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+                //We don't want to add that config if it's missing (e.g. testnets don't have them)
+                if var config = configurations[each] {
+                    config.set(nonce: nonce)
+                    configurations[each] = config
+                }
             }
-        }.cauterize()
+            delegate?.updateNonce(to: nonce, in: self)
+        }
+    }
+
+    private func computeNonce() {
+        if let nonce = transaction.nonce, nonce > 0 {
+            useNonce(Int(nonce))
+        } else {
+            firstly {
+                GetNextNonce(server: session.server, wallet: session.account.address).promise()
+            }.done {
+                self.useNonce($0)
+            }.cauterize()
+        }
     }
 
     func formUnsignedTransaction() -> UnsignedTransaction {
@@ -410,7 +444,8 @@ class TransactionConfigurator {
             data: currentConfiguration.data,
             gasPrice: currentConfiguration.gasPrice,
             gasLimit: currentConfiguration.gasLimit,
-            server: session.server
+            server: session.server,
+            transactionType: transaction.transactionType
         )
     }
 
