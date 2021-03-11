@@ -419,6 +419,12 @@
 "blockchain.Binance.test" = "Binance Testnet Network";
 "blockchain.Heco" = "Heco Network";
 "blockchain.Heco.test" = "Heco Testnet Network";
+"blockchain.fantom" = "Fantom Blockchain";
+"blockchain.fantom.test" = "Fantom Testnet Network";
+"blockchain.Avalanche" = "Avalanche Mainnet C-Chain";
+"blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
+"blockchain.Polygon" = "Polygon Mainnet";
+"blockchain.Mumbai" = "Mumbai Testnet";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";
