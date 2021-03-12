@@ -217,13 +217,13 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             switch error as? SessionTaskError {
             case .responseError(let error):
                 // TODO: Think about the logic to handle pending transactions.
+                //TODO we need to detect when a transaction is marked as failed by the node?
                 switch error as? JSONRPCError {
                 case .responseError:
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
-                    if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
-                        self.update(state: .failed, for: transaction, withPendingTransaction: nil)
-                    }
+                    //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to TaiChi and fetch pending status through Etherscan
+                    break
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                     break
                 }

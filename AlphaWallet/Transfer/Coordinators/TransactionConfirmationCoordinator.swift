@@ -158,7 +158,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func sendTransaction() -> Promise<ConfirmResult> {
-        let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: configuration.keystore, confirmType: configuration.confirmType)
+        let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: configuration.keystore, confirmType: configuration.confirmType, config: configurator.session.config)
         let transaction = configurator.formUnsignedTransaction()
         return coordinator.send(transaction: transaction)
     }

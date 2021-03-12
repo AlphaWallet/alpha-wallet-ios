@@ -6,16 +6,21 @@ import JSONRPCKit
 import PromiseKit
 
 class GetNextNonce {
-    private let server: RPCServer
+    private let rpcURL: URL
     private let wallet: AlphaWallet.Address
 
     init(server: RPCServer, wallet: AlphaWallet.Address) {
-        self.server = server
+        self.rpcURL = server.rpcURL
+        self.wallet = wallet
+    }
+
+    init(rpcURL: URL, wallet: AlphaWallet.Address) {
+        self.rpcURL = rpcURL
         self.wallet = wallet
     }
 
     func promise() -> Promise<Int> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
+        let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(GetTransactionCountRequest(address: wallet, state: "pending")))
         return Session.send(request)
     }
 }
