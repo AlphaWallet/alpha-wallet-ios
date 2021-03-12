@@ -51,6 +51,12 @@ struct GasLimitTooLow: LocalizedError {
         "The gas limit specified for this transaction is too low"
     }
 }
+struct PossibleChainIdMismatchError: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "invalid sender: The chain ID might be wrong"
+    }
+}
 struct NetworkConnectionWasLostError: LocalizedError {
     var errorDescription: String? {
         //TODO remove after mapping to better UI and message. Hence not localized yet
@@ -127,6 +133,9 @@ extension Session {
                     } else if message.lowercased().hasPrefix("intrinsic gas too low") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasLimitTooLow()", url: baseUrl.absoluteString)
                         return GasLimitTooLow()
+                    } else if message.lowercased().hasPrefix("invalid sender") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: PossibleChainIdMismatchError()", url: baseUrl.absoluteString)
+                        return PossibleChainIdMismatchError()
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
                     }
