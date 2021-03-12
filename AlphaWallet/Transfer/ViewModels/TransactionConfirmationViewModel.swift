@@ -197,7 +197,7 @@ extension TransactionConfirmationViewModel {
                     return "\(double) \(token.symbol)"
                 }
             case .ERC20Token(let token, _, _):
-                return "\(amount) \(token.symbol)"
+                return "\(amount.value) \(token.symbol)"
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
