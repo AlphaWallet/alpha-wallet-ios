@@ -51,6 +51,12 @@ struct GasLimitTooLow: LocalizedError {
         "The gas limit specified for this transaction is too low"
     }
 }
+struct GasLimitTooHigh: LocalizedError {
+    var errorDescription: String? {
+        //TODO remove after mapping to better UI and message. Hence not localized yet
+        "The gas limit specified for this transaction is too high"
+    }
+}
 struct PossibleChainIdMismatchError: LocalizedError {
     var errorDescription: String? {
         //TODO remove after mapping to better UI and message. Hence not localized yet
@@ -121,18 +127,21 @@ extension Session {
                     if message.lowercased().hasPrefix("insufficient funds") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: InsufficientFundsError()", url: baseUrl.absoluteString)
                         return InsufficientFundsError()
-                    } else if message.lowercased().hasPrefix("execution reverted") || message.lowercased().hasPrefix("vm execution error") {
+                    } else if message.lowercased().hasPrefix("execution reverted") || message.lowercased().hasPrefix("vm execution error") || message.lowercased().hasPrefix("revert") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: ExecutionRevertedError()", url: baseUrl.absoluteString)
                         return ExecutionRevertedError(message: "message")
-                    } else if message.lowercased().hasPrefix("nonce too low") {
+                    } else if message.lowercased().hasPrefix("nonce too low") || message.lowercased().hasPrefix("nonce is too low") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: NonceTooLowError()", url: baseUrl.absoluteString)
                         return NonceTooLowError()
                     } else if message.lowercased().hasPrefix("transaction underpriced") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasPriceTooLow()", url: baseUrl.absoluteString)
                         return GasPriceTooLow()
-                    } else if message.lowercased().hasPrefix("intrinsic gas too low") {
+                    } else if message.lowercased().hasPrefix("intrinsic gas too low") || message.lowercased().hasPrefix("Transaction gas is too low") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasLimitTooLow()", url: baseUrl.absoluteString)
                         return GasLimitTooLow()
+                    } else if message.lowercased().hasPrefix("intrinsic gas exceeds gas limit") {
+                        RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: GasLimitTooHigh()", url: baseUrl.absoluteString)
+                        return GasLimitTooHigh()
                     } else if message.lowercased().hasPrefix("invalid sender") {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message) | as: PossibleChainIdMismatchError()", url: baseUrl.absoluteString)
                         return PossibleChainIdMismatchError()
@@ -180,7 +189,7 @@ extension Session {
                 return PossibleBinanceTestnetTimeoutError()
             }
 
-            RemoteLogger.instance.logRpcOrOtherWebError("Response Error: \(e.localizedDescription)", url: baseUrl.absoluteString)
+            RemoteLogger.instance.logRpcOrOtherWebError("Other Error: \(e) | \(e.localizedDescription)", url: baseUrl.absoluteString)
             return nil
         }
     }
