@@ -22,6 +22,12 @@ enum RPCServer: Hashable, CaseIterable {
     case binance_smart_chain_testnet
     case heco
     case heco_testnet
+    case fantom
+    case fantom_testnet
+    case avalanche
+    case avalanche_testnet
+    case polygon
+    case mumbai_testnet
     case custom(CustomRPC)
 
     var chainID: Int {
@@ -44,6 +50,12 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco_testnet: return 256
         case .custom(let custom):
             return custom.chainID
+        case .fantom: return 250
+        case .fantom_testnet: return 0xfa2
+        case .avalanche: return 0xa86a
+        case .avalanche_testnet: return 0xa869
+        case .polygon: return 137
+        case .mumbai_testnet: return 80001
         }
     }
 
@@ -65,17 +77,29 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain_testnet: return "Binance Testnet"
         case .heco: return "Heco"
         case .heco_testnet: return "Heco Testnet"
-        case .custom(let custom):
-            return custom.name
+        case .custom(let custom): return custom.name
+        case .fantom: return "Fantom Opera"
+        case .fantom_testnet: return "Fantom Testnet"
+        case .avalanche: return "Avalanche Mainnet C-Chain"
+        case .avalanche_testnet: return "Avalanche FUJI C-Chain"
+        case .polygon: return "Polygon Mainnet"
+        case .mumbai_testnet: return "Mumbai Testnet"
         }
     }
 
     var isTestnet: Bool {
         switch self {
-        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco:
+        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon:
             return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet:
             return true
+        }
+    }
+
+    var isTestNetwork: Bool {
+        switch self {
+        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon: return false
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet: return true
         }
     }
 
@@ -98,6 +122,12 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
+        case .fantom: return nil
+        case .fantom_testnet: return nil
+        case .avalanche: return nil
+        case .avalanche_testnet: return nil
+        case .polygon: return nil
+        case .mumbai_testnet: return nil
         }
     }
 
@@ -121,6 +151,12 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
+        case .fantom: return nil
+        case .fantom_testnet: return nil
+        case .avalanche: return nil
+        case .avalanche_testnet: return nil
+        case .polygon: return nil
+        case .mumbai_testnet: return nil
         }
     }
 
@@ -143,6 +179,12 @@ enum RPCServer: Hashable, CaseIterable {
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         case .heco_testnet: return Constants.hecoTestnetContractPage
         case .heco: return Constants.hecoContractPage
+        case .fantom: return Constants.fantomContractPage
+        case .fantom_testnet: return Constants.fantomTestnetContractPage
+        case .avalanche: return Constants.avalancheContractPage
+        case .avalanche_testnet: return Constants.avalancheTestnetContractPage
+        case .polygon: return Constants.maticContractPage
+        case .mumbai_testnet: return Constants.mumbaiContractPage
         }
     }
 
@@ -151,7 +193,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main:
             return Constants.mainnetEtherscanTokenDetailsWebPageURL
-        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
             return etherscanContractDetailsWebPageURL
         }
     }
@@ -186,7 +228,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var priceID: AlphaWallet.Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
             return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -205,13 +247,6 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var isTestNetwork: Bool {
-        switch self {
-        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco: return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet: return true
-        }
-    }
-
     var symbol: String {
         switch self {
         case .main: return "ETH"
@@ -224,8 +259,10 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
         case .heco, .heco_testnet: return "HT"
-        case .custom(let custom):
-            return custom.symbol
+        case .custom(let custom): return custom.symbol
+        case .fantom, .fantom_testnet: return "FTM"
+        case .avalanche, .avalanche_testnet: return "AVAX"
+        case .polygon, .mumbai_testnet: return "MATIC"
         }
     }
 
@@ -241,6 +278,10 @@ enum RPCServer: Hashable, CaseIterable {
             return "ATS"
         case .heco, .heco_testnet:
             return "HT"
+        case .fantom, .fantom_testnet:
+            return "FTM"
+        case .avalanche, .avalanche_testnet: return "AVAX"
+        case .polygon, .mumbai_testnet: return "MATIC"
         }
     }
 
@@ -254,9 +295,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
-            return .Custom(networkID: BigUInt(chainID))
-        case .custom:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .custom, .avalanche_testnet, .polygon, .mumbai_testnet:
             return .Custom(networkID: BigUInt(chainID))
         }
     }
@@ -302,6 +341,18 @@ enum RPCServer: Hashable, CaseIterable {
             return Constants.hecoMagicLinkHost
         case .heco_testnet:
             return Constants.hecoTestMagicLinkHost
+        case .fantom:
+            return Constants.fantomMagicLinkHost
+        case .fantom_testnet:
+            return Constants.fantomTestMagicLinkHost
+        case .avalanche:
+            return Constants.avalancheMagicLinkHost
+        case .avalanche_testnet:
+            return Constants.avalancheTestMagicLinkHost
+        case .polygon:
+            return Constants.maticMagicLinkHost
+        case .mumbai_testnet:
+            return Constants.mumbaiTestMagicLinkHost
         }
     }
 
@@ -325,6 +376,12 @@ enum RPCServer: Hashable, CaseIterable {
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
             case .custom(let custom): return custom.endpoint
+            case .fantom: return "https://rpcapi.fantom.network"
+            case .fantom_testnet: return "https://rpc.testnet.fantom.network/"
+            case .avalanche: return "https://api.avax.network/ext/bc/C/rpc"
+            case .avalanche_testnet: return "https://api.avax-test.network/ext/bc/C/rpc"
+            case .polygon: return "https://rpc-mainnet.maticvigil.com/"
+            case .mumbai_testnet: return "https://rpc-mumbai.maticvigil.com/"
             }
         }()
         return URL(string: urlString)!
@@ -350,6 +407,12 @@ enum RPCServer: Hashable, CaseIterable {
             case .heco_testnet: return "https://scan-testnet.hecochain.com/tx/"
             case .heco: return "https://scan.hecochain.com/tx/"
             case .custom: return "" // Enable? make optional
+            case .fantom: return "https://ftmscan.com/tx/"
+            case .fantom_testnet: return "https://ftmscan.com/tx/"
+            case .avalanche: return "https://ftmscan.com/tx/"
+            case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/"
+            case .polygon: return "https://explorer-mainnet.maticvigil.com/tx/"
+            case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/tx/"
             }
         }()
         return URL(string: urlString)!
@@ -361,7 +424,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
         case .goerli: return Constants.ENSRegistrarGoerli
-        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
             return Constants.ENSRegistrarAddress
         }
     }
@@ -370,7 +433,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
             return .low
         }
     }
@@ -393,6 +456,18 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainHecoTest()
         case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
+        case .fantom:
+            return R.string.localizable.blockchainFantom()
+        case .fantom_testnet:
+            return R.string.localizable.blockchainFantomTest()
+        case .avalanche:
+            return R.string.localizable.blockchainAvalanche()
+        case .avalanche_testnet:
+            return R.string.localizable.blockchainAvalancheTest()
+        case .polygon:
+            return R.string.localizable.blockchainPolygon()
+        case .mumbai_testnet:
+            return R.string.localizable.blockchainMumbai()
         }
     }
 
@@ -412,12 +487,18 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_tau1: return .init(red: 255, green: 117, blue: 153)
         case .binance_smart_chain, .binance_smart_chain_testnet: return .init(red: 255, green: 211, blue: 0)
         case .heco, .heco_testnet: return .init(hex: "1253FC")
+        case .fantom: return .red
+        case .fantom_testnet: return .red
+        case .avalanche: return .red
+        case .avalanche_testnet: return .red
+        case .polygon: return .red
+        case .mumbai_testnet: return .red
         }
     }
 
     var transactionDataCoordinatorType: SingleChainTransactionDataCoordinator.Type {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet:
+        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
             return SingleChainTransactionEtherscanDataCoordinator.self
         }
     }
@@ -444,6 +525,14 @@ enum RPCServer: Hashable, CaseIterable {
             return R.image.hthecoMainnet()
         case .heco_testnet:
             return R.image.hthecoTestnet()
+        case .fantom, .fantom_testnet:
+            return R.image.iconsTokensFantom()
+        case .avalanche, .avalanche_testnet:
+            return R.image.iconsTokensAvalanche()
+        case .polygon:
+            return R.image.iconsTokensPolygon()
+        case .mumbai_testnet:
+            return nil
         }
     }
 
@@ -466,6 +555,12 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.name: return .binance_smart_chain_testnet
             case RPCServer.heco.name: return .heco
             case RPCServer.heco_testnet.name: return .heco_testnet
+            case RPCServer.fantom.name: return .fantom
+            case RPCServer.fantom_testnet.name: return .fantom_testnet
+            case RPCServer.avalanche.name: return .avalanche
+            case RPCServer.avalanche_testnet.name: return .avalanche_testnet
+            case RPCServer.polygon.name: return .polygon
+            case RPCServer.mumbai_testnet.name: return .mumbai_testnet
             default: return .main
             }
         }()
@@ -490,6 +585,12 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.chainID: return .binance_smart_chain_testnet
             case RPCServer.heco.chainID: return .heco
             case RPCServer.heco_testnet.chainID: return .heco_testnet
+            case RPCServer.fantom.chainID: return .fantom
+            case RPCServer.fantom_testnet.chainID: return .fantom_testnet
+            case RPCServer.avalanche.chainID: return .avalanche
+            case RPCServer.avalanche_testnet.chainID: return .avalanche_testnet
+            case RPCServer.polygon.chainID: return .polygon
+            case RPCServer.mumbai_testnet.chainID: return .mumbai_testnet
             default: return .main
             }
         }()
@@ -514,6 +615,12 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.binance_smart_chain_testnet.magicLinkHost: return .binance_smart_chain_testnet
             case RPCServer.heco.magicLinkHost: return .heco
             case RPCServer.heco_testnet.magicLinkHost: return .heco_testnet
+            case RPCServer.fantom.magicLinkHost: return .fantom
+            case RPCServer.fantom_testnet.magicLinkHost: return .fantom_testnet
+            case RPCServer.avalanche.magicLinkHost: return .avalanche
+            case RPCServer.avalanche_testnet.magicLinkHost: return .avalanche_testnet
+            case RPCServer.polygon.magicLinkHost: return .polygon
+            case RPCServer.mumbai_testnet.magicLinkHost: return .mumbai_testnet
             default: return nil
             }
         }()
@@ -547,7 +654,13 @@ enum RPCServer: Hashable, CaseIterable {
             .binance_smart_chain_testnet,
             .binance_smart_chain,
             .heco,
-            .heco_testnet
+            .heco_testnet,
+            .fantom,
+            .fantom_testnet,
+            .avalanche,
+            .avalanche_testnet,
+            .polygon,
+            .mumbai_testnet
         ]
     }
 }

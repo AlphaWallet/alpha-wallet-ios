@@ -417,6 +417,12 @@
 "blockchain.Binance.test" = "Binance Testnet Network";
 "blockchain.Heco" = "Heco Network";
 "blockchain.Heco.test" = "Heco Testnet Network";
+"blockchain.fantom" = "Fantom Blockchain";
+"blockchain.fantom.test" = "Fantom Testnet Network";
+"blockchain.Avalanche" = "Avalanche Mainnet C-Chain";
+"blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
+"blockchain.Polygon" = "Polygon Mainnet";
+"blockchain.Mumbai" = "Mumbai Testnet";
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Browse";
 "light" = "Light";

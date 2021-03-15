@@ -28,6 +28,12 @@ public struct Constants {
     public static let hecoMagicLinkHost = "heco.aw.app"
     public static let hecoTestMagicLinkHost = "test-heco.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
+    public static let fantomMagicLinkHost = "fantom.aw.app"
+    public static let fantomTestMagicLinkHost = "test-fantom.aw.app"
+    public static let avalancheMagicLinkHost = "avalanche.aw.app"
+    public static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
+    public static let maticMagicLinkHost = "polygon.aw.app"
+    public static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
 
     public enum Currency {
         static let usd = "USD"
@@ -114,6 +120,12 @@ public struct Constants {
     public static let binanceTestnetContractPage = "https://testnet.bscscan.com/search?q="
     public static let hecoContractPage = "https://scan.hecochain.com/address/"
     public static let hecoTestnetContractPage = "https://scan-testnet.hecochain.com/address/"
+    public static let fantomContractPage = "https://ftmscan.com/address/"
+    public static let fantomTestnetContractPage = "https://ftmscan.com/address/"
+    public static let avalancheContractPage = "https://cchain.explorer.avax.network/address/"
+    public static let avalancheTestnetContractPage = "https://cchain.explorer.avax-test.network/address/"
+    public static let maticContractPage = "https://explorer-mainnet.maticvigil.com/address/"
+    public static let mumbaiContractPage = "https://explorer-mumbai.maticvigil.com/address/"
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"

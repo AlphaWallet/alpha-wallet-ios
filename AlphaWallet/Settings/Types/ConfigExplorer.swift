@@ -20,7 +20,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
                 return endpoint + "/tx/" + ID
             }
         }()
@@ -49,6 +49,12 @@ struct ConfigExplorer {
             return "ARTIS"
         case .heco, .heco_testnet:
             return "Heco Explorer"
+        case .fantom, .fantom_testnet:
+            return "Fantom Explorer"
+        case .avalanche, .avalanche_testnet:
+            return "Avalanche Explorer"
+        case .polygon, .mumbai_testnet:
+            return "Polygon Explorer"
         }
     }
 
@@ -87,7 +93,18 @@ struct ConfigExplorer {
             return ("https://scan.hecochain.com", nameForServer)
         case .heco_testnet:
             return ("https://scan-testnet.hecochain.com", nameForServer)
-
+        case .fantom:
+            return ("https://ftmscan.com", nameForServer)
+        case .fantom_testnet:
+            return ("https://ftmscan.com", nameForServer)
+        case .avalanche:
+            return ("https://cchain.explorer.avax.network", nameForServer)
+        case .avalanche_testnet:
+            return ("https://cchain.explorer.avax-test.network", nameForServer)
+        case .polygon:
+            return ("https://explorer-mainnet.maticvigil.com", nameForServer)
+        case .mumbai_testnet:
+            return ("https://explorer-mumbai.maticvigil.com", nameForServer)
         }
     }
 }
