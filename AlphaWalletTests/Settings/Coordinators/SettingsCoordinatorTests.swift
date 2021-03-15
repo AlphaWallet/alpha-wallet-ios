@@ -24,13 +24,15 @@ class SettingsCoordinatorTests: XCTestCase {
 
         let storage = FakeTransactionsStorage()
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make(), analyticsCoordinator: FakeAnalyticsService())
+        let walletConnectCoordinator = WalletConnectCoordinator(keystore: FakeKeystore(), sessions: .init(), navigationController: FakeNavigationController(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), nativeCryptoCurrencyPrices: .init())
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             config: .make(),
             sessions: .init(),
             promptBackupCoordinator: promptBackupCoordinator,
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            walletConnectCoordinator: walletConnectCoordinator
         )
         let delegate = Delegate()
         coordinator.delegate = delegate
