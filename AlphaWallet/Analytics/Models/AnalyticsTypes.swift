@@ -27,6 +27,7 @@ enum Analytics {
         case showHistory = "Screen: Dapp History"
         case tapBrowserMore = "Screen: Browser More Options"
         case signMessageRequest = "Screen: Sign Message Request"
+        case walletConnect = "Screen: WalletConnect"
     }
 
     enum Action: String, AnalyticsAction {
@@ -39,6 +40,11 @@ enum Analytics {
         case enterUrl = "Enter URL"
         case signMessageRequest = "Sign Message Request"
         case cancelSignMessageRequest = "Cancel Sign Message Request"
+        case switchedServer = "Switch Server Completed"
+        case cancelsSwitchServer = "Switch Server Cancelled"
+        case walletConnectConnect = "WalletConnect Connect"
+        case walletConnectCancel = "WalletConnect Cancel"
+        case walletConnectDisconnect = "WalletConnect Disconnect"
     }
 
     enum Properties: String {
