@@ -54,7 +54,7 @@ class SignMessageCoordinator: Coordinator {
 
     func start() {
         guard let keyWindow = UIApplication.shared.keyWindow else { return }
-
+        analyticsCoordinator.log(navigation: Analytics.Navigation.signMessageRequest, properties: [Analytics.Properties.source.rawValue: source.rawValue, Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue])
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)
         } else {
@@ -62,6 +62,19 @@ class SignMessageCoordinator: Coordinator {
         }
 
         confirmationViewController.reloadView()
+    }
+
+    private func mapMessageToAnalyticsType(_ message: SignMessageType) -> Analytics.SignMessageRequestType {
+        switch message {
+        case .message:
+            return .message
+        case .personalMessage:
+            return .personalMessage
+        case .typedMessage:
+            return .eip712
+        case .eip712v3And4:
+            return .eip712v3And4
+        }
     }
 
     func dissmissAnimated(completion: @escaping () -> Void) {
@@ -107,6 +120,7 @@ class SignMessageCoordinator: Coordinator {
 extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
 
     func controller(_ controller: SignatureConfirmationViewController, continueButtonTapped sender: UIButton) {
+        analyticsCoordinator.log(action: Analytics.Action.signMessageRequest)
         signMessage(with: message)
     }
 
@@ -117,6 +131,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
     }
 
     func didClose(in controller: SignatureConfirmationViewController) {
+        analyticsCoordinator.log(action: Analytics.Action.cancelSignMessageRequest)
         navigationController.dismiss(animated: false) {
             guard let delegate = self.delegate else { return }
             delegate.didCancel(in: self)
