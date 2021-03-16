@@ -18,10 +18,12 @@ protocol SignMessageCoordinatorDelegate: class {
 }
 
 class SignMessageCoordinator: Coordinator {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let presentationNavigationController: UINavigationController
     private let keystore: Keystore
     private let account: AlphaWallet.Address
     private var message: SignMessageType
+    private let source: Analytics.SignMessageRequestSource
 
     var coordinators: [Coordinator] = []
     weak var delegate: SignMessageCoordinatorDelegate?
@@ -41,16 +43,18 @@ class SignMessageCoordinator: Coordinator {
         return controller
     }()
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.presentationNavigationController = navigationController
         self.keystore = keystore
         self.account = account
         self.message = message
+        self.source = source
     }
 
     func start() {
         guard let keyWindow = UIApplication.shared.keyWindow else { return }
-
+        analyticsCoordinator.log(navigation: Analytics.Navigation.signMessageRequest, properties: [Analytics.Properties.source.rawValue: source.rawValue, Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue])
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)
         } else {
@@ -58,6 +62,19 @@ class SignMessageCoordinator: Coordinator {
         }
 
         confirmationViewController.reloadView()
+    }
+
+    private func mapMessageToAnalyticsType(_ message: SignMessageType) -> Analytics.SignMessageRequestType {
+        switch message {
+        case .message:
+            return .message
+        case .personalMessage:
+            return .personalMessage
+        case .typedMessage:
+            return .eip712
+        case .eip712v3And4:
+            return .eip712v3And4
+        }
     }
 
     func dissmissAnimated(completion: @escaping () -> Void) {
@@ -103,6 +120,7 @@ class SignMessageCoordinator: Coordinator {
 extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
 
     func controller(_ controller: SignatureConfirmationViewController, continueButtonTapped sender: UIButton) {
+        analyticsCoordinator.log(action: Analytics.Action.signMessageRequest)
         signMessage(with: message)
     }
 
@@ -113,6 +131,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
     }
 
     func didClose(in controller: SignatureConfirmationViewController) {
+        analyticsCoordinator.log(action: Analytics.Action.cancelSignMessageRequest)
         navigationController.dismiss(animated: false) {
             guard let delegate = self.delegate else { return }
             delegate.didCancel(in: self)

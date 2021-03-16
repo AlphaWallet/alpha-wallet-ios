@@ -10,6 +10,7 @@ protocol ActivitiesCoordinatorDelegate: class {
 }
 
 class ActivitiesCoordinator: Coordinator {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
     private let keystore: Keystore
     private let sessions: ServerDictionary<WalletSession>
@@ -50,6 +51,7 @@ class ActivitiesCoordinator: Coordinator {
     private let queue = DispatchQueue(label: "com.activities.updateQueue")
 
     init(
+        analyticsCoordinator: AnalyticsCoordinator,
         config: Config,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = UINavigationController(),
@@ -60,6 +62,7 @@ class ActivitiesCoordinator: Coordinator {
         eventsDataStore: EventsDataStoreProtocol,
         transactionCoordinator: TransactionCoordinator?
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.config = config
         self.sessions = sessions
         self.keystore = keystore
@@ -84,7 +87,7 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     func showActivity(_ activity: Activity) {
-        let controller = ActivityViewController(wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
+        let controller = ActivityViewController(analyticsCoordinator: analyticsCoordinator, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
         controller.delegate = self
         activityViewController = controller
         controller.hidesBottomBarWhenPushed = true

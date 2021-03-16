@@ -10,6 +10,7 @@ protocol ActivityViewControllerDelegate: class {
 }
 
 class ActivityViewController: UIViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let roundedBackground = RoundedBackground()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -22,7 +23,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -40,7 +41,8 @@ class ActivityViewController: UIViewController {
 
     weak var delegate: ActivityViewControllerDelegate?
 
-    init(wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel

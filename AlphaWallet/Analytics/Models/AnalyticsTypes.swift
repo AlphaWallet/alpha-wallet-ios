@@ -26,6 +26,7 @@ enum Analytics {
         case showDapps = "Screen: Dapps"
         case showHistory = "Screen: Dapp History"
         case tapBrowserMore = "Screen: Browser More Options"
+        case signMessageRequest = "Screen: Sign Message Request"
     }
 
     enum Action: String, AnalyticsAction {
@@ -36,6 +37,8 @@ enum Analytics {
         case shareUrl = "Share URL"
         case addDapp = "Add Dapp"
         case enterUrl = "Enter URL"
+        case signMessageRequest = "Sign Message Request"
+        case cancelSignMessageRequest = "Cancel Sign Message Request"
     }
 
     enum Properties: String {
@@ -49,6 +52,7 @@ enum Analytics {
         case chain
         case transactionType
         case name
+        case messageType
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
@@ -103,5 +107,18 @@ enum Analytics {
         case erc20Transfer
         case nativeCryptoTransfer
         case unknown
+    }
+
+    enum SignMessageRequestSource: String {
+        case dappBrowser
+        case tokenScript
+        case walletConnect
+    }
+
+    enum SignMessageRequestType: String {
+        case message
+        case personalMessage
+        case eip712
+        case eip712v3And4
     }
 }
