@@ -56,10 +56,6 @@ class WalletConnectToSessionCoordinator: Coordinator {
         viewController.reloadView()
     }
 
-    deinit {
-        print("\(self).deinit")
-    }
-
     func dissmissAnimated(animated: Bool = true) -> Promise<Void> {
         return Promise<Void> { seal in
             viewController.dismissViewAnimated {
