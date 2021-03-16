@@ -8,6 +8,7 @@ protocol TokenCardRowViewDelegate: class {
 }
 
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
+	private let analyticsCoordinator: AnalyticsCoordinator
     private let server: RPCServer
 	private let assetDefinitionStore: AssetDefinitionStore
 	private let tokenCountLabel = UILabel()
@@ -59,7 +60,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	lazy var tokenScriptRendererView: TokenInstanceWebView = {
 		//TODO pass in keystore or wallet instead
 		let wallet = EtherKeystore.currentWallet
-		let webView = TokenInstanceWebView(server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+		let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
 		webView.delegate = self
 		return webView
 	}()
@@ -98,7 +99,8 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 		}
 	}
 
-	init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
+	init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
+        self.analyticsCoordinator = analyticsCoordinator
 		self.server = server
 		self.tokenView = tokenView
         self.showCheckbox = showCheckbox

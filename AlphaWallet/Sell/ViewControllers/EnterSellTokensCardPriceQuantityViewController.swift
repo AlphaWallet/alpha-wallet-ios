@@ -9,6 +9,7 @@ protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenU
 }
 
 class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let storage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
@@ -56,12 +57,14 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
 // swiftlint:disable function_body_length
     init(
+            analyticsCoordinator: AnalyticsCoordinator,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             cryptoPrice: Subscribable<Double>,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
             assetDefinitionStore: AssetDefinitionStore
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ethPrice = cryptoPrice
@@ -73,7 +76,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)

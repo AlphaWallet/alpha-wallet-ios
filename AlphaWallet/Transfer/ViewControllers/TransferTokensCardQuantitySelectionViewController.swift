@@ -24,15 +24,18 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         return token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
+    let analyticsCoordinator: AnalyticsCoordinator
     let paymentFlow: PaymentFlow
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(
+            analyticsCoordinator: AnalyticsCoordinator,
             paymentFlow: PaymentFlow,
             token: TokenObject,
             viewModel: TransferTokensCardQuantitySelectionViewModel,
             assetDefinitionStore: AssetDefinitionStore
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
@@ -43,7 +46,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)

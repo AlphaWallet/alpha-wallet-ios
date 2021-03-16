@@ -9,7 +9,8 @@ class ActivityViewCell: UITableViewCell {
         //TODO pass in keystore or wallet address instead. Have to think about initialization of cells
         let wallet = EtherKeystore.currentWallet
         //TODO server value doesn't matter since we will change it later. But we should improve this
-        let webView = TokenInstanceWebView(server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance)
+        //TODO We aren't going to log analytics in a cell (for now), but we might, at any time
+        let webView = TokenInstanceWebView(analyticsCoordinator: NoOpAnalyticsService(), server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance)
         //TODO needed? Seems like scary, performance-wise
         //webView.delegate = self
         return webView

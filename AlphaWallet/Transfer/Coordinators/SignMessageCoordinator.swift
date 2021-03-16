@@ -18,10 +18,12 @@ protocol SignMessageCoordinatorDelegate: class {
 }
 
 class SignMessageCoordinator: Coordinator {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let presentationNavigationController: UINavigationController
     private let keystore: Keystore
     private let account: AlphaWallet.Address
     private var message: SignMessageType
+    private let source: Analytics.SignMessageRequestSource
 
     var coordinators: [Coordinator] = []
     weak var delegate: SignMessageCoordinatorDelegate?
@@ -41,11 +43,13 @@ class SignMessageCoordinator: Coordinator {
         return controller
     }()
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.presentationNavigationController = navigationController
         self.keystore = keystore
         self.account = account
         self.message = message
+        self.source = source
     }
 
     func start() {
