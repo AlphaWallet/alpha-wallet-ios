@@ -13,6 +13,7 @@ protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private var viewModel: TokenInstanceViewModel
     private let tokensStorage: TokensDataStore
@@ -51,7 +52,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         }
     }
 
-    init(tokenObject: TokenObject, tokenHolder: TokenHolder, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.tokenObject = tokenObject
         self.account = account
         self.tokensStorage = tokensStorage
@@ -203,7 +205,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }()
         case .notBackedByOpenSea:
             rowView = {
-                let view = TokenCardRowView(server: .main, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
+                let view = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
                 view.isStandalone = true
                 view.tokenScriptRendererView.isWebViewInteractionEnabled = true
                 return view

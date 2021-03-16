@@ -210,7 +210,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
         firstly {
-            SignMessageCoordinator.promise(navigationController, keystore: keystore, coordinator: self, signType: type, account: account)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect)
         }.map { data -> WalletConnectServer.Callback in
             return .init(id: id, url: url, value: data)
         }

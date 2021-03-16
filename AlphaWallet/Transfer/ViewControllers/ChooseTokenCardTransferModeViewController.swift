@@ -15,6 +15,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 2))
     private var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenHolder: TokenHolder
 
     var contract: AlphaWallet.Address {
@@ -28,11 +29,13 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(
+            analyticsCoordinator: AnalyticsCoordinator,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: ChooseTokenCardTransferModeViewControllerViewModel,
             assetDefinitionStore: AssetDefinitionStore
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -43,7 +46,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)

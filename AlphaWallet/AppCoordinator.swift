@@ -223,6 +223,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         if config.enabledServers.contains(server) {
             let universalLinkCoordinator = UniversalLinkCoordinator(
+                analyticsCoordinator: analyticsService,
                 wallet: keystore.currentWallet,
                 config: config,
                 ethPrice: inCoordinator.nativeCryptoCurrencyPrices[server],

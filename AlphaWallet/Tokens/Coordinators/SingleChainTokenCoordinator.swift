@@ -385,7 +385,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 coordinator.isReadOnly = true
             }
         }
-    } 
+    }
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token)
@@ -523,7 +523,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
         let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
-        let vc = TokenInstanceActionViewController(tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
+        let vc = TokenInstanceActionViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never

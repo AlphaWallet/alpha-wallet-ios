@@ -9,18 +9,21 @@ import UIKit
 import PromiseKit
 
 private class SignMessageCoordinatorBridgeToPromise {
-
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let coordinator: Coordinator?
+    private let source: Analytics.SignMessageRequestSource
     private weak var signMessageCoordinator: SignMessageCoordinator?
     private let (promise, seal) = Promise<Data>.pending()
     private var retainCycle: SignMessageCoordinatorBridgeToPromise?
 
-    init(_ navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator?) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator?, source: Analytics.SignMessageRequestSource) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.keystore = keystore
         self.coordinator = coordinator
+        self.source = source
 
         retainCycle = self
 
@@ -35,10 +38,10 @@ private class SignMessageCoordinatorBridgeToPromise {
     }
 
     func promise(signType: SignMessageType, account: AlphaWallet.Address) -> Promise<Data> {
-        let coordinator = SignMessageCoordinator(navigationController: navigationController, keystore: keystore, account: account, message: signType)
+        let coordinator = SignMessageCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, account: account, message: signType, source: source)
         coordinator.delegate = self
         coordinator.start()
-        
+
         self.signMessageCoordinator = coordinator
         self.coordinator?.addCoordinator(coordinator)
 
@@ -62,8 +65,8 @@ extension SignMessageCoordinatorBridgeToPromise: SignMessageCoordinatorDelegate 
 }
 
 extension SignMessageCoordinator {
-    static func promise(_ navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator? = nil, signType: SignMessageType, account: AlphaWallet.Address) -> Promise<Data> {
-        let bridge = SignMessageCoordinatorBridgeToPromise(navigationController, keystore: keystore, coordinator: coordinator)
+    static func promise(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, coordinator: Coordinator? = nil, signType: SignMessageType, account: AlphaWallet.Address, source: Analytics.SignMessageRequestSource) -> Promise<Data> {
+        let bridge = SignMessageCoordinatorBridgeToPromise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: coordinator, source: source)
         return bridge.promise(signType: signType, account: account)
     }
 }
