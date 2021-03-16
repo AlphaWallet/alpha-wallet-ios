@@ -56,14 +56,9 @@ class WalletConnectToSessionCoordinator: Coordinator {
         viewController.reloadView()
     }
 
-    func dissmissAnimated(animated: Bool = true) -> Promise<Void> {
-        return Promise<Void> { seal in
-            viewController.dismissViewAnimated {
-                //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
-                self.navigationController.dismiss(animated: animated, completion: {
-                    seal.fulfill(())
-                })
-            }
+    private func dissmiss(animated: Bool = true, completion: @escaping () -> Void) {
+        viewController.dismissViewAnimated {
+            self.navigationController.dismiss(animated: animated, completion: completion)
         }
     }
 }
@@ -72,34 +67,34 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
 
     func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController) {
         let servers = serverChoices.compactMap { RPCServerOrAuto.server($0) }
-        let viewModel = ServersViewModel(servers: servers, selectedServer: .auto, displayWarningFooter: false)
+        let viewModel = ServersViewModel(servers: servers, selectedServer: .server(serverToConnect), displayWarningFooter: false)
 
-        ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self).done { server in
-            self.serverToConnect = server
-            self.viewModel.set(serverToConnect: server)
-        }.cauterize().finally {
-            self.viewController.configure(for: self.viewModel)
-            self.viewController.reloadView()
-        }
+        firstly {
+            ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self)
+        }.done { server in
+            if let server = server {
+                self.serverToConnect = server
+                self.viewModel.set(serverToConnect: server)
+
+                self.viewController.configure(for: self.viewModel)
+                self.viewController.reloadView()
+            }
+        }.cauterize()
     }
 
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton) {
-        firstly {
-            dissmissAnimated(animated: true)
-        }.done { _ in
+        dissmiss(animated: true, completion: {
             guard let delegate = self.delegate else { return }
 
             delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
-        }.cauterize()
+        })
     }
 
     func didClose(in controller: WalletConnectToSessionViewController) {
-        firstly {
-            dissmissAnimated(animated: false)
-        }.done { _ in
+        dissmiss(animated: true, completion: {
             guard let delegate = self.delegate else { return }
 
             delegate.coordinator(self, didCompleteWithConnection: .cancel)
-        }.cauterize()
+        })
     }
 }
