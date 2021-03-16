@@ -45,6 +45,7 @@ class TokenInstanceWebView: UIView {
         }
     }
 
+    private let analyticsCoordinator: AnalyticsCoordinator
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -93,7 +94,8 @@ class TokenInstanceWebView: UIView {
         return results
     }
 
-    init(server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.server = server
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
@@ -481,11 +483,9 @@ extension TokenInstanceWebView {
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
-
-        let keystore = try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())
-
+        let keystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         firstly {
-            SignMessageCoordinator.promise(navigationController, keystore: keystore, signType: type, account: account)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, signType: type, account: account, source: .tokenScript)
         }.done { data in
             let callback: DappCallback
             switch type {

@@ -26,6 +26,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     static let anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
     private var sizingCell: TokenCardTableViewCellWithCheckbox?
 
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private var viewModel: TokensCardViewModel
     private let tokensStorage: TokensDataStore
@@ -76,7 +77,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         }
     }
 
-    init(tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, viewModel: TokensCardViewModel) {
+    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, viewModel: TokensCardViewModel) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.tokenObject = tokenObject
         self.account = account
         self.tokensStorage = tokensStorage
@@ -325,7 +327,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     //Reuse for performance (because webviews are created)
                     return rowView
                 } else {
-                    let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
                     rowView.delegate = self
                     return rowView
                 }
@@ -393,7 +395,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
                     //Reuse for performance (because webviews are created)
                     return rowView
                 } else {
-                    let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
                     //Important not to assign a delegate because we don't use actual cells to figure out the height. We use a sizing cell instead
                     return rowView
                 }

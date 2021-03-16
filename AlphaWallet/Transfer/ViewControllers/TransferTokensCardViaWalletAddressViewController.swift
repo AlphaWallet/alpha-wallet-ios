@@ -9,6 +9,7 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
 }
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let token: TokenObject
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
@@ -31,7 +32,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     // swiftlint:disable function_body_length
-    init(token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.token = token
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
@@ -43,7 +45,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)

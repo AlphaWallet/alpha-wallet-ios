@@ -24,6 +24,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     static let walletConnectPath = "/wc"
 
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let wallet: Wallet
     private let config: Config
 	private var importTokenViewController: ImportMagicTokenViewController?
@@ -81,7 +82,8 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    init(wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
         self.config = config
         self.ethPrice = ethPrice
@@ -522,7 +524,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
-        //TODO pass in the wallet instead 
+        //TODO pass in the wallet instead
         guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
@@ -542,7 +544,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(server: server, assetDefinitionStore: assetDefinitionStore)
+        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, server: server, assetDefinitionStore: assetDefinitionStore)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))

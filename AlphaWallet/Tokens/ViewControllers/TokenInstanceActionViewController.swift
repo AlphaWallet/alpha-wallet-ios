@@ -12,6 +12,7 @@ protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private let tokenHolder: TokenHolder
     private let action: TokenInstanceAction
@@ -20,7 +21,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let tokensStorage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(server: server, wallet: keystore.currentWallet, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: keystore.currentWallet, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -73,7 +74,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         }
     }
 
-    init(tokenObject: TokenObject, tokenHolder: TokenHolder, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, action: TokenInstanceAction, session: WalletSession, keystore: Keystore) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.tokenObject = tokenObject
         self.tokenHolder = tokenHolder
         self.tokensStorage = tokensStorage

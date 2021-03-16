@@ -423,6 +423,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createActivityCoordinator() -> ActivitiesCoordinator {
         let coordinator = ActivitiesCoordinator(
+                analyticsCoordinator: analyticsCoordinator,
                 config: config,
                 sessions: walletSessions,
                 keystore: keystore,
