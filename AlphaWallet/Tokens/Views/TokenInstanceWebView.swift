@@ -483,9 +483,7 @@ extension TokenInstanceWebView {
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
-
-        let keystore = try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())
-
+        let keystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         firstly {
             SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, signType: type, account: account, source: .tokenScript)
         }.done { data in
