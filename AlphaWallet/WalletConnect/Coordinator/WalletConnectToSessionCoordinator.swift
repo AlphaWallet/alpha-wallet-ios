@@ -15,6 +15,7 @@ protocol WalletConnectToSessionCoordinatorDelegate: class {
 class WalletConnectToSessionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let connection: WalletConnectConnection
     private let presentationNavigationController: UINavigationController
     private lazy var viewModel = WalletConnectToSessionViewModel(connection: connection, serverToConnect: serverToConnect)
@@ -36,7 +37,8 @@ class WalletConnectToSessionCoordinator: Coordinator {
     private let serverChoices: [RPCServer]
     weak var delegate: WalletConnectToSessionCoordinatorDelegate?
 
-    init(connection: WalletConnectConnection, navigationController: UINavigationController, serverChoices: [RPCServer]) {
+    init(analyticsCoordinator: AnalyticsCoordinator, connection: WalletConnectConnection, navigationController: UINavigationController, serverChoices: [RPCServer]) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.connection = connection
         self.serverToConnect = connection.server ?? .main
         self.presentationNavigationController = navigationController
@@ -45,6 +47,7 @@ class WalletConnectToSessionCoordinator: Coordinator {
 
     func start() {
         guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        analyticsCoordinator.log(navigation: Analytics.Navigation.walletConnect)
 
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)
@@ -66,6 +69,7 @@ class WalletConnectToSessionCoordinator: Coordinator {
 extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControllerDelegate {
 
     func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.switchServers, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
         let servers = serverChoices.compactMap { RPCServerOrAuto.server($0) }
         let viewModel = ServersViewModel(servers: servers, selectedServer: .server(serverToConnect), displayWarningFooter: false)
 
@@ -73,16 +77,20 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
             ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self)
         }.done { server in
             if let server = server {
+                self.analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
                 self.serverToConnect = server
                 self.viewModel.set(serverToConnect: server)
 
                 self.viewController.configure(for: self.viewModel)
                 self.viewController.reloadView()
+            } else {
+                self.analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
             }
         }.cauterize()
     }
 
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton) {
+        analyticsCoordinator.log(action: Analytics.Action.walletConnectConnect, properties: [Analytics.Properties.chain.rawValue: serverToConnect.chainID])
         dissmiss(animated: true, completion: {
             guard let delegate = self.delegate else { return }
 
@@ -91,6 +99,7 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
     }
 
     func didClose(in controller: WalletConnectToSessionViewController) {
+        analyticsCoordinator.log(action: Analytics.Action.walletConnectCancel)
         dissmiss(animated: true, completion: {
             guard let delegate = self.delegate else { return }
 

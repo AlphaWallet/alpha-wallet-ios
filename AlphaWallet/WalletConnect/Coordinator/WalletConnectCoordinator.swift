@@ -138,7 +138,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
 
     private func display(session: WalletConnectSession, in navigationController: UINavigationController) {
-        let coordinator = WalletConnectSessionCoordinator(navigationController: navigationController, server: server, session: session)
+        let coordinator = WalletConnectSessionCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, server: server, session: session)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -282,7 +282,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
         firstly {
-            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, connection: connection, serverChoices: serverChoices)
+            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, connection: connection, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator)
         }.done { choise in
             completion(choise)
         }.catch { _ in

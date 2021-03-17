@@ -13,7 +13,7 @@ protocol WalletConnectSessionCoordinatorDelegate: class {
 }
 
 class WalletConnectSessionCoordinator: Coordinator {
-
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private let server: WalletConnectServer
     private var viewController: WalletConnectSessionViewController
@@ -22,7 +22,8 @@ class WalletConnectSessionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, server: WalletConnectServer, session: WalletConnectSession) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, server: WalletConnectServer, session: WalletConnectSession) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.server = server
         self.session = session
@@ -52,6 +53,7 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
         guard let delegate = delegate else { return }
 
+        analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
         do {
             try server.disconnect(session: session)
         } catch {
