@@ -114,13 +114,13 @@ private class ServersCoordinatorBridgeToPromise {
             coordinator.removeCoordinator(newCoordinator)
             self.retainCycle = nil
         }.cauterize()
-        
+
         newCoordinator.start()
     }
 
     var promise: Promise<RPCServer?> {
         return promiseToReturn
-    } 
+    }
 }
 
 extension ServersCoordinatorBridgeToPromise: ServersCoordinatorDelegate {
