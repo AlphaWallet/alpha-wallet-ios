@@ -216,10 +216,7 @@ class WalletConnectToSessionViewController: UIViewController {
     }
 
     @objc private func dismissViewController() {
-        dismissViewAnimated(with: {
-            //NOTE: strong reff is required
-            self.delegate?.didClose(in: self)
-        })
+        delegate?.didClose(in: self)
     }
 
     func reloadView() {

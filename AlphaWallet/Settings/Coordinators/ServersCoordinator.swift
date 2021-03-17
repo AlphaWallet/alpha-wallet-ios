@@ -97,7 +97,7 @@ extension ServersCoordinator: ServersViewControllerDelegate {
 private class ServersCoordinatorBridgeToPromise {
 
     private let navigationController: UINavigationController
-    private let (promiseToReturn, seal) = Promise<RPCServer>.pending()
+    private let (promiseToReturn, seal) = Promise<RPCServer?>.pending()
     private var retainCycle: ServersCoordinatorBridgeToPromise?
 
     init(_ navigationController: UINavigationController, coordinator: Coordinator, viewModel: ServersViewModel) {
@@ -111,14 +111,14 @@ private class ServersCoordinatorBridgeToPromise {
 
         promiseToReturn.ensure {
             // ensure we break the retain cycle
-            self.retainCycle = nil
             coordinator.removeCoordinator(newCoordinator)
+            self.retainCycle = nil
         }.cauterize()
         
         newCoordinator.start()
     }
 
-    var promise: Promise<RPCServer> {
+    var promise: Promise<RPCServer?> {
         return promiseToReturn
     } 
 }
@@ -138,13 +138,13 @@ extension ServersCoordinatorBridgeToPromise: ServersCoordinatorDelegate {
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         navigationController.popViewController(animated: true) {
-            self.seal.reject(PMKError.cancelled)
+            self.seal.fulfill(.none)
         }
     }
 }
 
 extension ServersCoordinator {
-    static func promise(_ navigationController: UINavigationController, viewModel: ServersViewModel, coordinator: Coordinator) -> Promise<RPCServer> {
+    static func promise(_ navigationController: UINavigationController, viewModel: ServersViewModel, coordinator: Coordinator) -> Promise<RPCServer?> {
         let bridge = ServersCoordinatorBridgeToPromise(navigationController, coordinator: coordinator, viewModel: viewModel)
         return bridge.promise
     }
