@@ -254,16 +254,27 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
+    private var presentationViewController: UIViewController {
+        guard let keyWindow = UIApplication.shared.keyWindow else { return navigationController }
+
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            return controller
+        } else {
+            return navigationController
+        }
+    }
+
     func server(_ server: WalletConnectServer, didFail error: Error) {
         let errorMessage = R.string.localizable.walletConnectFailureTitle()
+
         if let presentedController = notificationAlertController {
             presentedController.dismiss(animated: true) { [weak self] in
                 guard let strongSelf = self else { return }
 
-                strongSelf.notificationAlertController = strongSelf.navigationController.displaySuccess(message: errorMessage)
+                strongSelf.notificationAlertController = strongSelf.presentationViewController.displaySuccess(message: errorMessage)
             }
         } else {
-            notificationAlertController = navigationController.displaySuccess(message: errorMessage)
+            notificationAlertController = presentationViewController.displaySuccess(message: errorMessage)
         }
 
         resetSessionsToRemoveLoadingIfNeeded()
