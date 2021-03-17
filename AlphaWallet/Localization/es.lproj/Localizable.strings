@@ -550,7 +550,7 @@ You can check the latest gas price on gasnow.org";
 "walletConnect.session.disconnect" = "Disconnect";
 "walletConnect.session.signedTransactions" = "Signed Transactions";
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
-"walletConnect.failure.title" = "Wallet connect failure";
+"walletConnect.failure.title" = "WalletConnect Error";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
