@@ -91,11 +91,11 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             if let balance = session.balance {
-                let value = EtherNumberFormatter.plain.string(from: balance.value)
+                let value = EtherNumberFormatter.short.string(from: balance.value)
                 return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
             }
         case .ERC20Token(let token, _, _):
-            let value = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
+            let value = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break

@@ -166,7 +166,7 @@ extension TransactionConfirmationViewModel {
                     availableAmount = allFundsWithoutGas
 
                     configurator.updateTransaction(value: allFundsWithoutGas)
-                    amount.value = EtherNumberFormatter().string(from: allFundsWithoutGas, units: .ether)
+                    amount.value = EtherNumberFormatter.short.string(from: allFundsWithoutGas, units: .ether)
                 } else {
                     availableAmount = viewModel.value
                 }
@@ -189,15 +189,21 @@ extension TransactionConfirmationViewModel {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
                 let cryptoToDollarSymbol = Constants.Currency.usd
-                let double = Double(amount.value) ?? 0
+                let double = amount.value.optionalDecimalValue ?? 0
                 if let cryptoToDollarRate = cryptoToDollarRate {
-                    let cryptoToDollarValue = StringFormatter().currency(with: double * cryptoToDollarRate, and: cryptoToDollarSymbol)
+                    let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
+
+                    let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
                     return "\(double) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
                 } else {
                     return "\(double) \(token.symbol)"
                 }
             case .ERC20Token(let token, _, _):
-                return "\(amount.value) \(token.symbol)"
+                if let amount = amount.shortValue, amount.nonEmpty {
+                    return "\(amount) \(token.symbol)"
+                } else {
+                    return "\(amount.value) \(token.symbol)"
+                }
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }

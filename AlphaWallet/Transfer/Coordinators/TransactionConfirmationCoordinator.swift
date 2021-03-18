@@ -98,7 +98,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         } else {
             presentationNavigationController.present(navigationController, animated: false)
         }
-        
+
         configurator.delegate = self
         configurator.start()
         confirmationViewController.reloadView()

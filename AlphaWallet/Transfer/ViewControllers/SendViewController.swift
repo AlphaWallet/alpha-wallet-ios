@@ -10,7 +10,7 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String)
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?)
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
@@ -54,7 +54,8 @@ class SendViewController: UIViewController {
     }
 
     let storage: TokensDataStore
-    private (set) var isAllFunds: Bool = false
+    @objc private (set) dynamic var isAllFunds: Bool = false
+    private var observation: NSKeyValueObservation!
 
 // swiftlint:disable function_body_length
     init(
@@ -182,6 +183,12 @@ class SendViewController: UIViewController {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
+
+        observation = observe(\.isAllFunds, options: [.initial, .new]) { [weak self] _, _ in
+            guard let strongSelf = self else { return }
+
+            strongSelf.amountTextField.isAllFunds = strongSelf.isAllFunds
+        }
     }
 // swiftlint:enable function_body_length
 
@@ -228,7 +235,7 @@ class SendViewController: UIViewController {
                 targetAddressTextField.value = recipient.stringValue
             }
             if let amount = amount {
-                amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
+                amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
             currentSubscribableKeyForNativeCryptoCurrencyPrice = ethPrice.subscribe { [weak self] value in
                 if let value = value {
@@ -263,31 +270,37 @@ class SendViewController: UIViewController {
         title = "\(R.string.localizable.send()) \(transactionType.symbol)"
     }
 
-    @objc private func allFundsSelected(_ sender: UIButton) {
+    @objc func allFundsSelected() {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let ethCost = allFunds else { return }
+            guard let ethCost = allFundsFormattedValues else { return }
             isAllFunds = true
 
-            amountTextField.set(ethCost: ethCost, useFormatting: false)
+            amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
         case .ERC20Token:
-            guard let ethCost = allFunds else { return }
+            guard let ethCost = allFundsFormattedValues else { return }
             isAllFunds = true
 
-            amountTextField.set(ethCost: ethCost, useFormatting: true)
+            amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
 
-    //Represents all funds string value in eth
-    private var allFunds: String? {
+    private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         switch transactionType {
         case .nativeCryptocurrency:
             guard let balance = session.balance else { return nil }
-            return EtherNumberFormatter().string(from: balance.value, units: .ether)
+
+            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether)
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether)
+
+            return (fullValue.optionalDecimalValue, shortValue)
         case .ERC20Token(let token, _, _):
-            return EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
+            let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals)
+
+            return (fullValue.optionalDecimalValue, shortValue)
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
@@ -304,6 +317,7 @@ class SendViewController: UIViewController {
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             checkIfGreaterThanZero = true
         }
+
         guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: checkIfGreaterThanZero) else {
             amountTextField.errorState = .error
             return
@@ -312,6 +326,7 @@ class SendViewController: UIViewController {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
         }
+
         let transaction = UnconfirmedTransaction(
                 transactionType: transactionType,
                 value: value,
@@ -319,7 +334,7 @@ class SendViewController: UIViewController {
                 contract: transactionType.contractForFungibleSend,
                 data: nil
         )
-        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)
+        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost, shortValue: allFundsFormattedValues?.allFundsShortValue)
     }
 
     func activateAmountView() {
@@ -327,7 +342,7 @@ class SendViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private func configureBalanceViewModel() {
@@ -342,7 +357,7 @@ class SendViewController: UIViewController {
             }
             session.refresh(.ethBalance)
         case .ERC20Token(let token, let recipient, let amount):
-            let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
+            let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
@@ -354,7 +369,7 @@ class SendViewController: UIViewController {
         switch result {
         case .address(let recipient):
             guard let tokenObject = storage.token(forContract: viewModel.transactionType.contract) else { return }
-            let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
+            let amountAsIntWithDecimals = EtherNumberFormatter.plain.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
             configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
             activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
@@ -429,7 +444,7 @@ class SendViewController: UIViewController {
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
         guard let tokenObject = storage.token(forContract: contract) else { return }
-        let amount = amount.flatMap { EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals) }
+        let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: tokenObject.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {
             transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
@@ -465,17 +480,22 @@ extension SendViewController: AmountTextFieldDelegate {
             textField.errorState = .error
             return
         }
-
-        //NOTE: not sure if we need to set `isAllFunds` to true if edited value quals to balance value
-        if let allFunds = allFunds, allFunds.nonEmpty, textField.ethCost != allFunds {
-            isAllFunds = false
-        } else {
-            //no op
-        }
+        resetAllFundsIfNeeded(ethCostRawValue: textField.ethCostRawValue)
     }
 
     func changeType(in textField: AmountTextField) {
         updateNavigationTitle()
+    }
+
+    //NOTE: not sure if we need to set `isAllFunds` to true if edited value quals to balance value
+    private func resetAllFundsIfNeeded(ethCostRawValue: NSDecimalNumber?) {
+        if let allFunds = allFundsFormattedValues, allFunds.allFundsFullValue.localizedString.nonEmpty {
+            guard let value = allFunds.allFundsFullValue, ethCostRawValue != value else { return }
+
+            isAllFunds = false
+        } else {
+            //no op
+        }
     }
 }
 
