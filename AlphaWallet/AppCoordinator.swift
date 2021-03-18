@@ -118,7 +118,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     /// Return true if handled
-    func handleOpen(url: URL) -> Bool {
+    @discardableResult func handleOpen(url: URL) -> Bool {
         let handled = urlSchemeCoordinator.handleOpen(url: url)
         if handled {
             return true
@@ -320,7 +320,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     }
 
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator) {
-        _ = handleOpen(url: url)
+        handleOpen(url: url)
     }
 }
 

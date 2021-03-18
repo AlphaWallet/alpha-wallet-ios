@@ -282,7 +282,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
         firstly {
-            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, connection: connection, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator)
+            WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, connection: connection, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
         }.done { choise in
             completion(choise)
         }.catch { _ in
