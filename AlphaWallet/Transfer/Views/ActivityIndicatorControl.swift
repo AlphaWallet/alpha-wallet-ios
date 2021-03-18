@@ -263,11 +263,11 @@ extension CircularLoadingIndicatorView {
             return animation
         }
 
-        static func createRotationAnimation(duration: Double) -> CABasicAnimation {
+        static func createRotationAnimation(duration: Double, timingFunction: CAMediaTimingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)) -> CABasicAnimation {
             let animation = CABasicAnimation(keyPath: "transform.rotation")
             animation.byValue = NSNumber(value: 2 * Double.pi)
             animation.duration = duration
-            animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+            animation.timingFunction = timingFunction
             animation.isRemovedOnCompletion = true
 
             return animation

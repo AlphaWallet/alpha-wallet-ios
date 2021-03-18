@@ -15,7 +15,11 @@ struct DefaultActivityCellViewModel {
     let activity: Activity
 
     var contentsBackgroundColor: UIColor {
-        .white
+        if isInPendingState {
+            return R.color.azure_sending()!
+        } else {
+            return .white
+        }
     }
 
     var backgroundColor: UIColor {
@@ -204,6 +208,15 @@ struct DefaultActivityCellViewModel {
             return R.image.activityPending()
         case .failed:
             return R.image.activityFailed()
+        }
+    }
+
+    var isInPendingState: Bool {
+        switch activity.state {
+        case .completed, .failed:
+            return false
+        case .pending:
+            return true
         }
     }
 
