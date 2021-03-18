@@ -113,6 +113,7 @@ extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
 
 struct FungiblesTransactionAmount {
     var value: String
+    var shortValue: String?
     var isAllFunds: Bool = false
 }
 
@@ -126,12 +127,12 @@ extension SendCoordinator: SendViewControllerDelegate {
         coordinator.start(fromSource: .sendFungibleScreen)
     }
 
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String) {
+    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?) {
         let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
             confirmType: .signThenSend,
             keystore: keystore,
             assetDefinitionStore: assetDefinitionStore,
-            amount: FungiblesTransactionAmount(value: amount, isAllFunds: viewController.isAllFunds),
+            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds),
             ethPrice: ethPrice
         )
         let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)

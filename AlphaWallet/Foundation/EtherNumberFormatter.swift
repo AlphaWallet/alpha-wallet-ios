@@ -16,6 +16,14 @@ final class EtherNumberFormatter {
        return formatter
     }()
 
+    static let shortPlain: EtherNumberFormatter = {
+       let formatter = EtherNumberFormatter()
+       formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+       formatter.groupingSeparator = ""
+        
+       return formatter
+    }()
+
     static var plain: EtherNumberFormatter = {
        let formatter = EtherNumberFormatter()
        formatter.groupingSeparator = ""
@@ -35,8 +43,12 @@ final class EtherNumberFormatter {
     /// Thousands separator.
     var groupingSeparator = ","
 
+    let locale: Locale
+
     /// Initializes a `EtherNumberFormatter` with a `Locale`.
     init(locale: Locale = .current) {
+        self.locale = locale
+
         decimalSeparator = locale.decimalSeparator ?? "."
         groupingSeparator = locale.groupingSeparator ?? ","
     }
@@ -112,7 +124,7 @@ final class EtherNumberFormatter {
         if fractionalString.isEmpty {
             return integerString
         }
-        return "\(integerString).\(fractionalString)"
+        return "\(integerString)\(decimalSeparator)\(fractionalString)".droppedTrailingZeros
     }
 
     private func integerString(from: BigInt) -> String {
