@@ -61,6 +61,10 @@ struct ActivityViewModel {
         }
     }
 
+    var activityStateViewViewModel: ActivityStateViewViewModel {
+        return .init(activity: activity)
+    }
+
     var subTitle: String {
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
