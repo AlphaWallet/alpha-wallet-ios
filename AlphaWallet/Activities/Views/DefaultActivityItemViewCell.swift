@@ -5,25 +5,11 @@ import UIKit
 class DefaultActivityItemViewCell: UITableViewCell {
     private let background = UIView()
     private let tokenImageView = TokenImageView()
-    private let stateImageView: UIImageView = {
-        let view = UIImageView()
+    private let stateView: ActivityStateView = {
+        let view = ActivityStateView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.contentMode = .scaleAspectFit
 
         return view
-    }()
-    private let pendingLoadingIndicatorView: ActivityLoadingIndicatorView = {
-        let control = ActivityLoadingIndicatorView()
-        control.lineColor = R.color.azure()!
-        control.backgroundLineColor = R.color.loadingBackground()!
-        control.translatesAutoresizingMaskIntoConstraints = false
-        control.duration = 1.1
-        control.lineWidth = 3
-        control.backgroundFillColor = .white
-        control.translatesAutoresizingMaskIntoConstraints = false
-        control.startAnimating()
-
-        return control
     }()
 
     private let titleLabel = UILabel()
@@ -32,13 +18,6 @@ class DefaultActivityItemViewCell: UITableViewCell {
     private let timestampLabel = UILabel()
     private var leftEdgeConstraint: NSLayoutConstraint = .init()
     private var viewModel: DefaultActivityCellViewModel?
-
-    private let stateContainerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-        return view
-    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -75,10 +54,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
         stackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
         background.addSubview(stackView)
-        background.addSubview(stateContainerView)
-
-        stateContainerView.addSubview(stateImageView)
-        stateContainerView.addSubview(pendingLoadingIndicatorView)
+        background.addSubview(stateView)
 
         leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
 
@@ -88,11 +64,6 @@ class DefaultActivityItemViewCell: UITableViewCell {
             tokenImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenImageView.widthAnchor.constraint(equalToConstant: 40),
 
-            stateContainerView.heightAnchor.constraint(equalToConstant: 16),
-            stateContainerView.widthAnchor.constraint(equalToConstant: 16),
-            stateContainerView.trailingAnchor.constraint(equalTo: tokenImageView.trailingAnchor, constant: -2),
-            stateContainerView.bottomAnchor.constraint(equalTo: tokenImageView.bottomAnchor, constant: -2),
-
             leftEdgeConstraint,
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 14),
@@ -101,8 +72,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
             background.anchorsConstraint(to: contentView),
 
             contentView.heightAnchor.constraint(equalToConstant: 80)
-        ] + stateImageView.anchorsConstraint(to: stateContainerView)
-          + pendingLoadingIndicatorView.anchorsConstraint(to: stateContainerView))
+        ] + stateView.anchorConstraints(to: tokenImageView))
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -136,14 +106,6 @@ class DefaultActivityItemViewCell: UITableViewCell {
 
         tokenImageView.subscribable = viewModel.iconImage
 
-        if viewModel.isInPendingState {
-            stateImageView.isHidden = true
-            pendingLoadingIndicatorView.isHidden = false
-        } else {
-            stateImageView.isHidden = false
-            pendingLoadingIndicatorView.isHidden = true
-        }
-
-        stateImageView.image = viewModel.stateImage
+        stateView.configure(viewModel: viewModel.activityStateViewViewModel)
     }
 }

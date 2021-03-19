@@ -16,7 +16,7 @@ class ActivityViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let tokenImageView = TokenImageView()
-    private let stateImageView = UIImageView()
+    private let stateView = ActivityStateView()
     private let titleLabel = UILabel()
     private let subTitleLabel = UILabel()
     private let timestampLabel = UILabel()
@@ -62,9 +62,6 @@ class ActivityViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
         tokenImageView.addGestureRecognizer(tap)
 
-        stateImageView.translatesAutoresizingMaskIntoConstraints = false
-        stateImageView.contentMode = .scaleAspectFit
-
         let stackView = [
             .spacer(height: 8),
             timestampLabel,
@@ -84,14 +81,10 @@ class ActivityViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         roundedBackground.addSubview(stackView)
-        roundedBackground.addSubview(stateImageView)
+        roundedBackground.addSubview(stateView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             //Setting height for labels to get their heights to be correct. If we want to remove them, make sure to test with both the native Activity view and TokenScript (HTML) Activity views
@@ -102,11 +95,6 @@ class ActivityViewController: UIViewController {
             tokenImageView.heightAnchor.constraint(equalToConstant: 60),
             tokenImageView.widthAnchor.constraint(equalToConstant: 60),
 
-            stateImageView.heightAnchor.constraint(equalToConstant: 24),
-            stateImageView.widthAnchor.constraint(equalToConstant: 24),
-            stateImageView.trailingAnchor.constraint(equalTo: tokenImageView.trailingAnchor),
-            stateImageView.bottomAnchor.constraint(equalTo: tokenImageView.bottomAnchor),
-
             separator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20),
             separator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20),
             separator.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
@@ -114,22 +102,15 @@ class ActivityViewController: UIViewController {
 
             tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ] + roundedBackground.createConstraintsWithContainer(view: view)
+        + stateView.anchorConstraints(to: tokenImageView, size: .init(width: 24, height: 24), bottomOffset: .zero)
+        + footerBar.anchorsConstraint(to: view))
 
         configure(viewModel: viewModel)
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -156,7 +137,7 @@ class ActivityViewController: UIViewController {
         timestampLabel.text = viewModel.timestamp
 
         tokenImageView.subscribable = viewModel.iconImage
-        stateImageView.image = viewModel.stateImage
+        stateView.configure(viewModel: viewModel.activityStateViewViewModel)
 
         timestampLabel.textAlignment = .center
         titleLabel.textAlignment = .center
