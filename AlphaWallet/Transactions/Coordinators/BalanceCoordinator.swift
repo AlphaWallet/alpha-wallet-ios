@@ -10,7 +10,18 @@ protocol BalanceCoordinatorDelegate: class {
     func didUpdate(viewModel: BalanceViewModel)
 }
 
-class BalanceCoordinator {
+protocol BalanceCoordinatorType {
+    var balance: Balance? { get }
+    var currencyRate: CurrencyRate? { get }
+    var delegate: BalanceCoordinatorDelegate? { get set }
+    var viewModel: BalanceViewModel { get }
+
+    func refresh()
+    func refreshEthBalance()
+    func update()
+}
+
+class BalanceCoordinator: BalanceCoordinatorType {
     private let wallet: Wallet
     private let server: RPCServer
     private let storage: TokensDataStore

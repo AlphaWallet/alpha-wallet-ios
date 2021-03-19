@@ -15,7 +15,7 @@ struct Config {
         }
         //If the is not saved currency try to use user local currency if it is supported.
         let availableCurrency = Currency.allValues.first { currency in
-            return currency.rawValue == Locale.current.currencySymbol
+            return currency.rawValue == Config.locale.currencySymbol
         }
         if let isAvailableCurrency = availableCurrency {
             return isAvailableCurrency
@@ -35,8 +35,21 @@ struct Config {
         return defaults.string(forKey: Keys.locale)
     }
 
+    static var locale: Locale {
+        if let identifier = getLocale() {
+            return Locale(identifier: identifier)
+        } else {
+            return Locale.current
+        }
+    }
+
     static func setLocale(_ locale: AppLocale) {
         setLocale(locale.id)
+
+        EtherNumberFormatter.full = .createFullEtherNumberFormatter()
+        EtherNumberFormatter.short = .createShortEtherNumberFormatter()
+        EtherNumberFormatter.shortPlain = .createShortPlainEtherNumberFormatter()
+        EtherNumberFormatter.plain = .createPlainEtherNumberFormatter()
     }
 
     static func setLocale(_ locale: String?) {
