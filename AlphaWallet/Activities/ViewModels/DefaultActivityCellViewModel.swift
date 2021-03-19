@@ -15,7 +15,7 @@ struct DefaultActivityCellViewModel {
     let activity: Activity
 
     var contentsBackgroundColor: UIColor {
-        if isInPendingState {
+        if activityStateViewViewModel.isInPendingState {
             return R.color.azure_sending()!
         } else {
             return .white
@@ -191,33 +191,8 @@ struct DefaultActivityCellViewModel {
         activity.tokenObject.icon
     }
 
-    var stateImage: UIImage? {
-        switch activity.state {
-        case .completed:
-            switch activity.nativeViewType {
-            case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-                return R.image.activitySend()
-            case .erc20Received, .erc721Received, .nativeCryptoReceived:
-                return R.image.activityReceive()
-            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
-                return nil
-            case .none:
-                return nil
-            }
-        case .pending:
-            return R.image.activityPending()
-        case .failed:
-            return R.image.activityFailed()
-        }
-    }
-
-    var isInPendingState: Bool {
-        switch activity.state {
-        case .completed, .failed:
-            return false
-        case .pending:
-            return true
-        }
+    var activityStateViewViewModel: ActivityStateViewViewModel {
+        return .init(activity: activity)
     }
 
     private func stringFromFungibleAmount(sign: String, amount: BigUInt) -> String {
