@@ -35,9 +35,11 @@ class WalletConnectToSessionCoordinator: Coordinator {
     }()
     private var serverToConnect: RPCServer
     private let serverChoices: [RPCServer]
+    private let config: Config
     weak var delegate: WalletConnectToSessionCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, connection: WalletConnectConnection, navigationController: UINavigationController, serverChoices: [RPCServer]) {
+    init(analyticsCoordinator: AnalyticsCoordinator, connection: WalletConnectConnection, navigationController: UINavigationController, serverChoices: [RPCServer], config: Config) {
+        self.config = config
         self.analyticsCoordinator = analyticsCoordinator
         self.connection = connection
         self.serverToConnect = connection.server ?? .main
@@ -70,7 +72,8 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
 
     func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.switchServers, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
-        let servers = serverChoices.compactMap { RPCServerOrAuto.server($0) }
+
+        let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
         let viewModel = ServersViewModel(servers: servers, selectedServer: .server(serverToConnect), displayWarningFooter: false)
 
         firstly {
@@ -90,12 +93,19 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
     }
 
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton) {
-        analyticsCoordinator.log(action: Analytics.Action.walletConnectConnect, properties: [Analytics.Properties.chain.rawValue: serverToConnect.chainID])
-        dissmiss(animated: true, completion: {
-            guard let delegate = self.delegate else { return }
+        if config.enabledServers.contains(serverToConnect) {
+            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnect, properties: [Analytics.Properties.chain.rawValue: serverToConnect.chainID])
+            dissmiss(animated: true, completion: {
+                guard let delegate = self.delegate else { return }
 
-            delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
-        })
+                delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
+            })
+        } else {
+            let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, server: serverToConnect, coordinator: self)
+            coordinator.start().done { _ in
+                //no-op
+            }.cauterize()
+        }
     }
 
     func didClose(in controller: WalletConnectToSessionViewController) {

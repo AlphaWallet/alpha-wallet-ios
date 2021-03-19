@@ -12,10 +12,10 @@ private class WalletConnectToSessionCoordinatorBridgeToPromise {
     private let (promiseToReturn, seal) = Promise<WalletConnectServer.ConnectionChoice>.pending()
     private var retainCycle: WalletConnectToSessionCoordinatorBridgeToPromise?
 
-    init(navigationController: UINavigationController, coordinator: Coordinator, connection: WalletConnectConnection, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, coordinator: Coordinator, connection: WalletConnectConnection, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator, config: Config) {
         retainCycle = self
 
-        let newCoordinator = WalletConnectToSessionCoordinator(analyticsCoordinator: analyticsCoordinator, connection: connection, navigationController: navigationController, serverChoices: serverChoices)
+        let newCoordinator = WalletConnectToSessionCoordinator(analyticsCoordinator: analyticsCoordinator, connection: connection, navigationController: navigationController, serverChoices: serverChoices, config: config)
         newCoordinator.delegate = self
         coordinator.addCoordinator(newCoordinator)
 
@@ -41,13 +41,14 @@ extension WalletConnectToSessionCoordinatorBridgeToPromise: WalletConnectToSessi
 
 extension WalletConnectToSessionCoordinator {
 
-    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, connection: WalletConnectConnection, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator) -> Promise<WalletConnectServer.ConnectionChoice> {
+    static func promise(_ navigationController: UINavigationController, coordinator: Coordinator, connection: WalletConnectConnection, serverChoices: [RPCServer], analyticsCoordinator: AnalyticsCoordinator, config: Config) -> Promise<WalletConnectServer.ConnectionChoice> {
         return WalletConnectToSessionCoordinatorBridgeToPromise(
             navigationController: navigationController,
             coordinator: coordinator,
             connection: connection,
             serverChoices: serverChoices,
-            analyticsCoordinator: analyticsCoordinator
+            analyticsCoordinator: analyticsCoordinator,
+            config: config
         ).promise
     }
 }
