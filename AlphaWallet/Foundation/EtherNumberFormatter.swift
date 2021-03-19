@@ -2,34 +2,47 @@
 import BigInt
 import Foundation
 
+extension EtherNumberFormatter {
+
+    static func createFullEtherNumberFormatter() -> EtherNumberFormatter {
+        return EtherNumberFormatter(locale: Config.locale)
+    }
+
+    static func createShortEtherNumberFormatter() -> EtherNumberFormatter {
+        let formatter = EtherNumberFormatter(locale: Config.locale)
+        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+
+        return formatter
+    }
+
+    static func createShortPlainEtherNumberFormatter() -> EtherNumberFormatter {
+        let formatter = EtherNumberFormatter(locale: Config.locale)
+        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+        formatter.groupingSeparator = ""
+
+        return formatter
+    }
+
+    static func createPlainEtherNumberFormatter() -> EtherNumberFormatter {
+        let formatter = EtherNumberFormatter(locale: Config.locale)
+        formatter.groupingSeparator = ""
+
+        return formatter
+    }
+}
+
 final class EtherNumberFormatter {
     /// We always allow users to use "." as the decimal separator even if the locale might specify a different separator, eg. a decimal comma like Spain. If user sets their locale to one that uses a decimal comma, eg. Spain, the `.decimalPad` will still show "." instead of "," so the user wouldn't be able enter the "," that the locale expects using the keypad.
     static let decimalPoint = "."
 
     /// Formatter that preserves full precision.
-    static let full = EtherNumberFormatter()
+    static var full: EtherNumberFormatter = .createFullEtherNumberFormatter()
 
-    static let short: EtherNumberFormatter = {
-       let formatter = EtherNumberFormatter()
-       formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+    static var short: EtherNumberFormatter = .createShortEtherNumberFormatter()
 
-       return formatter
-    }()
+    static var shortPlain: EtherNumberFormatter = .createShortPlainEtherNumberFormatter()
 
-    static let shortPlain: EtherNumberFormatter = {
-       let formatter = EtherNumberFormatter()
-       formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
-       formatter.groupingSeparator = ""
-        
-       return formatter
-    }()
-
-    static var plain: EtherNumberFormatter = {
-       let formatter = EtherNumberFormatter()
-       formatter.groupingSeparator = ""
-
-       return formatter
-    }()
+    static var plain: EtherNumberFormatter = .createPlainEtherNumberFormatter()
 
     /// Minimum number of digits after the decimal point.
     var minimumFractionDigits = 0
@@ -46,7 +59,7 @@ final class EtherNumberFormatter {
     let locale: Locale
 
     /// Initializes a `EtherNumberFormatter` with a `Locale`.
-    init(locale: Locale = .current) {
+    init(locale: Locale = Config.locale) {
         self.locale = locale
 
         decimalSeparator = locale.decimalSeparator ?? "."
@@ -124,7 +137,8 @@ final class EtherNumberFormatter {
         if fractionalString.isEmpty {
             return integerString
         }
-        return "\(integerString)\(decimalSeparator)\(fractionalString)".droppedTrailingZeros
+
+        return "\(integerString)\(decimalSeparator)\(fractionalString)"
     }
 
     private func integerString(from: BigInt) -> String {

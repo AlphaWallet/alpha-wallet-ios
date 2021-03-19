@@ -10,7 +10,7 @@ enum RefreshType {
 class WalletSession {
     let account: Wallet
     let server: RPCServer
-    let balanceCoordinator: BalanceCoordinator
+    var balanceCoordinator: BalanceCoordinatorType
     let config: Config
     let chainState: ChainState
     var balance: Balance? {
@@ -26,14 +26,14 @@ class WalletSession {
     init(
         account: Wallet,
         server: RPCServer,
-        config: Config,
-        tokensDataStore: TokensDataStore
+        config: Config, 
+        balanceCoordinator: BalanceCoordinatorType
     ) {
         self.account = account
         self.server = server
         self.config = config
         self.chainState = ChainState(config: config, server: server)
-        self.balanceCoordinator = BalanceCoordinator(wallet: account, server: server, storage: tokensDataStore)
+        self.balanceCoordinator = balanceCoordinator
         self.balanceCoordinator.delegate = self
 
         self.chainState.start()

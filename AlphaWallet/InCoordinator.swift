@@ -298,11 +298,12 @@ class InCoordinator: NSObject, Coordinator {
         walletSessions = .init()
         for each in config.enabledServers {
             let tokensStorage = tokensStorages[each]
+            let balanceCoordinator = BalanceCoordinator(wallet: wallet, server: each, storage: tokensStorage)
             let session = WalletSession(
                     account: wallet,
                     server: each,
                     config: config,
-                    tokensDataStore: tokensStorage
+                    balanceCoordinator: balanceCoordinator
             )
             walletSessions[each] = session
         }
