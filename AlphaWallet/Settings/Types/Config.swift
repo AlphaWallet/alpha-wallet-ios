@@ -196,6 +196,7 @@ struct Config {
 
     let oneInch = URL(string: "https://api.1inch.exchange")!
     let honeySwapTokens = URL(string: "https://tokens.honeyswap.org/")!
+    let rampAssets = URL(string: "https://api-instant.ramp.network")!
 
     var taichiPrivateRpcUrl: URL? {
         let key = Constants.Credentials.taiChiRPCKey

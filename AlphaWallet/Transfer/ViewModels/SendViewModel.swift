@@ -69,7 +69,7 @@ struct SendViewModel {
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let currentTokenInfo = storage.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
+            guard let currentTokenInfo = storage.tickers[transactionType.addressAndRPCServer], currentTokenInfo.price_usd > 0 else {
                 return true
             }
             return false
