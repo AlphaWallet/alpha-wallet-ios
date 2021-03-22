@@ -15,8 +15,8 @@ class EnabledServersCoordinator: Coordinator {
     private let selectedServers: [RPCServer]
 
     private lazy var enabledServersViewController: EnabledServersViewController = {
-        let controller = EnabledServersViewController()
-        controller.configure(viewModel: EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers))
+        let viewModel = EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers)
+        let controller = EnabledServersViewController(viewModel: viewModel)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         return controller
