@@ -133,7 +133,7 @@ struct TokenViewControllerViewModel {
                     .filter({ TokenViewControllerViewModel.filterTransactionsForERC20Token(transaction: $0, tokenObject: token) })
                     .prefix(3))
                     .map { TransactionInstance(transaction: $0) }
-            
+
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             self.recentTransactions = []
         }
@@ -158,7 +158,7 @@ struct TokenViewControllerViewModel {
     }
 
     var showAlternativeAmount: Bool {
-        guard let currentTokenInfo = tokensStore.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
+        guard let currentTokenInfo = tokensStore.tickers[transactionType.addressAndRPCServer], currentTokenInfo.price_usd > 0 else {
             return false
         }
         return true

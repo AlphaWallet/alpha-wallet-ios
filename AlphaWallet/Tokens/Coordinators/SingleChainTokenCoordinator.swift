@@ -47,10 +47,11 @@ class SingleChainTokenCoordinator: Coordinator {
     private var isAutoDetectingTransactedTokens = false
     private var isAutoDetectingTokens = false
     private let tokenActionsProvider: TokenActionsProvider
+    private let transactionsStorage: TransactionsStorage
+    private let coinTickersFetcher: CoinTickersFetcherType
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
-    private let transactionsStorage: TransactionsStorage
     init(
             session: WalletSession,
             keystore: Keystore,
@@ -62,7 +63,8 @@ class SingleChainTokenCoordinator: Coordinator {
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue,
             tokenActionsProvider: TokenActionsProvider,
-            transactionsStorage: TransactionsStorage
+            transactionsStorage: TransactionsStorage,
+            coinTickersFetcher: CoinTickersFetcherType
     ) {
         self.session = session
         self.keystore = keystore
@@ -75,6 +77,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.autoDetectTokensQueue = autoDetectTokensQueue
         self.tokenActionsProvider = tokenActionsProvider
         self.transactionsStorage = transactionsStorage
+        self.coinTickersFetcher = coinTickersFetcher
     }
 
     func start() {
@@ -389,6 +392,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token)
+        //TODO fetch and use chart history data: `coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: .init(address: token.contractAddress, server: token.server))`
         viewController.delegate = self
         let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, transactionsStore: transactionsStorage, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
         viewController.configure(viewModel: viewModel)

@@ -189,7 +189,8 @@ extension AddHideTokensViewController: UITableViewDataSource {
             cell.configure(viewModel: .init(token: token,
                 server: token.server,
                 assetDefinitionStore: assetDefinitionStore,
-                isVisible: isVisible
+                isVisible: isVisible,
+                ticker: viewModel.ticker(for: token)
             ))
             return cell
         case .erc721, .erc721ForTickets:

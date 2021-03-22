@@ -4,8 +4,8 @@ import Foundation
 import Moya
 
 enum AlphaWalletService {
-    case priceOfEth(config: Config)
-    case priceOfDai(config: Config)
+    case tokensThatHasPrices(config: Config)
+    case pricesOfTokens(config: Config, ids: String, currency: String, page: Int)
     case getTransactions(config: Config, server: RPCServer, address: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
     case register(config: Config, device: PushDevice)
     case unregister(config: Config, device: PushDevice)
@@ -14,6 +14,7 @@ enum AlphaWalletService {
     case oneInchTokens(config: Config)
     case honeySwapTokens(config: Config)
     case rampAssets(config: Config)
+    case priceHistoryOfToken(config: Config, id: String, currency: String, days: Int)
 
     enum SortOrder: String {
         case asc
@@ -24,10 +25,12 @@ enum AlphaWalletService {
 extension AlphaWalletService: TargetType {
     var baseURL: URL {
         switch self {
+        case .tokensThatHasPrices(let config):
+            return config.priceInfoEndpoints
+        case .pricesOfTokens(let config, _, _, _):
+            return config.priceInfoEndpoints
         case .getTransactions(_, let server, _, _, _, _):
             return server.transactionInfoEndpoints
-        case .priceOfEth(let config), .priceOfDai(let config):
-            return config.priceInfoEndpoints
         case .register(let config, _), .unregister(let config, _):
             return config.priceInfoEndpoints
         case .marketplace(let config, _):
@@ -38,8 +41,10 @@ extension AlphaWalletService: TargetType {
             return config.oneInch
         case .honeySwapTokens(let config):
             return config.honeySwapTokens
-        case .rampAssets:
-            return URL(string: "https://api-instant.ramp.network")!
+        case .rampAssets(let config):
+            return config.rampAssets
+        case .priceHistoryOfToken(let config, _, _, _):
+            return config.priceInfoEndpoints
         }
     }
 
@@ -54,10 +59,6 @@ extension AlphaWalletService: TargetType {
             return "/push/register"
         case .unregister:
             return "/push/unregister"
-        case .priceOfEth:
-            return "/api/v3/coins/markets"
-        case .priceOfDai:
-            return "/api/v3/coins/markets"
         case .marketplace:
             return "/marketplace"
         case .gasPriceEstimate:
@@ -68,6 +69,12 @@ extension AlphaWalletService: TargetType {
             return ""
         case .rampAssets:
             return "/api/host-api/assets"
+        case .tokensThatHasPrices:
+            return "/api/v3/coins/list"
+        case .pricesOfTokens:
+            return "/api/v3/coins/markets"
+        case .priceHistoryOfToken(_, let id, _, _):
+            return "/api/v3/coins/\(id)/market_chart"
         }
     }
 
@@ -76,13 +83,14 @@ extension AlphaWalletService: TargetType {
         case .getTransactions: return .get
         case .register: return .post
         case .unregister: return .delete
-        case .priceOfEth: return .get
-        case .priceOfDai: return .get
+        case .pricesOfTokens: return .get
         case .marketplace: return .get
         case .gasPriceEstimate: return .get
         case .oneInchTokens: return .get
         case .honeySwapTokens: return .get
         case .rampAssets: return .get
+        case .tokensThatHasPrices: return .get
+        case .priceHistoryOfToken: return .get
         }
     }
 
@@ -114,15 +122,14 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .unregister(_, let device):
             return .requestJSONEncodable(device)
-        case .priceOfEth:
+        case .pricesOfTokens(_, let ids, let currency, let page):
             return .requestParameters(parameters: [
-                "vs_currency": "USD",
-                "ids": "ethereum",
-            ], encoding: URLEncoding())
-        case .priceOfDai:
-            return .requestParameters(parameters: [
-                "vs_currency": "USD",
-                "ids": "dai",
+                "vs_currency": currency,
+                "ids": ids,
+                "price_change_percentage" : "24h",
+                "page": page,
+                //Max according to https://www.coingecko.com/en/api
+                "per_page": 250,
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
@@ -130,6 +137,13 @@ extension AlphaWalletService: TargetType {
             return .requestPlain
         case .oneInchTokens, .honeySwapTokens, .rampAssets:
             return .requestPlain
+        case .tokensThatHasPrices:
+            return .requestParameters(parameters: ["include_platform": "true"], encoding: URLEncoding())
+        case .priceHistoryOfToken(_, _, let currency, let days):
+            return .requestParameters(parameters: [
+                "vs_currency": currency,
+                "days": days
+            ], encoding: URLEncoding())
         }
     }
 
@@ -148,7 +162,7 @@ extension AlphaWalletService: TargetType {
                     "client-build": Bundle.main.buildNumber ?? "",
                 ]
             }
-        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace, .gasPriceEstimate:
+        case .priceHistoryOfToken, .tokensThatHasPrices, .pricesOfTokens, .register, .unregister, .marketplace, .gasPriceEstimate:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",

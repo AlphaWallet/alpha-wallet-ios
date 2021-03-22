@@ -9,4 +9,5 @@ enum Features {
     static let isLanguageSwitcherDisabled = true
     static let shouldLoadTokenScriptWithFailedSignatures = true
     static let isRenameWalletEnabledWhileLongPress = true
+    static let shouldPrintCURLForOutgoingRequest = false
 }
