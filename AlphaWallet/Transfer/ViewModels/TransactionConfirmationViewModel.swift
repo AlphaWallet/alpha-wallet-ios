@@ -198,15 +198,15 @@ extension TransactionConfirmationViewModel {
         var formattedAmountValue: String {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
-                let cryptoToDollarSymbol = Constants.Currency.usd
-                let double = amount.value.optionalDecimalValue ?? 0
                 if let cryptoToDollarRate = cryptoToDollarRate {
+                    let cryptoToDollarSymbol = Constants.Currency.usd
+                    let double = amount.value.optionalDecimalValue ?? 0
                     let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
-
                     let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
-                    return "\(double) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
+                    
+                    return "\(amount.value) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
                 } else {
-                    return "\(double) \(token.symbol)"
+                    return "\(amount.value) \(token.symbol)"
                 }
             case .ERC20Token(let token, _, _):
                 if let amount = amount.shortValue, amount.nonEmpty {
