@@ -331,7 +331,12 @@ class SendViewController: UIViewController {
                 contract: transactionType.contractForFungibleSend,
                 data: nil
         )
-        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost, shortValue: allFundsFormattedValues?.allFundsShortValue)
+        
+        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost, shortValue: shortValueForAllFunds)
+    }
+
+    var shortValueForAllFunds: String? {
+        return isAllFunds ? allFundsFormattedValues?.allFundsShortValue : .none
     }
 
     func activateAmountView() {

@@ -36,7 +36,7 @@ struct Config {
     }
 
     static var locale: Locale {
-        if let identifier = getLocale() {
+        if let identifier = getLocale(), isRunningTests() {
             return Locale(identifier: identifier)
         } else {
             return Locale.current
