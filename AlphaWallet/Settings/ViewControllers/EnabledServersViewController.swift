@@ -4,32 +4,34 @@ import UIKit
 
 protocol EnabledServersViewControllerDelegate: class {
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
-    func didDismiss(viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .plain)
-    private var viewModel: EnabledServersViewModel?
-
-    weak var delegate: EnabledServersViewControllerDelegate?
-
-    init() {
-        super.init(nibName: nil, bundle: nil)
-
-        navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .save, target: self, action: #selector(done))
-
-        view.backgroundColor = GroupedTable.Color.background
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerViewCell.self)
+        tableView.dataSource = self
+
+        return tableView
+    }()
+    private var viewModel: EnabledServersViewModel
+
+    weak var delegate: EnabledServersViewControllerDelegate?
+
+    init(viewModel: EnabledServersViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+
+        view.backgroundColor = GroupedTable.Color.background
+
+        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -40,10 +42,15 @@ class EnabledServersViewController: UIViewController {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure(viewModel: viewModel)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if isMovingFromParent {
-            delegate?.didDismiss(viewController: self)
+            done()
         } else {
             //no-op
         }
@@ -51,39 +58,36 @@ class EnabledServersViewController: UIViewController {
 
     func configure(viewModel: EnabledServersViewModel) {
         self.viewModel = viewModel
-        tableView.dataSource = self
         title = viewModel.title
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     @objc private func done() {
-        guard let viewModel = viewModel else { return }
         delegate?.didSelectServers(servers: viewModel.selectedServers, in: self)
     }
 }
 
 extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let viewModel = viewModel else { return 0 }
         return viewModel.servers.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
-        if let viewModel = viewModel {
-            let server = viewModel.server(for: indexPath)
-            let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
-            cell.configure(viewModel: cellViewModel)
-        }
+        let server = viewModel.server(for: indexPath)
+        let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
+        cell.configure(viewModel: cellViewModel)
+
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let viewModel = viewModel else { return }
+
         let server = viewModel.server(for: indexPath)
         let servers: [RPCServer]
         if viewModel.selectedServers.contains(server) {
@@ -93,6 +97,6 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         }
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
         tableView.reloadData()
-        navigationItem.rightBarButtonItem?.isEnabled = !servers.isEmpty
+        navigationItem.leftBarButtonItem?.isEnabled = !servers.isEmpty
     }
 }
