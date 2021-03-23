@@ -67,7 +67,8 @@ enum OriginalDapps {
         Dapp(name: "1inch.exchange", description: "DEX Aggregator with the best prices on the market. Achieving best rates by splitting orders among multiple DEXes in one single transaction.", url: "https://1inch.exchange/", cat: "Exchange"),
         Dapp(name: "SpiderDEX", description: "Decentralized exchange for crypto collectibles.", url: "https://www.spiderdex.com", cat: "Exchange"),
         Dapp(name: "DeFi Money Market (DMM)", description: "Earn interest on your crypto through real world tokenized assets", url: "https://www.spiderdex.com", cat: "Finance"),
-        Dapp(name: "DerivaDEX Insurance Fund", description: "DerivaDEX is the next generation of crypto derivatives. Begin earning DDX by bootstrapping the insurance fund.", url: "https://insurance.derivadex.com/", cat: "Finance")
+        Dapp(name: "DerivaDEX Insurance Fund", description: "DerivaDEX is the next generation of crypto derivatives. Begin earning DDX by bootstrapping the insurance fund.", url: "https://insurance.derivadex.com/", cat: "Finance"),
+        Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool")
     ]
 
     struct Category {
