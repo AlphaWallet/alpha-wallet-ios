@@ -86,7 +86,7 @@ class ActivitiesCoordinator: Coordinator {
         return controller
     }
 
-    func showActivity(_ activity: Activity) {
+    private func showActivity(_ activity: Activity) {
         let controller = ActivityViewController(analyticsCoordinator: analyticsCoordinator, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity))
         controller.delegate = self
         activityViewController = controller
