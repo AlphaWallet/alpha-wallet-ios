@@ -45,7 +45,8 @@ class SendTransactionCoordinator {
             data: to.data,
             gasPrice: to.gasPrice,
             gasLimit: to.gasLimit,
-            server: to.server
+            server: to.server,
+            transactionType: to.transactionType
         )
     }
 
@@ -62,7 +63,7 @@ class SendTransactionCoordinator {
     }
 
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
-        return firstly {
+        firstly {
             GetNextNonce(server: session.server, wallet: session.account.address).promise()
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)

@@ -44,7 +44,7 @@ class TransferNFTCoordinator: Coordinator {
         )
         let tokenInstanceName = tokenHolder.values["name"]?.stringValue
         let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName)
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start(fromSource: .sendNft)

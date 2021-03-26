@@ -144,4 +144,15 @@ struct ActivityViewModel {
             return R.image.activityFailed()
         }
     }
+
+    var isPendingTransaction: Bool {
+        switch activity.state {
+        case .completed:
+            return false
+        case .pending:
+            return true
+        case .failed:
+            return false
+        }
+    }
 }

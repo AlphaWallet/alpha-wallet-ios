@@ -103,11 +103,10 @@ class TransactionDataCoordinator: Coordinator {
 
     func addSentTransaction(_ transaction: SentTransaction) {
         let session = sessions[transaction.original.server]
-
+        TransactionsStorage.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let tokensDataStore = tokensStorages[transaction.original.server]
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
         transactionCollection.add([transaction])
-
         handleUpdateItems(reloadImmediately: true)
     }
 
@@ -123,14 +122,13 @@ class TransactionDataCoordinator: Coordinator {
 
     private func handleUpdateItems(reloadImmediately: Bool) {
         let objects = transactionCollection.objects
-
         delegate?.didUpdate(result: .success(objects), reloadImmediately: reloadImmediately)
         delegate2?.didUpdate(result: .success(objects), reloadImmediately: reloadImmediately)
     }
 }
 
 extension TransactionDataCoordinator: SingleChainTransactionDataCoordinatorDelegate {
-    func handleUpdateItems(inCoordinator coordinator: SingleChainTransactionDataCoordinator) {
-        handleUpdateItems(reloadImmediately: false)
+    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator, reloadImmediately: Bool) {
+        handleUpdateItems(reloadImmediately: reloadImmediately)
     }
 }

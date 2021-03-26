@@ -479,6 +479,8 @@
 "token.transactionConfirmation.network" = "Network";
 "token.transactionTransferConfirmation.title" = "Confirm Transfer?";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
+"token.transactionSpeedupConfirmation.title" = "Confirm Transaction?";
+"token.transactionCancelConfirmation.title" = "Attempt to Cancel";
 "token.transactionConfirmation.title" = "Confirm Transaction?";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
@@ -505,6 +507,10 @@
 "activity.send.pending" = "Sending %@";
 "activity.send.failed" = "Failed to Send %@";
 "activity.goToToken" = "Go to Token";
+"activity.speedup" = "Speed up";
+"activity.cancel" = "Cancel";
+"activity.speedup.description" = "Note that speeding up this transaction does not guarantee your original transaction will be accelerated. If your attempt is successful, you will be charged the miner fee as above.";
+"activity.cancel.description" = "Note that speeding up this transaction does not guarantee your original transaction will be cancelled. If your attempt is successful, you will be charged the miner fee as above.";
 "activity.empty" = "Activities will appear here";
 "configureTransaction.error.gasPriceTooLow" = "Gas Price must be a positive number";
 "configureTransaction.navigationBar.title" = "Set Speed";

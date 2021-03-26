@@ -36,7 +36,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     }
 
     func promise(account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
-        let confirmationCoordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let confirmationCoordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
 
         confirmationCoordinator.delegate = self
         self.confirmationCoordinator = confirmationCoordinator

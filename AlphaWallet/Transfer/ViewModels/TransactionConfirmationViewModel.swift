@@ -9,6 +9,8 @@ enum TransactionConfirmationViewModel {
     case sendFungiblesTransaction(SendFungiblesTransactionViewModel)
     case sendNftTransaction(SendNftTransactionViewModel)
     case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
+    case speedupTransaction(SpeedupTransactionViewModel)
+    case cancelTransaction(CancelTransactionViewModel)
 
     init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
         switch configuration {
@@ -24,6 +26,10 @@ enum TransactionConfirmationViewModel {
             self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName))
         case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
+        case .speedupTransaction(_, let ethPrice):
+            self = .speedupTransaction(.init(configurator: configurator, ethPrice: ethPrice))
+        case .cancelTransaction(_, let ethPrice):
+            self = .cancelTransaction(.init(configurator: configurator, ethPrice: ethPrice))
         }
     }
 
@@ -43,6 +49,10 @@ enum TransactionConfirmationViewModel {
         case .sendNftTransaction(var viewModel):
             return viewModel.showHideSection(section)
         case .claimPaidErc875MagicLink(var viewModel):
+            return viewModel.showHideSection(section)
+        case .speedupTransaction(var viewModel):
+            return viewModel.showHideSection(section)
+        case .cancelTransaction(var viewModel):
             return viewModel.showHideSection(section)
         }
     }
@@ -207,7 +217,7 @@ extension TransactionConfirmationViewModel {
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
-        } 
+        }
 
         var gasFee: String {
             let fee: BigInt = configurator.currentConfiguration.gasPrice * configurator.currentConfiguration.gasLimit
@@ -237,7 +247,7 @@ extension TransactionConfirmationViewModel {
                     }
                 } else {
                     return true
-                } 
+                }
             }
         }
 
@@ -633,6 +643,120 @@ extension TransactionConfirmationViewModel {
             }
         }
     }
+
+    class SpeedupTransactionViewModel: SectionProtocol {
+        enum Section {
+            case gas
+            case description
+
+            var title: String {
+                switch self {
+                case .gas:
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                case .description:
+                    return R.string.localizable.activitySpeedupDescription()
+                }
+            }
+
+            var isExpandable: Bool {
+                switch self {
+                case .gas, .description:
+                    return false
+                }
+            }
+        }
+        private let configurator: TransactionConfigurator
+        private var configurationTitle: String {
+            return configurator.selectedConfigurationType.title
+        }
+        let session: WalletSession
+        let ethPrice: Subscribable<Double>
+        var cryptoToDollarRate: Double?
+        var openedSections = Set<Int>()
+
+        var sections: [Section] {
+            [.gas, .description]
+        }
+
+        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
+            self.configurator = configurator
+            self.ethPrice = ethPrice
+            self.session = configurator.session
+        }
+
+        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
+            let headerName = sections[section].title
+            switch sections[section] {
+            case .gas:
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
+            case .description:
+                return .init(title: .normal(sections[section].title), headerName: nil, configuration: configuration)
+            }
+        }
+    }
+
+    class CancelTransactionViewModel: SectionProtocol {
+        enum Section {
+            case gas
+            case description
+
+            var title: String {
+                switch self {
+                case .gas:
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                case .description:
+                    return R.string.localizable.activityCancelDescription()
+                }
+            }
+
+            var isExpandable: Bool {
+                switch self {
+                case .gas, .description:
+                    return false
+                }
+            }
+        }
+        private let configurator: TransactionConfigurator
+        private var configurationTitle: String {
+            return configurator.selectedConfigurationType.title
+        }
+        let session: WalletSession
+        let ethPrice: Subscribable<Double>
+        var cryptoToDollarRate: Double?
+        var openedSections = Set<Int>()
+
+        var sections: [Section] {
+            [.gas, .description]
+        }
+
+        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
+            self.configurator = configurator
+            self.ethPrice = ethPrice
+            self.session = configurator.session
+        }
+
+        func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: openedSections.contains(section), section: section, shouldHideChevron: !sections[section].isExpandable)
+            let headerName = sections[section].title
+            switch sections[section] {
+            case .gas:
+                let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
+                if let warning = configurator.gasPriceWarning {
+                    return .init(title: .warning(warning.shortTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                } else {
+                    return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
+                }
+            case .description:
+                return .init(title: .normal(sections[section].title), headerName: nil, configuration: configuration)
+            }
+        }
+    }
 }
 
 extension TransactionConfirmationViewModel {
@@ -644,6 +768,10 @@ extension TransactionConfirmationViewModel {
             return R.string.localizable.tokenTransactionConfirmationTitle()
         case .claimPaidErc875MagicLink:
             return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
+        case .speedupTransaction:
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+        case .cancelTransaction:
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
         }
     }
 
@@ -651,7 +779,14 @@ extension TransactionConfirmationViewModel {
         return R.string.localizable.confirmPaymentConfirmButtonTitle()
     }
     var confirmationButtonTitle: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        switch self {
+        case .dappTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
+            return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        case .speedupTransaction:
+            return R.string.localizable.activitySpeedup()
+        case .cancelTransaction:
+            return R.string.localizable.tokenTransactionCancelConfirmationTitle()
+        }
     }
 
     var backgroundColor: UIColor {
@@ -660,5 +795,14 @@ extension TransactionConfirmationViewModel {
 
     var footerBackgroundColor: UIColor {
         return R.color.white()!
+    }
+
+    var hasSeparatorAboveConfirmButton: Bool {
+        switch self {
+        case .sendFungiblesTransaction, .sendNftTransaction, .dappTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
+            return true
+        case .speedupTransaction, .cancelTransaction:
+            return false
+        }
     }
 }

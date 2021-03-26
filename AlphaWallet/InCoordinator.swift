@@ -871,22 +871,20 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator) {
-        transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
+        handlePendingTransaction(transaction: transaction)
     }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
+        removeCoordinator(coordinator)
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            removeCoordinator(coordinator)
 
             coordinator.navigationController.setNavigationBarHidden(true, animated: false)
             coordinator.navigationController.popToRootViewController(animated: true)
 
-            // Once transaction sent, show transactions screen.
-            self.showTab(.transactionsOrActivity)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
             }
@@ -954,6 +952,26 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         tokensCoordinator.showSingleChainToken(token: tokenObject, in: coordinator.navigationController)
     }
 
+    func speedup(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
+        guard let transaction = transactionsStorages[server].transactions.first(where: { $0.id == transactionId }) else { return }
+        let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
+        let session = walletSessions[transaction.server]
+        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup) else { return }
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
+    func cancel(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
+        guard let transaction = transactionsStorages[server].transactions.first(where: { $0.id == transactionId }) else { return }
+        let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
+        let session = walletSessions[transaction.server]
+        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel) else { return }
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
     func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
         transactionCoordinator?.showTransaction(withId: transactionId, server: server, inViewController: viewController)
     }
@@ -1000,5 +1018,23 @@ extension InCoordinator {
 
     private func logTappedSwap(service: SwapTokenURLProviderType) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
+    }
+}
+
+extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator) {
+        handlePendingTransaction(transaction: transaction)
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator) {
+        removeCoordinator(coordinator)
+        switch result {
+        case .sentTransaction(let transaction):
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.showTransactionSent(transaction: transaction)
+            }
+        case .sentRawTransaction, .signedTransaction:
+            break
+        }
     }
 }

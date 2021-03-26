@@ -497,6 +497,7 @@
 		5E7C7B14B0D172F91D52F0BF /* EthereumSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */; };
 		5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FDDF4DD09013785E449 /* Session+PromiseKit.swift */; };
 		5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */; };
+		5E7C7B2C388D0B6E8AE1EED6 /* TransactionConfirmationRowDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */; };
 		5E7C7B3027F3A56EF3EE5B7F /* EthCalllRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ADC229B4038964F417C /* EthCalllRequest.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */; };
 		5E7C7B414FA8A428798D73EF /* OpenSeaNonFungibleTokenHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C758EEBD945A3451C96C8 /* OpenSeaNonFungibleTokenHandling.swift */; };
@@ -584,6 +585,7 @@
 		5E7C7ED8CC713EA8548F295D /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D0BC856442683F18DDF /* XMLHandler.swift */; };
 		5E7C7EDA1BB781A45C1C19CD /* ImportWalletTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D26F24C4AAE981E2F2 /* ImportWalletTab.swift */; };
 		5E7C7EE445B044CA15171BD5 /* DappsHomeHeaderViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C799836611BEE66000EE1 /* DappsHomeHeaderViewViewModel.swift */; };
+		5E7C7EEB905CA4DEF2BD9608 /* ReplaceTransactionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C743C5382AF2288A1DB0D /* ReplaceTransactionCoordinator.swift */; };
 		5E7C7EEE563D81793CB96FA0 /* TransferNFTCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */; };
 		5E7C7EF1F2CDFA52BBF1C620 /* BrowserHistoryCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C712F42374C0B8DF8C64F /* BrowserHistoryCellViewModel.swift */; };
 		5E7C7F01A771565A1BCF7FFA /* SeedPhraseCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77BCBD2C2BE682D384DB /* SeedPhraseCollectionView.swift */; };
@@ -1183,6 +1185,7 @@
 		5E7C74259A3F3B0277B0E8C5 /* SingleChainTransactionEtherscanDataCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleChainTransactionEtherscanDataCoordinator.swift; sourceTree = "<group>"; };
 		5E7C74294562EB79EFCD3559 /* DiscoverDappCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverDappCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C742D015C0DEAE7759C0D /* TokenInstanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewController.swift; sourceTree = "<group>"; };
+		5E7C743C5382AF2288A1DB0D /* ReplaceTransactionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReplaceTransactionCoordinator.swift; sourceTree = "<group>"; };
 		5E7C746AB3B09DC0E47614EA /* AnalyticsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7477E69BEDF0C4950D5A /* TokenListFormatTableViewCellWithCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenListFormatTableViewCellWithCheckbox.swift; sourceTree = "<group>"; };
 		5E7C74822F5F71748184F6C1 /* EventInstance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventInstance.swift; sourceTree = "<group>"; };
@@ -1306,6 +1309,7 @@
 		5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackupSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+UIView.swift"; sourceTree = "<group>"; };
 		5E7C79199D828A206A7F23B1 /* AssetInternalValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetInternalValue.swift; sourceTree = "<group>"; };
+		5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationRowDescriptionView.swift; sourceTree = "<group>"; };
 		5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseCell.swift; sourceTree = "<group>"; };
 		5E7C793CDFA907BFDFECB6CB /* DappViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappViewCell.swift; sourceTree = "<group>"; };
 		5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -2160,6 +2164,7 @@
 				442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */,
 				5E7C74259A3F3B0277B0E8C5 /* SingleChainTransactionEtherscanDataCoordinator.swift */,
 				5E7C70CA72BB443C987ECDD9 /* SingleChainTransactionDataCoordinator.swift */,
+				5E7C743C5382AF2288A1DB0D /* ReplaceTransactionCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3579,6 +3584,7 @@
 				874D099325EE339700A58EF2 /* TypedDataView.swift */,
 				874D099525EE33B600A58EF2 /* ScrollableStackView.swift */,
 				874D099725EE33E000A58EF2 /* SelfResizedTextView.swift */,
+				5E7C7919EE31DC0B8FCF0D40 /* TransactionConfirmationRowDescriptionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5346,6 +5352,8 @@
 				5E7C73FB906BF267F28B0205 /* ActivityRowType.swift in Sources */,
 				5E7C7AAA6892660CDBD84551 /* TransactionRow.swift in Sources */,
 				5E7C7594F29C8C9FE7BE0BEE /* RemoteLogger.swift in Sources */,
+				5E7C7EEB905CA4DEF2BD9608 /* ReplaceTransactionCoordinator.swift in Sources */,
+				5E7C7B2C388D0B6E8AE1EED6 /* TransactionConfirmationRowDescriptionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
