@@ -23,18 +23,21 @@ class AdvancedSettingsViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
+        tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
 
         return tableView
     }()
+    private var config: Config
     weak var delegate: AdvancedSettingsViewControllerDelegate?
 
     override func loadView() {
         view = tableView
     }
 
-    init() {
+    init(config: Config) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
 
         tableView.dataSource = self
@@ -66,10 +69,34 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: viewModel.cellViewModel(indexPath: indexPath))
+        let row = viewModel.rows[indexPath.row]
+        switch row {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
 
-        return cell
+            return cell
+        case .useTaiChiNetwork:
+            let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.useTaiChiNetwork))
+            cell.delegate = self
+
+            return cell
+        } 
+    }
+}
+
+extension AdvancedSettingsViewController: SwitchTableViewCellDelegate {
+    
+    func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
+        guard let indexPath = cell.indexPath else { return }
+
+        switch viewModel.rows[indexPath.row] {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
+            break
+        case .useTaiChiNetwork:
+            config.useTaiChiNetwork = isOn
+        }
     }
 }
 
@@ -109,6 +136,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.advancedSettingsViewControllerChangeCurrencySelected(in: self)
         case .analytics:
             delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
+        case .useTaiChiNetwork:
+            break
         }
     }
 }

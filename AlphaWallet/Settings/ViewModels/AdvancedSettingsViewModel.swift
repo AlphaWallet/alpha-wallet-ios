@@ -10,16 +10,11 @@ import UIKit
 
 struct AdvancedSettingsViewModel {
     
-    var rows: [AdvancedSettingsRow] = [.console, .clearBrowserCache, .tokenScript, .changeLanguage]
+    var rows: [AdvancedSettingsRow] = [.console, .clearBrowserCache, .tokenScript, .changeLanguage, .useTaiChiNetwork]
     
     func numberOfRows() -> Int {
         return rows.count
-    }
-    
-    func cellViewModel(indexPath: IndexPath) -> SettingTableViewCellViewModel {
-        let row = rows[indexPath.row]
-        return .init(titleText: row.title, subTitleText: nil, icon: row.icon)
-    }
+    } 
 }
 
 enum AdvancedSettingsRow: CaseIterable {
@@ -29,6 +24,7 @@ enum AdvancedSettingsRow: CaseIterable {
     case changeLanguage
     case changeCurrency
     case analytics
+    case useTaiChiNetwork
 
     var title: String {
         switch self {
@@ -44,6 +40,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsChangeCurrencyTitle()
         case .analytics:
             return R.string.localizable.settingsAnalitycsTitle()
+        case .useTaiChiNetwork:
+            return R.string.localizable.settingsUseTaichiNetworkButtonTitle()
         }
     }
 
@@ -61,6 +59,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.settings_currency()!
         case .analytics:
             return R.image.settings_analytics()!
+        case .useTaiChiNetwork:
+            return R.image.iconsSettingsTaiChi()!
         }
     }
 } 

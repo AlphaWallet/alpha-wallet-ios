@@ -42,14 +42,7 @@ class SettingsCoordinator: Coordinator {
 		return controller
 	}()
 
-    lazy var advancedSettingsViewController: AdvancedSettingsViewController = {
-        let controller = AdvancedSettingsViewController()
-        controller.delegate = self
-        controller.hidesBottomBarWhenPushed = true
-        return controller
-    }()
-
-	init(
+    init(
         navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
         config: Config,
@@ -151,7 +144,11 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
-        navigationController.pushViewController(advancedSettingsViewController, animated: true)
+        let controller = AdvancedSettingsViewController(config: config)
+        controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
+
+        navigationController.pushViewController(controller, animated: true)
     }
 }
 
