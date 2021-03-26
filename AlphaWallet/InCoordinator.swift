@@ -877,10 +877,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
+        removeCoordinator(coordinator)
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            removeCoordinator(coordinator)
 
             coordinator.navigationController.setNavigationBarHidden(true, animated: false)
             coordinator.navigationController.popToRootViewController(animated: true)
