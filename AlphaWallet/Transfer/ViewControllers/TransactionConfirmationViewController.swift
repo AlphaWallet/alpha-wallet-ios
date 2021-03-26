@@ -43,7 +43,6 @@ class TransactionConfirmationViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = R.color.mercury()
-
         return view
     }()
 
@@ -231,10 +230,23 @@ class TransactionConfirmationViewController: UIViewController {
                 claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = cryptoToDollarRate
                 strongSelf.generateSubviews()
             }
+        case .speedupTransaction(let speedupTransactionViewModel):
+            speedupTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                speedupTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
+        case .cancelTransaction(let cancelTransactionViewModel):
+            cancelTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                guard let strongSelf = self else { return }
+                cancelTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                strongSelf.generateSubviews()
+            }
         }
 
         generateSubviews()
     }
+
     // swiftlint:enable function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -290,6 +302,7 @@ class TransactionConfirmationViewController: UIViewController {
         }, completion: { _ in
             completion()
         })
+        completion()
     }
 
     func set(state: State, completion: (() -> Void)? = nil) {
@@ -344,7 +357,7 @@ class TransactionConfirmationViewController: UIViewController {
     //NOTE: we need to recalculate all funds value to send according to updated gas estimates, nativecrypto only
     func reloadViewWithCurrentBalanceValue() {
         switch viewModel {
-        case .dappTransaction, .tokenScriptTransaction:
+        case .dappTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
             break
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             switch sendFungiblesViewModel.transactionType {
@@ -373,6 +386,8 @@ class TransactionConfirmationViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
 
+        separatorLine.isHidden = !viewModel.hasSeparatorAboveConfirmButton
+
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         button.shrinkBorderColor = Colors.loadingIndicatorBorder
@@ -388,7 +403,7 @@ class TransactionConfirmationViewController: UIViewController {
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
-} 
+}
 
 extension TransactionConfirmationViewController {
     // swiftlint:disable function_body_length
@@ -514,6 +529,38 @@ extension TransactionConfirmationViewController {
                 }
                 views.append(header)
             }
+        case .speedupTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                let children: [UIView] = []
+
+                switch section {
+                case .gas:
+                    let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                    header.delegate = self
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    header.childrenStackView.addArrangedSubviews(children)
+                    views.append(header)
+                case .description:
+                    let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
+                    views.append(view)
+                }
+            }
+        case .cancelTransaction(let viewModel):
+            for (sectionIndex, section) in viewModel.sections.enumerated() {
+                let children: [UIView] = []
+
+                switch section {
+                case .gas:
+                    let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                    header.delegate = self
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    header.childrenStackView.addArrangedSubviews(children)
+                    views.append(header)
+                case .description:
+                    let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
+                    views.append(view)
+                }
+            }
         }
         stackView.addArrangedSubviews(views)
     }
@@ -528,7 +575,7 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
         switch viewModel {
-        case .dappTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction:
+        case .dappTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
             return true
         case .sendFungiblesTransaction(let viewModel):
             switch viewModel.sections[section] {

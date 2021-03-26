@@ -5,6 +5,8 @@ import UIKit
 protocol ActivityViewControllerDelegate: class {
     func reinject(viewController: ActivityViewController)
     func goToToken(viewController: ActivityViewController)
+    func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)
+    func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)
     func goToTransaction(viewController: ActivityViewController)
     func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController)
 }
@@ -163,10 +165,31 @@ class ActivityViewController: UIViewController {
             isFirstLoad = false
         }
 
-        buttonsBar.configure(.green(buttons: 1))
-        let button = buttonsBar.buttons[0]
+        buttonsBar.viewController = self
+        if Features.isSpeedupAndCancelEnabled && viewModel.isPendingTransaction {
+            buttonsBar.configure(.combined(buttons: 3))
+            configureSpeedupButton(buttonsBar.buttons[0])
+            configureCancelButton(buttonsBar.buttons[1])
+            configureGoToTokenButton(buttonsBar.buttons[2])
+        } else {
+            buttonsBar.configure(.green(buttons: 1))
+            configureGoToTokenButton(buttonsBar.buttons[0])
+        }
+    }
+
+    private func configureGoToTokenButton(_ button: BarButton) {
         button.setTitle(R.string.localizable.activityGoToToken(), for: .normal)
         button.addTarget(self, action: #selector(goToToken), for: .touchUpInside)
+    }
+
+    private func configureSpeedupButton(_ button: BarButton) {
+        button.setTitle(R.string.localizable.activitySpeedup(), for: .normal)
+        button.addTarget(self, action: #selector(speedup), for: .touchUpInside)
+    }
+
+    private func configureCancelButton(_ button: BarButton) {
+        button.setTitle(R.string.localizable.activityCancel(), for: .normal)
+        button.addTarget(self, action: #selector(cancel), for: .touchUpInside)
     }
 
     func isForActivity(_ activity: Activity) -> Bool {
@@ -175,6 +198,14 @@ class ActivityViewController: UIViewController {
 
     @objc private func goToToken() {
         delegate?.goToToken(viewController: self)
+    }
+
+    @objc private func speedup() {
+        delegate?.speedupTransaction(transactionId: viewModel.activity.transactionId, server: viewModel.activity.server, viewController: self)
+    }
+
+    @objc private func cancel() {
+        delegate?.cancelTransaction(transactionId: viewModel.activity.transactionId, server: viewModel.activity.server, viewController: self)
     }
 
     @objc private func showContractWebPage() {
