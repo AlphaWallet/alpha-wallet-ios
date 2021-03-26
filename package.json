@@ -7,6 +7,7 @@
   },
   "resolutions": {
     "mem": "^4.0.0",
-    "yargs-parser": "^13.1.2"
+    "yargs-parser": "^13.1.2",
+    "ssri": "^8.0.1"
   }
 }
