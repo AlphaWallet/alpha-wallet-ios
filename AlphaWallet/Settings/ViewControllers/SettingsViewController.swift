@@ -174,15 +174,8 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
             case .notifications, .selectActiveNetworks, .advanced:
                 break
             }
-        case .help, .tokenStandard, .version:
+        case .help, .tokenStandard, .version, .wallet:
             break
-        case .wallet(let rows):
-            switch rows[indexPath.row] {
-            case .changeWallet, .backup, .showMyWallet, .showSeedPhrase, .walletConnect:
-                break
-            case .useTaiChiNetwork:
-                config.useTaiChiNetwork = isOn
-            }
         }
     }
 }
@@ -242,12 +235,6 @@ extension SettingsViewController: UITableViewDataSource {
                 cell.configure(viewModel: .init(settingsWalletRow: row))
 
                 return cell
-            case .useTaiChiNetwork:
-                let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.useTaiChiNetwork))
-                cell.delegate = self
-
-                return cell
             }
         case .tokenStandard, .version:
             return UITableViewCell()
@@ -284,8 +271,6 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
             case .walletConnect:
                 delegate?.settingsViewControllerWalletConnectSelected(in: self)
-            case .useTaiChiNetwork:
-                break
             }
         case .system(let rows):
             switch rows[indexPath.row] {
