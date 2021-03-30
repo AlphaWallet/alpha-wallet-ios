@@ -6,4 +6,5 @@ enum Features {
     static let isActivityEnabled = true
     static let isSendAllFundsFungibleEnabled = true
     static let isSpeedupAndCancelEnabled = true
+    static let isLanguageSwitcherDisabled = true
 }

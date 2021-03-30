@@ -569,11 +569,6 @@ extension TokensViewController: SegmentedControlDelegate {
 }
 
 extension TokensViewController: UICollectionViewDataSource {
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         //Defensive check to make sure we don't return the wrong count. iOS might decide to load (the first time especially) the collection view at some point even if we don't switch to it, thus getting the wrong count and then at some point asking for a cell for those non-existent rows/items. E.g 10 tokens total, only 3 are collectibles and asked for the 6th cell
         switch viewModel.filter {
