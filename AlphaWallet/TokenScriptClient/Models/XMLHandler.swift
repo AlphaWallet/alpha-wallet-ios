@@ -387,8 +387,13 @@ private class PrivateXMLHandler {
                     hasValidTokenScriptFile = false
                 }
             } else {
-                xml = PrivateXMLHandler.emptyXML
-                hasValidTokenScriptFile = false
+                if Features.shouldLoadTokenScriptWithFailedSignatures {
+                    xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
+                    hasValidTokenScriptFile = true
+                } else {
+                    xml = PrivateXMLHandler.emptyXML
+                    hasValidTokenScriptFile = false
+                }
             }
         }
         return (xml: xml, hasValidTokenScriptFile: hasValidTokenScriptFile)
