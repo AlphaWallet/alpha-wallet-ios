@@ -7,4 +7,5 @@ enum Features {
     static let isSendAllFundsFungibleEnabled = true
     static let isSpeedupAndCancelEnabled = true
     static let isLanguageSwitcherDisabled = true
+    static let shouldLoadTokenScriptWithFailedSignatures = true
 }
