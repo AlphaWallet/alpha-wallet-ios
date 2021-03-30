@@ -55,6 +55,10 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        if Features.isLanguageSwitcherDisabled {
+            Config.setLocale(.system)
+        }
+
         if isRunningTests() {
             startImpl()
         } else {
