@@ -9,12 +9,17 @@ import Foundation
 import UIKit
 
 struct AdvancedSettingsViewModel {
-    
-    var rows: [AdvancedSettingsRow] = [.console, .clearBrowserCache, .tokenScript, .changeLanguage, .useTaiChiNetwork]
-    
+    var rows: [AdvancedSettingsRow] = {
+        if Features.isLanguageSwitcherDisabled {
+            return [.console, .clearBrowserCache, .tokenScript, .useTaiChiNetwork]
+        } else {
+            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage, .useTaiChiNetwork]
+        }
+    }()
+
     func numberOfRows() -> Int {
         return rows.count
-    } 
+    }
 }
 
 enum AdvancedSettingsRow: CaseIterable {
@@ -63,4 +68,4 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.iconsSettingsTaiChi()!
         }
     }
-} 
+}

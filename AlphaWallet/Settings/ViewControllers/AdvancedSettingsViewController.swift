@@ -59,11 +59,6 @@ class AdvancedSettingsViewController: UIViewController {
 }
 
 extension AdvancedSettingsViewController: UITableViewDataSource {
-
-    public func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows()
     }
@@ -82,12 +77,12 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
             cell.delegate = self
 
             return cell
-        } 
+        }
     }
 }
 
 extension AdvancedSettingsViewController: SwitchTableViewCellDelegate {
-    
+
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
         guard let indexPath = cell.indexPath else { return }
 
