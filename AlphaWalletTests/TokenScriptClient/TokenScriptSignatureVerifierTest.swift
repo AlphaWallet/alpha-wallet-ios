@@ -9,6 +9,10 @@ import XCTest
 class TokenScriptSignatureVerifierTest: XCTestCase {
 
     func testValidatorAPIPassed() {
+        if Features.shouldLoadTokenScriptWithFailedSignatures {
+            return
+        }
+
         let expectation = XCTestExpectation(description: "validation passes")
         let tokenScriptSignatureVerifier = TokenScriptSignatureVerifier()
         // swiftlint:disable:next line_length
