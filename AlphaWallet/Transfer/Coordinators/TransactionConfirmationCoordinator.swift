@@ -265,6 +265,7 @@ extension TransactionConfirmationCoordinator {
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
+            Analytics.Properties.isTaiChiEnabled.rawValue: configurator.session.config.useTaiChiNetwork,
         ])
         if configurator.session.server.isTestnet {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)

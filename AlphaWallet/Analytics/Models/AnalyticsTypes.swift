@@ -59,6 +59,7 @@ enum Analytics {
         case transactionType
         case name
         case messageType
+        case isTaiChiEnabled
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
