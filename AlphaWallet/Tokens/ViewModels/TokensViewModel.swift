@@ -77,7 +77,7 @@ class TokensViewModel {
         }
         return true
     }
-    
+
     init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens
@@ -101,7 +101,7 @@ class TokensViewModel {
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
-        return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: .main).primaryKey })
+        return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: server).primaryKey })
     }
 
     func amount(for token: TokenObject) -> Double {
