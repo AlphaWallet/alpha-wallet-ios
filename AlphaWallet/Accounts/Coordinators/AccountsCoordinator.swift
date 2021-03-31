@@ -175,8 +175,7 @@ class AccountsCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
         alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
             guard let strongSelf = self else { return }
-            let serverToResolveEns = RPCServer.main
-            ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: account) { result in
+            ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: account) { result in
                 guard let ensName = result.value else { return }
                 textField.placeholder = ensName
             }
