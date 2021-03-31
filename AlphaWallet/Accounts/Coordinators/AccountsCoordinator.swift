@@ -125,7 +125,10 @@ class AccountsCoordinator: Coordinator {
             let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
                 self?.promptRenameWallet(account)
             }
-            controller.addAction(renameAction)
+
+            if Features.isRenameWalletEnabledWhileLongPress {
+                controller.addAction(renameAction)
+            }
 
             let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
                 UIPasteboard.general.string = account.eip55String
