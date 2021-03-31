@@ -284,7 +284,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         case .watchWallet:
             handleWatchWallet(address)
         case .openInEtherscan:
-            delegate?.didPressViewContractWebPage(forContract: address, server: .main, in: tokensViewController)
+            delegate?.didPressViewContractWebPage(forContract: address, server: config.anyEnabledServer(), in: tokensViewController)
         }
     }
 

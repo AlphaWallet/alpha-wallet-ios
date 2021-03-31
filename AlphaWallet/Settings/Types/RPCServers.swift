@@ -30,6 +30,11 @@ enum RPCServer: Hashable, CaseIterable {
     case mumbai_testnet
     case custom(CustomRPC)
 
+    //Using this property avoids direct reference to `.main`, which could be a sign of a possible crash — i.e. using `.main` when it is disabled by the user
+    static var forResolvingEns: RPCServer {
+        .main
+    }
+
     var chainID: Int {
         switch self {
         case .main: return 1
