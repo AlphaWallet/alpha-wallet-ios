@@ -786,7 +786,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         //We are only showing the QR code and some text for this address. Maybe have to rework graphic design so that server isn't necessary
-        showPaymentFlow(for: .request, server: .main)
+        showPaymentFlow(for: .request, server: config.anyEnabledServer())
         delegate?.didShowWallet(in: self)
     }
 

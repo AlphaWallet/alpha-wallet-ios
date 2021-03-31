@@ -205,6 +205,15 @@ struct Config {
             return URL(string: "http://api.taichi.network:10000/rpc/\(key)?txroute=private")!
         }
     }
+
+    func anyEnabledServer() -> RPCServer {
+        let servers = enabledServers
+        if servers.contains(.main) {
+            return .main
+        } else {
+            return servers.first!
+        }
+    }
 }
 
 extension Config {
