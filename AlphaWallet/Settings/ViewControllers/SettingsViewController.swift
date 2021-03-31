@@ -10,6 +10,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
     func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController)
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController)
+    func settingsViewControllerNameWalletSelected(in controller: SettingsViewController)
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
     func settingsViewControllerHelpSelected(in controller: SettingsViewController)
 }
@@ -231,7 +232,7 @@ extension SettingsViewController: UITableViewDataSource {
                 cell.accessoryType = .disclosureIndicator
 
                 return cell
-            case .showMyWallet, .showSeedPhrase, .walletConnect:
+            case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
 
                 return cell
@@ -271,6 +272,8 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerShowSeedPhraseSelected(in: self)
             case .walletConnect:
                 delegate?.settingsViewControllerWalletConnectSelected(in: self)
+            case .nameWallet:
+                delegate?.settingsViewControllerNameWalletSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {
