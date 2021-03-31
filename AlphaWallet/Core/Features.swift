@@ -8,4 +8,5 @@ enum Features {
     static let isSpeedupAndCancelEnabled = true
     static let isLanguageSwitcherDisabled = true
     static let shouldLoadTokenScriptWithFailedSignatures = true
+    static let isRenameWalletEnabledWhileLongPress = true
 }

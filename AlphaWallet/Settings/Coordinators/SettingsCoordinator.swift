@@ -75,7 +75,25 @@ extension SettingsCoordinator: SupportViewControllerDelegate {
 
 }
 
+extension SettingsCoordinator: RenameWalletViewControllerDelegate {
+
+    func didFinish(in viewController: RenameWalletViewController) {
+        navigationController.popViewController(animated: true)
+    }
+}
+
 extension SettingsCoordinator: SettingsViewControllerDelegate {
+
+    func settingsViewControllerNameWalletSelected(in controller: SettingsViewController) {
+        let viewModel = RenameWalletViewModel(account: account.address)
+        
+        let viewController = RenameWalletViewController(viewModel: viewModel, config: config)
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.hidesBottomBarWhenPushed = true
+
+        navigationController.pushViewController(viewController, animated: true)
+    }
     
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {
         walletConnectCoordinator.showSessions()

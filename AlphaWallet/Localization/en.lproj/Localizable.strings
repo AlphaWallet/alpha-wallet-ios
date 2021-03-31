@@ -570,3 +570,6 @@ You can check the latest gas price on gasnow.org";
 "signature.confirmation.personalmessage.title" = "Personal message";
 "signature.confirmation.title" = "Signature Request";
 "server.warning.serverIsDisabled" = "%@ is disabled. Please enable it in Settings > Select Active Networks";
+"settings.wallet.rename" = "Name this Wallet";
+"wallet.rename.save" = "Save Name"; 
+"wallet.rename.enterNameTitle" = "Enter Name (min. 5 characters)";

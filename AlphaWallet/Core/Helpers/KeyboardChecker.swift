@@ -23,7 +23,7 @@ class KeyboardChecker: NSObject {
     private let notificationCenter = NotificationCenter.default
     private let resetHeightDefaultValue: CGFloat
     var constraint: NSLayoutConstraint?
-    //NOTE: for views with input veiw like date picker, seems like we need to ignore bottom safe area
+    //NOTE: for views with input view 'date picker', we need to ignore bottom safe area
     private let ignoreBottomSafeArea: Bool
 
     init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight, ignoreBottomSafeArea: Bool = false) {
@@ -32,7 +32,7 @@ class KeyboardChecker: NSObject {
         self.ignoreBottomSafeArea = ignoreBottomSafeArea
         super.init()
 
-        //NOTE: while protection has turned on, we want to sunscribe/unsubscribe from handling keyboard appearence, to prevent bottom inset
+        //NOTE: while protection has turned on, we want to subscribe/unsubscribe from handling keyboard appearence, to prevent bottom inset
         notificationCenter.addObserver(self, selector: #selector(viewWillDisappear), name: UIApplication.willResignActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(viewWillAppear), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
@@ -43,11 +43,16 @@ class KeyboardChecker: NSObject {
     }
 
     @objc func viewWillDisappear() {
-        notificationCenter.removeObserver(self)
+        notificationCenter.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        notificationCenter.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     private var tabBarHeight: CGFloat {
-        return viewController?.tabBarController?.tabBar.frame.size.height ?? 0.0
+        return tabBar?.frame.size.height ?? 0.0
+    }
+
+    private var tabBar: UITabBar? {
+        viewController?.tabBarController?.tabBar
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -60,7 +65,11 @@ class KeyboardChecker: NSObject {
 
         let diff = keyboardEndFrame.height - yKeyboardFrameOffset
         if diff > yKeyboardFrameOffset {
-            constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+            if let tabBar = tabBar, tabBar.isHidden {
+                constraint?.constant = -keyboardEndFrame.height
+            } else {
+                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+            }
         } else {
             if ignoreBottomSafeArea {
                 constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
@@ -74,11 +83,9 @@ class KeyboardChecker: NSObject {
         }
 
         UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration, animations: {
+        UIView.animate(withDuration: change.duration) {
             view.layoutIfNeeded()
-        }, completion: { _ in
-
-        })
+        }
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
@@ -107,11 +114,9 @@ class KeyboardChecker: NSObject {
         }
 
         UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration, animations: {
+        UIView.animate(withDuration: change.duration) {
             view.layoutIfNeeded()
-        }, completion: { _ in
-
-        })
+        }
     }
 }
 
