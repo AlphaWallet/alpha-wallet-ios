@@ -327,7 +327,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     //Reuse for performance (because webviews are created)
                     return rowView
                 } else {
-                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
                     rowView.delegate = self
                     return rowView
                 }
@@ -395,7 +395,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
                     //Reuse for performance (because webviews are created)
                     return rowView
                 } else {
-                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
                     //Important not to assign a delegate because we don't use actual cells to figure out the height. We use a sizing cell instead
                     return rowView
                 }
