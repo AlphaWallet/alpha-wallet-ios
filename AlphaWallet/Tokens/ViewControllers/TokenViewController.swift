@@ -337,7 +337,7 @@ extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension TokenViewController {
     private func logStartOnRamp(name: String) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name])

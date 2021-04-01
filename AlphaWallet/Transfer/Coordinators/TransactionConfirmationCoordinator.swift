@@ -229,7 +229,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension TransactionConfirmationCoordinator {
     private func logCompleteActionSheetForTransactionConfirmationSuccessfully() {
         let speedType: Analytics.TransactionConfirmationSpeedType

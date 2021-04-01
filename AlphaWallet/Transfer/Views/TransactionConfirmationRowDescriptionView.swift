@@ -21,7 +21,7 @@ class TransactionConfirmationRowDescriptionView: UIView {
         separatorLine.backgroundColor = R.color.mercury()
 
         let row0 = separatorLine
-        let row1 = [.spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.left), titleLabel, .spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.right),].asStackView(axis: .horizontal)
+        let row1 = [.spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.left), titleLabel, .spacerWidth(Screen.TransactionConfirmation.transactionRowInfoInsets.right)].asStackView(axis: .horizontal)
 
         let stackView = [
             row0,
