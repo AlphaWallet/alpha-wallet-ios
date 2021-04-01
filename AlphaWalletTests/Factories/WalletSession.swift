@@ -13,7 +13,7 @@ extension WalletSession {
         return WalletSession(
             account: account,
             server: server,
-            config: config, 
+            config: config,
             balanceCoordinator: balanceCoordinator
         )
     }
@@ -40,7 +40,7 @@ class FakeBalanceCoordinator: BalanceCoordinatorType {
         }
     }
 
-    var currencyRate: CurrencyRate? = nil
+    var currencyRate: CurrencyRate?
 
     weak var delegate: BalanceCoordinatorDelegate?
 

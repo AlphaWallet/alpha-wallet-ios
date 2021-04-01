@@ -226,7 +226,6 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                         self.delete(transactions: [transaction])
                     }
                     //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to TaiChi and fetch pending status through Etherscan
-                    break
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                     break
                 }

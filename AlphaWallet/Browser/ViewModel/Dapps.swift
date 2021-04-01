@@ -2,7 +2,9 @@
 
 import Foundation
 
+// swiftlint:disable no_space_in_method_call
 This comment is here with the wrong syntax (no leading //) to force a build error if this file is accidentally included
+// swiftlint:enable no_space_in_method_call
 enum OriginalDapps {
     static let masterList = [
         Dapp(name: "Rare Coin", description: "Free Crypto Faucet & Yeild Farming", url: "make.rare.claims", cat: "Tools"),
