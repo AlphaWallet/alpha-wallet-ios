@@ -38,7 +38,7 @@ extension AlphaWalletService: TargetType {
             return config.oneInch
         case .honeySwapTokens(let config):
             return config.honeySwapTokens
-        case .rampAssets(let config):
+        case .rampAssets:
             return URL(string: "https://api-instant.ramp.network")!
         }
     }

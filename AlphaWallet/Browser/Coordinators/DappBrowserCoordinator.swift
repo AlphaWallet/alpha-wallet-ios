@@ -165,8 +165,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             let callback = DappCallback(id: callbackID, value: .ethCall(result))
             self.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
         }.catch { error in
-            if case let SessionTaskError.responseError(JSONRPCError.responseError(e)) = error {
-                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(e.message)))
+            if case let SessionTaskError.responseError(JSONRPCError.responseError(_, message: message, _)) = error {
+                self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.nodeError(message)))
             } else {
                 //TODO better handle. User didn't cancel
                 self.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(.cancelled))
