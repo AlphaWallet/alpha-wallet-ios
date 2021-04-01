@@ -14,8 +14,6 @@ class AddressTextField: UIControl {
     private let notifications = NotificationCenter.default
     private var isConfigured = false
     private let textField = UITextField()
-    //Always resolve on mainnet
-    private let serverToResolveEns = RPCServer.main
     private let ensAddressLabel: AddressOrEnsNameLabel = {
         let label = AddressOrEnsNameLabel()
         label.addressFormat = .truncateMiddle

@@ -205,7 +205,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }()
         case .notBackedByOpenSea:
             rowView = {
-                let view = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: .main, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
+                let view = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
                 view.isStandalone = true
                 view.tokenScriptRendererView.isWebViewInteractionEnabled = true
                 return view

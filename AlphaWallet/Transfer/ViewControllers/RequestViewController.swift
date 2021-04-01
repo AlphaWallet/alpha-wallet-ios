@@ -172,9 +172,8 @@ class RequestViewController: UIViewController {
 	}
 
 	private func resolveEns() {
-		let serverToResolveEns = RPCServer.main
 		let address = viewModel.myAddress
-		ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+		ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
 			guard let strongSelf = self else { return }
 			if let ensName = result.value {
                 strongSelf.ensLabel.text = ensName

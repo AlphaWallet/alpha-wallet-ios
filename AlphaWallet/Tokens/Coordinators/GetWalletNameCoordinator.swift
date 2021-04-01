@@ -16,8 +16,7 @@ class GetWalletNameCoordinator {
             if let walletName = config.walletNames[address] {
                 seal.fulfill(walletName)
             } else {
-                let serverToResolveEns = RPCServer.main
-                ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { result in
+                ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { result in
                     seal.fulfill(result.value)
                 }
             }
