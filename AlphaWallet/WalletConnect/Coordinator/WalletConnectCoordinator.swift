@@ -22,6 +22,7 @@ typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServ
 
 protocol WalletConnectCoordinatorDelegate: class {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: WalletConnectCoordinator)
 }
 
 class WalletConnectCoordinator: NSObject, Coordinator {
@@ -227,6 +228,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             case .signedTransaction(let data):
                 return .init(id: id, url: url, value: data)
             case .sentTransaction(let transaction):
+                self.delegate?.didSendTransaction(transaction, inCoordinator: self)
                 let data = Data(_hex: transaction.id)
                 return .init(id: id, url: url, value: data)
             case .sentRawTransaction:

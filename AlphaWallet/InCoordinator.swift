@@ -712,6 +712,10 @@ extension InCoordinator: WalletConnectCoordinatorDelegate {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
         tokensCoordinator?.launchUniversalScanner(fromSource: .walletScreen)
     }
+
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: WalletConnectCoordinator) {
+        handlePendingTransaction(transaction: transaction)
+    }
 }
 
 extension InCoordinator: CanOpenURL {
