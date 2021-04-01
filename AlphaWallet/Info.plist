@@ -80,6 +80,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>$(ALPHAWALLET_PRODUCT_NAME) uses the camera to scan QR codes</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>$(ALPHAWALLET_PRODUCT_NAME) might capture audio if a website needs to perform KYC (with your permission)</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Access your wallet</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
