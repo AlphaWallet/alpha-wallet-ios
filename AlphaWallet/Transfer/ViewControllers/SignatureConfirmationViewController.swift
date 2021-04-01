@@ -256,11 +256,11 @@ extension SignatureConfirmationViewController {
 
     private func generateSubviews() {
         stackView.removeAllArrangedSubviews()
-        
+
         var views: [UIView] = []
         switch viewModel {
         case .typedMessage(let viewModel):
-            for (sectionIndex, _) in viewModel.typedData.enumerated() {
+            for sectionIndex in viewModel.typedData.indices {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
                 header.enableTapAction(title: "Show")
@@ -277,7 +277,7 @@ extension SignatureConfirmationViewController {
 
             views.append(header)
         case .eip712v3And4(viewModel: let viewModel):
-            for (sectionIndex, _) in viewModel.values.enumerated() {
+            for sectionIndex in viewModel.values.indices {
                 let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                 header.delegate = self
                 header.enableTapAction(title: "Show")
