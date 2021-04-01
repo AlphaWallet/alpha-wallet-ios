@@ -131,7 +131,8 @@ extension ServersCoordinatorBridgeToPromise: ServersCoordinatorDelegate {
             case .server(let value):
                 self.seal.fulfill(value)
             case .auto:
-                self.seal.fulfill(.main)
+                //TODO pass in `Config `instance instead
+                self.seal.fulfill(Config().anyEnabledServer())
             }
         }
     }

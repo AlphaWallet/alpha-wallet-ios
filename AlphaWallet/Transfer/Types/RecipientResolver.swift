@@ -29,7 +29,7 @@ class RecipientResolver {
 
     func resolve(completion: @escaping () -> Void) {
         guard let address = address else { return }
-        ENSReverseLookupCoordinator(server: .main).getENSNameFromResolver(forAddress: address) { [weak self] result in
+        ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
             guard let strongSelf = self else { return }
 
             strongSelf.ensName = result.value

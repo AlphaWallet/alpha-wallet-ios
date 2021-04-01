@@ -29,7 +29,6 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    private let serverToResolveEns = RPCServer.main
     private var inResolvingState: Bool = false {
         didSet {
             if inResolvingState && shouldShowLoadingIndicator {
@@ -105,10 +104,9 @@ class AddressOrEnsNameLabel: UILabel {
     func resolve(_ value: String, completion: @escaping ((AddressOrEnsResolution) -> Void)) {
         clear()
 
-        let server = serverToResolveEns
         if let address = AlphaWallet.Address(string: value) {
             inResolvingState = true
-            ENSReverseLookupCoordinator(server: server).getENSNameFromResolver(forAddress: address) { [weak self] result in
+            ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
                 guard let strongSelf = self else { return }
                 strongSelf.inResolvingState = false
 
@@ -121,8 +119,8 @@ class AddressOrEnsNameLabel: UILabel {
         } else if value.contains(".") {
             inResolvingState = true
 
-            DomainResolver(server: server).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
-                return GetENSAddressCoordinator(server: server).getENSAddressFromResolverPromise(value: value)
+            DomainResolver(server: .forResolvingEns).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
+                GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value)
             }.done { address in
                 completion(.resolved(.address(address)))
             }.catch { _ in

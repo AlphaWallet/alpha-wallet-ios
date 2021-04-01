@@ -127,7 +127,7 @@ class AccountsViewController: UIViewController {
         let addresses = (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
 
         let group = DispatchGroup()
-        
+
         for address in addresses {
             group.enter()
 
@@ -183,16 +183,15 @@ extension AccountsViewController: UITableViewDataSource {
         gesture.minimumPressDuration = 0.6
         cell.addGestureRecognizer(gesture)
 
-        let serverToResolveEns = RPCServer.main
         let address = cellViewModel.address
-        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { result in
+        ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { result in
             guard let ensName = result.value else { return }
             //Cell might have been reused. Check
             guard let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
             cellViewModel.ensName = ensName
             cell.configure(viewModel: cellViewModel)
         }
-        
+
         return cell
     }
 
