@@ -13,6 +13,7 @@ import Result
 enum TransactionConfirmationConfiguration {
     case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>)
     case dappTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
+    case walletConnect(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount, ethPrice: Subscribable<Double>)
     case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceName: String?)
     case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
@@ -20,7 +21,7 @@ enum TransactionConfirmationConfiguration {
     case cancelTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
     var confirmType: ConfirmType {
         switch self {
-        case .dappTransaction(let confirmType, _, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _, _, _), .tokenScriptTransaction(let confirmType, _, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
+        case .dappTransaction(let confirmType, _, _), .walletConnect(let confirmType, _, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _, _, _), .tokenScriptTransaction(let confirmType, _, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
             return confirmType
         case .speedupTransaction, .cancelTransaction:
             return .signThenSend
@@ -29,14 +30,14 @@ enum TransactionConfirmationConfiguration {
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .speedupTransaction(let keystore, _), .cancelTransaction(let keystore, _):
+        case .dappTransaction(_, let keystore, _), .walletConnect(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .speedupTransaction(let keystore, _), .cancelTransaction(let keystore, _):
             return keystore
         }
     }
 
     var ethPrice: Subscribable<Double> {
         switch self {
-        case .dappTransaction(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _), .speedupTransaction(_, let ethPrice), .cancelTransaction(_, let ethPrice):
+        case .dappTransaction(_, _, let ethPrice), .walletConnect(_, _, let ethPrice), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _), .speedupTransaction(_, let ethPrice), .cancelTransaction(_, let ethPrice):
             return ethPrice
         }
     }
