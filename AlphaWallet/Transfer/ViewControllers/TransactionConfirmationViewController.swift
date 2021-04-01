@@ -169,7 +169,7 @@ class TransactionConfirmationViewController: UIViewController {
         }
 
         switch viewModel {
-        case .dappTransaction(let dappTransactionViewModel):
+        case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
             dappTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                 guard let strongSelf = self else { return }
                 dappTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
@@ -357,7 +357,7 @@ class TransactionConfirmationViewController: UIViewController {
     //NOTE: we need to recalculate all funds value to send according to updated gas estimates, nativecrypto only
     func reloadViewWithCurrentBalanceValue() {
         switch viewModel {
-        case .dappTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
             break
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             switch sendFungiblesViewModel.transactionType {
@@ -411,7 +411,7 @@ extension TransactionConfirmationViewController {
         stackView.removeAllArrangedSubviews()
         var views: [UIView] = []
         switch viewModel {
-        case .dappTransaction(let viewModel):
+        case .dappOrWalletConnectTransaction(let viewModel):
             for (sectionIndex, section) in viewModel.sections.enumerated() {
                 var children: [UIView] = []
 
@@ -575,7 +575,7 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
         switch viewModel {
-        case .dappTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
+        case .dappOrWalletConnectTransaction, .claimPaidErc875MagicLink, .tokenScriptTransaction, .speedupTransaction, .cancelTransaction:
             return true
         case .sendFungiblesTransaction(let viewModel):
             switch viewModel.sections[section] {
