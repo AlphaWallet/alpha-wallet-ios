@@ -14,6 +14,7 @@ protocol TransactionConfiguratorDelegate: class {
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
 }
 
+// swiftlint:disable type_body_length
 class TransactionConfigurator {
     enum GasPriceWarning {
         case tooHighCustomGasPrice
@@ -460,3 +461,4 @@ class TransactionConfigurator {
         delegate?.configurationChanged(in: self)
     }
 }
+// swiftlint:enable type_body_length

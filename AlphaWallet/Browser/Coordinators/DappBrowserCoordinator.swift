@@ -755,7 +755,7 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension DappBrowserCoordinator {
     private func logReload() {
         analyticsCoordinator.log(action: Analytics.Action.reloadBrowser)

@@ -5,6 +5,7 @@ import BigInt
 import RealmSwift
 import Result
 
+// swiftlint:disable file_length
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
     func didUpdateAccounts(in coordinator: InCoordinator)
@@ -1002,7 +1003,7 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension InCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
@@ -1042,3 +1043,4 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
         }
     }
 }
+// swiftlint:enable file_length

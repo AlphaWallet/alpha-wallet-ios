@@ -9,6 +9,7 @@ import Foundation
 import Kanna
 import PromiseKit
 
+// swiftlint:disable file_length
 enum SingularOrPlural {
     case singular
     case plural
@@ -671,7 +672,6 @@ private class PrivateXMLHandler {
 }
 // swiftlint:enable type_body_length
 
-
 private class ThreadSafeBaseXmlHandlersCache {
     fileprivate var cache: [String: PrivateXMLHandler] = [:]
     private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
@@ -1031,3 +1031,4 @@ public class XMLHandler {
         }
     }
 }
+// swiftlint:enable file_length
