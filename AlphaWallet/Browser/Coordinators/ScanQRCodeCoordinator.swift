@@ -120,7 +120,7 @@ extension UIBarButtonItem {
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension ScanQRCodeCoordinator {
     private func logCompleteScan(result: String) {
         let resultType = convertToAnalyticsResultType(value: result)

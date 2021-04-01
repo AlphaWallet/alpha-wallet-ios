@@ -129,7 +129,6 @@ class SendViewControllerTests: XCTestCase {
         Config.setLocale(AppLocale.system)
 
     }
-    
 
     private func createSendViewControllerAndSetLocale(locale: AppLocale, transactionType: TransactionType) -> SendViewController {
         Config.setLocale(locale)

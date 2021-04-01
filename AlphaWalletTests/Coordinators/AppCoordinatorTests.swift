@@ -131,14 +131,14 @@ class AppCoordinatorTests: XCTestCase {
 }
 
 class FakeAnalyticsService: AnalyticsServiceType {
-    func log(action: AnalyticsAction, properties: [String : AnalyticsEventPropertyValue]?) { }
+    func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?) { }
     func applicationDidBecomeActive() { }
     func application(continue userActivity: NSUserActivity) { }
     func application(open url: URL, sourceApplication: String?, annotation: Any) { }
-    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) { }
-    func application(didReceiveRemoteNotification userInfo: [AnyHashable : Any]) { }
+    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) { }
+    func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any]) { }
     func add(pushDeviceToken token: Data) { }
-    func log(navigation: AnalyticsNavigation, properties: [String : AnalyticsEventPropertyValue]?) {}
+    func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {}
     func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) { }
     func incrementUser(property: AnalyticsUserProperty, by value: Int) { }
     func incrementUser(property: AnalyticsUserProperty, by value: Double) { }
