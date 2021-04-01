@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 
 enum TransactionConfirmationViewModel {
-    case dappTransaction(DappTransactionViewModel)
+    case dappOrWalletConnectTransaction(DappOrWalletConnectTransactionViewModel)
     case tokenScriptTransaction(TokenScriptTransactionViewModel)
     case sendFungiblesTransaction(SendFungiblesTransactionViewModel)
     case sendNftTransaction(SendNftTransactionViewModel)
@@ -16,8 +16,8 @@ enum TransactionConfirmationViewModel {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice))
-        case .dappTransaction(_, _, let ethPrice):
-            self = .dappTransaction(.init(configurator: configurator, ethPrice: ethPrice))
+        case .dappTransaction(_, _, let ethPrice), .walletConnect(_, _, let ethPrice):
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
@@ -40,7 +40,7 @@ enum TransactionConfirmationViewModel {
 
     mutating func showHideSection(_ section: Int) -> Action {
         switch self {
-        case .dappTransaction(var viewModel):
+        case .dappOrWalletConnectTransaction(var viewModel):
             return viewModel.showHideSection(section)
         case .tokenScriptTransaction(var viewModel):
             return viewModel.showHideSection(section)
@@ -203,7 +203,7 @@ extension TransactionConfirmationViewModel {
                     let double = amount.value.optionalDecimalValue ?? 0
                     let value = double.multiplying(by: NSDecimalNumber(value: cryptoToDollarRate))
                     let cryptoToDollarValue = StringFormatter().currency(with: value, and: cryptoToDollarSymbol)
-                    
+
                     return "\(amount.value) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"
                 } else {
                     return "\(amount.value) \(token.symbol)"
@@ -279,7 +279,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class DappTransactionViewModel: SectionProtocol {
+    class DappOrWalletConnectTransactionViewModel: SectionProtocol {
         enum Section {
             case gas
             case network
@@ -764,7 +764,7 @@ extension TransactionConfirmationViewModel {
         switch self {
         case .sendFungiblesTransaction, .sendNftTransaction:
             return R.string.localizable.tokenTransactionTransferConfirmationTitle()
-        case .dappTransaction, .tokenScriptTransaction:
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction:
             return R.string.localizable.tokenTransactionConfirmationTitle()
         case .claimPaidErc875MagicLink:
             return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
@@ -780,7 +780,7 @@ extension TransactionConfirmationViewModel {
     }
     var confirmationButtonTitle: String {
         switch self {
-        case .dappTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
+        case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
             return R.string.localizable.confirmPaymentConfirmButtonTitle()
         case .speedupTransaction:
             return R.string.localizable.activitySpeedup()
@@ -799,7 +799,7 @@ extension TransactionConfirmationViewModel {
 
     var hasSeparatorAboveConfirmButton: Bool {
         switch self {
-        case .sendFungiblesTransaction, .sendNftTransaction, .dappTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
+        case .sendFungiblesTransaction, .sendNftTransaction, .dappOrWalletConnectTransaction, .tokenScriptTransaction, .claimPaidErc875MagicLink:
             return true
         case .speedupTransaction, .cancelTransaction:
             return false
