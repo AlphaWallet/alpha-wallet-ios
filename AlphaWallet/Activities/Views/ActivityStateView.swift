@@ -25,7 +25,6 @@ class ActivityStateView: UIView {
         control.lineWidth = 3
         control.backgroundFillColor = .white
         control.translatesAutoresizingMaskIntoConstraints = false
-        control.startAnimating()
 
         return control
     }()
@@ -59,6 +58,13 @@ class ActivityStateView: UIView {
     func configure(viewModel: ActivityStateViewViewModel) {
         stateImageView.isHidden = viewModel.isInPendingState
         pendingLoadingIndicatorView.isHidden = !viewModel.isInPendingState
+
+        if pendingLoadingIndicatorView.isHidden {
+            pendingLoadingIndicatorView.stopAnimating()
+        } else {
+            pendingLoadingIndicatorView.startAnimating()
+        }
+        
         stateImageView.image = viewModel.stateImage
     }
 }
