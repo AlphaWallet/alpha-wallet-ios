@@ -362,7 +362,7 @@ extension WalletConnectToSessionViewController {
                 break
             case .network:
                 if viewModel.allowChangeConnectionServer {
-                    header.enableTapAction(title: "Edit")
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
                 }
             }
             views.append(header)
