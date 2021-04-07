@@ -28,6 +28,13 @@ enum Analytics {
         case tapBrowserMore = "Screen: Browser More Options"
         case signMessageRequest = "Screen: Sign Message Request"
         case walletConnect = "Screen: WalletConnect"
+        case faq = "Screen: FAQ"
+        case telegramPublic = "Screen: Telegram Public"
+        case telegramCustomerSupport = "Screen: Telegram: Customer Support"
+        case twitter = "Screen: Twitter"
+        case reddit = "Screen: Reddit"
+        case facebook = "Screen: Facebook"
+        case explorer = "Screen: Explorer"
     }
 
     enum Action: String, AnalyticsAction {
@@ -45,6 +52,7 @@ enum Analytics {
         case walletConnectConnect = "WalletConnect Connect"
         case walletConnectCancel = "WalletConnect Cancel"
         case walletConnectDisconnect = "WalletConnect Disconnect"
+        case clearBrowserCache = "Clear Browser Cache"
     }
 
     enum Properties: String {
@@ -60,6 +68,7 @@ enum Analytics {
         case name
         case messageType
         case isTaiChiEnabled
+        case type
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
@@ -129,5 +138,11 @@ enum Analytics {
         case personalMessage
         case eip712
         case eip712v3And4
+    }
+
+    enum ExplorerType: String {
+        case transaction
+        case token
+        case wallet
     }
 }

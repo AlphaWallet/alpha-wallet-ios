@@ -8,6 +8,7 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 }
 
 class TransactionCoordinator: Coordinator {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let keystore: Keystore
     private let transactionsCollection: TransactionCollection
     private let promptBackupCoordinator: PromptBackupCoordinator
@@ -34,6 +35,7 @@ class TransactionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     init(
+        analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = UINavigationController(),
         transactionsCollection: TransactionCollection,
@@ -41,6 +43,7 @@ class TransactionCoordinator: Coordinator {
         tokensStorages: ServerDictionary<TokensDataStore>,
         promptBackupCoordinator: PromptBackupCoordinator
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.sessions = sessions
         self.keystore = keystore
         self.navigationController = navigationController
@@ -67,7 +70,7 @@ class TransactionCoordinator: Coordinator {
     }
 
     private func showTransaction(_ transactionRow: TransactionRow, on navigationController: UINavigationController) {
-        let controller = TransactionViewController(session: sessions[transactionRow.server], transactionRow: transactionRow, delegate: self)
+        let controller = TransactionViewController(analyticsCoordinator: analyticsCoordinator, session: sessions[transactionRow.server], transactionRow: transactionRow, delegate: self)
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
 
