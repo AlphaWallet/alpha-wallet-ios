@@ -28,6 +28,12 @@ enum Analytics {
         case tapBrowserMore = "Screen: Browser More Options"
         case signMessageRequest = "Screen: Sign Message Request"
         case walletConnect = "Screen: WalletConnect"
+        case faq = "Screen: FAQ"
+        case telegramPublic = "Screen: Telegram Public"
+        case telegramCustomerSupport = "Screen: Telegram: Customer Support"
+        case twitter = "Screen: Twitter"
+        case reddit = "Screen: Reddit"
+        case facebook = "Screen: Facebook"
     }
 
     enum Action: String, AnalyticsAction {

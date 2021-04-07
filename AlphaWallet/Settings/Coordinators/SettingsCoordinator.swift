@@ -112,7 +112,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
-        let viewController = SupportViewController()
+        let viewController = SupportViewController(analyticsCoordinator: analyticsCoordinator)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true
