@@ -9,6 +9,7 @@ protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TransactionViewController: UIViewController {
+    private let analyticsCoordinator: AnalyticsCoordinator
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
             transactionRow: transactionRow,
@@ -25,7 +26,8 @@ class TransactionViewController: UIViewController {
 
     weak var delegate: TransactionViewControllerDelegate?
 
-    init(session: WalletSession, transactionRow: TransactionRow, delegate: TransactionViewControllerDelegate?) {
+    init(analyticsCoordinator: AnalyticsCoordinator, session: WalletSession, transactionRow: TransactionRow, delegate: TransactionViewControllerDelegate?) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.session = session
         self.transactionRow = transactionRow
         self.delegate = delegate
@@ -152,6 +154,7 @@ class TransactionViewController: UIViewController {
 
     @objc func more() {
         guard let url = viewModel.detailsURL else { return }
+        logUse()
         delegate?.didPressOpenWebPage(url, in: self)
     }
 
@@ -173,5 +176,12 @@ class TransactionViewController: UIViewController {
 
     @objc func dismiss() {
         dismiss(animated: true, completion: nil)
+    }
+}
+
+// MARK: Analytics
+extension TransactionViewController {
+    private func logUse() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: Analytics.ExplorerType.transaction])
     }
 }
