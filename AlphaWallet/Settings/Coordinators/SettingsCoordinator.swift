@@ -86,7 +86,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
     func settingsViewControllerNameWalletSelected(in controller: SettingsViewController) {
         let viewModel = RenameWalletViewModel(account: account.address)
-        
+
         let viewController = RenameWalletViewController(viewModel: viewModel, config: config)
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -94,7 +94,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
         navigationController.pushViewController(viewController, animated: true)
     }
-    
+
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {
         walletConnectCoordinator.showSessions()
     }
@@ -276,7 +276,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController)
+        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController, analyticsCoordinator: analyticsCoordinator)
         coordinator.start()
         addCoordinator(coordinator)
     }
