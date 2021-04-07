@@ -12,7 +12,7 @@ protocol SupportViewControllerDelegate: class, CanOpenURL {
 }
 
 class SupportViewController: UIViewController {
-
+    private let analyticsCoordinator: AnalyticsCoordinator
     private lazy var viewModel: SupportViewModel = SupportViewModel()
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -30,7 +30,8 @@ class SupportViewController: UIViewController {
         view = tableView
     }
 
-    init() {
+    init(analyticsCoordinator: AnalyticsCoordinator) {
+        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         tableView.dataSource = self
@@ -108,16 +109,22 @@ extension SupportViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
         case .faq:
+            logAccessFaq()
             openURL(.faq)
         case .telegramPublic:
+            logAccessTelegramPublic()
             openURL(.telegramPublic)
         case .telegramCustomer:
+            logAccessTelegramCustomerSupport()
             openURL(.telegramCustomer)
         case .twitter:
+            logAccessTwitter()
             openURL(.twitter)
         case .reddit:
+            logAccessReddit()
             openURL(.reddit)
         case .facebook:
+            logAccessFacebook()
             openURL(.facebook)
         case .blog:
             break
@@ -130,5 +137,32 @@ extension SupportViewController: UITableViewDelegate {
         } else {
             delegate?.didPressOpenWebPage(provider.remoteURL, in: self)
         }
+    }
+}
+
+// MARK: Analytics
+extension SupportViewController {
+    private func logAccessFaq() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.faq)
+    }
+
+    private func logAccessTelegramPublic() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.telegramPublic)
+    }
+
+    private func logAccessTelegramCustomerSupport() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.telegramCustomerSupport)
+    }
+
+    private func logAccessTwitter() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.twitter)
+    }
+
+    private func logAccessReddit() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.reddit)
+    }
+
+    private func logAccessFacebook() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.facebook)
     }
 }

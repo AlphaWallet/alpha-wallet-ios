@@ -410,6 +410,7 @@ class InCoordinator: NSObject, Coordinator {
         let transactionsStoragesForEnabledServers = config.enabledServers.map { transactionsStorages[$0] }
         let transactionsCollection = TransactionCollection(transactionsStorages: transactionsStoragesForEnabledServers)
         let coordinator = TransactionCoordinator(
+                analyticsCoordinator: analyticsCoordinator,
                 sessions: walletSessions,
                 transactionsCollection: transactionsCollection,
                 keystore: keystore,
@@ -731,9 +732,11 @@ extension InCoordinator: CanOpenURL {
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         if contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            logExplorerUse(type: .wallet)
             let url = server.etherscanContractDetailsWebPageURL(for: wallet.address)
             open(url: url, in: viewController)
         } else {
+            logExplorerUse(type: .token)
             let url = server.etherscanTokenDetailsWebPageURL(for: contract)
             open(url: url, in: viewController)
         }
@@ -1023,6 +1026,10 @@ extension InCoordinator {
 
     private func logTappedSwap(service: SwapTokenURLProviderType) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
+    }
+
+    private func logExplorerUse(type: Analytics.ExplorerType) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: type.rawValue])
     }
 }
 
