@@ -71,7 +71,7 @@ class EnabledServersViewController: UIViewController {
 }
 
 extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.servers.count
     }
@@ -97,6 +97,6 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         }
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
         tableView.reloadData()
-        navigationItem.leftBarButtonItem?.isEnabled = !servers.isEmpty
+        //Even if no servers is selected, we don't attempt to disable the back button here since calling code will take care of ignore the change server "request" when there are no servers selected. We don't want to disable the back button because users can't cancel the operation
     }
 }
