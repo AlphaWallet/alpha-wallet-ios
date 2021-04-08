@@ -8,6 +8,7 @@ enum ConfigureTransactionError: Error {
     case gasLimitTooHigh
     case gasFeeTooHigh
     case nonceNotPositiveNumber
+    case leaveNonceEmpty
 
     var localizedDescription: String {
         switch self {
@@ -19,6 +20,8 @@ enum ConfigureTransactionError: Error {
             return R.string.localizable.configureTransactionErrorNonceNotPositiveNumber()
         case .gasPriceTooLow:
             return R.string.localizable.configureTransactionErrorGasPriceTooLow()
+        case .leaveNonceEmpty:
+            return R.string.localizable.configureTransactionErrorLeaveNonceEmpty()
         }
     }
 }

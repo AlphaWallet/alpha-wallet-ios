@@ -249,6 +249,7 @@ class TokensViewController: UIViewController {
             }
             strongSelf.tableView.reloadData()
         }
+
     }
 
     override func viewWillAppear(_ animated: Bool) {

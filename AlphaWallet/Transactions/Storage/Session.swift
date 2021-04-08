@@ -26,7 +26,7 @@ class WalletSession {
     init(
         account: Wallet,
         server: RPCServer,
-        config: Config, 
+        config: Config,
         balanceCoordinator: BalanceCoordinatorType
     ) {
         self.account = account
@@ -36,8 +36,12 @@ class WalletSession {
         self.balanceCoordinator = balanceCoordinator
         self.balanceCoordinator.delegate = self
 
-        self.chainState.start()
-    } 
+        if config.isAutoFetchingDisabled {
+            //no-op
+        } else {
+            self.chainState.start()
+        }
+    }
 
     func refresh(_ type: RefreshType) {
         switch type {

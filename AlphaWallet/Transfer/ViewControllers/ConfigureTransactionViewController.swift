@@ -46,6 +46,8 @@ class ConfigureTransactionViewController: UIViewController {
         navigationItem.title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
         navigationItem.rightBarButtonItem = UIBarButtonItem.saveBarButton(self, selector: #selector(saveButtonSelected))
+
+        handleRecovery()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -74,6 +76,15 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.dataSource = self
 
         recalculateTotalFeeForCustomGas()
+    }
+
+    private func handleRecovery() {
+        switch viewModel.recoveryMode {
+        case .invalidNonce:
+            cells.nonce.textField.status = .error(ConfigureTransactionError.leaveNonceEmpty.localizedDescription)
+        case .none:
+            break
+        }
     }
 
     func configure(viewModel: ConfigureTransactionViewModel) {

@@ -9,7 +9,7 @@ import PromiseKit
 import RealmSwift
 import Result
 
-protocol DappBrowserCoordinatorDelegate: class {
+protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
@@ -752,6 +752,20 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         coordinator.navigationController.popViewController(animated: true)
 
         removeCoordinator(coordinator)
+    }
+}
+
+extension DappBrowserCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }
 

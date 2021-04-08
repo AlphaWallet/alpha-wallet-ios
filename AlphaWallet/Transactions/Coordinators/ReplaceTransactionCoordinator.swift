@@ -4,7 +4,7 @@ import UIKit
 import BigInt
 import Result
 
-protocol ReplaceTransactionCoordinatorDelegate: class {
+protocol ReplaceTransactionCoordinatorDelegate: class, CanOpenURL {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator)
 }
@@ -164,5 +164,19 @@ extension ReplaceTransactionCoordinator: TransactionInProgressCoordinatorDelegat
         case .noData:
             break
         }
+    }
+}
+
+extension ReplaceTransactionCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

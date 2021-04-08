@@ -13,12 +13,12 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private let session: WalletSession
-    private let coordinator: Coordinator
+    private let coordinator: Coordinator & CanOpenURL
     private let (promise, seal) = Promise<ConfirmResult>.pending()
     private var retainCycle: TransactionConfirmationCoordinatorBridgeToPromise?
     private weak var confirmationCoordinator: TransactionConfirmationCoordinator?
 
-    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, analyticsCoordinator: AnalyticsCoordinator) {
+    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.session = session
         self.coordinator = coordinator
@@ -73,6 +73,20 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
     }
 }
 
+extension TransactionConfirmationCoordinatorBridgeToPromise: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        coordinator.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        coordinator.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        coordinator.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
 extension UIViewController {
 
     func displayErrorPromise(message: String) -> Promise<Void> {
@@ -95,7 +109,7 @@ extension UIViewController {
 extension TransactionConfirmationCoordinator {
 
     //session contains account already
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, account: AlphaWallet.Address, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator)
         return bridge.promise(account: account, transaction: transaction, configuration: configuration, source: source)
     }

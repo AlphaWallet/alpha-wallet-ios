@@ -20,7 +20,7 @@ enum SessionsToDisconnect {
 
 typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServer: [WCURL: RPCServer])
 
-protocol WalletConnectCoordinatorDelegate: class {
+protocol WalletConnectCoordinatorDelegate: class, CanOpenURL {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: WalletConnectCoordinator)
 }
@@ -366,5 +366,19 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
         guard let navigationController = viewController.navigationController else { return }
 
         display(session: session, in: navigationController)
+    }
+}
+
+extension WalletConnectCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }
