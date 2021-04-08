@@ -182,6 +182,6 @@ class TransactionViewController: UIViewController {
 // MARK: Analytics
 extension TransactionViewController {
     private func logUse() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: Analytics.ExplorerType.transaction])
+        analyticsCoordinator.log(navigation: Analytics.Navigation.explorer, properties: [Analytics.Properties.type.rawValue: Analytics.ExplorerType.transaction.rawValue])
     }
 }
