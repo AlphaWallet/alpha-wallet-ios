@@ -8,7 +8,7 @@ import BigInt
 import Result
 import TrustKeystore
 
-protocol ClaimOrderCoordinatorDelegate: class {
+protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult)
@@ -200,6 +200,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
         }
     }
 }
+
 extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         //TODO improve error message. Several of this delegate func
@@ -218,5 +219,19 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
             strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: result)
         }
         removeCoordinator(coordinator)
+    }
+}
+
+extension ClaimPaidOrderCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

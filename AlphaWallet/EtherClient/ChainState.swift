@@ -56,7 +56,7 @@ class ChainState {
             self.latestBlock = $0
         }.catch { error in
             //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
-            if error is PossibleBinanceTestnetTimeoutError {
+            if case SendTransactionRetryableError.possibleBinanceTestnetTimeout = error {
                 //TODO log
             }
         }
