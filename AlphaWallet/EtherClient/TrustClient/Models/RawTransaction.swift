@@ -127,6 +127,9 @@ extension TransactionInstance {
                         let operationType = mapTokenTypeToTransferOperationType(tokenType)
                         let result = LocalizedOperationObjectInstance(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: symbol, name: name, decimals: Int(decimals))
                         return .value([result])
+                    }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
+                        //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
+                        return Promise.value([])
                     }
                 }
             } else {
