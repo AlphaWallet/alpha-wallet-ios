@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 
 enum ConfigureTransactionError: Error {
-    case gasLimitTooLow
+    case gasPriceTooLow
     case gasLimitTooHigh
     case gasFeeTooHigh
     case nonceNotPositiveNumber
@@ -17,7 +17,7 @@ enum ConfigureTransactionError: Error {
             return R.string.localizable.configureTransactionErrorGasFeeTooHigh(EtherNumberFormatter.short.string(from: BigInt(ConfigureTransaction.gasFeeMax)))
         case .nonceNotPositiveNumber:
             return R.string.localizable.configureTransactionErrorNonceNotPositiveNumber()
-        case .gasLimitTooLow:
+        case .gasPriceTooLow:
             return R.string.localizable.configureTransactionErrorGasPriceTooLow()
         }
     }

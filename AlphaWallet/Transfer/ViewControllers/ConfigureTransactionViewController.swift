@@ -300,7 +300,7 @@ class ConfigureTransactionViewController: UIViewController {
                 cells.gasPrice.textField.status = .none
             } else {
                 canSave = false
-                cells.gasPrice.textField.status = .error(ConfigureTransactionError.gasLimitTooLow.localizedDescription)
+                cells.gasPrice.textField.status = .error(ConfigureTransactionError.gasPriceTooLow.localizedDescription)
             }
 
             if viewModel.configurationToEdit.isGasLimitValid {
