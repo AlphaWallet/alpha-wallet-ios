@@ -59,7 +59,7 @@ enum ConfirmResult {
     case sentRawTransaction(id: String, original: String)
 }
 
-protocol TransactionConfirmationCoordinatorDelegate: class {
+protocol TransactionConfirmationCoordinatorDelegate: class, CanOpenURL {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult)
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: TransactionConfirmationCoordinator)
@@ -76,6 +76,10 @@ class TransactionConfirmationCoordinator: Coordinator {
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analyticsCoordinator: AnalyticsCoordinator
+
+    private var server: RPCServer {
+        configurator.session.server
+    }
 
     let presentingViewController: UIViewController
     lazy var navigationController: UINavigationController = {
@@ -130,6 +134,31 @@ class TransactionConfirmationCoordinator: Coordinator {
     private func showFeedbackOnSuccess() {
         UINotificationFeedbackGenerator.show(feedbackType: .success)
     }
+
+    private func rectifyTransactionError(error: SendTransactionNotRetryableError) {
+        switch error {
+        case .insufficientFunds:
+            let ramp = Ramp(account: configurator.session.account)
+            if let url = ramp.url(token: TokensDataStore.etherToken(forServer: server)) {
+                delegate?.didPressOpenWebPage(url, in: confirmationViewController)
+            } else {
+                let fallbackUrl = URL(string: "https://alphawallet.com/browser-item-category/utilities/")!
+                delegate?.didPressOpenWebPage(fallbackUrl, in: confirmationViewController)
+            }
+        case .nonceTooLow:
+            showConfigureTransactionViewController(configurator, recoveryMode: .invalidNonce)
+        case .gasPriceTooLow:
+            showConfigureTransactionViewController(configurator)
+        case .gasLimitTooLow:
+            showConfigureTransactionViewController(configurator)
+        case .gasLimitTooHigh:
+            showConfigureTransactionViewController(configurator)
+        case .possibleChainIdMismatch:
+            break
+        case .executionReverted:
+            break
+        }
+    }
 }
 
 extension TransactionConfirmationCoordinator: TransactionConfirmationViewControllerDelegate {
@@ -154,8 +183,10 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }.catch { error in
             self.logActionSheetForTransactionConfirmationFailed()
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                self.showError(error)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.confirmationViewController.set(state: .done(withError: true)) {
+                    self.handleSendTransactionError(error)
+                }
             }
         }.finally {
             sender.isEnabled = true
@@ -176,18 +207,31 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }
     }
 
-    private func showError(_ error: Error) {
-        confirmationViewController.set(state: .done(withError: true)) {
-            self.delegate?.coordinator(self, didFailTransaction: AnyError(error))
+    private func handleSendTransactionError(_ error: Error) {
+        switch error {
+        case let e as SendTransactionNotRetryableError:
+            let errorViewController = SendTransactionErrorViewController(error: e)
+            errorViewController.delegate = self
+            let controller = UINavigationController(rootViewController: errorViewController)
+            controller.modalPresentationStyle = .overFullScreen
+            controller.modalTransitionStyle = .crossDissolve
+            controller.view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+            confirmationViewController.present(controller, animated: true)
+        default:
+            showError(error)
         }
+    }
+
+    private func showError(_ error: Error) {
+        delegate?.coordinator(self, didFailTransaction: AnyError(error))
     }
 
     func controllerDidTapEdit(_ controller: TransactionConfirmationViewController) {
         showConfigureTransactionViewController(configurator)
     }
 
-    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, ethPrice: configuration.ethPrice))
+    private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
+        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, ethPrice: configuration.ethPrice, recoveryMode: recoveryMode))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
@@ -264,11 +308,11 @@ extension TransactionConfirmationCoordinator {
 
         analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
-            Analytics.Properties.chain.rawValue: configurator.session.server.chainID,
+            Analytics.Properties.chain.rawValue: server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
             Analytics.Properties.isTaiChiEnabled.rawValue: configurator.session.config.useTaiChiNetwork,
         ])
-        if configurator.session.server.isTestnet {
+        if server.isTestnet {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
         } else {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.transactionCount, by: 1)
@@ -282,5 +326,23 @@ extension TransactionConfirmationCoordinator {
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
+    }
+}
+
+extension TransactionConfirmationCoordinator: SendTransactionErrorViewControllerDelegate {
+    func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
+        controller.dismiss(animated: false) {
+            self.rectifyTransactionError(error: error)
+        }
+    }
+
+    func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
+        controller.dismiss(animated: false) {
+            self.delegate?.didPressOpenWebPage(url, in: self.confirmationViewController)
+        }
+    }
+
+    func controllerDismiss(_ controller: SendTransactionErrorViewController) {
+        controller.dismiss(animated: true)
     }
 }

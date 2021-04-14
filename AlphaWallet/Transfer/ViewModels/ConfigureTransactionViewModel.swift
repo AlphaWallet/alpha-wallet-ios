@@ -4,6 +4,11 @@ import Foundation
 import BigInt
 
 struct ConfigureTransactionViewModel {
+    enum RecoveryMode {
+        case invalidNonce
+        case none
+    }
+
     private let ethPrice: Subscribable<Double>
     private let transactionType: TransactionType
     private let configurator: TransactionConfigurator
@@ -18,6 +23,7 @@ struct ConfigureTransactionViewModel {
         configurator.session.balanceCoordinator.currencyRate
     }
 
+    var recoveryMode: RecoveryMode
     var selectedConfigurationType: TransactionConfigurationType
     var configurationToEdit: EditedTransactionConfiguration {
         didSet {
@@ -138,14 +144,20 @@ struct ConfigureTransactionViewModel {
         }
     }
 
-    init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
+    init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, recoveryMode: ConfigureTransactionViewModel.RecoveryMode) {
         self.ethPrice = ethPrice
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator
         self.configurations = configurations
         transactionType = configurator.transaction.transactionType
-        selectedConfigurationType = configurator.selectedConfigurationType
+        self.recoveryMode  = recoveryMode
+        switch recoveryMode {
+        case .invalidNonce:
+            selectedConfigurationType = .custom
+        case .none:
+            selectedConfigurationType = configurator.selectedConfigurationType
+        }
         configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
     }
 
