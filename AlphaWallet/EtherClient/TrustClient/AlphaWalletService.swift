@@ -63,7 +63,7 @@ extension AlphaWalletService: TargetType {
         case .gasPriceEstimate:
             return "/api/v3/gas/price"
         case .oneInchTokens:
-            return "/v1.1/tokens"
+            return "/v3.0/1/tokens"
         case .honeySwapTokens:
             return ""
         case .rampAssets:

@@ -70,9 +70,9 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
         let provider = AlphaWalletProviderFactory.makeProvider()
 
         provider.request(.oneInchTokens(config: config)).map { response -> [String: Oneinch.ERC20Token] in
-            try JSONDecoder().decode([String: Oneinch.ERC20Token].self, from: response.data)
+            try JSONDecoder().decode(ApiResponsePayload.self, from: response.data).tokens
         }.map { data -> [Oneinch.ERC20Token] in
-            return data.map { $0.value }
+            data.map { $0.value }
         }.done { response in
             for token in self.predefinedTokens + response {
                 self.availableTokens[token.address] = token
