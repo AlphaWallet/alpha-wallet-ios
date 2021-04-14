@@ -77,7 +77,11 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
             for token in self.predefinedTokens + response {
                 self.availableTokens[token.address] = token
             }
-        }.cauterize()
+        }.catch { error in
+            let service = AlphaWalletService.oneInchTokens(config: config)
+            let url = service.baseURL.appendingPathComponent(service.path)
+            RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: url.absoluteString)
+        }
     }
 
     private func defaultOutputAddress(forInput input: AlphaWallet.Address) -> AlphaWallet.Address {
