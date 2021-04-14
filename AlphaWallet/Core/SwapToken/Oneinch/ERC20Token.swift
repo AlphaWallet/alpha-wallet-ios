@@ -9,6 +9,10 @@ import Foundation
 import TrustKeystore
 
 extension Oneinch {
+    struct ApiResponsePayload: Decodable {
+        let tokens: [String: ERC20Token]
+    }
+
     struct ERC20Token: Decodable {
         private enum AnyError: Error {
             case invalidAddress
