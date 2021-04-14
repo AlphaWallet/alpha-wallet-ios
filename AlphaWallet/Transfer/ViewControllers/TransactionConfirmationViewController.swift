@@ -307,7 +307,6 @@ class TransactionConfirmationViewController: UIViewController {
 
     func set(state: State, completion: (() -> Void)? = nil) {
         let confirmationButton = buttonsBar.buttons[0]
-
         switch state {
         case .ready:
             buttonsBar.isHidden = false

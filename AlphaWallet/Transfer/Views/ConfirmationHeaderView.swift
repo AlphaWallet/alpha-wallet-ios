@@ -75,6 +75,7 @@ class ConfirmationHeaderView: UIView {
         titleLabel.attributedText = viewModel.attributedTitle
         iconImageView.image = viewModel.icon
         backgroundColor = viewModel.backgroundColor
+        separatorLine.isHidden = viewModel.isMinimalMode
     }
 
     required init?(coder: NSCoder) {

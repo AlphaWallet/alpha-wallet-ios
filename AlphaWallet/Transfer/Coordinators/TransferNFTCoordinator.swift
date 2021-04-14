@@ -4,7 +4,7 @@ import BigInt
 import PromiseKit
 import Result
 
-protocol TransferNFTCoordinatorDelegate: class {
+protocol TransferNFTCoordinatorDelegate: class, CanOpenURL {
     func didClose(in coordinator: TransferNFTCoordinator)
     func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: TransactionConfirmationResult, inCoordinator coordinator: TransferNFTCoordinator)
 }
@@ -64,5 +64,19 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
 
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
         delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: result, inCoordinator: self)
+    }
+}
+
+extension TransferNFTCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

@@ -331,7 +331,7 @@ class SendViewController: UIViewController {
                 contract: transactionType.contractForFungibleSend,
                 data: nil
         )
-        
+
         delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost, shortValue: shortValueForAllFunds)
     }
 
