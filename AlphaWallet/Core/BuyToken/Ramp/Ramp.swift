@@ -65,7 +65,11 @@ struct Ramp: TokenActionsProvider, BuyTokenURLProviderType {
             return data.assets
         }.done { response in
             Self.assets = response
-        }.cauterize()
+        }.catch { error in
+            let service = AlphaWalletService.rampAssets(config: config)
+            let url = service.baseURL.appendingPathComponent(service.path)
+            RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
+        }
     }
 }
 
