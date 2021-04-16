@@ -70,7 +70,8 @@ enum OriginalDapps {
         Dapp(name: "SpiderDEX", description: "Decentralized exchange for crypto collectibles.", url: "https://www.spiderdex.com", cat: "Exchange"),
         Dapp(name: "DeFi Money Market (DMM)", description: "Earn interest on your crypto through real world tokenized assets", url: "https://www.spiderdex.com", cat: "Finance"),
         Dapp(name: "DerivaDEX Insurance Fund", description: "DerivaDEX is the next generation of crypto derivatives. Begin earning DDX by bootstrapping the insurance fund.", url: "https://insurance.derivadex.com/", cat: "Finance"),
-        Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool")
+        Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool"),
+        Dapp(name: "Mushrooms Finance", description: "Sustainable crypto earning in DeFi", url: "https://mushrooms.finance/", cat: "Finance")
     ]
 
     struct Category {
