@@ -73,6 +73,11 @@
 "settings.error.failedToSendEmail" = "发送电子邮件失败。请确保您已安装邮件应用。";
 "settings.network.button.title" = "网络";
 "settings.enabledNetworks.button.title" = "已启用网络";
+"settings.enabledNetworks.mainnet" = "MAINNET";
+"settings.enabledNetworks.testnet" = "TESTNET";
+"settings.enabledNetworks.promptEnableTestnet.title" = "What is Testnet?";
+"settings.enabledNetworks.promptEnableTestnet.description" = "Testnets tokens are like ‘Monopoly’ money. They have zero financial worth but are used by developers to try out new designs without needing to spend valuable coins.";
+"settings.enabledNetworks.promptEnableTestnet.button.title" = "Got it, enable Testnets";
 "settings.language.button.title" = "更换语言";
 "settings.backupWallet.button.title" = "备份此钱包";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
