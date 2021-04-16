@@ -70,6 +70,7 @@ enum Analytics {
         case messageType
         case isTaiChiEnabled
         case type
+        case isAllFunds
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
