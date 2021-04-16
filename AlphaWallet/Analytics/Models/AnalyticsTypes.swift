@@ -53,6 +53,7 @@ enum Analytics {
         case walletConnectCancel = "WalletConnect Cancel"
         case walletConnectDisconnect = "WalletConnect Disconnect"
         case clearBrowserCache = "Clear Browser Cache"
+        case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
     }
 
     enum Properties: String {
@@ -69,6 +70,7 @@ enum Analytics {
         case messageType
         case isTaiChiEnabled
         case type
+        case isAllFunds
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

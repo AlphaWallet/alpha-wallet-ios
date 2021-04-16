@@ -136,6 +136,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     private func rectifyTransactionError(error: SendTransactionNotRetryableError) {
+        analyticsCoordinator.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
             let ramp = Ramp(account: configurator.session.account)
@@ -306,12 +307,20 @@ extension TransactionConfirmationCoordinator {
             transactionType = .unknown
         }
 
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: [
+        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
             Analytics.Properties.isTaiChiEnabled.rawValue: configurator.session.config.useTaiChiNetwork,
-        ])
+        ]
+        switch configuration {
+        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+            break
+        }
+
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: analyticsProperties)
         if server.isTestnet {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
         } else {
@@ -325,7 +334,14 @@ extension TransactionConfirmationCoordinator {
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
+        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.source.rawValue: source.rawValue]
+        switch configuration {
+        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+            break
+        }
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: analyticsProperties)
     }
 }
 
@@ -344,5 +360,26 @@ extension TransactionConfirmationCoordinator: SendTransactionErrorViewController
 
     func controllerDismiss(_ controller: SendTransactionErrorViewController) {
         controller.dismiss(animated: true)
+    }
+}
+
+extension SendTransactionNotRetryableError {
+    var analyticsName: String {
+        switch self {
+        case .insufficientFunds:
+            return "insufficientFunds"
+        case .nonceTooLow:
+            return "nonceTooLow"
+        case .gasPriceTooLow:
+            return "gasPriceTooLow"
+        case .gasLimitTooLow:
+            return "gasLimitTooLow"
+        case .gasLimitTooHigh:
+            return "gasLimitTooHigh"
+        case .possibleChainIdMismatch:
+            return "possibleChainIdMismatch"
+        case .executionReverted:
+            return "executionReverted"
+        }
     }
 }
