@@ -307,12 +307,20 @@ extension TransactionConfirmationCoordinator {
             transactionType = .unknown
         }
 
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: [
+        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
             Analytics.Properties.isTaiChiEnabled.rawValue: configurator.session.config.useTaiChiNetwork,
-        ])
+        ]
+        switch configuration {
+        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+            break
+        }
+
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmationSuccessful, properties: analyticsProperties)
         if server.isTestnet {
             analyticsCoordinator.incrementUser(property: Analytics.UserProperties.testnetTransactionCount, by: 1)
         } else {
@@ -326,7 +334,14 @@ extension TransactionConfirmationCoordinator {
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: [Analytics.Properties.source.rawValue: source.rawValue])
+        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.source.rawValue: source.rawValue]
+        switch configuration {
+        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+            analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+            break
+        }
+        analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: analyticsProperties)
     }
 }
 
