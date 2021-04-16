@@ -136,6 +136,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     private func rectifyTransactionError(error: SendTransactionNotRetryableError) {
+        analyticsCoordinator.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
             let ramp = Ramp(account: configurator.session.account)
@@ -344,5 +345,26 @@ extension TransactionConfirmationCoordinator: SendTransactionErrorViewController
 
     func controllerDismiss(_ controller: SendTransactionErrorViewController) {
         controller.dismiss(animated: true)
+    }
+}
+
+extension SendTransactionNotRetryableError {
+    var analyticsName: String {
+        switch self {
+        case .insufficientFunds:
+            return "insufficientFunds"
+        case .nonceTooLow:
+            return "nonceTooLow"
+        case .gasPriceTooLow:
+            return "gasPriceTooLow"
+        case .gasLimitTooLow:
+            return "gasLimitTooLow"
+        case .gasLimitTooHigh:
+            return "gasLimitTooHigh"
+        case .possibleChainIdMismatch:
+            return "possibleChainIdMismatch"
+        case .executionReverted:
+            return "executionReverted"
+        }
     }
 }
