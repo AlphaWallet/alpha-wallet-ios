@@ -82,7 +82,7 @@ class SendTransactionErrorViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
-        view.cornerRadius = 10
+        view.cornerRadius = 12
 
         view.addSubview(scrollView)
         view.addSubview(footerBar)
