@@ -14,6 +14,7 @@ protocol RenameWalletViewControllerDelegate: class {
 class RenameWalletViewController: UIViewController {
 
     private let viewModel: RenameWalletViewModel
+    private let analyticsCoordinator: AnalyticsCoordinator
     private var config: Config
 
     private lazy var nameTextField: TextField = {
@@ -34,14 +35,15 @@ class RenameWalletViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     weak var delegate: RenameWalletViewControllerDelegate?
 
-    init(viewModel: RenameWalletViewModel, config: Config) {
+    init(viewModel: RenameWalletViewModel, analyticsCoordinator: AnalyticsCoordinator, config: Config) {
         self.viewModel = viewModel
+        self.analyticsCoordinator = analyticsCoordinator
         self.config = config
 
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, edgeInsets: .zero, separatorHeight: 0.0)
-        
+
         footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
         keyboardChecker.constraint = footerBottomConstraint
@@ -61,7 +63,7 @@ class RenameWalletViewController: UIViewController {
 
         roundedBackground.addSubview(stackview)
         roundedBackground.addSubview(footerBar)
-        
+
         NSLayoutConstraint.activate([
             stackview.topAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.topAnchor, constant: 20),
             stackview.leadingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.leadingAnchor, constant: 20),
@@ -119,6 +121,7 @@ class RenameWalletViewController: UIViewController {
             config.deleteWalletName(forAccount: viewModel.account)
         } else {
             config.saveWalletName(name, forAddress: viewModel.account)
+            analyticsCoordinator.log(action: Analytics.Action.nameWallet)
         }
 
         delegate?.didFinish(in: self)
