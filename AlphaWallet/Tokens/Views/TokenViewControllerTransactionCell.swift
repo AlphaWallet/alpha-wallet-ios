@@ -61,6 +61,15 @@ class TokenViewControllerTransactionCell: UITableViewCell {
         accessoryImageView.contentMode = .scaleAspectFill
         accessoryImageView.image = viewModel.accessoryImage
     }
+    // MARK: Configure for kaleidoModel, created in purpose of existig UI reusing for Kaleido integration testing
+    func configure(kaleidoModel: KaleidoTransaction) {
+        separatorInset = .zero
+        layoutMargins = .zero
+
+        dateLabel.text = "\(kaleidoModel.timestamp.prefix(10))"
+        amountLabel.text = "TO :\(kaleidoModel.to)"
+        typeLabel.text = ""
+    }
 
     //Really should not happen, but let's just be careful
     func configureEmpty() {

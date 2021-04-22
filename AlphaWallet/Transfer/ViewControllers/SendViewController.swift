@@ -257,7 +257,7 @@ class SendViewController: UIViewController {
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.send(), for: .normal)
-        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
+        nextButton.addTarget(self, action: #selector(sendUsingKaleido), for: .touchUpInside)
 
         amountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
         updateNavigationTitle()
@@ -303,6 +303,44 @@ class SendViewController: UIViewController {
         }
     }
 
+    // MARK: add new "send" func to reuse VC UI and send KaleidoService requests instead for testing
+    @objc private func sendUsingKaleido() {
+        let input = targetAddressTextField.value.trimmed
+        guard let recipient = AlphaWallet.Address(string: input) else {
+            targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            return
+        }
+
+        self.buttonsBar.isHidden = true
+        let ind = UIActivityIndicatorView(frame: CGRect(origin: roundedBackground.center, size: CGSize(width: 30, height: 30)))
+        ind.style = .gray
+        roundedBackground.addSubview(ind)
+        ind.startAnimating()
+    
+        func showAlert(with hash: String) {
+            ind.stopAnimating()
+            self.buttonsBar.isHidden = false
+            self.buttonsBar.buttons[0].backgroundColor = .green
+            let alert = UIAlertController(title: "Send result", message: hash, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+            present(alert, animated: true, completion: nil)
+        }
+
+        switch transactionType {
+        case .nativeCryptocurrency:
+            let hash = KaleidoService.send(to: recipient)
+            showAlert(with: hash)
+        case .ERC20Token:
+            KaleidoService.fundAccount(with: transactionType.contract.eip55String,
+                                                     to: recipient.eip55String,
+                                                     amount: "0") { hash in
+                showAlert(with: hash)
+            }
+        default:
+            return
+        }
+    }
+    
     @objc private func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none

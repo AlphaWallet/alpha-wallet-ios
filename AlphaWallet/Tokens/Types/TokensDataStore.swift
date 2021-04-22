@@ -162,7 +162,7 @@ class TokensDataStore {
         self.realm = realm
         self.openSea = OpenSea.createInstance(forServer: server)
         self.addEthToken()
-
+        self.addKaleidoToken()
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
@@ -173,6 +173,20 @@ class TokensDataStore {
         let etherToken = TokensDataStore.etherToken(forServer: server)
         if objects.first(where: { $0 == etherToken }) == nil {
             add(tokens: [etherToken])
+        }
+    }
+
+    // MARK: Manually add created in Kaleido console ERC20 token with address 0xea188ea70996051238633ec57eaf7b820d6389fa
+    private func addKaleidoToken() {
+        if let address = AlphaWallet.Address(string: "0xea188ea70996051238633ec57eaf7b820d6389fa") {
+            let kaleidoToken = ERCToken(contract: address,
+                                        server: .main,
+                                        name: "Kaleido-ERC20",
+                                        symbol: "KETH",
+                                        decimals: 0,
+                                        type: .erc20,
+                                        balance: [])
+            self.addCustom(token: kaleidoToken)
         }
     }
 

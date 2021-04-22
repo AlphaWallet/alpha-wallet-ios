@@ -34,6 +34,9 @@ class TokenViewController: UIViewController {
     private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     private var headerRefreshTimer: Timer!
 
+    //transactions recevied
+    private var kaleidoDataSource = [KaleidoTransaction]()
+
     weak var delegate: TokenViewControllerDelegate?
 
     init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject) {
@@ -99,6 +102,12 @@ class TokenViewController: UIViewController {
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // in purpose of existig UI reusing for Kaleido integration testing
+        fetchKaleidoTransactions()
+    }
+
     func configure(viewModel: TokenViewControllerViewModel) {
         self.viewModel = viewModel
         view.backgroundColor = viewModel.backgroundColor
@@ -153,6 +162,13 @@ class TokenViewController: UIViewController {
             }
         } else {
             navigationItem.rightBarButtonItem = nil
+        }
+    }
+    // MARK: created in purpose of existig UI reusing for Kaleido integration testing
+    private func fetchKaleidoTransactions() {
+        KaleidoService.getTransactions { [weak self] transactions in
+            self?.kaleidoDataSource = transactions
+            self?.tableView.reloadData()
         }
     }
 
@@ -285,14 +301,19 @@ class TokenViewController: UIViewController {
 extension TokenViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: TokenViewControllerTransactionCell = tableView.dequeueReusableCell(for: indexPath)
-        if let transaction = viewModel?.recentTransactions[indexPath.row] {
-            let viewModel = TokenViewControllerTransactionCellViewModel(
-                    transaction: transaction,
-                    config: session.config,
-                    chainState: session.chainState,
-                    currentWallet: session.account
-            )
-            cell.configure(viewModel: viewModel)
+        
+        // MARK: commented in purpose of existig UI reusing for Kaleido integration testing
+       // if let transaction = viewModel?.recentTransactions[indexPath.row] {
+//            let viewModel = TokenViewControllerTransactionCellViewModel(
+//                    transaction: transaction,
+//                    config: session.config,
+//                    chainState: session.chainState,
+//                    currentWallet: session.account
+//            )
+//            cell.configure(viewModel: viewModel)
+
+        if !self.kaleidoDataSource.isEmpty {
+            cell.configure(kaleidoModel: self.kaleidoDataSource[indexPath.row])
         } else {
             cell.configureEmpty()
         }
@@ -300,15 +321,23 @@ extension TokenViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.recentTransactions.count ?? 0
+        return kaleidoDataSource.count
+        // MARK: commented in purpose of existig UI reusing for Kaleido integration testing
+        //return viewModel?.recentTransactions.count ?? 0
     }
 }
 
 extension TokenViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let transaction = viewModel?.recentTransactions[indexPath.row] else { return }
-        delegate?.didTap(transaction: transaction, inViewController: self)
+        let alert = UIAlertController(title: "Transaction details",
+                                      message: "\(self.kaleidoDataSource[indexPath.row])",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+        // MARK: commented in purpose of existig UI reusing for Kaleido integration testing
+        //guard let transaction = viewModel?.recentTransactions[indexPath.row] else { return }
+        //delegate?.didTap(transaction: transaction, inViewController: self)
     }
 
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
