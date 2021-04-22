@@ -1,9 +1,4 @@
-//
-//  SignConfirmationViewController.swift
-//  AlphaWallet
-//
-//  Created by Vladyslav Shepitko on 17.02.2021.
-//
+// Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
 
