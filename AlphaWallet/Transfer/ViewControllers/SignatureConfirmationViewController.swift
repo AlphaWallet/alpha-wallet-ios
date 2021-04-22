@@ -196,7 +196,7 @@ class SignatureConfirmationViewController: UIViewController {
 
         bottomConstraint.constant = 0
 
-        UIView.animate(withDuration: 0.4) {
+        UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
     }
