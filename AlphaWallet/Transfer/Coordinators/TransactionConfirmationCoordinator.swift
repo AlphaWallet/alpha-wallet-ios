@@ -211,7 +211,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     private func handleSendTransactionError(_ error: Error) {
         switch error {
         case let e as SendTransactionNotRetryableError:
-            let errorViewController = SendTransactionErrorViewController(error: e)
+            let errorViewController = SendTransactionErrorViewController(server: server, error: e)
             errorViewController.delegate = self
             let controller = UINavigationController(rootViewController: errorViewController)
             controller.modalPresentationStyle = .overFullScreen
