@@ -74,8 +74,7 @@ private class TokenImageFetcher {
             subscribable.value = programmaticallyGenerateIcon(forToken: tokenObject)
             return subscribable
         }
-        
-        let githubAssetsSource = tokenObject.server.githubAssetsSource
+
         let contractAddress = tokenObject.contractAddress
         let balance = tokenObject.balance.first?.balance
         let generatedImage = programmaticallyGenerateIcon(forToken: tokenObject)
@@ -84,7 +83,7 @@ private class TokenImageFetcher {
             subscribable.value = (image: $0, symbol: "")
         }.catch { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.fetchFromAssetGitHubRepo(githubAssetsSource, contractAddress: contractAddress).done {
+            strongSelf.fetchFromAssetGitHubRepo(contractAddress: contractAddress).done {
                 subscribable.value = (image: $0, symbol: "")
             }.catch { _ in
                 subscribable.value = generatedImage
@@ -113,8 +112,18 @@ private class TokenImageFetcher {
     }
 
     private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
-        return GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress).then { request -> Promise<UIImage> in
+        firstly {
+            GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress)
+        }.then { request -> Promise<UIImage> in
             self.fetch(request: request)
+        }
+    }
+
+    private func fetchFromAssetGitHubRepo(contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+        firstly {
+            fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress)
+        }.recover { _ -> Promise<UIImage> in
+            self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
         }
     }
 
@@ -141,8 +150,8 @@ class GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {
-        case testNetTokensSource = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
-        case allTokensSource = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
+        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
+        case thirdParty = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
     }
 
     enum AnyError: Error {
@@ -157,17 +166,5 @@ class GithubAssetsURLResolver {
         }
         let request = URLRequest(url: url)
         return .value(request)
-    }
-}
-
-fileprivate extension RPCServer {
-
-    var githubAssetsSource: GithubAssetsURLResolver.Source {
-        switch self {
-        case .rinkeby, .ropsten, .sokol, .kovan, .goerli:
-            return .testNetTokensSource
-        case .main, .poa, .classic, .callisto, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
-            return .allTokensSource
-        }
     }
 }
