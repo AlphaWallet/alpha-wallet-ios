@@ -54,6 +54,7 @@ enum Analytics {
         case walletConnectDisconnect = "WalletConnect Disconnect"
         case clearBrowserCache = "Clear Browser Cache"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
+        case nameWallet = "Name Wallet"
     }
 
     enum Properties: String {
