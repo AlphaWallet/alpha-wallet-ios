@@ -3,12 +3,13 @@
 import UIKit
 
 struct SendTransactionErrorViewModel {
+    let server: RPCServer
     let error: SendTransactionNotRetryableError
 
     var title: String {
         switch error {
         case .insufficientFunds:
-            return R.string.localizable.tokenTransactionConfirmationErrorTitleInsufficientFundsError()
+            return R.string.localizable.tokenTransactionConfirmationErrorTitleInsufficientFundsError(server.cryptoCurrencyName)
         case .nonceTooLow:
             return R.string.localizable.tokenTransactionConfirmationErrorTitleNonceTooLowError()
         case .gasPriceTooLow:
@@ -27,7 +28,7 @@ struct SendTransactionErrorViewModel {
     var description: String {
         switch error {
         case .insufficientFunds:
-            return R.string.localizable.tokenTransactionConfirmationErrorDescriptionInsufficientFundsError()
+            return R.string.localizable.tokenTransactionConfirmationErrorDescriptionInsufficientFundsError(server.cryptoCurrencyName, server.symbol, server.symbol, server.cryptoCurrencyName)
         case .nonceTooLow:
             return R.string.localizable.tokenTransactionConfirmationErrorDescriptionNonceTooLowError()
         case .gasPriceTooLow:
@@ -54,7 +55,7 @@ struct SendTransactionErrorViewModel {
     var rectifyErrorButtonTitle: String? {
         switch error {
         case .insufficientFunds:
-            return R.string.localizable.tokenTransactionConfirmationErrorRectifyButtonTitleInsufficientFundsError()
+            return R.string.localizable.tokenTransactionConfirmationErrorRectifyButtonTitleInsufficientFundsError(server.symbol)
         case .nonceTooLow:
             return R.string.localizable.tokenTransactionConfirmationErrorRectifyButtonTitleNonceTooLowError()
         case .gasPriceTooLow:

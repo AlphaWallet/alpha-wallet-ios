@@ -9,8 +9,9 @@ protocol SendTransactionErrorViewControllerDelegate: class {
 }
 
 class SendTransactionErrorViewController: UIViewController {
+    private let server: RPCServer
     private let error: SendTransactionNotRetryableError
-    private lazy var viewModel = SendTransactionErrorViewModel(error: error)
+    private lazy var viewModel = SendTransactionErrorViewModel(server: server, error: error)
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: "", isMinimalMode: true))
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
@@ -104,7 +105,8 @@ class SendTransactionErrorViewController: UIViewController {
 
     weak var delegate: SendTransactionErrorViewControllerDelegate?
 
-    init(error: SendTransactionNotRetryableError) {
+    init(server: RPCServer, error: SendTransactionNotRetryableError) {
+        self.server = server
         self.error = error
         super.init(nibName: nil, bundle: nil)
 
