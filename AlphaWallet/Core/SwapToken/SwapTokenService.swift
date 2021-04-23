@@ -40,9 +40,7 @@ class TokenActionsService: TokenActionsServiceType {
     }
 
     func isSupport(token: TokenObject) -> Bool {
-        return services.compactMap {
-            $0.isSupport(token: token) ? $0 : nil
-        }.isEmpty
+        services.contains { $0.isSupport(token: token) }
     }
 }
 
