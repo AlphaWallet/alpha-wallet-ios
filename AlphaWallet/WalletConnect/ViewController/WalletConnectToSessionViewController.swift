@@ -197,7 +197,7 @@ class WalletConnectToSessionViewController: UIViewController {
 
         bottomConstraint.constant = 0
 
-        UIView.animate(withDuration: 0.4) {
+        UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
     }
@@ -225,7 +225,7 @@ class WalletConnectToSessionViewController: UIViewController {
 
     func configure(for viewModel: WalletConnectToSessionViewModel) {
         self.viewModel = viewModel
-        
+
         scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
@@ -348,7 +348,7 @@ fileprivate class HeaderView: UIView {
 }
 
 extension WalletConnectToSessionViewController {
-    
+
     private func generateSubviews() {
         stackView.removeAllArrangedSubviews()
 
