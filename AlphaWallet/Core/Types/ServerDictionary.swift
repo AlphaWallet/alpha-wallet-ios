@@ -31,4 +31,17 @@ struct ServerDictionary<T> {
     var isEmpty: Bool {
         return backingStore.isEmpty
     }
+
+    func mapValues<V>(_ transform: (T) throws -> V) rethrows -> ServerDictionary<V> {
+        var result: ServerDictionary<V> = .init()
+        let mappedBackingStore = try! backingStore.mapValues(transform)
+        result.backingStore = mappedBackingStore
+        return result
+    }
+}
+
+extension ServerDictionary: Sequence {
+    func makeIterator() -> Dictionary<RPCServer, T>.Iterator {
+        backingStore.makeIterator()
+    }
 }
