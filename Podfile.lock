@@ -74,11 +74,11 @@ PODS:
   - R.swift (5.2.2):
     - R.swift.Library (~> 5.2.0)
   - R.swift.Library (5.2.0)
-  - Realm (5.4.8):
-    - Realm/Headers (= 5.4.8)
-  - Realm/Headers (5.4.8)
-  - RealmSwift (5.4.8):
-    - Realm (= 5.4.8)
+  - Realm (5.5.1):
+    - Realm/Headers (= 5.5.1)
+  - Realm/Headers (5.5.1)
+  - RealmSwift (5.5.1):
+    - Realm (= 5.5.1)
   - Result (3.2.4)
   - SAMKeychain (1.5.3)
   - secp256k1_ios (0.1.3)
@@ -142,7 +142,7 @@ DEPENDENCIES:
   - PromiseKit/CorePromise
   - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
   - R.swift
-  - RealmSwift (~> 5.4.0)
+  - RealmSwift (= 5.5.1)
   - SAMKeychain
   - SeedStackViewController
   - StatefulViewController
@@ -303,8 +303,8 @@ SPEC CHECKSUMS:
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
-  Realm: 042bbb59227a0159eda397b8a5a49fbd67495ce7
-  RealmSwift: 15ddd6b3398ebfc99810811c44f095df1313adb3
+  Realm: c2ffe0667f9c98c9ba65f608ba85684d39826145
+  RealmSwift: 5a35c1c35c3e1925e6fcd092c881d5cc4a826bff
   Result: d2d07204ce72856f1fd9130bbe42c35a7b0fea10
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   secp256k1_ios: ac9ef04e761f43c58012b28548afa91493761f17
@@ -324,6 +324,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: cd5e056cec5a2f44e92b8595199e7f2f9f0bd92d
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 82fcf9b1524e8d73c1036e7362d98856b45da675
+PODFILE CHECKSUM: be0f33445912d2e6ece1b78f5d59e73d71c5cc7b
 
 COCOAPODS: 1.10.1
