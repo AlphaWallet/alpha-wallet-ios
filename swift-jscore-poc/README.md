@@ -10,8 +10,9 @@ This is a proof of concept with JS Core to load the following types of JS file i
 ## Development Steps to recreate the working example. (You can use the project files inside this repo - where this guide can be used if the file becomes corrupt / for logging the development process).
 
 1. Create a new Swift Playground Project
-2. From within the editor include the js files within the scripts folder in this project director (crypto.js, lodash.js, lodashMin.js, nodejs.js, index.js) to the project resources (using the IDE)
-3. Next past the following Swift code below, then trigger it to see the output.
+2. From within the editor include the js files within the `./scripts` folder resources (crypto.js, lodash.js, lodashMin.js, nodejs.js, index.js)
+3. Then paste the following Swift code below (or select one of the tests you would like to see).
+4. Next trigger the code to see the printed output.
 
 ````
 
@@ -154,7 +155,7 @@ print((result7 as Any))
 ## How to use Browserify to install Node JS Modules into Swift
 
 1. Install Browserify with the following command `npm install -g browserify`
-2. From within the `/Browserify-to-Swift-Js` directory open the `index.js` file
+2. From within the `./Browserify-to-Swift-Js` directory open the `index.js` file
 3. Include any additional Node JS modules
 
 (Note: The namespace you provide can be anything you like. It would be advised to use the same naming convention as NodeJS to save confusion between teams of developers)
@@ -166,4 +167,11 @@ browserify index.js -o --standalone nodejs > bundle.js
 ````
 
 This will take the contents (input) of `index.js` and create a standalone output
-with the namespace `nodejs` and file name `bundle.js`
+with the entry point namespace `nodejs` and file name `bundle.js`. 
+
+Allowing access to the crypto module in this example like so;
+
+`nodejs.crypto.createCipheriv()`
+
+
+
