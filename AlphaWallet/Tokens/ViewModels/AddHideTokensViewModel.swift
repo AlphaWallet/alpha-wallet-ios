@@ -24,7 +24,7 @@ class AddHideTokensViewModel {
     private let sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [TokenObject]
-    private var tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
+    private var tickers: [AddressAndRPCServer: CoinTicker]
     private var displayedTokens: [TokenObject] = []
     private var hiddenTokens: [TokenObject] = []
 
@@ -34,7 +34,7 @@ class AddHideTokensViewModel {
         }
     }
 
-    init(tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]], filterTokensCoordinator: FilterTokensCoordinator) {
+    init(tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker], filterTokensCoordinator: FilterTokensCoordinator) {
         self.tickers = tickers
         self.tokens = tokens
         self.filterTokensCoordinator = filterTokensCoordinator
@@ -172,7 +172,7 @@ class AddHideTokensViewModel {
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.server]?[token.contractAddress]
+        return tickers[token.addressAndRPCServer]
     }
 
     private func filter(tokens: [TokenObject]) {

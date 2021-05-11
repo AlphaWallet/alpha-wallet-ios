@@ -476,7 +476,12 @@ extension TokensViewController: UITableViewDataSource {
                 return cell
             case .erc20:
                 let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+                cell.configure(viewModel: .init(token: token,
+                    server: token.server,
+                    assetDefinitionStore: assetDefinitionStore,
+                    isVisible: isVisible,
+                    ticker: viewModel.ticker(for: token)
+                ))
                 return cell
             case .erc721, .erc721ForTickets:
                 let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)

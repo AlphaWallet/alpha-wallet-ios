@@ -688,6 +688,8 @@
 		8499D446C6ADE858FE633096 /* GetERC721ForTicketsBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */; };
 		8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */; };
 		8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */; };
+		8703F664261319B80082EE25 /* AddressAndRPCServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F663261319B80082EE25 /* AddressAndRPCServer.swift */; };
+		8703F66726135B330082EE25 /* ChartHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F66626135B330082EE25 /* ChartHistory.swift */; };
 		8703F66B26136A500082EE25 /* RenameWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F66A26136A500082EE25 /* RenameWalletViewController.swift */; };
 		8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F686261461E40082EE25 /* RenameWalletViewModel.swift */; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
@@ -750,6 +752,7 @@
 		878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878EE953255BFFB9000210DE /* FeedbackGenerator.swift */; };
 		8795994526049EF8006722B2 /* ActivityStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994426049EF8006722B2 /* ActivityStateView.swift */; };
 		8795994726049F0F006722B2 /* ActivityStateViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */; };
+		8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879599492604A5B6006722B2 /* CoinTickersFetcher.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
 		87A0C93225AEF1E400E73F60 /* EventInstanceValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A0C93125AEF1E400E73F60 /* EventInstanceValue.swift */; };
 		87A3020924BEE243000DF32E /* TransactionInProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */; };
@@ -1575,6 +1578,8 @@
 		8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalance.swift; sourceTree = "<group>"; };
 		8499DDC9B09F49E7799DA0E1 /* SmartContractHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmartContractHelperTests.swift; sourceTree = "<group>"; };
 		8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalanceCoordinator.swift; sourceTree = "<group>"; };
+		8703F663261319B80082EE25 /* AddressAndRPCServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressAndRPCServer.swift; sourceTree = "<group>"; };
+		8703F66626135B330082EE25 /* ChartHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartHistory.swift; sourceTree = "<group>"; };
 		8703F66A26136A500082EE25 /* RenameWalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameWalletViewController.swift; sourceTree = "<group>"; };
 		8703F686261461E40082EE25 /* RenameWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameWalletViewModel.swift; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -1636,6 +1641,7 @@
 		878EE953255BFFB9000210DE /* FeedbackGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackGenerator.swift; sourceTree = "<group>"; };
 		8795994426049EF8006722B2 /* ActivityStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateView.swift; sourceTree = "<group>"; };
 		8795994626049F0F006722B2 /* ActivityStateViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityStateViewViewModel.swift; sourceTree = "<group>"; };
+		879599492604A5B6006722B2 /* CoinTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcher.swift; sourceTree = "<group>"; };
 		8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationCoordinator.swift; sourceTree = "<group>"; };
 		87A0C93125AEF1E400E73F60 /* EventInstanceValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInstanceValue.swift; sourceTree = "<group>"; };
 		87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewController.swift; sourceTree = "<group>"; };
@@ -2425,6 +2431,8 @@
 				5E7C74822F5F71748184F6C1 /* EventInstance.swift */,
 				5E7C737CC822F8143DE1FDC0 /* EventActivity.swift */,
 				87A0C93125AEF1E400E73F60 /* EventInstanceValue.swift */,
+				8703F663261319B80082EE25 /* AddressAndRPCServer.swift */,
+				8703F66626135B330082EE25 /* ChartHistory.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2854,6 +2862,7 @@
 		29FC9BC31F830880000209CD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				879599482604A5A2006722B2 /* CoinTicker */,
 				87584B4225EFAFB60070063B /* BuyToken */,
 				87B65268256FBF22000EF927 /* SwapToken */,
 				295B61D21FE7D5AB00642E60 /* Formatters */,
@@ -3975,6 +3984,14 @@
 			path = Share;
 			sourceTree = "<group>";
 		};
+		879599482604A5A2006722B2 /* CoinTicker */ = {
+			isa = PBXGroup;
+			children = (
+				879599492604A5B6006722B2 /* CoinTickersFetcher.swift */,
+			);
+			path = CoinTicker;
+			sourceTree = "<group>";
+		};
 		87B65268256FBF22000EF927 /* SwapToken */ = {
 			isa = PBXGroup;
 			children = (
@@ -4755,6 +4772,7 @@
 				295B61D41FE7D5B500642E60 /* CurrencyFormatter.swift in Sources */,
 				296421991F70C1F900EB363B /* EmptyView.swift in Sources */,
 				771AA962200D5EC700D25403 /* PassphraseViewModel.swift in Sources */,
+				8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */,
 				73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */,
 				29FA00D0201CA66A002F7DC5 /* DAppError.swift in Sources */,
 				2995739F1FA1F294006F17FD /* QRCodeValueParser.swift in Sources */,
@@ -4926,6 +4944,7 @@
 				5E7C7D71D3184F44C397FFE7 /* HelpViewController.swift in Sources */,
 				5E7C7D8173CB1089D622DA38 /* HelpViewCell.swift in Sources */,
 				5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */,
+				8703F664261319B80082EE25 /* AddressAndRPCServer.swift in Sources */,
 				5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */,
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				5E7C7C21E5CAF122AA4F6617 /* HowDoIGetMyMoneyInfoViewController.swift in Sources */,
@@ -5119,6 +5138,7 @@
 				5E7C7719948721FE9120B5B2 /* PeekOpenSeaNonFungibleTokenViewController.swift in Sources */,
 				76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */,
 				76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */,
+				8703F66726135B330082EE25 /* ChartHistory.swift in Sources */,
 				76F1D5B10569F2351CA98A93 /* GasLimitConfiguration.swift in Sources */,
 				874DED1924C1BD2C006C8FCE /* SelectAssetViewModel.swift in Sources */,
 				5E7C7EB80D32A2F366E79140 /* SettingsHeaderView.swift in Sources */,

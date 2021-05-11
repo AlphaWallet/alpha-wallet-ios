@@ -13,7 +13,13 @@ struct AlphaWalletProviderFactory {
             configuration: URLSessionConfiguration.default,
             serverTrustPolicyManager: ServerTrustPolicyManager(policies: policies)
         )
-        return MoyaProvider<AlphaWalletService>(manager: manager)
+        var plugins: [PluginType] = []
+
+        if Features.shouldPrintCURLForOutgoingRequest {
+            plugins.append(NetworkLoggerPlugin(cURL: true))
+        }
+
+        return MoyaProvider<AlphaWalletService>(manager: manager, plugins: plugins)
     }
 }
 

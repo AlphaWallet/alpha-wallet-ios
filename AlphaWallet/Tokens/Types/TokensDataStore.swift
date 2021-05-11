@@ -15,6 +15,10 @@ protocol TokensDataStoreDelegate: class {
     func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
 }
 
+protocol TokensDataStorePriceDelegate: class {
+    func updatePrice(forTokenDataStore tokensDataStore: TokensDataStore)
+}
+
 // swiftlint:disable type_body_length
 class TokensDataStore {
     static let fetchContractDataTimeout = TimeInterval(4)
@@ -63,7 +67,6 @@ class TokensDataStore {
         return GetDecimalsCoordinator(forServer: server)
     }()
 
-    private let provider = AlphaWalletProviderFactory.makeProvider()
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let account: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
@@ -85,8 +88,17 @@ class TokensDataStore {
 
     let server: RPCServer
     weak var delegate: TokensDataStoreDelegate?
+    weak var priceDelegate: TokensDataStorePriceDelegate?
     //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
-    var tickers: [AlphaWallet.Address: CoinTicker]? = .none
+    var tickers: [AddressAndRPCServer: CoinTicker] = .init() {
+        didSet {
+            if oldValue == tickers {
+                //no-op
+            } else {
+                updateDelegate()
+            }
+        }
+    }
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
 
     var objects: [TokenObject] {
@@ -608,14 +620,13 @@ class TokensDataStore {
 
     private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
-        var tickersForThisServer = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
-        tickersForThisServer[server] = tickers
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: enabledObject, tickers: tickersForThisServer)
-        delegate?.didUpdate(result: .success( tokensViewModel ), refreshImmediately: refreshImmediately)
+
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: enabledObject, tickers: tickers)
+        delegate?.didUpdate(result: .success(tokensViewModel), refreshImmediately: refreshImmediately)
     }
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
-        return tickers?[token.contractAddress]
+        return tickers[token.addressAndRPCServer]
     }
 
     @discardableResult func addCustom(token: ERCToken) -> TokenObject {
@@ -642,43 +653,7 @@ class TokensDataStore {
     }
 
     func updatePrices() {
-        guard let priceToUpdate = getPriceToUpdate() else { return }
-        guard !isFetchingPrices else { return }
-        isFetchingPrices = true
-
-        firstly {
-            provider.request(priceToUpdate)
-        }.map { response -> [AlphaWallet.Address: CoinTicker] in
-            let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
-            let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
-                var dict = dict
-                dict[ticker.contract] = ticker
-                return dict
-            }
-            var resultTickers = [AlphaWallet.Address: CoinTicker]()
-            for (contract, ticker) in tempTickers {
-                guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contract) else { continue }
-                resultTickers[contractAddress] = ticker
-            }
-
-            return resultTickers
-        }.done { [weak self] tickers in
-            self?.tickers = tickers
-            self?.updateDelegate()
-        }.cauterize().finally { [weak self] in
-            self?.isFetchingPrices = false
-        }
-    }
-
-    private func getPriceToUpdate() -> AlphaWalletService? {
-        switch server {
-        case .main:
-            return .priceOfEth(config: config)
-        case .xDai:
-            return .priceOfDai(config: config)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
-            return nil
-        }
+        priceDelegate?.updatePrice(forTokenDataStore: self)
     }
 
     func add(deadContracts: [DeletedContract]) {
@@ -870,5 +845,11 @@ class TokensDataStore {
 extension Realm {
     var threadSafe: Realm {
          try! Realm(configuration: self.configuration)
+    }
+}
+
+extension TokenObject {
+    var addressAndRPCServer: AddressAndRPCServer {
+        return .init(address: contractAddress, server: server)
     }
 }

@@ -6,11 +6,20 @@ import Kingfisher
 
 class FungibleTokenViewCell: UITableViewCell {
     private let background = UIView()
+
     private let titleLabel = UILabel()
     private let blockchainLabel = UILabel()
+
+    private let valuePercentageChangeValueLabel = UILabel()
+    private let valuePercentageChangePeriodLabel = UILabel()
+    private let marketPriceLabel = UILabel()
+
     private var viewsWithContent: [UIView] {
-        [self.titleLabel, blockchainLabel]
+        [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
     }
+
+    private lazy var changeValueContainer: UIView = [marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
+
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +37,7 @@ class FungibleTokenViewCell: UITableViewCell {
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+            [blockchainLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
         ].asStackView(axis: .vertical, spacing: 5)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -69,5 +78,13 @@ class FungibleTokenViewCell: UITableViewCell {
 
         tokenIconImageView.subscribable = viewModel.iconImage
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
+
+        valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
+        valuePercentageChangeValueLabel.font = viewModel.textValueFont
+        valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
+
+        marketPriceLabel.textColor = viewModel.textColor
+        marketPriceLabel.font = viewModel.textValueFont
+        marketPriceLabel.text = viewModel.marketPriceValue
     }
 }

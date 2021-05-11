@@ -42,6 +42,10 @@ enum TransactionType {
             return nil
         }
     }
+
+    var addressAndRPCServer: AddressAndRPCServer {
+        AddressAndRPCServer(address: tokenObject.contractAddress, server: server)
+    }
 }
 
 extension TransactionType {
