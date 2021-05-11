@@ -190,6 +190,7 @@
 "transaction.cell.received.title" = "받음";
 "transaction.cell.sent.title" = "보냄";
 "transaction.cell.tokenTransfer.title" = "%@ 전송";
+"transaction.cell.tokenApprove.title" = "Approve %@";
 "Yesterday" = "어제";
 "Deleting" = "삭제 중";
 "Ethereum Address" = "이더리움 주소";

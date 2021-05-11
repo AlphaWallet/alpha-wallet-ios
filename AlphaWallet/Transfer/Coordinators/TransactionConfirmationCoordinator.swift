@@ -294,6 +294,8 @@ extension TransactionConfirmationCoordinator {
         let transactionType: Analytics.TransactionType
         if let functionCallMetaData = DecodedFunctionCall(data: configurator.currentConfiguration.data) {
             switch functionCallMetaData.type {
+            case .erc20Approve:
+                transactionType = .erc20Approve
             case .erc20Transfer:
                 transactionType = .erc20Transfer
             case .nativeCryptoTransfer:

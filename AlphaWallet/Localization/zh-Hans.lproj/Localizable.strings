@@ -191,6 +191,7 @@
 "transaction.cell.received.title" = "收到了";
 "transaction.cell.sent.title" = "发送了";
 "transaction.cell.tokenTransfer.title" = "转出%@";
+"transaction.cell.tokenApprove.title" = "Approve %@";
 "Yesterday" = "昨天";
 "Deleting" = "正在删除";
 "Ethereum Address" = "以太坊地址";

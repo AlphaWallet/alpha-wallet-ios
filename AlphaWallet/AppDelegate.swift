@@ -28,7 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
             let analyticsService = AnalyticsService()
             let keystore = try EtherKeystore(analyticsCoordinator: analyticsService)
-
             let navigationController = UINavigationController()
             navigationController.view.backgroundColor = Colors.appWhite
 
