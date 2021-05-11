@@ -46,3 +46,62 @@ class RateLimiter {
         }
     }
 }
+
+public protocol SyncLimiter {
+    @discardableResult func execute(_ block: () -> Void) -> Bool
+    func reset()
+}
+
+extension SyncLimiter {
+    public func execute<T>(_ block: () -> T) -> T? {
+        var value: T? = nil
+
+        execute {
+            value = block()
+        }
+
+        return value
+    }
+}
+
+public final class TimedLimiter: SyncLimiter {
+
+    // MARK: - Properties
+    public let limit: TimeInterval
+    public private(set) var lastExecutedAt: Date?
+
+    private let syncQueue = DispatchQueue(label: "com.alphaWallet.ratelimit", attributes: [])
+
+    // MARK: - Initializers
+    public init(limit: TimeInterval) {
+        self.limit = limit
+    }
+
+    // MARK: - Limiter
+    @discardableResult public func execute(_ block: () -> Void) -> Bool {
+        let executed = syncQueue.sync { () -> Bool in
+            let now = Date()
+            let timeInterval = now.timeIntervalSince(lastExecutedAt ?? .distantPast)
+
+            if timeInterval > limit {
+                lastExecutedAt = now
+
+                return true
+            } else {
+                return false
+            }
+        }
+
+        if executed {
+            block()
+        }
+
+        return executed
+    }
+
+    public func reset() {
+        syncQueue.sync {
+            lastExecutedAt = nil
+        }
+    }
+}

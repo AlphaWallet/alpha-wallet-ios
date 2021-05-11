@@ -2,6 +2,7 @@
 
 import UIKit
 import BigInt
+import PromiseKit
 import RealmSwift
 import Result
 
@@ -63,6 +64,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
+    private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
     var tokensStorages = ServerDictionary<TokensDataStore>()
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
 
@@ -207,7 +209,9 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
         let realm = self.realm(forAccount: wallet)
-        return TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: filterTokensCoordinator)
+        let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: filterTokensCoordinator)
+        storage.priceDelegate = self
+        return storage
     }
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
@@ -224,7 +228,6 @@ class InCoordinator: NSObject, Coordinator {
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
             guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
-
             if let ticker = tokensStorage.coinTicker(for: eth) {
                 strongSelf.nativeCryptoCurrencyPrices[server].value = Double(ticker.price_usd)
             } else {
@@ -262,6 +265,26 @@ class InCoordinator: NSObject, Coordinator {
             let tokensStorage = createTokensDatastore(forConfig: config, server: each)
             tokensStorages[each] = tokensStorage
         }
+    }
+
+    private func setupFetchTokenPrices() {
+        fetchTokenPrices()
+    }
+
+    private func fetchTokenPrices() {
+        let tokens: ServerDictionary<[TokenMappedToTicker]> = tokensStorages.mapValues { storage in
+            storage.enabledObject.map { TokenMappedToTicker(tokenObject: $0) }
+        }
+
+        firstly {
+            coinTickersFetcher.fetchPrices(forTokens: tokens)
+        }.done { [weak self] tickers in
+            guard let strongSelf = self else { return }
+            for (_, storage) in strongSelf.tokensStorages {
+                storage.tickers = tickers
+            }
+        //We should already have retried upstream
+        }.cauterize()
     }
 
     private func setupTransactionsStorages() {
@@ -314,6 +337,7 @@ class InCoordinator: NSObject, Coordinator {
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupTokenDataStores()
+        setupFetchTokenPrices()
         setupWalletSessions()
         setupNativeCryptoCurrencyPrices()
         setupNativeCryptoCurrencyBalances()
@@ -396,7 +420,8 @@ class InCoordinator: NSObject, Coordinator {
                 analyticsCoordinator: analyticsCoordinator,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
-                transactionsStorages: transactionsStorages
+                transactionsStorages: transactionsStorages,
+                coinTickersFetcher: coinTickersFetcher
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
@@ -1048,6 +1073,12 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
         case .sentRawTransaction, .signedTransaction:
             break
         }
+    }
+}
+
+extension InCoordinator: TokensDataStorePriceDelegate {
+    func updatePrice(forTokenDataStore tokensDataStore: TokensDataStore) {
+        fetchTokenPrices()
     }
 }
 // swiftlint:enable file_length

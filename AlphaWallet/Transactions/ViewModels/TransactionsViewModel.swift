@@ -23,10 +23,13 @@ struct TransactionsViewModel {
             newItems[date] = currentItems
         }
         let tuple = newItems.map { each in
-            (date: each.key, transactions: (each.value as! [TransactionInstance]).sorted { $0.date > $1.date })
+            (date: each.key, transactions: (each.value as? [TransactionInstance] ?? []).sorted { $0.date > $1.date })
         }
         let collapsedTransactions: [(date: String, transactions: [TransactionInstance])] = tuple.sorted { (object1, object2) -> Bool in
-            return formatter.date(from: object1.date)! > formatter.date(from: object2.date)!
+            guard let d1 = formatter.date(from: object1.date), let d2 = formatter.date(from: object2.date) else {
+                return false
+            }
+            return d1 > d2
         }
 
         return collapsedTransactions.map { date, transactions in
@@ -75,7 +78,8 @@ struct TransactionsViewModel {
 
     func titleForHeader(in section: Int) -> String {
         let value = items[section].date
-        let date = Self.formatter.date(from: value)!
+        guard let date = Self.formatter.date(from: value) else { return .init() }
+        
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }

@@ -47,7 +47,7 @@ extension TokenCollection: TokensDataStoreDelegate {
                     self?.notifySubscribersOfUpdatedTokens()
                 }
             }
-            
+
             DispatchQueue.main.async {
                 self.notifySubscribersOfUpdatedTokens()
             }
@@ -58,15 +58,15 @@ extension TokenCollection: TokensDataStoreDelegate {
 
     private func notifySubscribersOfUpdatedTokens() {
         //TODO not efficient. But how many elements can we actually have. Not that many?
-        var tickers = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
-        var tokens = [TokenObject]()
+        var tickers: [AddressAndRPCServer: CoinTicker] = [:]
+        var tokens: [TokenObject] = []
+
         //This might slow things down. Especially if it runs too many times unnecessarily
         for each in tokenDataStores {
-            if let singleChainTickers = each.tickers {
-                tickers[each.server] = singleChainTickers
-            } else {
-                tickers[each.server] = .init()
+            for (key, value) in each.tickers {
+                tickers[key] = value
             }
+
             tokens.append(contentsOf: each.enabledObject)
         }
 

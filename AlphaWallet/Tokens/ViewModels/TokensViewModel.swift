@@ -10,7 +10,7 @@ class TokensViewModel {
 
     private let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
-    let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
+    let tickers: [AddressAndRPCServer: CoinTicker]
 
     var filter: WalletFilter = .all {
         didSet {
@@ -66,7 +66,7 @@ class TokensViewModel {
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.server]?[token.contractAddress]
+        return tickers[token.addressAndRPCServer]
     }
 
     func canDelete(for row: Int, section: Int) -> Bool {
@@ -78,7 +78,7 @@ class TokensViewModel {
         return true
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
+    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens
         self.tickers = tickers
@@ -105,10 +105,9 @@ class TokensViewModel {
     }
 
     func amount(for token: TokenObject) -> Double {
-        guard let tickers = tickers[token.server] else { return 0 }
-        guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
+        guard let ticker = tickers[token.addressAndRPCServer], !token.valueBigInt.isZero else { return 0 }
         let tokenValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = tickersSymbol.price_usd
+        let price = ticker.price_usd
         return tokenValue * price
     }
 
