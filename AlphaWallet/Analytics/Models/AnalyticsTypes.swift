@@ -126,6 +126,7 @@ enum Analytics {
 
     enum TransactionType: String {
         case erc20Transfer
+        case erc20Approve
         case nativeCryptoTransfer
         case unknown
     }

@@ -42,6 +42,8 @@ struct TransactionRowCellViewModel {
             switch operation.operationType {
             case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
                 return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
+            case .erc20TokenApprove:
+                return R.string.localizable.transactionCellTokenApproveTitle(operation.symbol ?? "")
             case .unknown:
                 return nil
             }

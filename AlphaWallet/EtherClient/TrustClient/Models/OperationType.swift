@@ -5,6 +5,7 @@ import Foundation
 enum OperationType: String {
     case nativeCurrencyTokenTransfer
     case erc20TokenTransfer
+    case erc20TokenApprove
     case erc721TokenTransfer
     case erc875TokenTransfer
     case unknown
