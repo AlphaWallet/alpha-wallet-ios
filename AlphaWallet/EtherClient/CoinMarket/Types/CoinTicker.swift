@@ -25,8 +25,8 @@ struct CoinTicker: Codable, Hashable {
     }
 
     let id: String
-    private let symbol: String
-    private let image: String = ""
+    let symbol: String
+    let image: String = ""
 
     let price_usd: Double
     let percent_change_24h: Double
@@ -62,18 +62,18 @@ struct CoinTicker: Codable, Hashable {
 
         self.price_usd = container.decode(Double.self, forKey: .price_usd, defaultValue: 0.0)
         self.percent_change_24h = container.decode(Double.self, forKey: .percent_change_24h, defaultValue: 0.0)
-        self.market_cap = container.decode(Double.self, forKey: .market_cap, defaultValue: 0.0)
-        self.market_cap_rank = container.decode(Double.self, forKey: .market_cap_rank, defaultValue: 0.0)
-        self.total_volume = container.decode(Double.self, forKey: .total_volume, defaultValue: 0.0)
-        self.high_24h = container.decode(Double.self, forKey: .high_24h, defaultValue: 0.0)
-        self.low_24h = container.decode(Double.self, forKey: .low_24h, defaultValue: 0.0)
-        self.market_cap_change_24h = container.decode(Double.self, forKey: .market_cap_change_24h, defaultValue: 0.0)
-        self.market_cap_change_percentage_24h = container.decode(Double.self, forKey: .market_cap_change_percentage_24h, defaultValue: 0.0)
-        self.circulating_supply = container.decode(Double.self, forKey: .circulating_supply, defaultValue: 0.0)
-        self.total_supply = container.decode(Double.self, forKey: .total_supply, defaultValue: 0.0)
-        self.max_supply = container.decode(Double.self, forKey: .max_supply, defaultValue: 0.0)
-        self.ath = container.decode(Double.self, forKey: .ath, defaultValue: 0.0)
-        self.ath_change_percentage = container.decode(Double.self, forKey: .ath_change_percentage, defaultValue: 0.0)
+        self.market_cap = container.decode(Double.self, forKey: .market_cap, defaultValue: nil)
+        self.market_cap_rank = container.decode(Double.self, forKey: .market_cap_rank, defaultValue: nil)
+        self.total_volume = container.decode(Double.self, forKey: .total_volume, defaultValue: nil)
+        self.high_24h = container.decode(Double.self, forKey: .high_24h, defaultValue: nil)
+        self.low_24h = container.decode(Double.self, forKey: .low_24h, defaultValue: nil)
+        self.market_cap_change_24h = container.decode(Double.self, forKey: .market_cap_change_24h, defaultValue: nil)
+        self.market_cap_change_percentage_24h = container.decode(Double.self, forKey: .market_cap_change_percentage_24h, defaultValue: nil)
+        self.circulating_supply = container.decode(Double.self, forKey: .circulating_supply, defaultValue: nil)
+        self.total_supply = container.decode(Double.self, forKey: .total_supply, defaultValue: nil)
+        self.max_supply = container.decode(Double.self, forKey: .max_supply, defaultValue: nil)
+        self.ath = container.decode(Double.self, forKey: .ath, defaultValue: nil)
+        self.ath_change_percentage = container.decode(Double.self, forKey: .ath_change_percentage, defaultValue: nil)
 
         if let value = try? container.decode(String.self, forKey: .id) {
             self.id = value
@@ -97,6 +97,14 @@ extension CoinTicker {
 
 extension KeyedDecodingContainer where Key: Hashable {
     func decode<T>(_ type: T.Type, forKey key: Key, defaultValue: T) -> T where T: Decodable {
+        if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key), let typedValue = typedValueOptional {
+            return typedValue
+        } else {
+            return defaultValue
+        }
+    }
+
+    func decode<T>(_ type: T.Type, forKey key: Key, defaultValue: T?) -> T? where T: Decodable {
         if let typedValueOptional = try? decodeIfPresent(T.self, forKey: key), let typedValue = typedValueOptional {
             return typedValue
         } else {

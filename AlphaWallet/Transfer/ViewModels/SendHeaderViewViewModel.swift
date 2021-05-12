@@ -2,14 +2,20 @@
 
 import UIKit
 
-struct SendHeaderViewViewModel {
+struct TokenInfoPageViewModel {
+
+    var tabTitle: String {
+        return R.string.localizable.tokenTabInfo()
+    }
+
     private let token: TokenObject
-    private let transactionType: TransactionType
+    let transactionType: TransactionType
     let server: RPCServer
     var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
     var isShowingValue: Bool = true
+    var values: [ChartHistory] = []
 
     init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
         self.server = server
@@ -29,6 +35,135 @@ struct SendHeaderViewViewModel {
         case .none:
             return nil
         }
+    }
+
+    var markerCapViewModel: TickerFieldValueViewModel {
+        let value: String = {
+            if let market_cap = ticker?.market_cap {
+                return String(market_cap)
+            } else {
+                return "-"
+            }
+        }()
+
+        let attributedValue: NSAttributedString = .init(string: value, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: Colors.black
+        ])
+
+        return .init(title: R.string.localizable.tokenInfoFieldStatsMarket_cap(), attributedValue: attributedValue)
+    }
+
+    var totalVolumeViewModel: TickerFieldValueViewModel {
+        let value: String = {
+            if let total_volume = ticker?.total_supply {
+                return String(total_volume)
+            } else {
+                return "-"
+            }
+        }()
+
+        let attributedValue: NSAttributedString = .init(string: value, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: Colors.black
+        ])
+        return .init(title: R.string.localizable.tokenInfoFieldStatsTotal_supply(), attributedValue: attributedValue)
+    }
+
+    var maxSupplyViewModel: TickerFieldValueViewModel {
+        let value: String = {
+            if let max_supply = ticker?.max_supply, let value = NumberFormatter.usd.string(from: max_supply) {
+                return String(value)
+            } else {
+                return "-"
+            }
+        }()
+
+        let attributedValue: NSAttributedString = .init(string: value, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: Colors.black
+        ])
+        return .init(title: R.string.localizable.tokenInfoFieldStatsMax_supply(), attributedValue: attributedValue)
+    }
+
+    var yearLowViewModel: TickerFieldValueViewModel {
+        let value: String = {
+            let history = values[safe: ChartHistoryPeriod.year.index]
+            if let min = HistoryHelper(history: history, ticker: ticker).minMax?.min, let value = NumberFormatter.usd.string(from: min) {
+                return value
+            } else {
+                return "-"
+            }
+        }()
+
+        let attributedValue: NSAttributedString = .init(string: value, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: Colors.black
+        ])
+        return .init(title: R.string.localizable.tokenInfoFieldPerfomanceYearLow(), attributedValue: attributedValue)
+    }
+
+    var yearHightViewModel: TickerFieldValueViewModel {
+        let value: String = {
+            let history = values[safe: ChartHistoryPeriod.year.index]
+            if let max = HistoryHelper(history: history, ticker: ticker).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
+                return value
+            } else {
+                return "-"
+            }
+        }()
+
+        let attributedValue: NSAttributedString = .init(string: value, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: Colors.black
+        ])
+        return .init(title: R.string.localizable.tokenInfoFieldPerfomanceYearHigh(), attributedValue: attributedValue)
+    }
+
+    var yearViewModel: TickerFieldValueViewModel {
+        let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.year)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsYear(), attributedValue: attributedValue)
+    }
+    
+    var monthViewModel: TickerFieldValueViewModel {
+        let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.month)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(), attributedValue: attributedValue)
+    }
+
+    var weekViewModel: TickerFieldValueViewModel {
+        let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.week)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsWeek(), attributedValue: attributedValue)
+    }
+
+    var dayViewModel: TickerFieldValueViewModel {
+        let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.day)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsDay(), attributedValue: attributedValue)
+    }
+
+    private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
+        let result: (String, UIColor) = {
+            let result = HistoryHelper(history: values[safe: period.index], ticker: ticker)
+
+            switch result.change {
+            case .appreciate(let percentage, let value):
+                let p = NumberFormatter.percent.string(from: percentage) ?? "-"
+                let v = NumberFormatter.usd.string(from: value) ?? "-"
+
+                return ("\(v) (\(p)%)", Colors.appActionButtonGreen)
+            case .depreciate(let percentage, let value):
+                let p = NumberFormatter.percent.string(from: percentage) ?? "-"
+                let v = NumberFormatter.usd.string(from: value) ?? "-"
+
+                return ("\(v) (\(p)%)", Colors.appRed)
+            case .none:
+                return ("-", Colors.black)
+            }
+        }()
+
+        return .init(string: result.0, attributes: [
+            .font: Screen.TokenCard.Font.valueChangeValue,
+            .foregroundColor: result.1
+        ])
     }
 
     var backgroundColor: UIColor {
@@ -55,13 +190,13 @@ struct SendHeaderViewViewModel {
             return nil
         } else {
             switch transactionType {
-            case .nativeCryptocurrency:
+            case .nativeCryptocurrency, .ERC20Token:
                 if isShowingValue {
                     return tokenValueAttributedString
                 } else {
                     return marketPriceAttributedString
                 }
-            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return nil
             }
         }
@@ -104,6 +239,77 @@ struct SendHeaderViewViewModel {
             return NumberFormatter.usd.string(from: value)
         } else {
             return nil
+        }
+    }
+}
+
+struct HistoryHelper {
+
+    enum Change {
+        case appreciate(percentage: Double, value: Double)
+        case depreciate(percentage: Double, value: Double)
+        case none
+    }
+
+    private let history: ChartHistory?
+    private let ticker: CoinTicker?
+
+    init(history: ChartHistory?, ticker: CoinTicker?) {
+        self.history = history
+        self.ticker = ticker
+    }
+
+    var minMax: (min: Double, max: Double)? {
+        guard let history = history else { return nil }
+        guard let min = history.prices.min(by: { $0.value < $1.value }), let max = history.prices.max(by: { $0.value < $1.value }) else { return nil }
+
+        return (min.value, max.value)
+    }
+
+    var change: HistoryHelper.Change {
+        if let percentage = changePercentage, let value = changeValue {
+            if isValueAppreciated24h(value) {
+                return .appreciate(percentage: percentage, value: value)
+            } else if isValueDepreciated24h(value) {
+                return .depreciate(percentage: percentage, value: value)
+            } else {
+                return .none
+            }
+        } else {
+            return .none
+        }
+    }
+
+    private var historicalValues: (older: Double, newer: Double)? {
+        guard let history = history else { return nil }
+        guard let older = history.prices.first?.value, let newer = history.prices.last?.value else { return nil }
+
+        return (older, newer)
+    }
+
+    private var changeValue: Double? {
+        guard let val = historicalValues, let ticker = ticker else { return nil }
+        return val.older - ticker.price_usd
+    }
+
+    private var changePercentage: Double? {
+        guard let val = historicalValues, let ticker = ticker else { return nil }
+        return ticker.price_usd / val.older * 100.0
+    }
+
+    private func isValueAppreciated24h(_ value: Double?) -> Bool {
+        if let percentChange = value {
+            return percentChange > 0
+        } else {
+            return false
+        }
+    }
+
+    private func isValueDepreciated24h(_ value: Double?) -> Bool {
+        if let percentChange = value {
+            return percentChange < 0
+        } else {
+            return false
         }
     }
 }

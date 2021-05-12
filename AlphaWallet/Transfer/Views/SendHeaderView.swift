@@ -65,7 +65,7 @@ class SendHeaderView: UIView {
         return nil
     }
 
-    func configure(viewModel: SendHeaderViewViewModel) {
+    func configure(viewModel: TokenInfoPageViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         tokenIconImageView.subscribable = viewModel.iconImage

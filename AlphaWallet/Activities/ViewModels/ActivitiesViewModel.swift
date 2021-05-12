@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 
 enum ActivityOrTransactionFilter {
     case keyword(_ value: String?)
@@ -16,11 +17,12 @@ struct ActivitiesViewModel {
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
-    private let tokensStorages: ServerDictionary<TokensDataStore>
-
-    init(tokensStorages: ServerDictionary<TokensDataStore>, activities: [MappedToDateActivityOrTransaction] = []) {
+    var itemsCount: Int {
+        items.count
+    }
+    
+    init(activities: [MappedToDateActivityOrTransaction] = []) {
         items = activities
-        self.tokensStorages = tokensStorages
     }
 
 // swiftlint:disable function_body_length
@@ -61,7 +63,7 @@ struct ActivitiesViewModel {
                             return false
                         case let (.standaloneActivity(a0), .standaloneActivity(a1)):
                             return a0.logIndex > a1.logIndex
-                        case let (.childTransaction(t0, _), .childTransaction(t1, _)):
+                        case let (.childTransaction(t0, _, _), .childTransaction(t1, _, _)):
                             if let n0 = Int(t0.nonce), let n1 = Int(t1.nonce) {
                                 return n0 > n1
                             } else {
@@ -87,7 +89,7 @@ struct ActivitiesViewModel {
                                 return false
                             }
                             return a0.logIndex > a1.logIndex
-                        case (.childActivity(transaction: let t0, _), .childTransaction(transaction: let t1, _)):
+                        case (.childActivity(transaction: let t0, _), .childTransaction(transaction: let t1, _, _)):
                             if t0.blockNumber > t1.blockNumber {
                                 return true
                             }
@@ -95,15 +97,15 @@ struct ActivitiesViewModel {
                                 return false
                             }
                             return true
-                        case (.childActivity(transaction: let t0, _), .standaloneTransaction(transaction: let t1)):
+                        case (.childActivity(transaction: let t0, _), .standaloneTransaction(transaction: let t1, _)):
                             return t0.blockNumber > t1.blockNumber
                         case (.childActivity(transaction: let t0, _), .standaloneActivity(activity: let a1)):
                             return t0.blockNumber > a1.blockNumber
-                        case (.standaloneTransaction(transaction: let t0), .childActivity(transaction: let t1, _)):
+                        case (.standaloneTransaction(transaction: let t0, _), .childActivity(transaction: let t1, _)):
                             return t0.blockNumber > t1.blockNumber
-                        case (.standaloneTransaction(transaction: let t0), .standaloneTransaction(transaction: let t1)):
+                        case (.standaloneTransaction(transaction: let t0, _), .standaloneTransaction(transaction: let t1, _)):
                             return t0.blockNumber > t1.blockNumber
-                        case (.childTransaction(transaction: let t0, _), .childActivity(transaction: let t1, _)):
+                        case (.childTransaction(transaction: let t0, _, _), .childActivity(transaction: let t1, _)):
                             if t0.blockNumber > t1.blockNumber {
                                 return true
                             }
@@ -139,12 +141,12 @@ struct ActivitiesViewModel {
                         //Special case to support keywords like "Sent CoFi"
                         data = content.filter { data -> Bool in
                             (data.activityName?.lowercased().contains(twoKeywords.0) ?? false) &&
-                                    (data.getTokenSymbol(fromTokensStorages: tokensStorages)?.lowercased().contains(twoKeywords.1) ?? false)
+                                    (data.getTokenSymbol()?.lowercased().contains(twoKeywords.1) ?? false)
                         }
                     } else {
                         data = content.filter { data -> Bool in
                             (data.activityName?.lowercased().contains(valueToSearch) ?? false) ||
-                                    (data.getTokenSymbol(fromTokensStorages: tokensStorages)?.lowercased().contains(valueToSearch) ?? false)
+                                    (data.getTokenSymbol()?.lowercased().contains(valueToSearch) ?? false)
                         }
                     }
 
@@ -215,3 +217,141 @@ extension String {
         return !self.trimmed.isEmpty
     }
 }
+
+extension ActivitiesViewModel {
+    class functional {}
+}
+
+extension ActivitiesViewModel.functional {
+    
+    static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensStorages: ServerDictionary<TokensDataStore>, wallet: AlphaWallet.Address) -> (token: TokenObject, activityName: String)? {
+        enum TokenOperation {
+            case nativeCryptoTransfer(TokenObject)
+            case completedTransfer(TokenObject)
+            case pendingTransfer(TokenObject)
+            case completedErc20Approval(TokenObject)
+            case pendingErc20Approval(TokenObject)
+
+            var token: TokenObject {
+                switch self {
+                case .nativeCryptoTransfer(let token):
+                    return token
+                case .completedTransfer(let token):
+                    return token
+                case .pendingTransfer(let token):
+                    return token
+                case .completedErc20Approval(let token):
+                    return token
+                case .pendingErc20Approval(let token):
+                    return token
+                }
+            }
+        }
+
+        let erc20TokenOperation: TokenOperation?
+        if transactionRow.operation == nil {
+            erc20TokenOperation = .nativeCryptoTransfer(TokensDataStore.etherToken(forServer: transactionRow.server))
+        } else {
+            switch (transactionRow.state, transactionRow.operation?.operationType) {
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingTransfer($0) }
+            case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedTransfer($0) }
+                    //Explicitly listing out combinations so future changes to enums will be caught by compiler
+            case (.pending, .erc20TokenApprove):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingErc20Approval($0) }
+            case (.completed, .erc20TokenApprove):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedErc20Approval($0) }
+            case (.unknown, _), (.error, _), (.failed, _), (_, .unknown), (.completed, .none), (.pending, nil):
+                erc20TokenOperation = .none
+            }
+        }
+        guard let token = erc20TokenOperation?.token else { return nil }
+        let activityName: String
+        switch erc20TokenOperation {
+        case .nativeCryptoTransfer, .completedTransfer, .pendingTransfer, .none:
+            if wallet.sameContract(as: transactionRow.from) {
+                activityName = "sent"
+            } else {
+                activityName = "received"
+            }
+        case .completedErc20Approval, .pendingErc20Approval:
+            activityName = "ownerApproved"
+        }
+        return (token: token, activityName: activityName)
+    }
+
+    // swiftlint:disable function_body_length
+    static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, tokensStorages: ServerDictionary<TokensDataStore>, wallet: AlphaWallet.Address) -> Activity? {
+        guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, tokensStorages: tokensStorages, wallet: wallet) else { return nil }
+        var cardAttributes = [AttributeId: AssetInternalValue]()
+        cardAttributes["symbol"] = .string(transactionRow.server.symbol)
+
+        if let operation = transactionRow.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
+            cardAttributes["amount"] = .uint(value)
+        } else {
+            if let value = BigUInt(transactionRow.value) {
+                cardAttributes["amount"] = .uint(value)
+            }
+        }
+
+        if let value = AlphaWallet.Address(string: transactionRow.from) {
+            cardAttributes["from"] = .address(value)
+        }
+
+        if let toString = transactionRow.operation?.to, let to = AlphaWallet.Address(string: toString) {
+            cardAttributes["to"] = .address(to)
+        } else {
+            if let value = AlphaWallet.Address(string: transactionRow.to) {
+                cardAttributes["to"] = .address(value)
+            }
+        }
+
+        var timestamp: GeneralisedTime = .init()
+        timestamp.date = transactionRow.date
+        cardAttributes["timestamp"] = .generalisedTime(timestamp)
+        let state: Activity.State
+        switch transactionRow.state {
+        case .pending:
+            state = .pending
+        case .completed:
+            state = .completed
+        case .error, .failed:
+            state = .failed
+        //TODO we don't need the other states at the moment
+        case .unknown:
+            state = .completed
+        }
+        let rowType: ActivityRowType
+        switch transactionRow {
+        case .standalone:
+            rowType = .standalone
+        case .group:
+            rowType = .group
+        case .item:
+            rowType = .item
+        }
+        return .init(
+                //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
+                id: transactionRow.blockNumber + 10000000,
+                rowType: rowType,
+                tokenObject: Activity.AssignedToken(tokenObject: token),
+                server: transactionRow.server,
+                name: activityName,
+                eventName: activityName,
+                blockNumber: transactionRow.blockNumber,
+                transactionId: transactionRow.id,
+                transactionIndex: transactionRow.transactionIndex,
+                //We don't use this for transactions, so it's ok
+                logIndex: 0,
+                date: transactionRow.date,
+                values: (token: .init(), card: cardAttributes),
+                view: (html: "", style: ""),
+                itemView: (html: "", style: ""),
+                isBaseCard: true,
+                state: state
+        )
+    }
+    // swiftlint:enable function_body_length
+}
+

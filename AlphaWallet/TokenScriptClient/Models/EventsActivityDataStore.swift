@@ -5,6 +5,9 @@ import RealmSwift
 import PromiseKit
 
 protocol EventsActivityDataStoreProtocol {
+    var recentEventsSubscribable: Subscribable<[EventActivity]> { get }
+    func removeSubscription(subscription: Subscribable<[EventActivity]>)
+
     func getRecentEvents() -> [EventActivity]
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?>
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
@@ -15,9 +18,41 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     static let numberOfActivitiesToUse = 100
 
     private let realm: Realm
+    private let queue: DispatchQueue = DispatchQueue(label: "com.EventsActivityDataStore.updateQueue")
 
     init(realm: Realm) {
         self.realm = realm
+    }
+
+    private var cachedRecentEventsSubscribable: [Subscribable<[EventActivity]>: NotificationToken] = [:]
+
+    var recentEventsSubscribable: Subscribable<[EventActivity]> {
+        func getRecentEvents() -> Results<EventActivity> {
+            realm.threadSafe
+                .objects(EventActivity.self)
+                .sorted(byKeyPath: "date", ascending: false)
+        }
+
+        let notifier = Subscribable<[EventActivity]>(nil)
+
+        let subscription = getRecentEvents().observe(on: .main) {  change in
+            switch change {
+            case .initial(let events):
+                notifier.value = events.map { $0 }
+            case .error:
+                break
+            case .update(let events, _, _, _):
+                notifier.value = events.map { $0 }
+            }
+        }
+
+        cachedRecentEventsSubscribable[notifier] = subscription
+
+        return notifier
+    }
+
+    func removeSubscription(subscription: Subscribable<[EventActivity]>) {
+        cachedRecentEventsSubscribable[subscription] = nil
     }
 
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
@@ -36,19 +71,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         }
     }
 
-    func getEvents(forContract contract: AlphaWallet.Address, forEventName eventName: String, filter: String, server: RPCServer) -> [EventActivity] {
-        Array(realm.objects(EventActivity.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("chainId = \(server.chainID)")
-                .filter("eventName = '\(eventName)'")
-                .filter("filter = '\(filter)'"))
-    }
-
     func getRecentEvents() -> [EventActivity] {
         return Array(realm.threadSafe.objects(EventActivity.self)
                 .sorted(byKeyPath: "date", ascending: false)
-                .prefix(Self.numberOfActivitiesToUse)
-        )
+                .prefix(Self.numberOfActivitiesToUse))
     }
 
     private func delete<S: Sequence>(events: S) where S.Element: EventActivity {

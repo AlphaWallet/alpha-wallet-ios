@@ -35,7 +35,7 @@ protocol CoinTickersFetcherType {
     var tickers: [AddressAndRPCServer: CoinTicker] { get }
 
     func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]>
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]>
+    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 fileprivate struct MappedCoinTickerId: Hashable {
@@ -112,9 +112,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }
     }
 
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
-        let promises: [Promise<ChartHistory>] = ChartHistoryPeriod.allCases.map {
-            fetchChartHistory(force: false, period: $0, for: addressToRPCServerKey)
+    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        let promises: [Promise<ChartHistory>] = periods.map {
+            fetchChartHistory(force: force, period: $0, for: addressToRPCServerKey)
         }
         return when(fulfilled: promises)
     }
@@ -150,7 +150,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                     self.cacheChartHistory(result: $0, period: period, for: ticker)
                 })
             }
-        }.recover { _ -> Promise<ChartHistory> in
+        }.recover { e -> Promise<ChartHistory> in
             if shouldRetry {
                 return self.fetchChartHistory(force: force, period: period, for: key, shouldRetry: false)
             } else {

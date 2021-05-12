@@ -62,10 +62,6 @@ struct SendViewModel {
         return R.string.localizable.sendRecipientsAddress()
     }
 
-    var amountTextFieldPair: AmountTextField.Pair {
-        return AmountTextField.Pair(left: .cryptoCurrency(transactionType.tokenObject), right: .usd)
-    }
-
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:

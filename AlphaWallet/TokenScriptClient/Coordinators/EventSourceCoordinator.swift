@@ -5,8 +5,13 @@ import BigInt
 import PromiseKit
 import web3swift
 
+protocol EventSourceCoordinatorType: class {
+    func fetchEthereumEvents()
+    func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
+}
+
 //TODO rename this generic name to reflect that it's for event instances, not for event activity
-class EventSourceCoordinator {
+class EventSourceCoordinator: EventSourceCoordinatorType {
     private var wallet: Wallet
     private let config: Config
     private let tokensStorages: ServerDictionary<TokensDataStore>
@@ -47,11 +52,7 @@ class EventSourceCoordinator {
     func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
-                guard let strongSelf = self else { return }
-
-                strongSelf.queue.async {
-                    strongSelf.fetchEthereumEventsImpl()
-                }
+                self?.fetchEthereumEventsImpl()
             }
         } else {
             rateLimitedUpdater?.run()

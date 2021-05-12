@@ -5,7 +5,7 @@ import RealmSwift
 import PromiseKit
 
 protocol EventsDataStoreProtocol {
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstance?>
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
     func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
     func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance]
@@ -55,7 +55,7 @@ class EventsDataStore: EventsDataStoreProtocol {
         }
     }
 
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstance?> {
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?> {
         return Promise { seal in
             let event = Array(realm.threadSafe.objects(EventInstance.self)
                 .filter("contract = '\(contract.eip55String)'")
@@ -63,6 +63,7 @@ class EventsDataStore: EventsDataStoreProtocol {
                 .filter("chainId = \(server.chainID)")
                 .filter("eventName = '\(eventName)'")
                 .sorted(byKeyPath: "blockNumber"))
+                .map{ EventInstanceValue(event: $0) }
                 .last 
 
             seal.fulfill(event)
