@@ -72,6 +72,7 @@ enum OriginalDapps {
         Dapp(name: "DerivaDEX Insurance Fund", description: "DerivaDEX is the next generation of crypto derivatives. Begin earning DDX by bootstrapping the insurance fund.", url: "https://insurance.derivadex.com/", cat: "Finance"),
         Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool"),
         Dapp(name: "Mushrooms Finance", description: "Sustainable crypto earning in DeFi", url: "https://mushrooms.finance/", cat: "Finance")
+        Dapp(name: "Levinswap", description: "Decentralized exchange for trading crypto and serurities tokens", url: "https://app.levinswap.org/", cat: "Exchange")
     ]
 
     struct Category {
