@@ -9,6 +9,7 @@ protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
+    func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
@@ -51,7 +52,7 @@ class TokensCoordinator: Coordinator {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
-
+    private let activitiesService: ActivitiesServiceType
     private lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
             sessions: sessions,
@@ -97,7 +98,8 @@ class TokensCoordinator: Coordinator {
             tokenActionsService: TokenActionsServiceType,
             walletConnectCoordinator: WalletConnectCoordinator,
             transactionsStorages: ServerDictionary<TransactionsStorage>,
-            coinTickersFetcher: CoinTickersFetcherType
+            coinTickersFetcher: CoinTickersFetcherType,
+            activitiesService: ActivitiesServiceType
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -115,6 +117,7 @@ class TokensCoordinator: Coordinator {
         self.walletConnectCoordinator = walletConnectCoordinator
         self.transactionsStorages = transactionsStorages
         self.coinTickersFetcher = coinTickersFetcher
+        self.activitiesService = activitiesService
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
@@ -133,7 +136,7 @@ class TokensCoordinator: Coordinator {
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, sessions: sessions)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -404,6 +407,10 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator) {
         delegate?.didPress(for: type, server: coordinator.session.server, in: self)
+    }
+
+    func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTap(activity: activity, inViewController: viewController, in: self)
     }
 
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {

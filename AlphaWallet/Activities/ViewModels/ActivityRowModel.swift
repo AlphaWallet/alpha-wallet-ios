@@ -3,10 +3,15 @@
 import Foundation
 
 enum ActivityRowModel {
+    enum PseudoActivityOrTransaction {
+        case activity(activity: Activity)
+        case childTransaction(transaction: TransactionInstance, operation: LocalizedOperationObjectInstance)
+    }
+
     case parentTransaction(transaction: TransactionInstance, isSwap: Bool, activities: [Activity])
     case childActivity(transaction: TransactionInstance, activity: Activity)
-    case childTransaction(transaction: TransactionInstance, operation: LocalizedOperationObjectInstance)
-    case standaloneTransaction(transaction: TransactionInstance)
+    case childTransaction(transaction: TransactionInstance, operation: LocalizedOperationObjectInstance, activity: Activity?)
+    case standaloneTransaction(transaction: TransactionInstance, activity: Activity?)
     case standaloneActivity(activity: Activity)
 
     var date: Date {
@@ -15,9 +20,9 @@ enum ActivityRowModel {
             return transaction.date
         case .childActivity(transaction: let transaction, _):
             return transaction.date
-        case .childTransaction(transaction: let transaction, _):
+        case .childTransaction(transaction: let transaction, _, _):
             return transaction.date
-        case .standaloneTransaction(transaction: let transaction):
+        case .standaloneTransaction(transaction: let transaction, _):
             return transaction.date
         case .standaloneActivity(activity: let activity):
             return activity.date
@@ -30,9 +35,9 @@ enum ActivityRowModel {
             return transaction.blockNumber
         case .childActivity(transaction: let transaction, _):
             return transaction.blockNumber
-        case .childTransaction(transaction: let transaction, _):
+        case .childTransaction(transaction: let transaction, _, _):
             return transaction.blockNumber
-        case .standaloneTransaction(transaction: let transaction):
+        case .standaloneTransaction(transaction: let transaction, _):
             return transaction.blockNumber
         case .standaloneActivity(activity: let activity):
             return activity.blockNumber
@@ -45,9 +50,9 @@ enum ActivityRowModel {
             return transaction.transactionIndex
         case .childActivity(transaction: let transaction, _):
             return transaction.transactionIndex
-        case .childTransaction(transaction: let transaction, _):
+        case .childTransaction(transaction: let transaction, _, _):
             return transaction.transactionIndex
-        case .standaloneTransaction(transaction: let transaction):
+        case .standaloneTransaction(transaction: let transaction, _):
             return transaction.transactionIndex
         case .standaloneActivity(activity: let activity):
             return activity.transactionIndex
@@ -69,19 +74,19 @@ enum ActivityRowModel {
         }
     }
 
-    func getTokenSymbol(fromTokensStorages tokensStorages: ServerDictionary<TokensDataStore>) -> String? {
+    func getTokenSymbol() -> String? {
         switch self {
         case .parentTransaction:
             return nil
         case .childActivity(_, let activity):
             return activity.tokenObject.symbol
-        case .childTransaction(transaction: let transaction, operation: let operation):
+        case .childTransaction(transaction: let transaction, operation: let operation, _):
             if let symbol = operation.symbol {
                 return symbol
             } else {
                 return transaction.server.symbol
             }
-        case .standaloneTransaction(transaction: let transaction):
+        case .standaloneTransaction(transaction: let transaction, _):
             if let operation = transaction.operation {
                 return operation.symbol ?? transaction.server.symbol
             } else {

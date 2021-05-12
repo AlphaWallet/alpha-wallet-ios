@@ -8,6 +8,30 @@
 
 import Foundation
 
+private class ThreadSafeDateFormattersCache {
+    fileprivate var cache = [String: DateFormatter]()
+    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
+
+    subscript(format: String) -> DateFormatter? {
+        get {
+            var element: DateFormatter?
+            queue.sync {
+                element = cache[format]
+            }
+            return element
+        }
+        set {
+            queue.async(flags: .barrier) {
+                self.cache[format] = newValue
+            }
+        }
+    }
+
+    func reset() {
+        self.cache.removeAll()
+    }
+}
+
 public extension Date {
     private static var formatsMap: ThreadSafeDictionary<String, DateFormatter> = .init()
     private static var formatsMapLocale: String?
@@ -32,7 +56,7 @@ public extension Date {
             formatsMap = .init()
         }
 
-        var foundFormatter = formatsMap[format]
+        var foundFormatter: DateFormatter? = formatsMap[format]
         if foundFormatter == nil {
             foundFormatter = DateFormatter()
             if let locale = Config.getLocale() {

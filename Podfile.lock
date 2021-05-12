@@ -13,6 +13,9 @@ PODS:
   - BigInt (3.1.0):
     - SipHash (~> 1.2)
   - BlockiesSwift (0.1.2)
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - CocoaAsyncSocket (7.6.5)
   - CocoaLumberjack (3.7.0):
     - CocoaLumberjack/Core (= 3.7.0)
@@ -120,6 +123,7 @@ DEPENDENCIES:
   - AWSSNS
   - BigInt (~> 3.1)
   - BlockiesSwift
+  - Charts
   - CryptoSwift (~> 1.0)
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, commit `5c54e2607632ce586010e50e91d9adcb6bb3909e`)
   - iOSSnapshotTestCase
@@ -159,6 +163,7 @@ SPEC REPOS:
     - Base58Swift
     - BigInt
     - BlockiesSwift
+    - Charts
     - CocoaAsyncSocket
     - CocoaLumberjack
     - CryptoSwift
@@ -259,6 +264,7 @@ SPEC CHECKSUMS:
   Base58Swift: 149c9dd95d8712f00e4695b36baafb3031927256
   BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLumberjack: e8955b9d337ac307103b0a34fd141c32f27e53c5
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
@@ -298,6 +304,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: cd5e056cec5a2f44e92b8595199e7f2f9f0bd92d
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: a9dfed192edd6772d2790dad92adcb5e6e906c69
+PODFILE CHECKSUM: e15f876f8b24ff3243a6307c505701c18be2abc3
 
 COCOAPODS: 1.10.1

@@ -17,7 +17,6 @@ class TransactionsViewController: UIViewController {
     private let dataCoordinator: TransactionDataCoordinator
     private let sessions: ServerDictionary<WalletSession>
 
-    var paymentType: PaymentFlow?
     weak var delegate: TransactionsViewControllerDelegate?
 
     init(
@@ -47,7 +46,6 @@ class TransactionsViewController: UIViewController {
             tableView.anchorsConstraint(to: view),
         ])
 
-        dataCoordinator.delegate = self
         dataCoordinator.start()
 
         tableView.refreshControl = refreshControl
@@ -89,6 +87,9 @@ class TransactionsViewController: UIViewController {
 
     func configure(viewModel: TransactionsViewModel) {
         self.viewModel = viewModel
+        
+        self.endLoading()
+        self.reloadTableViewAndEndRefreshing()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -123,27 +124,6 @@ extension TransactionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true )
         delegate?.didPressTransaction(transactionRow: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
-    }
-}
-
-extension TransactionsViewController: TransactionDataCoordinatorDelegate {
-    func didUpdate(result: Result<[TransactionInstance], TransactionError>, reloadImmediately: Bool) {
-        switch result {
-        case .success(let items):
-            //NOTE: avoid filtering events on main queue
-            let values = TransactionsViewModel.mapTransactions(transactions: items)
-            DispatchQueue.main.async {
-                self.configure(viewModel: .init(transactions: values))
-
-                self.endLoading()
-                self.reloadTableViewAndEndRefreshing()
-            }
-        case .failure(let error):
-            DispatchQueue.main.async {
-                self.endLoading(error: error)
-                self.reloadTableViewAndEndRefreshing()
-            }
-        }
     }
 
     private func reloadTableViewAndEndRefreshing() {

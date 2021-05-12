@@ -7,7 +7,16 @@ protocol TransactionsStorageDelegate: AnyObject {
     func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage)
 }
 
-class TransactionsStorage {
+class TransactionsStorage: Hashable {
+
+    static func == (lhs: TransactionsStorage, rhs: TransactionsStorage) -> Bool {
+        return lhs.server == rhs.server && lhs.realm == rhs.realm
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(server.chainID)
+    }
+
     //TODO if we move this to instance-side, we have to be careful it's the same instance we are accessing, otherwise we wouldn't find the pending transaction information when we need it
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
@@ -41,6 +50,34 @@ class TransactionsStorage {
         objects.filter { $0.state == TransactionState.pending }.map { TransactionInstance(transaction: $0) }
     }
 
+    func recentTransactions(for transactionType: TransactionType) -> [TransactionInstance] {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            return objects
+                    .filter { TransactionsStorage.filterTransactionsForNativeCryptocurrency(transaction: $0) }
+                    .map { TransactionInstance(transaction: $0) }
+
+        case .ERC20Token(let token, _, _):
+            return objects
+                    .filter { TransactionsStorage.filterTransactionsForERC20Token(transaction: $0, tokenObject: token) }
+                    .map { TransactionInstance(transaction: $0) }
+
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            return []
+        }
+    }
+
+    private static func filterTransactionsForNativeCryptocurrency(transaction: Transaction) -> Bool {
+        (transaction.state == .completed || transaction.state == .pending) && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
+    }
+
+    private static func filterTransactionsForERC20Token(transaction: Transaction, tokenObject token: TokenObject) -> Bool {
+        (transaction.state == .completed || transaction.state == .pending) && transaction.localizedOperations.contains(where: { op in
+            op.operationType == .erc20TokenTransfer && (op.contract.flatMap({ token.contractAddress.sameContract(as: $0) }) ?? false)
+        })
+    }
+
+
     func transaction(withTransactionId transactionId: String) -> TransactionInstance? {
         realm.threadSafe.objects(Transaction.self)
             .filter("id = '\(transactionId)'")
@@ -63,25 +100,7 @@ class TransactionsStorage {
         if !tokens.isEmpty {
             TokensDataStore.update(in: realm, tokens: tokens)
         }
-    }
-
-    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
-        let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
-        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)
-        if !tokens.isEmpty {
-            TokensDataStore.update(in: realm, tokens: tokens)
-        }
-    }
-
-    func add(transactions: [Transaction], transactionsToPullContractsFrom: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
-        guard !transactions.isEmpty else { return }
-        let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(transactions, realm: realm)
-        realm.beginWrite()
-        realm.add(transactionsToCommit, update: .all)
-
-        try! realm.commitWrite()
-        addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-    }
+    } 
 
     func transactionObjectsThatDoNotComeFromEventLogs() -> TransactionInstance? {
         return realm.threadSafe.objects(Transaction.self)

@@ -7,7 +7,14 @@ protocol SegmentedControlDelegate: AnyObject {
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl)
 }
 
+
 class SegmentedControl: UIView {
+    enum Alignment {
+        case left
+        case right
+        case center
+    }
+
     enum Selection: Equatable {
         case selected(UInt)
         case unselected
@@ -28,7 +35,7 @@ class SegmentedControl: UIView {
         }
     }
 
-    init(titles: [String]) {
+    init(titles: [String], alignment: Alignment = .left, distribution: UIStackView.Distribution = .fill) {
         self.buttons = SegmentedControl.createButtons(fromTitles: titles)
 
         super.init(frame: .zero)
@@ -38,7 +45,7 @@ class SegmentedControl: UIView {
         for each in buttons {
             each.addTarget(self, action: #selector(segmentTapped), for: .touchUpInside)
         }
-        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: 20)
+        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(distribution: distribution, spacing: 20)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonsStackView)
 
@@ -52,13 +59,37 @@ class SegmentedControl: UIView {
 
         let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 2)
         barHeightConstraint.priority = .defaultHigh
-        let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17)
-        stackViewLeadingConstraint.priority = .defaultHigh
-        let stackViewTrailingConstraint = buttonsStackView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -17)
-        stackViewTrailingConstraint.priority = .defaultHigh
-        NSLayoutConstraint.activate([
-            stackViewLeadingConstraint,
-            stackViewTrailingConstraint,
+
+        var contraints: [NSLayoutConstraint] = []
+
+        switch alignment {
+        case .left:
+            let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17)
+            stackViewLeadingConstraint.priority = .defaultHigh
+
+            let stackViewWidthConstraint = buttonsStackView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -17)
+            stackViewWidthConstraint.priority = .defaultHigh
+
+            contraints = [stackViewLeadingConstraint, stackViewWidthConstraint]
+        case .center:
+            let stackViewCenterConstraint = buttonsStackView.centerXAnchor.constraint(equalTo: centerXAnchor)
+            stackViewCenterConstraint.priority = .defaultHigh
+
+            let stackViewWidthConstraint = buttonsStackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -34)
+            stackViewWidthConstraint.priority = .defaultHigh
+
+            contraints = [stackViewCenterConstraint, stackViewWidthConstraint]
+        case .right:
+            let stackViewLeadingConstraint = buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -17)
+            stackViewLeadingConstraint.priority = .defaultHigh
+
+            let stackViewWidthConstraint = buttonsStackView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -17)
+            stackViewWidthConstraint.priority = .defaultHigh
+
+            contraints = [stackViewLeadingConstraint, stackViewWidthConstraint]
+        }
+
+        NSLayoutConstraint.activate(contraints + [
             buttonsStackView.topAnchor.constraint(equalTo: topAnchor),
             buttonsStackView.bottomAnchor.constraint(equalTo: fullWidthBar.topAnchor),
 

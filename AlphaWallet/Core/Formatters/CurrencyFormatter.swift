@@ -44,8 +44,8 @@ private enum NumberFormatterConfiguration {
             formatter.negativeFormat = "-0.00" + " " + Constants.Currency.usd
             formatter.currencyCode = String()
         case .percent:
-            formatter.positiveFormat = "0.00%"
-            formatter.negativeFormat = "-0.00%"
+            formatter.positiveFormat = "0.00"
+            formatter.negativeFormat = "-0.00"
             formatter.numberStyle = .percent
         case .shortCrypto:
             formatter.positiveFormat = "0.0000"

@@ -167,7 +167,7 @@ enum DataEntry {
 
         enum SendHeader {
             static let iconSide: CGFloat = isNarrowScreen ? 40 : 60
-            static let insets = UIEdgeInsets(top: isNarrowScreen ? 20 : 40, left: 0, bottom: isNarrowScreen ? 10 : 20, right: 0)
+            static let insets = UIEdgeInsets(top: isNarrowScreen ? 20 : 40, left: 0, bottom: 0, right: 0)
             static let topSpacerHeight: CGFloat = isNarrowScreen ? 10 : 20
             
             enum RecentTransactionsLabel {

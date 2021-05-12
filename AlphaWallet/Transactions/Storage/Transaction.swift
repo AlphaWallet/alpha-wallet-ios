@@ -150,7 +150,7 @@ extension Transaction {
     }
 }
 
-struct TransactionInstance {
+struct TransactionInstance: Equatable {
     var primaryKey: String = ""
     var chainId: Int = 0
     var id: String = ""
@@ -236,4 +236,25 @@ struct TransactionInstance {
     var server: RPCServer {
         return .init(chainID: chainId)
     }
+
+    static func ==(lhs: TransactionInstance, rhs: TransactionInstance) -> Bool {
+        return lhs.primaryKey == rhs.primaryKey &&
+            lhs.chainId == rhs.chainId &&
+            lhs.id == rhs.id &&
+            lhs.blockNumber == rhs.blockNumber &&
+            lhs.transactionIndex == rhs.transactionIndex &&
+            lhs.from == rhs.from &&
+            lhs.to == rhs.to &&
+            lhs.value == rhs.value &&
+            lhs.gas == rhs.gas &&
+            lhs.gasPrice == rhs.gasPrice &&
+            lhs.gasUsed == rhs.gasUsed &&
+            lhs.nonce == rhs.nonce &&
+            lhs.date == rhs.date &&
+            lhs.internalState == rhs.internalState &&
+            lhs.isERC20Interaction == rhs.isERC20Interaction &&
+            lhs.localizedOperations == rhs.localizedOperations
+    }
+
 }
+

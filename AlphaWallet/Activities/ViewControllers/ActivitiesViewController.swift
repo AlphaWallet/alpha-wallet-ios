@@ -9,31 +9,24 @@ protocol ActivitiesViewControllerDelegate: AnyObject {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
 }
 
-class ActivitiesViewController: UIViewController {
+protocol ActivitiesViewDelegate: class {
+    func didPressActivity(activity: Activity, in view: ActivitiesView)
+    func didPressTransaction(transaction: TransactionInstance, in view: ActivitiesView)
+}
+
+class ActivitiesView: UIView {
     private var viewModel: ActivitiesViewModel
-    private let wallet: AlphaWallet.Address
     private let sessions: ServerDictionary<WalletSession>
-    private let tokensStorages: ServerDictionary<TokensDataStore>
     private let tableView = UITableView(frame: .zero, style: .grouped)
-    private let searchController: UISearchController
-    private var isSearchBarConfigured = false
-    private var bottomConstraint: NSLayoutConstraint!
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
 
-    var paymentType: PaymentFlow?
-    weak var delegate: ActivitiesViewControllerDelegate?
+    weak var delegate: ActivitiesViewDelegate?
 
-    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>, tokensStorages: ServerDictionary<TokensDataStore>) {
+    init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
-        self.wallet = wallet
         self.sessions = sessions
-        self.tokensStorages = tokensStorages
-        searchController = UISearchController(searchResultsController: nil)
-        super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.activityTabbarItemTitle()
-
-        view.backgroundColor = self.viewModel.backgroundColor
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
 
         tableView.register(ActivityViewCell.self)
         tableView.register(DefaultActivityItemViewCell.self)
@@ -46,65 +39,44 @@ class ActivitiesViewController: UIViewController {
         tableView.backgroundColor = viewModel.backgroundColor
         tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
 
-        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        keyboardChecker.constraint = bottomConstraint
-
-        view.addSubview(tableView)
+        addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomConstraint,
+            tableView.topAnchor.constraint(equalTo: topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
+
         emptyView = TransactionsEmptyView(title: R.string.localizable.activityEmpty(), image: R.image.activities_empty_list())
-
-        setupFilteringWithKeyword()
-        processSearchWithKeywords()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        keyboardChecker.viewWillAppear()
-        navigationItem.largeTitleDisplayMode = .always
+    required init?(coder: NSCoder) {
+        return nil
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        //NOTE: we call it here to show empty view if needed, as the reason that we don't have manually called callback where we can handle that loaded activities
-        //next time view will be updated when configure with viewModel method get called.
-        endLoading()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        keyboardChecker.viewWillDisappear()
+    func reloadData() {
+        tableView.reloadData()
     }
 
     func configure(viewModel: ActivitiesViewModel) {
         self.viewModel = viewModel
-        processSearchWithKeywords()
-
-        endLoading()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        return nil
-    }
+    func applySearch(keyword: String?) {
+        viewModel.filter(.keyword(keyword))
 
-    override func viewDidLayoutSubviews() {
-        configureSearchBarOnce()
+        reloadData()
     }
 }
 
-extension ActivitiesViewController: StatefulViewController {
+extension ActivitiesView: StatefulViewController {
     func hasContent() -> Bool {
         return viewModel.numberOfSections > 0
     }
 }
 
-extension ActivitiesViewController: UITableViewDelegate {
+extension ActivitiesView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true )
         let item = viewModel.item(for: indexPath.row, section: indexPath.section)
@@ -113,14 +85,14 @@ extension ActivitiesViewController: UITableViewDelegate {
             break
         case .childActivity(_, activity: let activity):
             delegate?.didPressActivity(activity: activity, in: self)
-        case .childTransaction(transaction: let transaction, operation: let operation):
-            if let activity = functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: operation), tokensStorages: tokensStorages, wallet: wallet) {
+        case .childTransaction(let transaction, _, let activity):
+            if let activity = activity {
                 delegate?.didPressActivity(activity: activity, in: self)
             } else {
                 delegate?.didPressTransaction(transaction: transaction, in: self)
             }
-        case .standaloneTransaction(transaction: let transaction):
-            if let activity = functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: wallet) {
+        case .standaloneTransaction(transaction: let transaction, let activity):
+            if let activity = activity {
                 delegate?.didPressActivity(activity: activity, in: self)
             } else {
                 delegate?.didPressTransaction(transaction: transaction, in: self)
@@ -149,7 +121,7 @@ extension ActivitiesViewController: UITableViewDelegate {
     }
 }
 
-extension ActivitiesViewController: UITableViewDataSource {
+extension ActivitiesView: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfSections
     }
@@ -177,8 +149,8 @@ extension ActivitiesViewController: UITableViewDataSource {
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             }
-        case .childTransaction(transaction: let transaction, operation: let operation):
-            if let activity = functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: operation), tokensStorages: tokensStorages, wallet: wallet) {
+        case .childTransaction(transaction: let transaction, operation: let operation, let activity):
+            if let activity = activity {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
@@ -188,8 +160,8 @@ extension ActivitiesViewController: UITableViewDataSource {
                 cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), chainState: session.chainState, currentWallet: session.account, server: transaction.server))
                 return cell
             }
-        case .standaloneTransaction(transaction: let transaction):
-            if let activity = functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: wallet) {
+        case .standaloneTransaction(transaction: let transaction, let activity):
+            if let activity = activity {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
@@ -218,10 +190,113 @@ extension ActivitiesViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return functional.headerView(for: section, viewModel: viewModel)
+        return ActivitiesViewController.functional.headerView(for: section, viewModel: viewModel)
     }
 
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    }
+
+    fileprivate func headerView(for section: Int) -> UIView {
+        let container = UIView()
+        container.backgroundColor = viewModel.headerBackgroundColor
+        let title = UILabel()
+        title.text = viewModel.titleForHeader(in: section)
+        title.sizeToFit()
+        title.textColor = viewModel.headerTitleTextColor
+        title.font = viewModel.headerTitleFont
+        container.addSubview(title)
+        title.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
+        ])
+        return container
+    }
+}
+
+class ActivitiesViewController: UIViewController {
+    private var viewModel: ActivitiesViewModel
+    private let sessions: ServerDictionary<WalletSession>
+    private let searchController: UISearchController
+    private var isSearchBarConfigured = false
+    private var bottomConstraint: NSLayoutConstraint!
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+    private lazy var activitiesView: ActivitiesView = {
+        let view = ActivitiesView(viewModel: viewModel, sessions: sessions)
+        view.delegate = self
+        return view
+    }()
+    weak var delegate: ActivitiesViewControllerDelegate?
+
+    init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
+        self.viewModel = viewModel
+        self.sessions = sessions
+        searchController = UISearchController(searchResultsController: nil)
+        super.init(nibName: nil, bundle: nil)
+
+        title = R.string.localizable.activityTabbarItemTitle()
+
+        view.backgroundColor = self.viewModel.backgroundColor
+
+        bottomConstraint = activitiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        keyboardChecker.constraint = bottomConstraint
+
+        view.addSubview(activitiesView)
+
+        NSLayoutConstraint.activate([
+            activitiesView.topAnchor.constraint(equalTo: view.topAnchor),
+            activitiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            activitiesView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomConstraint,
+        ])
+
+        setupFilteringWithKeyword()
+        configure(viewModel: viewModel)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        keyboardChecker.viewWillAppear()
+        navigationItem.largeTitleDisplayMode = .always
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //NOTE: we call it here to show empty view if needed, as the reason that we don't have manually called callback where we can handle that loaded activities
+        //next time view will be updated when configure with viewModel method get called.
+        activitiesView.endLoading()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        keyboardChecker.viewWillDisappear()
+    }
+
+    func configure(viewModel: ActivitiesViewModel) {
+        self.viewModel = viewModel
+
+        activitiesView.configure(viewModel: viewModel)
+        activitiesView.applySearch(keyword: searchController.searchBar.text)
+
+        activitiesView.endLoading()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        return nil
+    }
+
+    override func viewDidLayoutSubviews() {
+        configureSearchBarOnce()
+    }
+}
+
+extension ActivitiesViewController: ActivitiesViewDelegate {
+    func didPressActivity(activity: Activity, in view: ActivitiesView) {
+        delegate?.didPressActivity(activity: activity, in: self)
+    }
+
+    func didPressTransaction(transaction: TransactionInstance, in view: ActivitiesView) {
+        delegate?.didPressTransaction(transaction: transaction, in: self)
     }
 }
 
@@ -233,10 +308,7 @@ extension ActivitiesViewController: UISearchResultsUpdating {
     }
 
     private func processSearchWithKeywords() {
-        let keyword = searchController.searchBar.text
-        viewModel.filter(.keyword(keyword))
-
-        tableView.reloadData()
+        activitiesView.applySearch(keyword: searchController.searchBar.text)
     }
 
 }
