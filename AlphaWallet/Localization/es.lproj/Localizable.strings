@@ -191,6 +191,7 @@
 "transaction.cell.received.title" = "Recibido";
 "transaction.cell.sent.title" = "Enviado";
 "transaction.cell.tokenTransfer.title" = "Transferir %@";
+"transaction.cell.tokenApprove.title" = "Approve %@";
 "Yesterday" = "Ayer";
 "Deleting" = "Eliminando";
 "Ethereum Address" = "Dirección de Ethereum";
