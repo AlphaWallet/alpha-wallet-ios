@@ -735,6 +735,7 @@
 		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
+		87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
@@ -791,6 +792,8 @@
 		87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */; };
 		87D175EB24AEF8B5002130D2 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EA24AEF8B4002130D2 /* UITableView.swift */; };
 		87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EC24AF1565002130D2 /* KeyboardChecker.swift */; };
+		87DB61C1264A94CD009FBDDE /* ABI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DB61C0264A94CD009FBDDE /* ABI.swift */; };
+		87DB61C3264A9611009FBDDE /* ERC20.json in Resources */ = {isa = PBXBuildFile; fileRef = 87DB61C2264A9611009FBDDE /* ERC20.json */; };
 		87E2554C24F52E0600F025F7 /* TextFieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2554B24F52E0600F025F7 /* TextFieldTableViewCell.swift */; };
 		87E2554E24F52E1D00F025F7 /* TextFieldTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2554D24F52E1D00F025F7 /* TextFieldTableViewCellViewModel.swift */; };
 		87E2555024F52E3600F025F7 /* SliderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2554F24F52E3600F025F7 /* SliderTableViewCell.swift */; };
@@ -1625,6 +1628,7 @@
 		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
+		87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodedFunctionCall+Decode.swift"; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
@@ -1680,6 +1684,8 @@
 		87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainTagLabelViewModel.swift; sourceTree = "<group>"; };
 		87D175EA24AEF8B4002130D2 /* UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableView.swift; sourceTree = "<group>"; };
 		87D175EC24AF1565002130D2 /* KeyboardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardChecker.swift; sourceTree = "<group>"; };
+		87DB61C0264A94CD009FBDDE /* ABI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABI.swift; sourceTree = "<group>"; };
+		87DB61C2264A9611009FBDDE /* ERC20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ERC20.json; sourceTree = "<group>"; };
 		87E2554B24F52E0600F025F7 /* TextFieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCell.swift; sourceTree = "<group>"; };
 		87E2554D24F52E1D00F025F7 /* TextFieldTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		87E2554F24F52E3600F025F7 /* SliderTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderTableViewCell.swift; sourceTree = "<group>"; };
@@ -2862,6 +2868,7 @@
 		29FC9BC31F830880000209CD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				87DB61BE264A94A6009FBDDE /* Ethereum */,
 				879599482604A5A2006722B2 /* CoinTicker */,
 				87584B4225EFAFB60070063B /* BuyToken */,
 				87B65268256FBF22000EF927 /* SwapToken */,
@@ -4081,6 +4088,24 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
+		87DB61BE264A94A6009FBDDE /* Ethereum */ = {
+			isa = PBXGroup;
+			children = (
+				87DB61BF264A94AF009FBDDE /* ABI */,
+			);
+			path = Ethereum;
+			sourceTree = "<group>";
+		};
+		87DB61BF264A94AF009FBDDE /* ABI */ = {
+			isa = PBXGroup;
+			children = (
+				87DB61C0264A94CD009FBDDE /* ABI.swift */,
+				87DB61C2264A9611009FBDDE /* ERC20.json */,
+				87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */,
+			);
+			path = ABI;
+			sourceTree = "<group>";
+		};
 		AA574E612054EC8B00F4B3AF /* Rest */ = {
 			isa = PBXGroup;
 			children = (
@@ -4386,6 +4411,7 @@
 				C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */,
 				C887C5392057B703005ACF81 /* privacyPolicy.html in Resources */,
 				290B2B541F8F50030053C83E /* Localizable.strings in Resources */,
+				87DB61C3264A9611009FBDDE /* ERC20.json in Resources */,
 				2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */,
 				C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */,
 				C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */,
@@ -4849,6 +4875,7 @@
 				87D163A8242CD9A2002662D2 /* AddHideTokensView.swift in Sources */,
 				2912CD2B1F6A833E00C6CBE3 /* TransactionsViewController.swift in Sources */,
 				BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */,
+				87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */,
 				77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */,
 				29F1C863200375D2003780D8 /* Wallet.swift in Sources */,
 				29E6E06E1FE897EE0079265A /* BrowserViewController.swift in Sources */,
@@ -5003,6 +5030,7 @@
 				5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */,
 				5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */,
 				5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */,
+				87DB61C1264A94CD009FBDDE /* ABI.swift in Sources */,
 				5E7C7376B566E5A59CC8F463 /* ImportMagicTokenViewControllerViewModel.swift in Sources */,
 				5E7C75E81F85353844CACECC /* EnterSellTokensCardPriceQuantityViewController.swift in Sources */,
 				5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift in Sources */,

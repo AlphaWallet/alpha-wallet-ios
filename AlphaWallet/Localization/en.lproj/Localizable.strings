@@ -191,6 +191,7 @@
 "transaction.cell.received.title" = "Received";
 "transaction.cell.sent.title" = "Sent";
 "transaction.cell.tokenTransfer.title" = "Transfer %@";
+"transaction.cell.tokenApprove.title" = "Approve %@";
 "Yesterday" = "Yesterday";
 "Deleting" = "Deleting";
 "Ethereum Address" = "Ethereum Address";

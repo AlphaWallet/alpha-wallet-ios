@@ -134,6 +134,9 @@ class ActivitiesViewController: UIViewController {
             case (.unknown, _), (.error, _), (.failed, _), (.completed, _):
                 tokenCompletedTransfer = nil
                 tokenPendingTransfer = nil
+            case (.pending, .erc20TokenApprove):
+                tokenCompletedTransfer = nil
+                tokenPendingTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
             }
             if let t = tokenPendingTransfer {
                 token = t
