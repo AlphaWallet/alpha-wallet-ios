@@ -85,9 +85,9 @@ extension ABIType {
 
 extension DecodedFunctionCall.FunctionType {
     init(name: String, arguments: [(type: ABIType, value: AnyObject)]) {
-        if name == DecodedFunctionCall.erc20Transfer.name, let address: EthereumAddress = arguments.get(type: .address), let value: BigUInt = arguments.get(type: .uint(bits: 256)) {
+        if name == DecodedFunctionCall.erc20Transfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
             self = .erc20Transfer(recipient: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
-        } else if name == DecodedFunctionCall.erc20Approve.name, let address: EthereumAddress = arguments.get(type: .address), let value: BigUInt = arguments.get(type: .uint(bits: 256)) {
+        } else if name == DecodedFunctionCall.erc20Approve.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
             self = .erc20Approve(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
         } else {
             self = .others
@@ -96,8 +96,13 @@ extension DecodedFunctionCall.FunctionType {
 }
 
 private extension Collection where Element == (type: ABIType, value: AnyObject) {
-    func get<T>(type: ABIType) -> T? {
-        let value = first(where: { $0.type == type })?.value
-        return value as? T
+    func get<T>(type: ABIType, atIndex index: Self.Index) -> T? {
+        guard indices.contains(index) else { return nil }
+        let element = self[index]
+        if element.type == type {
+            return element.value as? T
+        } else {
+            return nil
+        }
     }
 }
