@@ -3,7 +3,7 @@
 import Foundation
 import BigInt
 import TrustKeystore
-import web3swift 
+import web3swift
 
 struct DecodedFunctionCall {
     enum FunctionType {
@@ -13,14 +13,14 @@ struct DecodedFunctionCall {
 //        case erc20Allowance(address: AlphaWallet.Address, address: AlphaWallet.Address)
 //        case erc20TransferFrom(address: AlphaWallet.Address, address: AlphaWallet.Address, value: BigUInt)
         case erc20Transfer(recipient: AlphaWallet.Address, value: BigUInt)
-        case erc20Approve(sender: AlphaWallet.Address, value: BigUInt)
+        case erc20Approve(spender: AlphaWallet.Address, value: BigUInt)
         case nativeCryptoTransfer(value: BigUInt)
         case others
     }
 
     static let erc20Transfer = (name: "transfer", interfaceHash: "a9059cbb", byteCount: 68)
-    static let erc20Approve = (name: "approve", interfaceHash: "095ea7b3", byteCount: 68) 
-    
+    static let erc20Approve = (name: "approve", interfaceHash: "095ea7b3", byteCount: 68)
+
     let name: String
     let arguments: [(type: ABIType, value: AnyObject)]
     let type: FunctionType
