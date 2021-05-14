@@ -114,7 +114,7 @@ extension Transaction {
 extension Transaction {
     static func from(from: AlphaWallet.Address, transaction: SentTransaction, tokensDataStore: TokensDataStore) -> Transaction {
         let (operations: operations, isErc20Interaction: isErc20Interaction) = decodeOperations(fromData: transaction.original.data, from: transaction.original.account, contractOrRecipient: transaction.original.to, tokensDataStore: tokensDataStore)
-        
+
         return Transaction(
                 id: transaction.id,
                 server: transaction.original.server,
@@ -138,8 +138,8 @@ extension Transaction {
     fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, contractOrRecipient: AlphaWallet.Address?, tokensDataStore: TokensDataStore) -> (operations: [LocalizedOperationObject], isErc20Interaction: Bool) {
         if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.tokenThreadSafe(forContract: contract) {
             switch functionCallMetaData.type {
-            case .erc20Approve(let sender, let value):
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: sender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+            case .erc20Approve(let spender, let value):
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .erc20Transfer(let recipient, let value):
                 return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .nativeCryptoTransfer, .others:

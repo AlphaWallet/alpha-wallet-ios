@@ -66,7 +66,7 @@ extension TransactionInstance {
         }()
 
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
-        
+
         return firstly {
             createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage)
         }.then { operations -> Promise<TransactionInstance?> in
@@ -87,7 +87,7 @@ extension TransactionInstance {
                     state: state,
                     isErc20Interaction: false
             )
-            
+
             return .value(result)
         }
     }
@@ -121,13 +121,13 @@ extension TransactionInstance {
             }
         }
 
-        if let data = transaction.input.data(using: .ascii), let functionCall = DecodedFunctionCall(data: data) {
+        let data = Data(hex: transaction.input)
+        if let functionCall = DecodedFunctionCall(data: data) {
             switch functionCall.type {
             case .erc20Transfer(let recipient, let value):
                 return generateLocalizedOperation(value: value, contract: contract, to: recipient, functionCall: functionCall)
-            case .erc20Approve(let sender, let value):
-                //NOTE: not sure if from and to values a right, maybe we need to change their positions
-                return generateLocalizedOperation(value: value, contract: contract, to: sender, functionCall: functionCall)
+            case .erc20Approve(let spender, let value):
+                return generateLocalizedOperation(value: value, contract: contract, to: spender, functionCall: functionCall)
             case .nativeCryptoTransfer, .others:
                 break
             }
