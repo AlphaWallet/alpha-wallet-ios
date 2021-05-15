@@ -88,7 +88,7 @@ extension DecodedFunctionCall.FunctionType {
         if name == DecodedFunctionCall.erc20Transfer.name, let address: EthereumAddress = arguments.get(type: .address), let value: BigUInt = arguments.get(type: .uint(bits: 256)) {
             self = .erc20Transfer(recipient: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
         } else if name == DecodedFunctionCall.erc20Approve.name, let address: EthereumAddress = arguments.get(type: .address), let value: BigUInt = arguments.get(type: .uint(bits: 256)) {
-            self = .erc20Approve(sender: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
+            self = .erc20Approve(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
         } else {
             self = .others
         }
