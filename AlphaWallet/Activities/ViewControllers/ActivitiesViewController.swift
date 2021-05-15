@@ -112,48 +112,66 @@ class ActivitiesViewController: UIViewController {
         return container
     }
 
+    private func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow) -> (token: TokenObject, activityName: String)? {
+        enum TokenOperation {
+            case nativeCryptoTransfer(TokenObject)
+            case completedTransfer(TokenObject)
+            case pendingTransfer(TokenObject)
+            case completedErc20Approval(TokenObject)
+            case pendingErc20Approval(TokenObject)
+
+            var token: TokenObject {
+                switch self {
+                case .nativeCryptoTransfer(let token):
+                    return token
+                case .completedTransfer(let token):
+                    return token
+                case .pendingTransfer(let token):
+                    return token
+                case .completedErc20Approval(let token):
+                    return token
+                case .pendingErc20Approval(let token):
+                    return token
+                }
+            }
+        }
+
+        let erc20TokenOperation: TokenOperation?
+        if transactionRow.operation == nil {
+            erc20TokenOperation = .nativeCryptoTransfer(TokensDataStore.etherToken(forServer: transactionRow.server))
+        } else {
+            switch (transactionRow.state, transactionRow.operation?.operationType) {
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }.flatMap { TokenOperation.pendingTransfer($0) }
+            case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }.flatMap { TokenOperation.completedTransfer($0) }
+                    //Explicitly listing out combinations so future changes to enums will be caught by compiler
+            case (.pending, .erc20TokenApprove):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }.flatMap { TokenOperation.pendingErc20Approval($0) }
+            case (.completed, .erc20TokenApprove):
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }.flatMap { TokenOperation.completedErc20Approval($0) }
+            case (.unknown, _), (.error, _), (.failed, _), (_, .unknown), (.completed, .none), (.pending, nil):
+                erc20TokenOperation = .none
+            }
+        }
+        guard let token = erc20TokenOperation?.token else { return nil }
+        let activityName: String
+        switch erc20TokenOperation {
+        case .nativeCryptoTransfer, .completedTransfer, .pendingTransfer, .none:
+            if wallet.sameContract(as: transactionRow.from) {
+                activityName = "sent"
+            } else {
+                activityName = "received"
+            }
+        case .completedErc20Approval, .pendingErc20Approval:
+            activityName = "ownerApproved"
+        }
+        return (token: token, activityName: activityName)
+    }
+
 // swiftlint:disable function_body_length
     private func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow) -> Activity? {
-        let token: TokenObject
-        if transactionRow.operation == nil {
-            token = TokensDataStore.etherToken(forServer: transactionRow.server)
-        } else {
-            let tokenCompletedTransfer: TokenObject?
-            let tokenPendingTransfer: TokenObject?
-            switch (transactionRow.state, transactionRow.operation?.operationType) {
-            case (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
-                tokenCompletedTransfer = nil
-                tokenPendingTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
-            case (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
-                tokenCompletedTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
-                tokenPendingTransfer = nil
-            //Explicitly listing out combinations so future changes to enums will be caught by compiler
-            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .unknown), (.pending, nil):
-                tokenCompletedTransfer = nil
-                tokenPendingTransfer = nil
-            case (.unknown, _), (.error, _), (.failed, _), (.completed, _):
-                tokenCompletedTransfer = nil
-                tokenPendingTransfer = nil
-            case (.pending, .erc20TokenApprove):
-                tokenCompletedTransfer = nil
-                tokenPendingTransfer = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].token(forContract: $0) }
-            }
-            if let t = tokenPendingTransfer {
-                token = t
-            } else if let t = tokenCompletedTransfer {
-                token = t
-            } else {
-                return nil
-            }
-        }
-        let t = Activity.AssignedToken(tokenObject: token)
-
-        let activityName: String
-        if wallet.sameContract(as: transactionRow.from) {
-            activityName = "sent"
-        } else {
-            activityName = "received"
-        }
+        guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow) else { return nil }
         var cardAttributes = [AttributeId: AssetInternalValue]()
         cardAttributes["symbol"] = .string(transactionRow.server.symbol)
 
@@ -205,7 +223,7 @@ class ActivitiesViewController: UIViewController {
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transactionRow.blockNumber + 10000000,
                 rowType: rowType,
-                tokenObject: t,
+                tokenObject: Activity.AssignedToken(tokenObject: token),
                 server: transactionRow.server,
                 name: activityName,
                 eventName: activityName,
