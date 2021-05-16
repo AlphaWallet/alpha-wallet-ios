@@ -101,8 +101,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }
     }
 
-    private static let fetchChartHistoryTimeLimit: TimeInterval = 5
-
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
         let promises: [Promise<ChartHistory>] = ChartHistoryPeriod.allCases.map {
             fetchChartHistory(force: false, period: $0, for: addressToRPCServerKey)
