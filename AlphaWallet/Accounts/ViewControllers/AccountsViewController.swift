@@ -294,10 +294,7 @@ extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        let account = self.account(for: indexPath)
-        guard keystore.currentWallet != account else { return }
-
+        let account = account(for: indexPath)
         delegate?.didSelectAccount(account: account, in: self)
     }
 }
