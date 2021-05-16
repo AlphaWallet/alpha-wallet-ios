@@ -7,7 +7,7 @@ enum SearchEngine: Int {
     case duckDuckGo
 
     static var `default`: SearchEngine {
-        return .google
+        .duckDuckGo
     }
 
     var title: String {
@@ -33,14 +33,13 @@ enum SearchEngine: Int {
         case .google:
             return "/search"
         case .duckDuckGo:
-            return "/\(query)"
+            return "/"
         }
     }
 
     func queryItems(for query: String) -> [URLQueryItem] {
         switch self {
-        case .google: return [URLQueryItem(name: "q", value: query)]
-        case .duckDuckGo: return []
+        case .google, .duckDuckGo: return [URLQueryItem(name: "q", value: query)]
         }
     }
 }

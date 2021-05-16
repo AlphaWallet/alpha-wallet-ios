@@ -59,8 +59,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }()
 
     private var urlParser: BrowserURLParser {
-        let engine = SearchEngine(rawValue: preferences.get(for: .browserSearchEngine)) ?? .default
-        return BrowserURLParser(engine: engine)
+        return BrowserURLParser()
     }
 
     private var server: RPCServer {
