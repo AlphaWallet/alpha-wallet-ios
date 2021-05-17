@@ -294,7 +294,7 @@ extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let account = account(for: indexPath)
+        let account = self.account(for: indexPath)
         delegate?.didSelectAccount(account: account, in: self)
     }
 }
