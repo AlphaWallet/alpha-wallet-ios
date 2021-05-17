@@ -211,11 +211,15 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 		removeCoordinator(coordinator)
 	}
 
-	func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+    func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.popViewController(animated: true)
-		removeCoordinator(coordinator)
-        restart(for: account, reason: .walletChange)
-	}
+        removeCoordinator(coordinator)
+        if keystore.currentWallet == account {
+            //no-op
+        } else {
+            restart(for: account, reason: .walletChange)
+        }
+    }
 }
 
 extension SettingsCoordinator: LocalesCoordinatorDelegate {
