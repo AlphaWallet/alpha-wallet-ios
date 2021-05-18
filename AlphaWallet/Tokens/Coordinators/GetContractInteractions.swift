@@ -17,7 +17,7 @@ class GetContractInteractions {
 
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
         guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
-        
+
         Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
             switch response.result {
             case .success(let value):
@@ -34,7 +34,7 @@ class GetContractInteractions {
                         $0.1["to"].stringValue.hasPrefix("0x")
                     }
                 }
-                
+
                 let transactions: [TransactionInstance] = filteredResult.map { result in
                     let transactionJson = result.1
                     let localizedTokenObj = LocalizedOperationObjectInstance(
@@ -55,7 +55,8 @@ class GetContractInteractions {
                             transactionIndex: transactionJson["transactionIndex"].intValue,
                             from: transactionJson["from"].stringValue,
                             to: transactionJson["to"].stringValue,
-                            value: transactionJson["value"].stringValue,
+                            //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                            value: "0",
                             gas: transactionJson["gas"].stringValue,
                             gasPrice: transactionJson["gasPrice"].stringValue,
                             gasUsed: transactionJson["gasUsed"].stringValue,
