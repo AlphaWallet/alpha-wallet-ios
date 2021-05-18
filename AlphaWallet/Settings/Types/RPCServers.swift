@@ -101,13 +101,6 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var isTestNetwork: Bool {
-        switch self {
-        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon: return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet: return true
-        }
-    }
-
     var getEtherscanURL: String? {
         switch self {
         case .main: return Constants.mainnetEtherscanAPI
@@ -245,7 +238,7 @@ enum RPCServer: Hashable, CaseIterable {
     }
 
     var displayName: String {
-        if isTestNetwork {
+        if isTestnet {
             return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle()))"
         } else {
             return name
