@@ -94,17 +94,10 @@ enum RPCServer: Hashable, CaseIterable {
 
     var isTestnet: Bool {
         switch self {
-        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon:
+        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon:
             return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet:
             return true
-        }
-    }
-
-    var isTestNetwork: Bool {
-        switch self {
-        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1, .binance_smart_chain, .heco, .fantom, .avalanche, .polygon: return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet: return true
         }
     }
 
@@ -245,7 +238,7 @@ enum RPCServer: Hashable, CaseIterable {
     }
 
     var displayName: String {
-        if isTestNetwork {
+        if isTestnet {
             return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle()))"
         } else {
             return name
