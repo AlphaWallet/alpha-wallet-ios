@@ -413,8 +413,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .heco: return "https://scan.hecochain.com/tx/"
             case .custom: return "" // Enable? make optional
             case .fantom: return "https://ftmscan.com/tx/"
-            case .fantom_testnet: return "https://ftmscan.com/tx/"
-            case .avalanche: return "https://ftmscan.com/tx/"
+            case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/"
+            case .avalanche: return "https://cchain.explorer.avax.network/tx/"
             case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/"
             case .polygon: return "https://explorer-mainnet.maticvigil.com/tx/"
             case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/tx/"
