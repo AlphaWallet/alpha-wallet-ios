@@ -113,8 +113,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
-        case .artis_sigma1: return nil
-        case .artis_tau1: return nil
+        case .artis_sigma1: return Constants.artisSigma1NetworkCoreAPI
+        case .artis_tau1: return Constants.artisTau1NetworkCoreAPI
         case .binance_smart_chain: return nil
         case .binance_smart_chain_testnet: return nil
         case .heco: return nil
