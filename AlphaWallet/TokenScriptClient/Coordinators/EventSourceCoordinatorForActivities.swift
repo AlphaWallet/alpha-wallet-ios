@@ -20,6 +20,7 @@ class EventSourceCoordinatorForActivities {
     private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
     weak var delegate: EventSourceCoordinatorForActivitiesDelegate?
     private let timestampCoordinator = GetBlockTimestampCoordinator()
+    private var hasNotifyDelegateToLoadAtLeastOnce = false
 
     init(wallet: Wallet, config: Config, tokensStorages: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
@@ -134,9 +135,13 @@ class EventSourceCoordinatorForActivities {
                 !events.isEmpty
             }
         }).map(on: queue, { shouldNotify in
-            guard shouldNotify else { return }
-            
-            self.delegate?.didUpdate(inCoordinator: self)
+            if self.hasNotifyDelegateToLoadAtLeastOnce {
+                guard shouldNotify else { return }
+                self.delegate?.didUpdate(inCoordinator: self)
+            } else {
+                self.hasNotifyDelegateToLoadAtLeastOnce = true
+                self.delegate?.didUpdate(inCoordinator: self)
+            }
         })
     }
 
