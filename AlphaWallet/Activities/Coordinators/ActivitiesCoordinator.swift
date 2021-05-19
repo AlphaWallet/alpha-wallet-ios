@@ -309,7 +309,7 @@ class ActivitiesCoordinator: Coordinator {
         }
     }
 
-    //Combining includes filtering around activities (from events) for ERC20 send/receive transctions which are already covered by transactions
+    //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
     private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityOrTransactionRow]? {
         var transactionRows: [TransactionRow] = .init()
         for each in transactions {
