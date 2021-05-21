@@ -11,6 +11,7 @@ protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
+    func blockieSelected(in coordinator: TokensCoordinator)
 }
 
 private struct NoContractDetailsDetected: Error {
@@ -175,6 +176,11 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
+
+    func blockieSelected(in viewController: UIViewController) {
+        delegate?.blockieSelected(in: self)
+    }
+
     func walletConnectSelected(in viewController: UIViewController) {
         walletConnectCoordinator.showSessionDetails(in: navigationController)
     }

@@ -5,6 +5,7 @@ import UIKit
 class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
     private let balanceLabel = UILabel()
+    private let apprecation24hourLabel = UILabel()
     private let blockieImageView = BlockieImageView()
 
     var viewModel: AccountViewModel?
@@ -18,11 +19,11 @@ class AccountViewCell: UITableViewCell {
         addressLabel.lineBreakMode = .byTruncatingMiddle
 
         let leftStackView = [
-            balanceLabel,
-            addressLabel,
+            [balanceLabel, .spacerWidth(10), apprecation24hourLabel, .spacerWidth(10)].asStackView(axis: .horizontal, distribution: .fill, spacing: 0),
+            [addressLabel, .spacerWidth(10)].asStackView(axis: .horizontal, distribution: .fill, spacing: 0)
         ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
 
-        let stackView = [blockieImageView, leftStackView].asStackView(spacing: 20, alignment: .center)
+        let stackView = [blockieImageView, leftStackView].asStackView(spacing: 12, alignment: .fill)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         addressLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -35,7 +36,11 @@ class AccountViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             blockieImageView.heightAnchor.constraint(equalToConstant: 40),
             blockieImageView.widthAnchor.constraint(equalToConstant: 40),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: 20, bottom: 20, right: 0)),
+
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -25)
         ])
     }
 
@@ -48,12 +53,9 @@ class AccountViewCell: UITableViewCell {
 
         backgroundColor = viewModel.backgroundColor
 
-        balanceLabel.font = viewModel.balanceFont
-        balanceLabel.text = viewModel.balance
-
-        addressLabel.font = viewModel.addressFont
-        addressLabel.textColor = viewModel.addressTextColor
-        addressLabel.text = viewModel.addresses
+        apprecation24hourLabel.attributedText = viewModel.apprecation24hourAttributedString
+        balanceLabel.attributedText = viewModel.balanceAttributedString
+        addressLabel.attributedText = viewModel.addressesAttrinutedString
 
         accessoryType = viewModel.accessoryType
 

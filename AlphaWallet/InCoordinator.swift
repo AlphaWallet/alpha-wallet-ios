@@ -15,6 +15,8 @@ protocol InCoordinatorDelegate: class {
     func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator)
+    func didShowWallets(in coordinator: InCoordinator)
+    func didRestart(in coordinator: InCoordinator, wallet: Wallet)
 }
 
 enum Tabs {
@@ -106,10 +108,6 @@ class InCoordinator: NSObject, Coordinator {
     var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
 
-    var tabBarController: UITabBarController? {
-        return navigationController.viewControllers.first as? UITabBarController
-    }
-
     private lazy var oneInchSwapService = Oneinch()
     private lazy var rampBuyService = Ramp(account: wallet)
     private lazy var tokenActionsService: TokenActionsServiceType = {
@@ -133,6 +131,14 @@ class InCoordinator: NSObject, Coordinator {
 
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = createWalletConnectCoordinator()
 
+    private let promptBackupCoordinator: PromptBackupCoordinator
+
+    lazy var tabBarController: UITabBarController = {
+        let tabBarController = TabBarController()
+        tabBarController.tabBar.isTranslucent = false
+        return tabBarController
+    }()
+
     init(
             navigationController: UINavigationController = UINavigationController(),
             wallet: Wallet,
@@ -141,7 +147,8 @@ class InCoordinator: NSObject, Coordinator {
             config: Config,
             appTracker: AppTracker = AppTracker(),
             analyticsCoordinator: AnalyticsCoordinator,
-            urlSchemeCoordinator: UrlSchemeCoordinatorType
+            urlSchemeCoordinator: UrlSchemeCoordinatorType,
+            promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
@@ -151,15 +158,25 @@ class InCoordinator: NSObject, Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.urlSchemeCoordinator = urlSchemeCoordinator
+        self.promptBackupCoordinator = promptBackupCoordinator
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
     }
 
-    func start() {
+    deinit {
+        XMLHandler.callForAssetAttributeCoordinators = nil
+        //NOTE: Clear all smart contract calls
+        clearSmartContractCallsCache()
+    }
 
-        showTabBar(for: wallet)
+    private func createPromptBackupCoordinator() -> PromptBackupCoordinator {
+        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
+    }
+
+    func start(animated: Bool) {
+        showTabBar(for: wallet, animated: animated)
         checkDevice()
 
         helpUsCoordinator.start()
@@ -246,8 +263,7 @@ class InCoordinator: NSObject, Coordinator {
     private func setupCallForAssetAttributeCoordinators() {
         callForAssetAttributeCoordinators = .init()
         for each in config.enabledServers {
-            let session = walletSessions[each]
-            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, session: session, assetDefinitionStore: self.assetDefinitionStore)
+            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, assetDefinitionStore: self.assetDefinitionStore)
         }
     }
 
@@ -388,7 +404,7 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    func showTabBar(for account: Wallet) {
+    func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
         rampBuyService.account = account
         wallet = account
@@ -396,13 +412,10 @@ class InCoordinator: NSObject, Coordinator {
         walletConnectCoordinator = createWalletConnectCoordinator()
         fetchEthereumEvents()
 
-        let tabBarController = createTabBarController()
+        setupTabBarController()
 
-        navigationController.setViewControllers(
-                [tabBarController],
-                animated: false
-        )
-        navigationController.setNavigationBarHidden(true, animated: false)
+        navigationController.pushViewController(tabBarController, animated: animated)
+        navigationController.setNavigationBarHidden(true, animated: true)
 
         let inCoordinatorViewModel = InCoordinatorViewModel()
         showTab(inCoordinatorViewModel.initialTab)
@@ -505,11 +518,8 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     //TODO do we need 2 separate TokensDataStore instances? Is it because they have different delegates?
-    private func createTabBarController() -> UITabBarController {
+    private func setupTabBarController() {
         var viewControllers = [UIViewController]()
-
-        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
-        addCoordinator(promptBackupCoordinator)
 
         let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator)
         configureNavigationControllerForLargeTitles(tokensCoordinator.navigationController)
@@ -532,13 +542,9 @@ class InCoordinator: NSObject, Coordinator {
         configureNavigationControllerForLargeTitles(settingsCoordinator.navigationController)
         viewControllers.append(settingsCoordinator.navigationController)
 
-        let tabBarController = TabBarController()
-        tabBarController.tabBar.isTranslucent = false
         tabBarController.viewControllers = viewControllers
 
         promptBackupCoordinator.start()
-
-        return tabBarController
     }
 
     private func configureNavigationControllerForLargeTitles(_ navigationController: UINavigationController) {
@@ -556,30 +562,30 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func showTab(_ selectTab: Tabs) {
-        guard let viewControllers = tabBarController?.viewControllers else {
+        guard let viewControllers = tabBarController.viewControllers else {
             return
         }
 
         for controller in viewControllers {
             if let nav = controller as? UINavigationController {
                 if nav.viewControllers[0].className == selectTab.className {
-                    tabBarController?.selectedViewController = nav
+                    tabBarController.selectedViewController = nav
                 }
             }
         }
     }
 
-    private func restart(for account: Wallet, in coordinator: TransactionCoordinator, reason: RestartReason) {
-        navigationController.dismiss(animated: false)
-        coordinator.navigationController.dismiss(animated: true)
-        coordinator.stop()
-        removeAllCoordinators()
-        OpenSea.resetInstances()
-        disconnectWalletConnectSessionsSelectively(for: reason)
-        showTabBar(for: account)
-        fetchXMLAssetDefinitions()
-        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
-    }
+//    private func restart(for account: Wallet, in coordinator: TransactionCoordinator, reason: RestartReason) {
+//        navigationController.dismiss(animated: false)
+//        coordinator.navigationController.dismiss(animated: true)
+//        coordinator.stop()
+//        removeAllCoordinators()
+//        OpenSea.resetInstances()
+//        disconnectWalletConnectSessionsSelectively(for: reason)
+//        showTabBar(for: account)
+//        fetchXMLAssetDefinitions()
+//        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
+//    }
 
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason) {
         switch reason {
@@ -816,11 +822,15 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
-        guard let transactionCoordinator = transactionCoordinator else {
-            return
-        }
+//        guard let transactionCoordinator = transactionCoordinator else {
+//            return
+//        }
 
-        restart(for: account, in: transactionCoordinator, reason: reason)
+//        restart(for: account, in: transactionCoordinator, reason: reason)
+        OpenSea.resetInstances()
+        disconnectWalletConnectSessionsSelectively(for: reason)
+
+        delegate?.didRestart(in: self, wallet: account)
     }
 
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {
@@ -860,6 +870,11 @@ extension InCoordinator: UrlSchemeResolver {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+
+    func blockieSelected(in coordinator: TokensCoordinator) {
+        delegate?.didShowWallets(in: self)
+    }
+
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
         logTappedSwap(service: service)
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }

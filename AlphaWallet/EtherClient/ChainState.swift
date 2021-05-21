@@ -35,7 +35,10 @@ class ChainState {
         if config.isAutoFetchingDisabled {
             //No-op
         } else {
-            self.updateLatestBlock = Timer.scheduledTimer(timeInterval: 6, target: self, selector: #selector(fetch), userInfo: nil, repeats: true)
+            self.updateLatestBlock = Timer.scheduledTimer(withTimeInterval: 6, repeats: true) { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.fetch()
+            }
         }
     }
 

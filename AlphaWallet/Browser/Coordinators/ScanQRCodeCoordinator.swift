@@ -118,6 +118,10 @@ extension UIBarButtonItem {
     static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
     }
+
+    static func addWalletButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(image: R.image.add_hide_tokens(), style: .plain, target: target, action: selector)
+    }
 }
 
 // MARK: Analytics
