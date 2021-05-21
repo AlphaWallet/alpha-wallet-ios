@@ -22,6 +22,9 @@ class PaymentCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
 
+    private var shouldRestoreNavigationBarIsHiddenState: Bool
+    private var latestNavigationStackViewController: UIViewController?
+
     init(
             navigationController: UINavigationController,
             flow: PaymentFlow,
@@ -42,9 +45,16 @@ class PaymentCoordinator: Coordinator {
         self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+
+        shouldRestoreNavigationBarIsHiddenState = navigationController.navigationBar.isHidden
+        latestNavigationStackViewController = navigationController.viewControllers.last
     }
 
     func start() {
+        if shouldRestoreNavigationBarIsHiddenState {
+            self.navigationController.setNavigationBarHidden(false, animated: true)
+        }
+
         switch (flow, session.account.type) {
         case (.send(let type), .real(let account)):
             let coordinator = SendCoordinator(
@@ -79,6 +89,18 @@ class PaymentCoordinator: Coordinator {
 
     func cancel() {
         delegate?.didCancel(in: self)
+    }
+
+    func dismiss(animated: Bool) {
+        if shouldRestoreNavigationBarIsHiddenState {
+            navigationController.setNavigationBarHidden(true, animated: animated)
+        }
+
+        if let viewController = latestNavigationStackViewController {
+            navigationController.popToViewController(viewController, animated: animated)
+        } else {
+            navigationController.popToRootViewController(animated: animated)
+        }
     }
 }
 

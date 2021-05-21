@@ -597,7 +597,7 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(deviceChecker)
     }
 
-    func showPaymentFlow(for type: PaymentFlow, server: RPCServer) {
+    func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
         let session = walletSessions[server]
         let tokenStorage = tokensStorages[server]
 
@@ -819,7 +819,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         //We are only showing the QR code and some text for this address. Maybe have to rework graphic design so that server isn't necessary
-        showPaymentFlow(for: .request, server: config.anyEnabledServer())
+        showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: coordinator.navigationController)
         delegate?.didShowWallet(in: self)
     }
 
@@ -888,7 +888,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {
-        showPaymentFlow(for: type, server: server)
+        showPaymentFlow(for: type, server: server, navigationController: coordinator.navigationController)
     }
 
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
@@ -911,12 +911,12 @@ extension InCoordinator: TokensCoordinatorDelegate {
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         removeCoordinator(coordinator)
+        
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
 
-            coordinator.navigationController.setNavigationBarHidden(true, animated: false)
-            coordinator.navigationController.popToRootViewController(animated: true)
+            coordinator.dismiss(animated: false)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.showTransactionSent(transaction: transaction)
@@ -927,8 +927,7 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
-        coordinator.navigationController.setNavigationBarHidden(true, animated: false)
-        coordinator.navigationController.popToRootViewController(animated: true)
+        coordinator.dismiss(animated: true)
 
         removeCoordinator(coordinator)
     }
