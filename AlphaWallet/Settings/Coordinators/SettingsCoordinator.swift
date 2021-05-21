@@ -24,7 +24,7 @@ class SettingsCoordinator: Coordinator {
 	private let keystore: Keystore
 	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
-    private let promptBackupCoordinator: PromptBackupCoordinator
+    private let _promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
 	private var account: Wallet {
@@ -56,7 +56,7 @@ class SettingsCoordinator: Coordinator {
 		self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
-        self.promptBackupCoordinator = promptBackupCoordinator
+        self._promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
@@ -126,7 +126,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 navigationController: navigationController,
                 keystore: keystore,
                 promptBackupCoordinator: promptBackupCoordinator,
-				analyticsCoordinator: analyticsCoordinator
+				analyticsCoordinator: analyticsCoordinator,
+                viewModel: .init(configuration: .changeWallets, animatedPresentation: true)
         )
         coordinator.delegate = self
         coordinator.start()
@@ -191,6 +192,10 @@ extension SettingsCoordinator: CanOpenURL {
 }
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
+    var promptBackupCoordinator: PromptBackupCoordinator? {
+        _promptBackupCoordinator
+    }
+
 	func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
 		delegate?.didUpdateAccounts(in: self)
 	}
@@ -267,8 +272,8 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 	}
 
 	func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-		promptBackupCoordinator.markBackupDone()
-		promptBackupCoordinator.showHideCurrentPrompt()
+		_promptBackupCoordinator.markBackupDone()
+		_promptBackupCoordinator.showHideCurrentPrompt()
 		removeCoordinator(coordinator)
 	}
 }

@@ -11,6 +11,7 @@ protocol TokensViewControllerDelegate: class {
     func didHide(token: TokenObject, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func scanQRCodeSelected(in viewController: UIViewController)
+    func blockieSelected(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
 }
 
@@ -249,7 +250,7 @@ class TokensViewController: UIViewController {
             }
             strongSelf.tableView.reloadData()
         }
-
+        blockieImageView.button.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -268,6 +269,10 @@ class TokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         keyboardChecker.viewWillDisappear()
+    }
+
+    @objc private func blockieButtonSelected(_ sender: UIButton) {
+        delegate?.blockieSelected(in: self)
     }
 
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {

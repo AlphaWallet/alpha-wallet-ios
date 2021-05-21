@@ -21,7 +21,7 @@ struct AccountViewModel {
         self.server = server
         self.walletName = walletName
         
-        AccountViewModel.resolveBlockie(for: self)
+        AccountViewModel.resolveBlockie(for: self, size: 8, scale: 5)
     }
 
     var showWatchIcon: Bool {
@@ -36,7 +36,7 @@ struct AccountViewModel {
     }
 
     var accessoryType: UITableViewCell.AccessoryType {
-        return isSelected ? .checkmark : .none
+        return isSelected ? .checkmark : .disclosureIndicator
     }
 
     var isSelected: Bool {
@@ -47,19 +47,32 @@ struct AccountViewModel {
         return Colors.appWhite
     }
 
-    var balanceFont: UIFont {
-        return Fonts.regular(size: 20)
+    var apprecation24hourAttributedString: NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .right
+
+        return .init(string: String() , attributes: [
+            .font: Fonts.regular(size: 20),
+            .foregroundColor: Colors.red,
+            .paragraphStyle: style
+        ])
     }
 
-    var addressFont: UIFont {
-        return Fonts.regular(size: 12)
+    var balanceAttributedString: NSAttributedString {
+        return .init(string: balance, attributes: [
+            .font: Fonts.regular(size: 20),
+            .foregroundColor: Colors.black,
+        ])
     }
 
-    var addressTextColor: UIColor {
-        return R.color.dove()!
+    var addressesAttrinutedString: NSAttributedString {
+        return .init(string: addresses, attributes: [
+            .font: Fonts.regular(size: 12),
+            .foregroundColor: R.color.dove()!
+        ])
     }
 
-    var addresses: String {
+    private var addresses: String {
         if let walletName = walletName {
             return "\(walletName) | \(wallet.address.truncateMiddle)"
         } else if let ensName = ensName {
@@ -72,9 +85,9 @@ struct AccountViewModel {
 
 extension AccountViewModel {
     //Because struct can't capture self in closure we using static func to resolve blockie
-    static func resolveBlockie(for viewModel: AccountViewModel) {
+    static func resolveBlockie(for viewModel: AccountViewModel, size: Int = 8, scale: Int = 3) {
         let generator = BlockiesGenerator()
-        generator.promise(address: viewModel.address).done { image in
+        generator.promise(address: viewModel.address, size: size, scale: scale).done { image in
             viewModel.icon.value = image
         }.catch { _ in
             viewModel.icon.value = nil

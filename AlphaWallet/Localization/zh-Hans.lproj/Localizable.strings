@@ -103,6 +103,8 @@
 "suppport.title" = "支持";
 "transactions.noTransactions.label.title" = "尚无交易！";
 "wallet.navigation.title" = "更换当前钱包";
+"wallets.navigation.title" = "Wallets";
+"wallet.types.summary" = "Summary";
 "wallet.types.hdWallets" = "您的钱包";
 "wallet.types.keystoreWallets" = "密钥库钱包";
 "wallet.types.watchedWallets" = "只能查看的钱包";

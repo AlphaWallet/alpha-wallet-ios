@@ -9,13 +9,11 @@ import web3swift
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 class CallForAssetAttributeCoordinator {
     private let server: RPCServer
-    private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private var promiseCache = [AssetFunctionCall: Promise<AssetInternalValue>]()
 
-    init(server: RPCServer, session: WalletSession, assetDefinitionStore: AssetDefinitionStore) {
-        self.server = server
-        self.session = session
+    init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+        self.server = server 
         self.assetDefinitionStore = assetDefinitionStore
     }
 

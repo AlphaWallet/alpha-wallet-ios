@@ -4,23 +4,6 @@ import Foundation
 import UIKit
 
 class AccountViewTableSectionHeader: UIView {
-    enum HeaderType: Int {
-        case hdWallet = 0
-        case keystoreWallet = 1
-        case watchedWallet = 2
-
-        var title: String {
-            switch self {
-            case .hdWallet:
-                return R.string.localizable.walletTypesHdWallets().uppercased()
-            case .keystoreWallet:
-                return R.string.localizable.walletTypesKeystoreWallets().uppercased()
-            case .watchedWallet:
-                return R.string.localizable.walletTypesWatchedWallets().uppercased()
-            }
-        }
-    }
-
     private let label = UILabel()
     private var heightConstraint: NSLayoutConstraint?
     private var constraintsWhenVisible: [NSLayoutConstraint] = []
@@ -62,11 +45,11 @@ class AccountViewTableSectionHeader: UIView {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
-    func configure(type: HeaderType, shouldHide: Bool) {
-        backgroundColor  = GroupedTable.Color.background
+    func configure(type: AccountsSectionType, shouldHide: Bool) {
+        backgroundColor = GroupedTable.Color.background
 
         label.backgroundColor = GroupedTable.Color.background
         label.textColor = GroupedTable.Color.title

@@ -166,7 +166,9 @@ extension Dictionary where Key == AttributeId, Value == AssetAttribute {
         var attributeNameValues = [AttributeId: AssetAttributeSyntaxValue]()
         let (tokenIdBased, userEntryBased, functionBased, eventBased) = splitAttributesByOrigin
         //TODO get rid of the forced unwrap
-        let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
+        guard let callForAssetAttributeCoordinator = XMLHandler.callForAssetAttributeCoordinators?[server] else {
+            return [:]
+        }
         for (attributeId, attribute) in tokenIdBased {
             let value = attribute.value(from: tokenIdOrEvent, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: .init(), localRefs: localRefs)
             attributeNameValues[attributeId] = value
