@@ -13,6 +13,7 @@ class RequestCoordinator: Coordinator {
     private lazy var requestViewController: RequestViewController = {
         let viewModel: RequestViewModel = .init(account: account)
         let controller = RequestViewController(viewModel: viewModel)
+        controller.navigationItem.largeTitleDisplayMode = .never
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
 
         return controller
@@ -24,7 +25,6 @@ class RequestCoordinator: Coordinator {
 
     init(navigationController: UINavigationController, account: Wallet) {
         self.navigationController = navigationController
-        self.navigationController.setNavigationBarHidden(false, animated: true)
         self.account = account
     }
 

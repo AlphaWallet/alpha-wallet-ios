@@ -366,7 +366,7 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
 
 extension AppCoordinator: CustomUrlSchemeCoordinatorResolver {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
-        inCoordinator?.showPaymentFlow(for: paymentFlow, server: server)
+        inCoordinator?.showPaymentFlow(for: paymentFlow, server: server, navigationController: navigationController)
     }
 }
 

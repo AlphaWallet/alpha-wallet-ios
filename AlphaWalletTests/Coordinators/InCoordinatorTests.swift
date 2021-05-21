@@ -90,7 +90,7 @@ class InCoordinatorTests: XCTestCase {
         )
         coordinator.showTabBar(for: .make())
 
-        coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil)), server: .main)
+        coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil)), server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(coordinator.navigationController.viewControllers.last is SendViewController)
@@ -109,7 +109,7 @@ class InCoordinatorTests: XCTestCase {
         )
         coordinator.showTabBar(for: .make())
 
-        coordinator.showPaymentFlow(for: .request, server: .main)
+        coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(coordinator.navigationController.viewControllers.last is RequestViewController)
