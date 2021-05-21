@@ -513,8 +513,8 @@ extension SendViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         textField.errorState = .none
-
-        activateAmountView()
+        //NOTE: Comment it as avtivation amount view doesn't work properly here
+        //activateAmountView()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
