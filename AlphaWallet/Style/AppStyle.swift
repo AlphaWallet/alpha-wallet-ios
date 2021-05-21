@@ -203,6 +203,11 @@ enum DataEntry {
             static let headerHeight: CGFloat = isNarrowScreen ? 50 : 60
             static let footerHeight: CGFloat = isNarrowScreen ? 80 : 120
         }
+
+        enum AddressTextField {
+            //NOTE: top/bottom insets value to allow shadow displaying
+            static let insets: UIEdgeInsets = .init(top: shadowRadius, left: shadowRadius, bottom: shadowRadius, right: shadowRadius)
+        }
     }
 
     enum Font {
