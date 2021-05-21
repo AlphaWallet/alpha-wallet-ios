@@ -30,6 +30,7 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
     ]
     //NOTE: we use dictionary to improve search tokens
     private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
+    private let queue = DispatchQueue(label: "com.Oneinch.updateQueue")
 
     func url(token: TokenObject) -> URL? {
         var components = URLComponents()
@@ -69,19 +70,19 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
         let config = Config()
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.oneInchTokens(config: config)).map { response -> [String: Oneinch.ERC20Token] in
+        provider.request(.oneInchTokens(config: config), callbackQueue: queue).map(on: queue, { response -> [String: Oneinch.ERC20Token] in
             try JSONDecoder().decode(ApiResponsePayload.self, from: response.data).tokens
-        }.map { data -> [Oneinch.ERC20Token] in
+        }).map(on: queue, { data -> [Oneinch.ERC20Token] in
             data.map { $0.value }
-        }.done { response in
+        }).done(on: queue, { response in
             for token in self.predefinedTokens + response {
                 self.availableTokens[token.address] = token
             }
-        }.catch { error in
+        }).catch(on: queue, { error in
             let service = AlphaWalletService.oneInchTokens(config: config)
             let url = service.baseURL.appendingPathComponent(service.path)
             RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: url.absoluteString)
-        }
+        })
     }
 
     private func defaultOutputAddress(forInput input: AlphaWallet.Address) -> AlphaWallet.Address {
