@@ -52,8 +52,7 @@ class SendCoordinator: Coordinator {
         self.ethPrice = ethPrice
         self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.navigationController.setNavigationBarHidden(false, animated: true)
+        self.analyticsCoordinator = analyticsCoordinator 
     }
 
     func start() {
