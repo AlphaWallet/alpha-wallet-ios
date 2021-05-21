@@ -7,9 +7,9 @@ import Kingfisher
 class NonFungibleTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
+    private let tickersAmountLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [self.titleLabel, self.blockchainLabel]
+        [titleLabel, tickersAmountLabel]
     }
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -28,7 +28,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+            [tickersAmountLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
         ].asStackView(axis: .vertical, spacing: 5)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -43,7 +43,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure(viewModel: NonFungibleTokenViewCellViewModel) {
@@ -54,14 +54,10 @@ class NonFungibleTokenViewCell: UITableViewCell {
 
         contentView.backgroundColor = GroupedTable.Color.background
 
-        titleLabel.textColor = viewModel.titleColor
-        titleLabel.font = viewModel.titleFont
-        titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
+        titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters
 
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
+        tickersAmountLabel.attributedText = viewModel.tickersAmountAttributedString
 
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha

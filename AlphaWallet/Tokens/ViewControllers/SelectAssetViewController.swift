@@ -154,8 +154,6 @@ extension SelectAssetViewController: UITableViewDataSource {
                 token: token,
                 ticker: viewModel.ticker(for: token),
                 currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                server: server,
                 assetDefinitionStore: assetDefinitionStore
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
@@ -163,10 +161,8 @@ extension SelectAssetViewController: UITableViewDataSource {
             return cell
         case .erc20:
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-//            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             cell.configure(viewModel: .init(token: token,
-                server: token.server,
-                assetDefinitionStore: assetDefinitionStore, 
+                assetDefinitionStore: assetDefinitionStore,
                 ticker: viewModel.ticker(for: token)
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
