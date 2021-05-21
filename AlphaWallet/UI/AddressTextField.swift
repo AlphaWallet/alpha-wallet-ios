@@ -115,15 +115,14 @@ class AddressTextField: UIControl {
             let borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder)
             let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: isFirstResponder)
 
-            layer.borderColor = borderColor.cgColor
-
-            dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
+            textField.layer.borderColor = borderColor.cgColor
+            textField.dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
         }
     }
 
     weak var delegate: AddressTextFieldDelegate?
 
-    init() {
+    init(edgeInsets: UIEdgeInsets = DataEntry.Metric.AddressTextField.insets) {
         super.init(frame: .zero)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
         clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
@@ -143,7 +142,7 @@ class AddressTextField: UIControl {
         updateClearAndPasteButtons(textFieldText)
 
         NSLayoutConstraint.activate([
-            textField.anchorsConstraint(to: self),
+            textField.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
 
@@ -198,7 +197,7 @@ class AddressTextField: UIControl {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     @discardableResult override func becomeFirstResponder() -> Bool {
@@ -232,9 +231,9 @@ class AddressTextField: UIControl {
         textField.textColor = DataEntry.Color.text
         textField.font = DataEntry.Font.textField
 
-        layer.borderWidth = DataEntry.Metric.borderThickness
-        backgroundColor = DataEntry.Color.textFieldBackground
-        layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.backgroundColor = DataEntry.Color.textFieldBackground
+        textField.layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         errorState = .none
     }
 
@@ -299,18 +298,18 @@ extension AddressTextField: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
-        layer.borderColor = borderColor.cgColor
-        backgroundColor = DataEntry.Color.textFieldBackground
+        textField.layer.borderColor = borderColor.cgColor
+        textField.backgroundColor = DataEntry.Color.textFieldBackground
 
-        dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
+        textField.dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
-        layer.borderColor = borderColor.cgColor
-        backgroundColor = Colors.appWhite
+        textField.layer.borderColor = borderColor.cgColor
+        textField.backgroundColor = Colors.appWhite
 
-        dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
+        textField.dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -349,8 +348,10 @@ extension AddressTextField: UITextFieldDelegate {
                 delegate?.displayError(error: Errors.invalidAddress, for: self)
             }
         case .resolved(let resolved):
+            //NOTE: case .resolved(_) determines that entered address value is valid thus errorState should be .none
+            errorState = .none
+
             if let addressOrEnsName = resolved {
-                errorState = .none
                 ensAddressLabel.addressOrEnsName = addressOrEnsName
             } else {
                 ensAddressLabel.clear()
