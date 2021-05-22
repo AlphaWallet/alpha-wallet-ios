@@ -23,9 +23,23 @@ class RateLimiter {
 
     func run() {
         if isWindowActive {
-            shouldRunWhenWindowCloses = true
+            if Thread.isMainThread {
+                shouldRunWhenWindowCloses = true
+            } else {
+                //TODO replace this class with one (TimedLimiter?) that does this properly
+                DispatchQueue.main.async { [weak self] in
+                    self?.shouldRunWhenWindowCloses = true
+                }
+            }
         } else {
-            runWithNewWindow()
+            if !Thread.isMainThread {
+                runWithNewWindow()
+            } else {
+                //TODO replace this class with one (TimedLimiter?) that does this properly
+                DispatchQueue.main.async { [weak self] in
+                    self?.runWithNewWindow()
+                }
+            }
         }
     }
 
