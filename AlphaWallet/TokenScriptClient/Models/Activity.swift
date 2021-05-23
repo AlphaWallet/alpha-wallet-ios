@@ -26,7 +26,7 @@ struct Activity {
 
     //We use the internal id to track which activity to replace/update
     let id: Int
-    let rowType: ActivityRowType
+    var rowType: ActivityRowType
     //TODO safe to have TokenObject here? Maybe a struct is better
     let tokenObject: AssignedToken
     let server: RPCServer
@@ -120,5 +120,13 @@ struct Activity {
         case .erc875:
             return .none
         }
+    }
+
+    var isSend: Bool {
+        name == "sent"
+    }
+
+    var isReceive: Bool {
+        name == "received"
     }
 }

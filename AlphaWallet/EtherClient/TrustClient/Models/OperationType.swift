@@ -13,6 +13,28 @@ enum OperationType: String {
     init(string: String) {
         self = OperationType(rawValue: string) ?? .unknown
     }
+
+    var isTransfer: Bool {
+        switch self {
+        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
+            return true
+        case .erc20TokenApprove:
+            return false
+        case .unknown:
+            return false
+        }
+    }
+
+    var isSend: Bool {
+        switch self {
+        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
+            return true
+        case .erc20TokenApprove:
+            return false
+        case .unknown:
+            return false
+        }
+    }
 }
 
 extension OperationType: Decodable { }

@@ -12,6 +12,37 @@ protocol ActivitiesCoordinatorDelegate: class {
 }
 
 class ActivitiesCoordinator: Coordinator {
+    private enum ActivityOrTransactionInstance {
+        case activity(Activity)
+        case transaction(TransactionInstance)
+
+        var blockNumber: Int {
+            switch self {
+            case .activity(let activity):
+                return activity.blockNumber
+            case .transaction(let transaction):
+                return transaction.blockNumber
+            }
+        }
+
+        var transaction: TransactionInstance? {
+            switch self {
+            case .activity:
+                return nil
+            case .transaction(let transaction):
+                return transaction
+            }
+        }
+        var activity: Activity? {
+            switch self {
+            case .activity(let activity):
+                return activity
+            case .transaction:
+                return nil
+            }
+        }
+    }
+
     private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
     private let keystore: Keystore
@@ -50,7 +81,11 @@ class ActivitiesCoordinator: Coordinator {
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    private let queue = DispatchQueue(label: "com.activities.updateQueue")
+    //TODO need to restore and fix this speed up optimization again. Especially that it doesn't crash with a bigger wallet.
+    //private let queue = DispatchQueue(label: "com.activities.updateQueue")
+    private let queue = DispatchQueue.main
+    //TODO this only exist because the previous is `main` for now
+    private let queue2 = DispatchQueue(label: "com.activities.updateQueue")
 
     init(
         analyticsCoordinator: AnalyticsCoordinator,
@@ -190,10 +225,10 @@ class ActivitiesCoordinator: Coordinator {
 
     private func getActivities(_ allActivities: [EventActivity], forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [(Activity, Activity.AssignedToken, TokenHolder)] {
         let events = allActivities.filter {
-                $0.contract == card.eventOrigin.contract.eip55String
-                && $0.server == server
-                && $0.eventName == card.eventOrigin.eventName
-                && $0.filter == interpolatedFilter
+            $0.contract == card.eventOrigin.contract.eip55String
+                    && $0.server == server
+                    && $0.eventName == card.eventOrigin.eventName
+                    && $0.filter == interpolatedFilter
         }
 
         //Cache tokens lookup for performance
@@ -272,7 +307,6 @@ class ActivitiesCoordinator: Coordinator {
             if rateLimitedViewControllerReloader == nil {
                 rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
                     guard let strongSelf = self else { return }
-
                     strongSelf.queue.async {
                         strongSelf.reloadViewControllerImpl()
                     }
@@ -291,7 +325,6 @@ class ActivitiesCoordinator: Coordinator {
         }
 
         let transactions: [TransactionInstance]
-
         if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
             transactions = self.transactions.filter { $0.blockNumber >= blockNumberOfOldestActivity }
         } else {
@@ -299,10 +332,8 @@ class ActivitiesCoordinator: Coordinator {
         }
 
         let items = combine(activities: activities, withTransactions: transactions)
-
-        if let items = items {
+        queue2.async {
             let activities = ActivitiesViewModel.sorted(activities: items)
-
             DispatchQueue.main.async {
                 self.rootViewController.configure(viewModel: .init(tokensStorages: self.tokensStorages, activities: activities))
             }
@@ -310,68 +341,79 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityOrTransactionRow]? {
-        var transactionRows: [TransactionRow] = .init()
-        for each in transactions {
-            if each.localizedOperations.isEmpty {
-                transactionRows.append(.standalone(each))
-            } else if each.localizedOperations.count == 1, each.value == "0" {
-                transactionRows.append(.standalone(each))
+    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityRowModel] {
+        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
+        let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
+        var results: [ActivityRowModel] = .init()
+        let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
+        for (blockNumber, elements) in counters {
+            let rows = generateRowModels(fromActivityOrTransactions: elements, withBlockNumber: blockNumber)
+            results.append(contentsOf: rows)
+        }
+        return results
+    }
+
+    private func generateRowModels(fromActivityOrTransactions activityOrTransactions: [ActivityOrTransactionInstance], withBlockNumber blockNumber: Int) -> [ActivityRowModel] {
+        if activityOrTransactions.isEmpty {
+            //Shouldn't be possible
+            return .init()
+        } else if activityOrTransactions.count > 1 {
+            let activities: [Activity] = activityOrTransactions.compactMap(\.activity)
+            //TODO will we ever have more than 1 transaction object (not activity/event) in the database for the same block number? Maybe if we get 1 from normal Etherscan endpoint and another from Etherscan ERC20 history endpoint?
+            if let transaction: TransactionInstance = activityOrTransactions.compactMap(\.transaction).first {
+                var results: [ActivityRowModel] = .init()
+                let activities: [Activity] = activities.filter { activity in
+                    let operations = transaction.localizedOperations
+                    return operations.allSatisfy { activity != $0 }
+                }
+
+                if transaction.localizedOperations.isEmpty && activities.isEmpty {
+                    results.append(.standaloneTransaction(transaction: transaction))
+                } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
+                    results.append(.standaloneTransaction(transaction: transaction))
+                } else if transaction.localizedOperations.isEmpty && activities.count == 1 {
+                    results.append(.parentTransaction(transaction: transaction, isSwap: false, activities: activities))
+                    results.append(contentsOf: activities.map { .childActivity(transaction: transaction, activity: $0) })
+                } else {
+                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
+                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
+                    results.append(contentsOf: transaction.localizedOperations.map { .childTransaction(transaction: transaction, operation: $0) })
+                    for each in activities {
+                        results.append(.childActivity(transaction: transaction, activity: each))
+                    }
+                }
+                return results
             } else {
-                transactionRows.append(.group(each))
-                transactionRows.append(contentsOf: each.localizedOperations.map { .item(transaction: each, operation: $0) })
+                //TODO we should have a group here too to wrap activities with the same block number. No transaction, so more work
+                return activities.map { .standaloneActivity(activity: $0) }
+            }
+        } else {
+            switch activityOrTransactions.first {
+            case .activity(let activity):
+                return [.standaloneActivity(activity: activity)]
+            case .transaction(let transaction):
+                if transaction.localizedOperations.isEmpty {
+                    return [.standaloneTransaction(transaction: transaction)]
+                } else if transaction.localizedOperations.count == 1 {
+                    return [.standaloneTransaction(transaction: transaction)]
+                } else {
+                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
+                    var results: [ActivityRowModel] = .init()
+                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
+                    results.append(contentsOf: transaction.localizedOperations.map { .childTransaction(transaction: transaction, operation: $0) })
+                    return results
+                }
+            case .none:
+                return .init()
             }
         }
-        let maximumNumberOfPendingTransactionsAtTheSameTime = 5
-        let transactionBlockNumbers = transactionInstances[0..<min(transactionInstances.count, maximumNumberOfPendingTransactionsAtTheSameTime)].map(\.blockNumber)
-        //Combining is an expensive operation which blocks the main thread. We avoid it if there are no new data
-        if lastActivitiesCount == activities.count && lastTransactionRowsCount == transactionRows.count && transactionBlockNumbers == lastTransactionBlockNumbers { return nil }
+    }
 
-        lastActivitiesCount = activities.count
-        lastTransactionRowsCount = transactionRows.count
-        lastTransactionBlockNumbers = transactionBlockNumbers
-        var items: [ActivityOrTransactionRow] = .init()
-        //We maintain the index to start looking in the array of `TransactionRow`s. Otherwise, the nested for-loops is very costly performance wise. This assumes activities and transactions are sorted by blockNumber in the same (descending) order
-        var transactionRowsIndex = 0
-        for each in activities {
-            var erc20TransactionsInSameBlock: [TransactionRow] = .init()
-            for rowIndex in transactionRowsIndex..<transactionRows.count {
-                let transactionRow = transactionRows[rowIndex]
-                guard transactionRow.blockNumber == each.blockNumber, transactionRow.operation?.operationType == .erc20TokenTransfer, transactionRow.operation?.value != nil else {
-                    transactionRowsIndex = rowIndex + 1
-                    break
-                }
-                guard transactionRow.operation?.value == each.values.card["amount"]?.uintValue.flatMap({ String($0) }) else { continue }
-                erc20TransactionsInSameBlock.append(transactionRow)
-            }
-
-            switch each.nativeViewType {
-            case .erc20Sent:
-                if erc20TransactionsInSameBlock.contains(where: { (transactionRow: TransactionRow) in
-                    let from: String? = transactionRow.operation?.from
-                    let sameSender: Bool = (each.values.card["from"]?.addressValue.flatMap { wallet.address.sameContract(as: $0) } ?? false) && (from.flatMap { each.values.card["from"]?.addressValue?.sameContract(as: $0) } ?? false)
-                    return sameSender
-                }) {
-                    //no-op
-                } else {
-                    items.append(.activity(each))
-                }
-            case .erc20Received:
-                if erc20TransactionsInSameBlock.contains(where: { (transactionRow: TransactionRow) in
-                    let to: String? = transactionRow.operation?.to
-                    let sameRecipient: Bool = (each.values.card["to"]?.addressValue.flatMap { wallet.address.sameContract(as: $0) } ?? false) && (to.flatMap { each.values.card["to"]?.addressValue?.sameContract(as: $0) } ?? false)
-                    return sameRecipient
-                }) {
-                    //no-op
-                } else {
-                    items.append(.activity(each))
-                }
-            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained, .none, .nativeCryptoSent, .nativeCryptoReceived:
-                items.append(.activity(each))
-            }
-        }
-        items += transactionRows.map { .transactionRow($0) }
-        return items
+    private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance]) -> Bool {
+        //Might have other transactions like approved embedded, so we can't check for all send and receives.
+        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: sessions.anyValue.account.address) }
+        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: sessions.anyValue.account.address) }
+        return hasSend && hasReceive
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
@@ -489,4 +531,46 @@ extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
             break
         }
     }
+}
+
+fileprivate func ==(activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+    func isSameFrom() -> Bool {
+        guard let from = activity.values.card["from"]?.addressValue, from.sameContract(as: operation.from) else { return false }
+        return true
+    }
+
+    func isSameTo() -> Bool {
+        guard let to = activity.values.card["to"]?.addressValue, to.sameContract(as: operation.to) else { return false }
+        return true
+    }
+
+    func isSameAmount() -> Bool {
+        guard let amount = activity.values.card["amount"]?.uintValue, String(amount) == operation.value else { return false }
+        return true
+    }
+
+    guard let symbol = activity.values.token["symbol"]?.stringValue, symbol == operation.symbol else { return false }
+    let sameOperation: Bool = {
+        switch operation.operationType {
+        case .nativeCurrencyTokenTransfer:
+            //TODO not possible to hit this since we can't have an activity (event) for crypto send/received?
+            return activity.nativeViewType == .nativeCryptoSent || activity.nativeViewType == .nativeCryptoReceived
+        case .erc20TokenTransfer:
+            return (activity.nativeViewType == .erc20Sent || activity.nativeViewType == .erc20Received) && isSameAmount() && isSameFrom() && isSameTo()
+        case .erc20TokenApprove:
+            return activity.nativeViewType == .erc20OwnerApproved || activity.nativeViewType == .erc20ApprovalObtained || activity.nativeViewType == .erc721OwnerApproved || activity.nativeViewType == .erc721ApprovalObtained
+        case .erc721TokenTransfer:
+            return (activity.nativeViewType == .erc721Sent || activity.nativeViewType == .erc721Received) && isSameAmount() && isSameFrom() && isSameTo()
+        case .erc875TokenTransfer:
+            return false
+        case .unknown:
+            return false
+        }
+    }()
+    guard sameOperation else { return false }
+    return true
+}
+
+fileprivate func !=(activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+    !(activity == operation)
 }
