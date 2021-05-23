@@ -3,6 +3,7 @@ import Foundation
 
 enum TransactionRow {
     case standalone(TransactionInstance)
+    //TODO this seems to overlap with the `ActivityRowModel.parentTransaction`
     case group(TransactionInstance)
     case item(transaction: TransactionInstance, operation: LocalizedOperationObjectInstance)
 
