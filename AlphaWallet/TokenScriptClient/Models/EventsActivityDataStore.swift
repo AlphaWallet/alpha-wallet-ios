@@ -12,7 +12,7 @@ protocol EventsActivityDataStoreProtocol {
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     //For performance. Fetching and displaying 10k activities stalls the app for a few seconds. We just keep it simple, no pagination. Pagination is complicated because we have to handle re-fetching of activities, updates as well as blending with transactions
-    static let numberOfActivitiesToUse = 1000
+    static let numberOfActivitiesToUse = 100
 
     private let realm: Realm
 
@@ -77,4 +77,4 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             }
         }
     }
-} 
+}

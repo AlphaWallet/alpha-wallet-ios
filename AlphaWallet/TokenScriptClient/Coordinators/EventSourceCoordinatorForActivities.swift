@@ -33,7 +33,6 @@ class EventSourceCoordinatorForActivities {
     func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
         let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
-
         return xmlHandler.activityCards.compactMap {
             self.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0)
         }
@@ -42,7 +41,6 @@ class EventSourceCoordinatorForActivities {
     func fetchEvents(contract: AlphaWallet.Address, tokenType: TokenType, rpcServer: RPCServer) -> [Promise<Void>] {
         let xmlHandler = XMLHandler(contract: contract, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
-
         return xmlHandler.activityCards.compactMap {
             fetchEvents(tokenContract: contract, server: rpcServer, card: $0)
         }
@@ -96,7 +94,6 @@ class EventSourceCoordinatorForActivities {
 
     private func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard) -> Promise<Void>? {
         let eventOrigin = card.eventOrigin
-
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin.parameters.filter {
             $0.isIndexed
@@ -106,7 +103,6 @@ class EventSourceCoordinatorForActivities {
 
         if filterParam.allSatisfy({ $0 == nil }) {
             //TODO log to console as diagnostic
-            NSLog("TokenScript filter parameters for Activity \"\(card.name)\" are all nil. Ignoring this Activity. \(filterParam.map { $0?.filter })")
             return nil
         }
 
@@ -122,14 +118,14 @@ class EventSourceCoordinatorForActivities {
 
             return EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
         }).then(on: queue, { eventFilter in
-            getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
+            return getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
         }).thenMap(on: queue, { event -> Promise<(EventParserResultProtocol, Date)?> in
             guard let blockNumber = event.eventLog?.blockNumber else { return .value(nil) }
             return self.timestampCoordinator.getBlockTimestamp(blockNumber, onServer: server).map(on: self.queue, { date in (event, date) })
         }).compactMapValues(on: queue, {
             $0
         }).compactMapValues(on: queue, { event, date in
-            return self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
+            self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
         }).then(on: queue, { events -> Promise<Bool> in
             return self.eventsDataStore.add(events: events, forTokenContract: tokenContract).map { _ -> Bool in
                 !events.isEmpty

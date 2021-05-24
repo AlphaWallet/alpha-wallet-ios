@@ -38,6 +38,7 @@ class ActivitiesViewController: UIViewController {
         tableView.register(ActivityViewCell.self)
         tableView.register(DefaultActivityItemViewCell.self)
         tableView.register(TransactionViewCell.self)
+        tableView.register(GroupActivityViewCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -254,14 +255,34 @@ extension ActivitiesViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true )
         let item = viewModel.item(for: indexPath.row, section: indexPath.section)
         switch item {
-        case .activity(let activity):
+        case .parentTransaction:
+            break
+        case .childActivity(_, activity: let activity):
             delegate?.didPressActivity(activity: activity, in: self)
-        case .transactionRow(let transactionRow):
-            if let activity = createPseudoActivity(fromTransactionRow: transactionRow) {
+        case .childTransaction(transaction: let transaction, operation: let operation):
+            if let activity = createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: operation)) {
                 delegate?.didPressActivity(activity: activity, in: self)
             } else {
-                delegate?.didPressTransaction(transaction: transactionRow.transaction, in: self)
+                delegate?.didPressTransaction(transaction: transaction, in: self)
             }
+        case .standaloneTransaction(transaction: let transaction):
+            if let activity = createPseudoActivity(fromTransactionRow: .standalone(transaction)) {
+                delegate?.didPressActivity(activity: activity, in: self)
+            } else {
+                delegate?.didPressTransaction(transaction: transaction, in: self)
+            }
+        case .standaloneActivity(activity: let activity):
+            delegate?.didPressActivity(activity: activity, in: self)
+        }
+    }
+
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let item = viewModel.item(for: indexPath.row, section: indexPath.section)
+        switch item {
+        case .parentTransaction:
+            return nil
+        case .childActivity, .childTransaction, .standaloneTransaction, .standaloneActivity:
+            return indexPath
         }
     }
 
@@ -282,7 +303,16 @@ extension ActivitiesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = viewModel.item(for: indexPath.row, section: indexPath.section)
         switch item {
-        case .activity(let activity):
+        case .parentTransaction(_, isSwap: let isSwap, _):
+            let cell: GroupActivityViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(groupType: isSwap ? .swap : .unknown))
+            return cell
+        case .childActivity(_, activity: let activity):
+            let activity: Activity = {
+                var a = activity
+                a.rowType = .item
+                return a
+            }()
             switch activity.nativeViewType {
             case .erc20Received, .erc20Sent, .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Received, .erc721Sent, .erc721OwnerApproved, .erc721ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -293,15 +323,37 @@ extension ActivitiesViewController: UITableViewDataSource {
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             }
-        case .transactionRow(let transactionRow):
-            if let activity = createPseudoActivity(fromTransactionRow: transactionRow) {
+        case .childTransaction(transaction: let transaction, operation: let operation):
+            if let activity = createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: operation)) {
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             } else {
                 let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
-                let session = sessions[transactionRow.server]
-                cell.configure(viewModel: .init(transactionRow: transactionRow, chainState: session.chainState, currentWallet: session.account, server: transactionRow.server))
+                let session = sessions[transaction.server]
+                cell.configure(viewModel: .init(transactionRow: .item(transaction: transaction, operation: operation), chainState: session.chainState, currentWallet: session.account, server: transaction.server))
+                return cell
+            }
+        case .standaloneTransaction(transaction: let transaction):
+            if let activity = createPseudoActivity(fromTransactionRow: .standalone(transaction)) {
+                let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: .init(activity: activity))
+                return cell
+            } else {
+                let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
+                let session = sessions[transaction.server]
+                cell.configure(viewModel: .init(transactionRow: .standalone(transaction), chainState: session.chainState, currentWallet: session.account, server: transaction.server))
+                return cell
+            }
+        case .standaloneActivity(activity: let activity):
+            switch activity.nativeViewType {
+            case .erc20Received, .erc20Sent, .erc20OwnerApproved, .erc20ApprovalObtained, .erc721Received, .erc721Sent, .erc721OwnerApproved, .erc721ApprovalObtained, .nativeCryptoSent, .nativeCryptoReceived:
+                let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: .init(activity: activity))
+                return cell
+            case .none:
+                let cell: ActivityViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: .init(activity: activity))
                 return cell
             }
         }
