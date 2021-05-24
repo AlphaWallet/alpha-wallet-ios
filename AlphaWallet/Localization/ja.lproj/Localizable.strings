@@ -540,6 +540,8 @@
 "activity.speedup.description" = "Note that speeding up this transaction does not guarantee your original transaction will be accelerated. If your attempt is successful, you will be charged the miner fee as above.";
 "activity.cancel.description" = "Note that speeding up this transaction does not guarantee your original transaction will be cancelled. If your attempt is successful, you will be charged the miner fee as above.";
 "activity.empty" = "Activities will appear here";
+"activity.groupTransaction.swap" = "Swap";
+"activity.groupTransaction.unknown" = "Contract Execution";
 "configureTransaction.error.gasPriceTooLow" = "Gas Price must be a positive number";
 "configureTransaction.error.leaveNonceEmpty" = "Leave the nonce empty. We'll fill it in for you";
 "configureTransaction.navigationBar.title" = "Set Speed";

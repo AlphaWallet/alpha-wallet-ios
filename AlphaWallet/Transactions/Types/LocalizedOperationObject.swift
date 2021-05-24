@@ -124,4 +124,14 @@ struct LocalizedOperationObjectInstance {
     var contractAddress: AlphaWallet.Address? {
         return contract.flatMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }
     }
+
+    func isSend(from: AlphaWallet.Address) -> Bool {
+        guard operationType.isTransfer else { return false }
+        return from.sameContract(as: self.from)
+    }
+
+    func isReceived(by to: AlphaWallet.Address) -> Bool {
+        guard operationType.isTransfer else { return false }
+        return to.sameContract(as: self.to)
+    }
 }
