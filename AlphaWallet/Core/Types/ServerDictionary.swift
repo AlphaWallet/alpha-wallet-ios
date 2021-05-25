@@ -38,6 +38,10 @@ struct ServerDictionary<T> {
         result.backingStore = mappedBackingStore
         return result
     }
+
+    func hasKey(_ server: RPCServer) -> Bool {
+        backingStore.contains(where: { $0.key == server})
+    }
 }
 
 extension ServerDictionary: Sequence {
