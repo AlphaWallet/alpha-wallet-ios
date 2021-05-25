@@ -280,7 +280,12 @@ class ActivitiesCoordinator: Coordinator {
 
             let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
 
-            return (activity: activity, tokenObject: tokenObject, tokenHolders: tokenHolders[0])
+            //Check against crashing when ERC721 tokens sourced from OpenSea are empty (for some reason, maybe network, which should be fixed elsewhere any way)
+            if let tokenHolder = tokenHolders.first {
+                return (activity: activity, tokenObject: tokenObject, tokenHolders: tokenHolder)
+            } else {
+                return nil
+            }
         }
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
