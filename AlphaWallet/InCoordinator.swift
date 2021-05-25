@@ -228,6 +228,8 @@ class InCoordinator: NSObject, Coordinator {
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
             guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
+            //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
+            guard strongSelf.nativeCryptoCurrencyPrices.hasKey(server) else { return }
             if let ticker = tokensStorage.coinTicker(for: eth) {
                 strongSelf.nativeCryptoCurrencyPrices[server].value = Double(ticker.price_usd)
             } else {
@@ -309,6 +311,8 @@ class InCoordinator: NSObject, Coordinator {
                 }
 
                 if let balance = BigInt(eth.value) {
+                    //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
+                    guard strongSelf.nativeCryptoCurrencyBalances.hasKey(each) else { return }
                     strongSelf.nativeCryptoCurrencyBalances[each].value = BigInt(eth.value)
                     guard !(balance.isZero) else { return }
                     //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
