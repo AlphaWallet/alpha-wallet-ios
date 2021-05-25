@@ -73,11 +73,11 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                 viewController: viewController,
                 completion: { [self] choice in
                     if choice == 0 {
-                        let enableChain = EnableChain(existingServer, restartQueue: restartQueue, url: currentUrl)
+                        let enableChain = EnableChain(existingServer, restartQueue: self.restartQueue, url: self.currentUrl)
                         enableChain.delegate = self
                         enableChain.run()
                     } else {
-                        delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
                     }
                 })
     }
@@ -91,7 +91,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                 viewController: viewController,
                 completion: { [self] choice in
                     func runAddCustomChain(isTestnet: Bool) {
-                        let addCustomChain = AddCustomChain(customChain, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl)
+                        let addCustomChain = AddCustomChain(customChain, isTestnet: isTestnet, restartQueue: self.restartQueue, url: self.currentUrl)
                         self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
                         addCustomChain.delegate = self
                         addCustomChain.run()
@@ -102,7 +102,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                     case 1:
                         runAddCustomChain(isTestnet: true)
                     default:
-                        delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
                     }
                 })
     }
@@ -116,9 +116,9 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
                 viewController: viewController,
                 completion: { [self] choice in
                     if choice == 0 {
-                        delegate?.switchBrowserToExistingServer(existingServer, url: currentUrl, inCoordinator: self)
+                        self.delegate?.switchBrowserToExistingServer(existingServer, url: self.currentUrl, inCoordinator: self)
                     } else {
-                        delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
                     }
                 })
     }

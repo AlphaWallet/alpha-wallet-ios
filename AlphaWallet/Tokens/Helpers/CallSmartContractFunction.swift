@@ -8,61 +8,13 @@ import web3swift
 
 //TODO wrap callSmartContract() and cache into a type
 // swiftlint:disable private_over_fileprivate
-fileprivate var smartContractCallsCache = ThreadSafeContractCallsCache()
-fileprivate var web3s = ThreadSafeWeb3sCache()
+fileprivate var smartContractCallsCache = ThreadSafeDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
+fileprivate var web3s = ThreadSafeDictionary<RPCServer, [TimeInterval: web3]>()
 // swiftlint:enable private_over_fileprivate
 
 func clearSmartContractCallsCache() {
     web3s.removeAll()
     smartContractCallsCache.removeAll()
-}
-
-private class ThreadSafeWeb3sCache {
-    fileprivate var cache = [RPCServer: [TimeInterval: web3]]()
-    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
-
-    subscript(server: RPCServer) -> [TimeInterval: web3]? {
-        get {
-            var element: [TimeInterval: web3]?
-            queue.sync {
-                element = cache[server]
-            }
-            return element
-        }
-        set {
-            queue.async(flags: .barrier) {
-                self.cache[server] = newValue
-            }
-        }
-    }
-
-    func removeAll() {
-        cache.removeAll()
-    }
-}
-
-private class ThreadSafeContractCallsCache {
-    fileprivate var cache = [String: (promise: Promise<[String: Any]>, timestamp: Date)]()
-    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
-
-    subscript(key: String) -> (promise: Promise<[String: Any]>, timestamp: Date)? {
-        get {
-            var element: (promise: Promise<[String: Any]>, timestamp: Date)?
-            queue.sync {
-                element = cache[key]
-            }
-            return element
-        }
-        set {
-            queue.async(flags: .barrier) {
-                self.cache[key] = newValue
-            }
-        }
-    }
-
-    func removeAll() {
-        cache.removeAll()
-    }
 }
 
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {

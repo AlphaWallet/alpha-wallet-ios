@@ -55,8 +55,8 @@ class ChainState {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
             Session.send(request)
-        }.done {
-            self.latestBlock = $0
+        }.done { [weak self] in
+            self?.latestBlock = $0
         }.catch { error in
             //We need to catch (and since we can make a good guess what it might be, capture it below) it instead of `.cauterize()` because the latter would log a scary message about malformed JSON in the console.
             if case SendTransactionRetryableError.possibleBinanceTestnetTimeout = error {

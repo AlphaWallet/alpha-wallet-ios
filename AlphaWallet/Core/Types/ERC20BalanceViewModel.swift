@@ -1,38 +1,39 @@
-// Copyright SIX DAY LLC. All rights reserved.
+//
+//  ERC20BalanceViewModel.swift
+//  AlphaWallet
+//
+//  Created by Vladyslav Shepitko on 02.06.2021.
+//
 
-import Foundation
 import UIKit
 import BigInt
 
-struct BalanceViewModel: BalanceBaseViewModel {
+struct ERC20BalanceViewModel: BalanceBaseViewModel {
+
+    var isZero: Bool {
+        balance.value.isZero
+    }
+
     private let server: RPCServer
-    private let balance: Balance?
-    private let rate: CurrencyRate?
+    private let balance: BalanceProtocol
+    private (set) var ticker: CoinTicker?
 
-    var ticker: CoinTicker? { nil }
-
-    init(
-        server: RPCServer,
-        balance: Balance? = .none,
-        rate: CurrencyRate? = .none
-    ) {
+    init(server: RPCServer, balance: BalanceProtocol, ticker: CoinTicker?) {
         self.server = server
         self.balance = balance
-        self.rate = rate
+        self.ticker = ticker
     }
 
     var value: BigInt {
-        balance?.value ?? BigInt(0)
+        balance.value
     }
 
     var amount: Double {
-        guard let balance = balance else { return 0.00 }
         return EtherNumberFormatter.plain.string(from: balance.value).doubleValue
     }
 
     var amountString: String {
-        guard let balance = balance else { return "--" }
-        guard !balance.isZero else { return "0.00 \(server.symbol)" }
+        guard !isZero else { return "0.00 \(server.symbol)" }
         return "\(balance.amountFull) \(server.symbol)"
     }
 
@@ -42,22 +43,18 @@ struct BalanceViewModel: BalanceBaseViewModel {
     }
 
     var currencyAmountWithoutSymbol: Double? {
-        guard let rate = rate else { return nil }
+        guard let rate = ticker?.rate else { return nil }
         let symbol = mapSymbolToVersionInRates(server.symbol.lowercased())
-        guard
-                let currentRate = (rate.rates.filter { $0.code == symbol }.first),
-                currentRate.price > 0,
-                amount > 0
-                else { return nil }
+        guard let currentRate = (rate.rates.filter { $0.code == symbol }.first), currentRate.price > 0, amount > 0 else { return nil }
         return amount * currentRate.price
     }
 
     var amountFull: String {
-        return balance?.amountFull ?? "--"
+        return balance.amountFull
     }
 
     var amountShort: String {
-        return balance?.amountShort ?? "--"
+        return balance.amountShort
     }
 
     var symbol: String {

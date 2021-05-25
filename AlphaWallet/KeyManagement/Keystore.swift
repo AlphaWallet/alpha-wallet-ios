@@ -24,6 +24,7 @@ protocol Keystore {
 
     var hasWallets: Bool { get }
     var isUserPresenceCheckPossible: Bool { get }
+    var subscribableWallets: Subscribable<Set<Wallet>> { get }
     var wallets: [Wallet] { get }
     var recentlyUsedWallet: Wallet? { get set }
     var currentWallet: Wallet { get }

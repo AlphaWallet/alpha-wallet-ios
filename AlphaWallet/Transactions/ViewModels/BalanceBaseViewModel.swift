@@ -11,4 +11,11 @@ protocol BalanceBaseViewModel {
     var symbol: String { get }
 
     var value: BigInt { get }
+    var ticker: CoinTicker? { get }
+}
+
+extension BalanceBaseViewModel {
+    var isZero: Bool {
+        value.isZero
+    }
 }
