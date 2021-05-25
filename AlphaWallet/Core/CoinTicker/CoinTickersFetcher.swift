@@ -39,7 +39,7 @@ fileprivate struct MappedCoinTickerId: Hashable {
 }
 
 class CoinTickersFetcher: CoinTickersFetcherType {
-    private enum AnyError: Error {
+    enum Error: Swift.Error {
         case alreadyFetchingPrices
     }
 
@@ -143,14 +143,14 @@ class CoinTickersFetcher: CoinTickersFetcherType {
             if shouldRetry {
                 return self.fetchChartHistory(force: force, period: period, for: key, shouldRetry: false)
             } else {
-                struct FetchChartHistoryError: Error {}
+                struct FetchChartHistoryError: Swift.Error {}
                 throw FetchChartHistoryError()
             }
         }
     }
 
     private func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer) -> Promise<(ticker: CoinTicker, history: ChartHistory?)> {
-        struct TickerNotFound: Error {
+        struct TickerNotFound: Swift.Error {
         }
         if let ticker = tickers[key] {
             if let cached = historyCache[ticker]?[period] {
@@ -178,7 +178,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private func fetchTickers(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> {
         let tokens = tokens.values.flatMap { $0 }
-        guard !isFetchingPrices else { return .init(error: AnyError.alreadyFetchingPrices) }
+        guard !isFetchingPrices else { return .init(error: Error.alreadyFetchingPrices) }
 
         isFetchingPrices = true
 
@@ -281,7 +281,7 @@ fileprivate struct Ticker: Codable {
     }
 
     init(from decoder: Decoder) throws {
-        enum AnyError: Error {
+        enum AnyError: Swift.Error {
             case invalid
         }
 
