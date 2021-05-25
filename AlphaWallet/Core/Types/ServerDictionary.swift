@@ -16,6 +16,14 @@ struct ServerDictionary<T> {
         }
     }
 
+    var keys: Set<RPCServer> {
+        Set(backingStore.keys)
+    }
+
+    mutating func remove(at key: RPCServer) {
+        backingStore.removeValue(forKey: key)
+    }
+
     var values: [T] {
         return Array(backingStore.values)
     }
@@ -41,6 +49,12 @@ struct ServerDictionary<T> {
 
     func hasKey(_ server: RPCServer) -> Bool {
         backingStore.contains(where: { $0.key == server })
+    }
+}
+
+extension ServerDictionary {
+    subscript(safe index: RPCServer) -> T? {
+        return backingStore[index]
     }
 }
 

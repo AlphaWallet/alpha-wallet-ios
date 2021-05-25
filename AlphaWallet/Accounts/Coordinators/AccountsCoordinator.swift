@@ -49,25 +49,24 @@ struct AccountsCoordinatorViewModel {
 
 class AccountsCoordinator: Coordinator {
 
-    private let config: Config
-    //Only show Ether balances from mainnet for now
-    private let balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: .main)
+    private let config: Config 
     private let keystore: Keystore
     var promptBackupCoordinator: PromptBackupCoordinator?
     private let analyticsCoordinator: AnalyticsCoordinator
-
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
         let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration)
-        let controller = AccountsViewController(config: config, keystore: keystore, balanceCoordinator: balanceCoordinator, viewModel: viewModel)
+        let controller = AccountsViewController(config: config, keystore: keystore, viewModel: viewModel, walletBalanceCoordinator: walletBalanceCoordinator)
         switch self.viewModel.configuration.hidesBackButton {
         case true:
             controller.navigationItem.hidesBackButton = true
         case false:
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         }
+
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addWallet))
         controller.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
         controller.delegate = self
@@ -85,7 +84,8 @@ class AccountsCoordinator: Coordinator {
         keystore: Keystore,
         promptBackupCoordinator: PromptBackupCoordinator?,
         analyticsCoordinator: AnalyticsCoordinator,
-        viewModel: AccountsCoordinatorViewModel
+        viewModel: AccountsCoordinatorViewModel,
+        walletBalanceCoordinator: WalletBalanceCoordinatorType
     ) {
         self.config = config
         self.navigationController = navigationController
@@ -93,6 +93,7 @@ class AccountsCoordinator: Coordinator {
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
         self.viewModel = viewModel
+        self.walletBalanceCoordinator = walletBalanceCoordinator
     }
 
     func start() {

@@ -27,7 +27,7 @@ struct FakeKeystore: Keystore {
     }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
-
+    var subscribableWallets: Subscribable<Set<Wallet>> = .init(nil)
     var currentWallet: Wallet {
         //Better crash now instead of populating callers with optionals
         if let wallet = recentlyUsedWallet {

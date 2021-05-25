@@ -13,21 +13,20 @@ class AccountsViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: AccountsViewModel
-    private var balances: [AlphaWallet.Address: Balance?] = [:]
     private let config: Config
     private let keystore: Keystore
-    private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
 
-    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, viewModel: AccountsViewModel) {
+    init(config: Config, keystore: Keystore, viewModel: AccountsViewModel, walletBalanceCoordinator: WalletBalanceCoordinatorType) {
         self.config = config
         self.keystore = keystore
-        self.balanceCoordinator = balanceCoordinator
         self.viewModel = viewModel
+        self.walletBalanceCoordinator = walletBalanceCoordinator
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -40,6 +39,7 @@ class AccountsViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView()
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
         tableView.register(WalletSummaryTableViewCell.self)
         roundedBackground.addSubview(tableView)
@@ -56,7 +56,6 @@ class AccountsViewController: UIViewController {
         super.viewWillAppear(animated)
 
         configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration))
-        refreshWalletBalances()
     }
 
     func configure(viewModel: AccountsViewModel) {
@@ -98,31 +97,7 @@ class AccountsViewController: UIViewController {
                 strongSelf.displayError(error: error)
             }
         }
-    }
-
-    private func refreshWalletBalances() {
-        let group = DispatchGroup()
-
-        for address in viewModel.addresses {
-            group.enter()
-
-            balanceCoordinator.getBalance(for: address) { [weak self] result in
-                self?.balances[address] = result.value
-                group.leave()
-            }
-        }
-
-        group.notify(queue: .main) { [weak self] in
-            self?.tableView.reloadData()
-        }
-    }
-
-    private func getAccountViewModels(for path: IndexPath) -> AccountViewModel? {
-        guard let account = viewModel.account(for: path) else { return nil }
-        let walletName = viewModel.walletName(forAccount: account)
-        let balance = self.balances[account.address].flatMap { $0 }
-        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
-    }
+    } 
 
     required init?(coder aDecoder: NSCoder) {
         return nil
@@ -143,7 +118,7 @@ extension AccountsViewController: UITableViewDataSource {
         switch viewModel.sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
             let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
-            guard var cellViewModel = getAccountViewModels(for: indexPath) else {
+            guard var cellViewModel = viewModel[indexPath] else {
                 //NOTE: this should never happen here
                 return UITableViewCell()
             }
@@ -163,10 +138,41 @@ extension AccountsViewController: UITableViewDataSource {
                 cell.configure(viewModel: cellViewModel)
             }
 
-            return cell
+            let subscribableBalance = walletBalanceCoordinator.subscribableWalletBalance(wallet: cellViewModel.wallet)
+            if let key = cell.balanceSubscribtionKey {
+                let subscription = subscribableBalance
+                subscription.unsubscribe(key)
+            }
+
+            cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: subscribableBalance.value?.totalAmountString)
+            cell.balanceSubscribtionKey = subscribableBalance.subscribe { [weak cell] balance in
+                DispatchQueue.main.async {
+                    guard let cell = cell, let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
+
+                    if self.viewModel.subscribeForBalanceUpdates {
+                        cell.apprecation24hourLabel.attributedText = cellViewModel.apprecation24hourAttributedString(for: balance)
+                    } else {
+                        cell.apprecation24hourLabel.attributedText = .init()
+                    }
+
+                    cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: balance?.totalAmountString)
+                }
+            }
+
+            return cell 
         case .summary:
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(walletBalance: nil, server: balanceCoordinator.server))
+            cell.configure(viewModel: .init(summary: walletBalanceCoordinator.subscribableWalletsSummary.value))
+
+            if let key = cell.walletSummarySubscriptionKey {
+                walletBalanceCoordinator.subscribableWalletsSummary.unsubscribe(key)
+            }
+
+            cell.walletSummarySubscriptionKey = walletBalanceCoordinator.subscribableWalletsSummary.subscribe { summary in
+                DispatchQueue.main.async {
+                    cell.configure(viewModel: .init(summary: summary))
+                }
+            }
 
             return cell
         }

@@ -51,7 +51,7 @@ class TokenImageFetcher {
 
     static var instance = TokenImageFetcher()
 
-    private var subscribables: ThreadSafeDictionary<String, Subscribable<TokenImage>> = .init()
+    private static var subscribables: ThreadSafeDictionary<String, Subscribable<TokenImage>> = .init()
     private let queue: DispatchQueue = .global()
 
     private func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, server: RPCServer, symbol: String) -> TokenImage {
@@ -64,11 +64,11 @@ class TokenImageFetcher {
     func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
         let subscribable: Subscribable<TokenImage>
         let key = "\(tokenObject.contractAddress.eip55String)-\(tokenObject.server.chainID)"
-        if let sub = subscribables[key] {
+        if let sub = Self.subscribables[key] {
             subscribable = sub
         } else {
             let sub = Subscribable<TokenImage>(nil)
-            subscribables[key] = sub
+            Self.subscribables[key] = sub
             subscribable = sub
         }
 
@@ -112,11 +112,11 @@ class TokenImageFetcher {
     func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
         let subscribable: Subscribable<TokenImage>
         let key = "\(contractAddress.eip55String)-\(server.chainID)"
-        if let sub = subscribables[key] {
+        if let sub = Self.subscribables[key] {
             subscribable = sub
         } else {
             let sub = Subscribable<TokenImage>(nil)
-            subscribables[key] = sub
+            Self.subscribables[key] = sub
             subscribable = sub
         }
 
