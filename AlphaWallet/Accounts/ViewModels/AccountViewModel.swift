@@ -4,21 +4,16 @@ import Foundation
 import UIKit
 
 struct AccountViewModel {
-    private let server: RPCServer
-
     let wallet: Wallet
     let current: Wallet?
-    let walletBalance: Balance?
     let walletName: String?
     var ensName: String?
     let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
-
-    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, server: RPCServer, walletName: String?) {
+    
+    init(wallet: Wallet, current: Wallet?, walletName: String?) {
         self.wallet = wallet
         self.current = current
-        self.walletBalance = walletBalance
         self.ensName = nil
-        self.server = server
         self.walletName = walletName
 
         AccountViewModel.resolveBlockie(for: self, size: 8, scale: 5)
@@ -27,10 +22,7 @@ struct AccountViewModel {
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
     }
-    var balance: String {
-        let amount = walletBalance?.amountShort ?? "--"
-        return "\(amount) \(server.symbol)"
-    }
+
     var address: AlphaWallet.Address {
         return wallet.address
     }
@@ -47,20 +39,20 @@ struct AccountViewModel {
         return Colors.appWhite
     }
 
-    var apprecation24hourAttributedString: NSAttributedString {
+    func apprecation24hourAttributedString(for balance: WalletBalance?) -> NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .right
 
-        return .init(string: String(), attributes: [
+        return .init(string: balance?.valuePercentageChangeValue ?? "-", attributes: [
             .font: Fonts.regular(size: 20),
-            .foregroundColor: Colors.red,
+            .foregroundColor: balance?.valuePercentageChangeColor ?? R.color.dove()!,
             .paragraphStyle: style
         ])
     }
 
-    var balanceAttributedString: NSAttributedString {
-        return .init(string: balance, attributes: [
-            .font: Fonts.regular(size: 20),
+    func balanceAttributedString(for value: String?) -> NSAttributedString {
+        return .init(string: value ?? "--", attributes: [
+            .font: Fonts.bold(size: 20),
             .foregroundColor: Colors.black,
         ])
     }

@@ -6,7 +6,7 @@ import BigInt
 
 extension Activity {
 
-    struct AssignedToken: Equatable {
+    struct AssignedToken: Equatable, Hashable {
 
         struct TokenBalance {
             var balance = "0"
@@ -14,33 +14,44 @@ extension Activity {
         }
 
         enum Balance {
-            case value(BigInt)
-            case balance([TokenBalance])
-            case none
+            case value(NSDecimalNumber?)
+            case nftBalance(NSDecimalNumber)
 
             var isEmpty: Bool {
                 switch self {
-                case .balance(let values):
-                    return values.isEmpty
+                case .nftBalance(let values):
+                    return values == 0
                 case .value(let value):
-                    return value.isZero
-                case .none:
-                    return true
+                    return value == 0
+                }
+            }
+
+            var valueDecimal: NSDecimalNumber? {
+                switch self {
+                case .value(let value):
+                    return value
+                case .nftBalance(let value):
+                    return value
                 }
             }
         }
 
-        var primaryKey: String
-        var contractAddress: AlphaWallet.Address
-        var symbol: String
-        var decimals: Int
-        var server: RPCServer
-        var icon: Subscribable<TokenImage>
-        var type: TokenType
-        var name: String
-        var balance: Balance
-        var shouldDisplay: Bool
-        var sortIndex: Int?
+        let primaryKey: String
+        let contractAddress: AlphaWallet.Address
+        let symbol: String
+        let decimals: Int
+        let server: RPCServer
+        let icon: Subscribable<TokenImage>
+        let type: TokenType
+        let name: String
+        let balance: Balance
+        let shouldDisplay: Bool
+        let sortIndex: Int?
+        var ticker: CoinTicker?
+
+        var addressAndRPCServer: AddressAndRPCServer {
+            return .init(address: contractAddress, server: server)
+        }
 
         init(tokenObject: TokenObject) {
             name = tokenObject.name
@@ -56,76 +67,69 @@ extension Activity {
 
             switch type {
             case .erc20, .nativeCryptocurrency:
-                self.balance = .value(tokenObject.valueBigInt)
+                let fullValue = EtherNumberFormatter.plain.string(from: tokenObject.valueBigInt, decimals: decimals)
+                balance = .value(fullValue.optionalDecimalValue)
             case .erc721, .erc721ForTickets, .erc875:
-                let balance = tokenObject.balance.map { TokenBalance(balance: $0.balance, json: $0.json) }
-                self.balance = .balance(Array(balance))
+                balance = .nftBalance(.init(value: tokenObject.balance.count))
             }
+        }
+
+        var valueDecimal: NSDecimalNumber? {
+            balance.valueDecimal
         }
 
         static func == (lhs: Activity.AssignedToken, rhs: Activity.AssignedToken) -> Bool {
-            return lhs.primaryKey == rhs.primaryKey
+            return lhs.name == rhs.name &&
+                lhs.primaryKey == rhs.primaryKey &&
+                lhs.server == rhs.server &&
+                lhs.contractAddress == rhs.contractAddress &&
+                lhs.symbol == rhs.symbol &&
+                lhs.decimals == rhs.decimals &&
+                lhs.icon.value?.image == rhs.icon.value?.image &&
+                lhs.type == rhs.type
         }
 
-    }
-}
-
-extension Activity.AssignedToken {
-
-    func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
-        let localizedNameFromAssetDefinition = handler.getLabel(fallback: name)
-        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
-    }
-
-    func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
-        let localizedNameFromAssetDefinition = handler.getNameInPluralForm(fallback: name)
-        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
-    }
-
-    private func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
-        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
-        if compositeName.isEmpty {
-            return symbol
-        } else {
-            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
-            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
-            if daiSymbol == symbol {
-                return "\(compositeName) (DAI)"
-            } else {
-                return "\(compositeName) (\(symbol))"
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(primaryKey)
+            hasher.combine(server)
+            hasher.combine(contractAddress)
+            hasher.combine(symbol)
+            hasher.combine(decimals)
+            if let image = icon.value?.image {
+                hasher.combine(image.hashValue)
             }
+            hasher.combine(type.rawValue)
         }
-    }
 
-    func symbolInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
-        let localizedNameFromAssetDefinition = handler.getNameInPluralForm(fallback: name)
-        return symbol(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
-    }
+        func symbolInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+            let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
+            let localizedNameFromAssetDefinition = handler.getNameInPluralForm(fallback: name)
+            return symbol(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+        }
 
-    private func symbol(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
-        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
-        if compositeName.isEmpty {
-            return symbol
-        } else {
-            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
-            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
-            if daiSymbol == symbol {
-                return "DAI"
-            } else {
+        private func symbol(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
+            let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+            if compositeName.isEmpty {
                 return symbol
+            } else {
+                let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
+                //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
+                if daiSymbol == symbol {
+                    return "DAI"
+                } else {
+                    return symbol
+                }
             }
         }
-    }
 
-    var isERC721AndNotForTickets: Bool {
-        switch type {
-        case .erc721:
-            return true
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            return false
+        var isERC721AndNotForTickets: Bool {
+            switch type {
+            case .erc721:
+                return true
+            case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+                return false
+            }
         }
     }
 }
