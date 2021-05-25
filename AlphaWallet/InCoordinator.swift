@@ -311,7 +311,7 @@ class InCoordinator: NSObject, Coordinator {
                 if let balance = BigInt(eth.value) {
                     strongSelf.nativeCryptoCurrencyBalances[each].value = BigInt(eth.value)
                     guard !(balance.isZero) else { return }
-                    //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
+                    //TODO don't backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
                     guard !isRunningTests() else { return }
                 }
             }
@@ -911,7 +911,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         removeCoordinator(coordinator)
-        
+
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
