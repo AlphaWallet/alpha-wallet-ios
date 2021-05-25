@@ -283,8 +283,14 @@ class InCoordinator: NSObject, Coordinator {
             for (_, storage) in strongSelf.tokensStorages {
                 storage.tickers = tickers
             }
-        //We should already have retried upstream
-        }.cauterize()
+        }.catch {
+            if $0 == CoinTickersFetcher.Error.alreadyFetchingPrices {
+                //no-op
+            } else {
+                //We should already have retried upstream
+                //TODO good to log to remote, but might be connectivity problem etc
+            }
+        }
     }
 
     private func setupTransactionsStorages() {
@@ -911,7 +917,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         removeCoordinator(coordinator)
-        
+
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
