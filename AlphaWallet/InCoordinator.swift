@@ -318,6 +318,7 @@ class InCoordinator: NSObject, Coordinator {
         transactionsStorages = .init()
         for each in config.enabledServers {
             let transactionsStorage = createTransactionsStorage(server: each)
+            //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
             transactionsStorage.removeTransactions(for: [.failed, .pending, .unknown])
             transactionsStorages[each] = transactionsStorage
         }
@@ -377,6 +378,15 @@ class InCoordinator: NSObject, Coordinator {
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinator()
         setUpEventSourceCoordinatorForActivities()
+        setUpErc721TokenIdsFetcher()
+    }
+
+    private func setUpErc721TokenIdsFetcher() {
+        for each in config.enabledServers {
+            let tokenStorage = tokensStorages[each]
+            let transactionStorage = transactionsStorages[each]
+            tokenStorage.erc721TokenIdsFetcher = transactionStorage
+        }
     }
 
     private func setupEventsStorages() {
@@ -423,7 +433,7 @@ class InCoordinator: NSObject, Coordinator {
     func showTabBar(animated: Bool) {
         navigationController.setViewControllers([accountsCoordinator.accountsViewController], animated: false)
         navigationController.pushViewController(tabBarController, animated: animated)
-        
+
         navigationController.setNavigationBarHidden(true, animated: true)
 
         let inCoordinatorViewModel = InCoordinatorViewModel()

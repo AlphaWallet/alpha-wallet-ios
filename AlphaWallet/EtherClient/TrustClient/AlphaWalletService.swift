@@ -53,7 +53,7 @@ extension AlphaWalletService: TargetType {
         case .getTransactions(_, let server, _, _, _, _):
             switch server {
             case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
-                return "/api"
+                return ""
             }
         case .register:
             return "/push/register"

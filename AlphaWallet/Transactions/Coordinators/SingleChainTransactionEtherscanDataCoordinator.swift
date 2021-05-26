@@ -25,6 +25,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
 
     private var isAutoDetectingERC20Transactions: Bool = false
+    private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
     var coordinators: [Coordinator] = []
     weak var delegate: SingleChainTransactionDataCoordinatorDelegate?
@@ -50,6 +51,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         if transactionsTracker.fetchingState != .done {
             fetchOlderTransactions(for: session.account.address)
             autoDetectERC20Transactions()
+            autoDetectErc721Transactions()
         }
     }
 
@@ -79,11 +81,13 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             strongSelf.queue.async {
                 strongSelf.fetchLatestTransactions()
                 strongSelf.autoDetectERC20Transactions()
+                strongSelf.autoDetectErc721Transactions()
             }
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     //TODO should this be added to the queue?
+    //TODO when blockscout-compatible, this includes ERC721 too. Maybe rename?
     private func autoDetectERC20Transactions() {
         guard !isAutoDetectingERC20Transactions else { return }
         isAutoDetectingERC20Transactions = true
@@ -98,7 +102,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             let blockNumbers = result.map(\.blockNumber)
             if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
                 firstly {
-                    strongSelf.backFillErc20TransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                    strongSelf.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
                 }.done(on: strongSelf.queue) { backFilledTransactions in
                     Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
 
@@ -114,7 +118,37 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
     }
 
-    private func backFillErc20TransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int) -> Promise<[TransactionInstance]> {
+    private func autoDetectErc721Transactions() {
+        guard !isAutoDetectingErc721Transactions else { return }
+        isAutoDetectingErc721Transactions = true
+
+        let server = session.server
+        let wallet = session.account.address
+
+        let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+        GetContractInteractions(queue: self.queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock) { [weak self] result in
+            guard let strongSelf = self else { return }
+
+            let blockNumbers = result.map(\.blockNumber)
+            if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
+                firstly {
+                    strongSelf.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
+                }.done(on: strongSelf.queue) { backFilledTransactions in
+                    Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
+
+                    strongSelf.update(items: backFilledTransactions)
+                }.cauterize()
+                .finally {
+                    strongSelf.isAutoDetectingErc721Transactions = false
+                }
+            } else {
+                strongSelf.isAutoDetectingErc721Transactions = false
+                strongSelf.update(items: result)
+            }
+        }
+    }
+
+    private func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int) -> Promise<[TransactionInstance]> {
         return firstly {
             fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
         }.map(on: self.queue) { fillerTransactions -> [TransactionInstance] in
@@ -164,7 +198,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func filterTransactionsToPullContractsFrom(_ transactions: [TransactionInstance]) -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> {
-        return Promise { seal in
+        Promise { seal in
             let contractsToAvoid = self.contractsToAvoid
             let filteredTransactions = transactions.filter {
                 if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {
@@ -177,21 +211,16 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             }
 
             //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-            switch self.session.server {
-            case .xDai, .poa:
-                let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-                let tokenTypePromises = contracts.map { self.tokensStorage.getTokenType(for: $0) }
+            let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
+            let tokenTypePromises = contracts.map { self.tokensStorage.getTokenType(for: $0) }
 
-                when(fulfilled: tokenTypePromises).map { tokenTypes in
-                    let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
-                    return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-                }.done { val in
-                    seal.fulfill(val)
-                }.catch { error in
-                    seal.reject(error)
-                }
-            case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
-                seal.fulfill((transactions: filteredTransactions, contractTypes: .init()))
+            when(fulfilled: tokenTypePromises).map { tokenTypes in
+                let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
+                return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
+            }.done { val in
+                seal.fulfill(val)
+            }.catch { error in
+                seal.reject(error)
             }
         }
     }

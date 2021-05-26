@@ -13,7 +13,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 8
+        config.schemaVersion = 9
         //NOTE: use [weak self] to avoid memory leak
         config.migrationBlock = { [weak self] migration, oldSchemaVersion in
             guard let strongSelf = self else { return }
@@ -79,6 +79,10 @@ class MigrationInitializer: Initializer {
                     Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
                 }
                 migration.deleteData(forType: EventActivity.className())
+            }
+
+            if oldSchemaVersion < 9 {
+                //no-op
             }
         }
     }

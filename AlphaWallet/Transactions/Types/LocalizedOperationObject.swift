@@ -10,6 +10,7 @@ class LocalizedOperationObject: Object {
     @objc dynamic var contract: String? = .none
     @objc dynamic var type: String = ""
     @objc dynamic var value: String = ""
+    @objc dynamic var tokenId: String = ""
     @objc dynamic var name: String? = .none
     @objc dynamic var symbol: String? = .none
     @objc dynamic var decimals: Int = 18
@@ -20,6 +21,7 @@ class LocalizedOperationObject: Object {
         contract: AlphaWallet.Address?,
         type: String,
         value: String,
+        tokenId: String,
         symbol: String?,
         name: String?,
         decimals: Int
@@ -30,6 +32,7 @@ class LocalizedOperationObject: Object {
         self.contract = contract?.eip55String
         self.type = type
         self.value = value
+        self.tokenId = tokenId
         self.symbol = symbol
         self.name = name
         self.decimals = decimals
@@ -42,6 +45,7 @@ class LocalizedOperationObject: Object {
         self.contract = object.contract
         self.type = object.type
         self.value = object.value
+        self.tokenId = object.tokenId
         self.symbol = object.symbol
         self.name = object.name
         self.decimals = object.decimals
@@ -63,6 +67,7 @@ struct LocalizedOperationObjectInstance {
     var contract: String? = .none
     var type: String = ""
     var value: String = ""
+    var tokenId: String = ""
     var name: String? = .none
     var symbol: String? = .none
     var decimals: Int = 18
@@ -73,6 +78,7 @@ struct LocalizedOperationObjectInstance {
         self.contract = object.contract
         self.type = object.type
         self.value = object.value
+        self.tokenId = object.tokenId
         self.symbol = object.symbol
         self.name = object.name
         self.decimals = object.decimals
@@ -84,6 +90,7 @@ struct LocalizedOperationObjectInstance {
         contract: AlphaWallet.Address?,
         type: String,
         value: String,
+        tokenId: String,
         symbol: String?,
         name: String?,
         decimals: Int
@@ -93,6 +100,7 @@ struct LocalizedOperationObjectInstance {
         self.contract = contract?.eip55String
         self.type = type
         self.value = value
+        self.tokenId = tokenId
         self.symbol = symbol
         self.name = name
         self.decimals = decimals

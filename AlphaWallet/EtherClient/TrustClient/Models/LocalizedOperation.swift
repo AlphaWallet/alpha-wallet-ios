@@ -27,6 +27,7 @@ struct LocalizedOperation: Decodable {
         case to
         case type
         case value
+        //case tokenID
         case contract
     }
 

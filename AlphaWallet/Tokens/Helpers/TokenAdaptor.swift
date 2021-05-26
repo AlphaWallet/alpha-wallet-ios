@@ -24,19 +24,19 @@ class TokenAdaptor {
     public func getTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool = true) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
+            return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
         case .erc721:
-            let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: token)
+            let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: token)
             switch tokenType {
-            case .supportedByOpenSea:
-                return getSupportedByOpenSeaTokenHolders(forWallet: account, sourceFromEvents: sourceFromEvents)
-            case .notSupportedByOpenSea:
-                return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
+            case .supported:
+                return getSupportedByNonFungibleJsonTokenHolders(forWallet: account, sourceFromEvents: sourceFromEvents)
+            case .notSupported:
+                return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
             }
         }
     }
 
-    private func getNotSupportedByOpenSeaTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
+    private func getNotSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         switch token.type {
@@ -66,12 +66,12 @@ class TokenAdaptor {
         }
     }
 
-    private func getSupportedByOpenSeaTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool) -> [TokenHolder] {
+    private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for item in balance {
             let jsonString = item.balance
-            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, sourceFromEvents: sourceFromEvents) {
+            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, sourceFromEvents: sourceFromEvents) {
                 tokens.append(token)
             }
         }
@@ -157,8 +157,9 @@ class TokenAdaptor {
         XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, sourceFromEvents: Bool) -> Token? {
-        guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
+    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, sourceFromEvents: Bool) -> Token? {
+        guard let data = jsonString.data(using: .utf8), let nonFungible = nonFungible(fromJsonData: data) else { return nil }
+
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let event: EventInstance?
         if sourceFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
