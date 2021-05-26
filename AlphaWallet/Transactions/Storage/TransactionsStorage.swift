@@ -200,13 +200,32 @@ class TransactionsStorage {
                 guard let contract = operation.contractAddress else { return nil }
                 guard let name = operation.name else { return nil }
                 guard let symbol = operation.symbol else { return nil }
+                let tokenType: TokenType
+                if let t = contractsAndTokenTypes[contract] {
+                    tokenType = t
+                } else {
+                    switch operation.operationType {
+                    case .nativeCurrencyTokenTransfer:
+                        tokenType = .nativeCryptocurrency
+                    case .erc20TokenTransfer:
+                        tokenType = .erc20
+                    case .erc20TokenApprove:
+                        tokenType = .erc20
+                    case .erc721TokenTransfer:
+                        tokenType = .erc721
+                    case .erc875TokenTransfer:
+                        tokenType = .erc875
+                    case .unknown:
+                        tokenType = .erc20
+                    }
+                }
                 return TokenUpdate(
                         address: contract,
                         server: server,
                         name: name,
                         symbol: symbol,
                         decimals: operation.decimals,
-                        tokenType: contractsAndTokenTypes[contract] ?? .erc20
+                        tokenType: tokenType
                 )
             }
             return tokenUpdates
@@ -242,6 +261,31 @@ class TransactionsStorage {
         try! realm.write {
             realm.delete(realm.objects(LocalizedOperationObject.self))
             realm.delete(realm.objects(Transaction.self))
+        }
+    }
+}
+
+extension TransactionsStorage: Erc721TokenIdsFetcher {
+    func tokenIdsForErc721Token(contract: AlphaWallet.Address, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
+        Promise { seal in
+            //Important to sort ascending to figure out ownership from transfers in and out
+            let transactions = objects
+                    .filter("isERC20Interaction == true")
+                    .sorted(byKeyPath: "date", ascending: true)
+            let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
+            var tokenIds: Set<String> = .init()
+            for each in operations {
+                let tokenId = each.tokenId
+                guard !tokenId.isEmpty else { continue }
+                if account.sameContract(as: each.from) {
+                    tokenIds.remove(tokenId)
+                } else if account.sameContract(as: each.to) {
+                    tokenIds.insert(tokenId)
+                } else {
+                    //no-op
+                }
+            }
+            seal.fulfill(Array(tokenIds))
         }
     }
 }

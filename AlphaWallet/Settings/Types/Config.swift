@@ -82,6 +82,10 @@ struct Config {
         "\(Keys.lastFetchedAutoDetectedTransactedTokenErc20BlockNumber)-\(wallet.eip55String)"
     }
 
+    private static func generateLastFetchedErc721InteractionBlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
+        "\(Keys.lastFetchedAutoDetectedTransactedTokenErc721BlockNumber)-\(wallet.eip55String)"
+    }
+
     private static func generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
         "\(Keys.lastFetchedAutoDetectedTransactedTokenErc20BlockNumber)-\(wallet.eip55String)"
     }
@@ -98,6 +102,17 @@ struct Config {
 
     static func getLastFetchedErc20InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
+        return dictionary["\(server.chainID)"]?.intValue
+    }
+
+    static func setLastFetchedErc721InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+        var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
+        dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
+        defaults.set(dictionary, forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet))
+    }
+
+    static func getLastFetchedErc721InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+        guard let dictionary = defaults.value(forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
 
@@ -134,6 +149,7 @@ struct Config {
         static let enabledServers = "enabledChains"
         static let lastFetchedErc20InteractionBlockNumber = "lastFetchedErc20InteractionBlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
+        static let lastFetchedAutoDetectedTransactedTokenErc721BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc721BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
         static let useTaiChiNetwork = "useTaiChiNetworkKey"

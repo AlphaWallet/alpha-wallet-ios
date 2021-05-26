@@ -68,11 +68,11 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     var canPeekToken: Bool {
-        let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: tokenObject)
         switch tokenType {
-        case .supportedByOpenSea:
+        case .supported:
             return true
-        case .notSupportedByOpenSea:
+        case .notSupported:
             return false
         }
     }

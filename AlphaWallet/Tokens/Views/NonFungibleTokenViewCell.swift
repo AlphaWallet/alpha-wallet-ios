@@ -63,7 +63,6 @@ class NonFungibleTokenViewCell: UITableViewCell {
             $0.alpha = viewModel.alpha
         }
         tokenIconImageView.subscribable = viewModel.iconImage
-
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }
 }

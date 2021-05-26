@@ -15,6 +15,7 @@ class GetContractInteractions {
         self.queue = queue
     }
 
+    //TODO rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
         guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
 
@@ -37,12 +38,94 @@ class GetContractInteractions {
 
                 let transactions: [TransactionInstance] = filteredResult.map { result in
                     let transactionJson = result.1
+                    //Blockscout (and compatible like Polygon's) includes ERC721 transfers
+                    let operationType: OperationType
+                    //TODO check have tokenID + no "value", cos those might be ERC1155?
+                    if let tokenId = transactionJson["tokenID"].string, !tokenId.isEmpty {
+                        operationType = .erc721TokenTransfer
+                    } else {
+                        operationType = .erc20TokenTransfer
+                    }
+
                     let localizedTokenObj = LocalizedOperationObjectInstance(
                             from: transactionJson["from"].stringValue,
                             to: transactionJson["to"].stringValue,
                             contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
-                            type: OperationType.erc20TokenTransfer.rawValue,
+                            type: operationType.rawValue,
                             value: transactionJson["value"].stringValue,
+                            tokenId: transactionJson["tokenID"].stringValue,
+                            symbol: transactionJson["tokenSymbol"].stringValue,
+                            name: transactionJson["tokenName"].stringValue,
+                            decimals: transactionJson["tokenDecimal"].intValue
+                    )
+
+                    return TransactionInstance(
+                            id: transactionJson["hash"].stringValue,
+                            server: server,
+                            blockNumber: transactionJson["blockNumber"].intValue,
+                            transactionIndex: transactionJson["transactionIndex"].intValue,
+                            from: transactionJson["from"].stringValue,
+                            to: transactionJson["to"].stringValue,
+                            //Must not set the value of the ERC20 token transferred as the native crypto value transferred
+                            value: "0",
+                            gas: transactionJson["gas"].stringValue,
+                            gasPrice: transactionJson["gasPrice"].stringValue,
+                            gasUsed: transactionJson["gasUsed"].stringValue,
+                            nonce: transactionJson["nonce"].stringValue,
+                            date: Date(timeIntervalSince1970: transactionJson["timeStamp"].doubleValue),
+                            localizedOperations: [localizedTokenObj],
+                            //The API only returns successful transactions
+                            state: .completed,
+                            isErc20Interaction: true
+                    )
+                }
+
+                completion(transactions)
+            case .failure:
+                completion([])
+            }
+        })
+    }
+
+    //TODO Almost a duplicate of the the ERC20 version. De-dup maybe?
+    func getErc721Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
+        guard let etherscanURL = server.etherscanAPIURLForERC721TxList(for: address, startBlock: startBlock) else { return }
+
+        Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
+            switch response.result {
+            case .success(let value):
+                //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
+                let json = JSON(value)
+                let filteredResult: [(String, JSON)]
+                if let contractAddress = contractAddress {
+                    //filter based on what contract you are after
+                    filteredResult = json["result"].filter {
+                        $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
+                    }
+                } else {
+                    filteredResult = json["result"].filter {
+                        $0.1["to"].stringValue.hasPrefix("0x")
+                    }
+                }
+
+                let transactions: [TransactionInstance] = filteredResult.map { result in
+                    let transactionJson = result.1
+                    //Blockscout (and compatible like Polygon's) includes ERC721 transfers
+                    let operationType: OperationType
+                    //TODO check have tokenID + no "value", cos those might be ERC1155?
+                    if let tokenId = transactionJson["tokenID"].string, !tokenId.isEmpty {
+                        operationType = .erc721TokenTransfer
+                    } else {
+                        operationType = .erc20TokenTransfer
+                    }
+
+                    let localizedTokenObj = LocalizedOperationObjectInstance(
+                            from: transactionJson["from"].stringValue,
+                            to: transactionJson["to"].stringValue,
+                            contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].stringValue),
+                            type: operationType.rawValue,
+                            value: transactionJson["value"].stringValue,
+                            tokenId: transactionJson["tokenID"].stringValue,
                             symbol: transactionJson["tokenSymbol"].stringValue,
                             name: transactionJson["tokenName"].stringValue,
                             decimals: transactionJson["tokenDecimal"].intValue

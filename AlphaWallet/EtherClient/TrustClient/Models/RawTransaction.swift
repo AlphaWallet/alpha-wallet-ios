@@ -100,7 +100,7 @@ extension TransactionInstance {
         func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> Promise<[LocalizedOperationObjectInstance]> {
             if let token = tokensStorage.tokenThreadSafe(forContract: contract) {
                 let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
-                let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)
+                let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
                 return .value([result])
             } else {
                 let getContractName = tokensStorage.getContractName(for: contract)
@@ -112,7 +112,7 @@ extension TransactionInstance {
                     when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
                 }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
                     let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
-                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), symbol: symbol, name: name, decimals: Int(decimals))
+                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
                     return .value([result])
                 }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
                     //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
