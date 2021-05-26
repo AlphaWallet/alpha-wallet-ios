@@ -178,8 +178,6 @@ extension AddHideTokensViewController: UITableViewDataSource {
                 token: token,
                 ticker: viewModel.ticker(for: token),
                 currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                server: token.server,
                 assetDefinitionStore: assetDefinitionStore,
                 isVisible: isVisible
             ))
@@ -187,7 +185,6 @@ extension AddHideTokensViewController: UITableViewDataSource {
         case .erc20:
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token,
-                server: token.server,
                 assetDefinitionStore: assetDefinitionStore,
                 isVisible: isVisible,
                 ticker: viewModel.ticker(for: token)

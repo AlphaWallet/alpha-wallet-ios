@@ -17,11 +17,7 @@ struct NonFungibleTokenViewCellViewModel {
         self.isVisible = isVisible
     }
 
-    var title: String {
-        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-    }
-
-    var amount: String {
+    private var amount: String {
         let actualBalance = token.nonZeroBalance
         return actualBalance.count.toString()
     }
@@ -66,20 +62,19 @@ struct NonFungibleTokenViewCellViewModel {
         return Metrics.CornerRadius.box
     }
 
-    var titleColor: UIColor {
-        return Screen.TokenCard.Color.title
+    var titleAttributedString: NSAttributedString {
+        let title = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        return .init(string: title, attributes: [
+            .font: Screen.TokenCard.Font.title,
+            .foregroundColor: Screen.TokenCard.Color.title
+        ])
     }
 
-    var subtitleColor: UIColor {
-        return Screen.TokenCard.Color.subtitle
-    }
-
-    var titleFont: UIFont {
-        return Screen.TokenCard.Font.title
-    }
-
-    var subtitleFont: UIFont {
-        return Screen.TokenCard.Font.subtitle
+    var tickersAmountAttributedString: NSAttributedString {
+        return .init(string: "\(amount) Tickers", attributes: [
+            .font: Screen.TokenCard.Font.subtitle,
+            .foregroundColor: Screen.TokenCard.Color.subtitle
+        ])
     }
 
     var alpha: CGFloat {

@@ -7,16 +7,15 @@ import Kingfisher
 class EthTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let valuePercentageChangeValueLabel = UILabel()
-    private let valuePercentageChangePeriodLabel = UILabel()
+    private let apprecation24hoursLabel = UILabel()
     private let marketPriceLabel = UILabel()
-    private let valueLabel = UILabel()
-    private let blockchainLabel = UILabel()
+    private let fiatValueLabel = UILabel()
+    private let cryptoValueLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
+        [titleLabel, apprecation24hoursLabel, marketPriceLabel]
     }
 
-    private lazy var changeValueContainer: UIView = [marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
+    private lazy var changeValueContainer: UIView = [marketPriceLabel, apprecation24hoursLabel].asStackView(spacing: 5)
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -31,15 +30,14 @@ class EthTokenViewCell: UITableViewCell {
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
-        valuePercentageChangeValueLabel.textAlignment = .center
-        valuePercentageChangePeriodLabel.textAlignment = .center
+        apprecation24hoursLabel.textAlignment = .center
         marketPriceLabel.textAlignment = .center
-        valueLabel.textAlignment = .center
+        fiatValueLabel.textAlignment = .center
 
         let col0 = tokenIconImageView
         let col1 = [
-            titleLabel,
-            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
+            [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
+            [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
         ].asStackView(axis: .vertical, spacing: 2)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -54,38 +52,28 @@ class EthTokenViewCell: UITableViewCell {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure(viewModel: EthTokenViewCellViewModel) {
         selectionStyle = .none
+
         backgroundColor = viewModel.backgroundColor
-
         background.backgroundColor = viewModel.contentsBackgroundColor
-
         contentView.backgroundColor = GroupedTable.Color.background
 
-        titleLabel.textColor = viewModel.titleColor
-        titleLabel.font = viewModel.titleFont
-        titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
+        titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters
 
-        valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
-        valuePercentageChangeValueLabel.font = viewModel.textValueFont
-        valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
+        cryptoValueLabel.attributedText = viewModel.cryptoValueAttributedString
+        cryptoValueLabel.baselineAdjustment = .alignCenters
 
-        marketPriceLabel.textColor = viewModel.textColor
-        marketPriceLabel.font = viewModel.textValueFont
-        marketPriceLabel.text = viewModel.marketPriceValue
+        apprecation24hoursLabel.attributedText = viewModel.apprecation24hoursAttributedString
+        apprecation24hoursLabel.backgroundColor = viewModel.apprecation24hoursBackgroundColor
 
-        valueLabel.textColor = viewModel.textColor
-        valueLabel.font = viewModel.textValueFont
-        valueLabel.text = viewModel.value
+        marketPriceLabel.attributedText = viewModel.marketPriceAttributedString
 
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
-        blockchainLabel.isHidden = viewModel.blockChainLabelHidden
+        fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha
@@ -94,5 +82,11 @@ class EthTokenViewCell: UITableViewCell {
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
         changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        marketPriceLabel.layer.cornerRadius = 2.0
     }
 }

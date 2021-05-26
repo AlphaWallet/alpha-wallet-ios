@@ -469,15 +469,12 @@ extension TokensViewController: UITableViewDataSource {
                     token: token,
                     ticker: viewModel.ticker(for: token),
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                    currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                    server: server,
                     assetDefinitionStore: assetDefinitionStore
                 ))
                 return cell
             case .erc20:
                 let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(token: token,
-                    server: token.server,
                     assetDefinitionStore: assetDefinitionStore,
                     isVisible: isVisible,
                     ticker: viewModel.ticker(for: token)
