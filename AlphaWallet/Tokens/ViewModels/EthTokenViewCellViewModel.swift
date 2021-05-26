@@ -8,35 +8,29 @@ struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     private let currencyAmount: String?
-    private let currencyAmountWithoutSymbol: Double?
     private let ticker: CoinTicker?
-    private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     init(
         token: TokenObject,
         ticker: CoinTicker?,
         currencyAmount: String?,
-        currencyAmountWithoutSymbol: Double?,
-        server: RPCServer,
         assetDefinitionStore: AssetDefinitionStore,
         isVisible: Bool = true
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
-        self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
-        self.server = server
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
     }
 
-    var title: String {
-        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+    private var amount: String {
+        return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
 
-    var amount: String {
-        return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
+    private var title: String {
+        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     var backgroundColor: UIColor {
@@ -47,71 +41,66 @@ struct EthTokenViewCellViewModel {
         return Screen.TokenCard.Color.background
     }
 
-    var titleColor: UIColor {
-        return Screen.TokenCard.Color.title
+    var titleAttributedString: NSAttributedString {
+        return NSAttributedString(string: title, attributes: [
+            .foregroundColor: Screen.TokenCard.Color.title,
+            .font: Screen.TokenCard.Font.title
+        ])
     }
 
-    var subtitleColor: UIColor {
-        return Screen.TokenCard.Color.subtitle
+    var cryptoValueAttributedString: NSAttributedString {
+        return NSAttributedString(string: amount + " " + token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore), attributes: [
+            .foregroundColor: Screen.TokenCard.Color.subtitle,
+            .font: Screen.TokenCard.Font.subtitle
+        ])
     }
 
-    var borderColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
-    }
-
-    var titleFont: UIFont {
-        return Screen.TokenCard.Font.title
-    }
-
-    var subtitleFont: UIFont {
-        return Screen.TokenCard.Font.subtitle
-    }
-
-    var blockChainName: String {
-        return server.blockChainName
-    }
-
-    var textColor: UIColor {
-        return Screen.TokenCard.Color.valueChangeLabel
-    }
-
-    var valuePercentageChangeColor: UIColor {
+    private var valuePercentageChangeColor: UIColor {
         return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
     }
 
-    var textValueFont: UIFont {
-        return Screen.TokenCard.Font.valueChangeLabel
+    var apprecation24hoursBackgroundColor: UIColor {
+        valuePercentageChangeColor.withAlphaComponent(0.07)
     }
 
-    var textLabelFont: UIFont {
-        return Screen.TokenCard.Font.valueChangeLabel
+    var apprecation24hoursAttributedString: NSAttributedString {
+        return NSAttributedString(string: " " + valuePercentageChangeValue + " ", attributes: [
+            .foregroundColor: valuePercentageChangeColor,
+            .font: Screen.TokenCard.Font.valueChangeLabel
+        ])
     }
 
-    var valuePercentageChangeValue: String {
+    private var valuePercentageChangeValue: String {
         switch EthCurrencyHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
-            return "(\(percentageChange24h)%)"
+            return "▲ (\(percentageChange24h)%)"
         case .depreciate(let percentageChange24h):
-            return "(\(percentageChange24h)%)"
+            return "▼ (\(percentageChange24h)%)"
         case .none:
             return "-"
         }
     }
 
-    var marketPriceValue: String? {
+    private var marketPriceValue: String {
         if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
-            return NumberFormatter.usd.string(from: value)
+            return NumberFormatter.usd.string(from: value) ?? "-"
         } else {
-            return nil
+            return "-"
         }
     }
 
-    var value: String? {
-        return currencyAmount
+    var marketPriceAttributedString: NSAttributedString {
+        return NSAttributedString(string: marketPriceValue, attributes: [
+            .foregroundColor: Screen.TokenCard.Color.valueChangeLabel,
+            .font: Screen.TokenCard.Font.valueChangeLabel
+        ])
     }
 
-    var blockChainLabelHidden: Bool {
-        return currencyAmount != nil
+    var fiatValueAttributedString: NSAttributedString {
+        return NSAttributedString(string: currencyAmount ?? "-", attributes: [
+            .foregroundColor: Screen.TokenCard.Color.title,
+            .font: Screen.TokenCard.Font.valueChangeValue
+        ])
     }
 
     var alpha: CGFloat {
@@ -123,6 +112,6 @@ struct EthTokenViewCellViewModel {
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        return .init(server: server)
+        return .init(server: token.server)
     }
 }
