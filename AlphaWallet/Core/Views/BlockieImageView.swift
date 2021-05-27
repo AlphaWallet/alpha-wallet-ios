@@ -10,8 +10,8 @@ import UIKit
 class BlockieImageView: UIView {
     private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
 
-    private var imageView: UIImageView = {
-        let imageView = UIImageView()
+    private (set) var button: UIButton = {
+        let imageView = UIButton()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -26,34 +26,39 @@ class BlockieImageView: UIView {
                 subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
                     guard let strongSelf = self else { return }
 
-                    strongSelf.imageView.image = imageAndSymbol
+                    strongSelf.button.setImage(imageAndSymbol, for: .normal)
                 }
             } else {
                 subscriptionKey = nil
-                imageView.image = nil
+                button.setImage(nil, for: .normal)
             }
         }
     }
 
     var image: BlockiesImage? {
         get {
-            return imageView.image
+            return button.image(for: .normal)
         }
         set {
-            imageView.image = newValue
+            button.setImage(newValue, for: .normal)
         }
+    }
+    
+    convenience init() {
+        self.init(frame: .zero)
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         clipsToBounds = true
 
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(imageView)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(button)
 
         NSLayoutConstraint.activate([
-            imageView.anchorsConstraint(to: self),
+            button.anchorsConstraint(to: self),
         ])
+        isUserInteractionEnabled = true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -65,5 +70,6 @@ class BlockieImageView: UIView {
 
         layer.cornerRadius = frame.width / 2.0
     }
+
 }
 
