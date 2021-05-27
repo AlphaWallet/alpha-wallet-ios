@@ -537,7 +537,9 @@ class TokensDataStore {
     private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
         assert(!tokens.contains { !$0.isERC721AndNotForTickets })
         guard OpenSea.isServerSupported(server) else { return }
-        getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
+        firstly {
+            getTokensFromOpenSea()
+        }.done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
             let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0 }
             let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721ContractsFoundInOpenSea
