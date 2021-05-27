@@ -12,6 +12,11 @@ fileprivate var smartContractCallsCache = ThreadSafeContractCallsCache()
 fileprivate var web3s = ThreadSafeWeb3sCache()
 // swiftlint:enable private_over_fileprivate
 
+func clearSmartContractCallsCache() {
+    web3s.removeAll()
+    smartContractCallsCache.removeAll()
+}
+
 private class ThreadSafeWeb3sCache {
     fileprivate var cache = [RPCServer: [TimeInterval: web3]]()
     private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
@@ -29,6 +34,10 @@ private class ThreadSafeWeb3sCache {
                 self.cache[server] = newValue
             }
         }
+    }
+
+    func removeAll() {
+        cache.removeAll()
     }
 }
 
@@ -49,6 +58,10 @@ private class ThreadSafeContractCallsCache {
                 self.cache[key] = newValue
             }
         }
+    }
+
+    func removeAll() {
+        cache.removeAll()
     }
 }
 

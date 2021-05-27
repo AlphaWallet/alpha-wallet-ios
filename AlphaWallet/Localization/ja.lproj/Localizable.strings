@@ -102,7 +102,9 @@
 "suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "トランザクションはまだありません!";
 "wallet.navigation.title" = "Change Wallet";
-"wallet.types.hdWallets" = "Your Wallets";
+"wallets.navigation.title" = "Wallets";
+"wallet.types.summary" = "Summary";
+"wallet.types.hdWallets" = "Connected Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watch-only Wallets";
 "wallet.create.button.title" = "ウォレットを作成";

@@ -25,6 +25,10 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
 
+    var promptBackupCoordinator: PromptBackupCoordinator? {
+        return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
+    }
+
     private lazy var urlSchemeCoordinator: UrlSchemeCoordinatorType = {
         let coordinator = UrlSchemeCoordinator()
         coordinator.delegate = self
@@ -38,6 +42,22 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
+
+    private var pendingInCoordinator: InCoordinator?
+
+    private lazy var accountsCoordinator: AccountsCoordinator = {
+        let coordinator = AccountsCoordinator(
+                config: config,
+                navigationController: navigationController,
+                keystore: keystore,
+                promptBackupCoordinator: promptBackupCoordinator,
+                analyticsCoordinator: analyticsService,
+                viewModel: .init(configuration: .summary)
+        )
+        coordinator.delegate = self 
+
+        return coordinator
+    }()
 
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = UINavigationController()) throws {
         self.navigationController = navigationController
@@ -108,7 +128,7 @@ class AppCoordinator: NSObject, Coordinator {
         migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
-            showTransactions(for: keystore.currentWallet)
+            showTransactions(for: keystore.currentWallet, animated: false)
         } else {
             showInitialWalletCoordinator()
         }
@@ -148,10 +168,18 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.start()
     }
 
-    @discardableResult func showTransactions(for wallet: Wallet) -> InCoordinator {
+    @discardableResult func showTransactions(for wallet: Wallet, animated: Bool) -> InCoordinator {
         if let coordinator = initialWalletCreationCoordinator {
             removeCoordinator(coordinator)
         }
+
+        if let coordinator = promptBackupCoordinator {
+            removeCoordinator(coordinator)
+        }
+
+        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsService)
+        promptBackupCoordinator.start()
+        addCoordinator(promptBackupCoordinator)
 
         let coordinator = InCoordinator(
                 navigationController: navigationController,
@@ -161,12 +189,17 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 appTracker: appTracker,
                 analyticsCoordinator: analyticsService,
-                urlSchemeCoordinator: urlSchemeCoordinator
+                urlSchemeCoordinator: urlSchemeCoordinator,
+                promptBackupCoordinator: promptBackupCoordinator,
+                accountsCoordinator: accountsCoordinator
         )
 
         coordinator.delegate = self
-        coordinator.start()
+
         addCoordinator(coordinator)
+        addCoordinator(accountsCoordinator)
+
+        coordinator.start(animated: animated)
 
         return coordinator
     }
@@ -175,7 +208,7 @@ class AppCoordinator: NSObject, Coordinator {
         if let coordinator = inCoordinator {
             return coordinator
         } else {
-            return showTransactions(for: keystore.currentWallet)
+            return showTransactions(for: keystore.currentWallet, animated: false)
         }
     }
 
@@ -290,11 +323,31 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
-        showTransactions(for: account)
+
+        showTransactions(for: keystore.currentWallet, animated: false)
     }
 }
 
 extension AppCoordinator: InCoordinatorDelegate {
+
+    func didRestart(in coordinator: InCoordinator, wallet: Wallet) {
+        keystore.recentlyUsedWallet = wallet
+
+        coordinator.navigationController.dismiss(animated: true) //??Do we really need to do it here?
+        removeCoordinator(coordinator)
+
+        showTransactions(for: keystore.currentWallet, animated: false)
+    }
+
+    func didShowWallets(in coordinator: InCoordinator) {
+        pendingInCoordinator = coordinator
+        removeCoordinator(coordinator)
+        //NOTE: refactor with more better solution
+        accountsCoordinator.promptBackupCoordinator = promptBackupCoordinator
+
+        coordinator.navigationController.popViewController(animated: true)
+        coordinator.navigationController.setNavigationBarHidden(false, animated: false)
+    }
 
     func didCancel(in coordinator: InCoordinator) {
         removeCoordinator(coordinator)
@@ -394,5 +447,33 @@ extension AppCoordinator: AssetDefinitionStoreDelegate {
 extension AppCoordinator: UrlSchemeCoordinatorDelegate {
     func resolve(for coordinator: UrlSchemeCoordinator) -> UrlSchemeResolver? {
         return inCoordinator
+    }
+}
+
+extension AppCoordinator: AccountsCoordinatorDelegate {
+    
+    func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+        coordinator.navigationController.dismiss(animated: true)
+    }
+
+    func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+        //no-op
+    }
+
+    func didCancel(in coordinator: AccountsCoordinator) {
+        coordinator.navigationController.dismiss(animated: true)
+    }
+
+    func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
+        //NOTE: Push existing view controller to the app navigation stack
+        if let pendingCoordinator = pendingInCoordinator, keystore.currentWallet == account {
+            addCoordinator(coordinator)
+
+            pendingCoordinator.showTabBar(animated: true)
+        } else {
+            showTransactions(for: account, animated: true)
+        }
+
+        pendingInCoordinator = .none
     }
 }

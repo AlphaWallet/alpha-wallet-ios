@@ -52,6 +52,11 @@ class SingleChainTokenCoordinator: Coordinator {
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
+
+    var server: RPCServer {
+        session.server
+    }
+
     init(
             session: WalletSession,
             keystore: Keystore,
@@ -102,7 +107,7 @@ class SingleChainTokenCoordinator: Coordinator {
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(forServer: session.server, coordinator: self, wallet: keystore.currentWallet.address)
+        let operation = AutoDetectTransactedTokensOperation(forServer: server, coordinator: self, wallet: keystore.currentWallet.address)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -110,20 +115,20 @@ class SingleChainTokenCoordinator: Coordinator {
         return Promise<Void> { seal in
             let startBlock: Int?
             if erc20 {
-                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
             } else {
-                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
             }
-            GetContractInteractions(queue: .main).getContractList(address: wallet, server: session.server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
+            GetContractInteractions(queue: .main).getContractList(address: wallet, server: server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
                 guard let strongSelf = self else { return }
                 defer {
                     seal.fulfill(())
                 }
                 if let maxBlockNumber = maxBlockNumber {
                     if erc20 {
-                        Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
+                        Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
                     } else {
-                        Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
+                        Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
                     }
                 }
                 let currentAddress = strongSelf.keystore.currentWallet.address
@@ -165,7 +170,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func autoDetectPartnerTokens() {
         guard !session.config.isAutoFetchingDisabled else { return }
-        switch session.server {
+        switch server {
         case .main:
             autoDetectMainnetPartnerTokens()
         case .xDai:
@@ -194,11 +199,11 @@ class SingleChainTokenCoordinator: Coordinator {
 
         let address = keystore.currentWallet.address
         isAutoDetectingTokens = true
-        let operation = AutoDetectTokensOperation(forServer: session.server, coordinator: self, wallet: address, tokens: contractsToDetect)
+        let operation = AutoDetectTokensOperation(forServer: server, coordinator: self, wallet: address, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> Void) {
+    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer, completion: @escaping () -> Void) {
         let address = keystore.currentWallet.address
         let alreadyAddedContracts = storage.enabledObject.map { $0.contractAddress }
         let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
@@ -214,7 +219,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    let balanceCoordinator = GetERC875BalanceCoordinator(forServer: self.session.server)
+                    let balanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
                     balanceCoordinator.getERC875TokenBalance(for: address, contract: each) { [weak self] result in
                         guard let strongSelf = self else {
                             contractsProcessed += 1
@@ -241,7 +246,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         }
                     }
                 case .erc20:
-                    let balanceCoordinator = GetERC20BalanceCoordinator(forServer: self.session.server)
+                    let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
                     balanceCoordinator.getBalance(for: address, contract: each) { [weak self] result in
                         guard let strongSelf = self else {
                             contractsProcessed += 1
@@ -291,7 +296,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else { break }
                 let token = ERCToken(
                         contract: contract,
-                        server: strongSelf.session.server,
+                        server: strongSelf.server,
                         name: name,
                         symbol: symbol,
                         decimals: 0,
@@ -306,7 +311,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else { break }
                 let token = TokenObject(
                         contract: contract,
-                        server: strongSelf.session.server,
+                        server: strongSelf.server,
                         name: name,
                         symbol: symbol,
                         decimals: Int(decimals),
@@ -316,11 +321,11 @@ class SingleChainTokenCoordinator: Coordinator {
                 strongSelf.storage.add(tokens: [token])
                 completion()
             case .delegateTokenComplete:
-                strongSelf.storage.add(delegateContracts: [DelegateContract(contractAddress: contract, server: strongSelf.session.server)])
+                strongSelf.storage.add(delegateContracts: [DelegateContract(contractAddress: contract, server: strongSelf.server)])
                 completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
-                    strongSelf.storage.add(deadContracts: [DeletedContract(contractAddress: contract, server: strongSelf.session.server)])
+                    strongSelf.storage.add(deadContracts: [DeletedContract(contractAddress: contract, server: strongSelf.server)])
                 }
                 completion()
             }
@@ -423,7 +428,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func delete(token: TokenObject) {
         assetDefinitionStore.contractDeleted(token.contractAddress)
-        storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: session.server)])
+        storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: server)])
         storage.delete(tokens: [token])
         delegate?.tokensDidChange(inCoordinator: self)
     }
@@ -495,11 +500,12 @@ class SingleChainTokenCoordinator: Coordinator {
         override var isAsynchronous: Bool {
             return true
         }
-
+        private let server: RPCServer
         init(forServer server: RPCServer, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address, tokens: [(name: String, contract: AlphaWallet.Address)]) {
             self.coordinator = coordinator
             self.wallet = wallet
             self.tokens = tokens
+            self.server = server
             super.init()
             self.queuePriority = server.networkRequestsQueuePriority
         }
@@ -508,7 +514,7 @@ class SingleChainTokenCoordinator: Coordinator {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self, let coordinator = strongSelf.coordinator else { return }
 
-                coordinator.autoDetectTokensImpl(withContracts: strongSelf.tokens) {
+                coordinator.autoDetectTokensImpl(withContracts: strongSelf.tokens, server: strongSelf.server) {
                     strongSelf.willChangeValue(forKey: "isExecuting")
                     strongSelf.willChangeValue(forKey: "isFinished")
                     coordinator.isAutoDetectingTokens = false
@@ -580,7 +586,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
-            token = TokensDataStore.etherToken(forServer: session.server)
+            token = TokensDataStore.etherToken(forServer: server)
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
             return
         }

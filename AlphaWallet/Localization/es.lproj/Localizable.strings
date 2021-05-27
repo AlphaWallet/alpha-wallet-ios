@@ -103,6 +103,8 @@
 "suppport.title" = "Asistencia";
 "transactions.noTransactions.label.title" = "¡Todavía no hay transacciones!";
 "wallet.navigation.title" = "Cambiar monedero";
+"wallets.navigation.title" = "Wallets";
+"wallet.types.summary" = "Summary";
 "wallet.types.hdWallets" = "Tus monederos";
 "wallet.types.keystoreWallets" = "Monederos del almacén de claves";
 "wallet.types.watchedWallets" = "Monederos de solo observación";
