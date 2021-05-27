@@ -56,25 +56,6 @@ class LocalizedOperationObject: Object {
     }
 }
 
-extension LocalizedOperationObject {
-    static func from(operations: [LocalizedOperation]?) -> [LocalizedOperationObject] {
-        guard let operations = operations else { return [] }
-        return operations.compactMap { operation in
-            guard let from = operation.fromAddress, let to = operation.toAddress else { return nil }
-            return LocalizedOperationObject(
-                from: from.description,
-                to: to.description,
-                contract: operation.contract.contractAddress,
-                type: operation.type.rawValue,
-                value: operation.value,
-                symbol: operation.contract.symbol,
-                name: operation.contract.name,
-                decimals: operation.contract.decimals
-            )
-        }
-    }
-}
-
 struct LocalizedOperationObjectInstance {
     //TODO good to have getters/setter computed properties for `from` and `to` too that is typed AlphaWallet.Address. But have to be careful and check if they can be empty or "0x"
     var from: String = ""
