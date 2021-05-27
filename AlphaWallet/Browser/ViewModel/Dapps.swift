@@ -48,7 +48,7 @@ enum OriginalDapps {
         Dapp(name: "0x Instant", description: "A free and flexible way to offer simple crypto purchasing", url: "http://0x-instant-staging.s3-website-us-east-1.amazonaws.com/", cat: "Exchange"),
         Dapp(name: "Bancor", description: "Built-in price discovery and a liquidity mechanism for tokens", url: "https://www.bancor.network", cat: "Exchange"),
         Dapp(name: "KyberSwap", description: "Instant and Secure Token to Token Swaps", url: "https://kyber.network/swap/eth_knc", cat: "Exchange"),
-        Dapp(name: "Kyber Migration Portal", description: "Migration portal to upgrade legacy KNC to ERC-20 KNC tokens", url: "https://kyber.org/migrate", cat: "Token Migration"),
+        Dapp(name: "Kyber Migration Portal", description: "Migration portal to upgrade legacy KNC to ERC-20 KNC tokens", url: "https://kyber.org/migrate", cat: "Tools"),
         Dapp(name: "localethereum", description: "Peer-to-peer marketplace allowing to trade eth to fiat", url: "https://localethereum.com/", cat: "Exchange"),
         Dapp(name: "Totle", description: "Aggregating the liquidity of the top decentralized exchanges", url: "https://app.totle.com/", cat: "Exchange"),
         Dapp(name: "Uniswap", description: "Protocol for automated token exchange", url: "https://uniswap.exchange", cat: "Exchange"),
@@ -74,6 +74,7 @@ enum OriginalDapps {
         Dapp(name: "SCV.Finance", description: "Get a big picture of all your digital assets locked inside various DeFi projects across multiple blockchains.", url: "https://scv.finance/", cat: "Tool"),
         Dapp(name: "Mushrooms Finance", description: "Sustainable crypto earning in DeFi", url: "https://mushrooms.finance/", cat: "Finance"),
         Dapp(name: "Levinswap", description: "Decentralized exchange for trading crypto and serurities tokens", url: "https://app.levinswap.org/", cat: "Exchange")
+        Dapp(name: "Matic Faucet", description: "Matic Faucet to access Mumbai and Goerli testnet tokens", url: "https://faucet.matic.network/", cat: "Tool")
     ]
 
     struct Category {
