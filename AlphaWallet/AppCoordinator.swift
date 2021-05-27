@@ -43,6 +43,8 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
 
+    private var pendingInCoordinator: InCoordinator?
+
     private lazy var accountsCoordinator: AccountsCoordinator = {
         let coordinator = AccountsCoordinator(
                 config: config,
@@ -126,7 +128,7 @@ class AppCoordinator: NSObject, Coordinator {
         migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
-            showTransactions(wallet: keystore.currentWallet, animated: false)
+            showTransactions(for: keystore.currentWallet, animated: false)
         } else {
             showInitialWalletCoordinator()
         }
@@ -166,7 +168,7 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.start()
     }
 
-    @discardableResult func _showTransactions(for wallet: Wallet, animated: Bool) -> InCoordinator {
+    @discardableResult func showTransactions(for wallet: Wallet, animated: Bool) -> InCoordinator {
         if let coordinator = initialWalletCreationCoordinator {
             removeCoordinator(coordinator)
         }
@@ -187,8 +189,9 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 appTracker: appTracker,
                 analyticsCoordinator: analyticsService,
-            urlSchemeCoordinator: urlSchemeCoordinator,
-            promptBackupCoordinator: promptBackupCoordinator
+                urlSchemeCoordinator: urlSchemeCoordinator,
+                promptBackupCoordinator: promptBackupCoordinator,
+                accountsCoordinator: accountsCoordinator
         )
 
         coordinator.delegate = self
@@ -205,25 +208,8 @@ class AppCoordinator: NSObject, Coordinator {
         if let coordinator = inCoordinator {
             return coordinator
         } else {
-            return showTransactions(wallet: keystore.currentWallet, animated: false)
+            return showTransactions(for: keystore.currentWallet, animated: false)
         }
-    }
-
-    //NOTE: Not sure how to call it right, rename with more appropriate name.
-    private enum AccountsStartPoint {
-        case withAccountsPresentation
-        case skipAccounts
-    }
-
-    @discardableResult private func showTransactions(wallet: Wallet, animated: Bool, accountsStartPoint: AccountsStartPoint = .withAccountsPresentation) -> InCoordinator {
-        switch accountsStartPoint {
-        case .withAccountsPresentation:
-            accountsCoordinator.start()
-        case .skipAccounts:
-            break
-        }
-
-        return _showTransactions(for: wallet, animated: animated)
     }
 
     private func initializers() {
@@ -338,10 +324,10 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 
         removeCoordinator(coordinator)
 
-        showTransactions(wallet: keystore.currentWallet, animated: false)
+        showTransactions(for: keystore.currentWallet, animated: false)
     }
 }
-private var pendingInCoordinator: InCoordinator?
+
 extension AppCoordinator: InCoordinatorDelegate {
 
     func didRestart(in coordinator: InCoordinator, wallet: Wallet) {
@@ -350,7 +336,7 @@ extension AppCoordinator: InCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true) //??Do we really need to do it here?
         removeCoordinator(coordinator)
 
-        showTransactions(wallet: keystore.currentWallet, animated: false, accountsStartPoint: .skipAccounts)
+        showTransactions(for: keystore.currentWallet, animated: false)
     }
 
     func didShowWallets(in coordinator: InCoordinator) {
@@ -467,7 +453,7 @@ extension AppCoordinator: UrlSchemeCoordinatorDelegate {
 extension AppCoordinator: AccountsCoordinatorDelegate {
     
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        //no-op
+        coordinator.navigationController.dismiss(animated: true)
     }
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
@@ -475,18 +461,19 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: AccountsCoordinator) {
-        //no-op
+        coordinator.navigationController.dismiss(animated: true)
     }
 
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        //NOTE: Push existing view controller to the app navigations stack
+        //NOTE: Push existing view controller to the app navigation stack
         if let pendingCoordinator = pendingInCoordinator, keystore.currentWallet == account {
             addCoordinator(coordinator)
 
-            navigationController.pushViewController(pendingCoordinator.tabBarController, animated: true)
-            navigationController.setNavigationBarHidden(true, animated: true)
+            pendingCoordinator.showTabBar(animated: true)
         } else {
-            showTransactions(wallet: account, animated: true, accountsStartPoint: .skipAccounts)
+            showTransactions(for: account, animated: true)
         }
+
+        pendingInCoordinator = .none
     }
 }

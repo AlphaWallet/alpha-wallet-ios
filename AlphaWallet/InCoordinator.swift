@@ -138,6 +138,7 @@ class InCoordinator: NSObject, Coordinator {
         tabBarController.tabBar.isTranslucent = false
         return tabBarController
     }()
+    private let accountsCoordinator: AccountsCoordinator
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -148,7 +149,8 @@ class InCoordinator: NSObject, Coordinator {
             appTracker: AppTracker = AppTracker(),
             analyticsCoordinator: AnalyticsCoordinator,
             urlSchemeCoordinator: UrlSchemeCoordinatorType,
-            promptBackupCoordinator: PromptBackupCoordinator
+            promptBackupCoordinator: PromptBackupCoordinator,
+            accountsCoordinator: AccountsCoordinator
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
@@ -159,6 +161,7 @@ class InCoordinator: NSObject, Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.urlSchemeCoordinator = urlSchemeCoordinator
         self.promptBackupCoordinator = promptBackupCoordinator
+        self.accountsCoordinator = accountsCoordinator
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
@@ -166,7 +169,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     deinit {
-        XMLHandler.callForAssetAttributeCoordinators = nil
+//        XMLHandler.callForAssetAttributeCoordinators = nil
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
     }
@@ -414,7 +417,13 @@ class InCoordinator: NSObject, Coordinator {
 
         setupTabBarController()
 
+        showTabBar(animated: animated)
+    }
+
+    func showTabBar(animated: Bool) {
+        navigationController.setViewControllers([accountsCoordinator.accountsViewController], animated: false)
         navigationController.pushViewController(tabBarController, animated: animated)
+        
         navigationController.setNavigationBarHidden(true, animated: true)
 
         let inCoordinatorViewModel = InCoordinatorViewModel()
