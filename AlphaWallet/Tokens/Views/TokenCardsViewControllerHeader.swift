@@ -9,7 +9,6 @@ protocol TokenCardsViewControllerHeaderDelegate: class {
 class TokenCardsViewControllerHeader: UIView {
     static let height = CGFloat(90)
 
-    private let background = UIView()
     private let titleLabel = UILabel()
     //TODO rename? Button now
     private let blockchainLabel = UIButton(type: .system)
@@ -19,9 +18,6 @@ class TokenCardsViewControllerHeader: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        background.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(background)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -35,21 +31,11 @@ class TokenCardsViewControllerHeader: UIView {
             bottomRowStack
         ].asStackView(axis: .vertical, spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        background.addSubview(stackView)
+        addSubview(stackView)
 
-        let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)
-        backgroundWidthConstraint.priority = .defaultHigh
         // TODO extract constant. Maybe StyleLayout.sideMargin
         NSLayoutConstraint.activate([
-            background.leadingAnchor.constraint(equalTo: leadingAnchor),
-            background.topAnchor.constraint(equalTo: topAnchor),
-            backgroundWidthConstraint,
-            background.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -16),
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 16, left: 16, bottom: 21, right: 21))
         ])
     }
 
