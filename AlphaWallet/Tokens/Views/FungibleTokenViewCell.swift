@@ -33,6 +33,8 @@ class FungibleTokenViewCell: UITableViewCell {
         apprecation24hoursLabel.textAlignment = .center
         marketPriceLabel.textAlignment = .center
         fiatValueLabel.textAlignment = .center
+        fiatValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        fiatValueLabel.setContentHuggingPriority(.required, for: .horizontal)
 
         let col0 = tokenIconImageView
         let col1 = [

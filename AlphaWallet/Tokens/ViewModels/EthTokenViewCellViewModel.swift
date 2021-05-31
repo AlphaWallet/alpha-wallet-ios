@@ -96,8 +96,16 @@ struct EthTokenViewCellViewModel {
         ])
     }
 
+    private var amountAccordingPRCServer: String? {
+        if token.server.isTestnet {
+            return nil
+        } else {
+            return currencyAmount
+        }
+    }
+
     var fiatValueAttributedString: NSAttributedString {
-        return NSAttributedString(string: currencyAmount ?? "-", attributes: [
+        return NSAttributedString(string: amountAccordingPRCServer ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.valueChangeValue
         ])
