@@ -21,6 +21,8 @@ protocol TokensDataStorePriceDelegate: class {
 
 // swiftlint:disable type_body_length
 class TokensDataStore {
+    typealias ContractAndJson = (contract: AlphaWallet.Address, json: String)
+
     static let fetchContractDataTimeout = TimeInterval(4)
 
     private lazy var getNameCoordinator: GetNameCoordinator = {
@@ -89,6 +91,7 @@ class TokensDataStore {
     let server: RPCServer
     weak var delegate: TokensDataStoreDelegate?
     weak var priceDelegate: TokensDataStorePriceDelegate?
+    weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
     //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
     var tickers: [AddressAndRPCServer: CoinTicker] = .init() {
         didSet {
@@ -359,6 +362,7 @@ class TokensDataStore {
         }
     }
 
+    //TODO should callers call tokenURI and so on, instead?
     func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
             guard let strongSelf = self else { return }
@@ -536,71 +540,149 @@ class TokensDataStore {
 
     private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
         assert(!tokens.contains { !$0.isERC721AndNotForTickets })
-        guard OpenSea.isServerSupported(server) else { return }
-        getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
+        firstly {
+            getTokensFromOpenSea()
+        }.done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
             let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0 }
             let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721ContractsFoundInOpenSea
-            var count = 0
-            for address in erc721ContractsNotFoundInOpenSea {
-                strongSelf.getERC721Balance(for: address) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    defer {
-                        count += 1
-                        if count == erc721ContractsNotFoundInOpenSea.count {
-                            strongSelf.updateDelegate()
-                        }
-                    }
-                    switch result {
-                    case .success(let balance):
-                        if let token = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                            strongSelf.update(token: token, action: .nonFungibleBalance(balance))
-                        }
-                    case .failure:
-                        break
-                    }
-                }
-            }
-
-            for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
-                var listOfJson = [String]()
-                var anyNonFungible: OpenSeaNonFungible?
-                for each in openSeaNonFungibles {
-                    if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                        anyNonFungible = each
-                        listOfJson.append(jsonString)
-                    } else {
-                        //no op
-                    }
-                }
-
-                if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
-                    switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
-                        break
-                    case .erc20:
-                        strongSelf.update(token: tokenObject, action: .type(.erc721))
-                    }
-                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
-                    if let anyNonFungible = anyNonFungible {
-                        strongSelf.update(token: tokenObject, action: .name(anyNonFungible.contractName))
-                    }
-                } else {
-                    let token = ERCToken(
-                            contract: contract,
-                            server: strongSelf.server,
-                            name: openSeaNonFungibles[0].contractName,
-                            symbol: openSeaNonFungibles[0].symbol,
-                            decimals: 0,
-                            type: .erc721,
-                            balance: listOfJson
-                    )
-
-                    strongSelf.addCustom(token: token)
-                }
-            }
+            strongSelf.updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea: erc721ContractsNotFoundInOpenSea, tokens: tokens)
+            strongSelf.updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, tokens: tokens)
             strongSelf.updateDelegate()
         }.cauterize()
+    }
+    func foo1() {
+        firstly {
+            Alamofire.request("https://httpbin.org/get", method: .get).responseJSON()
+        //}.then { json, rsp in
+        //    //
+        }.catch{ error in
+            //…
+        }
+    }
+
+    private func updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea contracts: [AlphaWallet.Address], tokens: [TokenObject]) {
+        let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(contract: $0, tokens: tokens) }
+        firstly {
+            when(resolved: promises)
+        }.done { _ in
+            self.updateDelegate()
+        }
+    }
+
+    private func updateNonOpenSeaNonFungiblesBalance(contract: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<Void> {
+        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { seal in } }
+        return firstly {
+            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
+        }.then {  tokenIds -> Promise<[ContractAndJson]> in
+            let guarantees: [Guarantee<ContractAndJson>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
+            return when(fulfilled: guarantees)
+        }.done { listOfContractAndJsonResult in
+            var contractsAndJsons: [AlphaWallet.Address: [String]] = .init()
+            for each in listOfContractAndJsonResult {
+                if var listOfJson = contractsAndJsons[each.contract] {
+                    listOfJson.append(each.json)
+                    contractsAndJsons[each.contract] = listOfJson
+                } else {
+                    contractsAndJsons[each.contract] = [each.json]
+                }
+            }
+            for (contract, jsons) in contractsAndJsons {
+                guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { continue }
+                self.update(token: tokenObject, action: .nonFungibleBalance(jsons))
+            }
+        }.asVoid()
+    }
+
+    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<ContractAndJson> {
+        firstly {
+            Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
+        }.then {
+            self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
+        }.recover { _ in
+            var jsonDictionary = JSON()
+            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
+                jsonDictionary["tokenId"] = JSON(tokenId)
+                jsonDictionary["contractName"] = JSON(tokenObject.name)
+                jsonDictionary["symbol"] = JSON(tokenObject.symbol)
+                jsonDictionary["name"] = ""
+                jsonDictionary["imageUrl"] = ""
+                jsonDictionary["thumbnailUrl"] = ""
+            }
+            return .value((contract: address, json: jsonDictionary.rawString()!))
+        }
+    }
+
+    private func fetchTokenJson(forTokenId tokenId: String, uri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<ContractAndJson> {
+        struct Error: Swift.Error {
+        }
+
+        return firstly {
+            Alamofire.request(uri, method: .get).responseData()
+        }.map { data, rsp in
+            if let json = try? JSON(data: data) {
+                if json["error"] == "Internal Server Error" {
+                    throw Error()
+                } else {
+                    var jsonDictionary = json
+                    if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
+                        jsonDictionary["tokenId"] = JSON(tokenId)
+                        jsonDictionary["contractName"] = JSON(tokenObject.name)
+                        jsonDictionary["symbol"] = JSON(tokenObject.symbol)
+                        jsonDictionary["name"] = jsonDictionary["name"]
+                        jsonDictionary["imageUrl"] = jsonDictionary["image"]
+                        jsonDictionary["thumbnailUrl"] = jsonDictionary["image"]
+                    }
+                    if let jsonString = jsonDictionary.rawString() {
+                        return (contract: address, json: jsonString)
+                    } else {
+                        throw Error()
+                    }
+                }
+            } else {
+                throw Error()
+            }
+        }
+    }
+
+    private func updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]], tokens: [TokenObject]) {
+        for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
+            var listOfJson = [String]()
+            var anyNonFungible: OpenSeaNonFungible?
+            for each in openSeaNonFungibles {
+                if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                    anyNonFungible = each
+                    listOfJson.append(jsonString)
+                } else {
+                    //no op
+                }
+            }
+
+            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
+                switch tokenObject.type {
+                case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
+                    break
+                case .erc20:
+                    update(token: tokenObject, action: .type(.erc721))
+                }
+                update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
+                if let anyNonFungible = anyNonFungible {
+                    update(token: tokenObject, action: .name(anyNonFungible.contractName))
+                }
+            } else {
+                let token = ERCToken(
+                        contract: contract,
+                        server: server,
+                        name: openSeaNonFungibles[0].contractName,
+                        symbol: openSeaNonFungibles[0].symbol,
+                        decimals: 0,
+                        type: .erc721,
+                        balance: listOfJson
+                )
+
+                addCustom(token: token)
+            }
+        }
     }
 
     func refreshETHBalance() {

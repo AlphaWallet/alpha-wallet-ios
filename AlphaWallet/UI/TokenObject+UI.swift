@@ -97,13 +97,15 @@ private class TokenImageFetcher {
         Promise { seal in
             switch type {
             case .erc721:
-                if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data), !openSeaNonFungible.contractImageUrl.isEmpty {
+                if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data), !openSeaNonFungible.contractImageUrl.isEmpty {
                     let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
                     fetch(request: request).done { image in
                         seal.fulfill(image)
                     }.catch { _ in
                         seal.reject(ImageAvailabilityError.notAvailable)
                     }
+                } else {
+                    seal.reject(ImageAvailabilityError.notAvailable)
                 }
             case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
                 seal.reject(ImageAvailabilityError.notAvailable)

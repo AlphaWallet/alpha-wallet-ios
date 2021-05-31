@@ -139,9 +139,9 @@ extension Transaction {
         if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.tokenThreadSafe(forContract: contract) {
             switch functionCallMetaData.type {
             case .erc20Approve(let spender, let value):
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .erc20Transfer(let recipient, let value):
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .nativeCryptoTransfer, .others:
                 break
             }

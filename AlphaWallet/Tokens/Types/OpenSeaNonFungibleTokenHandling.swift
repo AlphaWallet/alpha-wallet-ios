@@ -32,19 +32,19 @@ enum OpenSeaBackedNonFungibleTokenHandling {
     }
 }
 
-///Use this enum to "mark" where we handle non-fungible tokens supported by OpenSea differently instead of accessing the contract directly
-///Even if there is a TokenScript file available for the contract, it is assumed to still be supported by OpenSea
+///Use this enum to "mark" where we handle non-fungible tokens supported by JSON (either via OpenSea or with ERC721's `tokenURI`)
+///Even if there is a TokenScript file available for the contract, it is assumed to still be supported by this way
 ///If there are other special casing for tokens that doesn't fit this model, create another enum type (not case)
-enum OpenSeaSupportedNonFungibleTokenHandling {
-    case supportedByOpenSea
-    case notSupportedByOpenSea
+enum NonFungibleFromJsonSupportedTokenHandling {
+    case supported
+    case notSupported
 
     init(token: TokenObject) {
         self = {
             if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") {
-                return .supportedByOpenSea
+                return .supported
             } else {
-                return .notSupportedByOpenSea
+                return .notSupported
             }
         }()
     }

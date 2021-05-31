@@ -10,6 +10,7 @@ class LocalizedOperationObject: Object {
     @objc dynamic var contract: String? = .none
     @objc dynamic var type: String = ""
     @objc dynamic var value: String = ""
+    @objc dynamic var tokenId: String = ""
     @objc dynamic var name: String? = .none
     @objc dynamic var symbol: String? = .none
     @objc dynamic var decimals: Int = 18
@@ -20,6 +21,7 @@ class LocalizedOperationObject: Object {
         contract: AlphaWallet.Address?,
         type: String,
         value: String,
+        tokenId: String,
         symbol: String?,
         name: String?,
         decimals: Int
@@ -30,6 +32,7 @@ class LocalizedOperationObject: Object {
         self.contract = contract?.eip55String
         self.type = type
         self.value = value
+        self.tokenId = tokenId
         self.symbol = symbol
         self.name = name
         self.decimals = decimals
@@ -42,6 +45,7 @@ class LocalizedOperationObject: Object {
         self.contract = object.contract
         self.type = object.type
         self.value = object.value
+        self.tokenId = object.tokenId
         self.symbol = object.symbol
         self.name = object.name
         self.decimals = object.decimals
@@ -56,25 +60,6 @@ class LocalizedOperationObject: Object {
     }
 }
 
-extension LocalizedOperationObject {
-    static func from(operations: [LocalizedOperation]?) -> [LocalizedOperationObject] {
-        guard let operations = operations else { return [] }
-        return operations.compactMap { operation in
-            guard let from = operation.fromAddress, let to = operation.toAddress else { return nil }
-            return LocalizedOperationObject(
-                from: from.description,
-                to: to.description,
-                contract: operation.contract.contractAddress,
-                type: operation.type.rawValue,
-                value: operation.value,
-                symbol: operation.contract.symbol,
-                name: operation.contract.name,
-                decimals: operation.contract.decimals
-            )
-        }
-    }
-}
-
 struct LocalizedOperationObjectInstance {
     //TODO good to have getters/setter computed properties for `from` and `to` too that is typed AlphaWallet.Address. But have to be careful and check if they can be empty or "0x"
     var from: String = ""
@@ -82,6 +67,7 @@ struct LocalizedOperationObjectInstance {
     var contract: String? = .none
     var type: String = ""
     var value: String = ""
+    var tokenId: String = ""
     var name: String? = .none
     var symbol: String? = .none
     var decimals: Int = 18
@@ -92,6 +78,7 @@ struct LocalizedOperationObjectInstance {
         self.contract = object.contract
         self.type = object.type
         self.value = object.value
+        self.tokenId = object.tokenId
         self.symbol = object.symbol
         self.name = object.name
         self.decimals = object.decimals
@@ -103,6 +90,7 @@ struct LocalizedOperationObjectInstance {
         contract: AlphaWallet.Address?,
         type: String,
         value: String,
+        tokenId: String,
         symbol: String?,
         name: String?,
         decimals: Int
@@ -112,6 +100,7 @@ struct LocalizedOperationObjectInstance {
         self.contract = contract?.eip55String
         self.type = type
         self.value = value
+        self.tokenId = tokenId
         self.symbol = symbol
         self.name = name
         self.decimals = decimals
