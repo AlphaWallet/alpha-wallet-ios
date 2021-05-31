@@ -110,7 +110,7 @@ enum RPCServer: Hashable, CaseIterable {
     var getEtherscanURL: URL? {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol:
-            return etherscanRoot.appendingPathComponent("?module=account&action=txlist&address=")
+            return etherscanRoot.appendingQueryString("module=account&action=txlist")
         case .callisto: return nil
         case .heco: return nil
         case .heco_testnet: return nil
@@ -189,9 +189,9 @@ enum RPCServer: Hashable, CaseIterable {
     var getEtherscanURLERC721Events: URL? {
         switch erc721TransactionHistoryType {
         case .etherscan:
-            return etherscanRoot.appendingPathComponent("?module=account&action=tokennfttx&address=")
+            return etherscanRoot.appendingQueryString("module=account&action=tokennfttx")
         case .blockscout:
-            return etherscanRoot.appendingPathComponent("/transactions?module=account&action=tokentx&&address=")
+            return etherscanRoot.appendingPathComponent("transactions").appendingQueryString("module=account&action=tokentx")
         case .unknown:
             return nil
         }
@@ -248,11 +248,12 @@ enum RPCServer: Hashable, CaseIterable {
 
     func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          getEtherscanURL.flatMap {
-             var url = $0.appendingPathComponent("\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
+             let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
              if let startBlock = startBlock {
-                 url = url.appendingPathComponent("&startBlock=\(startBlock)")
+                 return url?.appendingQueryString("startBlock=\(startBlock)")
+             } else {
+                 return url
              }
-             return url
          }
     }
 
@@ -268,11 +269,12 @@ enum RPCServer: Hashable, CaseIterable {
 
     func etherscanAPIURLForERC721TxList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         getEtherscanURLERC721Events.flatMap {
-            var url = $0.appendingPathComponent("\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
+            let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
             if let startBlock = startBlock {
-                url = $0.appendingPathComponent("\(url)&startBlock=\(startBlock)")
+                return url?.appendingQueryString("startBlock=\(startBlock)")
+            } else {
+                return url
             }
-            return url
         }
     }
 
@@ -724,4 +726,16 @@ extension RPCServer: Codable {
         var container = encoder.container(keyedBy: Keys.self)
         try container.encode(chainID, forKey: .chainId)
     }
+}
+
+fileprivate extension URL {
+    //Much better to use URLComponents, but this is much simpler for our use. This probably doesn't percent-escape probably, but we shouldn't need it for the URLs we access here
+	func appendingQueryString(_ queryString: String) -> URL? {
+        let urlString = absoluteString
+        if urlString.contains("?") {
+            return URL(string: "\(urlString)&\(queryString)")
+        } else {
+            return URL(string: "\(urlString)?\(queryString)")
+        }
+	}
 }
