@@ -5,6 +5,7 @@
 
 import Foundation
 import BigInt
+import PromiseKit
 import Result
 
 class GetERC721BalanceCoordinator {
@@ -17,7 +18,7 @@ class GetERC721BalanceCoordinator {
     func getERC721TokenBalance(
             for address: AlphaWallet.Address,
             contract: AlphaWallet.Address,
-            completion: @escaping (Result<BigUInt, AnyError>) -> Void
+            completion: @escaping (ResultResult<BigUInt, AnyError>.t) -> Void
     ) {
         let function = GetERC721Balance()
         callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done { balanceResult in

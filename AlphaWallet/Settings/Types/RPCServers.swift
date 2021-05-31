@@ -30,6 +30,12 @@ enum RPCServer: Hashable, CaseIterable {
     case mumbai_testnet
     case custom(CustomRPC)
 
+    private enum EtherscanCompatibleType {
+        case etherscan
+        case blockscout
+        case unknown
+    }
+
     //Using this property avoids direct reference to `.main`, which could be a sign of a possible crash — i.e. using `.main` when it is disabled by the user
     static var forResolvingEns: RPCServer {
         .main
@@ -101,22 +107,11 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var getEtherscanURL: String? {
+    var getEtherscanURL: URL? {
         switch self {
-        case .main: return Constants.mainnetEtherscanAPI
-        case .ropsten: return Constants.ropstenEtherscanAPI
-        case .rinkeby: return Constants.rinkebyEtherscanAPI
-        case .kovan: return Constants.kovanEtherscanAPI
-        case .poa: return Constants.poaNetworkCoreAPI
-        case .sokol: return nil
-        case .classic: return Constants.classicEtherscanAPI
+        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol:
+            return etherscanRoot.appendingPathComponent("?module=account&action=txlist&address=")
         case .callisto: return nil
-        case .goerli: return Constants.goerliEtherscanAPI
-        case .xDai: return Constants.xDaiAPI
-        case .artis_sigma1: return Constants.artisSigma1NetworkCoreAPI
-        case .artis_tau1: return Constants.artisTau1NetworkCoreAPI
-        case .binance_smart_chain: return nil
-        case .binance_smart_chain_testnet: return nil
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
@@ -124,12 +119,10 @@ enum RPCServer: Hashable, CaseIterable {
         case .fantom_testnet: return nil
         case .avalanche: return nil
         case .avalanche_testnet: return nil
-        case .polygon: return nil
         case .mumbai_testnet: return nil
         }
     }
 
-    //TODO fix up all the networks
     var getEtherscanURLERC20Events: String? {
         switch self {
         case .main: return Constants.mainnetEtherscanAPIErc20Events
@@ -153,8 +146,54 @@ enum RPCServer: Hashable, CaseIterable {
         case .fantom_testnet: return nil
         case .avalanche: return nil
         case .avalanche_testnet: return nil
-        case .polygon: return nil
+        case .polygon: return "https://explorer-mainnet.maticvigil.com/api/v2/transactions?module=account&action=tokentx&address="
         case .mumbai_testnet: return nil
+        }
+    }
+
+    var etherscanRoot: URL {
+        let urlString: String = {
+            switch self {
+            case .main: return "https://api-cn.etherscan.com/api"
+            case .kovan: return "https://api-kovan.etherscan.io/api"
+            case .ropsten: return "https://api-ropsten.etherscan.io/api"
+            case .rinkeby: return "https://api-rinkeby.etherscan.io/api"
+            case .goerli: return "https://api-goerli.etherscan.io/api"
+            case .classic: return "https://blockscout.com/etc/mainnet/api"
+            case .callisto: return "https://callisto.trustwalletapp.com/api"
+            case .poa: return "https://blockscout.com/poa/core/api"
+            case .xDai: return "https://blockscout.com/poa/dai/api"
+            case .sokol: return "https://blockscout.com/poa/sokol/api"
+            case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
+            case .artis_tau1: return "https://explorer.tau1.artis.network/api"
+            case .binance_smart_chain: return "https://api.bscscan.com/api"
+            case .binance_smart_chain_testnet: return "https://api-testnet.bscscan.com/api"
+            case .heco_testnet: return "https://api-testnet.hecoinfo.com/api"
+            case .heco: return "https://api.hecoinfo.com/api"
+            case .custom: return "" // Enable? make optional
+            case .fantom: return "https://api.ftmscan.com/api"
+            //TODO fix etherscan-compatible API endpoint
+            case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/api"
+            //TODO fix etherscan-compatible API endpoint
+            case .avalanche: return "https://cchain.explorer.avax.network/tx/api"
+            //TODO fix etherscan-compatible API endpoint
+            case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/api"
+            case .polygon: return "https://explorer-mainnet.maticvigil.com/api/v2/"
+            case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/api/v2"
+            }
+        }()
+        return URL(string: urlString)!
+    }
+
+    //If Etherscan, action=tokentx for ERC20 and action=tokennfttx for ERC721. If Blockscout-compatible, action=tokentx includes both ERC20 and ERC721. tokennfttx is not supported.
+    var getEtherscanURLERC721Events: URL? {
+        switch erc721TransactionHistoryType {
+        case .etherscan:
+            return etherscanRoot.appendingPathComponent("?module=account&action=tokennfttx&address=")
+        case .blockscout:
+            return etherscanRoot.appendingPathComponent("/transactions?module=account&action=tokentx&&address=")
+        case .unknown:
+            return nil
         }
     }
 
@@ -196,13 +235,24 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    private var erc721TransactionHistoryType: EtherscanCompatibleType {
+        switch self {
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet:
+            return .etherscan
+        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet:
+            return .blockscout
+        case .callisto, .custom, .fantom_testnet, .avalanche, .avalanche_testnet:
+            return .unknown
+        }
+    }
+
     func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          getEtherscanURL.flatMap {
-             var url = "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)"
+             var url = $0.appendingPathComponent("\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
              if let startBlock = startBlock {
-                 url = "\(url)&startBlock=\(startBlock)"
+                 url = url.appendingPathComponent("&startBlock=\(startBlock)")
              }
-             return URL(string: url)
+             return url
          }
     }
 
@@ -213,6 +263,16 @@ enum RPCServer: Hashable, CaseIterable {
                 url = "\(url)&startBlock=\(startBlock)"
             }
             return URL(string: url)
+        }
+    }
+
+    func etherscanAPIURLForERC721TxList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+        getEtherscanURLERC721Events.flatMap {
+            var url = $0.appendingPathComponent("\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)")
+            if let startBlock = startBlock {
+                url = $0.appendingPathComponent("\(url)&startBlock=\(startBlock)")
+            }
+            return url
         }
     }
 
@@ -388,28 +448,13 @@ enum RPCServer: Hashable, CaseIterable {
     var transactionInfoEndpoints: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://api-cn.etherscan.com"
-            case .classic: return "https://blockscout.com/etc/mainnet/api"
+            case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet:
+                return etherscanRoot.absoluteString
             case .callisto: return "https://callisto.trustwalletapp.com"
-            case .kovan: return "https://api-kovan.etherscan.io"
-            case .ropsten: return "https://api-ropsten.etherscan.io"
-            case .rinkeby: return "https://api-rinkeby.etherscan.io"
-            case .poa: return "https://blockscout.com/poa/core/api"
-            case .xDai: return "https://blockscout.com/poa/dai/api"
-            case .sokol: return "https://blockscout.com/poa/sokol/api"
-            case .goerli: return "https://api-goerli.etherscan.io"
-            case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
-            case .artis_tau1: return "https://explorer.tau1.artis.network/api"
-            case .binance_smart_chain: return "https://bscscan.com/tx/"
-            case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
-            case .heco_testnet: return "https://scan-testnet.hecochain.com/tx/"
-            case .heco: return "https://scan.hecochain.com/tx/"
             case .custom: return "" // Enable? make optional
-            case .fantom: return "https://ftmscan.com/tx/"
             case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/"
             case .avalanche: return "https://cchain.explorer.avax.network/tx/"
             case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/"
-            case .polygon: return "https://explorer-mainnet.maticvigil.com/tx/"
             case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/tx/"
             }
         }()
