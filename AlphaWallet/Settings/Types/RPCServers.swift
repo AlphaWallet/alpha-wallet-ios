@@ -13,6 +13,8 @@ enum RPCServer: Hashable, CaseIterable {
     case poa
     case sokol
     case classic
+    //As of 20210601, `.callisto` doesn't eth_blockNumber because their endpoint requires including `"params": []` in the payload even if it's empty and we don't.
+    //As of 20210601, `.callisto` doesn't support eth_call according to https://testnet-explorer.callisto.network/eth-rpc-api-docs
     case callisto
     case xDai
     case goerli
@@ -109,9 +111,8 @@ enum RPCServer: Hashable, CaseIterable {
 
     var getEtherscanURL: URL? {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol:
+        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto:
             return etherscanRoot.appendingQueryString("module=account&action=txlist")
-        case .callisto: return nil
         case .heco: return nil
         case .heco_testnet: return nil
         case .custom: return nil
@@ -160,7 +161,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .rinkeby: return "https://api-rinkeby.etherscan.io/api"
             case .goerli: return "https://api-goerli.etherscan.io/api"
             case .classic: return "https://blockscout.com/etc/mainnet/api"
-            case .callisto: return "https://callisto.trustwalletapp.com/api"
+            case .callisto: return "https://explorer.callisto.network/api"
             case .poa: return "https://blockscout.com/poa/core/api"
             case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://blockscout.com/poa/sokol/api"
@@ -239,9 +240,9 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet:
             return .etherscan
-        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet:
+        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet, .callisto:
             return .blockscout
-        case .callisto, .custom, .fantom_testnet, .avalanche, .avalanche_testnet:
+        case .custom, .fantom_testnet, .avalanche, .avalanche_testnet:
             return .unknown
         }
     }
@@ -421,7 +422,7 @@ enum RPCServer: Hashable, CaseIterable {
             switch self {
             case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .classic: return "https://www.ethercluster.com/etc"
-            case .callisto: return "https://callisto.network/" //TODO Add endpoint
+            case .callisto: return "https://explorer.callisto.network/api/eth-rpc" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .ropsten: return "https://ropsten.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .rinkeby: return "https://rinkeby.infura.io/v3/\(Constants.Credentials.infuraKey)"
@@ -450,9 +451,8 @@ enum RPCServer: Hashable, CaseIterable {
     var transactionInfoEndpoints: URL {
         let urlString: String = {
             switch self {
-            case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet:
+            case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet, .callisto:
                 return etherscanRoot.absoluteString
-            case .callisto: return "https://callisto.trustwalletapp.com"
             case .custom: return "" // Enable? make optional
             case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/"
             case .avalanche: return "https://cchain.explorer.avax.network/tx/"
