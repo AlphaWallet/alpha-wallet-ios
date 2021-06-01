@@ -80,8 +80,13 @@ class TokensViewModel {
 
     init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker]) {
         self.filterTokensCoordinator = filterTokensCoordinator
-        self.tokens = tokens
+        self.tokens = Self.filterAwaySpuriousTokens(tokens)
         self.tickers = tickers
+    }
+
+    //Remove tokens that look unwanted in the Wallet tab
+    private static func filterAwaySpuriousTokens(_ tokens: [TokenObject]) -> [TokenObject] {
+        tokens.filter { !($0.name.isEmpty && $0.symbol.isEmpty && $0.decimals == 0) }
     }
 
     func markTokenHidden(token: TokenObject) -> Bool {
