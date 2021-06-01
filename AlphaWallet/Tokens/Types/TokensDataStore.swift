@@ -562,7 +562,7 @@ class TokensDataStore {
     }
 
     private func updateNonOpenSeaNonFungiblesBalance(contract: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<Void> {
-        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { seal in } }
+        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { _ in } }
         return firstly {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
         }.then {  tokenIds -> Promise<[ContractAndJson]> in
@@ -610,7 +610,7 @@ class TokensDataStore {
 
         return firstly {
             Alamofire.request(uri, method: .get).responseData()
-        }.map { data, rsp in
+        }.map { data, _ in
             if let json = try? JSON(data: data) {
                 if json["error"] == "Internal Server Error" {
                     throw Error()
