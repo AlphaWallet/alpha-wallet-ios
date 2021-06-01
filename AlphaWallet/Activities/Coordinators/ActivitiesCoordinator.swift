@@ -11,6 +11,7 @@ protocol ActivitiesCoordinatorDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController)
 }
 
+// swiftlint:disable type_body_length
 class ActivitiesCoordinator: Coordinator {
     private enum ActivityOrTransactionInstance {
         case activity(Activity)
@@ -483,6 +484,7 @@ class ActivitiesCoordinator: Coordinator {
         })
     }
 }
+// swiftlint:enable type_body_length
 
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
@@ -538,7 +540,7 @@ extension ActivitiesCoordinator: TransactionDataCoordinatorDelegate {
     }
 }
 
-fileprivate func ==(activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
     func isSameFrom() -> Bool {
         guard let from = activity.values.card["from"]?.addressValue, from.sameContract(as: operation.from) else { return false }
         return true
@@ -576,6 +578,6 @@ fileprivate func ==(activity: Activity, operation: LocalizedOperationObjectInsta
     return true
 }
 
-fileprivate func !=(activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
+fileprivate func != (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
     !(activity == operation)
 }

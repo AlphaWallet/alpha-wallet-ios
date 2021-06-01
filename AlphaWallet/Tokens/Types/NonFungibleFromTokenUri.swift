@@ -8,12 +8,24 @@ struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
     let contractName: String
     let symbol: String
     let name: String
-    let description: String = ""
+    var description: String {
+        ""
+    }
     let thumbnailUrl: String
     let imageUrl: String
-    let contractImageUrl: String = ""
-    let externalLink: String = ""
-    let backgroundColor: String? = ""
-    let traits: [OpenSeaNonFungibleTrait] = .init()
-    let generationTrait: OpenSeaNonFungibleTrait? = nil
+    var contractImageUrl: String {
+        ""
+    }
+    var externalLink: String {
+        ""
+    }
+    var backgroundColor: String? {
+        ""
+    }
+    var traits: [OpenSeaNonFungibleTrait] {
+        .init()
+    }
+    var generationTrait: OpenSeaNonFungibleTrait? {
+        nil
+    }
 }

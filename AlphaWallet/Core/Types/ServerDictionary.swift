@@ -40,7 +40,7 @@ struct ServerDictionary<T> {
     }
 
     func hasKey(_ server: RPCServer) -> Bool {
-        backingStore.contains(where: { $0.key == server})
+        backingStore.contains(where: { $0.key == server })
     }
 }
 
