@@ -551,15 +551,6 @@ class TokensDataStore {
             strongSelf.updateDelegate()
         }.cauterize()
     }
-    func foo1() {
-        firstly {
-            Alamofire.request("https://httpbin.org/get", method: .get).responseJSON()
-        //}.then { json, rsp in
-        //    //
-        }.catch{ error in
-            //…
-        }
-    }
 
     private func updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea contracts: [AlphaWallet.Address], tokens: [TokenObject]) {
         let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(contract: $0, tokens: tokens) }
