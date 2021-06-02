@@ -792,12 +792,12 @@ extension InCoordinator: CanOpenURL {
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         if contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            guard let url = server.etherscanContractDetailsWebPageURL(for: wallet.address) else { return }
             logExplorerUse(type: .wallet)
-            let url = server.etherscanContractDetailsWebPageURL(for: wallet.address)
             open(url: url, in: viewController)
         } else {
+            guard let url = server.etherscanTokenDetailsWebPageURL(for: contract) else { return }
             logExplorerUse(type: .token)
-            let url = server.etherscanTokenDetailsWebPageURL(for: contract)
             open(url: url, in: viewController)
         }
     }
