@@ -433,6 +433,8 @@
 "blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
 "blockchain.Polygon" = "Polygon Mainnet";
 "blockchain.Mumbai" = "Mumbai Testnet";
+"blockchain.Optimistic" = "Optimistic Testnet";
+"blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "photos" = "Browse";
 "light" = "Light";
 "qrCode.title" = "Point your camera on QR code";
