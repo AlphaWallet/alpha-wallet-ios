@@ -147,7 +147,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 DispatchQueue.global().async { [weak self] in
                     guard let strongSelf = self else { return }
                     for eachContract in contractsToAdd {
-                        strongSelf.addToken(for: eachContract) {
+                        strongSelf.addToken(for: eachContract) { _ in
                             contractsPulled += 1
                             if contractsPulled == contractsToAdd.count {
                                 hasRefreshedAfterAddingAllContracts = true
@@ -231,7 +231,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         switch result {
                         case .success(let balance):
                             if !balance.isEmpty {
-                                strongSelf.addToken(for: each) {
+                                strongSelf.addToken(for: each) { _ in
                                     DispatchQueue.main.async {
                                         strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
                                     }
@@ -258,7 +258,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         switch result {
                         case .success(let balance):
                             if balance > 0 {
-                                strongSelf.addToken(for: each) {
+                                strongSelf.addToken(for: each) { _ in
                                     DispatchQueue.main.async {
                                         strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
                                     }
@@ -286,7 +286,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func addToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, completion: @escaping () -> Void) {
+    private func addToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, completion: @escaping (TokenObject?) -> Void) {
         fetchContractData(for: contract) { [weak self] data in
             guard let strongSelf = self else { return }
             switch data {
@@ -303,8 +303,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         type: tokenType,
                         balance: balance
                 )
-                strongSelf.storage.addCustom(token: token)
-                completion()
+                let value = strongSelf.storage.addCustom(token: token)
+                completion(value)
             case .fungibleTokenComplete(let name, let symbol, let decimals):
                 //We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
                 let value = strongSelf.storage.enabledObject.first(where: { $0.contractAddress == contract })?.value ?? "0"
@@ -318,16 +318,16 @@ class SingleChainTokenCoordinator: Coordinator {
                         value: value,
                         type: .erc20
                 )
-                strongSelf.storage.add(tokens: [token])
-                completion()
+                let value2 = strongSelf.storage.add(tokens: [token])[0]
+                completion(value2)
             case .delegateTokenComplete:
                 strongSelf.storage.add(delegateContracts: [DelegateContract(contractAddress: contract, server: strongSelf.server)])
-                completion()
+                completion(.none)
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
                     strongSelf.storage.add(deadContracts: [DeletedContract(contractAddress: contract, server: strongSelf.server)])
                 }
-                completion()
+                completion(.none)
             }
         }
     }
@@ -335,9 +335,28 @@ class SingleChainTokenCoordinator: Coordinator {
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) {
         delete(hiddenContract: contract)
-        addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) { [weak self] in
+        addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+        }
+    }
+
+    //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
+    func addImportedTokenPromise(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenObject> {
+        struct ImportTokenError: Error { }
+        
+        return Promise<TokenObject> { seal in
+            delete(hiddenContract: contract)
+            addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) { [weak self] tokenObject in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+
+                if let tokenObject = tokenObject {
+                    seal.fulfill(tokenObject)
+                } else {
+                    seal.reject(ImportTokenError())
+                }
+            }
         }
     }
 
@@ -437,7 +456,7 @@ class SingleChainTokenCoordinator: Coordinator {
         storage.updateOrderedTokens(with: orderedTokens)
 
         delegate?.tokensDidChange(inCoordinator: self)
-    }
+    } 
 
     func mark(token: TokenObject, isHidden: Bool) {
         storage.update(token: token, action: .isHidden(isHidden))

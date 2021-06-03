@@ -8,7 +8,7 @@ extension UIView {
       return .init()
     }
 
-    static var tokenSymbolBackgroundImageCache: [UIColor: UIImage] = .init()
+    static var tokenSymbolBackgroundImageCache: ThreadSafeDictionary<UIColor, UIImage> = .init()
     static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
             return cachedValue
