@@ -32,7 +32,7 @@ class EventSourceCoordinator {
         var fetchPromises = [Promise<Void>]()
         for each in xmlHandler.attributesWithEventSource {
             guard let eventOrigin = each.eventOrigin else { continue }
-            let tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet, sourceFromEvents: false)
+            let tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet, isSourcedFromEvents: false)
 
             for eachTokenHolder in tokenHolders {
                 guard let tokenId = eachTokenHolder.tokenIds.first else { continue }
