@@ -170,7 +170,6 @@ class ActivitiesViewController: UIViewController {
         return (token: token, activityName: activityName)
     }
 
-// swiftlint:disable function_body_length
     private func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow) -> Activity? {
         guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow) else { return nil }
         var cardAttributes = [AttributeId: AssetInternalValue]()
@@ -241,7 +240,6 @@ class ActivitiesViewController: UIViewController {
                 state: state
         )
     }
-// swiftlint:enable function_body_length
 }
 
 extension ActivitiesViewController: StatefulViewController {

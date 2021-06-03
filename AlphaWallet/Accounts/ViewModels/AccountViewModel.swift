@@ -12,7 +12,7 @@ struct AccountViewModel {
     let walletName: String?
     var ensName: String?
     let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
-    
+
     init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, server: RPCServer, walletName: String?) {
         self.wallet = wallet
         self.current = current
@@ -20,7 +20,7 @@ struct AccountViewModel {
         self.ensName = nil
         self.server = server
         self.walletName = walletName
-        
+
         AccountViewModel.resolveBlockie(for: self, size: 8, scale: 5)
     }
 
@@ -51,7 +51,7 @@ struct AccountViewModel {
         let style = NSMutableParagraphStyle()
         style.alignment = .right
 
-        return .init(string: String() , attributes: [
+        return .init(string: String(), attributes: [
             .font: Fonts.regular(size: 20),
             .foregroundColor: Colors.red,
             .paragraphStyle: style

@@ -163,7 +163,7 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
     }
 }
 
-extension EnabledServersViewController:  PromptViewControllerDelegate {
+extension EnabledServersViewController: PromptViewControllerDelegate {
     func actionButtonTapped(inController controller: PromptViewController) {
         controller.dismiss(animated: true) {
             if let serversSelectedInPreviousMode = self.serversSelectedInPreviousMode {
