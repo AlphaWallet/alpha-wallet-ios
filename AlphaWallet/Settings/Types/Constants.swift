@@ -76,46 +76,6 @@ public struct Constants {
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
 
-    //etherscan-compatible erc20 transaction event APIs
-    //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-    public static let mainnetEtherscanAPIErc20Events = "https://api-cn.etherscan.com/api?module=account&action=tokentx&address="
-    public static let ropstenEtherscanAPIErc20Events = "https://api-ropsten.etherscan.io/api?module=account&action=tokentx&address="
-    public static let kovanEtherscanAPIErc20Events = "https://api-kovan.etherscan.io/api?module=account&action=tokentx&address="
-    public static let rinkebyEtherscanAPIErc20Events = "https://api-rinkeby.etherscan.io/api?module=account&action=tokentx&address="
-    public static let classicAPIErc20Events = "https://blockscout.com/etc/mainnet/api?module=account&action=tokentx&address="
-    public static let xDaiAPIErc20Events = "https://blockscout.com/poa/dai/api?module=account&action=tokentx&address="
-    public static let poaNetworkCoreAPIErc20Events = "https://blockscout.com/poa/core/api?module=account&action=tokentx&address="
-    public static let goerliEtherscanAPIErc20Events = "https://api-goerli.etherscan.io/api?module=account&action=tokentx&address="
-    public static let artisSigma1NetworkCoreAPIErc20Events = "https://explorer.sigma1.artis.network/api?module=account&action=tokentx&address="
-    public static let artisTau1NetworkCoreAPIErc20Events = "https://explorer.tau1.artis.network/api?module=account&action=tokentx&address="
-
-    public static let mainnetEtherscanTokenDetailsWebPageURL = "https://cn.etherscan.com/token/"
-
-    //etherscan-compatible contract details web page
-    public static let mainnetEtherscanContractDetailsWebPageURL = "https://cn.etherscan.com/address/"
-    public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
-    public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
-    public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
-    //Can't use https://blockscout.com/poa/dai/address/ even though it ultimately redirects there because blockscout (tested on 20190620), blockscout.com is only able to show that URL after the address has been searched (with the ?q= URL)
-    public static let xDaiContractPage = "https://blockscout.com/poa/dai/search?q="
-    public static let poaContractPage = "https://blockscout.com/poa/core/search?q="
-    public static let goerliContractPage = "https://goerli.etherscan.io/address/"
-    public static let sokolContractPage = "https://blockscout.com/poa/sokol/search?q="
-    public static let etcContractPage = "https://blockscout.com/etc/mainnet/search?q="
-    public static let callistoContractPage = "https://blockscout.com/callisto/mainnet/search?q="
-    public static let artisSigma1ContractPage = "https://explorer.sigma1.artis.network/search?q="
-    public static let artisTau1ContractPage = "https://explorer.tau1.artis.network/search?q="
-    public static let binanceContractPage = "https://bscscan.com/search?q="
-    public static let binanceTestnetContractPage = "https://testnet.bscscan.com/search?q="
-    public static let hecoContractPage = "https://scan.hecochain.com/address/"
-    public static let hecoTestnetContractPage = "https://scan-testnet.hecochain.com/address/"
-    public static let fantomContractPage = "https://ftmscan.com/address/"
-    public static let fantomTestnetContractPage = "https://ftmscan.com/address/"
-    public static let avalancheContractPage = "https://cchain.explorer.avax.network/address/"
-    public static let avalancheTestnetContractPage = "https://cchain.explorer.avax-test.network/address/"
-    public static let maticContractPage = "https://explorer-mainnet.maticvigil.com/address/"
-    public static let mumbaiContractPage = "https://explorer-mumbai.maticvigil.com/address/"
-
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
