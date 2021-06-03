@@ -55,6 +55,7 @@ enum Analytics {
         case clearBrowserCache = "Clear Browser Cache"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
         case nameWallet = "Name Wallet"
+        case firstWalletAction = "First Wallet Action"
     }
 
     enum Properties: String {
@@ -148,5 +149,11 @@ enum Analytics {
         case transaction
         case token
         case wallet
+    }
+
+    enum FirstWalletAction: String {
+        case create
+        case `import`
+        case watch
     }
 }
