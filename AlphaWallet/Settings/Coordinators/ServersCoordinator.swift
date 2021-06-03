@@ -31,7 +31,9 @@ class ServersCoordinator: Coordinator {
         .avalanche,
         .avalanche_testnet,
         .polygon,
-        .mumbai_testnet
+        .mumbai_testnet,
+        .optimistic,
+        .optimisticKovan,
     ]
 
     private let viewModel: ServersViewModel

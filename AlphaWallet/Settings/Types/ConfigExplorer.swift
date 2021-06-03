@@ -11,6 +11,7 @@ struct ConfigExplorer {
         self.server = server
     }
 
+    //TODO is this still used? Might need to check func body
     func transactionURL(for ID: String) -> (url: URL, name: String?)? {
         let result = explorer(for: server)
         guard let endpoint = result.url else { return .none }
@@ -20,7 +21,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan:
                 return endpoint + "/tx/" + ID
             }
         }()
@@ -29,6 +30,7 @@ struct ConfigExplorer {
         return (url: url, name: result.name)
     }
 
+    //TODO is this still used? Might need to check func body
     func explorerName(for server: RPCServer) -> String? {
         switch server {
         case .main, .kovan, .ropsten, .rinkeby, .goerli:
@@ -55,9 +57,14 @@ struct ConfigExplorer {
             return "Avalanche Explorer"
         case .polygon, .mumbai_testnet:
             return "Polygon Explorer"
+        case .optimistic:
+            return "Optimistic Explorer"
+        case .optimisticKovan:
+            return "Optimistic Kovan Explorer"
         }
     }
 
+    //TODO is this still used? Might need to check func body
     private func explorer(for server: RPCServer) -> (url: String?, name: String?) {
         let nameForServer = explorerName(for: server)
         switch server {
@@ -105,6 +112,10 @@ struct ConfigExplorer {
             return ("https://explorer-mainnet.maticvigil.com", nameForServer)
         case .mumbai_testnet:
             return ("https://explorer-mumbai.maticvigil.com", nameForServer)
+        case .optimistic:
+            return ("https://optimistic.etherscan.io", nameForServer)
+        case .optimisticKovan:
+            return ("https://kovan-optimistic.etherscan.io", nameForServer)
         }
     }
 }
