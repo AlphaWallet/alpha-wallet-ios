@@ -731,6 +731,7 @@ enum RPCServer: Hashable, CaseIterable {
             .avalanche,
             .avalanche_testnet,
             .polygon,
+            .callisto,
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
