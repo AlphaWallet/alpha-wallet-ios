@@ -17,7 +17,7 @@ class GetContractInteractions {
 
     //TODO rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
-        guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) else { return }
+        guard let etherscanURL = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) else { return }
 
         Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
             switch response.result {
@@ -89,7 +89,7 @@ class GetContractInteractions {
 
     //TODO Almost a duplicate of the the ERC20 version. De-dup maybe?
     func getErc721Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
-        guard let etherscanURL = server.etherscanAPIURLForERC721TxList(for: address, startBlock: startBlock) else { return }
+        guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: address, startBlock: startBlock) else { return }
 
         Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
             switch response.result {
@@ -162,13 +162,13 @@ class GetContractInteractions {
     func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, completion: @escaping ([AlphaWallet.Address], Int?) -> Void) {
         let etherscanURL: URL
         if erc20 {
-            if let url = server.etherscanAPIURLForERC20TxList(for: address, startBlock: startBlock) {
+            if let url = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) {
                 etherscanURL = url
             } else {
                 return
             }
         } else {
-            if let url = server.etherscanAPIURLForTransactionList(for: address, startBlock: startBlock) {
+            if let url = server.getEtherscanURLForGeneralTransactionHistory(for: address, startBlock: startBlock) {
                 etherscanURL = url
             } else {
                 return
