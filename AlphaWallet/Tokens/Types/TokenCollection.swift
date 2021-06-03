@@ -122,6 +122,8 @@ extension RPCServer {
         case .avalanche_testnet: return 19
         case .polygon: return 20
         case .mumbai_testnet: return 21
+        case .optimistic: return 22
+        case .optimisticKovan: return 23
         }
     }
 }

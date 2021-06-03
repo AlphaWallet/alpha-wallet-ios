@@ -34,6 +34,8 @@ public struct Constants {
     public static let avalancheTestMagicLinkHost = "test-avalanche.aw.app"
     public static let maticMagicLinkHost = "polygon.aw.app"
     public static let mumbaiTestMagicLinkHost = "test-polygon.aw.app"
+    public static let optimisticMagicLinkHost = "optimistic.aw.app"
+    public static let optimisticTestMagicLinkHost = "optimistic-kovan.aw.app"
 
     public enum Currency {
         static let usd = "USD"
