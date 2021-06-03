@@ -200,14 +200,17 @@ extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
 extension WalletCoordinator: CreateInitialWalletViewControllerDelegate {
 
     func didTapCreateWallet(inViewController viewController: CreateInitialWalletViewController) {
+        logInitialAction(.create)
         createInstantWallet()
     }
 
     func didTapWatchWallet(inViewController viewController: CreateInitialWalletViewController) {
+        logInitialAction(.watch)
         addWalletWith(entryPoint: .watchWallet(address: nil))
     }
 
     func didTapImportWallet(inViewController viewController: CreateInitialWalletViewController) {
+        logInitialAction(.import)
         addWalletWith(entryPoint: .importWallet)
     }
 }
@@ -216,7 +219,6 @@ extension WalletCoordinator: WalletCoordinatorDelegate {
 
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
         coordinator.navigationController.dismiss(animated: false)
-
         removeCoordinator(coordinator)
         delegate?.didFinish(with: account, in: self)
     }
@@ -224,5 +226,12 @@ extension WalletCoordinator: WalletCoordinatorDelegate {
     func didCancel(in coordinator: WalletCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
+    }
+}
+
+// MARK: Analytics
+extension WalletCoordinator {
+    private func logInitialAction(_ action: Analytics.FirstWalletAction) {
+        analyticsCoordinator.log(action: Analytics.Action.firstWalletAction, properties: [Analytics.Properties.type.rawValue: action.rawValue])
     }
 }

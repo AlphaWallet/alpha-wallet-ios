@@ -54,7 +54,7 @@ class AppCoordinator: NSObject, Coordinator {
                 analyticsCoordinator: analyticsService,
                 viewModel: .init(configuration: .summary)
         )
-        coordinator.delegate = self 
+        coordinator.delegate = self
 
         return coordinator
     }()
@@ -451,7 +451,7 @@ extension AppCoordinator: UrlSchemeCoordinatorDelegate {
 }
 
 extension AppCoordinator: AccountsCoordinatorDelegate {
-    
+
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
     }
