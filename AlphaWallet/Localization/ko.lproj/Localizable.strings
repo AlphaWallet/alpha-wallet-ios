@@ -138,6 +138,7 @@
 "addHideTokens.section.newTokens" = "New Token Found";
 "addHideTokens.section.displayedTokens" = "Displayed Tokens";
 "addHideTokens.section.hiddenTokens" = "Hidden Tokens";
+"addHideTokens.section.popularTokens" = "Popular Tokens";
 "transactions.tabbar.item.title" = "내 거래";
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";

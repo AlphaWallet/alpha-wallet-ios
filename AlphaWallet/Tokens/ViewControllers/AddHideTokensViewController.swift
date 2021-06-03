@@ -2,6 +2,7 @@
 
 import UIKit
 import StatefulViewController
+import PromiseKit
 
 protocol AddHideTokensViewControllerDelegate: class {
     func didPressAddToken( in viewController: UIViewController)
@@ -12,15 +13,15 @@ protocol AddHideTokensViewControllerDelegate: class {
 
 class AddHideTokensViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
-    private let sessions: ServerDictionary<WalletSession>
+//    private let sessions: ServerDictionary<WalletSession>
     private var viewModel: AddHideTokensViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(FungibleTokenViewCell.self)
-        tableView.register(NonFungibleTokenViewCell.self)
-        tableView.register(EthTokenViewCell.self)
+        tableView.register(WalletTokenViewCell.self)
+        tableView.register(PopularTokenViewCell.self)
+//        tableView.register(EthTokenViewCell.self)
         tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
         tableView.isEditing = true
         tableView.estimatedRowHeight = 100
@@ -39,9 +40,8 @@ class AddHideTokensViewController: UIViewController {
     private let notificationCenter = NotificationCenter.default
     weak var delegate: AddHideTokensViewControllerDelegate?
 
-    init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) {
+    init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.sessions = sessions
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
 
@@ -147,6 +147,14 @@ class AddHideTokensViewController: UIViewController {
         viewModel.add(token: token)
         reload()
     }
+
+    func add(popularTokens: [PopularToken]) {
+        viewModel.set(allPopularTokens: popularTokens)
+        
+        DispatchQueue.main.async {
+            self.reload()
+        }
+    }
 }
 
 extension AddHideTokensViewController: StatefulViewController {
@@ -169,43 +177,15 @@ extension AddHideTokensViewController: UITableViewDataSource {
         guard let token = viewModel.item(atIndexPath: indexPath) else { return UITableViewCell() }
         let isVisible = viewModel.displayedToken(indexPath: indexPath)
 
-        let session = sessions[token.server]
-        switch token.type {
-        case .nativeCryptocurrency:
-            let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+        switch token {
+        case .walletToken(let tokenObject):
+            let cell: WalletTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(token: tokenObject, assetDefinitionStore: assetDefinitionStore, isVisible: isVisible))
 
-            cell.configure(viewModel: .init(
-                token: token,
-                ticker: viewModel.ticker(for: token),
-                currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                assetDefinitionStore: assetDefinitionStore,
-                isVisible: isVisible
-            ))
             return cell
-        case .erc20:
-            let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token,
-                assetDefinitionStore: assetDefinitionStore,
-                isVisible: isVisible,
-                ticker: viewModel.ticker(for: token)
-            ))
-            return cell
-        case .erc721, .erc721ForTickets:
-            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token,
-                server: token.server,
-                assetDefinitionStore: assetDefinitionStore,
-                isVisible: isVisible
-            ))
-            return cell
-        case .erc875:
-            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(
-                token: token,
-                server: token.server,
-                assetDefinitionStore: assetDefinitionStore,
-                isVisible: isVisible
-            ))
+        case .popularToken(let value):
+            let cell: PopularTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(token: value, isVisible: isVisible))
 
             return cell
         }
@@ -223,28 +203,45 @@ extension AddHideTokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let result: (token: TokenObject, indexPathToInsert: IndexPath)?
+        let promise: Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?>
         let isTokenHidden: Bool
         switch editingStyle {
         case .insert:
-            result = viewModel.addDisplayed(indexPath: indexPath)
+            promise = viewModel.addDisplayed(indexPath: indexPath)
             isTokenHidden = false
         case .delete:
-            result = viewModel.deleteToken(indexPath: indexPath)
+            promise = viewModel.deleteToken(indexPath: indexPath)
             isTokenHidden = true
         case .none:
-            result = nil
+            promise = .value(nil)
             isTokenHidden = false
         }
 
-        if let result = result {
-            delegate?.didMark(token: result.token, in: self, isHidden: isTokenHidden)
-            tableView.performBatchUpdates({
-                tableView.deleteRows(at: [indexPath], with: .automatic)
-                tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
-            }, completion: nil)
-        } else {
+        self.displayLoading()
+
+        promise.done { [weak self] result in
+            guard let strongSelf = self else { return }
+            
+            if let result = result, let delegate = strongSelf.delegate {
+                delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
+                //NOTE: due to a table view BatchUpdates the table view can cracs we apply flag `withTokenCreation` to determine whether we create a new token, an if we do, reload table view
+                if result.withTokenCreation {
+                    tableView.reloadData()
+                } else {
+                    tableView.performBatchUpdates({
+                        tableView.deleteRows(at: [indexPath], with: .automatic)
+                        tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
+                    }, completion: nil)
+                }
+            } else {
+                tableView.reloadData()
+            }
+        }.catch { _ in
             tableView.reloadData()
+            
+            self.displayError(message: "Add token failure")
+        }.finally {
+            self.hideLoading()
         }
     }
 
@@ -252,21 +249,28 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let title = R.string.localizable.walletsHideTokenTitle()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
             guard let strongSelf = self else { return }
-            if let result = strongSelf.viewModel.deleteToken(indexPath: indexPath) {
-                strongSelf.delegate?.didMark(token: result.token, in: strongSelf, isHidden: true)
-                tableView.performBatchUpdates({
-                    tableView.deleteRows(at: [indexPath], with: .automatic)
-                    tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
-                }, completion: nil)
-                completionHandler(true)
-            } else {
-                tableView.reloadData()
-                completionHandler(false)
-            }
+
+            strongSelf.viewModel.deleteToken(indexPath: indexPath).done { result in
+                if let result = result, let delegate = strongSelf.delegate {
+                    delegate.didMark(token: result.token, in: strongSelf, isHidden: true)
+
+                    tableView.performBatchUpdates({
+                        tableView.deleteRows(at: [indexPath], with: .automatic)
+                        tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
+                    }, completion: nil)
+
+                    completionHandler(true)
+                } else {
+                    tableView.reloadData()
+
+                    completionHandler(false)
+                }
+            }.cauterize()
         }
 
         hideAction.backgroundColor = R.color.danger()
         hideAction.image = R.image.hideToken()
+
         let configuration = UISwipeActionsConfiguration(actions: [hideAction])
         configuration.performsFirstActionWithFullSwipe = true
 

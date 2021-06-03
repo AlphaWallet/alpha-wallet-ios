@@ -64,6 +64,30 @@ class FilterTokensCoordinator {
 
         return filteredTokens
     }
+    
+    func filterTokens(tokens: [PopularToken], walletTokens: [TokenObject], filter: WalletFilter) -> [PopularToken] {
+        var filteredTokens: [PopularToken] = tokens.filter { token in
+            !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty
+        }
+
+        switch filter {
+        case .all:
+            break //no-op
+        case .type, .currencyOnly, .assetsOnly, .collectiblesOnly:
+            filteredTokens = []
+        case .keyword(let keyword):
+            let lowercasedKeyword = keyword.trimmed.lowercased()
+            if lowercasedKeyword.isEmpty {
+                break //no-op
+            } else {
+                filteredTokens = filteredTokens.filter {
+                    return $0.name.trimmed.lowercased().contains(lowercasedKeyword)
+                }
+            }
+        }
+
+        return filteredTokens
+    }
 
     func sortDisplayedTokens(tokens: [TokenObject]) -> [TokenObject] {
         let nativeCryptoAddressInDatabase = Constants.nativeCryptoAddressInDatabase.eip55String

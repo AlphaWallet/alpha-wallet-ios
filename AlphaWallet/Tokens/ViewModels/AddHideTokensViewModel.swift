@@ -1,11 +1,13 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 private enum AddHideTokenSections: Int {
     case availableNewTokens
     case displayedTokens
     case hiddenTokens
+    case popularTokens
 
     var description: String {
         switch self {
@@ -15,29 +17,40 @@ private enum AddHideTokenSections: Int {
             return R.string.localizable.addHideTokensSectionDisplayedTokens()
         case .hiddenTokens:
             return R.string.localizable.addHideTokensSectionHiddenTokens()
+        case .popularTokens:
+            return R.string.localizable.addHideTokensSectionPopularTokens()
         }
     }
 }
 
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
 class AddHideTokensViewModel {
-    private let sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens]
+    private let sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens, .popularTokens]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [TokenObject]
-    private var tickers: [AddressAndRPCServer: CoinTicker]
+    private var allPopularTokens: [PopularToken] = []
+
     private var displayedTokens: [TokenObject] = []
     private var hiddenTokens: [TokenObject] = []
+    private var popularTokens: [PopularToken] = []
 
     var searchText: String? {
         didSet {
             filter(tokens: tokens)
         }
     }
+    private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
 
-    init(tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker], filterTokensCoordinator: FilterTokensCoordinator) {
-        self.tickers = tickers
+    init(tokens: [TokenObject], filterTokensCoordinator: FilterTokensCoordinator, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.tokens = tokens
         self.filterTokensCoordinator = filterTokensCoordinator
+        self.singleChainTokenCoordinators = singleChainTokenCoordinators
+        
+        filter(tokens: tokens)
+    }
+
+    func set(allPopularTokens: [PopularToken]) {
+        self.allPopularTokens = allPopularTokens
 
         filter(tokens: tokens)
     }
@@ -66,6 +79,8 @@ class AddHideTokensViewModel {
             return hiddenTokens.count
         case .availableNewTokens:
             return 0
+        case .popularTokens:
+            return popularTokens.count
         }
     }
 
@@ -73,9 +88,7 @@ class AddHideTokensViewModel {
         switch sections[indexPath.section] {
         case .displayedTokens:
             return true
-        case .availableNewTokens:
-            return false
-        case .hiddenTokens:
+        case .availableNewTokens, .popularTokens, .hiddenTokens:
             return false
         }
     }
@@ -88,7 +101,11 @@ class AddHideTokensViewModel {
         filter(tokens: tokens)
     }
 
-    func addDisplayed(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
+    private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
+        singleChainTokenCoordinators.first { $0.isServer(server) }
+    }
+
+    func addDisplayed(indexPath: IndexPath) -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> {
         switch sections[indexPath.section] {
         case .displayedTokens:
             break
@@ -97,40 +114,49 @@ class AddHideTokensViewModel {
             displayedTokens.append(token)
 
             if let sectionIndex = sections.index(of: .displayedTokens) {
-                return (token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex)))
+                return .value((token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex)), withTokenCreation: false))
             }
         case .availableNewTokens:
             break
+        case .popularTokens:
+            let token = popularTokens[indexPath.row]
+
+            return fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> in
+                self.popularTokens.remove(at: indexPath.row)
+                self.displayedTokens.append(token)
+
+                if let sectionIndex = self.sections.index(of: .displayedTokens) {
+                    return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex)), withTokenCreation: true))
+                }
+
+                return .value(nil)
+            }
         }
 
-        return nil
+        return .value(nil)
     }
 
-    func deleteToken(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
+    func deleteToken(indexPath: IndexPath) -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> {
         switch sections[indexPath.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: indexPath.row)
             hiddenTokens.insert(token, at: 0)
 
             if let sectionIndex = sections.index(of: .hiddenTokens) {
-                return (token, IndexPath(row: 0, section: Int(sectionIndex)))
+                return .value((token, IndexPath(row: 0, section: Int(sectionIndex)), withTokenCreation: false))
             }
-        case .hiddenTokens:
-            break
-        case .availableNewTokens:
+        case .hiddenTokens, .availableNewTokens, .popularTokens:
             break
         }
 
-        return nil
+        return .value(nil)
     }
 
     func editingStyle(indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         switch sections[indexPath.section] {
         case .displayedTokens:
             return .delete
-        case .availableNewTokens:
-            return .insert
-        case .hiddenTokens:
+        case .availableNewTokens, .popularTokens, .hiddenTokens:
             return .insert
         }
     }
@@ -139,21 +165,21 @@ class AddHideTokensViewModel {
         switch sections[indexPath.section] {
         case .displayedTokens:
             return true
-        case .availableNewTokens:
-            return false
-        case .hiddenTokens:
+        case .availableNewTokens, .popularTokens, .hiddenTokens:
             return false
         }
     }
 
-    func item(atIndexPath indexPath: IndexPath) -> TokenObject? {
+    func item(atIndexPath indexPath: IndexPath) -> WalletOrPopularToken? {
         switch sections[indexPath.section] {
         case .displayedTokens:
-            return displayedTokens[indexPath.row]
+            return .walletToken(displayedTokens[indexPath.row])
         case .hiddenTokens:
-            return hiddenTokens[indexPath.row]
+            return .walletToken(hiddenTokens[indexPath.row])
         case .availableNewTokens:
             return nil
+        case .popularTokens:
+            return .popularToken(popularTokens[indexPath.row])
         }
     }
 
@@ -164,15 +190,9 @@ class AddHideTokensViewModel {
             displayedTokens.insert(token, at: to.row)
 
             return displayedTokens
-        case .hiddenTokens:
-            return nil
-        case .availableNewTokens:
+        case .hiddenTokens, .availableNewTokens, .popularTokens:
             return nil
         }
-    }
-
-    func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.addressAndRPCServer]
     }
 
     private func filter(tokens: [TokenObject]) {
@@ -187,6 +207,17 @@ class AddHideTokensViewModel {
                 hiddenTokens.append(token)
             }
         }
+        popularTokens = filterTokensCoordinator.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
         displayedTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
     }
+
+    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<TokenObject> {
+        guard let coordinator = singleChainTokenCoordinator(forServer: server) else {
+            return .init(error: RetrieveSingleChainTokenCoordinator())
+        }
+
+        return coordinator.addImportedTokenPromise(forContract: address, onlyIfThereIsABalance: false)
+    }
+
+    private struct RetrieveSingleChainTokenCoordinator: Error { }
 }

@@ -17,7 +17,6 @@ class AddHideTokensCoordinator: Coordinator {
     private var viewModel: AddHideTokensViewModel
     private lazy var viewController: AddHideTokensViewController = .init(
         viewModel: viewModel,
-        sessions: sessions,
         assetDefinitionStore: assetDefinitionStore
     )
     private let tokenCollection: TokenCollection
@@ -26,15 +25,16 @@ class AddHideTokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
-
+    private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
+    private var tokens: [TokenObject]
 
     init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [AddressAndRPCServer: CoinTicker], sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
         self.sessions = sessions
-
+        self.tokens = tokens
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
         self.tokenCollection = tokenCollection
@@ -42,14 +42,18 @@ class AddHideTokensCoordinator: Coordinator {
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
         self.viewModel = AddHideTokensViewModel(
             tokens: tokens,
-            tickers: tickers,
-            filterTokensCoordinator: filterTokensCoordinator
+            filterTokensCoordinator: filterTokensCoordinator,
+            singleChainTokenCoordinators: singleChainTokenCoordinators
         )
     }
 
     func start() {
         viewController.delegate = self
         navigationController.pushViewController(viewController, animated: true)
+
+        popularTokensCollection.fetchTokens().done { [weak self] tokens in
+            self?.viewController.add(popularTokens: tokens)
+        }.cauterize()
     }
 
     @objc func dismiss() {
