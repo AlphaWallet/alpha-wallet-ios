@@ -90,7 +90,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     }
 
     func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]> {
-        firstly {
+        return firstly {
             fetchTickers(forTokens: tokens)
         }.get { [weak self] tickers, tickerIds in
             self?.tickers = tickers
@@ -267,6 +267,18 @@ fileprivate struct Ticker: Codable {
     let platforms: [String: AlphaWallet.Address]
 
     func matches(tokenObject: TokenMappedToTicker) -> Bool {
+        //We just filter out those that we don't think are supported by the API. One problem this helps to alleviate is in the API output, certain tickers have a non-empty platform yet the platform list might not be complete, eg. Ether on Ethereum mainnet:
+        //{
+        //   "symbol" : "eth",
+        //   "id" : "ethereum",
+        //   "name" : "Ethereum",
+        //   "platforms" : {
+        //      "huobi-token" : "0x64ff637fb478863b7468bc97d30a5bf3a428a1fd",
+        //      "binance-smart-chain" : "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
+        //   }
+        //},
+        //This means we can only match solely by symbol, ignoring platform matches. But this means it's easy to match the wrong ticker (by symbol only). Hence, we at least remove those chains we don't think are supported
+        guard isServerSupported(tokenObject.server) else { return false }
         if let (_, contract) = platforms.first(where: { platformMatches($0.key, server: tokenObject.server) }) {
             if contract.sameContract(as: Constants.nullAddress) {
                 return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
@@ -309,6 +321,19 @@ fileprivate struct Ticker: Codable {
         case .binance_smart_chain: return platform == "binance-smart-chain"
         case .avalanche: return platform == "Avalanche"
         case .polygon: return platform == "polygon-pos"
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan:
+            return false
+        }
+    }
+
+    private func isServerSupported(_ server: RPCServer) -> Bool {
+        switch server {
+        case .main: return true
+        case .classic: return true
+        case .xDai: return true
+        case .binance_smart_chain: return true
+        case .avalanche: return true
+        case .polygon: return true
         case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan:
             return false
         }
