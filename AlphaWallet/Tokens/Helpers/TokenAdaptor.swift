@@ -21,7 +21,7 @@ class TokenAdaptor {
     }
 
     //`sourceFromEvents`: We'll usually source from events if available, except when we are actually using this func to create the filter to fetch the events
-    public func getTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool = true) -> [TokenHolder] {
+    public func getTokenHolders(forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
@@ -29,7 +29,7 @@ class TokenAdaptor {
             let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: token)
             switch tokenType {
             case .supported:
-                return getSupportedByNonFungibleJsonTokenHolders(forWallet: account, sourceFromEvents: sourceFromEvents)
+                return getSupportedByNonFungibleJsonTokenHolders(forWallet: account, isSourcedFromEvents: isSourcedFromEvents)
             case .notSupported:
                 return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
             }
@@ -66,12 +66,12 @@ class TokenAdaptor {
         }
     }
 
-    private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool) -> [TokenHolder] {
+    private func getSupportedByNonFungibleJsonTokenHolders(forWallet account: Wallet, isSourcedFromEvents: Bool) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for item in balance {
             let jsonString = item.balance
-            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, sourceFromEvents: sourceFromEvents) {
+            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents) {
                 tokens.append(token)
             }
         }
@@ -157,12 +157,12 @@ class TokenAdaptor {
         XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, sourceFromEvents: Bool) -> Token? {
+    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = nonFungible(fromJsonData: data) else { return nil }
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let event: EventInstance?
-        if sourceFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
+        if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
             let filterValue: String
             if let implicitAttribute = EventSourceCoordinator.convertToImplicitAttribute(string: eventFilter.value) {
