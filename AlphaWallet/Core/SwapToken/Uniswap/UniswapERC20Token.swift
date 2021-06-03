@@ -15,7 +15,7 @@ struct UniswapERC20Token {
 
 extension UniswapERC20Token {
 
-    static func isSupport(token: TokenObject) -> Bool {
+    static func isSupport(token: TokenActionsServiceKey) -> Bool {
         switch token.server {
         case .main:
             return availableTokens.contains(where: { $0.contract.sameContract(as: token.contractAddress) })

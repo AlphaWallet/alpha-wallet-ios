@@ -10,5 +10,5 @@ import UIKit
 protocol BuyTokenURLProviderType {
     var action: String { get }
     
-    func url(token: TokenObject) -> URL?
+    func url(token: TokenActionsServiceKey) -> URL?
 }
