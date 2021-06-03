@@ -27,7 +27,7 @@ class HoneySwap: TokenActionsProvider, SwapTokenURLProviderType {
     var theme: Theme = .dark
     var method: Method = .swap
 
-    func url(token: TokenObject) -> URL? {
+    func url(token: TokenActionsServiceKey) -> URL? {
         var components = URLComponents()
         components.path = method.rawValue
         components.queryItems = [
@@ -87,13 +87,13 @@ class HoneySwap: TokenActionsProvider, SwapTokenURLProviderType {
         }
     }
 
-    func actions(token: TokenObject) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
         return [
             .init(type: .swap(service: self))
         ]
     }
 
-    func isSupport(token: TokenObject) -> Bool {
+    func isSupport(token: TokenActionsServiceKey) -> Bool {
         switch token.server {
         case .xDai:
             return true

@@ -49,7 +49,8 @@ class FilterTokensCoordinator {
                         let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
                     } else if lowercasedKeyword == FilterKeys.swap.rawValue {
-                        return tokenActionsService.isSupport(token: $0)
+                        let key = TokenActionsServiceKey(tokenObject: $0)
+                        return tokenActionsService.isSupport(token: key)
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||
