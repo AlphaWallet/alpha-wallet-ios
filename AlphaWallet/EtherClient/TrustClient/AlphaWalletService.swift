@@ -126,7 +126,7 @@ extension AlphaWalletService: TargetType {
             return .requestParameters(parameters: [
                 "vs_currency": currency,
                 "ids": ids,
-                "price_change_percentage" : "24h",
+                "price_change_percentage": "24h",
                 "page": page,
                 //Max according to https://www.coingecko.com/en/api
                 "per_page": 250,

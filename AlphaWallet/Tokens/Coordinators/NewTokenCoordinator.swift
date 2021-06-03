@@ -135,7 +135,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
     }
 
     private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) -> Promise<TokenType> {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return .init() { _ in } }
+        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return .init { _ in } }
         return Promise { seal in
             coordinator.fetchContractData(for: address) { [weak self] (data) in
                 guard let strongSelf = self else { return }

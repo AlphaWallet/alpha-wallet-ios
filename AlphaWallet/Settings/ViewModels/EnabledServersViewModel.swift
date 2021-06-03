@@ -54,7 +54,7 @@ struct EnabledServersViewModel {
     }
 
     func serverCount(forMode mode: Mode) -> Int {
-        guard mode == self.mode else { return 0}
+        guard mode == self.mode else { return 0 }
         switch mode {
         case .testnet:
             return testnets.count
