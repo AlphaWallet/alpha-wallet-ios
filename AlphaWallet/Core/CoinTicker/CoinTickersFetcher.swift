@@ -321,7 +321,8 @@ fileprivate struct Ticker: Codable {
         case .binance_smart_chain: return platform == "binance-smart-chain"
         case .avalanche: return platform == "Avalanche"
         case .polygon: return platform == "polygon-pos"
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan:
+        case .fantom: return platform == "fantom"
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan:
             return false
         }
     }
