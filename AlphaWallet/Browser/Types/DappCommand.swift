@@ -60,6 +60,10 @@ struct DappCommandObjectValue: Decodable {
                 value = stringValue
                 eip712v3And4Data = nil
             }
+        } else if let boolValue = try? container.decode(Bool.self) {
+            //TODO not sure if we actually need the handle bools here. But just to make sure an additional Bool doesn't break the creation of `[String: DappCommandObjectValue]` and hence `DappCommand`, we convert it to a `String`
+            value = String(boolValue)
+            eip712v3And4Data = nil
         } else {
             var arrayContainer = try coder.unkeyedContainer()
             while !arrayContainer.isAtEnd {
