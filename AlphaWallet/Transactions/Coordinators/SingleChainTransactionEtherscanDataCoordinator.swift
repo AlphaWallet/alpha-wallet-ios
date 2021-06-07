@@ -473,8 +473,12 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
             firstly {
                 coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
-            }.done(on: queue, { transactions in
+            }.then(on: .main, { transactions -> Promise<[TransactionInstance]> in
+                //NOTE: we want to perform notification creating on main thread
                 coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
+
+                return .value(transactions)
+            }).done(on: queue, { transactions in
                 coordinator.update(items: transactions)
             }).catch { e in
                 coordinator.handleError(error: e)
