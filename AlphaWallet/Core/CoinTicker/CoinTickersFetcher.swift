@@ -11,19 +11,15 @@ import SwiftyJSON
 
 struct TokenMappedToTicker: Hashable {
     let symbol: String
+    let name: String
     let contractAddress: AlphaWallet.Address
     let server: RPCServer
 
     init(tokenObject: TokenObject) {
         symbol = tokenObject.symbol
+        name = tokenObject.name
         contractAddress = tokenObject.contractAddress
         server = tokenObject.server
-    }
-
-    init(symbol: String, contractAddress: AlphaWallet.Address, server: RPCServer) {
-        self.symbol = symbol
-        self.contractAddress = contractAddress
-        self.server = server
     }
 }
 
@@ -288,7 +284,7 @@ fileprivate struct Ticker: Codable {
                 return false
             }
         } else {
-            return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
+            return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase && name.localizedLowercase == tokenObject.name.localizedLowercase
         }
     }
 
