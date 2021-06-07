@@ -57,7 +57,7 @@ struct TokenViewControllerViewModel {
                 case .xDai:
                     return [.init(type: .erc20Send), .init(type: .xDaiBridge), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: key)
                 case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan:
-                    return actions + tokenActionsProvider.actions(token: token)
+                    return actions + tokenActionsProvider.actions(token: key)
                 }
             }
         } else {
