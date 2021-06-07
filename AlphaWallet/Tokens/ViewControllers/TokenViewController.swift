@@ -232,12 +232,12 @@ class TokenViewController: UIViewController {
             case .xDaiBridge:
                 delegate?.shouldOpen(url: Constants.xDaiBridge, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
             case .buy(let service):
-                var tokenObject: TokenObject?
+                var tokenObject: TokenActionsServiceKey?
                 switch transactionType {
                 case .nativeCryptocurrency(let token, _, _):
-                    tokenObject = token
+                    tokenObject = TokenActionsServiceKey(tokenObject: token)
                 case .ERC20Token(let token, _, _):
-                    tokenObject = token
+                    tokenObject = TokenActionsServiceKey(tokenObject: token)
                 case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                     tokenObject = .none
                 }
