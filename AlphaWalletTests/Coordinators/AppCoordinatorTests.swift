@@ -34,8 +34,10 @@ class AppCoordinatorTests: XCTestCase {
 
             coordinator.start()
 
-            XCTAssertEqual(3, coordinator.coordinators.count)
-            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
+            XCTAssertEqual(5, coordinator.coordinators.count)
+
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[1] is UITabBarController)
         } catch {
             XCTAssertThrowsError(error)
         }
@@ -88,10 +90,11 @@ class AppCoordinatorTests: XCTestCase {
             )
             coordinator.start()
 
-            coordinator.showTransactions(for: .make())
+            coordinator.showTransactions(for: .make(), animated: true)
 
-            XCTAssertEqual(3, coordinator.coordinators.count)
-            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
+            XCTAssertEqual(5, coordinator.coordinators.count)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
+            XCTAssertTrue(coordinator.navigationController.viewControllers[1] is UITabBarController)
         } catch {
             XCTAssertThrowsError(error)
         }
