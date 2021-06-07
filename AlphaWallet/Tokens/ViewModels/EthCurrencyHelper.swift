@@ -28,6 +28,18 @@ class EthCurrencyHelper {
         return ticker?.price_usd
     }
 
+    func valueChanged24h(value: NSDecimalNumber?) -> Double? {
+        guard let fiatValue = fiatValue(value: value), let ticker = ticker else { return .none }
+
+        return fiatValue * ticker.percent_change_24h / 100
+    }
+
+    func fiatValue(value: NSDecimalNumber?) -> Double? {
+        guard let value = value, let ticker = ticker else { return .none }
+
+        return value.doubleValue * ticker.price_usd
+    }
+
     private var percentageChange24h: Double? {
         if let percent_change_24h = ticker?.percent_change_24h {
             return percent_change_24h.rounded(to: 2)
@@ -49,14 +61,6 @@ class EthCurrencyHelper {
             return percentChange < 0
         } else {
             return false
-        }
-    }
-
-    public func valueChanged24h(currencyAmountWithoutSymbol: Double?) -> String? {
-        if let percentChange = percentageChange24h, let value = currencyAmountWithoutSymbol {
-            return NumberFormatter.usd.string(from: value * percentChange / 100)
-        } else {
-            return nil
         }
     }
 

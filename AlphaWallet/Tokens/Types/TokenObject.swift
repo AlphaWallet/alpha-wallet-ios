@@ -79,6 +79,10 @@ class TokenObject: Object {
         self.isDisabled = isDisabled
         self.type = type
     }
+
+    var optionalDecimalValue: NSDecimalNumber? {
+        return EtherNumberFormatter.plain.string(from: valueBigInt, decimals: decimals).optionalDecimalValue
+    }
     
     var contractAddress: AlphaWallet.Address {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
