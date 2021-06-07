@@ -55,7 +55,8 @@ class SettingsCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             promptBackupCoordinator: promptBackupCoordinator,
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            viewModel: .init(configuration: .changeWallets)
         )
 
         XCTAssertFalse(delegate.deleteDelegateMethodCalled)

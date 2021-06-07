@@ -169,7 +169,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     deinit {
-//        XMLHandler.callForAssetAttributeCoordinators = nil
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
     }
@@ -594,18 +593,6 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-//    private func restart(for account: Wallet, in coordinator: TransactionCoordinator, reason: RestartReason) {
-//        navigationController.dismiss(animated: false)
-//        coordinator.navigationController.dismiss(animated: true)
-//        coordinator.stop()
-//        removeAllCoordinators()
-//        OpenSea.resetInstances()
-//        disconnectWalletConnectSessionsSelectively(for: reason)
-//        showTabBar(for: account)
-//        fetchXMLAssetDefinitions()
-//        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
-//    }
-
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason) {
         switch reason {
         case .changeLocalization:
@@ -841,11 +828,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
-//        guard let transactionCoordinator = transactionCoordinator else {
-//            return
-//        }
-
-//        restart(for: account, in: transactionCoordinator, reason: reason)
         OpenSea.resetInstances()
         disconnectWalletConnectSessionsSelectively(for: reason)
 
