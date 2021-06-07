@@ -394,6 +394,8 @@ class TokensDataStore {
         var knownToBeNotERC875 = false
         withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
             guard let strongSelf = self else { return }
+            //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
+            //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
             strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
                 guard self != nil else { return }
                 switch result {
