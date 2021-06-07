@@ -19,12 +19,6 @@ struct TokenMappedToTicker: Hashable {
         contractAddress = tokenObject.contractAddress
         server = tokenObject.server
     }
-
-    init(symbol: String, contractAddress: AlphaWallet.Address, server: RPCServer) {
-        self.symbol = symbol
-        self.contractAddress = contractAddress
-        self.server = server
-    }
 }
 
 protocol CoinTickersFetcherType {
