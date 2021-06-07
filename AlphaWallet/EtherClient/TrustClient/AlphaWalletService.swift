@@ -97,27 +97,20 @@ extension AlphaWalletService: TargetType {
     var task: Task {
         switch self {
         case .getTransactions(_, let server, let address, let startBlock, let endBlock, let sortOrder):
-            switch server {
-            case .main, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan:
-                return .requestParameters(parameters: [
-                    "module": "account",
-                    "action": "txlist",
-                    "address": address,
-                    "startblock": startBlock,
-                    "endblock": endBlock,
-                    "sort": sortOrder.rawValue,
-                    "apikey": Constants.Credentials.etherscanKey,
-                ], encoding: URLEncoding())
-            case .classic, .callisto, .custom, .poa, .sokol, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet:
-                return .requestParameters(parameters: [
-                    "module": "account",
-                    "action": "txlist",
-                    "address": address,
-                    "startblock": startBlock,
-                    "endblock": endBlock,
-                    "sort": sortOrder.rawValue,
-                ], encoding: URLEncoding())
+            var parameters: [String: Any] = [
+                "module": "account",
+                "action": "txlist",
+                "address": address,
+                "startblock": startBlock,
+                "endblock": endBlock,
+                "sort": sortOrder.rawValue,
+            ]
+            if let apiKey = server.etherscanApiKey {
+                parameters["apikey"] = apiKey
+            } else {
+                //no-op
             }
+            return .requestParameters(parameters: parameters, encoding: URLEncoding())
         case .register(_, let device):
             return .requestJSONEncodable(device)
         case .unregister(_, let device):
