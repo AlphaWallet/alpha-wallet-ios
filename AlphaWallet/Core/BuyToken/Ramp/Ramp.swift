@@ -14,7 +14,8 @@ struct Ramp: TokenActionsProvider, BuyTokenURLProviderType {
     }
 
     var account: Wallet
-
+    private let queue: DispatchQueue = .global()
+    
     func url(token: TokenActionsServiceKey) -> URL? {
         switch token.server {
         case .xDai:
@@ -60,17 +61,17 @@ struct Ramp: TokenActionsProvider, BuyTokenURLProviderType {
         let config = Config()
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.rampAssets(config: config)).map { response -> RampAssetsResponse in
+        provider.request(.rampAssets(config: config), callbackQueue: queue).map(on: queue, { response -> RampAssetsResponse in
             try JSONDecoder().decode(RampAssetsResponse.self, from: response.data)
-        }.map { data -> [Asset] in
+        }).map(on: queue, { data -> [Asset] in
             return data.assets
-        }.done { response in
+        }).done(on: queue, { response in
             Self.assets = response
-        }.catch { error in
+        }).catch(on: queue, { error in
             let service = AlphaWalletService.rampAssets(config: config)
             let url = service.baseURL.appendingPathComponent(service.path)
             RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
-        }
+        })
     }
 }
 
