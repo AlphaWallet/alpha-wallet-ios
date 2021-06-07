@@ -140,7 +140,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         switch error {
         case .insufficientFunds:
             let ramp = Ramp(account: configurator.session.account)
-            if let url = ramp.url(token: TokensDataStore.etherToken(forServer: server)) {
+            if let url = ramp.url(token: TokenActionsServiceKey(tokenObject: TokensDataStore.etherToken(forServer: server))) {
                 delegate?.didPressOpenWebPage(url, in: confirmationViewController)
             } else {
                 let fallbackUrl = URL(string: "https://alphawallet.com/browser-item-category/utilities/")!

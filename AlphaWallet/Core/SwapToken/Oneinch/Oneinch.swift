@@ -32,7 +32,7 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
     private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
     private let queue = DispatchQueue(label: "com.Oneinch.updateQueue")
 
-    func url(token: TokenObject) -> URL? {
+    func url(token: TokenActionsServiceKey) -> URL? {
         var components = URLComponents()
         components.path = Oneinch.referralSlug + "/" + subpath(inputAddress: token.contractAddress)
         //NOTE: URLComponents doesn't allow path to contain # symbol
@@ -47,13 +47,13 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
         }.joined(separator: "/")
     }
 
-    func actions(token: TokenObject) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
         return [
             .init(type: .swap(service: self))
         ]
     }
 
-    func isSupport(token: TokenObject) -> Bool {
+    func isSupport(token: TokenActionsServiceKey) -> Bool {
         switch token.server {
         case .main:
             return availableTokens[token.contractAddress] != nil

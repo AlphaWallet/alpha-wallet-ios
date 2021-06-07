@@ -26,7 +26,7 @@ struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
     var theme: Theme = .dark
     var method: Method = .swap
 
-    func url(token: TokenObject) -> URL? {
+    func url(token: TokenActionsServiceKey) -> URL? {
         let input = Input.input(token.contractAddress)
         var components = URLComponents()
         components.path = method.rawValue
@@ -87,13 +87,13 @@ struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
         }
     }
 
-    func actions(token: TokenObject) -> [TokenInstanceAction] {
+    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
         return [
             .init(type: .swap(service: self))
         ]
     }
 
-    func isSupport(token: TokenObject) -> Bool {
+    func isSupport(token: TokenActionsServiceKey) -> Bool {
         return UniswapERC20Token.isSupport(token: token)
     }
 }
