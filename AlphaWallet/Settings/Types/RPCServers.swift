@@ -248,7 +248,7 @@ enum RPCServer: Hashable, CaseIterable {
          etherscanURLForGeneralTransactionHistory.flatMap {
              let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
              if let startBlock = startBlock {
-                 return url?.appendingQueryString("startBlock=\(startBlock)")
+                 return url?.appendingQueryString("startblock=\(startBlock)")
              } else {
                  return url
              }
@@ -259,7 +259,7 @@ enum RPCServer: Hashable, CaseIterable {
         etherscanURLForTokenTransactionHistory.flatMap {
             let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
             if let startBlock = startBlock {
-                return url?.appendingQueryString("startBlock=\(startBlock)")
+                return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
                 return url
             }
@@ -270,7 +270,7 @@ enum RPCServer: Hashable, CaseIterable {
         etherscanURLForERC721TransactionHistory.flatMap {
             let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
             if let startBlock = startBlock {
-                return url?.appendingQueryString("startBlock=\(startBlock)")
+                return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
                 return url
             }
