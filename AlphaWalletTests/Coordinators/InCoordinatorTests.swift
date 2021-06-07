@@ -24,20 +24,27 @@ class InCoordinatorTests: XCTestCase {
     func testShowTabBar() {
         let config: Config = .make()
         let wallet: Wallet = .make()
-
+        let navigationController = FakeNavigationController()
+        let fas = FakeAnalyticsService()
+        let keystore = FakeKeystore(wallets: [wallet])
+        let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
         let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
+            navigationController: navigationController,
             wallet: .make(),
-            keystore: FakeKeystore(wallets: [wallet]),
+            keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
             analyticsCoordinator: FakeAnalyticsService(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            promptBackupCoordinator: pbc,
+            accountsCoordinator: ac
         )
 
-        coordinator.start()
+        coordinator.start(animated: false)
 
-        let tabbarController = coordinator.navigationController.viewControllers[0] as? UITabBarController
+        XCTAssert(coordinator.navigationController.viewControllers[0] is AccountsViewController)
+        let tabbarController = coordinator.navigationController.viewControllers[1] as? UITabBarController
 
         XCTAssertNotNil(tabbarController)
 
@@ -58,6 +65,11 @@ class InCoordinatorTests: XCTestCase {
                 account2
             ]
         )
+
+        let navigationController = FakeNavigationController()
+        let fas = FakeAnalyticsService()
+        let pbc = PromptBackupCoordinator(keystore: keystore, wallet: account1, config: .make(), analyticsCoordinator: fas)
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
             wallet: .make(),
@@ -65,20 +77,27 @@ class InCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            promptBackupCoordinator: pbc,
+            accountsCoordinator: ac
         )
 
-        coordinator.showTabBar(for: account1)
+        coordinator.showTabBar(for: account1, animated: false)
 
         XCTAssertEqual(coordinator.keystore.currentWallet, account1)
 
-        coordinator.showTabBar(for: account2)
+        coordinator.showTabBar(for: account2, animated: false)
 
         XCTAssertEqual(coordinator.keystore.currentWallet, account2)
     }
 
     func testShowSendFlow() {
         let wallet: Wallet = .make()
+        let navigationController = FakeNavigationController()
+        let fas = FakeAnalyticsService()
+        let keystore = FakeKeystore()
+        let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
         let coordinator = InCoordinator(
                 navigationController: FakeNavigationController(),
                 wallet: wallet,
@@ -86,9 +105,11 @@ class InCoordinatorTests: XCTestCase {
                 assetDefinitionStore: AssetDefinitionStore(),
                 config: .make(),
                 analyticsCoordinator: FakeAnalyticsService(),
-                urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+                urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+                promptBackupCoordinator: pbc,
+                accountsCoordinator: ac
         )
-        coordinator.showTabBar(for: .make())
+        coordinator.showTabBar(for: .make(), animated: false)
 
         coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil)), server: .main, navigationController: coordinator.navigationController)
 
@@ -98,16 +119,23 @@ class InCoordinatorTests: XCTestCase {
 
     func testShowRequstFlow() {
         let wallet: Wallet = .make()
+        let navigationController = FakeNavigationController()
+        let fas = FakeAnalyticsService()
+        let keystore = FakeKeystore()
+        let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
         let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
+            navigationController: navigationController,
             wallet: wallet,
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            promptBackupCoordinator: pbc,
+            accountsCoordinator: ac
         )
-        coordinator.showTabBar(for: .make())
+        coordinator.showTabBar(for: .make(), animated: false)
 
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
@@ -116,18 +144,26 @@ class InCoordinatorTests: XCTestCase {
     }
 
     func testShowTabDefault() {
+        let navigationController = FakeNavigationController()
+        let fas = FakeAnalyticsService()
+        let keystore = FakeKeystore()
+        let pbc = PromptBackupCoordinator(keystore: keystore, wallet: .make(), config: .make(), analyticsCoordinator: fas)
+        let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
+
         let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
+            navigationController: navigationController,
             wallet: .make(),
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            promptBackupCoordinator: pbc,
+            accountsCoordinator: ac
         )
-        coordinator.showTabBar(for: .make())
+        coordinator.showTabBar(for: .make(), animated: false)
 
-        let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
+        let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
 
         XCTAssert(viewController is TokensViewController)
     }
@@ -155,20 +191,26 @@ class InCoordinatorTests: XCTestCase {
         case .success(let account):
             let wallet = Wallet(type: .real(account))
             keystore.recentlyUsedWallet = wallet
+            let navigationController = FakeNavigationController()
+            let fas = FakeAnalyticsService()
+            let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
+            let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets))
             let coordinator = InCoordinator(
-                    navigationController: FakeNavigationController(),
+                    navigationController: navigationController,
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
                     config: .make(),
                     analyticsCoordinator: FakeAnalyticsService(),
-                    urlSchemeCoordinator: FakeUrlSchemeCoordinator.make()
+                    urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+                    promptBackupCoordinator: pbc,
+                    accountsCoordinator: ac
             )
-            coordinator.showTabBar(for: wallet)
+            coordinator.showTabBar(for: wallet, animated: false)
 
             coordinator.showTab(.wallet)
 
-            let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
+            let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
 
             XCTAssert(viewController is TokensViewController)
         case .failure:
