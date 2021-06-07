@@ -467,7 +467,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         //NOTE: Push existing view controller to the app navigation stack
         if let pendingCoordinator = pendingInCoordinator, keystore.currentWallet == account {
-            addCoordinator(coordinator)
+            addCoordinator(pendingCoordinator)
 
             pendingCoordinator.showTabBar(animated: true)
         } else {
