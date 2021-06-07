@@ -66,33 +66,31 @@ struct FungibleTokenViewCellViewModel {
     private var valuePercentageChangeValue: String {
         switch EthCurrencyHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
-            return "▲ (\(percentageChange24h)%)"
+            return "▲ \(percentageChange24h)%"
         case .depreciate(let percentageChange24h):
-            return "▼ (\(percentageChange24h)%)"
+            return "▼ \(percentageChange24h)%"
         case .none:
             return "-"
         }
     }
 
-    private var marketPriceValue: String {
-        if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
-            return NumberFormatter.usd.string(from: value) ?? "-"
+    private var priceChangeUSDValue: String {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+            return NumberFormatter.usd.string(from: result) ?? "-"
         } else {
             return "-"
         }
     }
 
-    var marketPriceAttributedString: NSAttributedString {
-        return NSAttributedString(string: marketPriceValue, attributes: [
+    var priceChangeUSDAttributedString: NSAttributedString {
+        return NSAttributedString(string: priceChangeUSDValue, attributes: [
             .foregroundColor: Screen.TokenCard.Color.valueChangeLabel,
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
     }
     
     private var fiatValue: String {
-        let amount = EtherNumberFormatter.plain.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
-        if let value = amount.optionalDecimalValue, let ticker = ticker {
-            let fiatValue = value.doubleValue * ticker.price_usd
+        if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.optionalDecimalValue) {
             return NumberFormatter.usd.string(from: fiatValue) ?? "-"
         } else {
             return "-"

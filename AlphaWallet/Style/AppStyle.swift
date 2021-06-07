@@ -257,9 +257,9 @@ enum Screen {
     enum TokenCard {
         enum Font {
             static let title: UIFont = Fonts.regular(size: 20)
-            static let subtitle = Fonts.regular(size: 12)
+            static let subtitle = Fonts.regular(size: 15)
             static let blockChainName = Fonts.semibold(size: 12)
-            static let valueChangeLabel = Fonts.regular(size: 12)
+            static let valueChangeLabel = Fonts.regular(size: 15)
             static let placeholderLabel = Fonts.regular(size: 17)
             static let valueChangeValue = Fonts.semibold(size: 17)
         }

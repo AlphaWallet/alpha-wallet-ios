@@ -8,14 +8,14 @@ class EthTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
     private let apprecation24hoursLabel = UILabel()
-    private let marketPriceLabel = UILabel()
+    private let priceChangeLabel = UILabel()
     private let fiatValueLabel = UILabel()
     private let cryptoValueLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, apprecation24hoursLabel, marketPriceLabel]
+        [titleLabel, apprecation24hoursLabel, priceChangeLabel]
     }
 
-    private lazy var changeValueContainer: UIView = [marketPriceLabel, apprecation24hoursLabel].asStackView(spacing: 5)
+    private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursLabel].asStackView(spacing: 5)
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -31,7 +31,7 @@ class EthTokenViewCell: UITableViewCell {
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
         apprecation24hoursLabel.textAlignment = .center
-        marketPriceLabel.textAlignment = .center
+        priceChangeLabel.textAlignment = .center
         fiatValueLabel.textAlignment = .center
         fiatValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         fiatValueLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -73,7 +73,7 @@ class EthTokenViewCell: UITableViewCell {
         apprecation24hoursLabel.attributedText = viewModel.apprecation24hoursAttributedString
         apprecation24hoursLabel.backgroundColor = viewModel.apprecation24hoursBackgroundColor
 
-        marketPriceLabel.attributedText = viewModel.marketPriceAttributedString
+        priceChangeLabel.attributedText = viewModel.priceChangeUSDAttributedString
 
         fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 
@@ -89,6 +89,6 @@ class EthTokenViewCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        marketPriceLabel.layer.cornerRadius = 2.0
+        priceChangeLabel.layer.cornerRadius = 2.0
     }
 }
