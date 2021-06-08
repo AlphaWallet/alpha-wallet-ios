@@ -850,7 +850,7 @@ class TokensDataStore {
             }
         }
     }
-
+    
     enum TokenBalanceUpdateAction {
         case updateJsonProperty(String, Any)
     }

@@ -139,6 +139,7 @@
 "addHideTokens.section.newTokens" = "找到新通证";
 "addHideTokens.section.displayedTokens" = "显示的通证";
 "addHideTokens.section.hiddenTokens" = "隐藏的通证";
+"addHideTokens.section.popularTokens" = "Popular Tokens";
 "transactions.tabbar.item.title" = "我的账单";
 "transactions.received.ether" = "您已收到%@ %@";
 "transactions.received.ether.notification.prompt" = "是否在收到%@时允许通知？";
