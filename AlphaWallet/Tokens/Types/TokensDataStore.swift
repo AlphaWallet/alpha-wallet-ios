@@ -11,8 +11,8 @@ enum TokenError: Error {
     case failedToFetch
 }
 
-protocol TokensDataStoreDelegate: AnyObject {
-    func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
+protocol TokensDataStoreDelegate: class {
+    func didUpdate(in dataStore: TokensDataStore, refreshImmediately: Bool)
 }
 
 protocol TokensDataStorePriceDelegate: AnyObject {
@@ -73,7 +73,6 @@ class TokensDataStore {
         return GetDecimalsCoordinator(forServer: server)
     }()
 
-    private let filterTokensCoordinator: FilterTokensCoordinator
     private let account: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
@@ -170,10 +169,8 @@ class TokensDataStore {
             account: Wallet,
             server: RPCServer,
             config: Config,
-            assetDefinitionStore: AssetDefinitionStore,
-            filterTokensCoordinator: FilterTokensCoordinator
+            assetDefinitionStore: AssetDefinitionStore
     ) {
-        self.filterTokensCoordinator = filterTokensCoordinator
         self.account = account
         self.server = server
         self.config = config
@@ -562,8 +559,8 @@ class TokensDataStore {
         let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(contract: $0, tokens: tokens) }
         firstly {
             when(resolved: promises)
-        }.done { _ in
-            self.updateDelegate()
+        }.done { [weak self] _ in
+            self?.updateDelegate()
         }
     }
 
@@ -581,10 +578,14 @@ class TokensDataStore {
     }
 
     private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<String> {
-        firstly {
+        struct Error: Swift.Error {
+        }
+
+        return firstly {
             Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
-        }.then {
-            self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
+        }.then { [weak self] uri -> Promise<String> in
+            guard let strongSelf = self else { return .init(error: Error()) }
+            return strongSelf.fetchTokenJson(forTokenId: tokenId, uri: uri, address: address, tokens: tokens)
         }.recover { _ in
             var jsonDictionary = JSON()
             if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
@@ -694,8 +695,7 @@ class TokensDataStore {
     private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
 
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: enabledObject, tickers: tickers)
-        delegate?.didUpdate(result: .success(tokensViewModel), refreshImmediately: refreshImmediately)
+        delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
     }
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
@@ -753,7 +753,7 @@ class TokensDataStore {
 
         //TODO: save existed sort index and displaying state
         for token in tokens {
-            if let object = self.realm.object(ofType: TokenObject.self, forPrimaryKey: token.primaryKey) {
+            if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: token.primaryKey) {
                 token.sortIndex = object.sortIndex
                 token.shouldDisplay = object.shouldDisplay
             }

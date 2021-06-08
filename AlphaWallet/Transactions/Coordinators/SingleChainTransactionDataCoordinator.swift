@@ -11,7 +11,6 @@ protocol SingleChainTransactionDataCoordinator: Coordinator {
 
     var delegate: SingleChainTransactionDataCoordinatorDelegate? { get set }
 
-    var session: WalletSession { get }
     func start()
     func stopTimers()
     func runScheduledTimers()

@@ -46,24 +46,31 @@ class BalanceCoordinator: BalanceCoordinatorType {
         self.wallet = wallet
         self.server = server
         self.storage = storage
+        
         //Since this is called at launch, we don't want it to block launching
         DispatchQueue.global().async {
-            DispatchQueue.main.async { [weak self] in
-                self?.storage.refreshBalance()
+            DispatchQueue.main.async { [weak storage] in
+                storage?.refreshBalance()
             }
         }
 
-        storage.tokensModel.subscribe {[weak self] tokensModel in
+        storage.tokensModel.subscribe { [weak self, weak storage] tokensModel in
             let etherToken = TokensDataStore.etherToken(forServer: server)
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                 return
             }
-            let ticker = self?.storage.coinTicker(for: eth)
+
+            let ticker = storage?.coinTicker(for: eth)
             self?.balance = Balance(value: BigInt(eth.value, radix: 10) ?? BigInt(0))
             self?.currencyRate = ticker?.rate
             self?.update()
         }
     }
+
+    deinit {
+        print("\(self).deinit")
+    }
+
     func refresh() {
         storage.refreshBalance()
     }

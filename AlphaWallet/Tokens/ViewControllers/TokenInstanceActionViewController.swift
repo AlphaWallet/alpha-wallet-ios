@@ -191,7 +191,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             let contract = transactionFunction.originContractOrRecipientAddress
             let tokenId = strongSelf.tokenId
 
-            guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) != nil else { return }
+            guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, account: strongSelf.session.account, keystore: strongSelf.keystore) != nil else { return }
 
             strongSelf.delegate?.confirmTransactionSelected(in: strongSelf, tokenObject: strongSelf.tokenObject, contract: contract, tokenId: tokenId, values: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore, transactionFunction: transactionFunction)
 

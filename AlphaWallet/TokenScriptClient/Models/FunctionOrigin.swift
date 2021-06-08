@@ -251,7 +251,7 @@ struct FunctionOrigin {
         }
     }
 
-    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession) -> ResultResult<(UnconfirmedTransaction, DecodedFunctionCall), FunctionError>.t {
+    func makeUnConfirmedTransaction(withTokenObject tokenObject: TokenObject, tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> ResultResult<(UnconfirmedTransaction, DecodedFunctionCall), FunctionError>.t {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
@@ -261,18 +261,18 @@ struct FunctionOrigin {
             return .init(error: FunctionError.postTransaction)
         case .paymentTransaction:
             payload = .init()
-            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
+            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) else {
                 return .failure(FunctionError.formValue)
             }
             functionCallMetaData = .nativeCryptoTransfer(value: val)
             value = val
         case .functionTransaction:
-            guard let (data, metadata) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else {
+            guard let (data, metadata) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) else {
                 return .failure(FunctionError.formPayload)
             }
             payload = data
             functionCallMetaData = metadata
-            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
+            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) ?? 0
         }
         //TODO feels ike everything can just be in `.tokenScript`. But have to check dapp, it includes other parameters like gas
         return .success((
@@ -280,7 +280,7 @@ struct FunctionOrigin {
                 functionCallMetaData))
     }
 
-    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
+    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet, keystore: Keystore) -> (Data?, BigUInt)? {
         assert(functionType.isTransaction)
         let payload: Data?
         let value: BigUInt
@@ -289,12 +289,12 @@ struct FunctionOrigin {
             return nil
         case .paymentTransaction:
             payload = nil
-            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
+            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) else { return nil }
             value = val
         case .functionTransaction:
-            guard let (data, _) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
+            guard let (data, _) = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) else { return nil }
             payload = data
-            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
+            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: account) ?? 0
         }
         return (payload, value)
     }

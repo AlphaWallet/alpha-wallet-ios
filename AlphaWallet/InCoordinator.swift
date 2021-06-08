@@ -174,7 +174,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     deinit {
-        XMLHandler.callForAssetAttributeCoordinators = nil
+        XMLHandler.callForAssetAttributeCoordinators = .init()
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
     }
@@ -235,7 +235,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
-        let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: filterTokensCoordinator)
+        let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore)
         storage.priceDelegate = self
         return storage
     }
@@ -250,8 +250,9 @@ class InCoordinator: NSObject, Coordinator {
         let tokensStorage = tokensStorages[server]
 
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
-            guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
             let etherToken = TokensDataStore.etherToken(forServer: server)
+            guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
+            
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
             //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
             guard strongSelf.nativeCryptoCurrencyPrices.hasKey(server) else { return }
@@ -271,7 +272,7 @@ class InCoordinator: NSObject, Coordinator {
     private func setupCallForAssetAttributeCoordinators() {
         callForAssetAttributeCoordinators = .init()
         for each in config.enabledServers {
-            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, assetDefinitionStore: self.assetDefinitionStore)
+            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, assetDefinitionStore: assetDefinitionStore)
         }
     }
 

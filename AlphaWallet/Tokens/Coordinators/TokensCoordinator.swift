@@ -130,6 +130,11 @@ class TokensCoordinator: Coordinator {
         showTokens()
     }
 
+    deinit {
+        autoDetectTransactedTokensQueue.cancelAllOperations()
+        autoDetectTokensQueue.cancelAllOperations()
+    }
+
     private func setupSingleChainTokenCoordinators() {
         for each in tokenCollection.tokenDataStores {
             let server = each.server
@@ -406,7 +411,7 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
     }
 
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator) {
-        delegate?.didPress(for: type, server: coordinator.session.server, in: self)
+        delegate?.didPress(for: type, server: coordinator.server, in: self)
     }
 
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {

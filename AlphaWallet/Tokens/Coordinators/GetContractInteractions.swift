@@ -207,7 +207,7 @@ extension GetContractInteractions.functional {
                         return (transactionJson["to"].stringValue, blockNumber)
                     } else {
                         return (transactionJson["contractAddress"].stringValue, blockNumber)
-                    }
+                    } 
                 }
                 return ("", blockNumber)
             }

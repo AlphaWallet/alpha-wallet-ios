@@ -867,6 +867,8 @@
 		87ED8FAB2488E4610005C69B /* SendViewSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */; };
 		87ED8FAD2488EA610005C69B /* SupportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAC2488EA610005C69B /* SupportViewController.swift */; };
 		87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */; };
+		87F5558B2670B4D80081C611 /* TokenProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F5558A2670B4D80081C611 /* TokenProviderType.swift */; };
+		87F5558D2670B5060081C611 /* AutodetectTokensProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F5558C2670B5060081C611 /* AutodetectTokensProviderType.swift */; };
 		87F9972824E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */; };
 		87FBAE0124A1EE67005EF293 /* AddressOrEnsNameLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */; };
 		87FF2E422567F0A3002350EB /* BlockieGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF2E412567F0A3002350EB /* BlockieGenerator.swift */; };
@@ -1817,6 +1819,8 @@
 		87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewSectionHeaderViewModel.swift; sourceTree = "<group>"; };
 		87ED8FAC2488EA610005C69B /* SupportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewController.swift; sourceTree = "<group>"; };
 		87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
+		87F5558A2670B4D80081C611 /* TokenProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenProviderType.swift; sourceTree = "<group>"; };
+		87F5558C2670B5060081C611 /* AutodetectTokensProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutodetectTokensProviderType.swift; sourceTree = "<group>"; };
 		87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseBackupIntroductionViewControllerTests.swift; sourceTree = "<group>"; };
 		87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOrEnsNameLabel.swift; sourceTree = "<group>"; };
 		87FF2E412567F0A3002350EB /* BlockieGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieGenerator.swift; sourceTree = "<group>"; };
@@ -3201,6 +3205,8 @@
 			children = (
 				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
 				5E7C77C2844B3579A59C3F2F /* CallSmartContractFunction.swift */,
+				87F5558A2670B4D80081C611 /* TokenProviderType.swift */,
+				87F5558C2670B5060081C611 /* AutodetectTokensProviderType.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -5337,6 +5343,7 @@
 				5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */,
 				878EE94E255BE1F0000210DE /* UrlSchemeCoordinator.swift in Sources */,
 				5E7C77D5AD018763345D8DD5 /* CanOpenContractWebPage.swift in Sources */,
+				87F5558B2670B4D80081C611 /* TokenProviderType.swift in Sources */,
 				5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */,
 				87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */,
 				5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */,
@@ -5629,6 +5636,7 @@
 				5E7C7D0A8197BF7725619D87 /* TransactionRowCellViewModel.swift in Sources */,
 				5E7C7BDE0060F5C350AFD34B /* ActivityViewController.swift in Sources */,
 				5E7C76194F5934264E5BABC8 /* ActivityViewModel.swift in Sources */,
+				87F5558D2670B5060081C611 /* AutodetectTokensProviderType.swift in Sources */,
 				5E7C72337A4230E78009B7E5 /* TransactionDetailsViewModel.swift in Sources */,
 				5E7C72EF748338DDBABB53F2 /* GetBlockTimestampCoordinator.swift in Sources */,
 				5E7C7416B5A023776E04A21D /* Features.swift in Sources */,

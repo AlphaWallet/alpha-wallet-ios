@@ -79,8 +79,8 @@ extension ActivitiesView: StatefulViewController {
 extension ActivitiesView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true )
-        let item = viewModel.item(for: indexPath.row, section: indexPath.section)
-        switch item {
+
+        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
         case .parentTransaction:
             break
         case .childActivity(_, activity: let activity):
@@ -103,8 +103,7 @@ extension ActivitiesView: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        let item = viewModel.item(for: indexPath.row, section: indexPath.section)
-        switch item {
+        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
         case .parentTransaction:
             return nil
         case .childActivity, .childTransaction, .standaloneTransaction, .standaloneActivity:

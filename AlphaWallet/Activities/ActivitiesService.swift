@@ -76,7 +76,7 @@ extension TransactionType {
     }
 }
 
-private enum ActivityOrTransactionInstance {
+fileprivate enum ActivityOrTransactionInstance {
     case activity(Activity)
     case transaction(TransactionInstance)
 
@@ -174,11 +174,11 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.transactionsFilterStrategy = transactionsFilterStrategy
         super.init()
         
-        filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] txs in
+        filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] _ in
             self?.reloadImpl(reloadImmediately: true)
         }
 
-        recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] activities in
+        recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] _ in
             self?.reloadImpl(reloadImmediately: true)
         }
     }
@@ -288,7 +288,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 token = tt
             }
 
-            let implicitAttributes = generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol)
+            let implicitAttributes = ActivitiesService.functional.generateImplicitAttributesForToken(forContract: contract, server: server, symbol: token.symbol, account: sessions[server].account)
             let tokenAttributes = implicitAttributes
             var cardAttributes = Self.functional.generateImplicitAttributesForCard(forContract: contract, server: server, event: eachEvent)
             cardAttributes.merge(eachEvent.data) { _, new in new }
@@ -387,98 +387,12 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             transactions = self.transactions
         }
 
-        let items = combine(activities: activities, withTransactions: transactions)
+        let items = ActivitiesService.functional.combine(activities: activities, withTransactions: transactions, wallet: wallet, tokensStorages: tokensStorages)
         let activities = ActivitiesViewModel.sorted(activities: items)
 
         DispatchQueue.main.async { [weak self] in
             self?.subscribableViewModel.value = .init(activities: activities)
         }
-    }
-
-    //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityRowModel] {
-        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
-        let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
-        var results: [ActivityRowModel] = .init()
-        let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
-        for (blockNumber, elements) in counters {
-            let rows = generateRowModels(fromActivityOrTransactions: elements, withBlockNumber: blockNumber)
-            results.append(contentsOf: rows)
-        }
-
-        return results
-    }
-
-    private func generateRowModels(fromActivityOrTransactions activityOrTransactions: [ActivityOrTransactionInstance], withBlockNumber blockNumber: Int) -> [ActivityRowModel] {
-        if activityOrTransactions.isEmpty {
-            //Shouldn't be possible
-            return .init()
-        } else if activityOrTransactions.count > 1 {
-            let activities: [Activity] = activityOrTransactions.compactMap(\.activity)
-            //TODO will we ever have more than 1 transaction object (not activity/event) in the database for the same block number? Maybe if we get 1 from normal Etherscan endpoint and another from Etherscan ERC20 history endpoint?
-            if let transaction: TransactionInstance = activityOrTransactions.compactMap(\.transaction).first {
-                var results: [ActivityRowModel] = .init()
-                let activities: [Activity] = activities.filter { activity in
-                    let operations = transaction.localizedOperations
-                    return operations.allSatisfy { activity != $0 }
-                }
-                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: wallet.address)
-                if transaction.localizedOperations.isEmpty && activities.isEmpty {
-                    results.append(.standaloneTransaction(transaction: transaction, activity: activity))
-                } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
-                    results.append(.standaloneTransaction(transaction: transaction, activity: activity))
-                } else if transaction.localizedOperations.isEmpty && activities.count == 1 {
-                    results.append(.parentTransaction(transaction: transaction, isSwap: false, activities: activities))
-                    results.append(contentsOf: activities.map { .childActivity(transaction: transaction, activity: $0) })
-                } else {
-                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
-                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
-
-                    results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensStorages: tokensStorages, wallet: wallet.address)
-                        return .childTransaction(transaction: transaction, operation: $0, activity: activity)
-                    })
-                    for each in activities {
-                        results.append(.childActivity(transaction: transaction, activity: each))
-                    }
-                }
-                return results
-            } else {
-                //TODO we should have a group here too to wrap activities with the same block number. No transaction, so more work
-                return activities.map { .standaloneActivity(activity: $0) }
-            }
-        } else {
-            switch activityOrTransactions.first {
-            case .activity(let activity):
-                return [.standaloneActivity(activity: activity)]
-            case .transaction(let transaction):
-                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: wallet.address)
-                if transaction.localizedOperations.isEmpty {
-                    return [.standaloneTransaction(transaction: transaction, activity: activity)]
-                } else if transaction.localizedOperations.count == 1 {
-                    return [.standaloneTransaction(transaction: transaction, activity: activity)]
-                } else {
-                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
-                    var results: [ActivityRowModel] = .init()
-                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
-                    results.append(contentsOf: transaction.localizedOperations.map {
-                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensStorages: tokensStorages, wallet: wallet.address)
-
-                        return .childTransaction(transaction: transaction, operation: $0, activity: activity)
-                    })
-                    return results
-                }
-            case .none:
-                return .init()
-            }
-        }
-    }
-
-    private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance]) -> Bool {
-        //Might have other transactions like approved embedded, so we can't check for all send and receives.
-        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: wallet.address) }
-        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: wallet.address) }
-        return hasSend && hasReceive
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
@@ -501,28 +415,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         } else {
             //no-op. We should be able to find it unless the list of activities has changed
         }
-    }
-
-    private func generateImplicitAttributesForToken(forContract contract: AlphaWallet.Address, server: RPCServer, symbol: String) -> [String: AssetInternalValue] {
-        var results = [String: AssetInternalValue]()
-        for each in AssetImplicitAttributes.allCases {
-            //TODO ERC721s aren't fungible, but doesn't matter here
-            guard each.shouldInclude(forAddress: contract, isFungible: true) else { continue }
-            switch each {
-            case .ownerAddress:
-                results[each.javaScriptName] = .address(sessions[server].account.address)
-            case .tokenId:
-                //We aren't going to add `tokenId` as an implicit attribute even for ERC721s, because we don't know it
-                break
-            case .label:
-                break
-            case .symbol:
-                results[each.javaScriptName] = .string(symbol)
-            case .contractAddress:
-                results[each.javaScriptName] = .address(contract)
-            }
-        }
-        return results
     }
 
     //We can't run this in `activities` didSet {} because this will then be run unnecessarily, when we refresh each activity (we only want this to update when we refresh the entire activity list)
@@ -588,6 +480,114 @@ extension ActivitiesService.functional {
         var timestamp: GeneralisedTime = .init()
         timestamp.date = event.date
         results["timestamp"] = .generalisedTime(timestamp)
+        return results
+    }
+
+    static func generateImplicitAttributesForToken(forContract contract: AlphaWallet.Address, server: RPCServer, symbol: String, account: Wallet) -> [String: AssetInternalValue] {
+        var results = [String: AssetInternalValue]()
+        for each in AssetImplicitAttributes.allCases {
+            //TODO ERC721s aren't fungible, but doesn't matter here
+            guard each.shouldInclude(forAddress: contract, isFungible: true) else { continue }
+            switch each {
+            case .ownerAddress:
+                results[each.javaScriptName] = .address(account.address)
+            case .tokenId:
+                //We aren't going to add `tokenId` as an implicit attribute even for ERC721s, because we don't know it
+                break
+            case .label:
+                break
+            case .symbol:
+                results[each.javaScriptName] = .string(symbol)
+            case .contractAddress:
+                results[each.javaScriptName] = .address(contract)
+            }
+        }
+        return results
+    }
+
+    static func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance], walletAddress: AlphaWallet.Address) -> Bool {
+        //Might have other transactions like approved embedded, so we can't check for all send and receives.
+        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: walletAddress) }
+        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: walletAddress) }
+        return hasSend && hasReceive
+    }
+
+    fileprivate static func generateRowModels(fromActivityOrTransactions activityOrTransactions: [ActivityOrTransactionInstance], withBlockNumber blockNumber: Int, tokensStorages: ServerDictionary<TokensDataStore>, walletAddress: AlphaWallet.Address, activities: [Activity]) -> [ActivityRowModel] {
+        if activityOrTransactions.isEmpty {
+            //Shouldn't be possible
+            return .init()
+        } else if activityOrTransactions.count > 1 {
+            let activities: [Activity] = activityOrTransactions.compactMap(\.activity)
+            //TODO will we ever have more than 1 transaction object (not activity/event) in the database for the same block number? Maybe if we get 1 from normal Etherscan endpoint and another from Etherscan ERC20 history endpoint?
+            if let transaction: TransactionInstance = activityOrTransactions.compactMap(\.transaction).first {
+                var results: [ActivityRowModel] = .init()
+                let activities: [Activity] = activities.filter { activity in
+                    let operations = transaction.localizedOperations
+                    return operations.allSatisfy { activity != $0 }
+                }
+                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: walletAddress)
+                if transaction.localizedOperations.isEmpty && activities.isEmpty {
+                    results.append(.standaloneTransaction(transaction: transaction, activity: activity))
+                } else if transaction.localizedOperations.count == 1, transaction.value == "0", activities.isEmpty {
+                    results.append(.standaloneTransaction(transaction: transaction, activity: activity))
+                } else if transaction.localizedOperations.isEmpty && activities.count == 1 {
+                    results.append(.parentTransaction(transaction: transaction, isSwap: false, activities: activities))
+                    results.append(contentsOf: activities.map { .childActivity(transaction: transaction, activity: $0) })
+                } else {
+                    let isSwap = ActivitiesService.functional.isSwap(activities: activities, operations: transaction.localizedOperations, walletAddress: walletAddress)
+                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
+
+                    results.append(contentsOf: transaction.localizedOperations.map {
+                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensStorages: tokensStorages, wallet: walletAddress)
+                        return .childTransaction(transaction: transaction, operation: $0, activity: activity)
+                    })
+                    for each in activities {
+                        results.append(.childActivity(transaction: transaction, activity: each))
+                    }
+                }
+                return results
+            } else {
+                //TODO we should have a group here too to wrap activities with the same block number. No transaction, so more work
+                return activities.map { .standaloneActivity(activity: $0) }
+            }
+        } else {
+            switch activityOrTransactions.first {
+            case .activity(let activity):
+                return [.standaloneActivity(activity: activity)]
+            case .transaction(let transaction):
+                let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .standalone(transaction), tokensStorages: tokensStorages, wallet: walletAddress)
+                if transaction.localizedOperations.isEmpty {
+                    return [.standaloneTransaction(transaction: transaction, activity: activity)]
+                } else if transaction.localizedOperations.count == 1 {
+                    return [.standaloneTransaction(transaction: transaction, activity: activity)]
+                } else {
+                    let isSwap = ActivitiesService.functional.isSwap(activities: activities, operations: transaction.localizedOperations, walletAddress: walletAddress)
+                    var results: [ActivityRowModel] = .init()
+                    results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
+                    results.append(contentsOf: transaction.localizedOperations.map {
+                        let activity = ActivitiesViewModel.functional.createPseudoActivity(fromTransactionRow: .item(transaction: transaction, operation: $0), tokensStorages: tokensStorages, wallet: walletAddress)
+
+                        return .childTransaction(transaction: transaction, operation: $0, activity: activity)
+                    })
+                    return results
+                }
+            case .none:
+                return .init()
+            }
+        }
+    }
+
+    //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
+    static func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance], wallet: Wallet, tokensStorages: ServerDictionary<TokensDataStore>) -> [ActivityRowModel] {
+        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
+        let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
+        var results: [ActivityRowModel] = .init()
+        let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
+        for (blockNumber, elements) in counters {
+            let rows = ActivitiesService.functional.generateRowModels(fromActivityOrTransactions: elements, withBlockNumber: blockNumber, tokensStorages: tokensStorages, walletAddress: wallet.address, activities: activities)
+            results.append(contentsOf: rows)
+        }
+
         return results
     }
 }

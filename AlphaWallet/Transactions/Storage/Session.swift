@@ -43,6 +43,10 @@ class WalletSession {
         }
     }
 
+    deinit {
+        print("\(self).deinit")
+    }
+
     func refresh(_ type: RefreshType) {
         switch type {
         case .balance:

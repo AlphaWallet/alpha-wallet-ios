@@ -254,9 +254,10 @@ class CoinTickersFetcher: CoinTickersFetcherType {
             return resultTickers
         }).then(on: CoinTickersFetcher.queue, { tickers -> Promise<[AddressAndRPCServer: CoinTicker]> in
             return .value(tickers)
-        }).recover(on: CoinTickersFetcher.queue, { _ -> Promise<[AddressAndRPCServer: CoinTicker]> in
+        }).recover(on: CoinTickersFetcher.queue, { [weak self] _ -> Promise<[AddressAndRPCServer: CoinTicker]> in
+            guard let strongSelf = self else { return .value(.init()) }
             if shouldRetry {
-                return self.fetchPricesPage(ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: false)
+                return strongSelf.fetchPricesPage(ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: false)
             } else {
                 return .value(.init())
             }
