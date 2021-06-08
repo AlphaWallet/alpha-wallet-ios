@@ -223,9 +223,9 @@ enum RPCServer: Hashable, CaseIterable {
 
     private var etherscanCompatibleType: EtherscanCompatibleType {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan:
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan, .binance_smart_chain, .binance_smart_chain_testnet:
             return .etherscan
-        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .mumbai_testnet, .callisto:
+        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .polygon, .mumbai_testnet, .callisto:
             return .blockscout
         case .custom, .fantom_testnet, .avalanche, .avalanche_testnet:
             return .unknown
