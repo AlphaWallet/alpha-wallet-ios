@@ -1,21 +1,19 @@
-// Copyright © 2018 Stormbird PTE. LTD.
+//
+//  PopularTokenViewCell.swift
+//  AlphaWallet
+//
+//  Created by Vladyslav Shepitko on 07.06.2021.
+//
 
-import Foundation
 import UIKit
-import Kingfisher
 
-class FungibleTokenViewCell: UITableViewCell {
+class PopularTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let apprecation24hoursLabel = UILabel()
-    private let priceChangeLabel = UILabel()
-    private let fiatValueLabel = UILabel()
-    private let cryptoValueLabel = UILabel()
-    private var viewsWithContent: [UIView] {
-        [titleLabel, apprecation24hoursLabel, priceChangeLabel]
-    }
 
-    private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursLabel].asStackView(spacing: 5)
+    private var viewsWithContent: [UIView] {
+        [titleLabel]
+    }
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -30,16 +28,10 @@ class FungibleTokenViewCell: UITableViewCell {
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
-        apprecation24hoursLabel.textAlignment = .center
-        priceChangeLabel.textAlignment = .center
-        fiatValueLabel.textAlignment = .center
-        fiatValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        fiatValueLabel.setContentHuggingPriority(.required, for: .horizontal)
 
         let col0 = tokenIconImageView
         let col1 = [
-            [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
-            [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
+            [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)
         ].asStackView(axis: .vertical, spacing: 2)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +49,7 @@ class FungibleTokenViewCell: UITableViewCell {
         return nil
     }
 
-    func configure(viewModel: FungibleTokenViewCellViewModel) {
+    func configure(viewModel: PopularTokenViewCellViewModel) {
         selectionStyle = .none
 
         backgroundColor = viewModel.backgroundColor
@@ -67,28 +59,11 @@ class FungibleTokenViewCell: UITableViewCell {
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters
 
-        cryptoValueLabel.attributedText = viewModel.cryptoValueAttributedString
-        cryptoValueLabel.baselineAdjustment = .alignCenters
-
-        apprecation24hoursLabel.attributedText = viewModel.apprecation24hoursAttributedString
-        apprecation24hoursLabel.backgroundColor = viewModel.apprecation24hoursBackgroundColor
-
-        priceChangeLabel.attributedText = viewModel.priceChangeUSDAttributedString
-
-        fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
-
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha
         }
         tokenIconImageView.subscribable = viewModel.iconImage
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
-        changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
     }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        priceChangeLabel.layer.cornerRadius = 2.0
-    }
-} 
+}

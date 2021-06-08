@@ -6,7 +6,30 @@ import BigInt
 
 extension Activity {
 
-    struct AssignedToken {
+    struct AssignedToken: Equatable {
+        
+        struct TokenBalance {
+            var balance = "0"
+            var json: String = "{}"
+        }
+
+        enum Balance {
+            case value(BigInt)
+            case balance([TokenBalance])
+            case none
+
+            var isEmpty: Bool {
+                switch self {
+                case .balance(let values):
+                    return values.isEmpty
+                case .value(let value):
+                    return value.isZero
+                case .none:
+                    return true
+                }
+            }
+        }
+
         var primaryKey: String
         var contractAddress: AlphaWallet.Address
         var symbol: String
@@ -14,7 +37,13 @@ extension Activity {
         var server: RPCServer
         var icon: Subscribable<TokenImage>
         var type: TokenType
+        var name: String
+        var balance: Balance
+        var shouldDisplay: Bool
+        var sortIndex: Int?
+
         init(tokenObject: TokenObject) {
+            name = tokenObject.name
             primaryKey = tokenObject.primaryKey
             server = tokenObject.server
             contractAddress = tokenObject.contractAddress
@@ -22,9 +51,105 @@ extension Activity {
             decimals = tokenObject.decimals
             icon = tokenObject.icon
             type = tokenObject.type
+            shouldDisplay = tokenObject.shouldDisplay
+            sortIndex = tokenObject.sortIndex.value
+            
+            switch type {
+            case .erc20, .nativeCryptocurrency:
+                self.balance = .value(tokenObject.valueBigInt)
+            case .erc721, .erc721ForTickets, .erc875:
+                let balance = tokenObject.balance.map { TokenBalance(balance: $0.balance, json: $0.json) }
+                self.balance = .balance(Array(balance))
+            }
+        }
+
+//        init(contractAddress: AlphaWallet.Address, symbol: String, decimals: Int, server: RPCServer, type: TokenType, name: String) {
+//            self.name = name
+//            self.primaryKey = TokenObject.generatePrimaryKey(fromContract: contractAddress, server: server)
+//            self.server = server
+//            self.contractAddress = contractAddress
+//            self.symbol = symbol
+//            self.decimals = decimals
+////            self.icon = tokenObject.icon
+//            self.type = type
+//            self.shouldDisplay = true
+//            self.sortIndex = nil
+//
+////            switch type {
+////            case .erc20, .nativeCryptocurrency:
+////                self.balance = .value(tokenObject.valueBigInt)
+////            case .erc721, .erc721ForTickets, .erc875:
+////                let balance = tokenObject.balance.map { TokenBalance(balance: $0.balance, json: $0.json) }
+////                self.balance = .balance(Array(balance))
+////            }
+//        }
+
+        static func == (lhs: Activity.AssignedToken, rhs: Activity.AssignedToken) -> Bool {
+            return lhs.primaryKey == rhs.primaryKey
+        }
+
+    }
+}
+
+extension Activity.AssignedToken {
+
+    func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
+        let localizedNameFromAssetDefinition = handler.getLabel(fallback: name)
+        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
+
+    func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
+        let localizedNameFromAssetDefinition = handler.getNameInPluralForm(fallback: name)
+        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
+
+    private func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
+        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+        if compositeName.isEmpty {
+            return symbol
+        } else {
+            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
+            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
+            if daiSymbol == symbol {
+                return "\(compositeName) (DAI)"
+            } else {
+                return "\(compositeName) (\(symbol))"
+            }
         }
     }
-} 
+
+    func symbolInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let handler = XMLHandler(contract: contractAddress, tokenType: type, assetDefinitionStore: assetDefinitionStore)
+        let localizedNameFromAssetDefinition = handler.getNameInPluralForm(fallback: name)
+        return symbol(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
+
+    private func symbol(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
+        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+        if compositeName.isEmpty {
+            return symbol
+        } else {
+            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
+            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
+            if daiSymbol == symbol {
+                return "DAI"
+            } else {
+                return symbol
+            }
+        }
+    }
+
+    var isERC721AndNotForTickets: Bool {
+        switch type {
+        case .erc721:
+            return true
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+            return false
+        }
+    }
+}
 
 class TokenObject: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {

@@ -139,6 +139,7 @@
 "addHideTokens.section.newTokens" = "Nuevo token encontrado";
 "addHideTokens.section.displayedTokens" = "Tokens mostrados";
 "addHideTokens.section.hiddenTokens" = "Tokens ocultos";
+"addHideTokens.section.popularTokens" = "Popular Tokens";
 "transactions.tabbar.item.title" = "Transacciones";
 "transactions.received.ether" = "Has recibido %@ %@";
 "transactions.received.ether.notification.prompt" = "¿Permitir notificaciones al recibir %@?";
