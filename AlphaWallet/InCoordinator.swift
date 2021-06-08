@@ -58,12 +58,8 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
     //TODO rename this generic name to reflect that it's for event instances, not for event activity
-    lazy private var eventsDataStore: EventsDataStore = {
-        EventsDataStore(realm: self.realm(forAccount: wallet))
-    }()
-    lazy private var eventsActivityDataStore: EventsActivityDataStore = {
-        EventsActivityDataStore(realm: self.realm(forAccount: wallet))
-    }()
+    lazy private var eventsDataStore: EventsDataStore = EventsDataStore(realm: realm)
+    lazy private var eventsActivityDataStore: EventsActivityDataStore = EventsActivityDataStore(realm: realm)
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
@@ -108,6 +104,7 @@ class InCoordinator: NSObject, Coordinator {
     var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
 
+    private lazy var realm = Self.realm(forAccount: wallet)
     private lazy var oneInchSwapService = Oneinch()
     private lazy var rampBuyService = Ramp(account: wallet)
     private lazy var tokenActionsService: TokenActionsServiceType = {
@@ -227,15 +224,12 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
-        let realm = self.realm(forAccount: wallet)
         let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: filterTokensCoordinator)
         storage.priceDelegate = self
         return storage
     }
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
-        let realm = self.realm(forAccount: wallet)
-
         return TransactionsStorage(realm: realm, server: server, delegate: self)
     }
 
@@ -389,8 +383,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func setupEventsStorages() {
-        let realm = self.realm(forAccount: wallet)
-
         eventsDataStore = EventsDataStore(realm: realm)
         eventsActivityDataStore = EventsActivityDataStore(realm: realm)
     }
@@ -510,7 +502,6 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator) -> DappBrowserCoordinator {
-        let realm = self.realm(forAccount: wallet)
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -652,7 +643,7 @@ class InCoordinator: NSObject, Coordinator {
         transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
     }
 
-    private func realm(forAccount account: Wallet) -> Realm {
+    private static func realm(forAccount account: Wallet) -> Realm {
         let migration = MigrationInitializer(account: account)
         migration.perform()
         return try! Realm(configuration: migration.config)
@@ -849,7 +840,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
-        let realm = self.realm(forAccount: account)
+        let realm = Self.realm(forAccount: account)
         for each in RPCServer.allCases {
             let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             transactionsStorage.deleteAll()
