@@ -8,6 +8,40 @@ struct DappCommand: Decodable {
     let object: [String: DappCommandObjectValue]
 }
 
+//TODO may not be the best name (contrast with the counterpart DappCommand), but let's see what happens after we add a few more cases to the `Method` enum
+struct WalletCommand: Decodable {
+    enum Method: String, Decodable {
+        case walletAddEthereumChain
+
+        init?(string: String) {
+            if let s = Method(rawValue: string) {
+                self = s
+            } else {
+                return nil
+            }
+        }
+    }
+
+    let name: Method
+    let id: Int
+    let object: WalletAddEthereumChainObject
+}
+
+enum DappOrWalletCommand {
+    case eth(DappCommand)
+    //TODO we'll have to see how to expand this, do we add more cases when there are more walletXXX object types, or do we generalize them?
+    case walletAddEthereumChain(WalletCommand)
+
+    var id: Int {
+        switch self {
+        case .eth(let command):
+            return command.id
+        case .walletAddEthereumChain(let command):
+            return command.id
+        }
+    }
+}
+
 struct DappCallback {
     let id: Int
     let value: DappCallbackValue
@@ -21,6 +55,7 @@ enum DappCallbackValue {
     case signTypedMessage(Data)
     case signTypedMessageV3(Data)
     case ethCall(String)
+    case walletAddEthereumChain
 
     var object: String {
         switch self {
@@ -38,6 +73,8 @@ enum DappCallbackValue {
             return data.hexEncoded
         case .ethCall(let value):
             return value
+        case .walletAddEthereumChain:
+            return ""
         }
     }
 }
@@ -71,5 +108,26 @@ struct DappCommandObjectValue: Decodable {
             }
             eip712v3And4Data = nil
         }
+    }
+}
+
+struct WalletAddEthereumChainObject: Decodable {
+    struct NativeCurrency: Decodable {
+        let name: String
+        let symbol: String
+        let decimals: Int
+    }
+
+    let nativeCurrency: NativeCurrency?
+    var blockExplorerUrls: [String]?
+    let chainName: String?
+    let chainType: String?
+    let chainId: String
+    let rpcUrls: [String]?
+}
+
+extension CustomRPC {
+    init(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType, isTestnet: Bool) {
+        self.init(chainID: chainId, nativeCryptoTokenName: customChain.nativeCurrency?.name, chainName: customChain.chainName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customChain.nativeCurrency?.symbol, rpcEndpoint: rpcUrl, explorerEndpoint: customChain.blockExplorerUrls?.first, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet)
     }
 }

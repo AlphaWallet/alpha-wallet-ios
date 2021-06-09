@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct CustomRPC: Hashable {
+struct CustomRPC: Codable, Hashable {
     let chainID: Int
     let nativeCryptoTokenName: String?
     let chainName: String
@@ -10,5 +10,5 @@ struct CustomRPC: Hashable {
     let rpcEndpoint: String
     let explorerEndpoint: String?
     let etherscanCompatibleType: RPCServer.EtherscanCompatibleType
-    let isTestNet: Bool
+    let isTestnet: Bool
 }

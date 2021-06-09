@@ -153,6 +153,7 @@ struct Config {
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
         static let useTaiChiNetwork = "useTaiChiNetworkKey"
+        static let customRpcServers = "customRpcServers"
     }
 
     let defaults: UserDefaults
@@ -178,6 +179,15 @@ struct Config {
         set {
             let chainIds = newValue.map { $0.chainID }
             defaults.set(chainIds, forKey: Keys.enabledServers)
+        }
+    }
+
+    var customRpcServersJson: String? {
+        get {
+            return defaults.string(forKey: Keys.customRpcServers)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.customRpcServers)
         }
     }
 
