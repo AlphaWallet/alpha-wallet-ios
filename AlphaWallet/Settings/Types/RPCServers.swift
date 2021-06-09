@@ -34,7 +34,7 @@ enum RPCServer: Hashable, CaseIterable {
     case optimisticKovan
     case custom(CustomRPC)
 
-    private enum EtherscanCompatibleType {
+    enum EtherscanCompatibleType {
         case etherscan
         case blockscout
         case unknown
@@ -94,7 +94,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain_testnet: return "Binance (BSC) Testnet"
         case .heco: return "Heco"
         case .heco_testnet: return "Heco Testnet"
-        case .custom(let custom): return custom.name
+        case .custom(let custom): return custom.chainName
         case .fantom: return "Fantom Opera"
         case .fantom_testnet: return "Fantom Testnet"
         case .avalanche: return "Avalanche Mainnet C-Chain"
@@ -110,18 +110,19 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon, .optimistic:
             return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan:
             return true
+        case .custom(let custom):
+            return custom.isTestNet
         }
     }
 
     var etherscanURLForGeneralTransactionHistory: URL? {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan:
-            return etherscanApiRoot.appendingQueryString("module=account&action=txlist")
+        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan, .custom:
+            return etherscanApiRoot?.appendingQueryString("module=account&action=txlist")
         case .heco: return nil
         case .heco_testnet: return nil
-        case .custom: return nil
         case .fantom: return nil
         case .fantom_testnet: return nil
         case .avalanche: return nil
@@ -135,7 +136,7 @@ enum RPCServer: Hashable, CaseIterable {
     var etherscanURLForTokenTransactionHistory: URL? {
         switch etherscanCompatibleType {
         case .etherscan, .blockscout:
-            return etherscanApiRoot.appendingQueryString("module=account&action=tokentx")
+            return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
         case .unknown:
             return nil
         }
@@ -173,8 +174,8 @@ enum RPCServer: Hashable, CaseIterable {
         return urlString.flatMap { URL(string: $0) }
     }
 
-    var etherscanApiRoot: URL {
-        let urlString: String = {
+    var etherscanApiRoot: URL? {
+        let urlString: String? = {
             switch self {
             case .main: return "https://api-cn.etherscan.com/api"
             case .kovan: return "https://api-kovan.etherscan.io/api"
@@ -192,7 +193,10 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://api-testnet.bscscan.com/api"
             case .heco_testnet: return "https://api-testnet.hecoinfo.com/api"
             case .heco: return "https://api.hecoinfo.com/api"
-            case .custom: return "" // Enable? make optional
+            case .custom(let custom):
+                return custom.explorerEndpoint
+                        .flatMap { URL(string: $0) }
+                        .flatMap { $0.appendingPathComponent("api").absoluteString }
             case .fantom: return "https://api.ftmscan.com/api"
             //TODO fix etherscan-compatible API endpoint
             case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/api"
@@ -206,16 +210,16 @@ enum RPCServer: Hashable, CaseIterable {
             case .optimisticKovan: return "https://api-kovan-optimistic.etherscan.io/api"
             }
         }()
-        return URL(string: urlString)!
+        return urlString.flatMap { URL(string: $0) }
     }
 
     //If Etherscan, action=tokentx for ERC20 and action=tokennfttx for ERC721. If Blockscout-compatible, action=tokentx includes both ERC20 and ERC721. tokennfttx is not supported.
     var etherscanURLForERC721TransactionHistory: URL? {
         switch etherscanCompatibleType {
         case .etherscan:
-            return etherscanApiRoot.appendingQueryString("module=account&action=tokennfttx")
+            return etherscanApiRoot?.appendingQueryString("module=account&action=tokennfttx")
         case .blockscout:
-            return etherscanApiRoot.appendingQueryString("module=account&action=tokentx")
+            return etherscanApiRoot?.appendingQueryString("module=account&action=tokentx")
         case .unknown:
             return nil
         }
@@ -227,8 +231,10 @@ enum RPCServer: Hashable, CaseIterable {
             return .etherscan
         case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .polygon, .mumbai_testnet, .callisto:
             return .blockscout
-        case .custom, .fantom_testnet, .avalanche, .avalanche_testnet:
+        case .fantom_testnet, .avalanche, .avalanche_testnet:
             return .unknown
+        case .custom(let custom):
+            return custom.etherscanCompatibleType
         }
     }
 
@@ -334,7 +340,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
         case .heco, .heco_testnet: return "HT"
-        case .custom(let custom): return custom.symbol
+        case .custom(let custom): return custom.symbol ?? "ETH"
         case .fantom, .fantom_testnet: return "FTM"
         case .avalanche, .avalanche_testnet: return "AVAX"
         case .polygon, .mumbai_testnet: return "MATIC"
@@ -345,7 +351,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var cryptoCurrencyName: String {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .custom, .optimistic, .optimisticKovan:
+        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .optimistic, .optimisticKovan:
             return "Ether"
         case .xDai:
             return "xDai"
@@ -357,8 +363,12 @@ enum RPCServer: Hashable, CaseIterable {
             return "HT"
         case .fantom, .fantom_testnet:
             return "FTM"
-        case .avalanche, .avalanche_testnet: return "AVAX"
-        case .polygon, .mumbai_testnet: return "MATIC"
+        case .avalanche, .avalanche_testnet:
+            return "AVAX"
+        case .polygon, .mumbai_testnet:
+            return "MATIC"
+        case .custom(let custom):
+            return custom.nativeCryptoTokenName ?? "Ether"
         }
     }
 
@@ -456,7 +466,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
-            case .custom(let custom): return custom.endpoint
+            case .custom(let custom): return custom.rpcEndpoint
             case .fantom: return "https://rpcapi.fantom.network"
             case .fantom_testnet: return "https://rpc.testnet.fantom.network/"
             case .avalanche: return "https://api.avax.network/ext/bc/C/rpc"
@@ -470,19 +480,15 @@ enum RPCServer: Hashable, CaseIterable {
         return URL(string: urlString)!
     }
 
-    var transactionInfoEndpoints: URL {
-        let urlString: String = {
-            switch self {
-            case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan:
-                return etherscanApiRoot.absoluteString
-            case .custom: return "" // Enable? make optional
-            case .fantom_testnet: return "https://explorer.testnet.fantom.network/tx/"
-            case .avalanche: return "https://cchain.explorer.avax.network/tx/"
-            case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/"
-            case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/tx/"
-            }
-        }()
-        return URL(string: urlString)!
+    var transactionInfoEndpoints: URL? {
+        switch self {
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .custom:
+            return etherscanApiRoot
+        case .fantom_testnet: return URL(string: "https://explorer.testnet.fantom.network/tx/")
+        case .avalanche: return URL(string: "https://cchain.explorer.avax.network/tx/")
+        case .avalanche_testnet: return URL(string: "https://cchain.explorer.avax-test.network/tx/")
+        case .mumbai_testnet: return URL(string: "https://explorer-mumbai.maticvigil.com/tx/")
+        }
     }
 
     var ensRegistrarContract: AlphaWallet.Address {
@@ -521,7 +527,7 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainHeco()
         case .heco_testnet:
             return R.string.localizable.blockchainHecoTest()
-        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
+        case .main, .rinkeby, .ropsten, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
         case .fantom:
             return R.string.localizable.blockchainFantom()
@@ -539,6 +545,8 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainOptimistic()
         case .optimisticKovan:
             return R.string.localizable.blockchainOptimisticKovan()
+        case .custom(let custom):
+            return custom.chainName
         }
     }
 
