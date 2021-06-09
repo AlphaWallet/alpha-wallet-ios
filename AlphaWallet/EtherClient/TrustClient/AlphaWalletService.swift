@@ -30,7 +30,12 @@ extension AlphaWalletService: TargetType {
         case .pricesOfTokens(let config, _, _, _):
             return config.priceInfoEndpoints
         case .getTransactions(_, let server, _, _, _, _):
-            return server.transactionInfoEndpoints
+            if let url = server.transactionInfoEndpoints {
+                return url
+            } else {
+                //HACK: we intentionally return an invalid, but non-nil URL because that's what the function needs to return. Keeps the code simple, yet still harmless
+                return URL(string: "x")!
+            }
         case .register(let config, _), .unregister(let config, _):
             return config.priceInfoEndpoints
         case .marketplace(let config, _):

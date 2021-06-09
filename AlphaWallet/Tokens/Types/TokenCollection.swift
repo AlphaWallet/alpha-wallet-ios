@@ -113,7 +113,7 @@ extension RPCServer {
         case .artis_tau1: return 246785
         case .binance_smart_chain: return 12
         case .binance_smart_chain_testnet: return 13
-        case .custom: return 11
+        case .custom(let custom): return 300000 + custom.chainID
         case .heco: return 14
         case .heco_testnet: return 15
         case .fantom: return 16
