@@ -69,7 +69,7 @@ class UniversalLinkCoordinator: Coordinator {
             return "xDAI"
         case .binance_smart_chain, .binance_smart_chain_testnet:
             return "BNB"
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom, .optimistic, .optimisticKovan:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .optimistic, .optimisticKovan:
             return "ETH"
         case .heco, .heco_testnet:
             return "HT"
@@ -79,6 +79,9 @@ class UniversalLinkCoordinator: Coordinator {
             return "AVAX"
         case .polygon, .mumbai_testnet:
             return "MATIC"
+        case .custom(let custom):
+            //TODO better defaults or handling for when properties of custom chain is not provided by user
+            return custom.symbol ?? "ETH"
         }
     }
 
