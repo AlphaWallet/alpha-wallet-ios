@@ -97,9 +97,9 @@ struct ConfigExplorer {
         case .custom, .callisto:
             return (.none, nameForServer)
         case .heco:
-            return ("https://scan.hecochain.com", nameForServer)
+            return ("https://hecoinfo.com", nameForServer)
         case .heco_testnet:
-            return ("https://scan-testnet.hecochain.com", nameForServer)
+            return ("https://testnet.hecoinfo.com", nameForServer)
         case .fantom:
             return ("https://ftmscan.com", nameForServer)
         case .fantom_testnet:
