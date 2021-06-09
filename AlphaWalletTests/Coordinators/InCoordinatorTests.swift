@@ -36,6 +36,7 @@ class InCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             config: config,
             analyticsCoordinator: FakeAnalyticsService(),
+            restartQueue: .init(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac
@@ -77,6 +78,7 @@ class InCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
+            restartQueue: .init(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac
@@ -105,6 +107,7 @@ class InCoordinatorTests: XCTestCase {
                 assetDefinitionStore: AssetDefinitionStore(),
                 config: .make(),
                 analyticsCoordinator: FakeAnalyticsService(),
+                restartQueue: .init(),
                 urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
                 promptBackupCoordinator: pbc,
                 accountsCoordinator: ac
@@ -131,6 +134,7 @@ class InCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
+            restartQueue: .init(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac
@@ -157,6 +161,7 @@ class InCoordinatorTests: XCTestCase {
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
+            restartQueue: .init(),
             urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac
@@ -202,6 +207,7 @@ class InCoordinatorTests: XCTestCase {
                     assetDefinitionStore: AssetDefinitionStore(),
                     config: .make(),
                     analyticsCoordinator: FakeAnalyticsService(),
+                    restartQueue: .init(),
                     urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
                     promptBackupCoordinator: pbc,
                     accountsCoordinator: ac

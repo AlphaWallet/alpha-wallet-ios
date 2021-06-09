@@ -14,6 +14,8 @@ protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
+    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -45,6 +47,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private let sharedRealm: Realm
     private let browserOnly: Bool
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
+    private let restartQueue: RestartTaskQueue
 
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
@@ -104,13 +107,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     weak var delegate: DappBrowserCoordinatorDelegate?
 
-    init(
+   init(
         sessions: ServerDictionary<WalletSession>,
         keystore: Keystore,
         config: Config,
         sharedRealm: Realm,
         browserOnly: Bool,
         nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
+        restartQueue: RestartTaskQueue,
         analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.navigationController = UINavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
@@ -120,6 +124,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.sharedRealm = sharedRealm
         self.browserOnly = browserOnly
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
+        self.restartQueue = restartQueue
         self.analyticsCoordinator = analyticsCoordinator
 
         super.init()
@@ -356,6 +361,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             open(url: url, animated: false)
         }
     }
+
+    private func addCustomWallet(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
+        let coordinator = SwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, currentUrl: currentUrl, inViewController: viewController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
 }
 
 extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
@@ -446,6 +458,8 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
             let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
             ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
+        case .walletAddEthereumChain(let customChain):
+            addCustomWallet(callbackID: callbackID, customChain: customChain, inViewController: viewController)
         case .unknown, .sendRawTransaction:
             break
         }
@@ -800,5 +814,48 @@ extension DappBrowserCoordinator {
 
     private func logEnterUrl() {
         analyticsCoordinator.log(action: Analytics.Action.enterUrl)
+    }
+}
+
+extension DappBrowserCoordinator: SwitchCustomChainCoordinatorDelegate {
+    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
+        browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+        removeCoordinator(coordinator)
+    }
+
+    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        `switch`(toServer: server, url: url)
+        removeCoordinator(coordinator)
+    }
+
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
+        removeCoordinator(coordinator)
+    }
+
+    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        delegate?.restartToAddEnableAAndSwitchBrowserToServer(inCoordinator: self)
+        removeCoordinator(coordinator)
+    }
+
+    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+        removeCoordinator(coordinator)
+    }
+
+    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        let error = DAppError.nodeError(errorMessage)
+        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
+        removeCoordinator(coordinator)
+    }
+
+    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
+        removeCoordinator(coordinator)
+    }
+
+    func cleanup(coordinator: SwitchCustomChainCoordinator) {
+        removeCoordinator(coordinator)
     }
 }

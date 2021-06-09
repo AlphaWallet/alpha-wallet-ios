@@ -6,6 +6,19 @@ import BigInt
 
 // swiftlint:disable type_body_length
 enum RPCServer: Hashable, CaseIterable {
+    static var customRpcs: [CustomRPC] = RPCServer.convertJsonToCustomRpcs(Config().customRpcServersJson) {
+        didSet {
+            if let data = try? JSONEncoder().encode(customRpcs), let json = String(data: data, encoding: .utf8) {
+                var c = Config()
+                c.customRpcServersJson = json
+                servers = customRpcs.map { RPCServer.custom($0) }
+            } else {
+                //no-op
+            }
+        }
+    }
+    private(set) static var servers: [Self] = customRpcs.map { RPCServer.custom($0) }
+
     case main
     case kovan
     case ropsten
@@ -34,7 +47,7 @@ enum RPCServer: Hashable, CaseIterable {
     case optimisticKovan
     case custom(CustomRPC)
 
-    enum EtherscanCompatibleType {
+    enum EtherscanCompatibleType: String, Codable {
         case etherscan
         case blockscout
         case unknown
@@ -113,7 +126,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan:
             return true
         case .custom(let custom):
-            return custom.isTestNet
+            return custom.isTestnet
         }
     }
 
@@ -648,7 +661,8 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.mumbai_testnet.name: return .mumbai_testnet
             case RPCServer.optimistic.name: return .optimistic
             case RPCServer.optimisticKovan.name: return .optimisticKovan
-            default: return .main
+            default:
+                return RPCServer.servers.first { $0.name == name } ?? .main
             }
         }()
     }
@@ -680,7 +694,8 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.mumbai_testnet.chainID: return .mumbai_testnet
             case RPCServer.optimistic.chainID: return .optimistic
             case RPCServer.optimisticKovan.chainID: return .optimisticKovan
-            default: return .main
+            default:
+                return RPCServer.servers.first { $0.chainID == chainID } ?? .main
             }
         }()
     }
@@ -729,6 +744,7 @@ enum RPCServer: Hashable, CaseIterable {
     }
 
     //We'll have to manually new cases here
+    //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
     static var allCases: [RPCServer] {
         return [
             .main,
@@ -755,8 +771,22 @@ enum RPCServer: Hashable, CaseIterable {
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
-        ]
+        ] + RPCServer.servers
     }
+
+    private static func convertJsonToCustomRpcs(_ json: String?) -> [CustomRPC] {
+        if let json = json {
+            let data = json.data(using: .utf8)
+            if let servers = try? JSONDecoder().decode([CustomRPC].self, from: data!) {
+                return servers
+            } else {
+                return .init()
+            }
+        } else {
+            return .init()
+        }
+    }
+
 }
 // swiftlint:enable type_body_length
 

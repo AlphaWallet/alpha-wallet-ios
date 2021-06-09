@@ -39,7 +39,12 @@ class TokenInstanceWebView: UIView {
             if let action = SetProperties.fromMessage(message) {
                 return .setActionProps(action)
             } else if let command = DappAction.fromMessage(message) {
-                return .dappAction(command)
+                switch command {
+                case .eth(let command):
+                    return .dappAction(command)
+                case .walletAddEthereumChain:
+                    return nil
+                }
             }
             return nil
         }
@@ -435,7 +440,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         //TODO clean up this. Some of these are wrong, eg: transactionType. They are only here so we can sign personal message
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
-        let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
+        let action = DappAction.fromCommand(.eth(command), server: server, transactionType: .dapp(token, requester))
 
         switch wallet.type {
         case .real(let account):
@@ -444,7 +449,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
                 signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall:
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain:
                 return
             }
         case .watch:
