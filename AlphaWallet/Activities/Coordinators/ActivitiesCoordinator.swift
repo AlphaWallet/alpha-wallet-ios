@@ -16,10 +16,6 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     private let activitiesService: ActivitiesServiceType
     weak var delegate: ActivitiesCoordinatorDelegate?
 
-    private var wallet: Wallet {
-        sessions.anyValue.account
-    }
-
     lazy var rootViewController: ActivitiesViewController = {
         makeActivitiesViewController()
     }()

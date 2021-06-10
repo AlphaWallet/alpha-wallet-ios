@@ -417,11 +417,6 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func transactionsFilter(for strategy: ActivitiesFilterStrategy, transactionType: TransactionType) -> TransactionsFilterStrategy {
-        let oo = transactionsStorage.objects.filter { tx -> Bool in
-            return strategy.isRecentTransaction(transaction: TransactionInstance(transaction: tx))
-        }
-        NSLog("KKKK-ST: recent transactions \(oo.count)")
-        
         let filter = FilterInSingleTransactionsStorage(transactionsStorage: transactionsStorage) { tx in
             return strategy.isRecentTransaction(transaction: tx)
         }
