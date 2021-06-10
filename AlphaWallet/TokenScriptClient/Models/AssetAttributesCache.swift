@@ -7,8 +7,8 @@ private typealias ContractTokenIdsAttributeValues = [TokenId: [AttributeId: Cach
 
 class AssetAttributesCache {
     private var resolvedAttributesData: AssetAttributesCacheData
-    private var functionOriginAttributes: [AlphaWallet.Address: [AttributeId: AssetAttribute]] = .init()
-    private var functionOriginSubscribables: [AlphaWallet.Address: [TokenId: [AttributeId: Subscribable<AssetInternalValue>]]] = .init()
+    private var functionOriginAttributes: ThreadSafeDictionary<AlphaWallet.Address, [AttributeId: AssetAttribute]> = .init()
+    private var functionOriginSubscribables: ThreadSafeDictionary<AlphaWallet.Address, [TokenId: [AttributeId: Subscribable<AssetInternalValue>]]> = .init()
 
     weak var assetDefinitionStore: AssetDefinitionStore?
 

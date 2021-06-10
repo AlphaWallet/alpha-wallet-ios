@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreFoundation
 
 protocol ActivitiesServiceType: class {
     var subscribableViewModel: Subscribable<ActivitiesViewModel> { get }
@@ -18,7 +19,7 @@ protocol ActivitiesServiceType: class {
 
 enum ActivitiesFilterStrategy {
     case none
-    case nativeCryptocurrency
+    case nativeCryptocurrency(primaryKey: String)
     case erc20(contract: AlphaWallet.Address)
 
     func isRecentTransaction(transaction: TransactionInstance) -> Bool {
@@ -43,11 +44,30 @@ enum ActivitiesFilterStrategy {
     }
 }
 
+class ParkBenchTimer {
+
+    var startTime: CFAbsoluteTime
+
+    init() {
+        startTime = CFAbsoluteTimeGetCurrent()
+    }
+
+    func stop() -> CFAbsoluteTime {
+        let endTime = CFAbsoluteTimeGetCurrent()
+
+        return duration(endTime: endTime)
+    }
+
+    func duration(endTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()) -> CFAbsoluteTime {
+        return endTime - startTime
+    }
+}
+
 extension TransactionType {
     var activitiesFilterStrategy: ActivitiesFilterStrategy {
         switch self {
-        case .nativeCryptocurrency:
-            return .nativeCryptocurrency
+        case .nativeCryptocurrency(let tokenObject, _, _):
+            return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
         case .ERC20Token(let tokenObject, _, _):
             return .erc20(contract: tokenObject.contractAddress)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .claimPaidErc875MagicLink, .tokenScript:
@@ -120,7 +140,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         sessions.anyValue.account
     }
 
-    private let queue: DispatchQueue = DispatchQueue(label: "com.ActivitiesService.updateQueue")
+    private let queue: DispatchQueue
 
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private var filteredTransactionsSubscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
@@ -139,8 +159,10 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         eventsDataStore: EventsDataStoreProtocol,
         transactionCollection: TransactionCollection,
         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
-        transactionsFilterStrategy: TransactionsFilterStrategy = .all
+        transactionsFilterStrategy: TransactionsFilterStrategy = .all,
+        queue: DispatchQueue
     ) {
+        self.queue = queue
         self.config = config
         self.sessions = sessions
         self.tokensStorages = tokensStorages
@@ -151,24 +173,15 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.transactionCollection = transactionCollection
         self.transactionsFilterStrategy = transactionsFilterStrategy
         super.init()
-
+        
         filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] txs in
-            guard let strongSelf = self else { return }
-
-            strongSelf.debug(string: "on next: transactions \(txs?.count ?? 0)")
-            
-            strongSelf.queue.async {
-                strongSelf.reloadImpl(reloadImmediately: true)
-            }
+            self?.debug(string: "on next: transactions \(txs?.count ?? 0)")
+            self?.reloadImpl(reloadImmediately: true)
         }
 
         recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] activities in
-            guard let strongSelf = self else { return }
-            strongSelf.debug(string: "on next: activities \(activities?.count ?? 0)")
-
-            strongSelf.queue.async {
-                strongSelf.reloadImpl(reloadImmediately: true)
-            }
+            self?.debug(string: "on next: activities \(activities?.count ?? 0)")
+            self?.reloadImpl(reloadImmediately: true)
         }
     }
 
@@ -181,7 +194,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionCollection, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy)
+        return ActivitiesService(config: config, sessions: sessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionCollection, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue)
     }
 
     func stop() {
@@ -192,15 +205,18 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func reloadImpl(reloadImmediately: Bool) {
+        let t1 = ParkBenchTimer()
+        debug(string: "start reloadImpl")
         let contractServerXmlHandlers: [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)] = tokensInDatabase.compactMap { each in
             let eachContract = each.contractAddress
             let eachServer = each.server
             let xmlHandler = XMLHandler(token: each, assetDefinitionStore: assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition else { return nil }
             guard xmlHandler.server?.matches(server: eachServer) ?? false else { return nil }
+
             return (contract: eachContract, server: eachServer, xmlHandler: xmlHandler)
         }
-
+        debug(string: "start reloadImpl p1 \(t1.duration()) seconds.")
         let contractsAndCardsOptional: [[(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]] = contractServerXmlHandlers.compactMap { eachContract, _, xmlHandler in
             var contractAndCard: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)] = .init()
             for card in xmlHandler.activityCards {
@@ -235,23 +251,28 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
 
         let contractsAndCards = contractsAndCardsOptional.flatMap { $0 }
+        debug(string: "finish reloadImpl \(t1.stop()) seconds.")
+
         fetchAndRefreshActivities(contractsAndCards: contractsAndCards, reloadImmediately: reloadImmediately)
     }
 
     private func fetchAndRefreshActivities(contractsAndCards: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)], reloadImmediately: Bool) {
+        let t1 = ParkBenchTimer()
+        debug(string: "start fetch and refresh activities")
         let recentEvents = eventsActivityDataStore.getRecentEvents()
-        debug(string: "fatch and refresh activities: \(recentEvents.count) trs: \((filteredTransactionsSubscription.value ?? []).count)")
+        debug(string: "sub fetch-1 \(t1.stop()) seconds")
         var activitiesAndTokens: [(Activity, Activity.AssignedToken, TokenHolder)] = .init()
         for (eachContract, eachServer, card, interpolatedFilter) in contractsAndCards {
             let activities = getActivities(recentEvents, forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
             activitiesAndTokens.append(contentsOf: activities)
         }
-
+        debug(string: "sub fetch-2 \(t1.stop()) seconds")
         activities = activitiesAndTokens.map { $0.0 }
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
+        debug(string: "finish fetch and refresh activities: \(recentEvents.count) trs: \((filteredTransactionsSubscription.value ?? []).count), \(t1.stop()) seconds")
         reloadViewController(reloadImmediately: reloadImmediately)
-        
+
         for (activity, tokenObject, tokenHolder) in activitiesAndTokens {
             refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity)
         }
@@ -303,11 +324,10 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
                     tokenHolders = [TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)]
                 } else {
-                    //NOTE: because this can be called from different threads we can use cache here, but we can cache Activity.AssignedToken
                     let tokensDatastore = tokensStorages[server]
                     guard let t = tokensDatastore.tokenThreadSafe(forContract: tokenObject.contractAddress) else { return nil }
 
-                    tokenHolders = TokenAdaptor(token: t, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: sessions.anyValue.account)
+                    tokenHolders = TokenAdaptor(token: t, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet)
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }
@@ -326,16 +346,16 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             }
         }
 
-        return filteredActivitiesForThisCard.filter { mapped -> Bool in
-            switch self.activitiesFilterStrategy {
-            case .none:
-                return true
-            case .erc20(let contract):
+        switch activitiesFilterStrategy {
+        case .none:
+            return filteredActivitiesForThisCard
+        case .erc20(let contract):
+            return filteredActivitiesForThisCard.filter { mapped -> Bool in
                 return mapped.tokenObject.contractAddress.sameContract(as: contract)
-            case .nativeCryptocurrency:
-                return self.transactions.contains(where: {
-                    $0.id == mapped.activity.transactionId && mapped.activity.tokenObject.type == .nativeCryptocurrency
-                })
+            }
+        case .nativeCryptocurrency(let primaryKey):
+            return filteredActivitiesForThisCard.filter { mapped -> Bool in
+                return mapped.tokenObject.primaryKey == primaryKey
             }
         }
     }
@@ -348,10 +368,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             if hasLoadedActivitiesTheFirstTime {
                 if rateLimitedViewControllerReloader == nil {
                     rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
-                        guard let strongSelf = self else { return }
-                        strongSelf.queue.async {
-                            strongSelf.reloadViewControllerImpl()
-                        }
+                        self?.reloadViewControllerImpl()
                     }
                 } else {
                     rateLimitedViewControllerReloader?.run()
@@ -372,10 +389,12 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     private func reloadViewControllerImpl() {
+        let t1 = ParkBenchTimer()
+        self.debug(string: "start combine activities: \(activities.count) transactions: \(transactions.count)")
+
         if !activities.isEmpty {
             hasLoadedActivitiesTheFirstTime = true
         }
-
         let transactions: [TransactionInstance]
         if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
             transactions = self.transactions.filter { $0.blockNumber >= blockNumberOfOldestActivity }
@@ -384,16 +403,14 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
 
         let items = combine(activities: activities, withTransactions: transactions)
-        self.debug(string: "combite activities: \(activities.count) transactions: \(transactions.count)")
-        queue.async {
-            let activities = ActivitiesViewModel.sorted(activities: items)
+        self.debug(string: "finish combine activities: \(activities.count) transactions: \(transactions.count) \(t1.duration()) seconds")
 
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.debug(string: "reload view model \(activities.count)")
+        let activities = ActivitiesViewModel.sorted(activities: items)
 
-                strongSelf.subscribableViewModel.value = .init(activities: activities)
-            }
+        debug(string: "reload view model \(activities.count) \(t1.stop()) seconds")
+
+        DispatchQueue.main.async { [weak self] in
+            self?.subscribableViewModel.value = .init(activities: activities)
         }
     }
 
@@ -482,8 +499,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance]) -> Bool {
         //Might have other transactions like approved embedded, so we can't check for all send and receives.
-        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: sessions.anyValue.account.address) }
-        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: sessions.anyValue.account.address) }
+        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: wallet.address) }
+        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: wallet.address) }
         return hasSend && hasReceive
     }
 

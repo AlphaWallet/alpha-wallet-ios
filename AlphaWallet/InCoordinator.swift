@@ -58,9 +58,10 @@ class InCoordinator: NSObject, Coordinator {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
         }
     }
+    private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     //TODO rename this generic name to reflect that it's for event instances, not for event activity
     lazy private var eventsDataStore: EventsDataStore = EventsDataStore(realm: realm)
-    lazy private var eventsActivityDataStore: EventsActivityDataStore = EventsActivityDataStore(realm: realm)
+    lazy private var eventsActivityDataStore: EventsActivityDataStore = EventsActivityDataStore(realm: realm, queue: queue)
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     private let coinTickersFetcher: CoinTickersFetcherType
     private lazy var eventSourceCoordinator: EventSourceCoordinatorType = createEventSourceCoordinator()
@@ -96,6 +97,7 @@ class InCoordinator: NSObject, Coordinator {
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
         return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService)
     }()
+
     private lazy var activitiesService: ActivitiesServiceType = createActivitiesService()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -199,7 +201,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivitiesService() -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection)
+        return ActivitiesService(config: config, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection, queue: queue)
     }
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
@@ -393,7 +395,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTransactionsCollection() -> TransactionCollection {
         let transactionsStoragesForEnabledServers = config.enabledServers.map { transactionsStorages[$0] }
-        return TransactionCollection(transactionsStorages: transactionsStoragesForEnabledServers)
+        return TransactionCollection(transactionsStorages: transactionsStoragesForEnabledServers, queue: queue)
     }
 
     private func setupNativeCryptoCurrencyPrices() {

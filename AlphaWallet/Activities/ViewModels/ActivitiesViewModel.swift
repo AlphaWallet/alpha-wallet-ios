@@ -9,11 +9,9 @@ enum ActivityOrTransactionFilter {
 }
 
 struct ActivitiesViewModel {
-    private static var formatter: DateFormatter {
-        return Date.formatter(with: "dd MMM yyyy")
-    }
+    private static var formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy")
 
-    typealias MappedToDateActivityOrTransaction = (date: String, items: [ActivityRowModel])
+    typealias MappedToDateActivityOrTransaction = (date: TimeInterval, items: [ActivityRowModel])
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
@@ -28,10 +26,10 @@ struct ActivitiesViewModel {
 // swiftlint:disable function_body_length
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
-        var newItems: [String: NSMutableArray] = [:]
-        let formatter = ActivitiesViewModel.formatter
+        var newItems: [TimeInterval: NSMutableArray] = [:]
+
         for each in activities {
-            let date = formatter.string(from: each.date)
+            let date = each.date.timeIntervalSince1970
             let currentItems = newItems[date] ?? .init()
             currentItems.add(each)
             newItems[date] = currentItems
@@ -119,11 +117,9 @@ struct ActivitiesViewModel {
                     }
                 }
             })
-        }.sorted { (object1, object2) -> Bool in
-            guard let date1 = formatter.date(from: object1.date), let date2 = formatter.date(from: object2.date) else {
-                return false
-            }
-            return date1 > date2
+        }
+        .sorted { (object1, object2) -> Bool in
+            return object1.date > object2.date
         }
     }
 // swiftlint:enable function_body_length
@@ -193,16 +189,15 @@ struct ActivitiesViewModel {
     }
 
     func titleForHeader(in section: Int) -> String {
-        let value = filteredItems[section].date
-
-        let date = ActivitiesViewModel.formatter.date(from: value)!
+        let date = Date(timeIntervalSince1970: filteredItems[section].date)
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }
         if NSCalendar.current.isDateInYesterday(date) {
             return R.string.localizable.yesterday().localizedUppercase
         }
-        return value.localizedUppercase
+
+        return Self.formatter.string(from: date).localizedUppercase
     }
 
     private func splitIntoExactlyTwoKeywords(_ string: String) -> (String, String)? {

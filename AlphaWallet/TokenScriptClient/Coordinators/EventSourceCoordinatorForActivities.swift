@@ -20,8 +20,6 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
-    private let timestampCoordinator = GetBlockTimestampCoordinator()
-    private var hasNotifyDelegateToLoadAtLeastOnce = false
 
     init(wallet: Wallet, config: Config, tokensStorages: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
@@ -94,75 +92,77 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     }
 
     private func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard) -> Promise<Void>? {
-        let eventOrigin = card.eventOrigin
-        let (filterName, filterValue) = eventOrigin.eventFilter
-        let filterParam = eventOrigin.parameters.filter {
-            $0.isIndexed
-        }.map {
-            self.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue)
-        }
+        return Promise { seal in
+            self.queue.async {
 
-        if filterParam.allSatisfy({ $0 == nil }) {
-            //TODO log to console as diagnostic
-            return nil
-        }
-
-        let timestampCoordinator = self.timestampCoordinator
-        return eventsDataStore.getMatchingEventsSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName).map(on: queue, { oldEvent -> (EventFilter.Block, UInt64) in
-            if let newestEvent = oldEvent {
-                let value = UInt64(newestEvent.blockNumber + 1)
-                return (.blockNumber(value), value)
-            } else {
-                return (.blockNumber(0), 0)
-            }
-        }).map(on: queue, { fromBlock -> EventFilter in
-            let parameterFilters = filterParam.map { $0?.filter }
-            let addresses = [EthereumAddress(address: eventOrigin.contract)]
-
-            let toBlock: EventFilter.Block
-            if server == .binance_smart_chain || server == .binance_smart_chain_testnet || server == .heco {
-                //NOTE: binance_smart_chain not allows range more then 5000
-                toBlock = .blockNumber(fromBlock.1 + 4000)
-            } else {
-                toBlock = .latest
-            }
-            return EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
-        }).then(on: queue, { eventFilter in
-            getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
-        }).then(on: queue, { events -> Promise<[EventActivityInstance]> in
-            let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
-                guard let blockNumber = event.eventLog?.blockNumber else {
-                    return .value(nil)
+                let eventOrigin = card.eventOrigin
+                let (filterName, filterValue) = eventOrigin.eventFilter
+                let filterParam = eventOrigin.parameters.filter {
+                    $0.isIndexed
+                }.map {
+                    self.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue)
                 }
 
-                return timestampCoordinator
-                    .getBlockTimestamp(blockNumber, onServer: server)
-                    .map(on: self.queue, { date in
-                        Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
-                    }).recover(on: self.queue, { _ -> Promise<EventActivityInstance?> in
-                        return .value(nil)
-                    })
-            }
+                if filterParam.allSatisfy({ $0 == nil }) {
+                    //TODO log to console as diagnostic
+                    seal.fulfill(())
+                    return
+                }
 
-            return when(resolved: promises).map(on: self.queue, { res -> [EventActivityInstance] in
-                return res.compactMap { promise -> EventActivityInstance? in
-                    switch promise {
-                    case .fulfilled(let value):
-                        return value
-                    case .rejected:
-                        return nil
+                self.eventsDataStore.getMatchingEventsSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName).map(on: self.queue, { oldEvent -> (EventFilter.Block, UInt64) in
+                    if let newestEvent = oldEvent {
+                        let value = UInt64(newestEvent.blockNumber + 1)
+                        return (.blockNumber(value), value)
+                    } else {
+                        return (.blockNumber(0), 0)
                     }
+                }).map(on: self.queue, { fromBlock -> EventFilter in
+                    let parameterFilters = filterParam.map { $0?.filter }
+                    let addresses = [EthereumAddress(address: eventOrigin.contract)]
+
+                    let toBlock: EventFilter.Block
+                    if server == .binance_smart_chain || server == .binance_smart_chain_testnet || server == .heco {
+                        //NOTE: binance_smart_chain not allows range more then 5000
+                        toBlock = .blockNumber(fromBlock.1 + 4000)
+                    } else {
+                        toBlock = .latest
+                    }
+                    return EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
+                }).then(on: self.queue, { eventFilter in
+                    getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
+                }).then(on: self.queue, { events -> Promise<[EventActivityInstance]> in
+                    let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
+                        guard let blockNumber = event.eventLog?.blockNumber else {
+                            return .value(nil)
+                        }
+
+                        return GetBlockTimestampCoordinator()
+                            .getBlockTimestamp(blockNumber, onServer: server)
+                            .map(on: self.queue, { date in
+                                Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
+                            }).recover(on: self.queue, { _ -> Promise<EventActivityInstance?> in
+                                return .value(nil)
+                            })
+                    }
+
+                    return when(resolved: promises).map(on: self.queue, { res -> [EventActivityInstance] in
+                        promises.compactMap { $0.value }.compactMap { $0 }
+                    })
+                }).then(on: self.queue, { events -> Promise<Void> in
+                    if events.isEmpty {
+                        return .value(())
+                    } else {
+                        return self.eventsDataStore.add(events: events, forTokenContract: tokenContract).then(on: self.queue, { _ -> Promise<Void> in
+                            return .value(())
+                        })
+                    }
+                }).done { _ in
+                    seal.fulfill(())
+                }.catch { e in
+                    seal.reject(e)
                 }
-            })
-        }).then(on: queue, { events -> Promise<Void> in
-            if events.isEmpty {
-                return .value(())
-            } else {
-                return self.eventsDataStore.add(events: events, forTokenContract: tokenContract).then(on: self.queue, { _ -> Promise<Void> in
-                    return .value(())
-                })
-            } 
-        })
+            }
+        }
     }
 
     private static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, date: Date, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, tokenContract: AlphaWallet.Address, server: RPCServer) -> EventActivityInstance? {

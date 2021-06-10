@@ -59,10 +59,11 @@ class TransactionCollection: NSObject, TransactionCollectionType {
 
     //TODO make private
     let transactionsStorages: [TransactionsStorage]
-    private let queue: DispatchQueue = DispatchQueue(label: "com.TransactionCollection.updateQueue")
+    private let queue: DispatchQueue
 
-    init(transactionsStorages: [TransactionsStorage]) {
+    init(transactionsStorages: [TransactionsStorage], queue: DispatchQueue) {
         self.transactionsStorages = transactionsStorages
+        self.queue = queue
         super.init()
     }
 
@@ -94,16 +95,19 @@ class TransactionCollection: NSObject, TransactionCollectionType {
     }
 
     private func createSingleStorageSubscription(filterObject: FilterInSingleTransactionsStorage) -> (notifier: Subscribable<[TransactionInstance]>, subscriptions: [NotificationToken]) {
+
         let notifier = Subscribable<[TransactionInstance]>(nil)
         let subscription = filterObject.transactionsStorage.objects.observe(on: queue) { change in
             switch change {
-            case .initial(let objects):
-                notifier.value = Self.filter(results: objects, filterObject: filterObject)
-            case .error:
+            case .initial, .error:
                 break
             case .update(let objects, _, _, _):
                 notifier.value = Self.filter(results: objects, filterObject: filterObject)
             }
+        }
+
+        queue.async {
+            notifier.value = Self.filter(results: filterObject.transactionsStorage.objects, filterObject: filterObject)
         }
 
         return (notifier, [subscription])
@@ -117,25 +121,12 @@ class TransactionCollection: NSObject, TransactionCollectionType {
         let notifier = Subscribable<[TransactionInstance]>(nil)
         var subscriptions: [NotificationToken] = []
 
-//        var shouldUpdateViewModelInitially: Bool = true
-        var counter: Int = 0
-        let required: Int = transactionsStorages.count
-
         for store in transactionsStorages {
             let subscription = store.objects.observe(on: queue) { [weak self] change in
                 guard let strongSelf = self else { return }
 
                 switch change {
-                case .initial:
-                    counter += 1
-                    if counter == required {
-                        notifier.value = strongSelf.objects
-                    }
-//                    if shouldUpdateViewModelInitially {
-//                        notifier.value = strongSelf.objects
-//                        shouldUpdateViewModelInitially = false
-//                    }
-                case .error:
+                case .initial, .error:
                     break
                 //NOTE: we don't want to fire trigger initial change event for each storage
                 // and fire it only once. All lates updates will be fired for each storage
@@ -145,6 +136,10 @@ class TransactionCollection: NSObject, TransactionCollectionType {
             }
 
             subscriptions.append(subscription)
+        }
+
+        queue.async {
+            notifier.value = self.objects
         }
 
         return (notifier, subscriptions)

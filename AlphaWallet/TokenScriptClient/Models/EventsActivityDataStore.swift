@@ -18,10 +18,11 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     static let numberOfActivitiesToUse = 100
 
     private let realm: Realm
-    private let queue: DispatchQueue = DispatchQueue(label: "com.EventsActivityDataStore.updateQueue")
+    private let queue: DispatchQueue
 
-    init(realm: Realm) {
+    init(realm: Realm, queue: DispatchQueue) {
         self.realm = realm
+        self.queue = queue
     }
 
     private var cachedRecentEventsSubscribable: [Subscribable<[EventActivity]>: NotificationToken] = [:]
@@ -35,15 +36,17 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
 
         let notifier = Subscribable<[EventActivity]>(nil)
 
-        let subscription = getRecentEvents().observe(on: .main) {  change in
+        let subscription = getRecentEvents().observe(on: queue) {  change in
             switch change {
-            case .initial(let events):
-                notifier.value = events.map { $0 }
-            case .error:
+            case .initial, .error:
                 break
             case .update(let events, _, _, _):
                 notifier.value = events.map { $0 }
             }
+        }
+
+        queue.async {
+            notifier.value = getRecentEvents().map { $0 }
         }
 
         cachedRecentEventsSubscribable[notifier] = subscription
