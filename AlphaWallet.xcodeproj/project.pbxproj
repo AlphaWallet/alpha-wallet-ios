@@ -750,6 +750,7 @@
 		8762002E266E15310059B05A /* PopularTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8762002D266E15310059B05A /* PopularTokenViewCellViewModel.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
+		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
 		87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
@@ -1658,6 +1659,7 @@
 		8762002D266E15310059B05A /* PopularTokenViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
+		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
 		87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodedFunctionCall+Decode.swift"; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
@@ -4056,6 +4058,7 @@
 			isa = PBXGroup;
 			children = (
 				879599492604A5B6006722B2 /* CoinTickersFetcher.swift */,
+				876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */,
 			);
 			path = CoinTicker;
 			sourceTree = "<group>";
@@ -5355,6 +5358,7 @@
 				5E7C7AD6B20E857DAF560E4E /* AssetAttributeValues.swift in Sources */,
 				5E7C7FDEE19E17F35B27D5DE /* AssetAttributesCache.swift in Sources */,
 				5E7C7A957F0CF58041D4929E /* AssetAttributeSyntaxValue.swift in Sources */,
+				876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */,
 				87C8018C24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift in Sources */,
 				5E7C7BDE26B72B7620EA5F01 /* AssetDefinitionBackingStore.swift in Sources */,
 				5E7C75421C08B96E8872722C /* GeneralisedTime.swift in Sources */,

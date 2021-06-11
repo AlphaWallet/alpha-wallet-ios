@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct AddressAndRPCServer: Hashable {
+struct AddressAndRPCServer: Hashable, Codable {
     let address: AlphaWallet.Address
     let server: RPCServer
 }
