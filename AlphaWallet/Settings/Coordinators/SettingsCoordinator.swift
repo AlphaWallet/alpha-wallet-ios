@@ -18,12 +18,15 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
+    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: SettingsCoordinator)
+    func restartToRemoveServer(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
 	private let keystore: Keystore
 	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
+    private let restartQueue: RestartTaskQueue
     private let _promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
@@ -47,6 +50,7 @@ class SettingsCoordinator: Coordinator {
         keystore: Keystore,
         config: Config,
         sessions: ServerDictionary<WalletSession>,
+        restartQueue: RestartTaskQueue,
         promptBackupCoordinator: PromptBackupCoordinator,
         analyticsCoordinator: AnalyticsCoordinator,
         walletConnectCoordinator: WalletConnectCoordinator
@@ -56,6 +60,7 @@ class SettingsCoordinator: Coordinator {
 		self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
+        self.restartQueue = restartQueue
         self._promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
@@ -156,7 +161,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
-        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
+        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers, restartQueue: restartQueue)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -254,6 +259,16 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 		coordinator.stop()
 		removeCoordinator(coordinator)
 	}
+
+    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator) {
+        delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
+        removeCoordinator(coordinator)
+    }
+
+    func restartToRemoveServer(in coordinator: EnabledServersCoordinator) {
+        delegate?.restartToRemoveServer(in: self)
+        removeCoordinator(coordinator)
+    }
 }
 
 extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
