@@ -71,6 +71,11 @@ struct ChartHistory: Codable, CustomDebugStringConvertible {
         }
     }
 
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(prices, forKey: .prices)
+    }
+
     init(prices: [HistoryValue]) {
         self.prices = prices
     }

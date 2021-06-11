@@ -150,7 +150,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                     self.cacheChartHistory(result: $0, period: period, for: ticker)
                 })
             }
-        }.recover { e -> Promise<ChartHistory> in
+        }.recover { _ -> Promise<ChartHistory> in
             if shouldRetry {
                 return self.fetchChartHistory(force: force, period: period, for: key, shouldRetry: false)
             } else {
@@ -173,7 +173,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 case .week, .month, .threeMonth, .year:
                     hasCacheExpired = false
                 }
-                if hasCacheExpired {
+                if hasCacheExpired || cached.history.prices.isEmpty {
                     //TODO improve by returning the cached value and returning again after refetching. Harder to do with current implement because promises only resolves once. Maybe the Promise's type should be a subscribable?
                     return .value((ticker: ticker, history: nil))
                 } else {

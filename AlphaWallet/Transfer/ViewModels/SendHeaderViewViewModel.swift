@@ -89,7 +89,7 @@ struct TokenInfoPageViewModel {
     var yearLowViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
-            if let min = HistoryHelper(history: history, ticker: ticker).minMax?.min, let value = NumberFormatter.usd.string(from: min) {
+            if let min = HistoryHelper(history: history).minMax?.min, let value = NumberFormatter.usd.string(from: min) {
                 return value
             } else {
                 return "-"
@@ -106,7 +106,7 @@ struct TokenInfoPageViewModel {
     var yearHightViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
-            if let max = HistoryHelper(history: history, ticker: ticker).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
+            if let max = HistoryHelper(history: history).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
                 return value
             } else {
                 return "-"
@@ -142,7 +142,7 @@ struct TokenInfoPageViewModel {
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
         let result: (String, UIColor) = {
-            let result = HistoryHelper(history: values[safe: period.index], ticker: ticker)
+            let result = HistoryHelper(history: values[safe: period.index])
 
             switch result.change {
             case .appreciate(let percentage, let value):
@@ -252,11 +252,9 @@ struct HistoryHelper {
     }
 
     private let history: ChartHistory?
-    private let ticker: CoinTicker?
 
-    init(history: ChartHistory?, ticker: CoinTicker?) {
+    init(history: ChartHistory?) {
         self.history = history
-        self.ticker = ticker
     }
 
     var minMax: (min: Double, max: Double)? {
@@ -267,34 +265,32 @@ struct HistoryHelper {
     }
 
     var change: HistoryHelper.Change {
-        if let percentage = changePercentage, let value = changeValue {
-            if isValueAppreciated24h(value) {
-                return .appreciate(percentage: percentage, value: value)
-            } else if isValueDepreciated24h(value) {
-                return .depreciate(percentage: percentage, value: value)
+        changeValues.flatMap { values -> HistoryHelper.Change in
+            if isValueAppreciated24h(values.percentage) {
+                return .appreciate(percentage: values.percentage, value: values.change)
+            } else if isValueDepreciated24h(values.percentage) {
+                return .depreciate(percentage: values.percentage, value: values.change)
             } else {
                 return .none
             }
-        } else {
-            return .none
+        } ?? .none
+    }
+
+    private var changeValues: (change: Double, percentage: Double)? {
+        history.flatMap { history -> (Double, Double)? in
+            let value = history.prices
+            if value.isEmpty { return nil }
+
+            var changeSum: Double = 0
+            var percChangeSum: Double = 0
+            for i in 0 ..< value.count - 1 {
+                let change = value[i+1].value - value[i].value
+
+                changeSum += change
+                percChangeSum += change / value[i+1].value
+            }
+            return (changeSum, percChangeSum * 100)
         }
-    }
-
-    private var historicalValues: (older: Double, newer: Double)? {
-        guard let history = history else { return nil }
-        guard let older = history.prices.first?.value, let newer = history.prices.last?.value else { return nil }
-
-        return (older, newer)
-    }
-
-    private var changeValue: Double? {
-        guard let val = historicalValues, let ticker = ticker else { return nil }
-        return val.older - ticker.price_usd
-    }
-
-    private var changePercentage: Double? {
-        guard let val = historicalValues, let ticker = ticker else { return nil }
-        return ticker.price_usd / val.older * 100.0
     }
 
     private func isValueAppreciated24h(_ value: Double?) -> Bool {
