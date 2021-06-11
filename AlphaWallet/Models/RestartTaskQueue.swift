@@ -6,7 +6,9 @@ class RestartTaskQueue {
     private (set) var queue: [Task]
 
     enum Task: Equatable {
+        //TODO make it unnecessary to restart UI after adding/removing a custom chain. At least have to start pricing fetching etc
         case addServer(CustomRPC)
+        case removeServer(CustomRPC)
         case enableServer(RPCServer)
         case switchDappServer(server: RPCServer)
         case loadUrlInDappBrowser(URL)

@@ -5,9 +5,24 @@ import APIKit
 import JSONRPCKit
 import PromiseKit
 
+enum AddCustomChainError: Error {
+    case cancelled
+    case others(String)
+
+    var message: String {
+        switch self {
+        case .cancelled:
+            //This is the default behavior, just keep it
+            return "\(self)"
+        case .others(let message):
+            return message
+        }
+    }
+}
+
 protocol AddCustomChainDelegate: class {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain)
-    func notifyAddCustomChainFailed(error: DAppError, in addCustomChain: AddCustomChain)
+    func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain)
 }
 
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
@@ -37,12 +52,12 @@ class AddCustomChain {
         }.then { chainId, rpcUrl, explorerType in
             self.queueAddCustomChain(self.customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: explorerType)
         }.done {
-            self.notifyAddCustomChainQueuedSuccessfully()
+            self.delegate?.notifyAddCustomChainQueuedSuccessfully(in: self)
         }.catch {
-            if let error = $0 as? DAppError {
-                self.informDappCustomChainAddingFailed(error)
+            if let error = $0 as? AddCustomChainError {
+                self.delegate?.notifyAddCustomChainFailed(error: error, in: self)
             } else {
-                self.informDappCustomChainAddingFailed(.nodeError("Unknown Error"))
+                self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown()) — \($0)"), in: self)
             }
         }
     }
@@ -60,14 +75,6 @@ class AddCustomChain {
             seal.fulfill(())
         }
     }
-
-    private func notifyAddCustomChainQueuedSuccessfully() {
-        delegate?.notifyAddCustomChainQueuedSuccessfully(in: self)
-    }
-
-    private func informDappCustomChainAddingFailed(_ error: DAppError) {
-        delegate?.notifyAddCustomChainFailed(error: error, in: self)
-    }
 }
 
 extension AddCustomChain {
@@ -79,7 +86,7 @@ extension AddCustomChain {
 extension AddCustomChain.functional {
     static func checkChainId(_ customChain: WalletAddEthereumChainObject) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int)> {
         guard let chainId = Int(chainId0xString: customChain.chainId) else {
-            return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId)))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId)))
         }
         return .value((customChain: customChain, chainId: chainId))
     }
@@ -87,7 +94,7 @@ extension AddCustomChain.functional {
     static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
         guard let rpcUrl = customChain.rpcUrls?.first else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
-            return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
         }
 
         return firstly {
@@ -108,14 +115,14 @@ extension AddCustomChain.functional {
             if let retrievedChainId = Int(chainId0xString: result), retrievedChainId == chainId {
                 return (chainId: chainId, rpcUrl: rpcUrl)
             } else {
-                throw DAppError.nodeError("chainIds do not match: \(result) vs. \(customChain.chainId)")
+                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorChainIdNotMatch(result, customChain.chainId))
             }
         }
     }
 
     private static func checkBlockchainExplorerApiHostname(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
         guard let urlString = customChain.blockExplorerUrls?.first else {
-            return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
         }
         return firstly {
             figureOutHostname(urlString)
@@ -164,7 +171,7 @@ extension AddCustomChain.functional {
 
         //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
         guard let url = URL(string: "\(urlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
-            return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
         }
         return firstly {
 

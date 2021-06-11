@@ -2,19 +2,19 @@
 
 import UIKit
 
-protocol SwitchCustomChainCoordinatorDelegate: class {
-    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator)
-    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator)
+protocol DappRequestSwitchCustomChainCoordinatorDelegate: class {
+    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     //This might not always been called. We call it when there's no other delegate function to call to inform the delegate to remove this coordinator
-    func cleanup(coordinator: SwitchCustomChainCoordinator)
+    func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator)
 }
 
-class SwitchCustomChainCoordinator: NSObject, Coordinator {
+class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private var addCustomChain: (chain: AddCustomChain, callbackId: Int)?
     private let config: Config
     private let server: RPCServer
@@ -25,7 +25,7 @@ class SwitchCustomChainCoordinator: NSObject, Coordinator {
     private let viewController: UIViewController
 
     var coordinators: [Coordinator] = []
-    weak var delegate: SwitchCustomChainCoordinatorDelegate?
+    weak var delegate: DappRequestSwitchCustomChainCoordinatorDelegate?
 
     init(config: Config, server: RPCServer, callbackId: Int, customChain: WalletAddEthereumChainObject, restartQueue: RestartTaskQueue, currentUrl: URL?, inViewController viewController: UIViewController) {
         self.config = config
@@ -127,14 +127,14 @@ class SwitchCustomChainCoordinator: NSObject, Coordinator {
     }
 }
 
-extension SwitchCustomChainCoordinator: EnableChainDelegate {
+extension DappRequestSwitchCustomChainCoordinator: EnableChainDelegate {
     //Don't need to notify browser/dapp since we are restarting UI
     func notifyEnableChainQueuedSuccessfully(in enableChain: EnableChain) {
         delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
     }
 }
 
-extension SwitchCustomChainCoordinator: AddCustomChainDelegate {
+extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
     //Don't need to notify browser/dapp since we are restarting UI
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         guard self.addCustomChain != nil else {
@@ -144,11 +144,18 @@ extension SwitchCustomChainCoordinator: AddCustomChainDelegate {
         delegate?.restartToAddEnableAAndSwitchBrowserToServer(inCoordinator: self)
     }
 
-    func notifyAddCustomChainFailed(error: DAppError, in addCustomChain: AddCustomChain) {
+    func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
         guard self.addCustomChain != nil else {
             delegate?.cleanup(coordinator: self)
             return
         }
-        delegate?.failed(withError: error, withCallbackId: callbackId, inCoordinator: self)
+        let dAppError: DAppError
+        switch error {
+        case .cancelled:
+            dAppError = .cancelled
+        case .others(let message):
+            dAppError = .nodeError(message)
+        }
+        delegate?.failed(withError: dAppError, withCallbackId: callbackId, inCoordinator: self)
     }
 }
