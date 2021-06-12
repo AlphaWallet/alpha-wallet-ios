@@ -610,25 +610,4 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
     func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int) {
         delegate?.controllerDidTapEdit(self)
     }
-}
-
-private extension UIBarButtonItem {
-    static var appIconBarButton: UIBarButtonItem {
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-
-        let view = UIImageView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.clipsToBounds = true
-        view.contentMode = .scaleAspectFit
-        view.image = R.image.awLogoSmall()
-        view.widthAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-
-        container.addSubview(view)
-        NSLayoutConstraint.activate([
-            view.anchorsConstraint(to: container)
-        ])
-
-        return UIBarButtonItem(customView: container)
-    }
-}
+} 
