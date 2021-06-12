@@ -13,7 +13,6 @@ protocol AddHideTokensViewControllerDelegate: class {
 
 class AddHideTokensViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
-//    private let sessions: ServerDictionary<WalletSession>
     private var viewModel: AddHideTokensViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
@@ -21,7 +20,6 @@ class AddHideTokensViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
-//        tableView.register(EthTokenViewCell.self)
         tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
         tableView.isEditing = true
         tableView.estimatedRowHeight = 100
@@ -238,8 +236,8 @@ extension AddHideTokensViewController: UITableViewDataSource {
             }
         }.catch { _ in
             tableView.reloadData()
-            
-            self.displayError(message: "Add token failure")
+
+            self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
         }.finally {
             self.hideLoading()
         }
