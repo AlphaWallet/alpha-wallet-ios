@@ -44,20 +44,18 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
-    private var isFetchingPrices = false
-    private var lastFetchedTickerIds: [String]?
-    private var lastFetchedDate: Date?
+    private var isFetchingPrices = false 
 
     private static let queue: DispatchQueue = DispatchQueue(label: "com.CoinTickersFetcher.updateQueue")
 
     private let provider: MoyaProvider<AlphaWalletService>
     private let config: Config
-    private var tickers: [AddressAndRPCServer: CoinTicker] = [:]
-    private var historyCache: [CoinTicker: [ChartHistoryPeriod: (history: ChartHistory, fetchDate: Date)]] = [:]
+    private let cache: CoinTickersFetcherCacheType
 
-    init(provider: MoyaProvider<AlphaWalletService>, config: Config) {
+    init(provider: MoyaProvider<AlphaWalletService>, config: Config, cache: CoinTickersFetcherCacheType = CoinTickersFetcherFileCache()) {
         self.provider = provider
         self.config = config
+        self.cache = cache
     }
 
     //Important in implementation to not cache the returned promise (which is used to further fetch prices). We only want to cache the promise/request for fetching supported tickers
@@ -89,9 +87,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         return firstly {
             fetchTickers(forTokens: tokens)
         }.get { [weak self] tickers, tickerIds in
-            self?.tickers = tickers
-            self?.lastFetchedTickerIds = tickerIds
-            self?.lastFetchedDate = Date()
+            self?.cache.tickers = tickers
+            self?.cache.lastFetchedTickerIds = tickerIds
+            self?.cache.lastFetchedDate = Date()
         }.map {
             $0.tickers
         }
@@ -116,9 +114,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker) {
         guard !result.prices.isEmpty else { return }
-        var newHistory = historyCache[ticker] ?? [:]
-        newHistory[period] = (history: result, fetchDate: Date())
-        historyCache[ticker] = newHistory
+        var newHistory = cache.historyCache[ticker] ?? [:]
+        newHistory[period] = .init(history: result, fetchDate: Date())
+        cache.historyCache[ticker] = newHistory
     }
 
     func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for key: AddressAndRPCServer, shouldRetry: Bool = true) -> Promise<ChartHistory> {
@@ -148,8 +146,8 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     private func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer) -> Promise<(ticker: CoinTicker, history: ChartHistory?)> {
         struct TickerNotFound: Swift.Error {
         }
-        if let ticker = tickers[key] {
-            if let cached = historyCache[ticker]?[period] {
+        if let ticker = cache.tickers[key] {
+            if let cached = cache.historyCache[ticker]?[period] {
                 let hasCacheExpired: Bool
                 switch period {
                 case .day:
@@ -192,9 +190,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }).then(on: CoinTickersFetcher.queue, { mapped -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> in
             let tickerIds: [String] = Set(mapped).map { $0.tickerId }
             let ids: String = tickerIds.joined(separator: ",")
-            if let lastFetchedTickers = self.lastFetchedTickerIds, let lastFetchingDate = self.lastFetchedDate, lastFetchedTickers.containsSameElements(as: tickerIds) {
+            if let lastFetchedTickers = self.cache.lastFetchedTickerIds, let lastFetchingDate = self.cache.lastFetchedDate, lastFetchedTickers.containsSameElements(as: tickerIds) {
                 if Date().timeIntervalSince(lastFetchingDate) <= self.pricesCacheLifetime {
-                    return .value((tickers: self.tickers, tickerIds: tickerIds))
+                    return .value((tickers: self.cache.tickers, tickerIds: tickerIds))
                 } else {
                     //no-op
                 }
