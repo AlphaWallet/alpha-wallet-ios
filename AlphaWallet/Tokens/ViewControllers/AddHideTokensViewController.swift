@@ -61,8 +61,7 @@ class AddHideTokensViewController: UIViewController {
         configure(viewModel: viewModel)
         setupFilteringWithKeyword()
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.plus(), style: .plain, target: self, action: #selector(addToken))
-        navigationItem.rightBarButtonItem?.width = 30
+        navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
     }
 
     override func viewWillAppear(_ animated: Bool) {

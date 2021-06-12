@@ -68,8 +68,7 @@ class AccountsCoordinator: Coordinator {
         case false:
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         }
-
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addWallet))
         controller.allowsAccountDeletion = self.viewModel.configuration.allowsAccountDeletion
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
