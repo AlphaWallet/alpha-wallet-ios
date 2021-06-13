@@ -4,13 +4,12 @@ import UIKit
 import PromiseKit
 
 struct OpenSeaNonFungibleTokenCardRowViewModel {
-    private static var imageGenerator = ConvertSVGToPNG()
+    //private static var imageGenerator = ConvertSVGToPNG()
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
 
     let areDetailsVisible: Bool
     let width: CGFloat
-    var bigImage: Promise<UIImage>?
     let convertHtmlInDescription: Bool
 
     init(tokenHolder: TokenHolder, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
@@ -19,9 +18,6 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         self.width = width
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.convertHtmlInDescription = convertHtmlInDescription
-
-        let tokenId = tokenHolder.values["tokenId"]?.stringValue
-        self.bigImage = OpenSeaNonFungibleTokenCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress.eip55String)
     }
 
     var contentsBackgroundColor: UIColor {

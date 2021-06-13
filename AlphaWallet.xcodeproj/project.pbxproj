@@ -281,7 +281,6 @@
 		5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FB7C3FB2A9CC0CC51D7 /* TokensViewControllerTableViewSectionHeader.swift */; };
 		5E7C72402E57B627B6E56934 /* TokenInstanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75506A766DF9B746E62F /* TokenInstanceViewModel.swift */; };
 		5E7C724638271FD2FA0EB93C /* BaseTokenListFormatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C734D61C0347C1638A1F7 /* BaseTokenListFormatTableViewCell.swift */; };
-		5E7C725AC96979DEF4DE8B85 /* ConvertSVGToPNG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */; };
 		5E7C72670E16AFB8DAF64673 /* OnboardingPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E24936CC2190D2A16C2 /* OnboardingPageViewModel.swift */; };
 		5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */; };
 		5E7C7270EA33CF6A99701454 /* GetWalletNameCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C769E7A78811BDF9463A3 /* GetWalletNameCoordinator.swift */; };
@@ -606,6 +605,7 @@
 		5E7C7F3CB1F280E6795A479C /* EventOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C740BBC5AAF5C545CCC6A /* EventOrigin.swift */; };
 		5E7C7F53A21D1D0FE576DD8F /* ElevateWalletSecurityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C753A2216F043CBDEC07C /* ElevateWalletSecurityViewController.swift */; };
 		5E7C7F60056FDD6ACC390400 /* UniversalLinkInPasteboardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F3DD81D44A996789FC4 /* UniversalLinkInPasteboardCoordinator.swift */; };
+		5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77A8E9F8DF94ED53D452 /* WebImageView.swift */; };
 		5E7C7F67945615E242B61CC3 /* BoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C5454600A70DCFD7C0E /* BoxView.swift */; };
 		5E7C7F72926D84CF741C0D18 /* ABIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBCC0A74A084AC2F053 /* ABIType.swift */; };
 		5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C768D3C3F400E0B88B575 /* ETH.tsml */; };
@@ -1302,6 +1302,7 @@
 		5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C77A1D9BAFAC05E2C96CC /* XMLHandler+XPaths.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XMLHandler+XPaths.swift"; sourceTree = "<group>"; };
 		5E7C77A1F1399FD7EE2812E8 /* ServerDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerDictionary.swift; sourceTree = "<group>"; };
+		5E7C77A8E9F8DF94ED53D452 /* WebImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebImageView.swift; sourceTree = "<group>"; };
 		5E7C77AED5BC29ED8D075D08 /* SeedPhraseBackupIntroductionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseBackupIntroductionViewModel.swift; sourceTree = "<group>"; };
 		5E7C77B790551456E111ED4F /* PeekOpenSeaNonFungibleTokenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeekOpenSeaNonFungibleTokenViewController.swift; sourceTree = "<group>"; };
 		5E7C77BCBD2C2BE682D384DB /* SeedPhraseCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeedPhraseCollectionView.swift; sourceTree = "<group>"; };
@@ -1419,7 +1420,6 @@
 		5E7C7BAEF70990DA14C474EB /* GroupActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupActivityCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BB17F5211A10C9F0ECE /* EventsActivityDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventsActivityDataStore.swift; sourceTree = "<group>"; };
 		5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionErrorViewModel.swift; sourceTree = "<group>"; };
-		5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConvertSVGToPNG.swift; sourceTree = "<group>"; };
 		5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BE086F00DE44B4EDCED /* RPCServerOrAny.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPCServerOrAny.swift; sourceTree = "<group>"; };
 		5E7C7BEDC786FB048A1DD9A8 /* WKWebViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKWebViewExtension.swift; sourceTree = "<group>"; };
@@ -3088,7 +3088,6 @@
 			isa = PBXGroup;
 			children = (
 				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
-				5E7C7629662FB4983E0EBFEB /* Kat */,
 				5E7C77C2844B3579A59C3F2F /* CallSmartContractFunction.swift */,
 			);
 			path = Helpers;
@@ -3319,14 +3318,6 @@
 			path = TokenScriptClient;
 			sourceTree = "<group>";
 		};
-		5E7C7629662FB4983E0EBFEB /* Kat */ = {
-			isa = PBXGroup;
-			children = (
-				5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */,
-			);
-			path = Kat;
-			sourceTree = "<group>";
-		};
 		5E7C76A2DAB62A6824F37749 /* Sell */ = {
 			isa = PBXGroup;
 			children = (
@@ -3478,6 +3469,7 @@
 				5E7C73E57ADDF29E0A5FB87E /* OpenSeaNonFungibleTokenCardRowView.swift */,
 				5E7C765A9FA64E4CC1B6C726 /* OpenSeaNonFungibleTokenTraitCell.swift */,
 				5E7C703366F010BFEF6B06C6 /* OpenSeaNonFungibleTokenViewCell.swift */,
+				5E7C77A8E9F8DF94ED53D452 /* WebImageView.swift */,
 			);
 			path = OpenSea;
 			sourceTree = "<group>";
@@ -4588,7 +4580,6 @@
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
 				"${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
 				"${BUILT_PRODUCTS_DIR}/PaperTrailLumberjack/PaperTrailLumberjack.framework",
@@ -4599,7 +4590,6 @@
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/SAMKeychain/SAMKeychain.framework",
-				"${BUILT_PRODUCTS_DIR}/SWXMLHash/SWXMLHash.framework",
 				"${BUILT_PRODUCTS_DIR}/SeedStackViewController/StackViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
@@ -4639,7 +4629,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mixpanel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PaperTrailLumberjack.framework",
@@ -4650,7 +4639,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SAMKeychain.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWXMLHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StackViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
@@ -5209,7 +5197,6 @@
 				5E7C773E3E3BBEB65C51DF2A /* UIStackView.swift in Sources */,
 				5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */,
 				873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */,
-				5E7C725AC96979DEF4DE8B85 /* ConvertSVGToPNG.swift in Sources */,
 				5E7C729FA0EC60113B031391 /* ImageCache.swift in Sources */,
 				5E7C74438E1FBF28ADFAFAD1 /* BaseTokenCardTableViewCellViewModel.swift in Sources */,
 				5E7C72B3D5F75999937FCFA1 /* TokenListFormatRowViewModel.swift in Sources */,
@@ -5518,6 +5505,7 @@
 				5E7C71AE26F2201CFAC81C99 /* Erc721Contract.swift in Sources */,
 				5E7C73F723684B295A8DEEB3 /* GetERC721TokenUri.swift in Sources */,
 				5E7C738FFC4292F6B0D6BC4B /* Erc721TokenIdsFetcher.swift in Sources */,
+				5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

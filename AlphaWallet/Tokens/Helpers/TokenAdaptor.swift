@@ -75,7 +75,6 @@ class TokenAdaptor {
                 tokens.append(token)
             }
         }
-
         return bundle(tokens: tokens)
     }
 
