@@ -269,8 +269,9 @@ extension TransactionsStorage: Erc721TokenIdsFetcher {
     func tokenIdsForErc721Token(contract: AlphaWallet.Address, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
         Promise { seal in
             //Important to sort ascending to figure out ownership from transfers in and out
+            //TODO is this really slow? getting all transactions, right?
+            //TODO why are some isERC20Interaction = false
             let transactions = objects
-                    .filter("isERC20Interaction == true")
                     .sorted(byKeyPath: "date", ascending: true)
             let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
             var tokenIds: Set<String> = .init()

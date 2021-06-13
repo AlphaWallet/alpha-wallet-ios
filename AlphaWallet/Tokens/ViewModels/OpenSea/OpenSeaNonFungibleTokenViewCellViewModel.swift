@@ -2,13 +2,10 @@
 
 import Foundation
 import UIKit
-import PromiseKit
 
 class OpenSeaNonFungibleTokenViewCellViewModel {
-    private static var imageGenerator = ConvertSVGToPNG(cachingDirectoryName: "collectiblesContractImageCache")
     private let token: TokenObject
     var imageUrl: URL?
-    var image: Promise<UIImage>?
     var title: String {
         return token.name
     }
@@ -22,16 +19,8 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
                 url = tokenHolder.values["imageUrl"]?.stringValue ?? ""
             }
             self.imageUrl = URL(string: url)
-            if imageUrl != nil {
-                let tokenId = tokenHolder.values["tokenId"]?.stringValue
-                self.image = OpenSeaNonFungibleTokenViewCellViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress.eip55String)
-            } else {
-                self.imageUrl = nil
-                self.image = nil
-            }
         } else {
             self.imageUrl = nil
-            self.image = nil
         }
     }
 
