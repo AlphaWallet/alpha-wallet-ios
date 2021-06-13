@@ -79,8 +79,8 @@ class GetContractInteractions {
                             isErc20Interaction: true
                     )
                 }
-
-                completion(transactions)
+                let results = self.mergeTransactionOperationsIntoSingleTransaction(transactions)
+                completion(results)
             case .failure:
                 completion([])
             }
@@ -143,12 +143,26 @@ class GetContractInteractions {
                             isErc20Interaction: true
                     )
                 }
-
-                completion(transactions)
+                let results = self.mergeTransactionOperationsIntoSingleTransaction(transactions)
+                completion(results)
             case .failure:
                 completion([])
             }
         })
+    }
+
+    private func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
+        var results: [TransactionInstance] = .init()
+        for each in transactions {
+            if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
+                var found = results[index]
+                found.localizedOperations.append(contentsOf: each.localizedOperations)
+                results[index] = found
+            } else {
+                results.append(each)
+            }
+        }
+        return results
     }
 
     func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, completion: @escaping ([AlphaWallet.Address], Int?) -> Void) {
