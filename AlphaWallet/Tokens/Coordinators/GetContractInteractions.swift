@@ -88,7 +88,7 @@ class GetContractInteractions {
     }
 
     //TODO Almost a duplicate of the the ERC20 version. De-dup maybe?
-    func getErc721Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
+    func getErc721Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
         guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: address, startBlock: startBlock) else { return }
 
         Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
@@ -96,16 +96,8 @@ class GetContractInteractions {
             case .success(let value):
                 //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
                 let json = JSON(value)
-                let filteredResult: [(String, JSON)]
-                if let contractAddress = contractAddress {
-                    //filter based on what contract you are after
-                    filteredResult = json["result"].filter {
-                        $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
-                    }
-                } else {
-                    filteredResult = json["result"].filter {
-                        $0.1["to"].stringValue.hasPrefix("0x")
-                    }
+                let filteredResult: [(String, JSON)] = json["result"].filter {
+                    $0.1["to"].stringValue.hasPrefix("0x")
                 }
 
                 let transactions: [TransactionInstance] = filteredResult.map { result in
