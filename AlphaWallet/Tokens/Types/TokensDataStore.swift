@@ -588,7 +588,7 @@ class TokensDataStore {
     }
 
     private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<ContractAndJson> {
-        firstly {
+        return firstly {
             Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
         }.then {
             self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
@@ -850,7 +850,7 @@ class TokensDataStore {
             }
         }
     }
-    
+
     enum TokenBalanceUpdateAction {
         case updateJsonProperty(String, Any)
     }

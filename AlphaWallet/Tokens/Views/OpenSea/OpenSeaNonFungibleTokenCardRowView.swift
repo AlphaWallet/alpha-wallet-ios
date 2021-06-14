@@ -13,9 +13,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private static let yMargin = CGFloat(5)
 
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
-    private let thumbnailImageView = UIImageView()
+    private let thumbnailImageView = WebImageView()
     private let bigImageBackground = UIView()
-    private let bigImageView = UIImageView()
+    private let bigImageView = WebImageView()
     //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little for CryptoKitties
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()
@@ -93,7 +93,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private var viewsVisibleWhenDetailsAreNotVisibleImagesAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreNotVisibleImagesNotAvailable = [UIView]()
-    private var currentDisplayedImageUrl: URL?
     private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
     private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
     //Hackish: To get the width of the descriptionLabel in order to calculate the correct height
@@ -150,7 +149,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         bigImageView.translatesAutoresizingMaskIntoConstraints = false
         bigImageHolder.addSubview(bigImageView)
         bigImageHolder.isHidden = true
-        bigImageBackground.isHidden = true
 
         urlButtonHolder.isHidden = true
         urlButton.addTarget(self, action: #selector(tappedUrl), for: .touchUpInside)
@@ -473,22 +471,18 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
 
         statsLabel.text = viewModel.statsTitle
 
-        if !viewModel.areImagesHidden {
-            if let currentDisplayedImageUrl = currentDisplayedImageUrl, currentDisplayedImageUrl == viewModel.imageUrl {
-                //Empty
+        if viewModel.areImagesHidden {
+            thumbnailImageView.url = nil
+            bigImageView.url = nil
+        } else {
+            if let url = viewModel.imageUrl {
+                thumbnailImageView.url = url
+                bigImageView.url = url
+                //TODO this is dubious. But we don't have the image (and hence the dimensions) to calculate based on aspect ratio anymore
+                bigImageHolderHeightConstraint.constant = 300
             } else {
-                thumbnailImageView.image = nil
-                bigImageView.image = nil
-            }
-            if let bigImagePromise = viewModel.bigImage {
-                currentDisplayedImageUrl = viewModel.imageUrl
-                bigImagePromise.done { [weak self] image in
-                    guard let strongSelf = self else { return }
-                    guard strongSelf.currentDisplayedImageUrl == viewModel.imageUrl else { return }
-                    strongSelf.bigImageView.image = image
-                    strongSelf.thumbnailImageView.image = image
-                    strongSelf.bigImageHolderHeightConstraint.constant = image.size.height / image.size.width * strongSelf.bigImageHolder.frame.size.width
-                }.cauterize()
+                thumbnailImageView.url = nil
+                bigImageView.url = nil
             }
         }
 
