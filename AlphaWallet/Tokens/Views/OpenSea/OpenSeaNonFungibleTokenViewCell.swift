@@ -4,9 +4,8 @@ import Foundation
 import UIKit
 
 class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
-    private var currentDisplayedImageUrl: URL?
     private let background = UIView()
-    private let imageView = UIImageView()
+    private let imageView = WebImageView()
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label = UILabel()
@@ -66,21 +65,9 @@ class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
 
-        if let currentDisplayedImageUrl = currentDisplayedImageUrl, currentDisplayedImageUrl == viewModel.imageUrl {
-            //Empty
+        if let url = viewModel.imageUrl {
+            imageView.url = url
         } else {
-            imageView.image = nil
-        }
-
-        if let imagePromise = viewModel.image {
-            currentDisplayedImageUrl = viewModel.imageUrl
-            imagePromise.done { [weak self] image in
-                guard let strongSelf = self else { return }
-                guard strongSelf.currentDisplayedImageUrl == viewModel.imageUrl else { return }
-                strongSelf.imageView.image = image
-            }.cauterize()
-        } else {
-            //TODO better to have a dedicated icon instead of assuming the app's file name
             imageView.image = UIImage(named: "AppIcon60x60")
         }
 

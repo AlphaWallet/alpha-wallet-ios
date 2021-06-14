@@ -108,6 +108,7 @@ class GetContractInteractions {
                     if let tokenId = transactionJson["tokenID"].string, !tokenId.isEmpty {
                         operationType = .erc721TokenTransfer
                     } else {
+                        //TODO do we and do we need to filter these way since we only want ERC721?
                         operationType = .erc20TokenTransfer
                     }
 
