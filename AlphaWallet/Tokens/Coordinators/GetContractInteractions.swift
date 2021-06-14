@@ -79,8 +79,8 @@ class GetContractInteractions {
                             isErc20Interaction: true
                     )
                 }
-
-                completion(transactions)
+                let results = self.mergeTransactionOperationsIntoSingleTransaction(transactions)
+                completion(results)
             case .failure:
                 completion([])
             }
@@ -88,7 +88,7 @@ class GetContractInteractions {
     }
 
     //TODO Almost a duplicate of the the ERC20 version. De-dup maybe?
-    func getErc721Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
+    func getErc721Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, completion: @escaping ([TransactionInstance]) -> Void) {
         guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: address, startBlock: startBlock) else { return }
 
         Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [], completionHandler: { response in
@@ -96,16 +96,8 @@ class GetContractInteractions {
             case .success(let value):
                 //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
                 let json = JSON(value)
-                let filteredResult: [(String, JSON)]
-                if let contractAddress = contractAddress {
-                    //filter based on what contract you are after
-                    filteredResult = json["result"].filter {
-                        $0.1["contractAddress"].stringValue == contractAddress.eip55String.lowercased()
-                    }
-                } else {
-                    filteredResult = json["result"].filter {
-                        $0.1["to"].stringValue.hasPrefix("0x")
-                    }
+                let filteredResult: [(String, JSON)] = json["result"].filter {
+                    $0.1["to"].stringValue.hasPrefix("0x")
                 }
 
                 let transactions: [TransactionInstance] = filteredResult.map { result in
@@ -151,12 +143,26 @@ class GetContractInteractions {
                             isErc20Interaction: true
                     )
                 }
-
-                completion(transactions)
+                let results = self.mergeTransactionOperationsIntoSingleTransaction(transactions)
+                completion(results)
             case .failure:
                 completion([])
             }
         })
+    }
+
+    private func mergeTransactionOperationsIntoSingleTransaction(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
+        var results: [TransactionInstance] = .init()
+        for each in transactions {
+            if let index = results.firstIndex(where: { $0.blockNumber == each.blockNumber }) {
+                var found = results[index]
+                found.localizedOperations.append(contentsOf: each.localizedOperations)
+                results[index] = found
+            } else {
+                results.append(each)
+            }
+        }
+        return results
     }
 
     func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, completion: @escaping ([AlphaWallet.Address], Int?) -> Void) {

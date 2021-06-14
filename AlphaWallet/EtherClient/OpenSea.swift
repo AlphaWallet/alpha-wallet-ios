@@ -121,7 +121,6 @@ class OpenSea {
             }
             DispatchQueue.global(qos: .userInitiated).async {
                 var results = sum
-                var currentPageCount = 0
                 for (_, each): (String, JSON) in json["assets"] {
                     let type = each["asset_contract"]["schema_name"].stringValue
                     guard type == "ERC721" else { continue }
@@ -149,7 +148,6 @@ class OpenSea {
                     }
                     if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
                         let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
-                        currentPageCount += 1
                         if var list = results[contract] {
                             list.append(cat)
                             results[contract] = list
@@ -161,8 +159,9 @@ class OpenSea {
                 }
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    if currentPageCount > 0 {
-                        strongSelf.fetchPage(forOwner: owner, offset: offset + currentPageCount, sum: results) { results in
+                    let fetchedCount = json["assets"].count
+                    if fetchedCount > 0 {
+                        strongSelf.fetchPage(forOwner: owner, offset: offset + fetchedCount, sum: results) { results in
                             completion(results)
                         }
                     } else {
