@@ -71,7 +71,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var tickersAmountAttributedString: NSAttributedString {
-        return .init(string: "\(amount) Tickers", attributes: [
+        return .init(string: "\(amount) \(token.symbol)", attributes: [
             .font: Screen.TokenCard.Font.subtitle,
             .foregroundColor: Screen.TokenCard.Color.subtitle
         ])
