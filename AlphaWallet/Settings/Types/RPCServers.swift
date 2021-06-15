@@ -162,7 +162,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .artis_tau1: return "https://explorer.tau1.artis.network"
             case .binance_smart_chain: return "https://bscscan.com"
             case .binance_smart_chain_testnet: return "https://testnet.bscscan.com"
-            case .polygon: return "https://explorer-mainnet.maticvigil.com"
+            case .polygon: return "https://polygonscan.com"
             case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com"
             case .optimistic: return "https://optimistic.etherscan.io"
             case .optimisticKovan: return "https://kovan-optimistic.etherscan.io"
@@ -204,7 +204,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .avalanche: return "https://cchain.explorer.avax.network/tx/api"
             //TODO fix etherscan-compatible API endpoint
             case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/api"
-            case .polygon: return "https://explorer-mainnet.maticvigil.com/api/v2"
+            case .polygon: return "https://api.polygonscan.com/api"
             case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/api/v2"
             case .optimistic: return "https://api-optimistic.etherscan.io/api"
             case .optimisticKovan: return "https://api-kovan-optimistic.etherscan.io/api"
@@ -227,9 +227,9 @@ enum RPCServer: Hashable, CaseIterable {
 
     private var etherscanCompatibleType: EtherscanCompatibleType {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan, .binance_smart_chain, .binance_smart_chain_testnet:
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan, .binance_smart_chain, .binance_smart_chain_testnet, .polygon:
             return .etherscan
-        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .polygon, .mumbai_testnet, .callisto:
+        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto:
             return .blockscout
         case .fantom_testnet, .avalanche, .avalanche_testnet:
             return .unknown
