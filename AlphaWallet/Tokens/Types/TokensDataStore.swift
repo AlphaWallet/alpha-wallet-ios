@@ -607,10 +607,10 @@ class TokensDataStore {
         }
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, uri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<ContractAndJson> {
+    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<ContractAndJson> {
         struct Error: Swift.Error {
         }
-
+        let uri = originalUri.rewrittenIfIpfs
         return firstly {
             Alamofire.request(uri, method: .get).responseData()
         }.map { data, _ in
