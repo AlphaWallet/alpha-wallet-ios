@@ -601,6 +601,7 @@ class TokensDataStore {
                 jsonDictionary["name"] = ""
                 jsonDictionary["imageUrl"] = ""
                 jsonDictionary["thumbnailUrl"] = ""
+                jsonDictionary["externalLink"] = ""
             }
             return .value((contract: address, json: jsonDictionary.rawString()!))
         }
@@ -625,6 +626,8 @@ class TokensDataStore {
                         jsonDictionary["name"] = jsonDictionary["name"]
                         jsonDictionary["imageUrl"] = jsonDictionary["image"]
                         jsonDictionary["thumbnailUrl"] = jsonDictionary["image"]
+                        //We make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
+                        jsonDictionary["externalLink"] = JSON(jsonDictionary["external_url"].stringValue)
                     }
                     if let jsonString = jsonDictionary.rawString() {
                         return (contract: address, json: jsonString)
