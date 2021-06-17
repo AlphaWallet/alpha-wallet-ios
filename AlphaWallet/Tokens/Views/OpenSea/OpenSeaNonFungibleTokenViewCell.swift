@@ -5,7 +5,7 @@ import UIKit
 
 class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
     private let background = UIView()
-    private let imageView = WebImageView()
+    private let imageView = WebImageView(type: .thumbnail)
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label = UILabel()
