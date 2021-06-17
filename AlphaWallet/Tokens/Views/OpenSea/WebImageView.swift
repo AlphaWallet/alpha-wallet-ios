@@ -17,7 +17,7 @@ class WebImageView: UIView {
     var url: URL? {
         didSet {
             imageView.image = nil
-            if let url = url {
+            if let url = url?.rewrittenIfIpfs {
                 let html = """
                            <html>
                              <body style="background-repeat: no-repeat; background-size: cover; background-image: url('\(url.absoluteString)')" />
