@@ -16,9 +16,7 @@ struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
     var contractImageUrl: String {
         ""
     }
-    var externalLink: String {
-        ""
-    }
+    let externalLink: String
     var backgroundColor: String? {
         ""
     }
