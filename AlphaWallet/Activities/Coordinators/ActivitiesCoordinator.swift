@@ -415,11 +415,9 @@ class ActivitiesCoordinator: Coordinator {
         }
     }
 
+    //TODO implement better heuristics, possibly building and comparing against a known list of contracts usedw by DEXs?
     private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance]) -> Bool {
-        //Might have other transactions like approved embedded, so we can't check for all send and receives.
-        let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: sessions.anyValue.account.address) }
-        let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: sessions.anyValue.account.address) }
-        return hasSend && hasReceive
+        false
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
