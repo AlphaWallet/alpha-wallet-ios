@@ -10,9 +10,9 @@ struct EnabledServersViewModel {
         var headerText: String {
             switch self {
             case .testnet:
-                return R.string.localizable.settingsEnabledNetworksTestnet()
+                return R.string.localizable.settingsEnabledNetworksTestnet().uppercased()
             case .mainnet:
-                return R.string.localizable.settingsEnabledNetworksMainnet()
+                return R.string.localizable.settingsEnabledNetworksMainnet().uppercased()
             }
         }
     }
