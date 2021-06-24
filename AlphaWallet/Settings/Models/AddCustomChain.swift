@@ -28,7 +28,9 @@ class AddCustomChain {
 
     func run() {
         firstly {
-            functional.checkAndDetectUrls(customChain)
+            functional.checkChainId(customChain)
+        }.then { customChain, chainId -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> in
+            functional.checkAndDetectUrls(customChain, chainId: chainId)
         }.then { customChain, chainId, rpcUrl -> Promise<(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType)> in
             self.customChain = customChain
             return functional.checkExplorerType(customChain).map { (chainId: chainId, rpcUrl: rpcUrl, explorerType: $0) }
@@ -75,10 +77,14 @@ extension AddCustomChain {
 
 //Experimental. Having some of the logic in barely-functional style. Most importantly, immutable. Static functions in an inner class enforce that state of value-type arguments are not modified, but it's still possible to modify reference-typed arguments. For now, avoid those. Inner class is required instead of a `fileprivate` class because one of the value they provide is being easier to test, so they must be accessible from the testsuite
 extension AddCustomChain.functional {
-    static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
+    static func checkChainId(_ customChain: WalletAddEthereumChainObject) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int)> {
         guard let chainId = Int(chainId0xString: customChain.chainId) else {
             return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorInvalidChainId(customChain.chainId)))
         }
+        return .value((customChain: customChain, chainId: chainId))
+    }
+
+    static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
         guard let rpcUrl = customChain.rpcUrls?.first else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
             return Promise(error: DAppError.nodeError(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
