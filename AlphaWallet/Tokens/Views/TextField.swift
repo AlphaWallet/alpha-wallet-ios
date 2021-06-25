@@ -150,6 +150,15 @@ class TextField: UIControl {
         }
     }
 
+    var placeholder: String? {
+        set {
+            textField.placeholder = newValue
+        }
+        get {
+            textField.placeholder
+        }
+    }
+
     init() {
         super.init(frame: .zero)
 

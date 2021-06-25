@@ -520,6 +520,7 @@ class InCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 config: config,
                 sessions: walletSessions,
+                restartQueue: restartQueue,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
                 walletConnectCoordinator: walletConnectCoordinator
@@ -769,6 +770,9 @@ class InCoordinator: NSObject, Coordinator {
             case .addServer(let server):
                 restartQueue.remove(each)
                 RPCServer.customRpcs.append(server)
+            case .removeServer(let server):
+                restartQueue.remove(each)
+                removeServer(server)
             case .enableServer(let server):
                 restartQueue.remove(each)
                 var c = config
@@ -782,10 +786,30 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    private func removeServer(_ server: CustomRPC) {
+        //Must disable server first because we (might) not have done that if the user had disabled and then remove the server in the UI at the same time. And if we fallback to mainnet when an enabled server's chain ID is not found, this can lead to mainnet appearing twice in the Wallet tab
+        let servers = config.enabledServers.filter { $0.chainID != server.chainID }
+        var config = config
+        config.enabledServers = servers
+        guard let i = RPCServer.customRpcs.firstIndex(of: server) else { return }
+        RPCServer.customRpcs.remove(at: i)
+        switchBrowserServer(awayFrom: server, config: config)
+    }
+
+    private func switchBrowserServer(awayFrom server: CustomRPC, config: Config) {
+        if Config.getChainId() == server.chainID {
+            //To be safe, we find a network that is either mainnet/testnet depending on the chain that was removed
+            let isTestnet = server.isTestnet
+            if let targetServer = config.enabledServers.first(where: { $0.isTestnet == isTestnet }) {
+                Config.setChainId(targetServer.chainID)
+            }
+        }
+    }
+
     private func processRestartQueueAfterRestart(config: Config, coordinator: InCoordinator, restartQueue: RestartTaskQueue) {
         for each in restartQueue.queue {
             switch each {
-            case .addServer, .enableServer, .switchDappServer:
+            case .addServer, .removeServer, .enableServer, .switchDappServer:
                 break
             case .loadUrlInDappBrowser(let url):
                 restartQueue.remove(each)
@@ -891,6 +915,14 @@ extension InCoordinator: SettingsCoordinatorDelegate {
             let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             transactionsStorage.deleteAll()
         }
+    }
+
+    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {
+        processRestartQueueAndRestartUI()
+    }
+
+    func restartToRemoveServer(in coordinator: SettingsCoordinator) {
+        processRestartQueueAndRestartUI()
     }
 }
 

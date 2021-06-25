@@ -4,6 +4,7 @@ import UIKit
 
 protocol EnabledServersViewControllerDelegate: class {
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
+    func notifyRemoveCustomChainQueued(in viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
@@ -26,17 +27,19 @@ class EnabledServersViewController: UIViewController {
 
         return tableView
     }()
-    private var viewModel: EnabledServersViewModel
+    private let restartQueue: RestartTaskQueue
     private let sections: [Section] = [.mainnet, .testnet]
     private var serversSelectedInPreviousMode: [RPCServer]?
     private var sectionIndices: IndexSet {
         IndexSet(integersIn: Range(uncheckedBounds: (lower: 0, sections.count)))
     }
 
+    var viewModel: EnabledServersViewModel
     weak var delegate: EnabledServersViewControllerDelegate?
 
-    init(viewModel: EnabledServersViewModel) {
+    init(viewModel: EnabledServersViewModel, restartQueue: RestartTaskQueue) {
         self.viewModel = viewModel
+        self.restartQueue = restartQueue
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = GroupedTable.Color.background
@@ -78,6 +81,28 @@ class EnabledServersViewController: UIViewController {
 
     @objc private func done() {
         delegate?.didSelectServers(servers: viewModel.selectedServers, in: self)
+    }
+
+    private func confirmDelete(server: RPCServer) {
+        guard server.isCustom else { return }
+        guard !viewModel.isServerSelected(server) else { return }
+        //TODO make it possible to remove custom chains without restarting UI
+        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(), okTitle: R.string.localizable.delete(), okStyle: .destructive) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success:
+                strongSelf.markForDeletion(server: server)
+                break
+            case .failure:
+                break
+            }
+        }
+    }
+
+    private func markForDeletion(server: RPCServer) {
+        guard let customRpc = server.customRpc else { return }
+        restartQueue.add(.removeServer(customRpc))
+        delegate?.notifyRemoveCustomChainQueued(in: self)
     }
 }
 
@@ -135,6 +160,24 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
         tableView.reloadData()
         //Even if no servers is selected, we don't attempt to disable the back button here since calling code will take care of ignore the change server "request" when there are no servers selected. We don't want to disable the back button because users can't cancel the operation
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let server = viewModel.server(for: indexPath)
+        guard server.isCustom else { return nil }
+        guard !viewModel.isServerSelected(server) else { return nil }
+        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.delete()) { _, _, complete in
+            self.confirmDelete(server: server)
+            complete(true)
+        }
+
+        deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
+        deleteAction.backgroundColor = R.color.danger()
+
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 }
 

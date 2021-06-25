@@ -28,6 +28,8 @@ class SettingsCoordinatorTests: XCTestCase {
             func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {}
             func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {}
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}
+            func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {}
+            func restartToRemoveServer(in coordinator: SettingsCoordinator) {}
         }
 
         let storage = FakeTransactionsStorage()
@@ -40,6 +42,7 @@ class SettingsCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             config: .make(),
             sessions: sessons,
+            restartQueue: .init(),
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
             walletConnectCoordinator: walletConnectCoordinator

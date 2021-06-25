@@ -130,6 +130,19 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    var customRpc: CustomRPC? {
+        switch self {
+        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon, .optimistic, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan:
+            return nil
+        case .custom(let custom):
+            return custom
+        }
+    }
+
+    var isCustom: Bool {
+        customRpc != nil
+    }
+
     var etherscanURLForGeneralTransactionHistory: URL? {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan, .custom:

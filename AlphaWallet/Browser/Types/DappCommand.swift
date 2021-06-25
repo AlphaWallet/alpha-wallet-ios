@@ -121,7 +121,6 @@ struct WalletAddEthereumChainObject: Decodable {
     let nativeCurrency: NativeCurrency?
     var blockExplorerUrls: [String]?
     let chainName: String?
-    let chainType: String?
     let chainId: String
     let rpcUrls: [String]?
 }
