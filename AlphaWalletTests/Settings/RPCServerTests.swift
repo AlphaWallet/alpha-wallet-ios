@@ -4,7 +4,7 @@ import XCTest
 @testable import AlphaWallet
 
 class RPCServerTests: XCTestCase {
-    
+
     func testMainNetwork() {
         let server = RPCServer(chainID: 1)
 
@@ -21,5 +21,17 @@ class RPCServerTests: XCTestCase {
         let server = RPCServer(chainID: 3)
 
         XCTAssertEqual(.ropsten, server)
+    }
+
+    func testInitByNameCorrect() {
+        for each in RPCServer.allCases {
+            XCTAssertEqual(RPCServer(name: each.name), each)
+        }
+    }
+
+    func testInitByChainIdCorrect() {
+        for each in RPCServer.allCases {
+            XCTAssertEqual(RPCServer(chainID: each.chainID), each)
+        }
     }
 }

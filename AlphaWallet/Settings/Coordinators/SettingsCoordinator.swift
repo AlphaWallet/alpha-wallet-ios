@@ -240,8 +240,8 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 		//Defensive. Shouldn't allow no server to be selected
 		guard !servers.isEmpty else { return }
 
-		let unchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
-        if unchanged {
+		let isUnchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
+        if isUnchanged {
 			coordinator.stop()
 			removeCoordinator(coordinator)
 		} else {
