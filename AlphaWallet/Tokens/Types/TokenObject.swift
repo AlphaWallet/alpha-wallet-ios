@@ -7,7 +7,7 @@ import BigInt
 extension Activity {
 
     struct AssignedToken: Equatable {
-        
+
         struct TokenBalance {
             var balance = "0"
             var json: String = "{}"
@@ -53,7 +53,7 @@ extension Activity {
             type = tokenObject.type
             shouldDisplay = tokenObject.shouldDisplay
             sortIndex = tokenObject.sortIndex.value
-            
+
             switch type {
             case .erc20, .nativeCryptocurrency:
                 self.balance = .value(tokenObject.valueBigInt)
@@ -62,27 +62,6 @@ extension Activity {
                 self.balance = .balance(Array(balance))
             }
         }
-
-//        init(contractAddress: AlphaWallet.Address, symbol: String, decimals: Int, server: RPCServer, type: TokenType, name: String) {
-//            self.name = name
-//            self.primaryKey = TokenObject.generatePrimaryKey(fromContract: contractAddress, server: server)
-//            self.server = server
-//            self.contractAddress = contractAddress
-//            self.symbol = symbol
-//            self.decimals = decimals
-////            self.icon = tokenObject.icon
-//            self.type = type
-//            self.shouldDisplay = true
-//            self.sortIndex = nil
-//
-////            switch type {
-////            case .erc20, .nativeCryptocurrency:
-////                self.balance = .value(tokenObject.valueBigInt)
-////            case .erc721, .erc721ForTickets, .erc875:
-////                let balance = tokenObject.balance.map { TokenBalance(balance: $0.balance, json: $0.json) }
-////                self.balance = .balance(Array(balance))
-////            }
-//        }
 
         static func == (lhs: Activity.AssignedToken, rhs: Activity.AssignedToken) -> Bool {
             return lhs.primaryKey == rhs.primaryKey
@@ -208,7 +187,7 @@ class TokenObject: Object {
     var optionalDecimalValue: NSDecimalNumber? {
         return EtherNumberFormatter.plain.string(from: valueBigInt, decimals: decimals).optionalDecimalValue
     }
-    
+
     var contractAddress: AlphaWallet.Address {
         return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }

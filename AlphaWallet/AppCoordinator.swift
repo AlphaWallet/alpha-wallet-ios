@@ -37,6 +37,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
 
     private var analyticsService: AnalyticsServiceType
+    private let restartQueue = RestartTaskQueue()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
@@ -189,6 +190,7 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 appTracker: appTracker,
                 analyticsCoordinator: analyticsService,
+                restartQueue: restartQueue,
                 urlSchemeCoordinator: urlSchemeCoordinator,
                 promptBackupCoordinator: promptBackupCoordinator,
                 accountsCoordinator: accountsCoordinator

@@ -9,32 +9,35 @@ protocol ServersCoordinatorDelegate: class {
 }
 
 class ServersCoordinator: Coordinator {
-    static let serversOrdered: [RPCServer] = [
-        .main,
-        .xDai,
-        .classic,
-        .poa,
-        .ropsten,
-        .goerli,
-        .kovan,
-        .rinkeby,
-        .sokol,
-        .binance_smart_chain,
-        .binance_smart_chain_testnet,
-        .callisto,
-        .heco,
-        .heco_testnet,
-        .artis_sigma1,
-        .artis_tau1,
-        .fantom,
-        .fantom_testnet,
-        .avalanche,
-        .avalanche_testnet,
-        .polygon,
-        .mumbai_testnet,
-        .optimistic,
-        .optimisticKovan,
-    ]
+    //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
+    static var serversOrdered: [RPCServer] {
+        [
+            .main,
+            .xDai,
+            .classic,
+            .poa,
+            .ropsten,
+            .goerli,
+            .kovan,
+            .rinkeby,
+            .sokol,
+            .binance_smart_chain,
+            .binance_smart_chain_testnet,
+            .callisto,
+            .heco,
+            .heco_testnet,
+            .artis_sigma1,
+            .artis_tau1,
+            .fantom,
+            .fantom_testnet,
+            .avalanche,
+            .avalanche_testnet,
+            .polygon,
+            .mumbai_testnet,
+            .optimistic,
+            .optimisticKovan,
+        ] + RPCServer.servers
+    }
 
     private let viewModel: ServersViewModel
     private lazy var serversViewController: ServersViewController = {

@@ -52,6 +52,7 @@ class InCoordinator: NSObject, Coordinator {
     private var transactionsStorages = ServerDictionary<TransactionsStorage>()
     private var walletSessions = ServerDictionary<WalletSession>()
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let restartQueue: RestartTaskQueue
     private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
         didSet {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
@@ -80,8 +81,8 @@ class InCoordinator: NSObject, Coordinator {
     private var tokensCoordinator: TokensCoordinator? {
         return coordinators.compactMap { $0 as? TokensCoordinator }.first
     }
-    private var dappBrowserCoordinator: DappBrowserCoordinator? {
-        return coordinators.compactMap { $0 as? DappBrowserCoordinator }.first
+    var dappBrowserCoordinator: DappBrowserCoordinator? {
+        coordinators.compactMap { $0 as? DappBrowserCoordinator }.first
     }
     private var activityCoordinator: ActivitiesCoordinator? {
         return coordinators.compactMap { $0 as? ActivitiesCoordinator }.first
@@ -145,6 +146,7 @@ class InCoordinator: NSObject, Coordinator {
             config: Config,
             appTracker: AppTracker = AppTracker(),
             analyticsCoordinator: AnalyticsCoordinator,
+            restartQueue: RestartTaskQueue,
             urlSchemeCoordinator: UrlSchemeCoordinatorType,
             promptBackupCoordinator: PromptBackupCoordinator,
             accountsCoordinator: AccountsCoordinator
@@ -155,6 +157,7 @@ class InCoordinator: NSObject, Coordinator {
         self.config = config
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
+        self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
         self.urlSchemeCoordinator = urlSchemeCoordinator
         self.promptBackupCoordinator = promptBackupCoordinator
@@ -187,6 +190,8 @@ class InCoordinator: NSObject, Coordinator {
         urlSchemeCoordinator.processPendingURL(in: self)
         oneInchSwapService.fetchSupportedTokens()
         rampBuyService.fetchSupportedTokens()
+
+        processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
     }
 
     func launchUniversalScanner() {
@@ -502,7 +507,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
@@ -746,7 +751,51 @@ class InCoordinator: NSObject, Coordinator {
     func openWalletConnectSession(url: WalletConnectURL) {
         walletConnectCoordinator.openSession(url: url)
     }
+
+    private func processRestartQueueAndRestartUI() {
+        processRestartQueueBeforeRestart(config: config, restartQueue: restartQueue)
+        restartUI(withReason: .serverChange, account: wallet)
+    }
+
+    private func restartUI(withReason reason: RestartReason, account: Wallet) {
+        OpenSea.resetInstances()
+        disconnectWalletConnectSessionsSelectively(for: reason)
+        delegate?.didRestart(in: self, wallet: account)
+    }
+
+    private func processRestartQueueBeforeRestart(config: Config, restartQueue: RestartTaskQueue) {
+        for each in restartQueue.queue {
+            switch each {
+            case .addServer(let server):
+                restartQueue.remove(each)
+                RPCServer.customRpcs.append(server)
+            case .enableServer(let server):
+                restartQueue.remove(each)
+                var c = config
+                c.enabledServers.append(server)
+            case .switchDappServer(server: let server):
+                restartQueue.remove(each)
+                Config.setChainId(server.chainID)
+            case .loadUrlInDappBrowser:
+                break
+            }
+        }
+    }
+
+    private func processRestartQueueAfterRestart(config: Config, coordinator: InCoordinator, restartQueue: RestartTaskQueue) {
+        for each in restartQueue.queue {
+            switch each {
+            case .addServer, .enableServer, .switchDappServer:
+                break
+            case .loadUrlInDappBrowser(let url):
+                restartQueue.remove(each)
+                coordinator.showTab(.browser)
+                coordinator.dappBrowserCoordinator?.open(url: url, animated: false)
+            }
+        }
+    }
 }
+
 // swiftlint:enable type_body_length
 extension InCoordinator: WalletConnectCoordinatorDelegate {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
@@ -819,10 +868,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
-        OpenSea.resetInstances()
-        disconnectWalletConnectSessionsSelectively(for: reason)
-
-        delegate?.didRestart(in: self, wallet: account)
+        restartUI(withReason: reason, account: account)
     }
 
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {
@@ -965,6 +1011,14 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleCustomUrlScheme(url, forCoordinator: self)
+    }
+
+    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
+        processRestartQueueAndRestartUI()
+    }
+
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
+        processRestartQueueAndRestartUI()
     }
 }
 

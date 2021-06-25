@@ -13,39 +13,45 @@ enum DappAction {
     case sendTransaction(UnconfirmedTransaction)
     case sendRawTransaction(String)
     case ethCall(from: String, to: String, data: String)
+    case walletAddEthereumChain(WalletAddEthereumChainObject)
     case unknown
 }
 
 extension DappAction {
-    static func fromCommand(_ command: DappCommand, server: RPCServer, transactionType: TransactionType) -> DappAction {
-        switch command.name {
-        case .signTransaction:
-            return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
-        case .sendTransaction:
-            return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
-        case .signMessage:
-            let data = command.object["data"]?.value ?? ""
-            return .signMessage(data)
-        case .signPersonalMessage:
-            let data = command.object["data"]?.value ?? ""
-            return .signPersonalMessage(data)
-        case .signTypedMessage:
-            if let data = command.object["data"] {
-                if let eip712Data = data.eip712v3And4Data {
-                    return .signTypedMessageV3(eip712Data)
+    static func fromCommand(_ command: DappOrWalletCommand, server: RPCServer, transactionType: TransactionType) -> DappAction {
+        switch command {
+        case .eth(let command):
+            switch command.name {
+            case .signTransaction:
+                return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
+            case .sendTransaction:
+                return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, server: server, transactionType: transactionType))
+            case .signMessage:
+                let data = command.object["data"]?.value ?? ""
+                return .signMessage(data)
+            case .signPersonalMessage:
+                let data = command.object["data"]?.value ?? ""
+                return .signPersonalMessage(data)
+            case .signTypedMessage:
+                if let data = command.object["data"] {
+                    if let eip712Data = data.eip712v3And4Data {
+                        return .signTypedMessageV3(eip712Data)
+                    } else {
+                        return .signTypedMessage(data.eip712PreV3Array)
+                    }
                 } else {
-                    return .signTypedMessage(data.eip712PreV3Array)
+                    return .signTypedMessage([])
                 }
-            } else {
-                return .signTypedMessage([])
+            case .ethCall:
+                let from = command.object["from"]?.value ?? ""
+                let to = command.object["to"]?.value ?? ""
+                let data = command.object["data"]?.value ?? ""
+                return .ethCall(from: from, to: to, data: data)
+            case .unknown:
+                return .unknown
             }
-        case .ethCall:
-            let from = command.object["from"]?.value ?? ""
-            let to = command.object["to"]?.value ?? ""
-            let data = command.object["data"]?.value ?? ""
-            return .ethCall(from: from, to: to, data: data)
-        case .unknown:
-            return .unknown
+        case .walletAddEthereumChain(let command):
+            return .walletAddEthereumChain(command.object)
         }
     }
 
@@ -77,7 +83,7 @@ extension DappAction {
         )
     }
 
-    static func fromMessage(_ message: WKScriptMessage) -> DappCommand? {
+    static func fromMessage(_ message: WKScriptMessage) -> DappOrWalletCommand? {
         let decoder = JSONDecoder()
         guard var body = message.body as? [String: AnyObject] else { return nil }
         if var object = body["object"] as? [String: AnyObject], object["gasLimit"] is [String: AnyObject] {
@@ -85,8 +91,18 @@ extension DappAction {
             object["gasLimit"] = nil
             body["object"] = object as AnyObject
         }
-        guard let jsonString = body.jsonString,
-              let command = try? decoder.decode(DappCommand.self, from: jsonString.data(using: .utf8)!) else { return nil }
-        return command
+        guard let jsonString = body.jsonString else { return nil }
+        let data = jsonString.data(using: .utf8)!
+        if let command = try? decoder.decode(DappCommand.self, from: data) {
+            return .eth(command)
+        } else if let command = try? decoder.decode(WalletCommand.self, from: data) {
+            if Features.isEip3085AddEthereumChainEnabled {
+                return .walletAddEthereumChain(command)
+            } else {
+                return nil
+            }
+        } else {
+            return nil
+        }
     }
 }
