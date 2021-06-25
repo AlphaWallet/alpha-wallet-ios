@@ -363,7 +363,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCustomWallet(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
-        let coordinator = SwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, currentUrl: currentUrl, inViewController: viewController)
+        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, currentUrl: currentUrl, inViewController: viewController)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -817,45 +817,45 @@ extension DappBrowserCoordinator {
     }
 }
 
-extension DappBrowserCoordinator: SwitchCustomChainCoordinatorDelegate {
-    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+extension DappBrowserCoordinator: DappRequestSwitchCustomChainCoordinatorDelegate {
+    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
         browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
         removeCoordinator(coordinator)
     }
 
-    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         `switch`(toServer: server, url: url)
         removeCoordinator(coordinator)
     }
 
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
         removeCoordinator(coordinator)
     }
 
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         delegate?.restartToAddEnableAAndSwitchBrowserToServer(inCoordinator: self)
         removeCoordinator(coordinator)
     }
 
-    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
         removeCoordinator(coordinator)
     }
 
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         let error = DAppError.nodeError(errorMessage)
         browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
         removeCoordinator(coordinator)
     }
 
-    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: SwitchCustomChainCoordinator) {
+    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
         removeCoordinator(coordinator)
     }
 
-    func cleanup(coordinator: SwitchCustomChainCoordinator) {
+    func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator) {
         removeCoordinator(coordinator)
     }
 }
