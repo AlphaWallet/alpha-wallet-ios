@@ -189,7 +189,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain: return "https://bscscan.com"
             case .binance_smart_chain_testnet: return "https://testnet.bscscan.com"
             case .polygon: return "https://polygonscan.com"
-            case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com"
+            case .mumbai_testnet: return "https://mumbai.polygonscan.com"
             case .optimistic: return "https://optimistic.etherscan.io"
             case .optimisticKovan: return "https://kovan-optimistic.etherscan.io"
             case .custom: return nil
@@ -231,7 +231,7 @@ enum RPCServer: Hashable, CaseIterable {
             //TODO fix etherscan-compatible API endpoint
             case .avalanche_testnet: return "https://cchain.explorer.avax-test.network/tx/api"
             case .polygon: return "https://api.polygonscan.com/api"
-            case .mumbai_testnet: return "https://explorer-mumbai.maticvigil.com/api/v2"
+            case .mumbai_testnet: return "https://api-testnet.polygonscan.com/api"
             case .optimistic: return "https://api-optimistic.etherscan.io/api"
             case .optimisticKovan: return "https://api-kovan-optimistic.etherscan.io/api"
             }
@@ -508,12 +508,11 @@ enum RPCServer: Hashable, CaseIterable {
 
     var transactionInfoEndpoints: URL? {
         switch self {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .custom:
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .mumbai_testnet, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .custom:
             return etherscanApiRoot
         case .fantom_testnet: return URL(string: "https://explorer.testnet.fantom.network/tx/")
         case .avalanche: return URL(string: "https://cchain.explorer.avax.network/tx/")
         case .avalanche_testnet: return URL(string: "https://cchain.explorer.avax-test.network/tx/")
-        case .mumbai_testnet: return URL(string: "https://explorer-mumbai.maticvigil.com/tx/")
         }
     }
 
