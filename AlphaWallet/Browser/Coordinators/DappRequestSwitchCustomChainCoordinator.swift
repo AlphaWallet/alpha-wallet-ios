@@ -155,6 +155,7 @@ extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
             dAppError = .cancelled
         case .others(let message):
             dAppError = .nodeError(message)
+            UIAlertController.alert(title: nil, message: message, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: viewController)
         }
         delegate?.failed(withError: dAppError, withCallbackId: callbackId, inCoordinator: self)
     }
