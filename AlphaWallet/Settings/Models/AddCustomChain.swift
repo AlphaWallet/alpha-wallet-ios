@@ -173,18 +173,36 @@ extension AddCustomChain.functional {
         guard let url = URL(string: "\(urlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
             return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
         }
-        return firstly {
 
+        return firstly {
+            isValidBlockchainExplorerApiRoot(url)
+        }.map {
+            url.absoluteString
+        }.recover { error -> Promise<String> in
+            //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
+            guard let url = URL(string: "\(originalUrlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
+                return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
+            }
+            return firstly {
+                isValidBlockchainExplorerApiRoot(url)
+            }.map {
+                url.absoluteString
+            }
+        }
+    }
+
+    private static func isValidBlockchainExplorerApiRoot(_ url: URL) -> Promise<Void> {
+        firstly {
             Alamofire.request(url, method: .get).responseJSON()
         }.map { json, _ in
             if let json = json as? [String: Any] {
                 if json["result"] is [Any] {
-                    return urlString
+                    return
                 } else {
-                    return originalUrlString
+                    throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
                 }
             } else {
-                return originalUrlString
+                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
             }
         }
     }
