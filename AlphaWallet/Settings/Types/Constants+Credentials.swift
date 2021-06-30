@@ -9,5 +9,6 @@ extension Constants {
         static let analyticsKey = ""
         static let paperTrail = (host: "", port: UInt(0))
         static let taiChiRPCKey = ""
+        static let mailChimpListSpecificKey = ""
     }
 }

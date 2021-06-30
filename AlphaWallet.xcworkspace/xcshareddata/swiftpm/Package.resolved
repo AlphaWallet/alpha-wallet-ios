@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "MailchimpSDK",
+        "repositoryURL": "https://github.com/mailchimp/Mailchimp-SDK-iOS",
+        "state": {
+          "branch": null,
+          "revision": "08efbae235367c1349b76bc6053cdc7964d6fa93",
+          "version": "2.0.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
