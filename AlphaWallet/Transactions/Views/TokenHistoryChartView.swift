@@ -129,8 +129,9 @@ class TokenHistoryChartView: UIView {
             set.fill = viewModel.setGradientFill
             set.highlightColor = viewModel.chartSelectionColor
             set.drawCircleHoleEnabled = false
-            set.fillFormatter = DefaultFillFormatter { _, _  -> CGFloat in
-                return CGFloat(self.chartView.leftAxis.axisMinimum)
+            set.fillFormatter = DefaultFillFormatter { [weak self] _, _  -> CGFloat in
+                guard let strongSelf = self else { return 0.0 }
+                return CGFloat(strongSelf.chartView.leftAxis.axisMinimum)
             }
 
             let data: LineChartData = LineChartData(dataSets: [set])

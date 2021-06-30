@@ -10,7 +10,7 @@ import UIKit
 struct TickerFieldValueViewModel {
     private let title: String
     var attributedValue: NSAttributedString
-    var separatorColor: UIColor = R.color.mike()!
+    var separatorColor: UIColor = R.color.mercury()!
     
     init(title: String, attributedValue: NSAttributedString) {
         self.title = title
@@ -19,8 +19,8 @@ struct TickerFieldValueViewModel {
 
     var attributedTitle: NSAttributedString {
         return .init(string: title, attributes: [
-            .font: Fonts.regular(size: 14),
-            .foregroundColor: Colors.black
+            .font: Fonts.regular(size: 15),
+            .foregroundColor: R.color.dove()!
         ])
     }
 }

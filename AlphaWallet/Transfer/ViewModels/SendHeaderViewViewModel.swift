@@ -40,7 +40,7 @@ struct TokenInfoPageViewModel {
     var markerCapViewModel: TickerFieldValueViewModel {
         let value: String = {
             if let market_cap = ticker?.market_cap {
-                return String(market_cap)
+                return StringFormatter().largeNumberFormatter(for: market_cap, currency: "USD")
             } else {
                 return "-"
             }
@@ -103,7 +103,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldPerfomanceYearLow(), attributedValue: attributedValue)
     }
 
-    var yearHightViewModel: TickerFieldValueViewModel {
+    var yearHighViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
             if let max = HistoryHelper(history: history).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
@@ -124,7 +124,7 @@ struct TokenInfoPageViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.year)
         return .init(title: R.string.localizable.tokenInfoFieldStatsYear(), attributedValue: attributedValue)
     }
-    
+
     var monthViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.month)
         return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(), attributedValue: attributedValue)
