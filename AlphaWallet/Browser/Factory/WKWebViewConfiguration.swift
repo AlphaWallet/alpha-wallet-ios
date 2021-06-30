@@ -130,7 +130,7 @@ extension WKWebViewConfiguration {
                    }
                }, {
                    address: addressHex,
-                   networkVersion: chainID
+                   networkVersion: "0x" + parseInt(chainID).toString(16) || null
                })
 
                web3.setProvider = function () {
