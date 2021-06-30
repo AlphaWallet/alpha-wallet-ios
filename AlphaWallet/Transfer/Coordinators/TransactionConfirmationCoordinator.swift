@@ -161,9 +161,9 @@ class TransactionConfirmationCoordinator: Coordinator {
         }
     }
 
-    private func askUserToRateApp() {
+    private func askUserToRateAppOrSubscribeToNewsletter() {
         let coordinator = HelpUsCoordinator(navigationController: navigationController, appTracker: AppTracker())
-        coordinator.rateUs()
+        coordinator.rateUsOrSubscribeToNewsletter()
     }
 }
 
@@ -186,7 +186,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         }.done { result in
             self.showSuccess(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-            self.askUserToRateApp()
+            self.askUserToRateAppOrSubscribeToNewsletter()
         }.catch { error in
             self.logActionSheetForTransactionConfirmationFailed()
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
