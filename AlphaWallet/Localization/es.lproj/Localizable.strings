@@ -437,6 +437,8 @@
 "blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
 "blockchain.Polygon" = "Polygon Mainnet";
 "blockchain.Mumbai" = "Mumbai Testnet";
+"blockchain.Optimistic" = "Optimistic Testnet";
+"blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "photos" = "Explorar";
 "light" = "Luz";
 "qrCode.title" = "Apunta la cámara al código QR";
