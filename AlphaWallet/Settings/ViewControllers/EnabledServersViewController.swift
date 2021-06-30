@@ -92,7 +92,6 @@ class EnabledServersViewController: UIViewController {
             switch result {
             case .success:
                 strongSelf.markForDeletion(server: server)
-                break
             case .failure:
                 break
             }
