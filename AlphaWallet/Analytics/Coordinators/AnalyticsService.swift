@@ -21,13 +21,9 @@ protocol AnalyticsServiceType: AnalyticsCoordinator {
 class AnalyticsService: NSObject, AnalyticsServiceType {
     private var mixpanelService: MixpanelCoordinator?
 
-    private static var isTestFlight: Bool {
-        Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
-    }
-
     override init() {
         super.init()
-        if Constants.Credentials.analyticsKey.nonEmpty && !Self.isTestFlight {
+        if Constants.Credentials.analyticsKey.nonEmpty && !Environment.isTestFlight {
             mixpanelService = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
         }
     }
