@@ -44,7 +44,7 @@ class TokenInfoPageView: UIView, TokenPageViewType {
 
     lazy var viewModel = TokenInfoPageViewModel(server: server, token: token, transactionType: transactionType)
     weak var delegate: TokenInfoPageViewDelegate?
-    private var headerRefreshTimer: Timer!
+    private var headerRefreshTimer: Timer?
 
     private let server: RPCServer
     private let token: TokenObject
@@ -56,7 +56,7 @@ class TokenInfoPageView: UIView, TokenPageViewType {
         self.transactionType = transactionType
         super.init(frame: .zero)
 
-        translatesAutoresizingMaskIntoConstraints = false 
+        translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(scrollView)
 
@@ -65,7 +65,7 @@ class TokenInfoPageView: UIView, TokenPageViewType {
             scrollView.centerXAnchor.constraint(equalTo: centerXAnchor),
             scrollView.widthAnchor.constraint(equalTo: widthAnchor),
             scrollView.heightAnchor.constraint(equalTo: heightAnchor),
-            
+
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
@@ -74,12 +74,19 @@ class TokenInfoPageView: UIView, TokenPageViewType {
 
         generateSubviews(viewModel: viewModel)
 
-        headerRefreshTimer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
             self?.refreshHeaderView()
         }
 
-        RunLoop.main.add(headerRefreshTimer, forMode: .default)
+        RunLoop.main.add(timer, forMode: .default)
+        headerRefreshTimer = timer
+
         headerView.delegate = self
+    }
+
+    deinit {
+        headerRefreshTimer?.invalidate()
+        headerRefreshTimer = nil
     }
 
     private func generateSubviews(viewModel: TokenInfoPageViewModel) {
@@ -144,13 +151,13 @@ class TokenInfoPageView: UIView, TokenPageViewType {
 
         let view15 = TickerFieldValueView()
 
-        view15.configure(viewModel: viewModel.yearHightViewModel)
+        view15.configure(viewModel: viewModel.yearHighViewModel)
         stackView.addArrangedSubview(view15)
     }
 
     func configure(viewModel: TokenInfoPageViewModel) {
         self.viewModel = viewModel
-        
+
         generateSubviews(viewModel: viewModel)
 
         var chartViewModel = chartView.viewModel

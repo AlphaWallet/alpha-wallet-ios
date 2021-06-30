@@ -16,7 +16,7 @@ struct TokenInfoHeaderViewModel {
 
     var attributedTitle: NSAttributedString {
         return .init(string: title, attributes: [
-            .font: Fonts.semibold(size: 16),
+            .font: Fonts.bold(size: 24),
             .foregroundColor: Colors.black
         ])
     }

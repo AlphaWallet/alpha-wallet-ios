@@ -659,4 +659,4 @@ You can check the latest gas price on gasnow.org";
 "token.info.field.stats.total_supply" = "Total Supply";
 "token.info.field.stats.max_supply" = "Max Supply";
 "token.info.field.perfomance.year.low" = "1 Year Low";
-"token.info.field.perfomance.year.high" = "1 Year Hight";
+"token.info.field.perfomance.year.high" = "1 Year High";
