@@ -151,11 +151,11 @@ class TextField: UIControl {
     }
 
     var placeholder: String? {
-        set {
-            textField.placeholder = newValue
-        }
         get {
             textField.placeholder
+        }
+        set {
+            textField.placeholder = newValue
         }
     }
 
