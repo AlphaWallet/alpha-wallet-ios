@@ -11,4 +11,5 @@ enum Features {
     static let isRenameWalletEnabledWhileLongPress = true
     static let shouldPrintCURLForOutgoingRequest = false
     static let isEip3085AddEthereumChainEnabled = true
+    static let isPromptForEmailListSubscriptionEnabled = true
 }

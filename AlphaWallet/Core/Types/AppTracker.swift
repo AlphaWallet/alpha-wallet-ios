@@ -8,6 +8,7 @@ class AppTracker {
         static let launchCountForCurrentBuild = "launchCountForCurrentBuild-" + String(Bundle.main.buildNumberInt)
         static let completedSharing = "completedSharing"
         static let completedRating = "completedRating"
+        static let completedPromptForNewsletter = "completedPromptForNewsletter"
     }
 
     let defaults: UserDefaults
@@ -25,6 +26,11 @@ class AppTracker {
     var completedRating: Bool {
         get { return defaults.bool(forKey: Keys.completedRating) }
         set { return defaults.set(newValue, forKey: Keys.completedRating) }
+    }
+
+    var hasCompletedPromptForNewsletter: Bool {
+        get { defaults.bool(forKey: Keys.completedPromptForNewsletter) }
+        set { defaults.set(newValue, forKey: Keys.completedPromptForNewsletter) }
     }
 
     var completedSharing: Bool {
@@ -49,6 +55,7 @@ class AppTracker {
         launchCountForCurrentBuild: \(launchCountForCurrentBuild)
         completedRating: \(completedRating)
         completedSharing: \(completedSharing)
+        completedPromptForNewsletter: \(hasCompletedPromptForNewsletter)
         """
     }
 }

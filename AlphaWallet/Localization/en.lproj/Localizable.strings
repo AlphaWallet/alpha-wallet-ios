@@ -641,3 +641,7 @@ You can check the latest gas price on gasnow.org";
 "addrpcServer.chainIdAlreadySupported" = "Already supported. Enable this server instead";
 "addrpcServer.rpcUrl.placeholder" = "New RPC Network";
 "addrpcServer.blockExplorerUrl.placeholder" = "Block Explorer";
+"emailList.prompt.title" = "Stay Updated";
+"emailList.prompt.message" = "We send an email announcing major features. Would you like to receive such emails?\n\n(We do not spam)";
+"emailList.prompt.subscribeButtonTitle" = "I want to receive such emails";
+"emailList.prompt.email.placeholder" = "Email";
