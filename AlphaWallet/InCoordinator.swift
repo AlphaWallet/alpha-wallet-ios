@@ -15,7 +15,7 @@ protocol InCoordinatorDelegate: class {
     func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator)
-    func didShowWallets(in coordinator: InCoordinator)
+    func showWallets(in coordinator: InCoordinator)
     func didRestart(in coordinator: InCoordinator, wallet: Wallet)
 }
 
@@ -942,7 +942,7 @@ extension InCoordinator: UrlSchemeResolver {
 extension InCoordinator: TokensCoordinatorDelegate {
 
     func blockieSelected(in coordinator: TokensCoordinator) {
-        delegate?.didShowWallets(in: self)
+        delegate?.showWallets(in: self)
     }
 
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
