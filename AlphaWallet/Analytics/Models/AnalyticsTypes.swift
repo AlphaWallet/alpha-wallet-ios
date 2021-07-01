@@ -56,6 +56,7 @@ enum Analytics {
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
         case nameWallet = "Name Wallet"
         case firstWalletAction = "First Wallet Action"
+        case addCustomChain = "Add Custom Chain"
     }
 
     enum Properties: String {
@@ -73,6 +74,7 @@ enum Analytics {
         case isTaiChiEnabled
         case type
         case isAllFunds
+        case addCustomChainType
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

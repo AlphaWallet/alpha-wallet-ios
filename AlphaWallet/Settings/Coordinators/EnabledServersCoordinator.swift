@@ -19,6 +19,7 @@ class EnabledServersCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let selectedServers: [RPCServer]
     private let restartQueue: RestartTaskQueue
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     private lazy var enabledServersViewController: EnabledServersViewController = {
         let viewModel = EnabledServersViewModel(servers: serverChoices, selectedServers: selectedServers)
@@ -33,10 +34,11 @@ class EnabledServersCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: EnabledServersCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, selectedServers: [RPCServer], restartQueue: RestartTaskQueue) {
+    init(navigationController: UINavigationController, selectedServers: [RPCServer], restartQueue: RestartTaskQueue, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.selectedServers = selectedServers
         self.restartQueue = restartQueue
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -49,7 +51,7 @@ class EnabledServersCoordinator: Coordinator {
     }
 
     @objc private func addRPCSelected() {
-        let coordinator = AddRPCServerCoordinator(navigationController: navigationController, config: Config(), restartQueue: restartQueue)
+        let coordinator = AddRPCServerCoordinator(navigationController: navigationController, config: Config(), restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         addCoordinator(coordinator)
 

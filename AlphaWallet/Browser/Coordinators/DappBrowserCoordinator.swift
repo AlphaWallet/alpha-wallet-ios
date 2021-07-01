@@ -363,7 +363,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCustomWallet(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
-        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, currentUrl: currentUrl, inViewController: viewController)
+        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
