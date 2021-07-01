@@ -27,7 +27,7 @@ class SettingsCoordinator: Coordinator {
 	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
     private let restartQueue: RestartTaskQueue
-    private let _promptBackupCoordinator: PromptBackupCoordinator
+    private let promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
 	private var account: Wallet {
@@ -61,7 +61,7 @@ class SettingsCoordinator: Coordinator {
 		self.config = config
 		self.sessions = sessions
         self.restartQueue = restartQueue
-        self._promptBackupCoordinator = promptBackupCoordinator
+        self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
@@ -197,10 +197,6 @@ extension SettingsCoordinator: CanOpenURL {
 }
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
-    var promptBackupCoordinator: PromptBackupCoordinator? {
-        _promptBackupCoordinator
-    }
-
 	func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
 		delegate?.didUpdateAccounts(in: self)
 	}
@@ -287,8 +283,8 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 	}
 
 	func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-		_promptBackupCoordinator.markBackupDone()
-		_promptBackupCoordinator.showHideCurrentPrompt()
+		promptBackupCoordinator.markBackupDone()
+		promptBackupCoordinator.showHideCurrentPrompt()
 		removeCoordinator(coordinator)
 	}
 }
