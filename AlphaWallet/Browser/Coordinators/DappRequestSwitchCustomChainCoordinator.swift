@@ -21,18 +21,20 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     private let callbackId: Int
     private let customChain: WalletAddEthereumChainObject
     private let restartQueue: RestartTaskQueue
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let currentUrl: URL?
     private let viewController: UIViewController
 
     var coordinators: [Coordinator] = []
     weak var delegate: DappRequestSwitchCustomChainCoordinatorDelegate?
 
-    init(config: Config, server: RPCServer, callbackId: Int, customChain: WalletAddEthereumChainObject, restartQueue: RestartTaskQueue, currentUrl: URL?, inViewController viewController: UIViewController) {
+    init(config: Config, server: RPCServer, callbackId: Int, customChain: WalletAddEthereumChainObject, restartQueue: RestartTaskQueue, analyticsCoordinator: AnalyticsCoordinator, currentUrl: URL?, inViewController viewController: UIViewController) {
         self.config = config
         self.server = server
         self.callbackId = callbackId
         self.customChain = customChain
         self.restartQueue = restartQueue
+        self.analyticsCoordinator = analyticsCoordinator
         self.currentUrl = currentUrl
         self.viewController = viewController
     }
@@ -137,6 +139,7 @@ extension DappRequestSwitchCustomChainCoordinator: EnableChainDelegate {
 extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
     //Don't need to notify browser/dapp since we are restarting UI
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
+        analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "dapp"])
         guard self.addCustomChain != nil else {
             delegate?.cleanup(coordinator: self)
             return
