@@ -18,12 +18,14 @@ class AddRPCServerCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
     private let config: Config
     private let restartQueue: RestartTaskQueue
+    private let analyticsCoordinator: AnalyticsCoordinator
     weak var delegate: AddRPCServerCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, config: Config, restartQueue: RestartTaskQueue) {
+    init(navigationController: UINavigationController, config: Config, restartQueue: RestartTaskQueue, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.config = config
         self.restartQueue = restartQueue
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -65,6 +67,7 @@ extension AddRPCServerCoordinator: AddRPCServerViewControllerDelegate {
 
 extension AddRPCServerCoordinator: AddCustomChainDelegate {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
+        analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
         //Not necessary to pop the navigation controller since we are restarting the UI
     }
