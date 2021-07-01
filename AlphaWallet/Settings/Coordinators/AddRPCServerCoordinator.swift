@@ -66,7 +66,7 @@ extension AddRPCServerCoordinator: AddRPCServerViewControllerDelegate {
 extension AddRPCServerCoordinator: AddCustomChainDelegate {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
-        //Note necessary to pop the navigation controller since we are restarting the UI
+        //Not necessary to pop the navigation controller since we are restarting the UI
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
