@@ -18,7 +18,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: SettingsCoordinator)
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator)
     func restartToRemoveServer(in coordinator: SettingsCoordinator)
 }
 
@@ -256,8 +256,8 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 		removeCoordinator(coordinator)
 	}
 
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator) {
-        delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator) {
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
         removeCoordinator(coordinator)
     }
 

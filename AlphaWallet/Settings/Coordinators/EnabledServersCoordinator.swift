@@ -5,7 +5,7 @@ import UIKit
 protocol EnabledServersCoordinatorDelegate: class {
     func didSelectServers(servers: [RPCServer], in coordinator: EnabledServersCoordinator)
     func didSelectDismiss(in coordinator: EnabledServersCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator)
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator)
     func restartToRemoveServer(in coordinator: EnabledServersCoordinator)
 }
 
@@ -78,7 +78,7 @@ extension EnabledServersCoordinator: AddRPCServerCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator) {
-        delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator) {
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
     }
 }
