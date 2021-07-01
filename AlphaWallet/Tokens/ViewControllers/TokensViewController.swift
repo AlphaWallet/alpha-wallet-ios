@@ -250,7 +250,7 @@ class TokensViewController: UIViewController {
             }
             strongSelf.tableView.reloadData()
         }
-        blockieImageView.button.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
+        blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
     }
 
     override func viewWillAppear(_ animated: Bool) {

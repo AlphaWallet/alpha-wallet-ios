@@ -10,7 +10,7 @@ import UIKit
 class BlockieImageView: UIView {
     private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
 
-    private (set) var button: UIButton = {
+    private var button: UIButton = {
         let imageView = UIButton()
         imageView.contentMode = .scaleAspectFit
         return imageView
@@ -43,7 +43,7 @@ class BlockieImageView: UIView {
             button.setImage(newValue, for: .normal)
         }
     }
-    
+
     convenience init() {
         self.init(frame: .zero)
     }
@@ -71,5 +71,8 @@ class BlockieImageView: UIView {
         layer.cornerRadius = frame.width / 2.0
     }
 
+    func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
+        button.addTarget(target, action: action, for: controlEvents)
+    }
 }
 
