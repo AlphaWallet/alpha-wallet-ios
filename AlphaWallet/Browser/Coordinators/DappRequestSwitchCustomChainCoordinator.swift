@@ -5,7 +5,7 @@ import UIKit
 protocol DappRequestSwitchCustomChainCoordinatorDelegate: class {
     func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
+    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
@@ -144,7 +144,7 @@ extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
             delegate?.cleanup(coordinator: self)
             return
         }
-        delegate?.restartToAddEnableAAndSwitchBrowserToServer(inCoordinator: self)
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(inCoordinator: self)
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
