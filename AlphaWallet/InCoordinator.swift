@@ -437,6 +437,7 @@ class InCoordinator: NSObject, Coordinator {
 
         logEnabledChains()
         logWallets()
+        logDynamicTypeSetting()
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
@@ -1149,6 +1150,11 @@ extension InCoordinator {
         analyticsCoordinator.setUser(property: Analytics.UserProperties.hdWalletsCount, value: hdWalletsCount)
         analyticsCoordinator.setUser(property: Analytics.UserProperties.keystoreWalletsCount, value: keystoreWalletsCount)
         analyticsCoordinator.setUser(property: Analytics.UserProperties.watchedWalletsCount, value: watchedWalletsCount)
+    }
+
+    private func logDynamicTypeSetting() {
+        let setting = UIApplication.shared.preferredContentSizeCategory.rawValue
+        analyticsCoordinator.setUser(property: Analytics.UserProperties.dynamicTypeSetting, value: setting)
     }
 
     private func logTappedSwap(service: SwapTokenURLProviderType) {
