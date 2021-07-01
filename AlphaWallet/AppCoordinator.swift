@@ -341,7 +341,7 @@ extension AppCoordinator: InCoordinatorDelegate {
         showTransactions(for: keystore.currentWallet, animated: false)
     }
 
-    func didShowWallets(in coordinator: InCoordinator) {
+    func showWallets(in coordinator: InCoordinator) {
         pendingInCoordinator = coordinator
         removeCoordinator(coordinator)
         //NOTE: refactor with more better solution
