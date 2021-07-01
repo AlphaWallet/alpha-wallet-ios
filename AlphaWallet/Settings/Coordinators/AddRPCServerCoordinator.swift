@@ -9,7 +9,7 @@ import UIKit
 
 protocol AddRPCServerCoordinatorDelegate: class {
     func didDismiss(in coordinator: AddRPCServerCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator)
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator)
 }
 
 class AddRPCServerCoordinator: NSObject, Coordinator {
@@ -68,8 +68,8 @@ extension AddRPCServerCoordinator: AddRPCServerViewControllerDelegate {
 extension AddRPCServerCoordinator: AddCustomChainDelegate {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
-        delegate?.restartToAddEnableAAndSwitchBrowserToServer(in: self)
-        //Not necessary to pop the navigation controller since we are restarting the UI
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
+        //Note necessary to pop the navigation controller since we are restarting the UI
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
