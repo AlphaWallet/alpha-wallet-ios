@@ -77,7 +77,7 @@ class SignMessageCoordinator: Coordinator {
         }
     }
 
-    func dissmissAnimated(completion: @escaping () -> Void) {
+    func dismissAnimated(completion: @escaping () -> Void) {
         confirmationViewController.dismissViewAnimated {
             //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
             self.navigationController.dismiss(animated: true, completion: completion)
@@ -102,7 +102,7 @@ class SignMessageCoordinator: Coordinator {
             result = keystore.signEip712TypedData(data, for: account)
         }
 
-        dissmissAnimated(completion: {
+        dismissAnimated(completion: {
             guard let delegate = self.delegate else { return }
 
             switch result {

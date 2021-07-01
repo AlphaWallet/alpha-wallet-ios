@@ -61,7 +61,7 @@ class WalletConnectToSessionCoordinator: Coordinator {
         viewController.reloadView()
     }
 
-    private func dissmiss(animated: Bool = true, completion: @escaping () -> Void) {
+    private func dismiss(animated: Bool = true, completion: @escaping () -> Void) {
         viewController.dismissViewAnimated {
             self.navigationController.dismiss(animated: animated, completion: completion)
         }
@@ -95,7 +95,7 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton) {
         if config.enabledServers.contains(serverToConnect) {
             analyticsCoordinator.log(action: Analytics.Action.walletConnectConnect, properties: [Analytics.Properties.chain.rawValue: serverToConnect.chainID])
-            dissmiss(animated: true, completion: {
+            dismiss(animated: true, completion: {
                 guard let delegate = self.delegate else { return }
 
                 delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
@@ -110,7 +110,7 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
 
     func didClose(in controller: WalletConnectToSessionViewController) {
         analyticsCoordinator.log(action: Analytics.Action.walletConnectCancel)
-        dissmiss(animated: true, completion: {
+        dismiss(animated: true, completion: {
             guard let delegate = self.delegate else { return }
 
             delegate.coordinator(self, didCompleteWithConnection: .cancel)
