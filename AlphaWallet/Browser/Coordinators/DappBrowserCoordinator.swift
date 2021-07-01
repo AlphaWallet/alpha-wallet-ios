@@ -14,7 +14,7 @@ protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
     func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
+    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
 }
 
@@ -834,8 +834,8 @@ extension DappBrowserCoordinator: DappRequestSwitchCustomChainCoordinatorDelegat
         removeCoordinator(coordinator)
     }
 
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        delegate?.restartToAddEnableAAndSwitchBrowserToServer(inCoordinator: self)
+    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(inCoordinator: self)
         removeCoordinator(coordinator)
     }
 

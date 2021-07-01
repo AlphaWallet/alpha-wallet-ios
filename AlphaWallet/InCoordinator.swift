@@ -918,7 +918,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func restartToAddEnableAAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {
+    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {
         processRestartQueueAndRestartUI()
     }
 
@@ -1046,7 +1046,7 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
         delegate?.handleCustomUrlScheme(url, forCoordinator: self)
     }
 
-    func restartToAddEnableAAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
+    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
     }
 
