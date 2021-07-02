@@ -278,7 +278,9 @@ extension TransactionsStorage: Erc721TokenIdsFetcher {
             for each in operations {
                 let tokenId = each.tokenId
                 guard !tokenId.isEmpty else { continue }
-                if account.sameContract(as: each.from) {
+                if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
+                    //no-op
+                } else if account.sameContract(as: each.from) {
                     tokenIds.remove(tokenId)
                 } else if account.sameContract(as: each.to) {
                     tokenIds.insert(tokenId)
