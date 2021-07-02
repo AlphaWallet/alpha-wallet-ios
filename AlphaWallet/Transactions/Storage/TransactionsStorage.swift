@@ -263,6 +263,16 @@ class TransactionsStorage {
             realm.delete(realm.objects(Transaction.self))
         }
     }
+
+    func writeJsonForTransactions(toUrl url: URL) {
+        do {
+            let data = try functional.generateJsonForTransactions(transactionStorage: self, toUrl: url)
+            try data.write(to: url)
+            NSLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
+        } catch {
+            NSLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
+        }
+    }
 }
 
 extension TransactionsStorage: Erc721TokenIdsFetcher {
@@ -290,5 +300,34 @@ extension TransactionsStorage: Erc721TokenIdsFetcher {
             }
             seal.fulfill(Array(tokenIds))
         }
+    }
+}
+
+extension TransactionsStorage {
+    class functional {}
+}
+
+extension TransactionsStorage.functional {
+    static func generateJsonForTransactions(transactionStorage: TransactionsStorage, toUrl url: URL) throws -> Data {
+        struct Operation: Encodable {
+            let from: String
+            let to: String
+            let contract: String
+            let tokenId: String
+        }
+        struct Transaction: Encodable {
+            let transactionHash: String
+            let operations: [Operation]
+        }
+
+        let transactions = transactionStorage.objects.sorted(byKeyPath: "date", ascending: true)
+        let transactionsToWrite: [Transaction] = transactions.map { eachTransaction in
+            let operations = eachTransaction.localizedOperations
+            let operationsToWrite: [Operation] = operations.map { eachOp in
+                .init(from: eachOp.from, to: eachOp.to, contract: eachOp.contractAddress?.eip55String ?? "", tokenId: eachOp.tokenId)
+            }
+            return .init(transactionHash: eachTransaction.id, operations: operationsToWrite)
+        }
+        return try JSONEncoder().encode(transactionsToWrite)
     }
 }
