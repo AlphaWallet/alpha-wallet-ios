@@ -36,7 +36,7 @@ class ServersCoordinator: Coordinator {
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
-        ] + RPCServer.servers
+        ] + RPCServer.customServers
     }
 
     private let viewModel: ServersViewModel
