@@ -21,8 +21,6 @@ protocol TokensDataStorePriceDelegate: class {
 
 // swiftlint:disable type_body_length
 class TokensDataStore {
-    typealias ContractAndJson = (contract: AlphaWallet.Address, json: String)
-
     static let fetchContractDataTimeout = TimeInterval(4)
 
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
@@ -573,28 +571,17 @@ class TokensDataStore {
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { _ in } }
         return firstly {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
-        }.then {  tokenIds -> Promise<[ContractAndJson]> in
-            let guarantees: [Guarantee<ContractAndJson>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
+        }.then { tokenIds -> Promise<[String]> in
+            let guarantees: [Guarantee<String>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
             return when(fulfilled: guarantees)
-        }.done { listOfContractAndJsonResult in
-            var contractsAndJsons: [AlphaWallet.Address: [String]] = [contract: .init()]
-            for each in listOfContractAndJsonResult {
-                if var listOfJson = contractsAndJsons[each.contract] {
-                    listOfJson.append(each.json)
-                    contractsAndJsons[each.contract] = listOfJson
-                } else {
-                    contractsAndJsons[each.contract] = [each.json]
-                }
-            }
-            for (contract, jsons) in contractsAndJsons {
-                guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { continue }
-                self.update(token: tokenObject, action: .nonFungibleBalance(jsons))
-            }
+        }.done { jsons in
+            guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { return }
+            self.update(token: tokenObject, action: .nonFungibleBalance(jsons))
         }.asVoid()
     }
 
-    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<ContractAndJson> {
-        return firstly {
+    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<String> {
+        firstly {
             Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
         }.then {
             self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
@@ -609,11 +596,11 @@ class TokensDataStore {
                 jsonDictionary["thumbnailUrl"] = ""
                 jsonDictionary["externalLink"] = ""
             }
-            return .value((contract: address, json: jsonDictionary.rawString()!))
+            return .value(jsonDictionary.rawString()!)
         }
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<ContractAndJson> {
+    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<String> {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
@@ -638,7 +625,7 @@ class TokensDataStore {
                         jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
                     }
                     if let jsonString = jsonDictionary.rawString() {
-                        return (contract: address, json: jsonString)
+                        return jsonString
                     } else {
                         throw Error()
                     }
