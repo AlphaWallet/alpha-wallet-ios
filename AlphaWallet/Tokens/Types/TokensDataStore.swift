@@ -577,7 +577,7 @@ class TokensDataStore {
             let guarantees: [Guarantee<ContractAndJson>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
             return when(fulfilled: guarantees)
         }.done { listOfContractAndJsonResult in
-            var contractsAndJsons: [AlphaWallet.Address: [String]] = .init()
+            var contractsAndJsons: [AlphaWallet.Address: [String]] = [contract: .init()]
             for each in listOfContractAndJsonResult {
                 if var listOfJson = contractsAndJsons[each.contract] {
                     listOfJson.append(each.json)
