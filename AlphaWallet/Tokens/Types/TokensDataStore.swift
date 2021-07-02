@@ -925,6 +925,11 @@ class TokensDataStore {
         pricesTimer.invalidate()
         ethTimer.invalidate()
     }
+
+    func writeJsonForTransactions(toUrl url: URL) {
+        guard let transactionStorage = erc721TokenIdsFetcher as? TransactionsStorage else { return }
+        transactionStorage.writeJsonForTransactions(toUrl: url)
+    }
 }
 // swiftlint:enable type_body_length
 
