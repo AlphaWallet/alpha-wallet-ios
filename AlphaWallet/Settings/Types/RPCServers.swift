@@ -647,104 +647,22 @@ enum RPCServer: Hashable, CaseIterable {
     }
 
     init(name: String) {
-        self = {
-            switch name {
-            case RPCServer.main.name: return .main
-            case RPCServer.classic.name: return .classic
-            case RPCServer.callisto.name: return .callisto
-            case RPCServer.kovan.name: return .kovan
-            case RPCServer.ropsten.name: return .ropsten
-            case RPCServer.rinkeby.name: return .rinkeby
-            case RPCServer.poa.name: return .poa
-            case RPCServer.sokol.name: return .sokol
-            case RPCServer.xDai.name: return .xDai
-            case RPCServer.goerli.name: return .goerli
-            case RPCServer.artis_sigma1.name: return .artis_sigma1
-            case RPCServer.artis_tau1.name: return .artis_tau1
-            case RPCServer.binance_smart_chain.name: return .binance_smart_chain
-            case RPCServer.binance_smart_chain_testnet.name: return .binance_smart_chain_testnet
-            case RPCServer.heco.name: return .heco
-            case RPCServer.heco_testnet.name: return .heco_testnet
-            case RPCServer.fantom.name: return .fantom
-            case RPCServer.fantom_testnet.name: return .fantom_testnet
-            case RPCServer.avalanche.name: return .avalanche
-            case RPCServer.avalanche_testnet.name: return .avalanche_testnet
-            case RPCServer.polygon.name: return .polygon
-            case RPCServer.mumbai_testnet.name: return .mumbai_testnet
-            case RPCServer.optimistic.name: return .optimistic
-            case RPCServer.optimisticKovan.name: return .optimisticKovan
-            default:
-                return RPCServer.servers.first { $0.name == name } ?? .main
-            }
-        }()
+        //TODO defaulting to .main is bad
+        self = Self.allCases.first { $0.name == name } ?? .main
     }
 
     init(chainID: Int) {
-        self = {
-            switch chainID {
-            case RPCServer.main.chainID: return .main
-            case RPCServer.classic.chainID: return .classic
-            case RPCServer.callisto.chainID: return .callisto
-            case RPCServer.kovan.chainID: return .kovan
-            case RPCServer.ropsten.chainID: return .ropsten
-            case RPCServer.rinkeby.chainID: return .rinkeby
-            case RPCServer.poa.chainID: return .poa
-            case RPCServer.sokol.chainID: return .sokol
-            case RPCServer.xDai.chainID: return .xDai
-            case RPCServer.goerli.chainID: return .goerli
-            case RPCServer.artis_sigma1.chainID: return .artis_sigma1
-            case RPCServer.artis_tau1.chainID: return .artis_tau1
-            case RPCServer.binance_smart_chain.chainID: return .binance_smart_chain
-            case RPCServer.binance_smart_chain_testnet.chainID: return .binance_smart_chain_testnet
-            case RPCServer.heco.chainID: return .heco
-            case RPCServer.heco_testnet.chainID: return .heco_testnet
-            case RPCServer.fantom.chainID: return .fantom
-            case RPCServer.fantom_testnet.chainID: return .fantom_testnet
-            case RPCServer.avalanche.chainID: return .avalanche
-            case RPCServer.avalanche_testnet.chainID: return .avalanche_testnet
-            case RPCServer.polygon.chainID: return .polygon
-            case RPCServer.mumbai_testnet.chainID: return .mumbai_testnet
-            case RPCServer.optimistic.chainID: return .optimistic
-            case RPCServer.optimisticKovan.chainID: return .optimisticKovan
-            default:
-                return RPCServer.servers.first { $0.chainID == chainID } ?? .main
-            }
-        }()
+        //TODO defaulting to .main is bad
+        self = Self.allCases.first { $0.chainID == chainID } ?? .main
     }
 
     init?(withMagicLinkHost magicLinkHost: String) {
-        var server: RPCServer? = {
-            switch magicLinkHost {
-            case RPCServer.main.magicLinkHost: return .main
-            case RPCServer.classic.magicLinkHost: return .classic
-            case RPCServer.callisto.magicLinkHost: return .callisto
-            case RPCServer.kovan.magicLinkHost: return .kovan
-            case RPCServer.ropsten.magicLinkHost: return .ropsten
-            case RPCServer.rinkeby.magicLinkHost: return .rinkeby
-            case RPCServer.poa.magicLinkHost: return .poa
-            case RPCServer.sokol.magicLinkHost: return .sokol
-            case RPCServer.xDai.magicLinkHost: return .xDai
-            case RPCServer.goerli.magicLinkHost: return .goerli
-            case RPCServer.artis_sigma1.magicLinkHost: return .artis_sigma1
-            case RPCServer.artis_tau1.magicLinkHost: return .artis_tau1
-            case RPCServer.binance_smart_chain.magicLinkHost: return .binance_smart_chain
-            case RPCServer.binance_smart_chain_testnet.magicLinkHost: return .binance_smart_chain_testnet
-            case RPCServer.heco.magicLinkHost: return .heco
-            case RPCServer.heco_testnet.magicLinkHost: return .heco_testnet
-            case RPCServer.fantom.magicLinkHost: return .fantom
-            case RPCServer.fantom_testnet.magicLinkHost: return .fantom_testnet
-            case RPCServer.avalanche.magicLinkHost: return .avalanche
-            case RPCServer.avalanche_testnet.magicLinkHost: return .avalanche_testnet
-            case RPCServer.polygon.magicLinkHost: return .polygon
-            case RPCServer.mumbai_testnet.magicLinkHost: return .mumbai_testnet
-            case RPCServer.optimistic.magicLinkHost: return .optimistic
-            case RPCServer.optimisticKovan.magicLinkHost: return .optimisticKovan
-            default: return nil
-            }
-        }()
+        var server: RPCServer?
         //Special case to support legacy host name
         if magicLinkHost == Constants.legacyMagicLinkHost {
             server = .main
+        } else {
+            server = Self.allCases.first { $0.magicLinkHost == magicLinkHost }
         }
         guard let createdServer = server else { return nil }
         self = createdServer
