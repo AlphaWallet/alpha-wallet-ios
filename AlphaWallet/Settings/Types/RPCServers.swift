@@ -11,13 +11,13 @@ enum RPCServer: Hashable, CaseIterable {
             if let data = try? JSONEncoder().encode(customRpcs), let json = String(data: data, encoding: .utf8) {
                 var c = Config()
                 c.customRpcServersJson = json
-                servers = customRpcs.map { RPCServer.custom($0) }
+                customServers = customRpcs.map { RPCServer.custom($0) }
             } else {
                 //no-op
             }
         }
     }
-    private(set) static var servers: [Self] = customRpcs.map { RPCServer.custom($0) }
+    private(set) static var customServers: [Self] = customRpcs.map { RPCServer.custom($0) }
 
     case main
     case kovan
@@ -701,7 +701,7 @@ enum RPCServer: Hashable, CaseIterable {
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
-        ] + RPCServer.servers
+        ] + RPCServer.customServers
     }
 
     private static func convertJsonToCustomRpcs(_ json: String?) -> [CustomRPC] {
