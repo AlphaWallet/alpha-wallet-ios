@@ -179,6 +179,8 @@ struct Config {
         set {
             let chainIds = newValue.map { $0.chainID }
             defaults.set(chainIds, forKey: Keys.enabledServers)
+
+            subscribableEnabledServers.value = newValue
         }
     }
 
@@ -191,8 +193,11 @@ struct Config {
         }
     }
 
+    var subscribableEnabledServers: Subscribable<[RPCServer]>
+
     init(defaults: UserDefaults = UserDefaults.standard) {
         self.defaults = defaults
+        subscribableEnabledServers = .init(nil)
     }
 
     let priceInfoEndpoints = URL(string: "https://api.coingecko.com")!

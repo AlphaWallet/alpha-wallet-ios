@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import UIKit.UIColor
 
 class EthCurrencyHelper {
     enum Change24h {
@@ -69,3 +70,52 @@ class EthCurrencyHelper {
     }
 }
 
+class BalanceHelper {
+    
+    enum Change24h {
+        case appreciate(percentageChange24h: Double)
+        case depreciate(percentageChange24h: Double)
+        case none
+    }
+
+    func change24h(from value: Double?) -> Change24h {
+        if let value = value?.rounded(to: 2) {
+            if isValueAppreciated24h(value) {
+                return .appreciate(percentageChange24h: value)
+            } else if isValueDepreciated24h(value) {
+                return .depreciate(percentageChange24h: value)
+            } else {
+                return .none
+            }
+        } else {
+            return .none
+        }
+    }
+
+    private func isValueAppreciated24h(_ value: Double?) -> Bool {
+        if let percentChange = value {
+            return percentChange > 0
+        } else {
+            return false
+        }
+    }
+
+    private func isValueDepreciated24h(_ value: Double?) -> Bool {
+        if let percentChange = value {
+            return percentChange < 0
+        } else {
+            return false
+        }
+    }
+
+    func valueChangeValueColor(from value: Double?) -> UIColor {
+        switch change24h(from: value) {
+        case .appreciate:
+            return Colors.appHighlightGreen
+        case .depreciate:
+            return Colors.appRed
+        case .none:
+            return Colors.appGrayLabel
+        }
+    }
+}

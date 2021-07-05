@@ -42,6 +42,7 @@ open class Subscribable<T> {
         _subscribers[key] = subscribe
         return key
     }
+    
     open func subscribeOnce(_ subscribe: @escaping (T) -> Void) {
         if let value = _value {
             subscribe(value)
@@ -52,5 +53,9 @@ open class Subscribable<T> {
 
     func unsubscribe(_ key: SubscribableKey) {
         _subscribers.removeValue(forKey: key)
+    }
+
+    func unsubscribeAll() {
+        _subscribers.removeAll()
     }
 }

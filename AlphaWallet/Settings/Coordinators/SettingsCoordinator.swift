@@ -30,6 +30,7 @@ class SettingsCoordinator: Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
@@ -53,7 +54,8 @@ class SettingsCoordinator: Coordinator {
         restartQueue: RestartTaskQueue,
         promptBackupCoordinator: PromptBackupCoordinator,
         analyticsCoordinator: AnalyticsCoordinator,
-        walletConnectCoordinator: WalletConnectCoordinator
+        walletConnectCoordinator: WalletConnectCoordinator,
+        walletBalanceCoordinator: WalletBalanceCoordinatorType
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -64,6 +66,7 @@ class SettingsCoordinator: Coordinator {
         self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
+        self.walletBalanceCoordinator = walletBalanceCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -132,7 +135,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 keystore: keystore,
                 promptBackupCoordinator: promptBackupCoordinator,
 				analyticsCoordinator: analyticsCoordinator,
-                viewModel: .init(configuration: .changeWallets, animatedPresentation: true)
+                viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
+                walletBalanceCoordinator: walletBalanceCoordinator
         )
         coordinator.delegate = self
         coordinator.start()

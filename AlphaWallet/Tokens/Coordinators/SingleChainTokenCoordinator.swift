@@ -93,7 +93,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 self?.autoDetectPartnerTokens()
             }
         }
-    }
+    } 
 
     func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
@@ -686,14 +686,6 @@ extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate 
 
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
-    }
-}
-
-extension SingleChainTokenCoordinator: TransactionsStorageDelegate {
-    func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage) {
-        for each in contracts {
-            assetDefinitionStore.fetchXML(forContract: each)
-        }
     }
 }
 

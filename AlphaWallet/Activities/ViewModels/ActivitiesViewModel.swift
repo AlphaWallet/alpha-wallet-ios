@@ -26,8 +26,9 @@ struct ActivitiesViewModel {
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [String: NSMutableArray] = [:]
+        let formatter = ActivitiesViewModel.formatter
         for each in activities {
-            let date = ActivitiesViewModel.formatter.string(from: each.date)
+            let date = formatter.string(from: each.date)
             let currentItems = newItems[date] ?? .init()
             currentItems.add(each)
             newItems[date] = currentItems
@@ -116,7 +117,7 @@ struct ActivitiesViewModel {
                 }
             })
         }.sorted { (object1, object2) -> Bool in
-            guard let date1 = ActivitiesViewModel.formatter.date(from: object1.date), let date2 = ActivitiesViewModel.formatter.date(from: object2.date) else {
+            guard let date1 = formatter.date(from: object1.date), let date2 = formatter.date(from: object2.date) else {
                 return false
             }
             return date1 > date2

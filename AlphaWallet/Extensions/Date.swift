@@ -9,7 +9,7 @@
 import Foundation
 
 public extension Date {
-    private static var formatsMap: [String: DateFormatter] = [:]
+    private static var formatsMap: ThreadSafeDictionary<String, DateFormatter> = .init()
     private static var formatsMapLocale: String?
 
     init?(string: String, format: String) {
@@ -29,7 +29,7 @@ public extension Date {
     static func formatter(with format: String, withTimeZone timeZone: TimeZone? = nil) -> DateFormatter {
         if Config.getLocale() != formatsMapLocale {
             formatsMapLocale = Config.getLocale()
-            formatsMap = Dictionary()
+            formatsMap = .init()
         }
 
         var foundFormatter = formatsMap[format]
