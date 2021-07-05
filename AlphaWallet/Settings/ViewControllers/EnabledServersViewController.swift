@@ -156,7 +156,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         } else {
             servers = viewModel.selectedServers + [server]
         }
-        configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
+        configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers, mode: viewModel.mode))
         tableView.reloadData()
         //Even if no servers is selected, we don't attempt to disable the back button here since calling code will take care of ignore the change server "request" when there are no servers selected. We don't want to disable the back button because users can't cancel the operation
     }
@@ -186,10 +186,10 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
         case (.mainnet, true), (.testnet, false):
             if let serversSelectedInPreviousMode = serversSelectedInPreviousMode {
                 self.serversSelectedInPreviousMode = viewModel.selectedServers
-                configure(viewModel: .init(servers: viewModel.servers, selectedServers: serversSelectedInPreviousMode))
+                configure(viewModel: .init(servers: viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .mainnet))
             } else {
                 serversSelectedInPreviousMode = viewModel.selectedServers
-                configure(viewModel: .init(servers: viewModel.servers, selectedServers: Constants.defaultEnabledServers))
+                configure(viewModel: .init(servers: viewModel.servers, selectedServers: Constants.defaultEnabledServers, mode: .mainnet))
             }
             tableView.reloadData()
             tableView.reloadSections(sectionIndices, with: .automatic)
@@ -210,10 +210,10 @@ extension EnabledServersViewController: PromptViewControllerDelegate {
         controller.dismiss(animated: true) {
             if let serversSelectedInPreviousMode = self.serversSelectedInPreviousMode {
                 self.serversSelectedInPreviousMode = self.viewModel.selectedServers
-                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: serversSelectedInPreviousMode))
+                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .testnet))
             } else {
                 self.serversSelectedInPreviousMode = self.viewModel.selectedServers
-                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: Constants.defaultEnabledTestnetServers))
+                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: Constants.defaultEnabledTestnetServers, mode: .testnet))
             }
             //Animation breaks section headers. No idea why. So don't animate
             self.tableView.reloadData()
