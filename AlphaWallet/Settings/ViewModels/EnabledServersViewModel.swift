@@ -24,16 +24,13 @@ struct EnabledServersViewModel {
     let selectedServers: [RPCServer]
     let mode: Mode
 
-    init(servers: [RPCServer], selectedServers: [RPCServer]) {
+    //Cannot infer `mode` from `selectedServers` because of this case: we are in testnet and tap to deselect all of them. Can't know to stay in testnet
+    init(servers: [RPCServer], selectedServers: [RPCServer], mode: Mode) {
         self.servers = servers
         self.selectedServers = selectedServers
         self.mainnets = servers.filter { !$0.isTestnet }
         self.testnets = servers.filter { $0.isTestnet }
-        if selectedServers.contains(where: { $0.isTestnet }) {
-            self.mode = .testnet
-        } else {
-            self.mode = .mainnet
-        }
+        self.mode = mode
     }
 
     var title: String {
