@@ -215,13 +215,13 @@ extension AddHideTokensViewController: UITableViewDataSource {
         }
 
         self.displayLoading()
-
-        promise.done { [weak self] result in
+        //NOTE: we don't want to perfom .done async, using `flags: .barrier` for promise avoids crashing while performBatchUpdates get called.
+        promise.done(on: .main, flags: .barrier, { [weak self] result in
             guard let strongSelf = self else { return }
             
             if let result = result, let delegate = strongSelf.delegate {
                 delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
-                //NOTE: due to a table view BatchUpdates the table view can cracs we apply flag `withTokenCreation` to determine whether we create a new token, an if we do, reload table view
+                //NOTE: due to a table view BatchUpdates the table view can crash we apply flag `withTokenCreation` to determine whether we create a new token, and if we do, reload the table view
                 if result.withTokenCreation {
                     tableView.reloadData()
                 } else {
@@ -233,7 +233,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
             } else {
                 tableView.reloadData()
             }
-        }.catch { _ in
+        }).catch { _ in
             tableView.reloadData()
 
             self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
