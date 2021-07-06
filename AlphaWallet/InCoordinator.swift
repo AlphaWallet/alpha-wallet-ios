@@ -790,7 +790,7 @@ class InCoordinator: NSObject, Coordinator {
     private func removeServer(_ server: CustomRPC) {
         //Must disable server first because we (might) not have done that if the user had disabled and then remove the server in the UI at the same time. And if we fallback to mainnet when an enabled server's chain ID is not found, this can lead to mainnet appearing twice in the Wallet tab
         let servers = config.enabledServers.filter { $0.chainID != server.chainID }
-        var config = config
+        var config = self.config
         config.enabledServers = servers
         guard let i = RPCServer.customRpcs.firstIndex(of: server) else { return }
         RPCServer.customRpcs.remove(at: i)

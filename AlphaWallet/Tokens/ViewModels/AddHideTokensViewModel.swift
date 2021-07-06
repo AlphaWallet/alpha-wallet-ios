@@ -121,7 +121,7 @@ class AddHideTokensViewModel {
         case .popularTokens:
             let token = popularTokens[indexPath.row]
 
-            return fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> in
+            return fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then(on: .main, { token -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> in
                 self.popularTokens.remove(at: indexPath.row)
                 self.displayedTokens.append(token)
 
@@ -130,7 +130,7 @@ class AddHideTokensViewModel {
                 }
 
                 return .value(nil)
-            }
+            })
         }
 
         return .value(nil)
