@@ -105,45 +105,52 @@ class AddHideTokensViewModel {
         singleChainTokenCoordinators.first { $0.isServer(server) }
     }
 
-    func addDisplayed(indexPath: IndexPath) -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> {
+    typealias TokenWithIndexToInsert = (token: TokenObject, indexPathToInsert: IndexPath)
+
+    enum ShowHideOperationResult {
+        case value(TokenWithIndexToInsert?)
+        case promise(Promise<TokenWithIndexToInsert?>)
+    }
+
+    func addDisplayed(indexPath: IndexPath) -> ShowHideOperationResult {
         switch sections[indexPath.section] {
-        case .displayedTokens:
+        case .displayedTokens, .availableNewTokens:
             break
         case .hiddenTokens:
             let token = hiddenTokens.remove(at: indexPath.row)
             displayedTokens.append(token)
 
             if let sectionIndex = sections.index(of: .displayedTokens) {
-                return .value((token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex)), withTokenCreation: false))
+                return .value((token, IndexPath(row: max(0, displayedTokens.count - 1), section: Int(sectionIndex))))
             }
-        case .availableNewTokens:
-            break
         case .popularTokens:
             let token = popularTokens[indexPath.row]
 
-            return fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> in
+            let promise = fetchContractDataPromise(forServer: token.server, address: token.contractAddress).then { token -> Promise<TokenWithIndexToInsert?> in
                 self.popularTokens.remove(at: indexPath.row)
                 self.displayedTokens.append(token)
 
                 if let sectionIndex = self.sections.index(of: .displayedTokens) {
-                    return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex)), withTokenCreation: true))
+                    return .value((token, IndexPath(row: max(0, self.displayedTokens.count - 1), section: Int(sectionIndex))))
                 }
 
                 return .value(nil)
             }
+
+            return .promise(promise)
         }
 
         return .value(nil)
     }
 
-    func deleteToken(indexPath: IndexPath) -> Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?> {
+    func deleteToken(indexPath: IndexPath) -> ShowHideOperationResult {
         switch sections[indexPath.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: indexPath.row)
             hiddenTokens.insert(token, at: 0)
 
             if let sectionIndex = sections.index(of: .hiddenTokens) {
-                return .value((token, IndexPath(row: 0, section: Int(sectionIndex)), withTokenCreation: false))
+                return .value((token, IndexPath(row: 0, section: Int(sectionIndex))))
             }
         case .hiddenTokens, .availableNewTokens, .popularTokens:
             break
