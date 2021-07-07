@@ -478,7 +478,7 @@ enum RPCServer: Hashable, CaseIterable {
             switch self {
             case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .classic: return "https://www.ethercluster.com/etc"
-            case .callisto: return "https://explorer.callisto.network/api/eth-rpc" //TODO Add endpoint
+            case .callisto: return "https://explorer.callisto.network/api/eth-rpc"
             case .kovan: return "https://kovan.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .ropsten: return "https://ropsten.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .rinkeby: return "https://rinkeby.infura.io/v3/\(Constants.Credentials.infuraKey)"
