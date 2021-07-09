@@ -64,7 +64,7 @@ post_install do |installer|
         config.build_settings['SWIFT_VERSION'] = '4.2'
       end
     end
-    
+
     target.build_configurations.each do |config|
       if ['Kingfisher'].include? target.name
         #no op
@@ -76,6 +76,12 @@ post_install do |installer|
       end
       #WalletConnectSwift requires minimum deploy target 11.0
       if ['WalletConnectSwift'].include? target.name
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0';
+      end
+    end
+
+    target.build_configurations.each do |config|
+      if ['TrustWalletCore'].include? target.name
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0';
       end
     end
