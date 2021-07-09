@@ -640,9 +640,9 @@ enum RPCServer: Hashable, CaseIterable {
         case .mumbai_testnet:
             return nil
         case .optimistic:
-            return nil
+            return R.image.iconsTokensOptimistic()
         case .optimisticKovan:
-            return nil
+            return R.image.iconsTokensOptimisticKovan()
         }
     }
 
