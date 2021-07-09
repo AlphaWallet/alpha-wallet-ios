@@ -488,7 +488,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .xDai: return "https://dai.poa.network"
             case .artis_sigma1: return "https://rpc.sigma1.artis.network"
             case .artis_tau1: return "https://rpc.tau1.artis.network"
-            case .binance_smart_chain: return "https://bsc-dataseed1.binance.org:443"
+            case .binance_smart_chain: return "https://bsc-dataseed.binance.org"
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
