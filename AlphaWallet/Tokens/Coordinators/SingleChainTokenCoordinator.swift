@@ -112,60 +112,55 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<Void> {
-        return Promise<Void> { seal in
-            let startBlock: Int?
-            if erc20 {
-                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
-            } else {
-                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
-            }
-            GetContractInteractions(queue: .main).getContractList(address: wallet, server: server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
-                guard let strongSelf = self else { return }
-                defer {
-                    seal.fulfill(())
-                }
-                if let maxBlockNumber = maxBlockNumber {
-                    if erc20 {
-                        Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
-                    } else {
-                        Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
-                    }
-                }
-                let currentAddress = strongSelf.keystore.currentWallet.address
-                guard currentAddress.sameContract(as: wallet) else { return }
-                let detectedContracts = contracts
-                let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
-                let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contractAddress }
-                let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contractAddress }
-                let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contractAddress }
-                let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
-                var contractsPulled = 0
-                var hasRefreshedAfterAddingAllContracts = false
-
-                if contractsToAdd.isEmpty { return }
-
-                DispatchQueue.global().async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    for eachContract in contractsToAdd {
-                        strongSelf.addToken(for: eachContract) { _ in
-                            contractsPulled += 1
-                            if contractsPulled == contractsToAdd.count {
-                                hasRefreshedAfterAddingAllContracts = true
-                                DispatchQueue.main.async {
-                                    strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
-                                }
-                            }
-                        }
-                    }
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        if !hasRefreshedAfterAddingAllContracts {
-                            strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
-                        }
-                    }
-                }
-            }
+        let startBlock: Int?
+        if erc20 {
+            startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
+        } else {
+            startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(server, wallet: wallet).flatMap { $0 + 1 }
         }
+        return firstly {
+            //TODO why do it on main?
+            GetContractInteractions(queue: .main).getContractList(address: wallet, server: server, startBlock: startBlock, erc20: erc20)
+        //TODO: watch out for queue used here, accessing Realm
+        }.get(on: DispatchQueue.global()) { [weak self] contracts, maxBlockNumber in
+            guard let strongSelf = self else { return }
+            if let maxBlockNumber = maxBlockNumber {
+                if erc20 {
+                    Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
+                } else {
+                    Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.server, wallet: wallet)
+                }
+            }
+            let currentAddress = strongSelf.keystore.currentWallet.address
+            guard currentAddress.sameContract(as: wallet) else { return }
+            let detectedContracts = contracts
+            let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
+            let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contractAddress }
+            let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contractAddress }
+            let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contractAddress }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
+            var contractsPulled = 0
+            var hasRefreshedAfterAddingAllContracts = false
+
+            if contractsToAdd.isEmpty { return }
+
+            for eachContract in contractsToAdd {
+                strongSelf.addToken(for: eachContract) { _ in
+                    contractsPulled += 1
+                    if contractsPulled == contractsToAdd.count {
+                        hasRefreshedAfterAddingAllContracts = true
+                        strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                    }
+                }
+            }
+
+            //TODO clean up
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                if !hasRefreshedAfterAddingAllContracts {
+                    strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                }
+            }
+        }.asVoid()
     }
 
     private func autoDetectPartnerTokens() {
@@ -344,7 +339,7 @@ class SingleChainTokenCoordinator: Coordinator {
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func addImportedTokenPromise(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenObject> {
         struct ImportTokenError: Error { }
-        
+
         return Promise<TokenObject> { seal in
             delete(hiddenContract: contract)
             addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) { [weak self] tokenObject in
@@ -456,7 +451,7 @@ class SingleChainTokenCoordinator: Coordinator {
         storage.updateOrderedTokens(with: orderedTokens)
 
         delegate?.tokensDidChange(inCoordinator: self)
-    } 
+    }
 
     func mark(token: TokenObject, isHidden: Bool) {
         storage.update(token: token, action: .isHidden(isHidden))
@@ -494,7 +489,7 @@ class SingleChainTokenCoordinator: Coordinator {
             let fetchErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
             let fetchNonErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
 
-            when(fulfilled: [fetchErc20Tokens, fetchNonErc20Tokens]).done { [weak self] _ in
+            when(resolved: [fetchErc20Tokens, fetchNonErc20Tokens]).done { [weak self] _ in
                 guard let strongSelf = self else { return }
 
                 strongSelf.willChangeValue(forKey: "isExecuting")
