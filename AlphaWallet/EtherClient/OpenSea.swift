@@ -113,7 +113,7 @@ class OpenSea {
         Alamofire.request(
                 url,
                 method: .get,
-                headers: ["X-API-KEY": Constants.openseaAPIKEY]
+                headers: ["X-API-KEY": Constants.Credentials.openseaKey]
         ).responseJSON { response in
             guard let data = response.data, let json = try? JSON(data: data) else {
                 completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API: \(String(describing: response.error))"))))
