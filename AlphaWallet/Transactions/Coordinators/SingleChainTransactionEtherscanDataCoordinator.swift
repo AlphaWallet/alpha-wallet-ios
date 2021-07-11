@@ -5,6 +5,7 @@ import UIKit
 import APIKit
 import BigInt
 import JSONRPCKit
+import Moya
 import PromiseKit
 import Result
 import UserNotifications
@@ -92,80 +93,48 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private func autoDetectERC20Transactions() {
         guard !isAutoDetectingERC20Transactions else { return }
         isAutoDetectingERC20Transactions = true
-
         let server = session.server
         let wallet = session.account.address
-
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
-        GetContractInteractions(queue: self.queue).getErc20Interactions(address: wallet, server: server, startBlock: startBlock) { [weak self] result in
-            guard let strongSelf = self else { return }
-
-            let blockNumbers = result.map(\.blockNumber)
-            if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
-                firstly {
-                    strongSelf.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
-                }.done(on: strongSelf.queue) { backFilledTransactions in
-                    Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
-
-                    strongSelf.update(items: backFilledTransactions)
-                }.cauterize()
-                .finally {
-                    strongSelf.isAutoDetectingERC20Transactions = false
-                }
-            } else {
-                strongSelf.isAutoDetectingERC20Transactions = false
-                strongSelf.update(items: result)
+        firstly {
+            GetContractInteractions(queue: queue).getErc20Interactions(address: wallet, server: server, startBlock: startBlock)
+        }.map { result in
+            functional.extractBoundingBlockNumbers(fromTransactions: result)
+        }.then { result, minBlockNumber, maxBlockNumber in
+            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, queue: self.queue).map { ($0, maxBlockNumber) }
+        }.done(on: queue) { backFilledTransactions, maxBlockNumber in
+            //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
+            if maxBlockNumber > 0 {
+                Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
+            self.update(items: backFilledTransactions)
+        }.cauterize()
+        .finally {
+            self.isAutoDetectingERC20Transactions = false
         }
     }
 
     private func autoDetectErc721Transactions() {
         guard !isAutoDetectingErc721Transactions else { return }
         isAutoDetectingErc721Transactions = true
-
         let server = session.server
         let wallet = session.account.address
-
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
-        GetContractInteractions(queue: self.queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock) { [weak self] result in
-            guard let strongSelf = self else { return }
-
-            let blockNumbers = result.map(\.blockNumber)
-            if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
-                firstly {
-                    strongSelf.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber)
-                }.done(on: strongSelf.queue) { backFilledTransactions in
-                    Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
-
-                    strongSelf.update(items: backFilledTransactions)
-                }.cauterize()
-                .finally {
-                    strongSelf.isAutoDetectingErc721Transactions = false
-                }
-            } else {
-                strongSelf.isAutoDetectingErc721Transactions = false
-                strongSelf.update(items: result)
+        firstly {
+            GetContractInteractions(queue: queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock)
+        }.map { result in
+            functional.extractBoundingBlockNumbers(fromTransactions: result)
+        }.then { result, minBlockNumber, maxBlockNumber in
+            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, queue: self.queue).map { ($0, maxBlockNumber) }
+        }.done(on: queue) { backFilledTransactions, maxBlockNumber in
+            //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
+            if maxBlockNumber > 0 {
+                Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
-        }
-    }
-
-    private func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int) -> Promise<[TransactionInstance]> {
-        return firstly {
-            fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc)
-        }.map(on: self.queue) { fillerTransactions -> [TransactionInstance] in
-            var results: [TransactionInstance] = .init()
-            for each in transactionsToFill {
-                //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
-                guard !each.localizedOperations.isEmpty else { continue }
-                if var transaction = fillerTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
-                    transaction.isERC20Interaction = true
-                    transaction.localizedOperations = each.localizedOperations
-                    results.append(transaction)
-                } else {
-                    results.append(each)
-                }
-            }
-            return results
+            self.update(items: backFilledTransactions)
+        }.cauterize()
+        .finally {
+            self.isAutoDetectingErc721Transactions = false
         }
     }
 
@@ -384,31 +353,10 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
     }
 
-    private func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder) -> Promise<[TransactionInstance]> {
-
-        return alphaWalletProvider.request(.getTransactions(
-            config: session.config,
-            server: session.server,
-            address: address,
-            startBlock: startBlock,
-            endBlock: endBlock,
-            sortOrder: sortOrder
-        ))
-        .map(on: self.queue) {
-            try $0.map(ArrayResponse<RawTransaction>.self).result.map {
-                TransactionInstance.from(transaction: $0, tokensStorage: self.tokensStorage)
-            }
-        }.then(on: self.queue) {
-            when(fulfilled: $0).compactMap(on: self.queue) {
-                $0.compactMap { $0 }
-            }
-        }
-    }
-
     private func fetchOlderTransactions(for address: AlphaWallet.Address) {
         guard let oldestCachedTransaction = storage.completedObjects.last else { return }
 
-        let promise = fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
+        let promise = functional.fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, alphaWalletProvider: alphaWalletProvider, tokensStorage: tokensStorage, queue: queue)
         promise.done(on: self.queue, { [weak self] transactions in
             guard let strongSelf = self else { return }
 
@@ -472,7 +420,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             guard let coordinator = self.coordinator else { return }
 
             firstly {
-                coordinator.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder)
+                SingleChainTransactionEtherscanDataCoordinator.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensStorage: coordinator.tokensStorage, queue: coordinator.queue)
             }.then(on: .main, { transactions -> Promise<[TransactionInstance]> in
                 //NOTE: we want to perform notification creating on main thread
                 coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
@@ -497,3 +445,53 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 }
 // swiftlint:enable type_body_length
+
+extension SingleChainTransactionEtherscanDataCoordinator {
+    class functional {}
+}
+
+extension SingleChainTransactionEtherscanDataCoordinator.functional {
+    static func extractBoundingBlockNumbers(fromTransactions transactions: [TransactionInstance]) -> (transactions: [TransactionInstance], min: Int, max: Int) {
+        let blockNumbers = transactions.map(\.blockNumber)
+        if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
+            return (transactions: transactions, min: minBlockNumber, max: maxBlockNumber)
+        } else {
+            return (transactions: [], min: 0, max: 0)
+        }
+    }
+
+    static func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+        firstly {
+            alphaWalletProvider.request(.getTransactions(config: session.config, server: session.server, address: address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
+        }.map(on: queue) {
+            try $0.map(ArrayResponse<RawTransaction>.self).result.map {
+                TransactionInstance.from(transaction: $0, tokensStorage: tokensStorage)
+            }
+        }.then(on: queue) {
+            when(fulfilled: $0).compactMap(on: queue) {
+                $0.compactMap { $0 }
+            }
+        }
+    }
+
+    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+        guard !transactionsToFill.isEmpty else { return .value([]) }
+        return firstly {
+            fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, alphaWalletProvider: alphaWalletProvider, tokensStorage: tokensStorage, queue: queue)
+        }.map(on: queue) { fillerTransactions -> [TransactionInstance] in
+            var results: [TransactionInstance] = .init()
+            for each in transactionsToFill {
+                //ERC20 transactions are expected to have operations because of the API we use to retrieve them from
+                guard !each.localizedOperations.isEmpty else { continue }
+                if var transaction = fillerTransactions.first(where: { $0.blockNumber == each.blockNumber }) {
+                    transaction.isERC20Interaction = true
+                    transaction.localizedOperations = each.localizedOperations
+                    results.append(transaction)
+                } else {
+                    results.append(each)
+                }
+            }
+            return results
+        }
+    }
+}
