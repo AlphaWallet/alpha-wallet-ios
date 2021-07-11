@@ -81,17 +81,15 @@ public struct Constants {
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
-    public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
     public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     //xDai dapps
     static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
-    private static let rampApiKey = "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
-    static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
+    static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
 
     static func buyWitRampUrl(asset: String) -> String {
-        "https://buy.ramp.network/?hostApiKey=\(rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
+        "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=\(asset)"
     }
 
     //ENS
