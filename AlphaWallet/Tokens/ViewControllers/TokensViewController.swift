@@ -475,6 +475,7 @@ extension TokensViewController: UITableViewDataSource {
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                     assetDefinitionStore: assetDefinitionStore
                 ))
+
                 return cell
             case .erc20:
                 let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)

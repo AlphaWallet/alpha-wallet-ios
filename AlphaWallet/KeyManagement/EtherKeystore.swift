@@ -20,7 +20,7 @@ enum EtherKeystoreError: LocalizedError {
 //Technically, having 2 sets of (ECDSA key and ciphertext) for each Ethereum raw private key or HD wallet seed may not be required for iOS. But it is done:
 //(A) to be confident that we don't cause the user to lose access to their wallets and
 ///(B) to be consistent with Android's UI and implementation which seems like users will lose access to the data (i.e wallet) which requires user presence if the equivalent of their iOS passcode/biometrics is disabled/deleted
-open class EtherKeystore: Keystore {
+open class EtherKeystore: NSObject, Keystore {
     private struct Keys {
         static let recentlyUsedAddress: String = "recentlyUsedAddress"
         static let watchAddresses = "watchAddresses"
@@ -124,6 +124,8 @@ open class EtherKeystore: Keystore {
         return addressesWithSeed + addressesWithPrivateKeys + watchAddresses
     }
 
+    var subscribableWallets: Subscribable<Set<Wallet>> = .init(nil)
+
     var hasMigratedFromKeystoreFiles: Bool {
         return userDefaults.data(forKey: Keys.ethereumAddressesWithPrivateKeys) != nil
     }
@@ -168,6 +170,9 @@ open class EtherKeystore: Keystore {
         self.keychain.synchronizable = false
         self.analyticsCoordinator = analyticsCoordinator
         self.userDefaults = userDefaults
+        super.init()
+
+        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     // Async
@@ -255,6 +260,7 @@ open class EtherKeystore: Keystore {
             watchAddresses = [watchAddresses, [address.eip55String]].flatMap {
                 $0
             }
+            subscribableWallets.value = Set<Wallet>(wallets)
             return .success(Wallet(type: .watch(address)))
         }
     }
@@ -262,16 +268,22 @@ open class EtherKeystore: Keystore {
     private func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
         let updatedOwnedAddresses = Array(Set(ethereumAddressesWithPrivateKeys + [address.eip55String]))
         ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
+
+        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
         ethereumAddressesWithSeed = updated
+
+        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     private func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         ethereumAddressesProtectedByUserPresence = updated
+
+        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     private func generateMnemonic() -> String {
@@ -417,6 +429,8 @@ open class EtherKeystore: Keystore {
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.eip55String }
+
+        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     func isHdWallet(account: AlphaWallet.Address) -> Bool {

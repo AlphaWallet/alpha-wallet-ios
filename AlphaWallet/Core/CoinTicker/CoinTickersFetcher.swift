@@ -21,9 +21,19 @@ struct TokenMappedToTicker: Hashable {
         contractAddress = tokenObject.contractAddress
         server = tokenObject.server
     }
+
+    init(token: Activity.AssignedToken) {
+        symbol = token.symbol
+        name = token.name
+        contractAddress = token.contractAddress
+        server = token.server
+    }
 }
 
 protocol CoinTickersFetcherType {
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
+    var tickers: [AddressAndRPCServer: CoinTicker] { get }
+
     func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]>
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]>
 }
@@ -44,13 +54,19 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
-    private var isFetchingPrices = false 
+    private var isFetchingPrices = false
 
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
+    var tickers: [AddressAndRPCServer: CoinTicker] {
+        return cache.tickers
+    }
     private static let queue: DispatchQueue = DispatchQueue(label: "com.CoinTickersFetcher.updateQueue")
 
     private let provider: MoyaProvider<AlphaWalletService>
     private let config: Config
     private let cache: CoinTickersFetcherCacheType
+
+    private var historyCache: [CoinTicker: [ChartHistoryPeriod: (history: ChartHistory, fetchDate: Date)]] = [:]
 
     init(provider: MoyaProvider<AlphaWalletService>, config: Config, cache: CoinTickersFetcherCacheType = CoinTickersFetcherFileCache()) {
         self.provider = provider
@@ -90,6 +106,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
             self?.cache.tickers = tickers
             self?.cache.lastFetchedTickerIds = tickerIds
             self?.cache.lastFetchedDate = Date()
+            self?.tickersSubscribable.value = tickers
         }.map {
             $0.tickers
         }
