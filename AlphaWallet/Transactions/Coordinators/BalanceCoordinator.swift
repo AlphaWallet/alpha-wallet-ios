@@ -37,7 +37,7 @@ class BalanceCoordinator: BalanceCoordinatorType {
             rate: currencyRate
         )
     }
-
+    
     init(
             wallet: Wallet,
             server: RPCServer,
@@ -53,9 +53,8 @@ class BalanceCoordinator: BalanceCoordinatorType {
             }
         }
 
-        let etherToken = TokensDataStore.etherToken(forServer: server)
-
         storage.tokensModel.subscribe {[weak self] tokensModel in
+            let etherToken = TokensDataStore.etherToken(forServer: server)
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                 return
             }

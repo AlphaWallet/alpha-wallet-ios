@@ -645,3 +645,4 @@ You can check the latest gas price on gasnow.org";
 "emailList.prompt.message" = "We send an email announcing major features. Would you like to receive such emails?\n\n(We do not spam)";
 "emailList.prompt.subscribeButtonTitle" = "I want to receive such emails";
 "emailList.prompt.email.placeholder" = "Email";
+"wallet.summary.today" = "%@ Today";

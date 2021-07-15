@@ -63,7 +63,7 @@ class InCoordinator: NSObject, Coordinator {
     lazy private var eventsActivityDataStore: EventsActivityDataStore = EventsActivityDataStore(realm: realm)
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
-    private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
+    private let coinTickersFetcher: CoinTickersFetcherType 
     var tokensStorages = ServerDictionary<TokensDataStore>()
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
 
@@ -74,9 +74,7 @@ class InCoordinator: NSObject, Coordinator {
         return createEtherBalancesSubscribablesForAllChains()
     }()
     private var transactionCoordinator: TransactionCoordinator? {
-        return coordinators.compactMap {
-            $0 as? TransactionCoordinator
-        }.first
+        return coordinators.compactMap { $0 as? TransactionCoordinator }.first
     }
     private var tokensCoordinator: TokensCoordinator? {
         return coordinators.compactMap { $0 as? TokensCoordinator }.first
@@ -104,6 +102,8 @@ class InCoordinator: NSObject, Coordinator {
     var keystore: Keystore
     var urlSchemeCoordinator: UrlSchemeCoordinatorType
     weak var delegate: InCoordinatorDelegate?
+
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
 
     private lazy var realm = Self.realm(forAccount: wallet)
     private lazy var oneInchSwapService = Oneinch()
@@ -149,7 +149,9 @@ class InCoordinator: NSObject, Coordinator {
             restartQueue: RestartTaskQueue,
             urlSchemeCoordinator: UrlSchemeCoordinatorType,
             promptBackupCoordinator: PromptBackupCoordinator,
-            accountsCoordinator: AccountsCoordinator
+            accountsCoordinator: AccountsCoordinator,
+            walletBalanceCoordinator: WalletBalanceCoordinatorType,
+            coinTickersFetcher: CoinTickersFetcherType
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
@@ -162,6 +164,8 @@ class InCoordinator: NSObject, Coordinator {
         self.urlSchemeCoordinator = urlSchemeCoordinator
         self.promptBackupCoordinator = promptBackupCoordinator
         self.accountsCoordinator = accountsCoordinator
+        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.coinTickersFetcher = coinTickersFetcher
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
@@ -169,12 +173,9 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     deinit {
+        XMLHandler.callForAssetAttributeCoordinators = nil
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
-    }
-
-    private func createPromptBackupCoordinator() -> PromptBackupCoordinator {
-        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
     }
 
     func start(animated: Bool) {
@@ -242,9 +243,10 @@ class InCoordinator: NSObject, Coordinator {
         assert(!tokensStorages.isEmpty)
 
         let tokensStorage = tokensStorages[server]
-        let etherToken = TokensDataStore.etherToken(forServer: server)
+
         tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
             guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
+            let etherToken = TokensDataStore.etherToken(forServer: server)
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
             //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
             guard strongSelf.nativeCryptoCurrencyPrices.hasKey(server) else { return }
@@ -327,9 +329,9 @@ class InCoordinator: NSObject, Coordinator {
         for each in config.enabledServers {
             nativeCryptoCurrencyBalances[each] = createCryptoCurrencyBalanceSubscribable(forServer: each)
             let tokensStorage = tokensStorages[each]
-            let etherToken = TokensDataStore.etherToken(forServer: each)
 
             tokensStorage.tokensModel.subscribe { [weak self] tokensModel in
+                let etherToken = TokensDataStore.etherToken(forServer: each)
                 guard let strongSelf = self, let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                     return
                 }
@@ -438,6 +440,7 @@ class InCoordinator: NSObject, Coordinator {
         logEnabledChains()
         logWallets()
         logDynamicTypeSetting()
+        promptBackupCoordinator.start()
     }
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
@@ -524,7 +527,8 @@ class InCoordinator: NSObject, Coordinator {
                 restartQueue: restartQueue,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-                walletConnectCoordinator: walletConnectCoordinator
+            walletConnectCoordinator: walletConnectCoordinator,
+            walletBalanceCoordinator: walletBalanceCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
@@ -559,8 +563,6 @@ class InCoordinator: NSObject, Coordinator {
         viewControllers.append(settingsCoordinator.navigationController)
 
         tabBarController.viewControllers = viewControllers
-
-        promptBackupCoordinator.start()
     }
 
     private func configureNavigationControllerForLargeTitles(_ navigationController: UINavigationController) {
@@ -790,7 +792,7 @@ class InCoordinator: NSObject, Coordinator {
     private func removeServer(_ server: CustomRPC) {
         //Must disable server first because we (might) not have done that if the user had disabled and then remove the server in the UI at the same time. And if we fallback to mainnet when an enabled server's chain ID is not found, this can lead to mainnet appearing twice in the Wallet tab
         let servers = config.enabledServers.filter { $0.chainID != server.chainID }
-        var config = config
+        var config = self.config
         config.enabledServers = servers
         guard let i = RPCServer.customRpcs.firstIndex(of: server) else { return }
         RPCServer.customRpcs.remove(at: i)

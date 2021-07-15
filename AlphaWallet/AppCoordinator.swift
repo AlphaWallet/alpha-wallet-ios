@@ -43,6 +43,8 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
+    private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
+    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = WalletBalanceCoordinator(keystore: keystore, config: config, coinTickersFetcher: coinTickersFetcher)
 
     private var pendingInCoordinator: InCoordinator?
 
@@ -53,7 +55,8 @@ class AppCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsService,
-                viewModel: .init(configuration: .summary)
+                viewModel: .init(configuration: .summary),
+                walletBalanceCoordinator: walletBalanceCoordinator
         )
         coordinator.delegate = self
 
@@ -127,6 +130,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
+        walletBalanceCoordinator.start()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.currentWallet, animated: false)
@@ -193,7 +197,9 @@ class AppCoordinator: NSObject, Coordinator {
                 restartQueue: restartQueue,
                 urlSchemeCoordinator: urlSchemeCoordinator,
                 promptBackupCoordinator: promptBackupCoordinator,
-                accountsCoordinator: accountsCoordinator
+                accountsCoordinator: accountsCoordinator,
+                walletBalanceCoordinator: walletBalanceCoordinator,
+                coinTickersFetcher: coinTickersFetcher
         )
 
         coordinator.delegate = self
@@ -335,7 +341,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     func didRestart(in coordinator: InCoordinator, wallet: Wallet) {
         keystore.recentlyUsedWallet = wallet
 
-        coordinator.navigationController.dismiss(animated: true) //??Do we really need to do it here?
+        coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
 
         showTransactions(for: keystore.currentWallet, animated: false)
@@ -344,6 +350,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     func showWallets(in coordinator: InCoordinator) {
         pendingInCoordinator = coordinator
         removeCoordinator(coordinator)
+
         //NOTE: refactor with more better solution
         accountsCoordinator.promptBackupCoordinator = promptBackupCoordinator
 

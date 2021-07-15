@@ -44,14 +44,14 @@ struct CoinTicker: Codable, Hashable {
     let ath: Double?
     let ath_change_percentage: Double?
 
-    lazy var rate: CurrencyRate = {
+    var rate: CurrencyRate {
         CurrencyRate(
             currency: symbol,
             rates: [
                 Rate(code: symbol, price: price_usd),
             ]
         )
-    }()
+    }
 
     init(from decoder: Decoder) throws {
         enum AnyError: Error {
