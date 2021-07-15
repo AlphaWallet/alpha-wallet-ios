@@ -103,7 +103,7 @@ struct EthTokenViewCellViewModel {
         ])
     }
 
-    private var amountAccordingPRCServer: String? {
+    private var amountAccordingRPCServer: String? {
         if token.server.isTestnet {
             return nil
         } else {
@@ -112,7 +112,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var fiatValueAttributedString: NSAttributedString {
-        return NSAttributedString(string: amountAccordingPRCServer ?? "-", attributes: [
+        return NSAttributedString(string: amountAccordingRPCServer ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.valueChangeValue
         ])
@@ -137,7 +137,7 @@ struct EthTokenViewCellViewModel {
         ])
     }
 
-    private func amountAccordingPRCServer(currencyAmount: String?) -> String? {
+    private func amountAccordingRPCServer(currencyAmount: String?) -> String? {
         if token.server.isTestnet {
             return nil
         } else {
@@ -146,7 +146,7 @@ struct EthTokenViewCellViewModel {
     }
 
     func fiatValueAttributedString(currencyAmount: String?) -> NSAttributedString {
-        return NSAttributedString(string: amountAccordingPRCServer(currencyAmount: currencyAmount) ?? "-", attributes: [
+        return NSAttributedString(string: amountAccordingRPCServer(currencyAmount: currencyAmount) ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.valueChangeValue
         ])
