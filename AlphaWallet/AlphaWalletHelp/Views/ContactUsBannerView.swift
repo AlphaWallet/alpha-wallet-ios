@@ -22,7 +22,7 @@ class ContactUsBannerView: UIView {
 
                \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
                \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
-               \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
+               \(R.string.localizable.aHelpContactEmailDeviceModel("\(UIDevice.type.rawValue) \(UIDevice.type == .unrecognized ? " - \(UIDevice.current.model)" : "")"))
                \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
                \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
                """
