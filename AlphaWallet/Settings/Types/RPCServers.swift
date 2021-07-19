@@ -280,7 +280,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
-             let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+             let apiKeyParameter: String
+             if let apiKey = etherscanApiKey {
+                 apiKeyParameter = "&apikey=\(apiKey)"
+             } else {
+                 apiKeyParameter = ""
+             }
+             let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
              if let startBlock = startBlock {
                  return url?.appendingQueryString("startblock=\(startBlock)")
              } else {
@@ -291,7 +297,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForTokenTransactionHistory.flatMap {
-            let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+            let apiKeyParameter: String
+            if let apiKey = etherscanApiKey {
+                apiKeyParameter = "&apikey=\(apiKey)"
+            } else {
+                apiKeyParameter = ""
+            }
+            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
             if let startBlock = startBlock {
                 return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
@@ -302,7 +314,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     func getEtherscanURLForERC721TransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForERC721TransactionHistory.flatMap {
-            let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+            let apiKeyParameter: String
+            if let apiKey = etherscanApiKey {
+                apiKeyParameter = "&apikey=\(apiKey)"
+            } else {
+                apiKeyParameter = ""
+            }
+            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
             if let startBlock = startBlock {
                 return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
