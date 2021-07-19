@@ -153,7 +153,7 @@ class TokenObject: Object {
     let balance = List<TokenBalance>()
 
     var nonZeroBalance: [TokenBalance] {
-        return Array(balance.filter { isNonZeroBalance($0.balance) })
+        return Array(balance.filter { isNonZeroBalance($0.balance, tokenType: self.type) })
     }
 
     var type: TokenType {
@@ -273,15 +273,21 @@ class TokenObject: Object {
     }
 }
 
-func isNonZeroBalance(_ balance: String) -> Bool {
-    return !isZeroBalance(balance)
+func isNonZeroBalance(_ balance: String, tokenType: TokenType) -> Bool {
+    return !isZeroBalance(balance, tokenType: tokenType)
 }
 
-func isZeroBalance(_ balance: String) -> Bool {
-    if balance == Constants.nullTokenId || balance == "0" {
-        return true
+func isZeroBalance(_ balance: String, tokenType: TokenType) -> Bool {
+    //We don't care about fungibles here, but want to make sure that *only* ERC875 balances consider string of "0" as null token, because we mark tokens that are burnt as 0, whereas ERC721 can have token ID = 0, eg. https://bscscan.com/tx/0xf6f3ddbb6719d8e47a47cf8ec66853682c02f03626cc4c4f5ece9338a8f20aee
+    switch tokenType {
+    case .nativeCryptocurrency, .erc20, .erc875:
+        if balance == Constants.nullTokenId || balance == "0" {
+            return true
+        }
+        return false
+    case .erc721, .erc721ForTickets:
+        return balance.isEmpty
     }
-    return false
 }
 
 func compositeTokenName(forContract contract: AlphaWallet.Address, fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {

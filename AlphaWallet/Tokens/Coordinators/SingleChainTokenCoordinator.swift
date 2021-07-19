@@ -11,7 +11,7 @@ import Result
 enum ContractData {
     case name(String)
     case symbol(String)
-    case balance([String])
+    case balance(balance: [String], tokenType: TokenType)
     case decimals(UInt8)
     case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
     case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
@@ -93,7 +93,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 self?.autoDetectPartnerTokens()
             }
         }
-    } 
+    }
 
     func isServer(_ server: RPCServer) -> Bool {
         return session.server == server
@@ -760,7 +760,7 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
                 switch result {
                 case .success(let balance):
                     completedBalance = balance
-                    completion(.balance(balance))
+                    completion(.balance(balance: balance, tokenType: .erc875))
                     callCompletionOnAllData()
                 case .failure:
                     callCompletionFailed()
@@ -771,7 +771,7 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
                 switch result {
                 case .success(let balance):
                     completedBalance = balance
-                    completion(.balance(balance))
+                    completion(.balance(balance: balance, tokenType: .erc721))
                     callCompletionOnAllData()
                 case .failure:
                     callCompletionFailed()
@@ -782,7 +782,7 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
                 switch result {
                 case .success(let balance):
                     completedBalance = balance
-                    completion(.balance(balance))
+                    completion(.balance(balance: balance, tokenType: .erc721ForTickets))
                     callCompletionOnAllData()
                 case .failure:
                     callCompletionFailed()
