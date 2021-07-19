@@ -272,6 +272,9 @@ fileprivate struct Ticker: Codable {
         case platforms
     }
 
+    //https://polygonscan.com/address/0x0000000000000000000000000000000000001010
+    static private let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
+
     let id: String
     let symbol: String
     let name: String
@@ -294,6 +297,8 @@ fileprivate struct Ticker: Codable {
             if contract.sameContract(as: Constants.nullAddress) {
                 return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
             } else if contract.sameContract(as: tokenObject.contractAddress) {
+                return true
+            } else if tokenObject.server == .polygon && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
                 return true
             } else {
                 return false
