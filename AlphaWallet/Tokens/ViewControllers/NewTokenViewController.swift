@@ -300,9 +300,9 @@ class NewTokenViewController: UIViewController {
     }
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
-    public func updateBalanceValue(_ balance: [String]) {
+    public func updateBalanceValue(_ balance: [String], tokenType: TokenType) {
         //TODO this happens to work for CryptoKitty now because of how isNonZeroBalance() is implemented. But should fix
-        let filteredTokens = balance.filter { isNonZeroBalance($0) }
+        let filteredTokens = balance.filter { isNonZeroBalance($0, tokenType: tokenType) }
         viewModel.ERC875TokenBalance = filteredTokens
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
