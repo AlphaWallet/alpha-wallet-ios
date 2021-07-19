@@ -44,7 +44,7 @@ class TokenAdaptor {
             for (index, item) in balance.enumerated() {
                 //id is the value of the bytes32 token
                 let id = item.balance
-                guard isNonZeroBalance(id) else { continue }
+                guard isNonZeroBalance(id, tokenType: token.type) else { continue }
                 if let tokenInt = BigUInt(id.drop0x, radix: 16) {
                     let server = self.token.server
                     //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
