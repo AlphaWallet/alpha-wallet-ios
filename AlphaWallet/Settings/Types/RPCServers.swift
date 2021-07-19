@@ -265,20 +265,28 @@ enum RPCServer: Hashable, CaseIterable {
     }
 
     var etherscanApiKey: String? {
-        switch etherscanCompatibleType {
-        case .etherscan:
-            //TODO this is quite correct too. Sometimes the etherscan-compatible site is based on Etherscan, but the API keys wouldn't work. But it's harmless to send them, for now
+        switch self {
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan:
             return Constants.Credentials.etherscanKey
-        case .blockscout:
+        case .binance_smart_chain:
+            //Key not needed for testnet (empirically)
+            return Constants.Credentials.binanceSmartChainExplorerApiKey
+        case .fantom, .heco, .heco_testnet,  .binance_smart_chain_testnet, .polygon:
             return nil
-        case .unknown:
+        case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .fantom_testnet, .avalanche, .avalanche_testnet, .custom:
             return nil
         }
     }
 
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
-             let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+             let apiKeyParameter: String
+             if let apiKey = etherscanApiKey {
+                 apiKeyParameter = "&apikey=\(apiKey)"
+             } else {
+                 apiKeyParameter = ""
+             }
+             let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
              if let startBlock = startBlock {
                  return url?.appendingQueryString("startblock=\(startBlock)")
              } else {
@@ -289,7 +297,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     func getEtherscanURLForTokenTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForTokenTransactionHistory.flatMap {
-            let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+            let apiKeyParameter: String
+            if let apiKey = etherscanApiKey {
+                apiKeyParameter = "&apikey=\(apiKey)"
+            } else {
+                apiKeyParameter = ""
+            }
+            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
             if let startBlock = startBlock {
                 return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
@@ -300,7 +314,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     func getEtherscanURLForERC721TransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
         etherscanURLForERC721TransactionHistory.flatMap {
-            let url = $0.appendingQueryString("address=\(address.eip55String)&apikey=\(etherscanApiKey ?? "")")
+            let apiKeyParameter: String
+            if let apiKey = etherscanApiKey {
+                apiKeyParameter = "&apikey=\(apiKey)"
+            } else {
+                apiKeyParameter = ""
+            }
+            let url = $0.appendingQueryString("address=\(address.eip55String)\(apiKeyParameter)")
             if let startBlock = startBlock {
                 return url?.appendingQueryString("startblock=\(startBlock)")
             } else {
