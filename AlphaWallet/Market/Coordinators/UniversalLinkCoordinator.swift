@@ -488,7 +488,7 @@ class UniversalLinkCoordinator: Coordinator {
         for i in 0..<indices.count {
             let token: String = balance[Int(indices[i])]
             //all of the indices provided should map to a valid non null token
-            if isZeroBalance(token) {
+            if isZeroBalance(token, tokenType: .erc875) {
                 //if null token at any index then the deal cannot happen
                 return [String]()
             }
