@@ -634,6 +634,8 @@
 		5E7C7FE1E7806D33001F9867 /* ShowSeedPhraseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73CC82B9877AF4A42333 /* ShowSeedPhraseViewController.swift */; };
 		5E7C7FE5F70D5777FD7258B2 /* DappsHomeEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C790B6371A5BCD733A4BE /* DappsHomeEmptyView.swift */; };
 		5E7C7FE8247F0E50BEF35D77 /* HowDoITransferETHIntoMyWalletInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D4F7C566EDD30EF1C19 /* HowDoITransferETHIntoMyWalletInfoViewController.swift */; };
+		5F4D80A426A3F97B00BB1135 /* DeviceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */; };
+		5F4D80AA26A3F9C500BB1135 /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4D80A926A3F9C500BB1135 /* UIDevice.swift */; };
 		613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */ = {isa = PBXBuildFile; fileRef = 613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */; };
 		613D048B1FDE162B008DE72E /* AlphaWalletProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613D048A1FDE162B008DE72E /* AlphaWalletProviderFactory.swift */; };
 		61C359E02002AA5A0097B04D /* TransactionSigning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C359DF2002AA590097B04D /* TransactionSigning.swift */; };
@@ -1566,6 +1568,8 @@
 		5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStoreTests.swift; sourceTree = "<group>"; };
 		5E7C7FE5EEC96A7CDF62213F /* DappsHomeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7FF2EF77D5004A600DDB /* SuccessOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessOverlayView.swift; sourceTree = "<group>"; };
+		5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceModel.swift; sourceTree = "<group>"; };
+		5F4D80A926A3F9C500BB1135 /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */ = {isa = PBXFileReference; lastKnownFileType = file.cer; path = "COMODO ECC Domain Validation Secure Server CA 2.cer"; sourceTree = "<group>"; };
 		613D048A1FDE162B008DE72E /* AlphaWalletProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaWalletProviderFactory.swift; sourceTree = "<group>"; };
 		61C359DF2002AA590097B04D /* TransactionSigning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionSigning.swift; sourceTree = "<group>"; };
@@ -2616,6 +2620,7 @@
 				8722F86A25F79A2E00293D89 /* UIResponder.swift */,
 				8722F86C25F79A4700293D89 /* UITableViewCell.swift */,
 				5E7C7BE3540E3AC73826F856 /* URL.swift */,
+				5F4D80A926A3F9C500BB1135 /* UIDevice.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4346,6 +4351,7 @@
 				87FF2E412567F0A3002350EB /* BlockieGenerator.swift */,
 				5E7C7B80946D854599838AD1 /* RemoteLogger.swift */,
 				5E7C77DBECDF831CD6C8FF71 /* Environment.swift */,
+				5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4921,6 +4927,7 @@
 				29282B531F7630970067F88D /* TokenUpdate.swift in Sources */,
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
+				5F4D80AA26A3F9C500BB1135 /* UIDevice.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
 				87C447AA255970C5009DF2D2 /* ActiveWalletSessionView.swift in Sources */,
 				87897B9E25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift in Sources */,
@@ -5428,6 +5435,7 @@
 				5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */,
 				5E7C70794E07FF6B26AE297B /* DirectoryContentsWatcher.swift in Sources */,
 				5E7C757F9E9F7738B213C8B8 /* AssetDefinitionDiskBackingStore.swift in Sources */,
+				5F4D80A426A3F97B00BB1135 /* DeviceModel.swift in Sources */,
 				5E7C7350C5F9ADE212A0F1CA /* CallForAssetAttributeCoordinator.swift in Sources */,
 				5E7C760E41FF2E035BC968C5 /* AssetFunctionCall.swift in Sources */,
 				5E7C76D464BD797FF3A962F8 /* Origin.swift in Sources */,
