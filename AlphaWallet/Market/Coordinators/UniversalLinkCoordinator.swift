@@ -79,6 +79,8 @@ class UniversalLinkCoordinator: Coordinator {
             return "AVAX"
         case .polygon, .mumbai_testnet:
             return "MATIC"
+        case .cronosTestnet:
+            return "tCRO"
         case .custom(let custom):
             //TODO better defaults or handling for when properties of custom chain is not provided by user
             return custom.symbol ?? "ETH"
@@ -452,7 +454,7 @@ class UniversalLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
         if ethPrice.value == nil {

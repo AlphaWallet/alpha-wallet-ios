@@ -439,6 +439,7 @@
 "blockchain.Mumbai" = "Mumbai Testnet";
 "blockchain.Optimistic" = "Optimistic Testnet";
 "blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
+"blockchain.Cronos.Testnet" = "Cronos Testnet";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";

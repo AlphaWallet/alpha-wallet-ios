@@ -36,6 +36,7 @@ class ServersCoordinator: Coordinator {
             .mumbai_testnet,
             .optimistic,
             .optimisticKovan,
+            .cronosTestnet,
         ] + RPCServer.customServers
     }
 

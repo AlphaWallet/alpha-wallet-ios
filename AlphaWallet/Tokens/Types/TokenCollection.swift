@@ -124,6 +124,7 @@ extension RPCServer {
         case .mumbai_testnet: return 21
         case .optimistic: return 22
         case .optimisticKovan: return 23
+        case .cronosTestnet: return 24
         }
     }
 }
