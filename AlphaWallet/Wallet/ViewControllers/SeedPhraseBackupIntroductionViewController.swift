@@ -18,7 +18,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
-        return ScreenChecker.size(big: 250, medium: 180, small: 180)
+        return ScreenChecker.size(big: 250, medium: 250, small: 220)
     }
 
     weak var delegate: SeedPhraseBackupIntroductionViewControllerDelegate?
@@ -62,6 +62,20 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.layoutIfNeeded()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
+        navigationController?.navigationBar.layoutIfNeeded()
     }
 
     override func viewDidDisappear(_ animated: Bool) {

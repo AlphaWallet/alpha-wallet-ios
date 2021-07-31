@@ -121,14 +121,14 @@
 "wallets.backupKeystoreWallet.introduction.description" = "Un almacén de claves es un archivo de texto. Puedes copiar su contenido cuando desees importar tu monedero. Se trata de una forma segura de hacer una copia de seguridad de un monedero.";
 "wallets.backupHdWallet.alertSheet.title" = "Mostrar frase semilla";
 "wallets.backupHdWallet.introduction.button.title" = "Hacer una copia de seguridad de mi monedero";
-"wallets.backupHdWallet.introduction.title" = "Haz una copia de seguridad de tu monedero con la frase semilla";
+"wallets.backupHdWallet.introduction.title" = "Haz una copia de seguridad de tu monedero\n con la frase semilla";
 "wallets.showSeedPhrase.introduction.button.title" = "Got it, show my seed phrase";
 "wallets.showSeedPhrase.introduction.title" = "Beware of scammers!\nDon’t share seed phrase.";
 "wallets.showSeedPhrase.introduction.subtitle" = "AlphaWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Tu frase semilla";
-"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe: just write down 12 words and keep them in a secret place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and\n keep them in a secret place, offline.";
 "wallets.showSeedPhrase.testSeedPhrase" = "Vale, he escrito esto";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "No es una buena idea hacer una captura de pantalla de la frase semilla";
 "wallets.verifySeedPhrase.title" = "Verificar la frase semilla";
