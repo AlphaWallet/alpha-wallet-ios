@@ -48,7 +48,7 @@ struct WalletSummaryTableViewCellViewModel {
                 return "-"
             }
         }
-        
+
         let value = R.string.localizable.walletSummaryToday(valueChangeValue + " " + valuePercentageChangeValue)
         return (value, BalanceHelper().valueChangeValueColor(from: summary?.changePercentage))
     }
@@ -62,5 +62,3 @@ struct WalletSummaryTableViewCellViewModel {
     }
 
 }
-
-
