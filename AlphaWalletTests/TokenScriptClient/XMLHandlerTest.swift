@@ -902,12 +902,17 @@ class XMLHandlerTest: XCTestCase {
         """
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
+
+        XMLHandler.callForAssetAttributeCoordinators = .init()
+        XMLHandler.callForAssetAttributeCoordinators![.main] = CallForAssetAttributeCoordinator(server: .main, assetDefinitionStore: store)
+
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
         let values = token.values
+        XMLHandler.callForAssetAttributeCoordinators = nil
         XCTAssertEqual(values["locality"]?.stringValue, "Saint Petersburg")
     }
 // swiftlint:enable function_body_length
