@@ -276,7 +276,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .binance_smart_chain:
             //Key not needed for testnet (empirically)
             return Constants.Credentials.binanceSmartChainExplorerApiKey
-        case .fantom, .heco, .heco_testnet,  .binance_smart_chain_testnet, .polygon:
+        case .fantom, .heco, .heco_testnet, .binance_smart_chain_testnet, .polygon:
             return nil
         case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .fantom_testnet, .avalanche, .avalanche_testnet, .cronosTestnet, .custom:
             return nil

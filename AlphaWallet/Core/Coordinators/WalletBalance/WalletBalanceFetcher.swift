@@ -87,7 +87,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             }
         }
 
-        let delatedServers = tokensDataStores.filter{ !servers.contains($0.key) }.map{ $0.key }
+        let delatedServers = tokensDataStores.filter { !servers.contains($0.key) }.map { $0.key }
         for each in delatedServers {
             tokensDataStores.remove(at: each)
         }
