@@ -60,7 +60,7 @@ class LocalizedOperationObject: Object {
     }
 }
 
-struct LocalizedOperationObjectInstance {
+struct LocalizedOperationObjectInstance: Equatable {
     //TODO good to have getters/setter computed properties for `from` and `to` too that is typed AlphaWallet.Address. But have to be careful and check if they can be empty or "0x"
     var from: String = ""
     var to: String = ""
@@ -122,5 +122,16 @@ struct LocalizedOperationObjectInstance {
     func isReceived(by to: AlphaWallet.Address) -> Bool {
         guard operationType.isTransfer else { return false }
         return to.sameContract(as: self.to)
+    }
+
+    static func ==(lhs: LocalizedOperationObjectInstance, rhs: LocalizedOperationObjectInstance) -> Bool {
+        return lhs.from == rhs.from &&
+            lhs.to == rhs.to &&
+            lhs.contract == rhs.contract &&
+            lhs.type == rhs.type &&
+            lhs.value == rhs.value &&
+            lhs.symbol == rhs.symbol &&
+            lhs.name == rhs.name &&
+            lhs.decimals == rhs.decimals
     }
 }

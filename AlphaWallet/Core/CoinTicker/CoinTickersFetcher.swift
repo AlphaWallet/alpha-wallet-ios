@@ -35,7 +35,7 @@ protocol CoinTickersFetcherType {
     var tickers: [AddressAndRPCServer: CoinTicker] { get }
 
     func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]>
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]>
+    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 fileprivate struct MappedCoinTickerId: Hashable {
@@ -112,9 +112,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }
     }
 
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
-        let promises: [Promise<ChartHistory>] = ChartHistoryPeriod.allCases.map {
-            fetchChartHistory(force: false, period: $0, for: addressToRPCServerKey)
+    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        let promises: [Promise<ChartHistory>] = periods.map {
+            fetchChartHistory(force: force, period: $0, for: addressToRPCServerKey)
         }
         return when(fulfilled: promises)
     }
@@ -173,7 +173,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 case .week, .month, .threeMonth, .year:
                     hasCacheExpired = false
                 }
-                if hasCacheExpired {
+                if hasCacheExpired || cached.history.prices.isEmpty {
                     //TODO improve by returning the cached value and returning again after refetching. Harder to do with current implement because promises only resolves once. Maybe the Promise's type should be a subscribable?
                     return .value((ticker: ticker, history: nil))
                 } else {

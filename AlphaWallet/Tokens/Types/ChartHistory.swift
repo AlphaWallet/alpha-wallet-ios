@@ -13,6 +13,41 @@ enum ChartHistoryPeriod: Int, CaseIterable, Codable {
     case month = 30
     case threeMonth = 90
     case year = 360
+
+    var title: String {
+        switch self {
+        case .day:
+            return "1D"
+        case .month:
+            return "1M"
+        case .threeMonth:
+            return "3M"
+        case .week:
+            return "1W"
+        case .year:
+            return "1Y"
+        }
+    }
+    
+    var index: Int {
+        switch self {
+        case .day:
+            return 0
+        case .month:
+            return 1
+        case .threeMonth:
+            return 2
+        case .week:
+            return 3
+        case .year:
+            return 4
+        }
+    }
+}
+
+struct HistoryValue: Codable, Equatable {
+    let timestamp: TimeInterval
+    let value: Double
 }
 
 struct MappedChartHistory: Codable {
@@ -26,15 +61,22 @@ struct ChartHistory: Codable, CustomDebugStringConvertible {
         case prices
     }
 
-    let prices: [[Double]]
+    let prices: [HistoryValue]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        prices = container.decode([[Double]].self, forKey: .prices, defaultValue: [])
+        prices = container.decode([[Double]].self, forKey: .prices, defaultValue: []).map { value -> HistoryValue in
+            return .init(timestamp: value[0] / 1000.0, value: value[1])
+        }
     }
 
-    init(prices: [[Double]]) {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(prices, forKey: .prices)
+    }
+
+    init(prices: [HistoryValue]) {
         self.prices = prices
     }
 

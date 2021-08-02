@@ -32,6 +32,16 @@ class ThreadSafeDictionary<Key: Hashable, Value> {
         }
     }
 
+    @discardableResult func removeValue(forKey key: Key) -> Value? {
+        var element: Value?
+        queue.sync {
+            if let index = cache.firstIndex(where: { $0.key == key }) {
+                element = cache.remove(at: index).value
+            }
+        }
+        return element
+    }
+
     var value: [Key: Value] {
         return cache
     }

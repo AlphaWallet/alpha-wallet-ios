@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
+import RealmSwift
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
@@ -11,104 +12,104 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTap(transaction: TransactionInstance, inViewController viewController: TokenViewController)
+    func didTap(activity: Activity, inViewController viewController: TokenViewController)
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController)
 }
 
 class TokenViewController: UIViewController {
-    private let headerViewRefreshInterval: TimeInterval = 5.0
     private let roundedBackground = RoundedBackground()
-    lazy private var header = {
-        return TokenViewControllerHeaderView(contract: transactionType.contract)
-    }()
-    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server, token: token, transactionType: transactionType)
-    private var viewModel: TokenViewControllerViewModel?
+    private var viewModel: TokenViewControllerViewModel
     private var tokenHolder: TokenHolder?
-    private let token: TokenObject
+    private let tokenObject: TokenObject
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let transactionType: TransactionType
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
-    private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-    private var headerRefreshTimer: Timer!
-
+    private lazy var tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
     weak var delegate: TokenViewControllerDelegate?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject) {
-        self.token = token
+    private lazy var tokenInfoPageView: TokenInfoPageView = {
+        let view = TokenInfoPageView(server: session.server, token: tokenObject, transactionType: transactionType)
+        view.delegate = self
+
+        return view
+    }()
+    private lazy var activityPageView: ActivityPageView = {
+        let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
+        let view = ActivityPageView(viewModel: viewModel, sessions: sessions)
+        view.delegate = self
+
+        return view
+    }()
+    private lazy var alertsPageView = AlertsPageView()
+    private let sessions: ServerDictionary<WalletSession>
+    private let activitiesService: ActivitiesServiceType
+    
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, sessions: ServerDictionary<WalletSession>) {
+        self.tokenObject = token
+        self.viewModel = viewModel
         self.session = session
+        self.sessions = sessions
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
         self.transactionType = transactionType
         self.analyticsCoordinator = analyticsCoordinator
-
+        self.activitiesService = activitiesService
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        header.delegate = self
-
-        tableView.register(TokenViewControllerTransactionCell.self)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.tableHeaderView = header
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(tableView)
+        let containerView = TokenPagesContainerView(pages: [tokenInfoPageView, activityPageView])
+        roundedBackground.addSubview(containerView)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         roundedBackground.addSubview(footerBar)
 
-        configureBalanceViewModel()
-
         NSLayoutConstraint.activate([
-            header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-
-            tableView.anchorsConstraint(to: roundedBackground),
             footerBar.anchorsConstraint(to: view),
 
-            roundedBackground.createConstraintsWithContainer(view: view),
-        ])
+            containerView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
 
-        headerRefreshTimer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
-            self?.refreshHeaderView()
-        }
-        RunLoop.main.add(headerRefreshTimer, forMode: .default)
         navigationItem.largeTitleDisplayMode = .never
+
+        activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
+            guard let strongSelf = self, let viewModel = viewModel else { return }
+
+            NSLog("KKKK-ST: subscribableViewModel (on next): \(viewModel.itemsCount)")
+            strongSelf.activityPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        guard let buttonsBarHolder = buttonsBar.superview else {
-            tableView.contentInset = .zero
-            return
-        }
-        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
-        if buttonsBar.isEmpty {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
-        } else {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
-        }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        configureBalanceViewModel()
+        configure(viewModel: viewModel)
     }
 
     func configure(viewModel: TokenViewControllerViewModel) {
         self.viewModel = viewModel
-        view.backgroundColor = viewModel.backgroundColor
 
+        view.backgroundColor = viewModel.backgroundColor
+        title = tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        header.sendHeaderView.configure(viewModel: headerViewModel)
-        header.frame.size.height = header.systemLayoutSizeFitting(.zero).height
+        var viewModel2 = tokenInfoPageView.viewModel
+        viewModel2.values = viewModel.chartHistory
 
-        tableView.tableHeaderView = header
+        tokenInfoPageView.configure(viewModel: viewModel2)
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
@@ -128,8 +129,6 @@ class TokenViewController: UIViewController {
                 button.isEnabled = false
             }
         }
-
-        tableView.reloadData()
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
@@ -161,34 +160,30 @@ class TokenViewController: UIViewController {
         case .nativeCryptocurrency:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
-                let amount = viewModel.amountShort
-                celf.headerViewModel.title = "\(amount) \(viewModel.symbol)"
+
+                celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
                 let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
-                let ticker = celf.tokensDataStore.coinTicker(for: etherToken)
-                celf.headerViewModel.ticker = ticker
-                celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
-                if let viewModel = celf.viewModel {
-                    celf.configure(viewModel: viewModel)
-                }
+                celf.tokenInfoPageView.viewModel.ticker = celf.tokensDataStore.coinTicker(for: etherToken)
+                celf.tokenInfoPageView.viewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
+
+                celf.configure(viewModel: celf.viewModel)
             }
+
             session.refresh(.ethBalance)
         case .ERC20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
-            headerViewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
+            tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
 
             let etherToken = TokensDataStore.etherToken(forServer: session.server)
-            let ticker = tokensDataStore.coinTicker(for: etherToken)
-            headerViewModel.ticker = ticker
-            headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
-            if let viewModel = self.viewModel {
-                configure(viewModel: viewModel)
-            }
+
+            tokenInfoPageView.viewModel.ticker = tokensDataStore.coinTicker(for: etherToken)
+            tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
+
+            configure(viewModel: viewModel)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
-
-        title = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     @objc private func send() {
@@ -200,7 +195,6 @@ class TokenViewController: UIViewController {
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
-        guard let viewModel = viewModel else { return }
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
@@ -216,12 +210,10 @@ class TokenViewController: UIViewController {
                 if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                     if let denialMessage = selection.denial {
                         UIAlertController.alert(
-                                title: nil,
                                 message: denialMessage,
                                 alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.default],
-                                viewController: self,
-                                completion: nil
+                                viewController: self
                         )
                     } else {
                         //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
@@ -257,7 +249,7 @@ class TokenViewController: UIViewController {
 
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        guard let tokenObject = viewModel?.token else { return nil }
+        guard let tokenObject = viewModel.token else { return nil }
         let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
@@ -270,8 +262,8 @@ class TokenViewController: UIViewController {
                 guard let subscribable = each.subscribableValue else { continue }
                 subscribable.subscribe { [weak self] _ in
                     guard let strongSelf = self else { return }
-                    guard let viewModel = strongSelf.viewModel else { return }
-                    strongSelf.configure(viewModel: viewModel)
+
+                    strongSelf.configure(viewModel: strongSelf.viewModel)
                 }
             }
         }
@@ -282,58 +274,25 @@ class TokenViewController: UIViewController {
     }
 }
 
-extension TokenViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: TokenViewControllerTransactionCell = tableView.dequeueReusableCell(for: indexPath)
-        if let transaction = viewModel?.recentTransactions[indexPath.row] {
-            let viewModel = TokenViewControllerTransactionCellViewModel(
-                    transaction: transaction,
-                    config: session.config,
-                    chainState: session.chainState,
-                    currentWallet: session.account
-            )
-            cell.configure(viewModel: viewModel)
-        } else {
-            cell.configureEmpty()
-        }
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.recentTransactions.count ?? 0
-    }
-}
-
-extension TokenViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        guard let transaction = viewModel?.recentTransactions[indexPath.row] else { return }
-        delegate?.didTap(transaction: transaction, inViewController: self)
-    }
-
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 94
-    }
-}
-
 extension TokenViewController: CanOpenURL2 {
     func open(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
 
-extension TokenViewController: TokenViewControllerHeaderViewDelegate {
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView) {
+extension TokenViewController: TokenInfoPageViewDelegate {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
+}
 
-    func didShowHideMarketPrice(inHeaderView: TokenViewControllerHeaderView) {
-        refreshHeaderView()
+extension TokenViewController: ActivityPageViewDelegate {
+    func didTap(activity: Activity, in view: ActivityPageView) {
+        delegate?.didTap(activity: activity, inViewController: self)
     }
 
-    @objc private func refreshHeaderView() {
-        headerViewModel.isShowingValue.toggle()
-        header.sendHeaderView.configure(viewModel: headerViewModel)
+    func didTap(transaction: TransactionInstance, in view: ActivityPageView) {
+        delegate?.didTap(transaction: transaction, inViewController: self)
     }
 }
 
