@@ -29,7 +29,8 @@ class AccountsViewController: UIViewController {
         self.walletBalanceCoordinator = walletBalanceCoordinator
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = Colors.appBackground
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+        
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -48,7 +49,7 @@ class AccountsViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
