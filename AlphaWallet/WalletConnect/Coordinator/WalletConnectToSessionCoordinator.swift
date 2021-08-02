@@ -8,7 +8,7 @@
 import UIKit
 import PromiseKit
 
-protocol WalletConnectToSessionCoordinatorDelegate: class {
+protocol WalletConnectToSessionCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: WalletConnectToSessionCoordinator, didCompleteWithConnection result: WalletConnectServer.ConnectionChoice)
 }
 

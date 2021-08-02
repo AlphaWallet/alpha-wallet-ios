@@ -3,7 +3,7 @@
 import UIKit
 import BigInt
 
-protocol ConfigureTransactionViewControllerDelegate: class {
+protocol ConfigureTransactionViewControllerDelegate: AnyObject {
     func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController)
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController)
 }

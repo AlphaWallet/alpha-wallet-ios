@@ -16,7 +16,7 @@ enum WalletConnectError: Error {
     case request(WalletConnectServer.Request.AnyError)
 }
 
-protocol WalletConnectServerDelegate: class {
+protocol WalletConnectServerDelegate: AnyObject {
     func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession)
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void)
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest)
@@ -145,7 +145,7 @@ class WalletConnectServer {
     }
 }
 
-protocol WalletConnectServerRequestHandlerDelegate: class {
+protocol WalletConnectServerRequestHandlerDelegate: AnyObject {
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectSwift.Request)
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectSwift.Request) -> Bool
 }
@@ -305,7 +305,7 @@ extension WalletConnectServer: ServerDelegate {
 
             UserDefaults.standard.walletConnectSessions = sessions
             self.refresh(sessions: sessions)
-            
+
             if let delegate = self.delegate {
                 delegate.server(self, didConnect: session)
             }

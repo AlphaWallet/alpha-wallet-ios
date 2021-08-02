@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol MyDappsViewControllerHeaderViewDelegate: class {
+protocol MyDappsViewControllerHeaderViewDelegate: AnyObject {
     func didEnterEditMode(inHeaderView headerView: MyDappsViewControllerHeaderView)
     func didExitEditMode(inHeaderView headerView: MyDappsViewControllerHeaderView)
 }

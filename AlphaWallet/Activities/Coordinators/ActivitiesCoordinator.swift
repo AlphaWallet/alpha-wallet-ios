@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ActivitiesCoordinatorDelegate: class {
+protocol ActivitiesCoordinatorDelegate: AnyObject {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator)
     func speedup(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator)
@@ -11,7 +11,6 @@ protocol ActivitiesCoordinatorDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController)
 }
 
-// swiftlint:disable type_body_length
 class ActivitiesCoordinator: Coordinator {
     private enum ActivityOrTransactionInstance {
         case activity(Activity)
@@ -370,7 +369,6 @@ class ActivitiesCoordinator: Coordinator {
         })
     }
 }
-// swiftlint:enable type_body_length
 
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {

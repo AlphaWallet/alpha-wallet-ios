@@ -6,7 +6,7 @@ import BigInt
 import PromiseKit
 import WebKit
 
-protocol TokenInstanceWebViewDelegate: class {
+protocol TokenInstanceWebViewDelegate: AnyObject {
     //TODO not good. But quick and dirty to ship
     func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)

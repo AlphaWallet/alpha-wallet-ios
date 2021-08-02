@@ -5,7 +5,7 @@ import QRCodeReaderViewController
 import BigInt
 import PromiseKit
 
-protocol ScanQRCodeCoordinatorDelegate: class {
+protocol ScanQRCodeCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ScanQRCodeCoordinator)
     func didScan(result: String, in coordinator: ScanQRCodeCoordinator)
 }

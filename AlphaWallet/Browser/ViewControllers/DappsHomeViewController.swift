@@ -5,7 +5,7 @@
 import Foundation
 import UIKit
 
-protocol DappsHomeViewControllerDelegate: class {
+protocol DappsHomeViewControllerDelegate: AnyObject {
     func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController)
     func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController)
     func didTapShowDiscoverDappsViewController(inViewController viewController: DappsHomeViewController)

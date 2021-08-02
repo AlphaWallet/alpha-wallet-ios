@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol ElevateWalletSecurityCoordinatorDelegate: class {
+protocol ElevateWalletSecurityCoordinatorDelegate: AnyObject {
     func didLockWalletSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator)
     func didCancelLock(forAccount account: AlphaWallet.Address, inCoordinator coordinator: ElevateWalletSecurityCoordinator)
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol CoinTickersFetcherCacheType: class {
+protocol CoinTickersFetcherCacheType: AnyObject {
     var tickers: [AddressAndRPCServer: CoinTicker] { get set }
     var historyCache: [CoinTicker: [ChartHistoryPeriod: MappedChartHistory]] { get set }
     var lastFetchedDate: Date? { get set }
@@ -21,7 +21,7 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
     private (set) lazy var tickersJsonPath: URL = documentDirectory.appendingPathComponent("tickers.json")
     private (set) lazy var historyJsonPath: URL = documentDirectory.appendingPathComponent("history.json")
     private let defaults: UserDefaults = .standard
-    
+
     private enum Keys {
         static let lastFetchedDateKey = "lastFetchedDateKey"
         static let lastFetchedTickerIdsKey = "lastFetchedTickerIdsKey"

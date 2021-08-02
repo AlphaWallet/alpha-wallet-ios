@@ -6,7 +6,7 @@ import Foundation
 import UIKit
 import StatefulViewController
 
-protocol MyDappsViewControllerDelegate: class {
+protocol MyDappsViewControllerDelegate: AnyObject {
     func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController)
     func didTapToSelect(dapp: Bookmark, inViewController viewController: MyDappsViewController)
     func delete(dapp: Bookmark, inViewController viewController: MyDappsViewController)

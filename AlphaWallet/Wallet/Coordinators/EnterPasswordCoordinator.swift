@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol EnterPasswordCoordinatorDelegate: class {
+protocol EnterPasswordCoordinatorDelegate: AnyObject {
     func didEnterPassword(password: String, account: AlphaWallet.Address, in coordinator: EnterPasswordCoordinator)
     func didCancel(in coordinator: EnterPasswordCoordinator)
 }

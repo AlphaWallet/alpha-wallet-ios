@@ -3,7 +3,7 @@
 import UIKit
 import Alamofire
 
-protocol TokenListFormatRowViewDelegate: class {
+protocol TokenListFormatRowViewDelegate: AnyObject {
     func didTapURL(url: URL)
 }
 

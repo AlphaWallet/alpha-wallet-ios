@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SignatureConfirmationViewControllerDelegate: class {
+protocol SignatureConfirmationViewControllerDelegate: AnyObject {
     func controller(_ controller: SignatureConfirmationViewController, continueButtonTapped sender: UIButton)
     func controllerDidTapEdit(_ controller: SignatureConfirmationViewController, for section: Int)
     func didClose(in controller: SignatureConfirmationViewController)

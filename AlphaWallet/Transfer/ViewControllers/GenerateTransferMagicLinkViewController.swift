@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol GenerateTransferMagicLinkViewControllerDelegate: class {
+protocol GenerateTransferMagicLinkViewControllerDelegate: AnyObject {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView)
     func didPressCancel(in viewController: GenerateTransferMagicLinkViewController)
 }

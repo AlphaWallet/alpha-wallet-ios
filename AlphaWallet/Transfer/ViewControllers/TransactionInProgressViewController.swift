@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TransactionInProgressViewControllerDelegate: class {
+protocol TransactionInProgressViewControllerDelegate: AnyObject {
     func transactionInProgressDidDismiss(in controller: TransactionInProgressViewController)
     func controller(_ controller: TransactionInProgressViewController, okButtonSelected sender: UIButton)
 }

@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol PromptViewControllerDelegate: class {
+protocol PromptViewControllerDelegate: AnyObject {
     func actionButtonTapped(inController controller: PromptViewController)
     func controllerDismiss(_ controller: PromptViewController)
 }

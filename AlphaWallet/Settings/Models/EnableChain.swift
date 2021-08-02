@@ -5,7 +5,7 @@ import APIKit
 import JSONRPCKit
 import PromiseKit
 
-protocol EnableChainDelegate: class {
+protocol EnableChainDelegate: AnyObject {
     func notifyEnableChainQueuedSuccessfully(in enableChain: EnableChain)
 
 }

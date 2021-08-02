@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol CreateInitialWalletViewControllerDelegate: class {
+protocol CreateInitialWalletViewControllerDelegate: AnyObject {
     func didTapCreateWallet(inViewController viewController: CreateInitialWalletViewController)
     func didTapWatchWallet(inViewController viewController: CreateInitialWalletViewController)
     func didTapImportWallet(inViewController viewController: CreateInitialWalletViewController)

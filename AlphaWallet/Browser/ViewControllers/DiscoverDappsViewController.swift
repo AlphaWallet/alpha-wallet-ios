@@ -5,7 +5,7 @@
 import Foundation
 import UIKit
 
-protocol DiscoverDappsViewControllerDelegate: class {
+protocol DiscoverDappsViewControllerDelegate: AnyObject {
     func didTap(dapp: Dapp, inViewController viewController: DiscoverDappsViewController)
     func didAdd(dapp: Dapp, inViewController viewController: DiscoverDappsViewController)
     func didRemove(dapp: Dapp, inViewController viewController: DiscoverDappsViewController)

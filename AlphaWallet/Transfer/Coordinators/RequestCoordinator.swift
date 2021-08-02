@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol RequestCoordinatorDelegate: class {
+protocol RequestCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: RequestCoordinator)
 }
 

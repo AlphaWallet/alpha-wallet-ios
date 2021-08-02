@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol SendTransactionErrorViewControllerDelegate: class {
+protocol SendTransactionErrorViewControllerDelegate: AnyObject {
     func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController)
     func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController)
     func controllerDismiss(_ controller: SendTransactionErrorViewController)

@@ -10,7 +10,7 @@ import RealmSwift
 import BigInt
 import PromiseKit
 
-protocol WalletBalanceCoordinatorType: class {
+protocol WalletBalanceCoordinatorType: AnyObject {
     var subscribableWalletsSummary: Subscribable<WalletSummary> { get }
 
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance>
@@ -55,7 +55,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
             let handlertToDelete = strongSelf.balanceFetchers.filter { !wallets.contains($0.key) }
             for value in handlertToDelete {
                 strongSelf.balanceFetchers.removeValue(forKey: value.key)
-            } 
+            }
         }
 
         subscribableEnabledServersSubscriptionKey = config.subscribableEnabledServers.subscribe { [weak self] servers in
@@ -128,7 +128,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         }.done(on: queue, { _ in
             //no-op
         }).catch { _ in
-            //no-op 
+            //no-op
         }
     }
 

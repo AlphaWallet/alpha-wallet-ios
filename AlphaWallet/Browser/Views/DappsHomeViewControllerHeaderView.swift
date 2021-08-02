@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol DappsHomeViewControllerHeaderViewDelegate: class {
+protocol DappsHomeViewControllerHeaderViewDelegate: AnyObject {
     func didExitEditMode(inHeaderView: DappsHomeViewControllerHeaderView)
 }
 

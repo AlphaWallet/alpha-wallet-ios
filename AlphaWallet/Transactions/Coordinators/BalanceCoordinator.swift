@@ -6,7 +6,7 @@ import JSONRPCKit
 import Result
 import BigInt
 
-protocol BalanceCoordinatorDelegate: class {
+protocol BalanceCoordinatorDelegate: AnyObject {
     func didUpdate(viewModel: BalanceViewModel)
 }
 
@@ -37,7 +37,7 @@ class BalanceCoordinator: BalanceCoordinatorType {
             rate: currencyRate
         )
     }
-    
+
     init(
             wallet: Wallet,
             server: RPCServer,
@@ -58,7 +58,7 @@ class BalanceCoordinator: BalanceCoordinatorType {
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                 return
             }
-            var ticker = self?.storage.coinTicker(for: eth)
+            let ticker = self?.storage.coinTicker(for: eth)
             self?.balance = Balance(value: BigInt(eth.value, radix: 10) ?? BigInt(0))
             self?.currencyRate = ticker?.rate
             self?.update()

@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol SeedPhraseBackupIntroductionViewControllerDelegate: class {
+protocol SeedPhraseBackupIntroductionViewControllerDelegate: AnyObject {
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController)
     func didClose(for account: AlphaWallet.Address, inViewController viewController: SeedPhraseBackupIntroductionViewController)
 }

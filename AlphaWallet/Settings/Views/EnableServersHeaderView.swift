@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol EnableServersHeaderViewDelegate: class {
+protocol EnableServersHeaderViewDelegate: AnyObject {
     func toggledTo(_ newValue: Bool, headerView: EnableServersHeaderView)
 }
 

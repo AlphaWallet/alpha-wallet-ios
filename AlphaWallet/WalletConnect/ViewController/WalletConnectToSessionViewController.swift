@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol WalletConnectToSessionViewControllerDelegate: class {
+protocol WalletConnectToSessionViewControllerDelegate: AnyObject {
     func controller(_ controller: WalletConnectToSessionViewController, continueButtonTapped sender: UIButton)
     func changeConnectionServerSelected(in controller: WalletConnectToSessionViewController)
 

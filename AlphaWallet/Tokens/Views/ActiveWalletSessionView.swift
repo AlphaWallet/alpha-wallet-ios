@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ActiveWalletSessionViewDelegate: class {
+protocol ActiveWalletSessionViewDelegate: AnyObject {
     func view(_ view: ActiveWalletSessionView, didSelectTap sender: UITapGestureRecognizer)
 }
 

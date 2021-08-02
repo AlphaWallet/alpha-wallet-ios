@@ -3,7 +3,7 @@
 import UIKit
 import WalletCore
 
-protocol ImportWalletViewControllerDelegate: class {
+protocol ImportWalletViewControllerDelegate: AnyObject {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
     func openQRCode(in controller: ImportWalletViewController)
 }

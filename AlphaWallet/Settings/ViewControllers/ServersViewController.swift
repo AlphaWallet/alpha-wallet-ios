@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ServersViewControllerDelegate: class {
+protocol ServersViewControllerDelegate: AnyObject {
     func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController)
 }
 
@@ -33,7 +33,7 @@ class ServersViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableView.anchorsConstraint(to: view)
         ])
-    } 
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

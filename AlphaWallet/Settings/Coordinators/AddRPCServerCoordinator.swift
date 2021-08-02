@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol AddRPCServerCoordinatorDelegate: class {
+protocol AddRPCServerCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: AddRPCServerCoordinator)
     func restartToAddEnableAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator)
 }

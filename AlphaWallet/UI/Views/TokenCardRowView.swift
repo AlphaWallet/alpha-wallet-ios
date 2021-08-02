@@ -3,7 +3,7 @@
 import UIKit
 import WebKit
 
-protocol TokenCardRowViewDelegate: class {
+protocol TokenCardRowViewDelegate: AnyObject {
     func heightChangedFor(tokenCardRowView: TokenCardRowView)
 }
 

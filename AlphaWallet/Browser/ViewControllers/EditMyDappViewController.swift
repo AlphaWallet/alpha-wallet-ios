@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol EditMyDappViewControllerDelegate: class {
+protocol EditMyDappViewControllerDelegate: AnyObject {
     func didTapSave(dapp: Bookmark, withTitle title: String, url: String, inViewController viewController: EditMyDappViewController)
     func didTapCancel(inViewController viewController: EditMyDappViewController)
 }

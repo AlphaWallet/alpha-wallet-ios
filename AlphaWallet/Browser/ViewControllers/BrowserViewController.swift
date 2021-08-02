@@ -6,7 +6,7 @@ import WebKit
 import JavaScriptCore
 import Result
 
-protocol BrowserViewControllerDelegate: class {
+protocol BrowserViewControllerDelegate: AnyObject {
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController)
     func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController)
     func dismissKeyboard(inBrowserViewController viewController: BrowserViewController)

@@ -36,7 +36,6 @@ class WalletSession {
         self.balanceCoordinator = balanceCoordinator
         self.balanceCoordinator.delegate = self
 
-
         if config.isAutoFetchingDisabled {
             //no-op
         } else {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SliderTableViewCellDelegate: class {
+protocol SliderTableViewCellDelegate: AnyObject {
     func cell(_ cell: SliderTableViewCell, textDidChange value: Int)
     func cell(_ cell: SliderTableViewCell, valueDidChange value: Int)
     func shouldReturn(in textField: TextField) -> Bool

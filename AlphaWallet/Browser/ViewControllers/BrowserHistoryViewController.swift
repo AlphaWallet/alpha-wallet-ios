@@ -6,7 +6,7 @@ import Foundation
 import UIKit
 import StatefulViewController
 
-protocol BrowserHistoryViewControllerDelegate: class {
+protocol BrowserHistoryViewControllerDelegate: AnyObject {
     func didSelect(history: History, inViewController controller: BrowserHistoryViewController)
     func clearHistory(inViewController viewController: BrowserHistoryViewController)
     func dismissKeyboard(inViewController viewController: BrowserHistoryViewController)

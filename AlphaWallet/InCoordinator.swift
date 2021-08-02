@@ -7,7 +7,7 @@ import RealmSwift
 import Result
 
 // swiftlint:disable file_length
-protocol InCoordinatorDelegate: class {
+protocol InCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: InCoordinator)
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
@@ -63,7 +63,7 @@ class InCoordinator: NSObject, Coordinator {
     lazy private var eventsActivityDataStore: EventsActivityDataStore = EventsActivityDataStore(realm: realm)
     private var eventSourceCoordinator: EventSourceCoordinator?
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
-    private let coinTickersFetcher: CoinTickersFetcherType 
+    private let coinTickersFetcher: CoinTickersFetcherType
     var tokensStorages = ServerDictionary<TokensDataStore>()
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
 

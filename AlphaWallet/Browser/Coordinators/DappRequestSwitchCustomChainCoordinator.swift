@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol DappRequestSwitchCustomChainCoordinatorDelegate: class {
+protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
     func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
