@@ -34,4 +34,10 @@ class RPCServerTests: XCTestCase {
             XCTAssertEqual(RPCServer(chainID: each.chainID), each)
         }
     }
+
+    func testDisplayOrderPriorityUnique() {
+        let all = RPCServer.allCases
+        let orders = Set(all.map(\.displayOrderPriority))
+        XCTAssertEqual(orders.count, all.count)
+    }
 }
