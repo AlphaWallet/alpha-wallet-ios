@@ -5,8 +5,13 @@ import BigInt
 import PromiseKit
 import web3swift
 
+protocol EventSourceCoordinatorType: class {
+    func fetchEthereumEvents()
+    func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
+}
+
 //TODO rename this generic name to reflect that it's for event instances, not for event activity
-class EventSourceCoordinator {
+class EventSourceCoordinator: EventSourceCoordinatorType {
     private var wallet: Wallet
     private let config: Config
     private let tokensStorages: ServerDictionary<TokensDataStore>
@@ -47,10 +52,8 @@ class EventSourceCoordinator {
     func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
-                guard let strongSelf = self else { return }
-
-                strongSelf.queue.async {
-                    strongSelf.fetchEthereumEventsImpl()
+                self?.queue.async {
+                    self?.fetchEthereumEventsImpl()
                 }
             }
         } else {
@@ -73,30 +76,38 @@ class EventSourceCoordinator {
     }
 
     private func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin) -> Promise<Void> {
-        let (filterName, filterValue) = eventOrigin.eventFilter
-        let filterParam = eventOrigin.parameters
-                .filter { $0.isIndexed }
-                .map { self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue) }
-        let contractAddress = token.contractAddress
-        let tokenServer = token.server
+        return Promise<Void> { seal in
+            self.queue.async {
+                let (filterName, filterValue) = eventOrigin.eventFilter
+                let filterParam = eventOrigin.parameters
+                        .filter { $0.isIndexed }
+                        .map { self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue) }
+                let contractAddress = token.contractAddress
+                let tokenServer = token.server
 
-        return eventsDataStore.getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName).map(on: queue, { oldEvent -> EventFilter.Block in
-            if let newestEvent = oldEvent {
-                return .blockNumber(UInt64(newestEvent.blockNumber + 1))
-            } else {
-                return .blockNumber(0)
+                self.eventsDataStore.getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName).map(on: self.queue, { oldEvent -> EventFilter.Block in
+                    if let newestEvent = oldEvent {
+                        return .blockNumber(UInt64(newestEvent.blockNumber + 1))
+                    } else {
+                        return .blockNumber(0)
+                    }
+                }).map(on: self.queue, { fromBlock -> EventFilter in
+                    EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: [EthereumAddress(address: eventOrigin.contract)], parameterFilters: filterParam.map { $0?.filter })
+                }).then(on: self.queue, { eventFilter in
+                    getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
+                }).map(on: self.queue, { result -> [EventInstanceValue] in
+                    result.compactMap {
+                        self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
+                    }
+                }).then(on: self.queue, { events -> Promise<Void> in
+                    self.eventsDataStore.add(events: events, forTokenContract: contractAddress)
+                }).done(on: self.queue, { _ in
+                    seal.fulfill(())
+                }).catch(on: self.queue, { e in
+                    seal.reject(e)
+                })
             }
-        }).map(on: queue, { fromBlock -> EventFilter in
-            EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: [EthereumAddress(address: eventOrigin.contract)], parameterFilters: filterParam.map { $0?.filter })
-        }).then(on: queue, { eventFilter in
-            getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: self.queue)
-        }).map(on: queue, { result -> [EventInstanceValue] in
-            result.compactMap {
-                self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
-            }
-        }).then(on: queue, { events -> Promise<Void> in
-            return self.eventsDataStore.add(events: events, forTokenContract: contractAddress)
-        })
+        }
     }
 
     private func convertEventToDatabaseObject(_ event: EventParserResultProtocol, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, contractAddress: AlphaWallet.Address, server: RPCServer) -> EventInstanceValue? {

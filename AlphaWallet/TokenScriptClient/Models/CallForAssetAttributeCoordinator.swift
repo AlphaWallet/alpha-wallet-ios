@@ -10,7 +10,7 @@ import web3swift
 class CallForAssetAttributeCoordinator {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-    private var promiseCache = [AssetFunctionCall: Promise<AssetInternalValue>]()
+    private var promiseCache = ThreadSafeDictionary<AssetFunctionCall, Promise<AssetInternalValue>>()
 
     init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server 

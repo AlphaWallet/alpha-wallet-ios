@@ -42,8 +42,11 @@ class ActivityViewController: UIViewController {
     var viewModel: ActivityViewModel
 
     weak var delegate: ActivityViewControllerDelegate?
+    private let service: ActivitiesServiceType
+    private var subscriptionKey: Subscribable<Activity>.SubscribableKey?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType) {
+        self.service = service
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
@@ -109,6 +112,12 @@ class ActivityViewController: UIViewController {
         + footerBar.anchorsConstraint(to: view))
 
         configure(viewModel: viewModel)
+
+        subscriptionKey = service.subscribableUpdatedActivity.subscribe { [weak self] activity in
+            guard let strongSelf = self, let activity = activity, strongSelf.isForActivity(activity) else { return }
+
+            strongSelf.configure(viewModel: .init(activity: activity))
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
