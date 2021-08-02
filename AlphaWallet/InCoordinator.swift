@@ -107,7 +107,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private let walletBalanceCoordinator: WalletBalanceCoordinatorType
 
-    private lazy var realm = Self.realm(forAccount: wallet)
+    private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private lazy var oneInchSwapService = Oneinch()
     private lazy var rampBuyService = Ramp(account: wallet)
     private lazy var tokenActionsService: TokenActionsServiceType = {
@@ -654,12 +654,6 @@ class InCoordinator: NSObject, Coordinator {
         transactionCoordinator?.addSentTransaction(transaction)
     }
 
-    private static func realm(forAccount account: Wallet) -> Realm {
-        let migration = MigrationInitializer(account: account)
-        migration.perform()
-        return try! Realm(configuration: migration.config)
-    }
-
     private func showTransactionSent(transaction: SentTransaction) {
         UIAlertController.showTransactionSent(transaction: transaction, on: presentationViewController)
     }
@@ -915,11 +909,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
-        let realm = Self.realm(forAccount: account)
-        for each in RPCServer.allCases {
-            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-            transactionsStorage.deleteAll()
-        }
+        TransactionsStorage.functional.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
     }
 
     func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {

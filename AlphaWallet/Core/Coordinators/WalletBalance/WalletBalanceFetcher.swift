@@ -47,7 +47,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     weak var delegate: WalletBalanceFetcherDelegate?
 
-    private lazy var realm = Self.realm(forAccount: wallet)
+    private lazy var realm = Wallet.functional.realm(forAccount: wallet)
 
     required init(wallet: Wallet, servers: [RPCServer], queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
@@ -176,14 +176,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
 
         return .init(wallet: wallet, values: balances)
-    }
-
-    private static func realm(forAccount account: Wallet) -> Realm {
-        let migration = MigrationInitializer(account: account)
-        migration.perform()
-
-        return try! Realm(configuration: migration.config)
-    }
+    } 
 
     var isRunning: Bool {
         if let timer = timer {
