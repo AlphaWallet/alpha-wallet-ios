@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol TextFieldDelegate: class {
+protocol TextFieldDelegate: AnyObject {
     func shouldReturn(in textField: TextField) -> Bool
     func doneButtonTapped(for textField: TextField)
     func nextButtonTapped(for textField: TextField)

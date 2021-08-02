@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol AssetDefinitionStoreCoordinatorDelegate: class {
+protocol AssetDefinitionStoreCoordinatorDelegate: AnyObject {
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator)
     func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer, destinationFileInUse: Bool, filename: String)
 }
@@ -165,7 +165,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
                         let server = RPCServer(chainID: chainId)
                         delegate?.addedTokenScript(forContract: contract, forServer: server, destinationFileInUse: destinationFileInUse, filename: filename)
                     }
-                } 
+                }
 
                 return true
             }
@@ -174,7 +174,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         }
 
         return false
-    } 
+    }
 
     private func watchDirectoryContents(changeHandler: @escaping () -> Void) {
         guard directoryWatcher == nil else { return }

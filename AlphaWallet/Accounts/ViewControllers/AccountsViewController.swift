@@ -3,7 +3,7 @@
 import UIKit
 import PromiseKit
 
-protocol AccountsViewControllerDelegate: class {
+protocol AccountsViewControllerDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)
     func didDeleteAccount(account: Wallet, in viewController: AccountsViewController)
     func didSelectInfoForAccount(account: Wallet, sender: UIView, in viewController: AccountsViewController)
@@ -97,7 +97,7 @@ class AccountsViewController: UIViewController {
                 strongSelf.displayError(error: error)
             }
         }
-    } 
+    }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
@@ -159,7 +159,7 @@ extension AccountsViewController: UITableViewDataSource {
                 }
             }
 
-            return cell 
+            return cell
         case .summary:
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(summary: walletBalanceCoordinator.subscribableWalletsSummary.value))

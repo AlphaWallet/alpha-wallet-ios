@@ -20,7 +20,7 @@ enum AddCustomChainError: Error {
     }
 }
 
-protocol AddCustomChainDelegate: class {
+protocol AddCustomChainDelegate: AnyObject {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain)
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain)
 }

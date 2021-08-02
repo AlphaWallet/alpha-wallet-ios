@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol WelcomeViewControllerDelegate: class {
+protocol WelcomeViewControllerDelegate: AnyObject {
     func didPressGettingStartedButton(in viewController: WelcomeViewController)
 }
 

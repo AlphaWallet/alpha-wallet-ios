@@ -6,7 +6,7 @@ import JSONRPCKit
 import Result
 import BigInt
 
-protocol BalanceCoordinatorDelegate: class {
+protocol BalanceCoordinatorDelegate: AnyObject {
     func didUpdate(viewModel: BalanceViewModel)
 }
 
@@ -37,7 +37,7 @@ class BalanceCoordinator: BalanceCoordinatorType {
             rate: currencyRate
         )
     }
-    
+
     init(
             wallet: Wallet,
             server: RPCServer,

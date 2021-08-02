@@ -12,7 +12,7 @@ import PromiseKit
 private struct NoContractDetailsDetected: Error {
 }
 
-protocol NewTokenCoordinatorDelegate: class {
+protocol NewTokenCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: TokenObject)
     func didClose(in coordinator: NewTokenCoordinator)
 }

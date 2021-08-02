@@ -3,7 +3,7 @@
 import UIKit
 import LocalAuthentication
 
-protocol ShowSeedPhraseViewControllerDelegate: class {
+protocol ShowSeedPhraseViewControllerDelegate: AnyObject {
     var contextToShowSeedPhrase: LAContext { get }
     var isInactiveBecauseWeAccessingBiometrics: Bool { get set }
 

@@ -3,7 +3,7 @@
 import UIKit
 import Eureka
 
-protocol EnterPasswordViewControllerDelegate: class {
+protocol EnterPasswordViewControllerDelegate: AnyObject {
     func didEnterPassword(password: String, for account: AlphaWallet.Address, inViewController viewController: EnterPasswordViewController)
 }
 

@@ -9,12 +9,12 @@ import UIKit
 import RealmSwift
 import BigInt
 
-protocol WalletBalanceFetcherDelegate: class {
+protocol WalletBalanceFetcherDelegate: AnyObject {
     func didAddToken(in fetcher: WalletBalanceFetcherType)
     func didUpdate(in fetcher: WalletBalanceFetcherType)
 }
 
-protocol WalletBalanceFetcherType: class {
+protocol WalletBalanceFetcherType: AnyObject {
     var tokenObjects: [Activity.AssignedToken] { get }
     var balance: WalletBalance { get }
     var subscribableWalletBalance: Subscribable<WalletBalance> { get }
@@ -195,7 +195,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     func start() {
         refreshBalance()
-        
+
         timer = Timer.scheduledTimer(withTimeInterval: Self.updateBalanceInterval, repeats: true) { [weak self] _ in
             guard let strongSelf = self else { return }
 

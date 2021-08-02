@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol TokenCardsViewControllerHeaderDelegate: class {
+protocol TokenCardsViewControllerHeaderDelegate: AnyObject {
     func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader)
 }
 

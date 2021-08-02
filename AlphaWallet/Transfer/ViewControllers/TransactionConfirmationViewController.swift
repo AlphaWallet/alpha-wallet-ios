@@ -5,7 +5,7 @@ import Foundation
 import UIKit
 import Result
 
-protocol TransactionConfirmationViewControllerDelegate: class {
+protocol TransactionConfirmationViewControllerDelegate: AnyObject {
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton)
     func controllerDidTapEdit(_ controller: TransactionConfirmationViewController)
     func didClose(in controller: TransactionConfirmationViewController)
@@ -610,4 +610,4 @@ extension TransactionConfirmationViewController: TransactionConfirmationHeaderVi
     func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int) {
         delegate?.controllerDidTapEdit(self)
     }
-} 
+}

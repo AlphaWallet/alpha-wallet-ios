@@ -11,11 +11,11 @@ enum TokenError: Error {
     case failedToFetch
 }
 
-protocol TokensDataStoreDelegate: class {
+protocol TokensDataStoreDelegate: AnyObject {
     func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
 }
 
-protocol TokensDataStorePriceDelegate: class {
+protocol TokensDataStorePriceDelegate: AnyObject {
     func updatePrice(forTokenDataStore tokensDataStore: TokensDataStore)
 }
 

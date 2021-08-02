@@ -2,7 +2,7 @@
 
 import Alamofire
 
-protocol AssetDefinitionStoreDelegate: class {
+protocol AssetDefinitionStoreDelegate: AnyObject {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore )
 }
 

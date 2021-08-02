@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ActivitiesCoordinatorDelegate: class {
+protocol ActivitiesCoordinatorDelegate: AnyObject {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator)
     func speedup(transactionWithId transactionId: String, forServer server: RPCServer, viewController: ActivityViewController, fromCoordinator coordinator: ActivitiesCoordinator)

@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol DappsAutoCompletionViewControllerDelegate: class {
+protocol DappsAutoCompletionViewControllerDelegate: AnyObject {
     func didTap(dapp: Dapp, inViewController viewController: DappsAutoCompletionViewController)
     func dismissKeyboard(inViewController viewController: DappsAutoCompletionViewController)
 }

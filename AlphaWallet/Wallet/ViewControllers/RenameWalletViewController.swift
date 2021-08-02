@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol RenameWalletViewControllerDelegate: class {
+protocol RenameWalletViewControllerDelegate: AnyObject {
     func didFinish(in viewController: RenameWalletViewController)
 }
 

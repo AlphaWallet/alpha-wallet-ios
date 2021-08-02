@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol SegmentedControlDelegate: class {
+protocol SegmentedControlDelegate: AnyObject {
     //Implementations of this protocol function will have to cast `segment` to the appropriate type. Maybe some generic or associated type magic can fix this, but alas time constraints
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl)
 }

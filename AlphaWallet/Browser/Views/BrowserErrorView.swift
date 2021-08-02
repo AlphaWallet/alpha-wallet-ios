@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol BrowserErrorViewDelegate: class {
+protocol BrowserErrorViewDelegate: AnyObject {
     func didTapReload(_ sender: Button)
 }
 

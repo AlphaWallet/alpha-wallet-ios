@@ -12,7 +12,7 @@ enum SignMessageType {
     case eip712v3And4(EIP712TypedData)
 }
 
-protocol SignMessageCoordinatorDelegate: class {
+protocol SignMessageCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SignMessageCoordinator, didSign result: ResultResult<Data, KeystoreError>.t)
     func didCancel(in coordinator: SignMessageCoordinator)
 }

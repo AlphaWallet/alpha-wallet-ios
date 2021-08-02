@@ -12,12 +12,12 @@ import Result
 import RealmSwift
 import SwiftyJSON
 
-protocol PrivateTokensDataStoreDelegate: class {
+protocol PrivateTokensDataStoreDelegate: AnyObject {
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher)
     func didAddToken(in tokensDataStore: PrivateBalanceFetcher)
 }
 
-protocol PrivateBalanceFetcherType: class {
+protocol PrivateBalanceFetcherType: AnyObject {
     var delegate: PrivateTokensDataStoreDelegate? { get set }
 
     func refreshBalance()
@@ -198,7 +198,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 if let value = balanceValueHasChange, value {
                     delegate.didUpdate(in: strongSelf)
                 }
-                
+
                 group.leave()
             }
         }

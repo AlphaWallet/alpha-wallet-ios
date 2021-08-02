@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 import UIKit
 
-protocol SendHeaderViewDelegate: class {
+protocol SendHeaderViewDelegate: AnyObject {
     func didPressViewContractWebPage(inHeaderView: SendHeaderView)
     func showHideMarketPriceSelected(inHeaderView: SendHeaderView)
 }

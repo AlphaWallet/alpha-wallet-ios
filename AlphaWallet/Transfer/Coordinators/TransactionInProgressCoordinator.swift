@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TransactionInProgressCoordinatorDelegate: class {
+protocol TransactionInProgressCoordinatorDelegate: AnyObject {
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator)
 }
 

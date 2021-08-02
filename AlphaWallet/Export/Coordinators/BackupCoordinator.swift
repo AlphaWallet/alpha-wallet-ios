@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import Result
 
-protocol BackupCoordinatorDelegate: class {
+protocol BackupCoordinatorDelegate: AnyObject {
     func didCancel(coordinator: BackupCoordinator)
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator)
 }

@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ActivityViewControllerDelegate: class {
+protocol ActivityViewControllerDelegate: AnyObject {
     func reinject(viewController: ActivityViewController)
     func goToToken(viewController: ActivityViewController)
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController)

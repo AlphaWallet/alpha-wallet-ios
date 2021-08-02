@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol InitialWalletCreationCoordinatorDelegate: class {
+protocol InitialWalletCreationCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: InitialWalletCreationCoordinator)
     func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator)
 }

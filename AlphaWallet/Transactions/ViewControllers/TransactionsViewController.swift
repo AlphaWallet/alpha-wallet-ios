@@ -6,7 +6,7 @@ import JSONRPCKit
 import StatefulViewController
 import Result
 
-protocol TransactionsViewControllerDelegate: class {
+protocol TransactionsViewControllerDelegate: AnyObject {
     func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController)
 }
 
@@ -166,7 +166,7 @@ extension TransactionsViewController: UITableViewDataSource {
         let session = sessions[transactionRow.server]
         let viewModel: TransactionRowCellViewModel = .init(transactionRow: transactionRow, chainState: session.chainState, currentWallet: session.account, server: transactionRow.server)
         cell.configure(viewModel: viewModel)
-        
+
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

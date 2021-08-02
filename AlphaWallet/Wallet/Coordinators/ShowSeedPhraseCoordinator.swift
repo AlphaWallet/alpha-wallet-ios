@@ -8,7 +8,7 @@
 import UIKit
 import LocalAuthentication
 
-protocol ShowSeedPhraseCoordinatorDelegate: class {
+protocol ShowSeedPhraseCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ShowSeedPhraseCoordinator)
 }
 
