@@ -134,15 +134,18 @@ class TokenInfoPageView: UIView, TokenPageViewType {
         view5.configure(viewModel: viewModel.markerCapViewModel)
         stackView.addArrangedSubview(view5)
 
+        //NOTE: Comment it for now, we will check it later.
+        /*
         let view1 = TickerFieldValueView()
 
-        view1.configure(viewModel: viewModel.totalVolumeViewModel)
+        view1.configure(viewModel: viewModel.totalSupplyViewModel)
         stackView.addArrangedSubview(view1)
 
         let view13 = TickerFieldValueView()
 
         view13.configure(viewModel: viewModel.maxSupplyViewModel)
         stackView.addArrangedSubview(view13)
+        */
 
         let view14 = TickerFieldValueView()
 

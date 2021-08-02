@@ -54,7 +54,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldStatsMarket_cap(), attributedValue: attributedValue)
     }
 
-    var totalVolumeViewModel: TickerFieldValueViewModel {
+    var totalSupplyViewModel: TickerFieldValueViewModel {
         let value: String = {
             if let total_volume = ticker?.total_supply {
                 return String(total_volume)
