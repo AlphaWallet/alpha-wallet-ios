@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol TokenViewControllerHeaderViewDelegate: class {
+protocol TokenViewControllerHeaderViewDelegate: AnyObject {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView)
     func didShowHideMarketPrice(inHeaderView: TokenViewControllerHeaderView)
 }

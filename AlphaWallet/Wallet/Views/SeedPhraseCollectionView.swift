@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol SeedPhraseCollectionViewDelegate: class {
+protocol SeedPhraseCollectionViewDelegate: AnyObject {
     func didTap(word: String, atIndex index: Int, inCollectionView: SeedPhraseCollectionView)
 }
 

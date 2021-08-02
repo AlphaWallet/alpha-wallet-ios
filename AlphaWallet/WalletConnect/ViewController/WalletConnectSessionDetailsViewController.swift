@@ -9,7 +9,7 @@ import UIKit
 import WalletConnectSwift
 import Kingfisher
 
-protocol WalletConnectSessionViewControllerDelegate: class {
+protocol WalletConnectSessionViewControllerDelegate: AnyObject {
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton)
     func didDismiss(in controller: WalletConnectSessionViewController)
 }

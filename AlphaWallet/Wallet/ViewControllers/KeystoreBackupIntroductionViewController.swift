@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol KeystoreBackupIntroductionViewControllerDelegate: class {
+protocol KeystoreBackupIntroductionViewControllerDelegate: AnyObject {
     func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController)
 }
 

@@ -4,13 +4,13 @@ import Foundation
 import UIKit
 import BigInt
 
-protocol PromptBackupCoordinatorProminentPromptDelegate: class {
+protocol PromptBackupCoordinatorProminentPromptDelegate: AnyObject {
     var viewControllerToShowBackupLaterAlert: UIViewController { get }
 
     func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator)
 }
 
-protocol PromptBackupCoordinatorSubtlePromptDelegate: class {
+protocol PromptBackupCoordinatorSubtlePromptDelegate: AnyObject {
     var viewControllerToShowBackupLaterAlert: UIViewController { get }
 
     func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator)

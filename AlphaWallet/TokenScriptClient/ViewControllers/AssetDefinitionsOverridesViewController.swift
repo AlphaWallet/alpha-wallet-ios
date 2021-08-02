@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol AssetDefinitionsOverridesViewControllerDelegate: class {
+protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
     func didDelete(overrideFileForContract file: URL, in viewController: AssetDefinitionsOverridesViewController)
     func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController)
 }
@@ -58,7 +58,7 @@ extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
 
 extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: AssetDefinitionsOverridesViewCell = tableView.dequeueReusableCell(for: indexPath) 
+        let cell: AssetDefinitionsOverridesViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(viewModel: .init(url: overriddenURLs[indexPath.row], fileExtension: fileExtension))
         return cell
     }

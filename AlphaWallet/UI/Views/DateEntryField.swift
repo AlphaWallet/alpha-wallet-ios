@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol DateEntryFieldDelegate: class {
+protocol DateEntryFieldDelegate: AnyObject {
     func didTap(in dateEntryField: DateEntryField)
 }
 

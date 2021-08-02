@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol UniversalLinkInPasteboardCoordinatorDelegate: class {
+protocol UniversalLinkInPasteboardCoordinatorDelegate: AnyObject {
     func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator)
 }
 

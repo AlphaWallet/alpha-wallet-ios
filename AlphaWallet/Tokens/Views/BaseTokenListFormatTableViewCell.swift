@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol BaseTokenListFormatTableViewCellDelegate: class {
+protocol BaseTokenListFormatTableViewCellDelegate: AnyObject {
     func didTapURL(url: URL)
 }
 

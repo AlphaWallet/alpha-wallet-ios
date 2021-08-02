@@ -5,7 +5,7 @@ import BigInt
 import PromiseKit
 import web3swift
 
-protocol EventSourceCoordinatorForActivitiesDelegate: class {
+protocol EventSourceCoordinatorForActivitiesDelegate: AnyObject {
     func didUpdate(inCoordinator coordinator: EventSourceCoordinatorForActivities)
 }
 

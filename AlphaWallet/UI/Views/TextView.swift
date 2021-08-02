@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol TextViewDelegate: class {
+protocol TextViewDelegate: AnyObject {
     func shouldReturn(in textView: TextView) -> Bool
     func doneButtonTapped(for textView: TextView)
     func nextButtonTapped(for textView: TextView)
@@ -25,7 +25,7 @@ class TextView: UIControl {
     let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        
+
         return label
     }()
     let textView = UITextView()
@@ -59,7 +59,7 @@ class TextView: UIControl {
             textView.returnKeyType = newValue
         }
     }
-    
+
     var errorState: TextField.TextFieldErrorState = .none {
         didSet {
             switch errorState {
@@ -70,12 +70,12 @@ class TextView: UIControl {
                 statusLabel.text = nil
                 statusLabel.isHidden = true
             }
-            
+
             let borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder)
             let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: isFirstResponder)
-            
+
             layer.borderColor = borderColor.cgColor
-            
+
             dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
         }
     }
@@ -107,13 +107,13 @@ class TextView: UIControl {
 
         statusLabel.font = DataEntry.Font.textFieldStatus
         statusLabel.textColor = DataEntry.Color.textFieldStatus
-        
+
         textView.textColor = DataEntry.Color.text
         textView.font = DataEntry.Font.text
         textView.layer.borderColor = DataEntry.Color.border.cgColor
         textView.layer.borderWidth = DataEntry.Metric.borderThickness
         textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
-        
+
         cornerRadius = DataEntry.Metric.cornerRadius
         layer.borderWidth = DataEntry.Metric.borderThickness
         backgroundColor = DataEntry.Color.textFieldBackground
@@ -176,7 +176,7 @@ extension TextView: UITextViewDelegate {
 
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     func textViewDidEndEditing(_ textView: UITextView) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
@@ -185,7 +185,7 @@ extension TextView: UITextViewDelegate {
 
         dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             guard let delegate = delegate else { return true }

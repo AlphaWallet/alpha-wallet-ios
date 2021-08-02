@@ -4,7 +4,7 @@ import UIKit
 import BigInt
 import StatefulViewController
 
-protocol ActivitiesViewControllerDelegate: class {
+protocol ActivitiesViewControllerDelegate: AnyObject {
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController)
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
 }

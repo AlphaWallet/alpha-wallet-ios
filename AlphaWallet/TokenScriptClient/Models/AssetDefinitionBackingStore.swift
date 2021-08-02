@@ -20,7 +20,7 @@ protocol AssetDefinitionBackingStore {
     func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address)
 }
 
-protocol AssetDefinitionBackingStoreDelegate: class {
+protocol AssetDefinitionBackingStoreDelegate: AnyObject {
     func invalidateAssetDefinition(forContract contract: AlphaWallet.Address)
     func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore)
 }

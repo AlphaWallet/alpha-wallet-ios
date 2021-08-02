@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-protocol WalletConnectSessionCoordinatorDelegate: class {
+protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: WalletConnectSessionCoordinator)
 }
 

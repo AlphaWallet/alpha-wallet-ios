@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol NewTokenViewControllerDelegate: class {
+protocol NewTokenViewControllerDelegate: AnyObject {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
     func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController)
     func didTapChangeServer(in viewController: NewTokenViewController)

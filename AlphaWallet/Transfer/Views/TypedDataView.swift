@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TypedDataViewDelegate: class {
+protocol TypedDataViewDelegate: AnyObject {
     func copySelected(in view: TypedDataView)
 }
 

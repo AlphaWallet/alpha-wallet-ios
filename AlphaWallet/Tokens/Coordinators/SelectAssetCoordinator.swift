@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SelectAssetCoordinatorDelegate: class {
+protocol SelectAssetCoordinatorDelegate: AnyObject {
     func coordinator(_ coordinator: SelectAssetCoordinator, didSelectToken token: TokenObject)
     func selectAssetDidCancel(in coordinator: SelectAssetCoordinator)
 }
@@ -27,7 +27,7 @@ class SelectAssetCoordinator: Coordinator {
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let assetDefinitionStore: AssetDefinitionStore
     private let filter: WalletFilter
-    
+
     lazy var navigationController = UINavigationController(rootViewController: viewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectAssetCoordinatorDelegate?

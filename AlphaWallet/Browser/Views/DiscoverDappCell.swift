@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol DiscoverDappCellDelegate: class {
+protocol DiscoverDappCellDelegate: AnyObject {
     func onAdd(dapp: Dapp, inCell cell: DiscoverDappCell)
     func onRemove(dapp: Dapp, inCell cell: DiscoverDappCell)
 }

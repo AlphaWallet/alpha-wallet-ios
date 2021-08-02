@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol AddRPCServerViewControllerDelegate: class {
+protocol AddRPCServerViewControllerDelegate: AnyObject {
     func didFinish(in viewController: AddRPCServerViewController, rpc: CustomRPC)
 }
 

@@ -7,7 +7,7 @@ import JSONRPCKit
 import PromiseKit
 import TrustKeystore
 
-protocol TransactionConfiguratorDelegate: class {
+protocol TransactionConfiguratorDelegate: AnyObject {
     func configurationChanged(in configurator: TransactionConfigurator)
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator)

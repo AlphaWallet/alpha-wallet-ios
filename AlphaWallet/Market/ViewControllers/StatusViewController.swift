@@ -2,7 +2,7 @@
 import Foundation
 import UIKit
 
-protocol StatusViewControllerDelegate: class {
+protocol StatusViewControllerDelegate: AnyObject {
 	func didPressDone(in viewController: StatusViewController)
 }
 

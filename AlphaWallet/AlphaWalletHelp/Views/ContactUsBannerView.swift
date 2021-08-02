@@ -3,7 +3,7 @@
 import UIKit
 import MessageUI
 
-protocol ContactUsBannerViewDelegate: class {
+protocol ContactUsBannerViewDelegate: AnyObject {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView)
 }
 

@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ShowAddHideTokensViewDelegate: class {
+protocol ShowAddHideTokensViewDelegate: AnyObject {
     func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton)
 }
 

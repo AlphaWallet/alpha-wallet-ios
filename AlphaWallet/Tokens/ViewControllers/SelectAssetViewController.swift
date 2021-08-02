@@ -8,7 +8,7 @@
 import UIKit
 import StatefulViewController
 
-protocol SelectAssetViewControllerDelegate: class {
+protocol SelectAssetViewControllerDelegate: AnyObject {
     func controller(_ controller: SelectAssetViewController, didSelectToken token: TokenObject)
     func controller(_ controller: SelectAssetViewController, didCancelSelected sender: UIBarButtonItem)
 }

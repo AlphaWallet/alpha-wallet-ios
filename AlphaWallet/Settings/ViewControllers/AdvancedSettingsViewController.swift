@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol AdvancedSettingsViewControllerDelegate: class {
+protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerTokenScriptSelected(in controller: AdvancedSettingsViewController)

@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 import PromiseKit
 
-protocol CustomUrlSchemeCoordinatorResolver: class {
+protocol CustomUrlSchemeCoordinatorResolver: AnyObject {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator)
 }
 

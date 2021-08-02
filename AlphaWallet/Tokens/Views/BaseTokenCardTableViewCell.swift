@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol BaseTokenCardTableViewCellDelegate: class {
+protocol BaseTokenCardTableViewCellDelegate: AnyObject {
     func didTapURL(url: URL)
 }
 

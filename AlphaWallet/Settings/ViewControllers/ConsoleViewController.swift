@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol ConsoleViewControllerDelegate: class {
+protocol ConsoleViewControllerDelegate: AnyObject {
     func didClose(in viewController: ConsoleViewController)
 }
 

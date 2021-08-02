@@ -5,7 +5,7 @@ import Result
 import StatefulViewController
 import PromiseKit
 
-protocol TokensViewControllerDelegate: class {
+protocol TokensViewControllerDelegate: AnyObject {
     func didPressAddHideTokens(viewModel: TokensViewModel)
     func didSelect(token: TokenObject, in viewController: UIViewController)
     func didHide(token: TokenObject, in viewController: UIViewController)

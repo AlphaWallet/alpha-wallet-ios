@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol WalletConnectSessionsViewControllerDelegate: class {
+protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
     func qrCodeSelected(in viewController: WalletConnectSessionsViewController)
     func didClose(in viewController: WalletConnectSessionsViewController)
