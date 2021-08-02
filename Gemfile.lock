@@ -7,8 +7,8 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.6.0)
-      public_suffix (>= 2.0.2, < 4.0)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     algoliasearch (1.27.5)
       httpclient (~> 2.8, >= 2.8.3)
       json (>= 1.5.1)
@@ -217,6 +217,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  addressable (>= 2.8.0)
   cocoapods
   excon (>= 0.71.0)
   fastlane
