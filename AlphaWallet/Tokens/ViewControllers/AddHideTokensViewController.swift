@@ -192,7 +192,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
         if let tokens = viewModel.moveItem(from: sourceIndexPath, to: destinationIndexPath) {
             delegate?.didChangeOrder(tokens: tokens, in: self)
         }
-        tableView.reloadData()
+        reload()
     }
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -200,45 +200,47 @@ extension AddHideTokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let promise: Promise<(token: TokenObject, indexPathToInsert: IndexPath, withTokenCreation: Bool)?>
+        let result: AddHideTokensViewModel.ShowHideOperationResult
         let isTokenHidden: Bool
+
         switch editingStyle {
         case .insert:
-            promise = viewModel.addDisplayed(indexPath: indexPath)
+            result = viewModel.addDisplayed(indexPath: indexPath)
             isTokenHidden = false
         case .delete:
-            promise = viewModel.deleteToken(indexPath: indexPath)
+            result = viewModel.deleteToken(indexPath: indexPath)
             isTokenHidden = true
         case .none:
-            promise = .value(nil)
+            result = .value(nil)
             isTokenHidden = false
         }
 
-        self.displayLoading()
-
-        promise.done { [weak self] result in
-            guard let strongSelf = self else { return }
-
-            if let result = result, let delegate = strongSelf.delegate {
-                delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
-                //NOTE: due to a table view BatchUpdates the table view can cracs we apply flag `withTokenCreation` to determine whether we create a new token, an if we do, reload table view
-                if result.withTokenCreation {
-                    tableView.reloadData()
-                } else {
-                    tableView.performBatchUpdates({
-                        tableView.deleteRows(at: [indexPath], with: .automatic)
-                        tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
-                    }, completion: nil)
-                }
+        switch result {
+        case .value(let result):
+            if let result = result, let delegate = delegate {
+                delegate.didMark(token: result.token, in: self, isHidden: isTokenHidden)
+                tableView.performBatchUpdates({
+                    tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
+                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                }, completion: nil)
             } else {
                 tableView.reloadData()
             }
-        }.catch { _ in
-            tableView.reloadData()
+        case .promise(let promise):
+            self.displayLoading()
+            promise.done(on: .none, flags: .barrier) { [weak self] result in
+                guard let strongSelf = self else { return }
 
-            self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
-        }.finally {
-            self.hideLoading()
+                if let result = result, let delegate = strongSelf.delegate {
+                    delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
+                }
+            }.catch { _ in
+                self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
+            }.finally {
+                tableView.reloadData()
+
+                self.hideLoading()
+            }
         }
     }
 
@@ -247,7 +249,8 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
             guard let strongSelf = self else { return }
 
-            strongSelf.viewModel.deleteToken(indexPath: indexPath).done { result in
+            switch strongSelf.viewModel.deleteToken(indexPath: indexPath) {
+            case .value(let result):
                 if let result = result, let delegate = strongSelf.delegate {
                     delegate.didMark(token: result.token, in: strongSelf, isHidden: true)
 
@@ -262,7 +265,9 @@ extension AddHideTokensViewController: UITableViewDataSource {
 
                     completionHandler(false)
                 }
-            }.cauterize()
+            case .promise:
+                break
+            }
         }
 
         hideAction.backgroundColor = R.color.danger()
