@@ -20,6 +20,7 @@ class TokensViewController: UIViewController {
     private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
     private enum Section {
+        case walletSummary
         case filters
         case addHideToken
         case tokens
@@ -29,7 +30,7 @@ class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    private var sections: [Section] = [.filters, .addHideToken, .tokens]
+    private var sections: [Section] = [.walletSummary, .filters, .addHideToken, .tokens]
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -51,6 +52,7 @@ class TokensViewController: UIViewController {
         tableView.registerHeaderFooterView(TableViewSectionHeader.self)
         tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.delegate = self
         tableView.dataSource = self
@@ -178,6 +180,9 @@ class TokensViewController: UIViewController {
             }
         }
     }
+    private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 10, right: 0))
+    private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
+    private let walletSummarySubscription: Subscribable<WalletBalance>
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -186,7 +191,8 @@ class TokensViewController: UIViewController {
          eventsDataStore: EventsDataStoreProtocol,
          filterTokensCoordinator: FilterTokensCoordinator,
          config: Config,
-         walletConnectCoordinator: WalletConnectCoordinator
+         walletConnectCoordinator: WalletConnectCoordinator,
+         walletBalanceCoordinator: WalletBalanceCoordinatorType
     ) {
         self.sessions = sessions
         self.account = account
@@ -195,6 +201,7 @@ class TokensViewController: UIViewController {
         self.eventsDataStore = eventsDataStore
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
+        walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
 
         viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         searchController = UISearchController(searchResultsController: nil)
@@ -246,13 +253,28 @@ class TokensViewController: UIViewController {
         walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
             guard let strongSelf = self, let sessionsToURLServersMap = value else { return }
             if sessionsToURLServersMap.sessions.isEmpty {
-                strongSelf.sections = [.filters, .addHideToken, .tokens]
+                strongSelf.sections = [.walletSummary, .filters, .addHideToken, .tokens]
             } else {
-                strongSelf.sections = [.filters, .addHideToken, .activeWalletSession(count: sessionsToURLServersMap.sessions.count), .tokens]
+                strongSelf.sections = [.walletSummary, .filters, .addHideToken, .activeWalletSession(count: sessionsToURLServersMap.sessions.count), .tokens]
             }
             strongSelf.tableView.reloadData()
         }
         blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
+
+        subscriptionKey = walletSummarySubscription.subscribe { [weak self] balance in
+            guard let strongSelf = self, let balance = balance else { return }
+
+            DispatchQueue.main.async {
+                let summary = WalletSummary(balances: [balance])
+                strongSelf.walletSummaryView.configure(viewModel: .init(summary: summary, alignment: .center))
+            }
+        }
+    }
+
+    deinit {
+        if let key = subscriptionKey {
+            walletSummarySubscription.unsubscribe(key)
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -423,6 +445,8 @@ extension TokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch sections[section] {
+        case .walletSummary:
+            return 80
         case .filters:
             return TokensViewController.filterViewHeight
         case .addHideToken:
@@ -436,6 +460,11 @@ extension TokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch sections[section] {
+        case .walletSummary:
+            let header: GeneralTableViewSectionHeader<WalletSummaryView> = tableView.dequeueReusableHeaderFooterView()
+            header.subview = walletSummaryView
+
+            return header
         case .filters:
             let header: TableViewSectionHeader = tableView.dequeueReusableHeaderFooterView()
             header.filterView = tableViewFilterView
@@ -470,7 +499,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch sections[indexPath.section] {
-        case .addHideToken, .filters, .activeWalletSession:
+        case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return UITableViewCell()
         case .tokens:
             switch viewModel.item(for: indexPath.row, section: indexPath.section) {
@@ -518,7 +547,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch sections[section] {
-        case .addHideToken, .filters, .activeWalletSession:
+        case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return 0
         case .tokens:
             return viewModel.numberOfItems()
@@ -531,7 +560,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch sections[indexPath.section] {
-        case .addHideToken, .filters, .activeWalletSession:
+        case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return nil
         case .tokens:
             return trailingSwipeActionsConfiguration(forRowAt: indexPath)
