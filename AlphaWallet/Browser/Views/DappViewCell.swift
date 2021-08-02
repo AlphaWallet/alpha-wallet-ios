@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol DappViewCellDelegate: class {
+protocol DappViewCellDelegate: AnyObject {
     func didTapDelete(dapp: Bookmark, inCell cell: DappViewCell)
     func didLongPressed(dapp: Bookmark, onCell cell: DappViewCell)
 }

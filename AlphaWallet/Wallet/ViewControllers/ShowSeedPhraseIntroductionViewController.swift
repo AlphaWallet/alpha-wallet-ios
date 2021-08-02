@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ShowSeedPhraseIntroductionViewControllerDelegate: class {
+protocol ShowSeedPhraseIntroductionViewControllerDelegate: AnyObject {
     func didShowSeedPhrase(in viewController: ShowSeedPhraseIntroductionViewController)
     func didClose(in viewController: ShowSeedPhraseIntroductionViewController)
 }

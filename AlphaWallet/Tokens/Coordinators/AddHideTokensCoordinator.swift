@@ -7,7 +7,7 @@ import PromiseKit
 private struct NoContractDetailsDetected: Error {
 }
 
-protocol AddHideTokensCoordinatorDelegate: class {
+protocol AddHideTokensCoordinatorDelegate: AnyObject {
     func didClose(coordinator: AddHideTokensCoordinator)
 }
 

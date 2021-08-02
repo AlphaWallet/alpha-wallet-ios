@@ -3,7 +3,7 @@ import BigInt
 import RealmSwift
 import PromiseKit
 
-protocol TransactionsStorageDelegate: class {
+protocol TransactionsStorageDelegate: AnyObject {
     func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage)
 }
 

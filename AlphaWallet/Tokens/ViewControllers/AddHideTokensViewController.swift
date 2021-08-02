@@ -4,7 +4,7 @@ import UIKit
 import StatefulViewController
 import PromiseKit
 
-protocol AddHideTokensViewControllerDelegate: class {
+protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken( in viewController: UIViewController)
     func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool)
     func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController)
@@ -147,7 +147,7 @@ class AddHideTokensViewController: UIViewController {
 
     func add(popularTokens: [PopularToken]) {
         viewModel.set(allPopularTokens: popularTokens)
-        
+
         DispatchQueue.main.async {
             self.reload()
         }
@@ -218,7 +218,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
 
         promise.done { [weak self] result in
             guard let strongSelf = self else { return }
-            
+
             if let result = result, let delegate = strongSelf.delegate {
                 delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
                 //NOTE: due to a table view BatchUpdates the table view can cracs we apply flag `withTokenCreation` to determine whether we create a new token, an if we do, reload table view

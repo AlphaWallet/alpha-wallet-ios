@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TransactionConfirmationHeaderViewDelegate: class {
+protocol TransactionConfirmationHeaderViewDelegate: AnyObject {
     func headerView(_ header: TransactionConfirmationHeaderView, shouldHideChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int)
@@ -225,7 +225,7 @@ extension TransactionConfirmationHeaderView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.setContentHuggingPriority(.required, for: .horizontal)
-        
+
         let wrapper = UIView()
         wrapper.addSubview(label)
 

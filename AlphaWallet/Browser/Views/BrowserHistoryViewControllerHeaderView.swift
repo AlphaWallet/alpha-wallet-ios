@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol BrowserHistoryViewControllerHeaderViewDelegate: class {
+protocol BrowserHistoryViewControllerHeaderViewDelegate: AnyObject {
     func didTapClearAll(inHeaderView headerView: BrowserHistoryViewControllerHeaderView)
 }
 

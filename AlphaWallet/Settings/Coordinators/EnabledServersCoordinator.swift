@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol EnabledServersCoordinatorDelegate: class {
+protocol EnabledServersCoordinatorDelegate: AnyObject {
     func didSelectServers(servers: [RPCServer], in coordinator: EnabledServersCoordinator)
     func didSelectDismiss(in coordinator: EnabledServersCoordinator)
     func restartToAddEnableAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator)

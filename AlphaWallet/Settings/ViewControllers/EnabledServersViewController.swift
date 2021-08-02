@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol EnabledServersViewControllerDelegate: class {
+protocol EnabledServersViewControllerDelegate: AnyObject {
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
     func notifyRemoveCustomChainQueued(in viewController: EnabledServersViewController)
 }

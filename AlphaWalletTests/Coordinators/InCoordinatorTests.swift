@@ -245,11 +245,11 @@ class InCoordinatorTests: XCTestCase {
 import PromiseKit
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer : CoinTicker]> = .init(nil)
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
 
-    var tickers: [AddressAndRPCServer : CoinTicker] = [:]
+    var tickers: [AddressAndRPCServer: CoinTicker] = [:]
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer : CoinTicker]> {
+    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]> {
         return .value([:])
     }
 

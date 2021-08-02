@@ -4,7 +4,7 @@ import Foundation
 import LocalAuthentication
 import UIKit
 
-protocol BackupSeedPhraseCoordinatorDelegate: class {
+protocol BackupSeedPhraseCoordinatorDelegate: AnyObject {
     func didClose(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator)
     func didVerifySeedPhraseSuccessfully(forAccount account: AlphaWallet.Address, inCoordinator coordinator: BackupSeedPhraseCoordinator)
 }

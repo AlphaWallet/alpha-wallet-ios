@@ -76,7 +76,7 @@ extension WhereIsWalletAddressFoundOverlayView: DialogDelegate {
     }
 }
 
-private protocol DialogDelegate: class {
+private protocol DialogDelegate: AnyObject {
     func tappedContinue(inDialog dialog: Dialog)
 }
 

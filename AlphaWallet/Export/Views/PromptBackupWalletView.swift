@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol PromptBackupWalletViewDelegate: class {
+protocol PromptBackupWalletViewDelegate: AnyObject {
     func viewControllerToShowBackupLaterAlert(forView view: PromptBackupWalletView) -> UIViewController?
     func didChooseBackupLater(inView view: PromptBackupWalletView)
     func didChooseBackup(inView view: PromptBackupWalletView)

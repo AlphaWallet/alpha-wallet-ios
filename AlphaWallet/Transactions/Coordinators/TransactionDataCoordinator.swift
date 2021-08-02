@@ -7,7 +7,7 @@ enum TransactionError: Error {
     case failedToFetch
 }
 
-protocol TransactionDataCoordinatorDelegate: class {
+protocol TransactionDataCoordinatorDelegate: AnyObject {
     func didUpdate(result: ResultResult<[TransactionInstance], TransactionError>.t, reloadImmediately: Bool)
 }
 

@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol ConsoleCoordinatorDelegate: class {
+protocol ConsoleCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: ConsoleCoordinator)
 }
 

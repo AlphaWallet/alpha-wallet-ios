@@ -9,7 +9,6 @@ import Foundation
 import Kanna
 import PromiseKit
 
-// swiftlint:disable file_length
 enum SingularOrPlural {
     case singular
     case plural
@@ -984,4 +983,3 @@ public class XMLHandler {
         }
     }
 }
-// swiftlint:enable file_length

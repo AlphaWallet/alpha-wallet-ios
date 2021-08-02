@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol LocalesViewControllerDelegate: class {
+protocol LocalesViewControllerDelegate: AnyObject {
     func didSelect(locale: AppLocale, in viewController: LocalesViewController)
 }
 

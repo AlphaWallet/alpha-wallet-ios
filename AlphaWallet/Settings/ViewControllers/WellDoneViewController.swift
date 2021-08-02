@@ -5,7 +5,7 @@ enum WellDoneAction {
     case other
 }
 
-protocol WellDoneViewControllerDelegate: class {
+protocol WellDoneViewControllerDelegate: AnyObject {
     func didPress(action: WellDoneAction, sender: UIView, in viewController: WellDoneViewController)
 }
 

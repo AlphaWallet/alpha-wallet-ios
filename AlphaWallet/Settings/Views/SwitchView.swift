@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SwitchViewDelegate: class {
+protocol SwitchViewDelegate: AnyObject {
     func toggledTo(_ newValue: Bool, headerView: SwitchView)
 }
 

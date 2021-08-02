@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol ElevateWalletSecurityViewControllerDelegate: class {
+protocol ElevateWalletSecurityViewControllerDelegate: AnyObject {
     func didTapLock(inViewController viewController: ElevateWalletSecurityViewController)
     func didCancelLock(inViewController viewController: ElevateWalletSecurityViewController)
 }

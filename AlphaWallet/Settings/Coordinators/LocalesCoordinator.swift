@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol LocalesCoordinatorDelegate: class {
+protocol LocalesCoordinatorDelegate: AnyObject {
     func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator)
 }
 

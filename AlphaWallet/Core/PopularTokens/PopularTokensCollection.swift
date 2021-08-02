@@ -59,7 +59,7 @@ enum WalletOrPopularToken {
     case popularToken(PopularToken)
 }
 
-protocol PopularTokensCollectionType: class {
+protocol PopularTokensCollectionType: AnyObject {
     func fetchTokens() -> Promise<[PopularToken]>
 }
 

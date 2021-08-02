@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol UrlSchemeResolver: class {
+protocol UrlSchemeResolver: AnyObject {
     func openURLInBrowser(url: URL)
 }
 
-protocol UrlSchemeCoordinatorDelegate: class {
+protocol UrlSchemeCoordinatorDelegate: AnyObject {
     func resolve(for coordinator: UrlSchemeCoordinator) -> UrlSchemeResolver?
 }
 

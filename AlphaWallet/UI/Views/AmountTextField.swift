@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol AmountTextFieldDelegate: class {
+protocol AmountTextFieldDelegate: AnyObject {
     func changeAmount(in textField: AmountTextField)
     func changeType(in textField: AmountTextField)
     func shouldReturn(in textField: AmountTextField) -> Bool

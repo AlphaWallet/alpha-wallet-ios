@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SwitchTableViewCellDelegate: class {
+protocol SwitchTableViewCellDelegate: AnyObject {
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool)
 }
 
@@ -31,26 +31,26 @@ class SwitchTableViewCell: UITableViewCell {
         switchView.translatesAutoresizingMaskIntoConstraints = false
         return switchView
     }()
-    
+
     var isOn: Bool {
         get { return switchView.isOn }
         set { switchView.isOn = newValue }
     }
 
     weak var delegate: SwitchTableViewCellDelegate?
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
-        
+
         selectionStyle = .none
         accessoryType = .none
-        
+
         contentView.addSubview(titleLabel)
         contentView.addSubview(iconImageView)
         contentView.addSubview(switchView)
-        
+
         NSLayoutConstraint.activate([
             iconImageView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 10),
             iconImageView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: -10),
@@ -62,12 +62,12 @@ class SwitchTableViewCell: UITableViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: switchView.leadingAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
+
             switchView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             switchView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
         ])
     }
-    
+
     @objc private func switchChanged(_ sender: UISwitch) {
         delegate?.cell(self, switchStateChanged: sender.isOn)
     }
@@ -75,7 +75,7 @@ class SwitchTableViewCell: UITableViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func configure(viewModel: SwitchTableViewCellViewModel) {
         titleLabel.text = viewModel.titleText
         titleLabel.font = viewModel.titleFont

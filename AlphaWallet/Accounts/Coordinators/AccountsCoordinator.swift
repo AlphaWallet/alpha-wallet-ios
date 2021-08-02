@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-protocol AccountsCoordinatorDelegate: class {
+protocol AccountsCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: AccountsCoordinator)
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator)
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator)
@@ -49,7 +49,7 @@ struct AccountsCoordinatorViewModel {
 
 class AccountsCoordinator: Coordinator {
 
-    private let config: Config 
+    private let config: Config
     private let keystore: Keystore
     var promptBackupCoordinator: PromptBackupCoordinator?
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -301,7 +301,7 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
             coordinator.markBackupDone()
             coordinator.showHideCurrentPrompt()
         }
-        
+
         removeCoordinator(coordinator)
     }
 }

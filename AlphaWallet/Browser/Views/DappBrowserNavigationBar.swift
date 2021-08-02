@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol DappBrowserNavigationBarDelegate: class {
+protocol DappBrowserNavigationBarDelegate: AnyObject {
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapChangeServer(inNavigationBar navigationBar: DappBrowserNavigationBar)
