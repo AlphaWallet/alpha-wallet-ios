@@ -3,6 +3,24 @@
 import Foundation
 import UIKit
 
+enum TokenObjectOrRpcServerPair {
+    case tokenObject(TokenObject)
+    case rpcServer(RPCServer)
+
+    var canDelete: Bool {
+        switch self {
+        case .rpcServer:
+            return false
+        case .tokenObject(let token):
+            guard !token.isInvalidated else { return false }
+            if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                return false
+            }
+            return true
+        }
+    }
+}
+
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
@@ -18,7 +36,7 @@ class TokensViewModel {
         }
     }
 
-    lazy var filteredTokens: [TokenObject] = {
+    lazy var filteredTokens: [TokenObjectOrRpcServerPair] = {
         return filteredAndSortedTokens()
     }()
 
@@ -61,7 +79,7 @@ class TokensViewModel {
         return filteredTokens.count
     }
 
-    func item(for row: Int, section: Int) -> TokenObject {
+    func item(for row: Int, section: Int) -> TokenObjectOrRpcServerPair {
         return filteredTokens[row]
     }
 
@@ -70,23 +88,13 @@ class TokensViewModel {
     }
 
     func canDelete(for row: Int, section: Int) -> Bool {
-        let token = item(for: row, section: section)
-        guard !token.isInvalidated else { return false }
-        if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-            return false
-        }
-        return true
+        return item(for: row, section: section).canDelete
     }
 
     init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker]) {
         self.filterTokensCoordinator = filterTokensCoordinator
-        self.tokens = Self.filterAwaySpuriousTokens(tokens)
+        self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
         self.tickers = tickers
-    }
-
-    //Remove tokens that look unwanted in the Wallet tab
-    private static func filterAwaySpuriousTokens(_ tokens: [TokenObject]) -> [TokenObject] {
-        tokens.filter { !($0.name.isEmpty && $0.symbol.isEmpty && $0.decimals == 0) }
     }
 
     func markTokenHidden(token: TokenObject) -> Bool {
@@ -100,9 +108,11 @@ class TokensViewModel {
         return false
     }
 
-    private func filteredAndSortedTokens() -> [TokenObject] {
+    private func filteredAndSortedTokens() -> [TokenObjectOrRpcServerPair] {
         let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
-        return filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+        let tokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+
+        return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
@@ -158,5 +168,36 @@ fileprivate extension WalletFilter {
     var selectionIndex: UInt? {
         //This is safe only because index can't possibly be negative
         return WalletFilter.orderedTabs.firstIndex { $0 == self }.flatMap { UInt($0) }
+    }
+}
+
+extension TokensViewModel {
+    class functional {}
+}
+
+extension TokensViewModel.functional {
+    static func groupTokenObjectsWithServers(tokens: [TokenObject]) -> [TokenObjectOrRpcServerPair] {
+        var servers: [RPCServer] = []
+        var results: [TokenObjectOrRpcServerPair] = []
+
+        for each in tokens {
+            guard !servers.contains(each.server) else { continue }
+            servers.append(each.server)
+        }
+
+        for each in servers {
+            let tokens = tokens.filter { $0.server == each }.map { TokenObjectOrRpcServerPair.tokenObject($0) }
+            guard !tokens.isEmpty else { continue }
+
+            results.append(.rpcServer(each))
+            results.append(contentsOf: tokens)
+        }
+
+        return results
+    }
+
+    //Remove tokens that look unwanted in the Wallet tab
+    static func filterAwaySpuriousTokens(_ tokens: [TokenObject]) -> [TokenObject] {
+        tokens.filter { !($0.name.isEmpty && $0.symbol.isEmpty && $0.decimals == 0) }
     }
 }
