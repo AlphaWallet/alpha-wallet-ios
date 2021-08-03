@@ -9,7 +9,19 @@ protocol ConsoleViewControllerDelegate: AnyObject {
 
 //TODO reload when the list of files (and hence list of messages change)
 class ConsoleViewController: UIViewController {
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.register(UITableViewCell.self)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+
+        return tableView
+    }()
+    private let roundedBackground = RoundedBackground()
     private var messages = [String]()
     weak var delegate: ConsoleViewControllerDelegate?
 
@@ -18,24 +30,21 @@ class ConsoleViewController: UIViewController {
 
         title = R.string.localizable.aConsoleTitle()
 
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.register(UITableViewCell.self)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        view.backgroundColor = GroupedTable.Color.background
+        roundedBackground.backgroundColor = GroupedTable.Color.background
 
-        view.addSubview(tableView)
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
-        ])
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure(messages: [String]) {

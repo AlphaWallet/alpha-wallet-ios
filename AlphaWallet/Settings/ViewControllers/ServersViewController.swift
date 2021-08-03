@@ -16,23 +16,28 @@ class ServersViewController: UIViewController {
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerTableViewCell.self)
-
+        
         return tableView
     }()
     private var viewModel: ServersViewModel
-
+    private let roundedBackground = RoundedBackground()
     weak var delegate: ServersViewControllerDelegate?
 
     init(viewModel: ServersViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = GroupedTable.Color.background
-        view.addSubview(tableView)
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+        
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view)
-        ])
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     override func viewDidLoad() {

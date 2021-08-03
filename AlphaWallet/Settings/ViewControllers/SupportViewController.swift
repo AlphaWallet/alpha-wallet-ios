@@ -14,37 +14,44 @@ protocol SupportViewControllerDelegate: class, CanOpenURL {
 class SupportViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private lazy var viewModel: SupportViewModel = SupportViewModel()
-    private let tableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reusableIdentifier)
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
-
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
         return tableView
     }()
+    private let roundedBackground = RoundedBackground()
     weak var delegate: SupportViewControllerDelegate?
-
-    override func loadView() {
-        view = tableView
-    }
 
     init(analyticsCoordinator: AnalyticsCoordinator) {
         self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
-        tableView.dataSource = self
-        tableView.delegate = self
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
+
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         title = viewModel.title
-        view.backgroundColor = Screen.Setting.Color.background
         navigationItem.largeTitleDisplayMode = .never
-        tableView.backgroundColor = GroupedTable.Color.background
     }
 
     required init?(coder aDecoder: NSCoder) {
