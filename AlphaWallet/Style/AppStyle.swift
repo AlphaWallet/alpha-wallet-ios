@@ -236,8 +236,8 @@ enum Screen {
     enum Backup {
         static let subtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 22) : Fonts.regular(size: 28)
         static let subtitleColor = Colors.darkGray
-        static let descriptionFont = Fonts.regular(size: ScreenChecker.size(big: 18, medium: 16, small: 16))
-        static let descriptionBoldFont = Fonts.bold(size: ScreenChecker.size(big: 18, medium: 16, small: 16))
+        static let descriptionFont = Fonts.regular(size: ScreenChecker.size(big: 17, medium: 15, small: 15))
+        static let descriptionBoldFont = Fonts.bold(size: ScreenChecker.size(big: 17, medium: 15, small: 15))
         static let descriptionColor = Colors.darkGray
     }
 

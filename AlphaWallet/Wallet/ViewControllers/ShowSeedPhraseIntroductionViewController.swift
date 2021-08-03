@@ -57,7 +57,7 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
 
             stackView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            stackView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            stackView.topAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor, constant: 16),
 
             container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             container.trailingAnchor.constraint(equalTo: view.trailingAnchor),
