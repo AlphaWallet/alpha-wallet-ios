@@ -466,8 +466,8 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     } 
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        TransactionsStorage.functional.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
-        TransactionsTracker.functional.resetFetchingState(account: account, config: config)
+        TransactionsStorage.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
+        TransactionsTracker.resetFetchingState(account: account, config: config)
     }
 
     func didCancel(in coordinator: AccountsCoordinator) {
