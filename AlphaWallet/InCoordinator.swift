@@ -469,7 +469,8 @@ class InCoordinator: NSObject, Coordinator {
                 walletConnectCoordinator: walletConnectCoordinator,
                 transactionsStorages: transactionsStorages,
                 coinTickersFetcher: coinTickersFetcher,
-                activitiesService: activitiesService
+                activitiesService: activitiesService,
+                walletBalanceCoordinator: walletBalanceCoordinator
         )
 
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)

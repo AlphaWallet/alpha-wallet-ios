@@ -62,7 +62,8 @@ class TokensCoordinator: Coordinator {
             eventsDataStore: eventsDataStore,
             filterTokensCoordinator: filterTokensCoordinator,
             config: config,
-            walletConnectCoordinator: walletConnectCoordinator
+            walletConnectCoordinator: walletConnectCoordinator,
+            walletBalanceCoordinator: walletBalanceCoordinator
         )
         controller.delegate = self
         return controller
@@ -82,7 +83,7 @@ class TokensCoordinator: Coordinator {
     lazy var rootViewController: TokensViewController = {
         return tokensViewController
     }()
-
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
     init(
             navigationController: UINavigationController = UINavigationController(),
             sessions: ServerDictionary<WalletSession>,
@@ -99,7 +100,8 @@ class TokensCoordinator: Coordinator {
             walletConnectCoordinator: WalletConnectCoordinator,
             transactionsStorages: ServerDictionary<TransactionsStorage>,
             coinTickersFetcher: CoinTickersFetcherType,
-            activitiesService: ActivitiesServiceType
+            activitiesService: ActivitiesServiceType,
+            walletBalanceCoordinator: WalletBalanceCoordinatorType
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -118,6 +120,7 @@ class TokensCoordinator: Coordinator {
         self.transactionsStorages = transactionsStorages
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
+        self.walletBalanceCoordinator = walletBalanceCoordinator
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }

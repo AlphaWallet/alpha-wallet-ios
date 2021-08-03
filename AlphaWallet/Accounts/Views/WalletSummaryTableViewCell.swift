@@ -8,36 +8,26 @@
 import UIKit
 
 class WalletSummaryTableViewCell: UITableViewCell {
-    private let apprecation24HoursLabel = UILabel()
-    private let balanceLabel = UILabel()
+    var viewModel: WalletSummaryViewModel? {
+        get { summaryView.viewModel }
+        set { summaryView.viewModel = newValue }
+    }
 
-    var viewModel: WalletSummaryTableViewCellViewModel?
-    var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey?
-    
+    var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey? {
+        get { summaryView.walletSummarySubscriptionKey }
+        set { summaryView.walletSummarySubscriptionKey = newValue }
+    }
+
+    private let summaryView: WalletSummaryView = .init()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         separatorInset = .zero
         selectionStyle = .none
-        isUserInteractionEnabled = true
-        apprecation24HoursLabel.lineBreakMode = .byTruncatingMiddle
-
-        let leftStackView = [
-            balanceLabel,
-            apprecation24HoursLabel,
-        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
-
-        let stackView = [leftStackView].asStackView(spacing: 12, alignment: .fill)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        apprecation24HoursLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        balanceLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
-        stackView.setContentHuggingPriority(.required, for: .horizontal)
-
-        contentView.addSubview(stackView)
+        contentView.addSubview(summaryView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: 20, bottom: 20, right: 0)),
+            summaryView.anchorsConstraint(to: contentView, edgeInsets: .zero)
         ])
     }
 
@@ -45,13 +35,11 @@ class WalletSummaryTableViewCell: UITableViewCell {
         return nil
     }
 
-    func configure(viewModel: WalletSummaryTableViewCellViewModel) {
+    func configure(viewModel: WalletSummaryViewModel) {
         self.viewModel = viewModel
 
         backgroundColor = viewModel.backgroundColor
-
-        balanceLabel.attributedText = viewModel.balanceAttributedString
-        apprecation24HoursLabel.attributedText = viewModel.apprecation24HoursAttributedString
+        summaryView.configure(viewModel: viewModel)
 
         accessoryType = viewModel.accessoryType
     }
