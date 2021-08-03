@@ -910,7 +910,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
-        TransactionsStorage.functional.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
+        TransactionsStorage.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
     }
 
     func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {
