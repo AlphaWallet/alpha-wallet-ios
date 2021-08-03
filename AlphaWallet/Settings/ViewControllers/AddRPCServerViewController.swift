@@ -99,10 +99,6 @@ class AddRPCServerViewController: UIViewController {
 
     weak var delegate: AddRPCServerViewControllerDelegate?
 
-    static func layoutSubviews(for textField: TextField) -> [UIView] {
-        [textField.label, .spacer(height: 4), textField, .spacer(height: 4), textField.statusLabel, .spacer(height: 24)]
-    }
-
     init(viewModel: AddrpcServerViewModel, config: Config) {
         self.viewModel = viewModel
         self.config = config
@@ -114,11 +110,11 @@ class AddRPCServerViewController: UIViewController {
         keyboardChecker.constraint = scrollViewBottomConstraint
 
         let stackView = (
-            Self.layoutSubviews(for: networkNameTextField) +
-            Self.layoutSubviews(for: rpcUrlTextField) +
-            Self.layoutSubviews(for: chainIDTextField) +
-            Self.layoutSubviews(for: symbolTextField) +
-            Self.layoutSubviews(for: blockExplorerURLTextField) +
+            TextField.layoutSubviews(for: networkNameTextField) +
+            TextField.layoutSubviews(for: rpcUrlTextField) +
+            TextField.layoutSubviews(for: chainIDTextField) +
+            TextField.layoutSubviews(for: symbolTextField) +
+            TextField.layoutSubviews(for: blockExplorerURLTextField) +
             [
                 isTestNetworkView,
                 .spacer(height: 40)
