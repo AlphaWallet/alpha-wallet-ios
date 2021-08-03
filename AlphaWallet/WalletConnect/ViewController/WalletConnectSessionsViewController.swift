@@ -54,6 +54,11 @@ class WalletConnectSessionsViewController: UIViewController {
         view.addSubview(spinner)
 
         sessionsToURLServersMap.subscribe { [weak self] _ in
+            if self!.sessionsValue.isEmpty {
+                DispatchQueue.main.async {
+                    self?.qrCodeButtonSelected(nil)
+                }
+            }
             self?.tableView.reloadData()
         }
 
@@ -91,7 +96,7 @@ class WalletConnectSessionsViewController: UIViewController {
         }
     }
 
-    @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
+    @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem?) {
         guard let delegate = self.delegate else { return }
 
         delegate.qrCodeSelected(in: self)
