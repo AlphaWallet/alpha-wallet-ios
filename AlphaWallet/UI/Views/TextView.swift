@@ -42,9 +42,9 @@ class TextView: UIControl {
         didSet {
             switch inputAccessoryButtonType {
             case .done:
-                textView.inputAccessoryView = makeToolbarWithDoneButton()
+                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
             case .next:
-                textView.inputAccessoryView = makeToolbarWithNextButton()
+                textView.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonTapped), self)
             case .none:
                 textView.inputAccessoryView = nil
             }
@@ -80,12 +80,24 @@ class TextView: UIControl {
         }
     }
 
+    var pasteButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.setBackgroundColor(.clear, forState: .normal)
+        button.contentHorizontalAlignment = .right
+
+        return button
+    }()
+
     private var isConfigured = false
     weak var delegate: TextViewDelegate?
 
     init() {
         super.init(frame: .zero)
-
+        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
         translatesAutoresizingMaskIntoConstraints = false
 
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -96,6 +108,42 @@ class TextView: UIControl {
         NSLayoutConstraint.activate([
             textView.anchorsConstraint(to: self),
         ])
+    }
+
+    var ensAddressView: UIStackView {
+        return [statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+    }
+
+    //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
+    func defaultLayout() -> UIView {
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+
+        let addressControlsStackView = [
+            pasteButton,
+        ].asStackView(axis: .horizontal)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        addressControlsContainer.addSubview(addressControlsStackView)
+
+        let stackView = [
+            label, .spacer(height: 4), self, .spacer(height: 4), [
+                ensAddressView,
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
+        ])
+
+        return stackView
     }
 
     func configureOnce() {
@@ -122,40 +170,19 @@ class TextView: UIControl {
         errorState = .none
     }
 
+    @objc func pasteAction() {
+        if let value = UIPasteboard.general.string?.trimmed {
+            self.value = value
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textView.becomeFirstResponder()
-    }
-
-    private func makeToolbarWithDoneButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(doneButtonTapped))
-
-        toolbar.items = [flexSpace, done]
-        toolbar.sizeToFit()
-
-        return toolbar
-    }
-
-    private func makeToolbarWithNextButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let next = UIBarButtonItem(title: R.string.localizable.next(), style: .plain, target: self, action: #selector(nextButtonTapped))
-        toolbar.items = [flexSpace, next]
-        toolbar.sizeToFit()
-
-        return toolbar
     }
 
     @objc func doneButtonTapped() {
