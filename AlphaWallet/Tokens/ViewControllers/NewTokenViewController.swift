@@ -48,11 +48,18 @@ enum NewTokenInitialState {
     }
 }
 
+extension Array where Element: UIView {
+    func makeEach(isHidden: Bool) {
+        for each in self {
+            each.isHidden = isHidden
+        }
+    }
+}
+
 class NewTokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let footerBar = UIView()
-    private let header = TokensCardViewControllerTitleHeader()
     private var viewModel = NewTokenViewModel()
     private var tokenType: TokenType? = nil {
         didSet {
@@ -71,8 +78,16 @@ class NewTokenViewController: UIViewController {
 
     var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
+    private lazy var balanceViews = TextField.layoutSubviews(for: balanceTextField)
+    private lazy var decimalsViews = TextField.layoutSubviews(for: decimalsTextField)
 
-// swiftlint:disable function_body_length
+    private lazy var addressViews: [UIView] = [
+        addressTextField.label,
+        .spacer(height: 4),
+        addressTextField.defaultLayout(),
+        .spacer(height: 4),
+    ]
+
     init(server: RPCServerOrAuto, initialState: NewTokenInitialState) {
         self.server = server
         switch initialState {
@@ -86,7 +101,7 @@ class NewTokenViewController: UIViewController {
         hidesBottomBarWhenPushed = true
 
         changeServerButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
-        changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
+        changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
         navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -110,64 +125,20 @@ class NewTokenViewController: UIViewController {
         balanceTextField.delegate = self
         balanceTextField.inputAccessoryButtonType = .next
         balanceTextField.keyboardType = .numbersAndPunctuation
-        balanceTextField.isHidden = true
-        balanceTextField.label.isHidden = true
+        balanceViews.makeEach(isHidden: true)
 
         nameTextField.delegate = self
         nameTextField.returnKeyType = .done
 
-        let addressControlsContainer = UIView()
-        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
-        addressControlsContainer.backgroundColor = .clear
+        let stackView = (
+            [.spacer(height: 30)] +
+            addressViews +
+            TextField.layoutSubviews(for: symbolTextField) +
+            decimalsViews +
+            balanceViews +
+            TextField.layoutSubviews(for: nameTextField)
+        ).asStackView(axis: .vertical)
 
-        let addressControlsStackView = [
-            addressTextField.pasteButton,
-            addressTextField.clearButton
-        ].asStackView(axis: .horizontal)
-        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
-
-        addressControlsContainer.addSubview(addressControlsStackView)
-
-        let stackView = [
-            header,
-            addressTextField.label,
-            .spacer(height: 4),
-            addressTextField,
-
-            .spacer(height: 4), [
-                [addressTextField.ensAddressView, addressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
-                addressControlsContainer
-            ].asStackView(axis: .horizontal),
-            .spacer(height: 4),
-
-            symbolTextField.label,
-            .spacer(height: 4),
-            symbolTextField,
-            .spacer(height: 4),
-            symbolTextField.statusLabel,
-
-            .spacer(height: 10),
-
-            decimalsTextField.label,
-            .spacer(height: 4),
-            decimalsTextField,
-            .spacer(height: 4),
-            decimalsTextField.statusLabel,
-
-            balanceTextField.label,
-            .spacer(height: 4),
-            balanceTextField,
-            .spacer(height: 4),
-            balanceTextField.statusLabel,
-            .spacer(height: 6),
-
-            nameTextField.label,
-            .spacer(height: 4),
-            nameTextField,
-            .spacer(height: 4),
-            nameTextField.statusLabel
-
-        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -179,13 +150,9 @@ class NewTokenViewController: UIViewController {
 
         footerBar.addSubview(buttonsBar)
 
-        let xMargin  = CGFloat(7)
+        let xMargin  = CGFloat(16)
         scrollViewBottomAnchorConstraint = scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: 0)
         NSLayoutConstraint.activate([
-            header.heightAnchor.constraint(equalToConstant: 90),
-            //Strange repositioning of header horizontally while typing without this
-            header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: xMargin),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -xMargin),
@@ -207,22 +174,15 @@ class NewTokenViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollViewBottomAnchorConstraint,
 
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
-            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
-            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
-            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
-            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30)
-
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
 
         resizeViewToAccommodateKeyboard()
     }
-// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -245,8 +205,7 @@ class NewTokenViewController: UIViewController {
 
     public func configure() {
         view.backgroundColor = viewModel.backgroundColor
-
-        header.configure(title: viewModel.title)
+        navigationItem.title = viewModel.title
 
         updateChangeServer(title: server.name)
 
@@ -311,15 +270,11 @@ class NewTokenViewController: UIViewController {
         self.tokenType = tokenType
         switch tokenType {
         case .nativeCryptocurrency, .erc20:
-            decimalsTextField.isHidden = false
-            balanceTextField.isHidden = true
-            decimalsTextField.label.isHidden = false
-            balanceTextField.label.isHidden = true
+            decimalsViews.makeEach(isHidden: false)
+            balanceViews.makeEach(isHidden: true)
         case .erc721, .erc875, .erc721ForTickets:
-            decimalsTextField.isHidden = true
-            balanceTextField.isHidden = false
-            decimalsTextField.label.isHidden = true
-            balanceTextField.label.isHidden = false
+            decimalsViews.makeEach(isHidden: true)
+            balanceViews.makeEach(isHidden: false)
         }
     }
 
@@ -544,5 +499,11 @@ extension NewTokenViewController: TextFieldDelegate {
         default:
             break
         }
+    }
+}
+
+extension TextField {
+    static func layoutSubviews(for textField: TextField) -> [UIView] {
+        [textField.label, .spacer(height: 4), textField, .spacer(height: 4), textField.statusLabel, .spacer(height: 24)]
     }
 }

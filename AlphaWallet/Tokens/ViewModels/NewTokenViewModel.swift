@@ -32,22 +32,22 @@ struct NewTokenViewModel {
     }
 
     var addressLabel: String {
-        return R.string.localizable.contractAddress().uppercased()
+        return R.string.localizable.contractAddress()
     }
 
     var symbolLabel: String {
-        return R.string.localizable.symbol().uppercased()
+        return R.string.localizable.symbol()
     }
 
     var decimalsLabel: String {
-        return R.string.localizable.decimals().uppercased()
+        return R.string.localizable.decimals()
     }
 
     var balanceLabel: String {
-        return R.string.localizable.balance().uppercased()
+        return R.string.localizable.balance()
     }
 
     var nameLabel: String {
-        return R.string.localizable.name().uppercased()
+        return R.string.localizable.name()
     }
 }
