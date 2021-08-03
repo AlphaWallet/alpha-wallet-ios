@@ -18,7 +18,7 @@ class WalletSession {
     }
 
     var sessionID: String {
-        return "\(account.address.eip55String.lowercased())-\(server.chainID)"
+        return Self.functional.sessionID(account: account, server: server)
     }
 
     var balanceViewModel: Subscribable<BalanceBaseViewModel> = Subscribable(nil)
@@ -60,5 +60,15 @@ class WalletSession {
 extension WalletSession: BalanceCoordinatorDelegate {
     func didUpdate(viewModel: BalanceViewModel) {
         balanceViewModel.value = viewModel
+    }
+}
+
+extension WalletSession {
+    class functional {}
+}
+
+extension WalletSession.functional {
+    static func sessionID(account: Wallet, server: RPCServer) -> String {
+        return "\(account.address.eip55String.lowercased())-\(server.chainID)"
     }
 }

@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit
+import UIKit 
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -463,10 +463,11 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
-    }
+    } 
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        //no-op
+        TransactionsStorage.functional.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
+        TransactionsTracker.functional.resetFetchingState(account: account, config: config)
     }
 
     func didCancel(in coordinator: AccountsCoordinator) {
@@ -486,3 +487,4 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
         pendingInCoordinator = .none
     }
 }
+

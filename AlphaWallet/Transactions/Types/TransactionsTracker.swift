@@ -33,3 +33,16 @@ class TransactionsTracker {
         self.defaults = defaults
     }
 }
+
+extension TransactionsTracker {
+    class functional {}
+}
+
+extension TransactionsTracker.functional {
+    static func resetFetchingState(account: Wallet, config: Config, fetchingState: TransactionFetchingState = .initial) {
+        for each in config.enabledServers {
+            let sessionID = WalletSession.functional.sessionID(account: account, server: each)
+            TransactionsTracker(sessionID: sessionID).fetchingState = fetchingState
+        }
+    }
+}
