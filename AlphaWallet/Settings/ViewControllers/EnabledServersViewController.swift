@@ -22,7 +22,7 @@ class EnabledServersViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(ServerViewCell.self)
+        tableView.register(ServerTableViewCell.self)
         tableView.dataSource = self
 
         return tableView
@@ -138,7 +138,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let server = viewModel.server(for: indexPath)
         let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
         cell.configure(viewModel: cellViewModel)
