@@ -256,4 +256,8 @@ final class FakeCoinTickersFetcher: CoinTickersFetcherType {
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
         return .value([])
     }
+
+    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        return Promise { _ in }
+    }
 }
