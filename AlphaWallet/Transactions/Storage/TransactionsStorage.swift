@@ -292,6 +292,14 @@ class TransactionsStorage: Hashable {
             NSLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
     }
+
+
+    static func deleteAllTransactions(realm: Realm) {
+        for each in RPCServer.allCases {
+            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
+            transactionsStorage.deleteAll()
+        }
+    }
 }
 
 extension TransactionsStorage: Erc721TokenIdsFetcher {
@@ -348,12 +356,5 @@ extension TransactionsStorage.functional {
             return .init(transactionHash: eachTransaction.id, operations: operationsToWrite)
         }
         return try JSONEncoder().encode(transactionsToWrite)
-    }
-
-    static func deleteAllTransactions(realm: Realm) {
-        for each in RPCServer.allCases {
-            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-            transactionsStorage.deleteAll()
-        }
     }
 }

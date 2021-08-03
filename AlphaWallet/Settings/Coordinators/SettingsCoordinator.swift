@@ -207,7 +207,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 
 	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         delegate?.delete(account: account, in: self)
-        TransactionsTracker.functional.resetFetchingState(account: account, config: config)
+        TransactionsTracker.resetFetchingState(account: account, config: config)
 		delegate?.didUpdateAccounts(in: self)
 		guard !coordinator.accountsViewController.hasWallets else { return }
         coordinator.navigationController.popViewController(animated: true)
