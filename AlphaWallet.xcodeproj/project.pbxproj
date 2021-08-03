@@ -491,6 +491,7 @@
 		5E7C7A6C28C59DB62DEE2D63 /* BookmarkViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C706658D72CC1C8BB698C /* BookmarkViewCell.swift */; };
 		5E7C7A6CC21C553CD4008F14 /* DappButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75E7D995ABE0E6B7AD55 /* DappButton.swift */; };
 		5E7C7A6E4C1AEFED0B0630A6 /* TokenViewControllerTransactionCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B5838E12930000D5029 /* TokenViewControllerTransactionCellViewModel.swift */; };
+		5E7C7A7FFA16D3505F94BB9E /* FakeActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */; };
 		5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */; };
 		5E7C7A928412AF3E16CDA038 /* AmountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D0DCE61EA2DE2DA21D /* AmountTextField.swift */; };
 		5E7C7A9363A9DF11B233F9DC /* Keystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DD409C330DA4033F504 /* Keystore.swift */; };
@@ -1463,6 +1464,7 @@
 		5E7C7BAC4E511FE8446D212F /* Favicon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Favicon.swift; sourceTree = "<group>"; };
 		5E7C7BAEF70990DA14C474EB /* GroupActivityCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupActivityCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BB17F5211A10C9F0ECE /* EventsActivityDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventsActivityDataStore.swift; sourceTree = "<group>"; };
+		5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeActivitiesService.swift; sourceTree = "<group>"; };
 		5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionErrorViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BE086F00DE44B4EDCED /* RPCServerOrAny.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RPCServerOrAny.swift; sourceTree = "<group>"; };
@@ -2028,6 +2030,7 @@
 				5E7C7F74815AFC150C0AF14D /* TokenScriptClient */,
 				5E7C7154AC0FD950F01278EA /* Models */,
 				5E7C76A2DAB62A6824F37749 /* Sell */,
+				5E7C73DFF2B3DB4C228F8510 /* Activitities */,
 			);
 			path = AlphaWalletTests;
 			sourceTree = "<group>";
@@ -3353,6 +3356,14 @@
 				5E7C76B6284FE1484292EB4F /* ActivityRowModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		5E7C73DFF2B3DB4C228F8510 /* Activitities */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7BB70AD8C1E92D37196F /* FakeActivitiesService.swift */,
+			);
+			path = Activitities;
 			sourceTree = "<group>";
 		};
 		5E7C74128421DCAC6BCC2354 /* Views */ = {
@@ -5767,6 +5778,7 @@
 				5E7C7E5C76318C0E802F377F /* TokenScriptFilterParserTests.swift in Sources */,
 				5E7C7ADB4D80243679028A6D /* IntExtensionsTests.swift in Sources */,
 				5E7C799DED280839CE80FCD3 /* URLTests.swift in Sources */,
+				5E7C7A7FFA16D3505F94BB9E /* FakeActivitiesService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
