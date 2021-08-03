@@ -141,9 +141,9 @@ class TextField: UIControl {
         didSet {
             switch inputAccessoryButtonType {
             case .done:
-                textField.inputAccessoryView = makeToolbarWithDoneButton()
+                textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(doneButtonTapped), self)
             case .next:
-                textField.inputAccessoryView = makeToolbarWithNextButton()
+                textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(nextButtonTapped), self)
             case .none:
                 textField.inputAccessoryView = nil
             }
@@ -201,34 +201,7 @@ class TextField: UIControl {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func makeToolbarWithDoneButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(doneButtonTapped))
-
-        toolbar.items = [flexSpace, done]
-        toolbar.sizeToFit()
-
-        return toolbar
-    }
-
-    private func makeToolbarWithNextButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let next = UIBarButtonItem(title: R.string.localizable.next(), style: .plain, target: self, action: #selector(nextButtonTapped))
-        toolbar.items = [flexSpace, next]
-        toolbar.sizeToFit()
-
-        return toolbar
+        return nil
     }
 
     @objc func doneButtonTapped() {

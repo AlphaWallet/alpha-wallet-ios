@@ -109,11 +109,7 @@ class ImportWalletViewController: UIViewController {
         return mnemonicControlsStackView
     }()
     private lazy var keystoreJSONControlsStackView: UIStackView = [
-        keystoreJSONTextView.label,
-        .spacer(height: 4),
-        keystoreJSONTextView,
-        .spacer(height: 4),
-        keystoreJSONTextView.statusLabel,
+        keystoreJSONTextView.defaultLayout(),
         .spacer(height: 10),
         passwordTextField.label,
         .spacer(height: 4),
@@ -122,13 +118,7 @@ class ImportWalletViewController: UIViewController {
         passwordTextField.statusLabel
     ].asStackView(axis: .vertical)
 
-    private lazy var privateKeyControlsStackView: UIStackView = [
-        privateKeyTextView.label,
-        .spacer(height: 4),
-        privateKeyTextView,
-        .spacer(height: 4),
-        privateKeyTextView.statusLabel
-    ].asStackView(axis: .vertical)
+    private lazy var privateKeyControlsStackView: UIView = privateKeyTextView.defaultLayout()
 
     private lazy var watchControlsStackView: UIStackView = [
         watchAddressTextField.label,
