@@ -7,12 +7,13 @@ class RoundedBackground: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = Colors.appWhite
+        translatesAutoresizingMaskIntoConstraints = false
         //No longer rounded. We are keeping this class and its instance around in case the visual design changes
 //        cornerRadius = 20
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func createConstraintsWithContainer(view: UIView) -> [NSLayoutConstraint] {

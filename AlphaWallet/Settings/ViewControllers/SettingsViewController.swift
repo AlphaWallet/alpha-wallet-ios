@@ -22,18 +22,22 @@ class SettingsViewController: UIViewController {
     private let account: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
     private let promptBackupWalletViewHolder = UIView()
-    private let tableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.registerHeaderFooterView(SettingViewHeader.self)
         tableView.register(SettingTableViewCell.self)
         tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
-
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.dataSource = self
+        tableView.delegate = self
+        
         return tableView
     }()
     private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account, keystore: keystore)
-
+    private let roundedBackground = RoundedBackground()
+    
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -56,10 +60,6 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    override func loadView() {
-        view = tableView
-    }
-
     init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator) {
         self.config = config
         self.keystore = keystore
@@ -67,8 +67,17 @@ class SettingsViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
-        tableView.dataSource = self
-        tableView.delegate = self
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
+
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     override func viewDidLoad() {
