@@ -349,4 +349,11 @@ extension TransactionsStorage.functional {
         }
         return try JSONEncoder().encode(transactionsToWrite)
     }
+
+    static func deleteAllTransactions(realm: Realm) {
+        for each in RPCServer.allCases {
+            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
+            transactionsStorage.deleteAll()
+        }
+    }
 }

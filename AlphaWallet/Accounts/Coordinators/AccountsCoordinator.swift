@@ -28,12 +28,7 @@ struct AccountsCoordinatorViewModel {
         }
 
         var allowsAccountDeletion: Bool {
-            switch self {
-            case .changeWallets:
-                return true
-            case .summary:
-                return false
-            }
+            return true
         }
 
         var navigationTitle: String {
