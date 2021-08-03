@@ -19,38 +19,45 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
 class AdvancedSettingsViewController: UIViewController {
 
     private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel()
-    private let tableView: UITableView = {
+    private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
-
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
         return tableView
     }()
+    private let roundedBackground = RoundedBackground()
     private var config: Config
     weak var delegate: AdvancedSettingsViewControllerDelegate?
-
-    override func loadView() {
-        view = tableView
-    }
 
     init(config: Config) {
         self.config = config
         super.init(nibName: nil, bundle: nil)
 
-        tableView.dataSource = self
-        tableView.delegate = self
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+        
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
+
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         title = R.string.localizable.aAdvancedSettingsNavigationTitle()
-        view.backgroundColor = GroupedTable.Color.background
         navigationItem.largeTitleDisplayMode = .never
-        tableView.backgroundColor = GroupedTable.Color.background
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -59,6 +66,7 @@ class AdvancedSettingsViewController: UIViewController {
 }
 
 extension AdvancedSettingsViewController: UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows()
     }
