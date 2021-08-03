@@ -83,7 +83,7 @@ struct TransactionViewModel {
         switch transactionRow {
         case .standalone(let transaction):
             if let operation = transaction.operation {
-                return TransactionValue(amount: formatter.string(from: BigInt(operation.value) ?? BigInt()), symbol: operation.symbol ?? server.symbol)
+                return TransactionValue(amount: formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals), symbol: operation.symbol ?? server.symbol)
             } else {
                 return TransactionValue(amount: formatter.string(from: BigInt(transaction.value) ?? BigInt()), symbol: server.symbol)
             }
