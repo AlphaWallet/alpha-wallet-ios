@@ -105,25 +105,6 @@ extension ScanQRCodeCoordinator: RequestCoordinatorDelegate {
     }
 }
 
-extension UIBarButtonItem {
-
-    static func cancelBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(barButtonSystemItem: .cancel, target: target, action: selector)
-    }
-
-    static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.close(), style: .plain, target: target, action: selector)
-    }
-
-    static func backBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.backWhite(), style: .plain, target: target, action: selector)
-    }
-
-    static func addButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.iconsSystemPlus(), style: .plain, target: target, action: selector)
-    }
-}
-
 // MARK: Analytics
 extension ScanQRCodeCoordinator {
     private func logCompleteScan(result: String) {

@@ -46,6 +46,8 @@ class TokensViewController: UIViewController {
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
+        tableView.register(ServerTableViewCell.self)
+
         tableView.registerHeaderFooterView(TableViewSectionHeader.self)
         tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
@@ -354,8 +356,12 @@ class TokensViewController: UIViewController {
     private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
         var contractsForCollectibles = [AlphaWallet.Address]()
         for i in (0..<viewModel.numberOfItems()) {
-            let token = viewModel.item(for: i, section: 0)
-            contractsForCollectibles.append(token.contractAddress)
+            switch viewModel.item(for: i, section: 0) {
+            case .rpcServer:
+                break
+            case .tokenObject(let token):
+                contractsForCollectibles.append(token.contractAddress)
+            }
         }
         return contractsForCollectibles
     }
@@ -398,8 +404,13 @@ extension TokensViewController: StatefulViewController {
 extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-        delegate?.didSelect(token: token, in: self)
+
+        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+        case .rpcServer:
+            break
+        case .tokenObject(let token):
+            delegate?.didSelect(token: token, in: self)
+        }
     }
 
     //Hide the footer
@@ -462,37 +473,45 @@ extension TokensViewController: UITableViewDataSource {
         case .addHideToken, .filters, .activeWalletSession:
             return UITableViewCell()
         case .tokens:
-            let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-            let server = token.server
-            let session = sessions[server]
-
-            switch token.type {
-            case .nativeCryptocurrency:
-                let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(
-                    token: token,
-                    ticker: viewModel.ticker(for: token),
-                    currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                    assetDefinitionStore: assetDefinitionStore
-                ))
+            switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+            case .rpcServer(let server):
+                let isTopSeparatorHidden = indexPath.row != 0 && indexPath.section != 0
+                let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: isTopSeparatorHidden))
 
                 return cell
-            case .erc20:
-                let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(token: token,
-                    assetDefinitionStore: assetDefinitionStore,
-                    isVisible: isVisible,
-                    ticker: viewModel.ticker(for: token)
-                ))
-                return cell
-            case .erc721, .erc721ForTickets:
-                let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
-                return cell
-            case .erc875:
-                let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
-                return cell
+            case .tokenObject(let token):
+                let server = token.server
+                let session = sessions[server]
+
+                switch token.type {
+                case .nativeCryptocurrency:
+                    let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                    cell.configure(viewModel: .init(
+                        token: token,
+                        ticker: viewModel.ticker(for: token),
+                        currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                        assetDefinitionStore: assetDefinitionStore
+                    ))
+
+                    return cell
+                case .erc20:
+                    let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                    cell.configure(viewModel: .init(token: token,
+                        assetDefinitionStore: assetDefinitionStore,
+                        isVisible: isVisible,
+                        ticker: viewModel.ticker(for: token)
+                    ))
+                    return cell
+                case .erc721, .erc721ForTickets:
+                    let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                    cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+                    return cell
+                case .erc875:
+                    let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+                    cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+                    return cell
+                }
             }
         }
     }
@@ -520,28 +539,33 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let title = R.string.localizable.walletsHideTokenTitle()
-        let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
-            guard let strongSelf = self else { return }
-            let token = strongSelf.viewModel.item(for: indexPath.row, section: indexPath.section)
-            strongSelf.delegate?.didHide(token: token, in: strongSelf)
+        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+        case .rpcServer:
+            return nil
+        case .tokenObject(let token):
+            let title = R.string.localizable.walletsHideTokenTitle()
+            let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
+                guard let strongSelf = self else { return }
 
-            let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
-            if didHideToken {
-                strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
-            } else {
-                strongSelf.reloadTableData()
+                strongSelf.delegate?.didHide(token: token, in: strongSelf)
+
+                let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
+                if didHideToken {
+                    strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
+                } else {
+                    strongSelf.reloadTableData()
+                }
+
+                completionHandler(didHideToken)
             }
 
-            completionHandler(didHideToken)
+            hideAction.backgroundColor = R.color.danger()
+            hideAction.image = R.image.hideToken()
+            let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+            configuration.performsFirstActionWithFullSwipe = true
+
+            return configuration
         }
-
-        hideAction.backgroundColor = R.color.danger()
-        hideAction.image = R.image.hideToken()
-        let configuration = UISwipeActionsConfiguration(actions: [hideAction])
-        configuration.performsFirstActionWithFullSwipe = true
-
-        return configuration
     }
 }
 
@@ -588,12 +612,17 @@ extension TokensViewController: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-        let server = token.server
-        let session = sessions[server]
-        let cell: OpenSeaNonFungibleTokenViewCell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore))
-        return cell
+        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+        case .rpcServer:
+            return UICollectionViewCell()
+        case .tokenObject(let token):
+            let server = token.server
+            let session = sessions[server]
+            let cell: OpenSeaNonFungibleTokenViewCell = collectionView.dequeueReusableCell(for: indexPath)
+
+            cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore))
+            return cell
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -606,8 +635,13 @@ extension TokensViewController: UICollectionViewDataSource {
 extension TokensViewController: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
-        let token = viewModel.item(for: indexPath.item, section: indexPath.section)
-        delegate?.didSelect(token: token, in: self)
+
+        switch viewModel.item(for: indexPath.item, section: indexPath.section) {
+        case .rpcServer:
+            break
+        case .tokenObject(let token):
+            delegate?.didSelect(token: token, in: self)
+        }
     }
 }
 
@@ -666,20 +700,13 @@ extension TokensViewController {
         navigationItem.hidesSearchBarWhenScrolling = true
     }
 
-    private func fixTableViewBackgroundColor() {
-        let v = UIView()
-        v.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundView = v
-    }
-
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
         view.superview?.backgroundColor = viewModel.backgroundColor
     }
 
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
-        fixTableViewBackgroundColor()
+        TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: viewModel.backgroundColor)
         doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
@@ -710,12 +737,15 @@ extension TokensViewController: ShowAddHideTokensViewDelegate {
     }
 }
 
-extension UIBarButtonItem {
-    static func qrCodeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.qr_code_icon(), style: .plain, target: target, action: selector)
-    }
+extension TokensViewController {
+    class functional {}
+}
 
-    static func addBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.add_hide_tokens(), style: .plain, target: target, action: selector)
+extension TokensViewController.functional {
+    static func fixTableViewBackgroundColor(tableView: UITableView, backgroundColor: UIColor) {
+        let v = UIView()
+        v.backgroundColor = backgroundColor
+        tableView.backgroundView?.backgroundColor = backgroundColor
+        tableView.backgroundView = v
     }
 }
