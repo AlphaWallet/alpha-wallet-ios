@@ -118,9 +118,14 @@ class TokensDataStore {
 
     //TODO might be good to change `enabledObject` to just return the streaming list from Realm instead of a Swift native Array and other properties/callers can convert to Array if necessary
     var enabledObject: [TokenObject] {
-        return Array(realm.threadSafe.objects(TokenObject.self)
+        let result = Array(realm.threadSafe.objects(TokenObject.self)
                 .filter("chainId = \(self.chainId)")
                 .filter("isDisabled = false"))
+        if let erc20AddressForNativeToken = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: erc20AddressForNativeToken) }) {
+            return result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) }
+        } else {
+            return result
+        }
     }
 
     var deletedContracts: [DeletedContract] {
