@@ -283,6 +283,16 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //Some chains like Optimistic have the native token share the same balance as a distinct ERC20 token. On such chains, we must not show both of them at the same time
+    var erc20AddressForNativeToken: AlphaWallet.Address? {
+        switch self {
+        case .optimistic, .optimisticKovan:
+            return AlphaWallet.Address(string: "0x4200000000000000000000000000000000000006")!
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom:
+            return nil
+        }
+    }
+
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
              let apiKeyParameter: String
