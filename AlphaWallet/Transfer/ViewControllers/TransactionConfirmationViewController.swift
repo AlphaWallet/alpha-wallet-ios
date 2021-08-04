@@ -419,7 +419,11 @@ extension TransactionConfirmationViewController {
 
                 switch section {
                 case .gas:
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
                 case .amount, .network:
                     break
                 case .function(let functionCallMetaData):
@@ -444,7 +448,11 @@ extension TransactionConfirmationViewController {
                 var children: [UIView] = []
                 switch section {
                 case .gas:
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
                 case .function:
                     let isSubViewsHidden = viewModel.isSubviewsHidden(section: sectionIndex)
                     let view = TransactionConfirmationRowInfoView(viewModel: .init(title: "\(viewModel.functionCallMetaData.name)()", subtitle: ""))
@@ -482,7 +490,11 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
                 case .amount, .balance, .network:
                     break
                 }
@@ -509,7 +521,11 @@ extension TransactionConfirmationViewController {
                         }
                     }
                 case .gas:
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
                 case .tokenId, .network:
                     break
                 }
@@ -522,7 +538,11 @@ extension TransactionConfirmationViewController {
                 header.delegate = self
                 switch section {
                 case .gas:
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    if viewModel.server.canUserChangeGas {
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                    } else {
+                        //no-op
+                    }
                 case .amount, .numberOfTokens, .network:
                     break
                 }
@@ -534,11 +554,15 @@ extension TransactionConfirmationViewController {
 
                 switch section {
                 case .gas:
-                    let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                    header.delegate = self
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    header.childrenStackView.addArrangedSubviews(children)
-                    views.append(header)
+                    if viewModel.server.canUserChangeGas {
+                        let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                        header.delegate = self
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.childrenStackView.addArrangedSubviews(children)
+                        views.append(header)
+                    } else {
+                        //no-op
+                    }
                 case .description:
                     let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
                     views.append(view)
@@ -550,11 +574,15 @@ extension TransactionConfirmationViewController {
 
                 switch section {
                 case .gas:
-                    let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
-                    header.delegate = self
-                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
-                    header.childrenStackView.addArrangedSubviews(children)
-                    views.append(header)
+                    if viewModel.server.canUserChangeGas {
+                        let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
+                        header.delegate = self
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.childrenStackView.addArrangedSubviews(children)
+                        views.append(header)
+                    } else {
+                        //no-op
+                    }
                 case .description:
                     let view = TransactionConfirmationRowDescriptionView(viewModel: .init(title: section.title))
                     views.append(view)
