@@ -148,6 +148,10 @@ extension TransactionConfirmationViewModel {
         let recipientResolver: RecipientResolver
         let ethPrice: Subscribable<Double>
 
+        var server: RPCServer {
+            configurator.session.server
+        }
+
         var sections: [Section] {
             Section.allCases
         }
@@ -331,6 +335,10 @@ extension TransactionConfirmationViewModel {
         var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
 
+        var server: RPCServer {
+            configurator.session.server
+        }
+
         var sections: [Section] {
             if let functionCallMetaData = functionCallMetaData {
                 return [.gas, .amount, .function(functionCallMetaData)]
@@ -420,6 +428,9 @@ extension TransactionConfirmationViewModel {
         var sections: [Section] {
             return Section.allCases
         }
+        var server: RPCServer {
+            configurator.session.server
+        }
         let session: WalletSession
 
         init(address: AlphaWallet.Address, configurator: TransactionConfigurator, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>) {
@@ -482,6 +493,10 @@ extension TransactionConfirmationViewModel {
         private let transactionType: TransactionType
         private let session: WalletSession
         private let tokenInstanceName: String?
+
+        var server: RPCServer {
+            configurator.session.server
+        }
 
         private var configurationTitle: String {
             configurator.selectedConfigurationType.title
@@ -597,6 +612,10 @@ extension TransactionConfirmationViewModel {
         let ethPrice: Subscribable<Double>
         var cryptoToDollarRate: Double?
 
+        var server: RPCServer {
+            configurator.session.server
+        }
+
         var sections: [Section] {
             return Section.allCases
         }
@@ -674,6 +693,10 @@ extension TransactionConfirmationViewModel {
         var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
 
+        var server: RPCServer {
+            configurator.session.server
+        }
+
         var sections: [Section] {
             [.gas, .description]
         }
@@ -730,6 +753,10 @@ extension TransactionConfirmationViewModel {
         let ethPrice: Subscribable<Double>
         var cryptoToDollarRate: Double?
         var openedSections = Set<Int>()
+
+        var server: RPCServer {
+            configurator.session.server
+        }
 
         var sections: [Section] {
             [.gas, .description]
