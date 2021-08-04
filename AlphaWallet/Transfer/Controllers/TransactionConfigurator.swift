@@ -250,8 +250,12 @@ class TransactionConfigurator {
                     // Guard against really high prices
                     return GasEstimates(standard: GasPriceConfiguration.maxPrice)
                 } else {
-                    //Add an extra gwei because the estimate is sometimes too low
-                    return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    if server.canUserChangeGas {
+                        //Add an extra gwei because the estimate is sometimes too low
+                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
+                    } else {
+                        return GasEstimates(standard: gasPrice)
+                    }
                 }
             } else {
                 return GasEstimates(standard: GasPriceConfiguration.defaultPrice)
