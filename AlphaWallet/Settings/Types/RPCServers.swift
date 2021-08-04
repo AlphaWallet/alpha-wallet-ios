@@ -293,6 +293,16 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //Optimistic don't allow changing the gas price and limit
+    var canUserChangeGas: Bool {
+        switch self {
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom:
+            return true
+        case .optimistic, .optimisticKovan:
+            return false
+        }
+    }
+
     func getEtherscanURLForGeneralTransactionHistory(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
          etherscanURLForGeneralTransactionHistory.flatMap {
              let apiKeyParameter: String
