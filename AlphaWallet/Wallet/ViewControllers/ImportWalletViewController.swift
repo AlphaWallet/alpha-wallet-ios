@@ -660,6 +660,12 @@ extension ImportWalletViewController: TextFieldDelegate {
 }
 
 extension ImportWalletViewController: TextViewDelegate {
+    
+    func didPaste(in textView: TextView) {
+        view.endEditing(true)
+        showCorrectTab()
+    }
+
     func shouldReturn(in textView: TextView) -> Bool {
         moveFocusToTextEntryField(after: textView)
         return false

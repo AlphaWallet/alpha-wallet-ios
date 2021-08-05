@@ -7,6 +7,7 @@ protocol TextViewDelegate: AnyObject {
     func doneButtonTapped(for textView: TextView)
     func nextButtonTapped(for textView: TextView)
     func didChange(inTextView textView: TextView)
+    func didPaste(in textView: TextView)
 }
 
 extension TextViewDelegate {
@@ -171,8 +172,9 @@ class TextView: UIControl {
     }
 
     @objc func pasteAction() {
-        if let value = UIPasteboard.general.string?.trimmed {
-            self.value = value
+        if let pastedText = UIPasteboard.general.string?.trimmed {
+            value = pastedText
+            delegate?.didPaste(in: self)
         }
     }
 
