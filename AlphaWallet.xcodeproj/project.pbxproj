@@ -806,6 +806,7 @@
 		87A3020924BEE243000DF32E /* TransactionInProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */; };
 		87A3020B24BF04B6000DF32E /* TransactionInProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */; };
 		87A3022724C02212000DF32E /* TransactionConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3022624C02212000DF32E /* TransactionConfirmationViewController.swift */; };
+		87A5D53E26B9767300856995 /* QuickSwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5D53D26B9767300856995 /* QuickSwap.swift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B6526A256FBF36000EF927 /* SwapTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B65269256FBF36000EF927 /* SwapTokenService.swift */; };
 		87BB63DC265CFF2700FF702A /* WalletBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */; };
@@ -1757,6 +1758,7 @@
 		87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewController.swift; sourceTree = "<group>"; };
 		87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewModel.swift; sourceTree = "<group>"; };
 		87A3022624C02212000DF32E /* TransactionConfirmationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationViewController.swift; sourceTree = "<group>"; };
+		87A5D53D26B9767300856995 /* QuickSwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSwap.swift; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B65269256FBF36000EF927 /* SwapTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenService.swift; sourceTree = "<group>"; };
 		87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceCoordinator.swift; sourceTree = "<group>"; };
@@ -4202,9 +4204,18 @@
 			path = CoinTicker;
 			sourceTree = "<group>";
 		};
+		87A5D53C26B9765000856995 /* QuickSwap */ = {
+			isa = PBXGroup;
+			children = (
+				87A5D53D26B9767300856995 /* QuickSwap.swift */,
+			);
+			path = QuickSwap;
+			sourceTree = "<group>";
+		};
 		87B65268256FBF22000EF927 /* SwapToken */ = {
 			isa = PBXGroup;
 			children = (
+				87A5D53C26B9765000856995 /* QuickSwap */,
 				87374A4125DFAEF200267160 /* HoneySwap */,
 				8731E6DD2565269400A6A7DA /* Oneinch */,
 				8731E6DA2565269400A6A7DA /* Uniswap */,
@@ -5029,6 +5040,7 @@
 				7721A6BE202A5677004DB16C /* DecryptError.swift in Sources */,
 				87BBF9982563DD7600FF4846 /* TransactionConfirmationCoordinatorBridgeToPromise.swift in Sources */,
 				61FC5ECF1FCFBAE500CCB12A /* EtherNumberFormatter.swift in Sources */,
+				87A5D53E26B9767300856995 /* QuickSwap.swift in Sources */,
 				29DBF2A71F9F145900327C60 /* StateViewModel.swift in Sources */,
 				2923D9B31FDA49F8000CF3F8 /* SkipBackupFilesInitializer.swift in Sources */,
 				29C80D4B1FB51C460037B1E0 /* Decimal.swift in Sources */,
