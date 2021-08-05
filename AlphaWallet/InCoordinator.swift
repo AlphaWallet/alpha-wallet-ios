@@ -88,10 +88,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
-        return HelpUsCoordinator(
-                navigationController: navigationController,
-                appTracker: appTracker
-        )
+        HelpUsCoordinator(navigationController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
     }()
 
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
@@ -974,7 +971,7 @@ extension InCoordinator: ActivityViewControllerDelegate {
 
     func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController) {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
-    } 
+    }
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
@@ -1115,9 +1112,9 @@ extension InCoordinator: TransactionsStorageDelegate {
     func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage) {
         for each in contracts {
             assetDefinitionStore.fetchXML(forContract: each)
-        } 
+        }
     }
-} 
+}
 
 extension InCoordinator: ActivitiesCoordinatorDelegate {
 
@@ -1133,7 +1130,7 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         } else {
             transactionCoordinator?.showTransaction(.standalone(transaction), inViewController: viewController)
         }
-    } 
+    }
 }
 
 extension InCoordinator: ClaimOrderCoordinatorDelegate {
