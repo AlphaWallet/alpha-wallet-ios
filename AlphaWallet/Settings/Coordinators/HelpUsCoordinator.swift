@@ -7,16 +7,19 @@ class HelpUsCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let appTracker: AppTracker
     private let viewModel = HelpUsViewModel()
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     var coordinators: [Coordinator] = []
 
     init(
         navigationController: UINavigationController = UINavigationController(),
-        appTracker: AppTracker = AppTracker()
+        appTracker: AppTracker = AppTracker(),
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.appTracker = appTracker
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -47,12 +50,19 @@ class HelpUsCoordinator: Coordinator {
         }
 
         //Intentionally hold strong reference to self for UIAlertAction to work. Making `self` weak requires current coordinator to be retained; too easy to forgot
-        let subscribeAction = UIAlertAction(title: R.string.localizable.emailListPromptSubscribeButtonTitle(), style: .default, handler: { _ in
-            guard let email = controller.textFields?.first?.text else { return }
-            EmailList(listSpecificKey: Constants.Credentials.mailChimpListSpecificKey).subscribe(email: email)
+        let subscribeAction = UIAlertAction(title: R.string.localizable.emailListPromptSubscribeButtonTitle(), style: .default, handler: { [weak self] _ in
+            guard let email = controller.textFields?.first?.text?.trimmed else { return }
+            if email.isEmpty {
+                self?.logEmailNewsletterSubscription(isSubscribed: false)
+            } else {
+                EmailList(listSpecificKey: Constants.Credentials.mailChimpListSpecificKey).subscribe(email: email)
+                self?.logEmailNewsletterSubscription(isSubscribed: true)
+            }
         })
         controller.addAction(subscribeAction)
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel)
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
+            self?.logEmailNewsletterSubscription(isSubscribed: false)
+        }
         controller.addAction(cancelAction)
         navigationController.present(controller, animated: true, completion: nil)
     }
@@ -95,5 +105,12 @@ extension HelpUsCoordinator: WellDoneViewControllerDelegate {
         }
 
         appTracker.completedSharing = true
+    }
+}
+
+// MARK: Analytics
+extension HelpUsCoordinator {
+    private func logEmailNewsletterSubscription(isSubscribed: Bool) {
+        analyticsCoordinator.log(action: Analytics.Action.subscribeToEmailNewsletter, properties: [Analytics.Properties.isAccepted.rawValue: isSubscribed])
     }
 }
