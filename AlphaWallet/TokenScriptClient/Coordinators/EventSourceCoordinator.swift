@@ -76,15 +76,16 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
     }
 
     private func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin) -> Promise<Void> {
+        //Important to not access `token` in the queue or another thread. Do it outside
+        //TODO better to pass in a non-Realm representation of the TokenObject instead
+        let contractAddress = token.contractAddress
+        let tokenServer = token.server
         return Promise<Void> { seal in
             self.queue.async {
                 let (filterName, filterValue) = eventOrigin.eventFilter
                 let filterParam = eventOrigin.parameters
                         .filter { $0.isIndexed }
                         .map { self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue) }
-                let contractAddress = token.contractAddress
-                let tokenServer = token.server
-
                 self.eventsDataStore.getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName).map(on: self.queue, { oldEvent -> EventFilter.Block in
                     if let newestEvent = oldEvent {
                         return .blockNumber(UInt64(newestEvent.blockNumber + 1))
