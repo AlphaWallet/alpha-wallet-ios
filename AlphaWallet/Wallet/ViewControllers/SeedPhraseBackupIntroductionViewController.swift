@@ -13,7 +13,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
-    //NOTE: internal level, for test cases
+    // NOTE: internal level, for test cases
     let descriptionLabel1 = UILabel()
     let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
@@ -41,7 +41,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             imageView,
             UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel1,
-        ].asStackView(axis: .vertical)
+            ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
@@ -51,13 +51,13 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
             footerBar.anchorsConstraint(to: view)
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        ] + roundedBackground.anchorsConstraint(to: view))
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -66,16 +66,12 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.layoutIfNeeded()
+        hideNavigationBarTopSeparatorLine()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-        navigationController?.navigationBar.shadowImage = nil
-        navigationController?.navigationBar.layoutIfNeeded()
+        showNavigationBarTopSeparatorLine()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -105,5 +101,19 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     @objc private func tappedExportButton() {
         delegate?.didTapBackupWallet(inViewController: self)
+    }
+}
+
+extension UIViewController {
+    func hideNavigationBarTopSeparatorLine() {
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.layoutIfNeeded()
+    }
+
+    func showNavigationBarTopSeparatorLine() {
+        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        navigationController?.navigationBar.shadowImage = nil
+        navigationController?.navigationBar.layoutIfNeeded()
     }
 }
