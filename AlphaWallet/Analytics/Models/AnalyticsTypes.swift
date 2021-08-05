@@ -57,6 +57,7 @@ enum Analytics {
         case nameWallet = "Name Wallet"
         case firstWalletAction = "First Wallet Action"
         case addCustomChain = "Add Custom Chain"
+        case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
     }
 
     enum Properties: String {
@@ -75,6 +76,7 @@ enum Analytics {
         case type
         case isAllFunds
         case addCustomChainType
+        case isAccepted
     }
 
     enum UserProperties: String, AnalyticsUserProperty {

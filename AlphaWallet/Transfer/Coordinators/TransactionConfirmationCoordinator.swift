@@ -162,7 +162,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     private func askUserToRateAppOrSubscribeToNewsletter() {
-        let coordinator = HelpUsCoordinator(navigationController: navigationController, appTracker: AppTracker())
+        let coordinator = HelpUsCoordinator(navigationController: navigationController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
         coordinator.rateUsOrSubscribeToNewsletter()
     }
 }
