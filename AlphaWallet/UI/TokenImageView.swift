@@ -25,6 +25,7 @@ class TokenImageView: UIView {
             }
 
             if let subscribable = subscribable {
+                imageView.image = nil
                 subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol  in
                     guard let strongSelf = self else { return }
                     strongSelf.imageView.image = imageAndSymbol?.image
