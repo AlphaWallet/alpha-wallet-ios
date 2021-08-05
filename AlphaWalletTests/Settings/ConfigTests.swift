@@ -39,7 +39,8 @@ class ConfigTests: XCTestCase {
                 eventsDataStore: FakeEventsDataStore(),
                 filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
                 config: .make(),
-                walletConnectCoordinator: .fake()
+                walletConnectCoordinator: .fake(),
+                walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
         vc1.viewWillAppear(false)
         XCTAssertEqual(vc1.title, "Wallet")
@@ -54,7 +55,8 @@ class ConfigTests: XCTestCase {
                 eventsDataStore: FakeEventsDataStore(),
                 filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
                 config: .make(),
-                walletConnectCoordinator: .fake()
+                walletConnectCoordinator: .fake(),
+                walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
         vc2.viewWillAppear(false)
         XCTAssertEqual(vc2.title, "我的钱包")
