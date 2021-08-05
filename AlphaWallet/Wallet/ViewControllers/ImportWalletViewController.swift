@@ -264,7 +264,7 @@ class ImportWalletViewController: UIViewController {
         configure()
         showMnemonicControlsOnly()
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.qr_code_icon(), style: .done, target: self, action: #selector(openReader))
+        navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(openReader))
 
         if UserDefaults.standard.bool(forKey: "FASTLANE_SNAPSHOT") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
@@ -447,7 +447,12 @@ class ImportWalletViewController: UIViewController {
                 privateKeyTextView.errorState = .none
                 return .privateKey(privateKey: data)
             case .watch:
-                let address = AlphaWallet.Address(string: watchInput)! // Address validated by form view.
+                guard let address = AlphaWallet.Address(string: watchInput) else {
+                    hideLoading(animated: false)
+                    watchAddressTextField.errorState = .error(R.string.localizable.importWalletImportInvalidAddress())
+                    return nil
+                }
+
                 return .watch(address: address)
             }
         }()
