@@ -48,7 +48,7 @@ class HelpUsCoordinator: Coordinator {
 
         //Intentionally hold strong reference to self for UIAlertAction to work. Making `self` weak requires current coordinator to be retained; too easy to forgot
         let subscribeAction = UIAlertAction(title: R.string.localizable.emailListPromptSubscribeButtonTitle(), style: .default, handler: { _ in
-            guard let email = controller.textFields?.first?.text else { return }
+            guard let email = controller.textFields?.first?.text?.trimmed else { return }
             EmailList(listSpecificKey: Constants.Credentials.mailChimpListSpecificKey).subscribe(email: email)
         })
         controller.addAction(subscribeAction)
