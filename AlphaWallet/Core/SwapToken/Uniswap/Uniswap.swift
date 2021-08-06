@@ -74,15 +74,26 @@ struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
             switch self {
             case .inputOutput(let inputAddress, let outputAddress):
                 return [
-                    .init(name: Keys.input, value: inputAddress.eip55String),
+                    .init(name: Keys.input, value: functional.rewriteContractInput(inputAddress)),
                     .init(name: Keys.output, value: outputAddress.stringValue),
                 ]
             case .input(let address):
                 return [
-                    .init(name: Keys.input, value: address.eip55String)
+                    .init(name: Keys.input, value: functional.rewriteContractInput(address))
                 ]
             case .none:
                 return []
+            }
+        }
+
+        class functional {
+            static func rewriteContractInput(_ address: AlphaWallet.Address) -> String {
+                if address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                    //Uniswap likes it this way
+                    return "ETH"
+                } else {
+                    return address.eip55String
+                }
             }
         }
     }
