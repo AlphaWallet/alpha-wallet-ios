@@ -33,7 +33,7 @@ extension DecodedFunctionCall {
             case .function(let function):
                 guard let functionName = function.name else { return nil }
 
-                if let inputs = element.decodeInputData(data), functionToResearch == function.methodEncoding.hex() {
+                if functionToResearch == function.methodEncoding.hex(), let inputs = element.decodeInputData(data) {
                     //NOTE: perform filter for response input data to remove duplicated values from dictionary
                     let arguments = inputs.compactMap { value -> (type: ABIType, value: AnyObject)? in
                         if let inputParam = function.inputs.first(where: { $0.name == value.key }), let type = ABIType(abiParam: inputParam.type) {
