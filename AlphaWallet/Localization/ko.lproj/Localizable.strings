@@ -84,7 +84,7 @@
 "settings.language.button.title" = "Change Language";
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
-"settings.walletConnect.button.title" = "Wallet Connect";
+"settings.walletConnect.button.title" = "WalletConnect";
 "settings.useTaichiNetwork.button.title" = "Use TaiChi for Ethereum";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
