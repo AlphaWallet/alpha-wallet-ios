@@ -1,5 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
-import UIKit 
+import UIKit
 import AWSSNS
 import AWSCore
 import UserNotifications
