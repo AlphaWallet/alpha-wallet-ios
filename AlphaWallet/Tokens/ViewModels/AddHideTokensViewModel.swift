@@ -3,7 +3,8 @@
 import UIKit
 import PromiseKit
 
-private enum AddHideTokenSections: Int {
+enum AddHideTokenSections: Int {
+    case sortingFilters
     case availableNewTokens
     case displayedTokens
     case hiddenTokens
@@ -11,6 +12,8 @@ private enum AddHideTokenSections: Int {
 
     var description: String {
         switch self {
+        case .sortingFilters:
+            return String()
         case .availableNewTokens:
             return R.string.localizable.addHideTokensSectionNewTokens()
         case .displayedTokens:
@@ -21,19 +24,27 @@ private enum AddHideTokenSections: Int {
             return R.string.localizable.addHideTokensSectionPopularTokens()
         }
     }
+
+    static var enabledSectins: [AddHideTokenSections] {
+        [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
+    }
 }
 
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
 class AddHideTokensViewModel {
-    private let sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens, .popularTokens]
+    var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [TokenObject]
     private var allPopularTokens: [PopularToken] = []
-
     private var displayedTokens: [TokenObject] = []
     private var hiddenTokens: [TokenObject] = []
     private var popularTokens: [PopularToken] = []
 
+    var sortTokensParam: SortTokensParam = .name {
+        didSet {
+            filter(tokens: tokens)
+        }
+    }
     var searchText: String? {
         didSet {
             filter(tokens: tokens)
@@ -81,6 +92,8 @@ class AddHideTokensViewModel {
             return 0
         case .popularTokens:
             return popularTokens.count
+        case .sortingFilters:
+            return 0
         }
     }
 
@@ -88,7 +101,7 @@ class AddHideTokensViewModel {
         switch sections[indexPath.section] {
         case .displayedTokens:
             return true
-        case .availableNewTokens, .popularTokens, .hiddenTokens:
+        case .availableNewTokens, .popularTokens, .hiddenTokens, .sortingFilters:
             return false
         }
     }
@@ -114,7 +127,7 @@ class AddHideTokensViewModel {
 
     func addDisplayed(indexPath: IndexPath) -> ShowHideOperationResult {
         switch sections[indexPath.section] {
-        case .displayedTokens, .availableNewTokens:
+        case .displayedTokens, .availableNewTokens, .sortingFilters:
             break
         case .hiddenTokens:
             let token = hiddenTokens.remove(at: indexPath.row)
@@ -152,7 +165,7 @@ class AddHideTokensViewModel {
             if let sectionIndex = sections.index(of: .hiddenTokens) {
                 return .value((token, IndexPath(row: 0, section: Int(sectionIndex))))
             }
-        case .hiddenTokens, .availableNewTokens, .popularTokens:
+        case .hiddenTokens, .availableNewTokens, .popularTokens, .sortingFilters:
             break
         }
 
@@ -165,6 +178,8 @@ class AddHideTokensViewModel {
             return .delete
         case .availableNewTokens, .popularTokens, .hiddenTokens:
             return .insert
+        case .sortingFilters:
+            return .none
         }
     }
 
@@ -172,7 +187,7 @@ class AddHideTokensViewModel {
         switch sections[indexPath.section] {
         case .displayedTokens:
             return true
-        case .availableNewTokens, .popularTokens, .hiddenTokens:
+        case .availableNewTokens, .popularTokens, .hiddenTokens, .sortingFilters:
             return false
         }
     }
@@ -187,6 +202,8 @@ class AddHideTokensViewModel {
             return nil
         case .popularTokens:
             return .popularToken(popularTokens[indexPath.row])
+        case .sortingFilters:
+            return nil
         }
     }
 
@@ -197,10 +214,11 @@ class AddHideTokensViewModel {
             displayedTokens.insert(token, at: to.row)
 
             return displayedTokens
-        case .hiddenTokens, .availableNewTokens, .popularTokens:
+        case .hiddenTokens, .availableNewTokens, .popularTokens, .sortingFilters:
             return nil
         }
     }
+    var isSearchActive: Bool = false
 
     private func filter(tokens: [TokenObject]) {
         displayedTokens.removeAll()
@@ -215,7 +233,11 @@ class AddHideTokensViewModel {
             }
         }
         popularTokens = filterTokensCoordinator.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
-        displayedTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+
+        displayedTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
+        hiddenTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: hiddenTokens, sortTokensParam: sortTokensParam)
+
+        sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 
     private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<TokenObject> {
@@ -227,4 +249,28 @@ class AddHideTokensViewModel {
     }
 
     private struct RetrieveSingleChainTokenCoordinator: Error { }
+}
+
+extension AddHideTokensViewModel {
+    class functional {}
+}
+
+extension AddHideTokensViewModel.functional {
+    static func availableSectionsToDisplay(displayedTokens: [Any], hiddenTokens: [Any], popularTokens: [Any], isSearchActive: Bool) -> [AddHideTokenSections] {
+        if isSearchActive {
+            var sections: [AddHideTokenSections] = []
+            if !displayedTokens.isEmpty {
+                sections.append(.displayedTokens)
+            }
+            if !hiddenTokens.isEmpty {
+                sections.append(.hiddenTokens)
+            }
+            if !popularTokens.isEmpty {
+                sections.append(.popularTokens)
+            }
+            return sections
+        } else {
+            return AddHideTokenSections.enabledSectins
+        }
+    }
 }
