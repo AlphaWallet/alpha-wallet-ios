@@ -29,6 +29,7 @@ class SupportViewController: UIViewController {
     }()
     private let roundedBackground = RoundedBackground()
     weak var delegate: SupportViewControllerDelegate?
+    private let resolver = ContactUsEmailResolver()
 
     init(analyticsCoordinator: AnalyticsCoordinator) {
         self.analyticsCoordinator = analyticsCoordinator
@@ -118,9 +119,9 @@ extension SupportViewController: UITableViewDelegate {
         case .faq:
             logAccessFaq()
             openURL(.faq)
-        case .telegramPublic:
-            logAccessTelegramPublic()
-            openURL(.telegramPublic)
+        case .discord:
+            logAccessDiscord()
+            openURL(.discord)
         case .telegramCustomer:
             logAccessTelegramCustomerSupport()
             openURL(.telegramCustomer)
@@ -135,12 +136,14 @@ extension SupportViewController: UITableViewDelegate {
             openURL(.facebook)
         case .blog:
             break
+        case .email:
+            resolver.present(from: self)
         }
     }
 
     private func openURL(_ provider: URLServiceProvider) {
-        if let localURL = provider.localURL, UIApplication.shared.canOpenURL(localURL) {
-            UIApplication.shared.open(localURL, options: [:], completionHandler: .none)
+        if let deepLinkURL = provider.deepLinkURL, UIApplication.shared.canOpenURL(deepLinkURL) {
+            UIApplication.shared.open(deepLinkURL, options: [:], completionHandler: .none)
         } else {
             delegate?.didPressOpenWebPage(provider.remoteURL, in: self)
         }
@@ -153,8 +156,8 @@ extension SupportViewController {
         analyticsCoordinator.log(navigation: Analytics.Navigation.faq)
     }
 
-    private func logAccessTelegramPublic() {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.telegramPublic)
+    private func logAccessDiscord() {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.discord)
     }
 
     private func logAccessTelegramCustomerSupport() {
