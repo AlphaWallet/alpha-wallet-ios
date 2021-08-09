@@ -19,18 +19,22 @@ enum ButtonSize: Int {
     }
 }
 
-enum ButtonStyle: Int {
+enum ButtonStyle {
     case solid
     case squared
     case border
     case borderless
     case system
+    case special
+    case green
 
     var backgroundColor: UIColor {
         switch self {
         case .solid, .squared: return Colors.appTint
         case .border, .borderless: return .white
         case .system: return .clear
+        case .special: return R.color.concrete()!
+        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
         }
     }
 
@@ -40,6 +44,8 @@ enum ButtonStyle: Int {
         case .border: return Colors.appTint
         case .borderless: return .white
         case .system: return .clear
+        case .special: return R.color.concrete()!
+        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
         }
     }
 
@@ -47,6 +53,8 @@ enum ButtonStyle: Int {
         switch self {
         case .solid, .border: return 5
         case .squared, .borderless, .system: return 0
+        case .special: return 12
+        case .green: return ButtonsBarViewModel.greenButton.buttonCornerRadius
         }
     }
 
@@ -55,15 +63,17 @@ enum ButtonStyle: Int {
         case .solid,
              .squared,
              .border,
-             .borderless, .system:
+             .borderless, .system, .special:
             return Fonts.semibold(size: 16)
+        case .green: return ButtonsBarViewModel.greenButton.buttonFont
         }
     }
 
     var textColor: UIColor {
         switch self {
         case .solid, .squared: return Colors.appWhite
-        case .border, .borderless, .system: return Colors.appTint
+        case .border, .borderless, .system, .special: return Colors.appTint
+        case .green: return ButtonsBarViewModel.greenButton.buttonTitleColor
         }
     }
 
@@ -71,21 +81,24 @@ enum ButtonStyle: Int {
         switch self {
         case .solid, .squared: return UIColor(white: 1, alpha: 0.8)
         case .border: return Colors.appWhite
-        case .borderless, .system: return Colors.appTint
+        case .borderless, .system, .special: return Colors.appTint
+        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
         }
     }
 
     var borderColor: UIColor {
         switch self {
         case .solid, .squared, .border: return GroupedTable.Color.background
-        case .borderless, .system: return .clear
+        case .borderless, .system, .special: return .clear
+        case .green: return ButtonsBarViewModel.greenButton.buttonBorderColor
         }
     }
 
     var borderWidth: CGFloat {
         switch self {
-        case .solid, .squared, .borderless, .system: return 0
+        case .solid, .squared, .borderless, .system, .special: return 0
         case .border: return 1
+        case .green: return ButtonsBarViewModel.greenButton.buttonBorderWidth
         }
     }
 }
@@ -98,13 +111,13 @@ class Button: UIButton {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func apply(size: ButtonSize, style: ButtonStyle) {
         NSLayoutConstraint.activate([
             heightAnchor.constraint(equalToConstant: size.height),
-            ])
+        ])
 
         backgroundColor = style.backgroundColor
         layer.cornerRadius = style.cornerRadius
@@ -119,5 +132,4 @@ class Button: UIButton {
         setBackgroundColor(style.backgroundColorHighlighted, forState: .selected)
         contentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
     }
-
 }

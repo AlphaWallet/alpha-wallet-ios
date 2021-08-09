@@ -5,7 +5,7 @@ import StatefulViewController
 import PromiseKit
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
-    func didPressAddToken( in viewController: UIViewController)
+    func didPressAddToken(in viewController: UIViewController)
     func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool)
     func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController)
     func didClose(viewController: AddHideTokensViewController)
@@ -21,6 +21,7 @@ class AddHideTokensViewController: UIViewController {
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
         tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
+        tableView.registerHeaderFooterView(TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>>.self)
         tableView.isEditing = true
         tableView.estimatedRowHeight = 100
         tableView.dataSource = self
@@ -31,28 +32,52 @@ class AddHideTokensViewController: UIViewController {
         tableView.contentOffset = .zero
         tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: 0.01))
         tableView.translatesAutoresizingMaskIntoConstraints = false
+
         return tableView
     }()
     private let refreshControl = UIRefreshControl()
-    private var prefersLargeTitles: Bool?
-    private let notificationCenter = NotificationCenter.default
+
+    private lazy var tokenFilterView: DropDownView<SortTokensParam> = {
+        let view = DropDownView(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
+        view.delegate = self
+        
+        return view
+    }()
+    private var bottomConstraint: NSLayoutConstraint!
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+
     weak var delegate: AddHideTokensViewControllerDelegate?
 
     init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
-
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
+        searchController.delegate = self
+
+        let t = R.string.localizable.seachTokenNoresultsTitle()
+        emptyView = EmptyFilteringResultView(title: t, onRetry: { [weak self] in
+            guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
+
+            delegate.didPressAddToken(in: strongSelf)
+        })
+
+        view.addSubview(tableView)
+
+        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        keyboardChecker.constraint = bottomConstraint
+
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomConstraint
+        ])
     }
 
     required init?(coder: NSCoder) {
         return nil
-    }
-
-    override func loadView() {
-        view = tableView
     }
 
     override func viewDidLoad() {
@@ -61,68 +86,28 @@ class AddHideTokensViewController: UIViewController {
         configure(viewModel: viewModel)
         setupFilteringWithKeyword()
 
+        navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-
-        prefersLargeTitles = navigationController?.navigationBar.prefersLargeTitles
-        navigationController?.navigationBar.prefersLargeTitles = false
-
+        keyboardChecker.viewWillAppear()
         reload()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
-        notificationCenter.removeObserver(self)
+        keyboardChecker.viewWillDisappear()
 
         if isMovingFromParent || isBeingDismissed {
-            if let prefersLargeTitles = prefersLargeTitles {
-                //This unfortunately breaks the smooth animation if we pop back and show the large title
-                navigationController?.navigationBar.prefersLargeTitles = prefersLargeTitles
-            }
             delegate?.didClose(viewController: self)
             return
         }
     }
 
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let change = notification.keyboardInfo else {
-            return
-        }
-
-        let bottom = change.endFrame.height - UIApplication.shared.bottomSafeAreaHeight
-
-        UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration, animations: {
-            self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottom, right: 0)
-            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
-        }, completion: { _ in
-
-        })
-    }
-
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        guard let change = notification.keyboardInfo else {
-            return
-        }
-
-        UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration, animations: {
-            self.tableView.contentInset = .zero
-            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
-        }, completion: { _ in
-
-        })
-    }
-
     override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
         configureSearchBarOnce()
     }
 
@@ -134,10 +119,14 @@ class AddHideTokensViewController: UIViewController {
         title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
+
+        tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
     }
 
     private func reload() {
+        startLoading(animated: false)
         tableView.reloadData()
+        endLoading(animated: false)
     }
 
     func add(token: TokenObject) {
@@ -157,7 +146,7 @@ class AddHideTokensViewController: UIViewController {
 extension AddHideTokensViewController: StatefulViewController {
     //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
-        true
+        return !viewModel.sections.isEmpty
     }
 }
 
@@ -301,22 +290,56 @@ extension AddHideTokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view: AddHideTokenSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
-        view.configure(viewModel: .init(text: viewModel.titleForSection(section)))
+        switch viewModel.sections[section] {
+        case .sortingFilters:
+            let header: TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>> = tableView.dequeueReusableHeaderFooterView()
+            header.useSeparatorLine = true
+            header.subview = tokenFilterView
 
-        return view
+            return header
+        case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
+            let view: AddHideTokenSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.configure(viewModel: .init(text: viewModel.titleForSection(section)))
+            
+            return view
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        65
+        switch viewModel.sections[section] {
+        case .sortingFilters:
+            return 60
+        case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
+            return 65
+        }
     }
 
     //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNormalMagnitude
     }
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
+    }
+}
+
+extension AddHideTokensViewController: DropDownViewDelegate {
+    func filterDropDownViewDidChange(selection: SegmentedControl.Selection) {
+        guard let filterParam = tokenFilterView.value(from: selection) else { return }
+
+        viewModel.sortTokensParam = filterParam
+        reload()
+    }
+}
+
+extension AddHideTokensViewController: UISearchControllerDelegate {
+    func willPresentSearchController(_ searchController: UISearchController) {
+        viewModel.isSearchActive = true
+    }
+
+    func willDismissSearchController(_ searchController: UISearchController) {
+        viewModel.isSearchActive = false
     }
 }
 
