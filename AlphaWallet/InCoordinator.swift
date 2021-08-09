@@ -123,6 +123,11 @@ class InCoordinator: NSObject, Coordinator {
 
         //service.register(service: uniswap)
 
+        var quickSwap = QuickSwap()
+        quickSwap.theme = navigationController.traitCollection.uniswapTheme
+
+        service.register(service: quickSwap)
+
         return service
     }()
 
