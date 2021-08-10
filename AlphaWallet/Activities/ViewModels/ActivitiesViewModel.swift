@@ -8,10 +8,34 @@ enum ActivityOrTransactionFilter {
     case keyword(_ value: String?)
 }
 
-struct ActivitiesViewModel {
-    private static var formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy")
+struct ActivityDateKey: Hashable, Equatable {
+    let timeInterval: TimeInterval
+    let stringValue: String
 
-    typealias MappedToDateActivityOrTransaction = (date: TimeInterval, items: [ActivityRowModel])
+    init(timeInterval: TimeInterval) {
+        self.timeInterval = timeInterval
+
+        let date = Date(timeIntervalSince1970: timeInterval)
+        stringValue = ActivitiesViewModel.formatter.string(from: date)
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(stringValue)
+    }
+
+    var date: Date {
+        Date(timeIntervalSince1970: timeInterval)
+    }
+
+    static func == (_ lhs: ActivityDateKey, _ rhs: ActivityDateKey) -> Bool {
+        return lhs.stringValue == lhs.stringValue
+    }
+}
+
+struct ActivitiesViewModel {
+    static var formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy")
+
+    typealias MappedToDateActivityOrTransaction = (date: ActivityDateKey, items: [ActivityRowModel])
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
@@ -26,13 +50,14 @@ struct ActivitiesViewModel {
 // swiftlint:disable function_body_length
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
-        var newItems: [TimeInterval: NSMutableArray] = [:]
+        var newItems: [ActivityDateKey: NSMutableArray] = [:]
 
         for each in activities {
             let date = each.date.timeIntervalSince1970
-            let currentItems = newItems[date] ?? .init()
+            let key: ActivityDateKey = .init(timeInterval: date)
+            let currentItems = newItems[key] ?? .init()
             currentItems.add(each)
-            newItems[date] = currentItems
+            newItems[key] = currentItems
         }
 
         return newItems.map { each in
@@ -119,7 +144,7 @@ struct ActivitiesViewModel {
             })
         }
         .sorted { (object1, object2) -> Bool in
-            return object1.date > object2.date
+            return object1.date.timeInterval > object2.date.timeInterval
         }
     }
 // swiftlint:enable function_body_length
@@ -189,7 +214,7 @@ struct ActivitiesViewModel {
     }
 
     func titleForHeader(in section: Int) -> String {
-        let date = Date(timeIntervalSince1970: filteredItems[section].date)
+        let date = filteredItems[section].date.date
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }
@@ -218,7 +243,7 @@ extension ActivitiesViewModel {
 }
 
 extension ActivitiesViewModel.functional {
-    
+
     static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensStorages: ServerDictionary<TokensDataStore>, wallet: AlphaWallet.Address) -> (token: TokenObject, activityName: String)? {
         enum TokenOperation {
             case nativeCryptoTransfer(TokenObject)
@@ -276,7 +301,6 @@ extension ActivitiesViewModel.functional {
         return (token: token, activityName: activityName)
     }
 
-    // swiftlint:disable function_body_length
     static func createPseudoActivity(fromTransactionRow transactionRow: TransactionRow, tokensStorages: ServerDictionary<TokensDataStore>, wallet: AlphaWallet.Address) -> Activity? {
         guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, tokensStorages: tokensStorages, wallet: wallet) else { return nil }
         var cardAttributes = [AttributeId: AssetInternalValue]()
@@ -347,6 +371,5 @@ extension ActivitiesViewModel.functional {
                 state: state
         )
     }
-    // swiftlint:enable function_body_length
 }
 
