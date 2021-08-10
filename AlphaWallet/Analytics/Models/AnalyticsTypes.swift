@@ -29,7 +29,7 @@ enum Analytics {
         case signMessageRequest = "Screen: Sign Message Request"
         case walletConnect = "Screen: WalletConnect"
         case faq = "Screen: FAQ"
-        case telegramPublic = "Screen: Telegram Public"
+        case discord = "Screen: Discord"
         case telegramCustomerSupport = "Screen: Telegram: Customer Support"
         case twitter = "Screen: Twitter"
         case reddit = "Screen: Reddit"
