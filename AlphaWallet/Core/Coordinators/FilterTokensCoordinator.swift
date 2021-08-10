@@ -117,4 +117,22 @@ class FilterTokensCoordinator {
 
         return result
     }
+
+    func sortDisplayedTokens(tokens: [TokenObject], sortTokensParam: SortTokensParam) -> [TokenObject] {
+        let result = tokens.filter {
+            $0.shouldDisplay
+        }.sorted(by: {
+            switch sortTokensParam {
+            case .name:
+                return $0.name < $1.name
+            case .value:
+                return $0.value < $1.value
+            case .mostUsed:
+                // NOTE: not implemented yet
+                return false
+            }
+        })
+
+        return result
+    }
 }

@@ -870,6 +870,10 @@
 		87ED8FAB2488E4610005C69B /* SendViewSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */; };
 		87ED8FAD2488EA610005C69B /* SupportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAC2488EA610005C69B /* SupportViewController.swift */; };
 		87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */; };
+		87F4D41A26C26C0700EFB9BC /* DropDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4D41926C26C0700EFB9BC /* DropDownView.swift */; };
+		87F4D41C26C26C2000EFB9BC /* DropDownViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4D41B26C26C2000EFB9BC /* DropDownViewModel.swift */; };
+		87F4D41E26C26C3A00EFB9BC /* SortTokensParam.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4D41D26C26C3A00EFB9BC /* SortTokensParam.swift */; };
+		87F4D42026C26C6E00EFB9BC /* EmptyFilteringResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4D41F26C26C6E00EFB9BC /* EmptyFilteringResultView.swift */; };
 		87F9972824E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */; };
 		87FBAE0124A1EE67005EF293 /* AddressOrEnsNameLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */; };
 		87FF2E422567F0A3002350EB /* BlockieGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF2E412567F0A3002350EB /* BlockieGenerator.swift */; };
@@ -1823,6 +1827,10 @@
 		87ED8FAA2488E4610005C69B /* SendViewSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewSectionHeaderViewModel.swift; sourceTree = "<group>"; };
 		87ED8FAC2488EA610005C69B /* SupportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewController.swift; sourceTree = "<group>"; };
 		87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
+		87F4D41926C26C0700EFB9BC /* DropDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownView.swift; sourceTree = "<group>"; };
+		87F4D41B26C26C2000EFB9BC /* DropDownViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownViewModel.swift; sourceTree = "<group>"; };
+		87F4D41D26C26C3A00EFB9BC /* SortTokensParam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortTokensParam.swift; sourceTree = "<group>"; };
+		87F4D41F26C26C6E00EFB9BC /* EmptyFilteringResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyFilteringResultView.swift; sourceTree = "<group>"; };
 		87F9972724E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseBackupIntroductionViewControllerTests.swift; sourceTree = "<group>"; };
 		87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOrEnsNameLabel.swift; sourceTree = "<group>"; };
 		87FF2E412567F0A3002350EB /* BlockieGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieGenerator.swift; sourceTree = "<group>"; };
@@ -2226,6 +2234,7 @@
 				BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */,
 				2931120F1FC4ADCB00966EEA /* InCoordinatorViewModel.swift */,
 				5E7C7E50E9184C7F0FE3966C /* PromptViewModel.swift */,
+				87F4D41B26C26C2000EFB9BC /* DropDownViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2503,6 +2512,7 @@
 				87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */,
 				87620027266E14A80059B05A /* PopularTokenViewCell.swift */,
 				87620029266E14C10059B05A /* WalletTokenViewCell.swift */,
+				87F4D41F26C26C6E00EFB9BC /* EmptyFilteringResultView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2968,6 +2978,7 @@
 				87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */,
 				87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */,
 				87C65F542661289400919819 /* Atomic.swift */,
+				87F4D41D26C26C3A00EFB9BC /* SortTokensParam.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3419,6 +3430,7 @@
 				87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */,
 				8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */,
 				874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */,
+				87F4D41926C26C0700EFB9BC /* DropDownView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5015,6 +5027,7 @@
 				29FC0CB81F8299510036089F /* Coordinator.swift in Sources */,
 				29282B531F7630970067F88D /* TokenUpdate.swift in Sources */,
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
+				87F4D41C26C26C2000EFB9BC /* DropDownViewModel.swift in Sources */,
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
 				5F4D80AA26A3F9C500BB1135 /* UIDevice.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
@@ -5252,6 +5265,7 @@
 				87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */,
 				5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */,
 				5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */,
+				87F4D41E26C26C3A00EFB9BC /* SortTokensParam.swift in Sources */,
 				5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */,
 				87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */,
 				5E7C71F8050CCF990539B293 /* LockView.swift in Sources */,
@@ -5664,6 +5678,7 @@
 				5E7C7D0A8197BF7725619D87 /* TransactionRowCellViewModel.swift in Sources */,
 				5E7C7BDE0060F5C350AFD34B /* ActivityViewController.swift in Sources */,
 				5E7C76194F5934264E5BABC8 /* ActivityViewModel.swift in Sources */,
+				87F4D41A26C26C0700EFB9BC /* DropDownView.swift in Sources */,
 				5E7C72337A4230E78009B7E5 /* TransactionDetailsViewModel.swift in Sources */,
 				5E7C72EF748338DDBABB53F2 /* GetBlockTimestampCoordinator.swift in Sources */,
 				5E7C7416B5A023776E04A21D /* Features.swift in Sources */,
@@ -5697,6 +5712,7 @@
 				5E7C73FB906BF267F28B0205 /* ActivityRowType.swift in Sources */,
 				5E7C7AAA6892660CDBD84551 /* TransactionRow.swift in Sources */,
 				5E7C7594F29C8C9FE7BE0BEE /* RemoteLogger.swift in Sources */,
+				87F4D42026C26C6E00EFB9BC /* EmptyFilteringResultView.swift in Sources */,
 				5E7C7EEB905CA4DEF2BD9608 /* ReplaceTransactionCoordinator.swift in Sources */,
 				5E7C7B2C388D0B6E8AE1EED6 /* TransactionConfirmationRowDescriptionView.swift in Sources */,
 				5E7C7068825D19D22329AC7E /* SendTransactionErrorViewController.swift in Sources */,
