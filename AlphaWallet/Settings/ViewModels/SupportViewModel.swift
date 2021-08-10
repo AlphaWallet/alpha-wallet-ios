@@ -13,7 +13,7 @@ class SupportViewModel: NSObject {
         R.string.localizable.settingsSupportTitle()
     }
     
-    var rows: [SupportRow] = [.telegramCustomer, .telegramPublic, .twitter, .reddit, .facebook, .faq]
+    var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, /*.reddit, .facebook,*/ .faq]
     
     func cellViewModel(indexPath: IndexPath) -> SettingTableViewCellViewModel {
         let row = rows[indexPath.row]
@@ -22,18 +22,19 @@ class SupportViewModel: NSObject {
 }
 
 enum SupportRow {
-    case telegramPublic
+    case discord
     case telegramCustomer
     case twitter
     case reddit
     case facebook
     case blog
     case faq
+    case email
     
     var urlProvider: URLServiceProvider? {
         switch self {
-        case .telegramPublic:
-            return URLServiceProvider.telegramPublic
+        case .discord:
+            return URLServiceProvider.discord
         case .telegramCustomer:
             return URLServiceProvider.telegramCustomer
         case .twitter:
@@ -44,15 +45,15 @@ enum SupportRow {
             return URLServiceProvider.facebook
         case .faq:
             return URLServiceProvider.faq
-        case .blog:
+        case .blog, .email:
             return nil
         }
     }
     
     var title: String {
         switch self {
-        case .telegramPublic:
-            return URLServiceProvider.telegramPublic.title
+        case .discord:
+            return URLServiceProvider.discord.title
         case .telegramCustomer:
             return URLServiceProvider.telegramCustomer.title
         case .twitter:
@@ -65,23 +66,29 @@ enum SupportRow {
             return URLServiceProvider.faq.title
         case .blog:
             return "Blog"
+        case .email:
+            return "Email"
         }
     }
     
-    var image: UIImage {
+    var image: UIImage? {
         switch self {
-        case .telegramPublic, .telegramCustomer:
-            return URLServiceProvider.telegramPublic.image!
+        case .email:
+            return R.image.iconsSettingsEmail()
+        case .discord:
+            return URLServiceProvider.discord.image
+        case .telegramCustomer:
+            return URLServiceProvider.telegramCustomer.image
         case .twitter:
-            return URLServiceProvider.twitter.image!
+            return URLServiceProvider.twitter.image
         case .reddit:
-            return URLServiceProvider.reddit.image!
+            return URLServiceProvider.reddit.image
         case .facebook:
-            return URLServiceProvider.facebook.image!
+            return URLServiceProvider.facebook.image
         case .faq:
-            return R.image.settings_faq()!
+            return R.image.settings_faq()
         case .blog:
-            return R.image.settings_faq()!
+            return R.image.settings_faq()
         }
     }
 } 

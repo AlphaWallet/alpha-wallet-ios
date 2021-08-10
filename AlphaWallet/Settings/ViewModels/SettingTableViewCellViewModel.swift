@@ -10,7 +10,7 @@ import UIKit
 struct SettingTableViewCellViewModel {
     let titleText: String
     var subTitleText: String?
-    let icon: UIImage
+    let icon: UIImage?
 
     var subTitleHidden: Bool {
         return subTitleText == nil
