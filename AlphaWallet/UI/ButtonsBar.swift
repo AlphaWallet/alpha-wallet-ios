@@ -350,7 +350,7 @@ class ButtonsBar: UIView {
     }
 }
 
-private struct ButtonsBarViewModel {
+struct ButtonsBarViewModel {
 
     static let greenButton = ButtonsBarViewModel(
         buttonBackgroundColor: Colors.appActionButtonGreen,
