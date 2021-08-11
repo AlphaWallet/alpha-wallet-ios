@@ -83,7 +83,6 @@ class TokenViewController: UIViewController {
         activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
             guard let strongSelf = self, let viewModel = viewModel else { return }
 
-            NSLog("KKKK-ST: subscribableViewModel (on next): \(viewModel.itemsCount)")
             strongSelf.activityPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
         }
     }

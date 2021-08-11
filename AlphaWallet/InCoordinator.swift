@@ -1038,8 +1038,15 @@ extension InCoordinator: TokensCoordinatorDelegate {
         dappBrowserCoordinator.switch(toServer: server, url: url)
     }
 
-    func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {
-        showPaymentFlow(for: type, server: server, navigationController: coordinator.navigationController)
+    func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator) {
+        let navigationController: UINavigationController
+        if let nvc = viewController?.navigationController {
+            navigationController = nvc
+        } else {
+            navigationController = coordinator.navigationController
+        }
+        
+        showPaymentFlow(for: type, server: server, navigationController: navigationController)
     }
 
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
