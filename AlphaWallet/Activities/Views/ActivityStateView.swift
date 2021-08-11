@@ -16,7 +16,9 @@ class ActivityStateView: UIView {
 
         return view
     }()
-    private let pendingLoadingIndicatorView: ActivityLoadingIndicatorView = {
+    private var pendingLoadingIndicatorView: ActivityLoadingIndicatorView?
+
+    private func createPendingLoadingIndicatorView() -> ActivityLoadingIndicatorView {
         let control = ActivityLoadingIndicatorView()
         control.lineColor = R.color.azure()!
         control.backgroundLineColor = R.color.loadingBackground()!
@@ -27,7 +29,7 @@ class ActivityStateView: UIView {
         control.translatesAutoresizingMaskIntoConstraints = false
 
         return control
-    }()
+    }
 
     init() {
         super.init(frame: .zero)
@@ -35,11 +37,8 @@ class ActivityStateView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stateImageView)
-        addSubview(pendingLoadingIndicatorView)
 
-        NSLayoutConstraint.activate(
-            stateImageView.anchorsConstraint(to: self) + pendingLoadingIndicatorView.anchorsConstraint(to: self)
-        )
+        NSLayoutConstraint.activate(stateImageView.anchorsConstraint(to: self))
     }
 
     required init?(coder: NSCoder) {
@@ -54,15 +53,29 @@ class ActivityStateView: UIView {
             bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomOffset.y)
         ]
     }
+    
+    private func removePendingLoadingIndicatorView() {
+        guard let view = pendingLoadingIndicatorView else { return }
+
+        view.stopAnimating()
+        view.removeFromSuperview()
+
+        pendingLoadingIndicatorView = .none
+    }
 
     func configure(viewModel: ActivityStateViewViewModel) {
         stateImageView.isHidden = viewModel.isInPendingState
-        pendingLoadingIndicatorView.isHidden = !viewModel.isInPendingState
 
-        if pendingLoadingIndicatorView.isHidden {
-            pendingLoadingIndicatorView.stopAnimating()
-        } else {
-            pendingLoadingIndicatorView.startAnimating()
+        removePendingLoadingIndicatorView()
+
+        if viewModel.isInPendingState {
+            let view = createPendingLoadingIndicatorView()
+            view.startAnimating()
+            addSubview(view)
+            
+            pendingLoadingIndicatorView = view
+
+            NSLayoutConstraint.activate(view.anchorsConstraint(to: self))
         }
         
         stateImageView.image = viewModel.stateImage
