@@ -52,7 +52,7 @@ class AddHideTokensCoordinator: Coordinator {
         navigationController.pushViewController(viewController, animated: true)
 
         popularTokensCollection.fetchTokens().done { [weak self] tokens in
-            self?.viewController.add(popularTokens: tokens)
+            self?.viewController.set(popularTokens: tokens)
         }.cauterize()
     }
 

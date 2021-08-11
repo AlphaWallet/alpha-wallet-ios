@@ -134,7 +134,7 @@ class AddHideTokensViewController: UIViewController {
         reload()
     }
 
-    func add(popularTokens: [PopularToken]) {
+    func set(popularTokens: [PopularToken]) {
         viewModel.set(allPopularTokens: popularTokens)
 
         DispatchQueue.main.async {
