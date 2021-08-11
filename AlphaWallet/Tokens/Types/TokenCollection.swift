@@ -10,10 +10,13 @@ class TokenCollection {
     private let filterTokensCoordinator: FilterTokensCoordinator
 
     let tokenDataStores: [TokensDataStore]
+    private let config: Config
 
     init(filterTokensCoordinator: FilterTokensCoordinator, tokenDataStores: [TokensDataStore]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokenDataStores = tokenDataStores
+        config = Config()
+
         for each in tokenDataStores {
             each.delegate = self
         }
@@ -31,7 +34,7 @@ class TokenCollection {
 }
 
 extension TokenCollection: TokensDataStoreDelegate {
-    func didUpdate(result: Result<TokensViewModel, TokenError>, refreshImmediately: Bool = false) {
+    func didUpdate(in tokensDataStore: TokensDataStore, refreshImmediately: Bool = false) {
         if refreshImmediately {
             notifySubscribersOfUpdatedTokens()
             return
@@ -54,6 +57,7 @@ extension TokenCollection: TokensDataStoreDelegate {
         var tokens: [TokenObject] = []
 
         //This might slow things down. Especially if it runs too many times unnecessarily
+        let tokenDataStores = TokenCollection.functional.filterMutuallyExclusive(tokenDatastores: self.tokenDataStores, config: config)
         for each in tokenDataStores {
             for (key, value) in each.tickers {
                 tickers[key] = value
@@ -62,29 +66,45 @@ extension TokenCollection: TokensDataStoreDelegate {
             tokens.append(contentsOf: each.enabledObject)
         }
 
-        let nativeCryptoAddressInDatabase = Constants.nativeCryptoAddressInDatabase.eip55String
-        tokens.sort {
-            //Use `$0.contract` instead of `$0.contractAddress.eip55String` for performance in a loop since we know the former must be in EIP55
-            let contract0 = $0.contract
-            let contract1 = $1.contract
-            //Performance: Don't need to use sameContract(as:) because it's all 0s and we want to be fast
-            if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
-                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-            } else if contract0 == nativeCryptoAddressInDatabase {
-                return true
-            } else if contract1 == nativeCryptoAddressInDatabase {
-                return false
-            } else if $0.server != $1.server {
-                return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-            } else {
-                return $0.name < $1.name
-            }
-        }
-
         let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: tokens, tickers: tickers)
         for each in subscribers {
             each(.success(tokensViewModel))
         }
+    }
+}
+extension TokenCollection {
+    class functional {}
+}
+extension TokenCollection.functional {
+    private static func shouldFilterOnlyMainnetTokens(config: Config) -> Bool {
+        let isTestnet = config.enabledServers.allSatisfy({ $0.isTestnet })
+        let isMainnet = config.enabledServers.allSatisfy({ !$0.isTestnet })
+
+        switch (isTestnet, isMainnet) {
+        case (true, false):
+            return false
+        case (false, true):
+            return true
+        case (_, _):
+            // NOTE: contains mainnet and testnet tokens
+            let testnet = config.enabledServers.filter { $0.isTestnet }
+            let mainnet = config.enabledServers.filter { !$0.isTestnet }
+            //NOTE: from here we know that something doesn't work correcly, we shouldn't get both mainet and test net data stores, in case if we do
+            //select greater amount of mainet or testnet datastores and filter only for it
+            if mainnet.count > testnet.count || mainnet.count == testnet.count {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+
+    static func filterMutuallyExclusive(tokenDatastores: [TokensDataStore], config: Config) -> [TokensDataStore] {
+        let isFilteringOnlyForMainet = shouldFilterOnlyMainnetTokens(config: config)
+        // NOTE: sort only main net or test net datastores
+        // execution this code shouldnt load proc, as we dont have a lot of token datastores
+        // NOTE: filtering applied only for displayd tokens, in case if for some reasons we will get mixed tokens datastores we not handle it.
+        return tokenDatastores.filter({ $0.server.isTestnet == !isFilteringOnlyForMainet })
     }
 }
 
