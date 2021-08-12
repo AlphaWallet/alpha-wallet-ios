@@ -51,6 +51,13 @@ class ActivitiesView: UIView {
         emptyView = TransactionsEmptyView(title: R.string.localizable.activityEmpty(), image: R.image.activities_empty_list())
     }
 
+    func resetStatefulStateToReleaseObjectToAvoidMemoryLeak() {
+        // NOTE: Stateful lib set to object state machine that later causes ref cycle when applying it to view
+        // here we release all associated objects to release state machine
+        // this method callget get called while parent's view deinit get called
+        objc_removeAssociatedObjects(self)
+    }
+
     required init?(coder: NSCoder) {
         return nil
     }
@@ -215,26 +222,21 @@ extension ActivitiesView: UITableViewDataSource {
 
 class ActivitiesViewController: UIViewController {
     private var viewModel: ActivitiesViewModel
-    private let sessions: ServerDictionary<WalletSession>
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-    private lazy var activitiesView: ActivitiesView = {
-        let view = ActivitiesView(viewModel: viewModel, sessions: sessions)
-        view.delegate = self
-        return view
-    }()
+    private var activitiesView: ActivitiesView
     weak var delegate: ActivitiesViewControllerDelegate?
 
     init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
-        self.sessions = sessions
         searchController = UISearchController(searchResultsController: nil)
+        activitiesView = ActivitiesView(viewModel: viewModel, sessions: sessions)
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.activityTabbarItemTitle()
-
+        activitiesView.delegate = self
         view.backgroundColor = self.viewModel.backgroundColor
 
         bottomConstraint = activitiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -251,6 +253,10 @@ class ActivitiesViewController: UIViewController {
 
         setupFilteringWithKeyword()
         configure(viewModel: viewModel)
+    }
+
+    deinit {
+        activitiesView.resetStatefulStateToReleaseObjectToAvoidMemoryLeak()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -364,6 +370,7 @@ extension ActivitiesViewController {
 }
 
 extension ActivitiesViewController.functional {
+
     fileprivate static func headerView(for section: Int, viewModel: ActivitiesViewModel) -> UIView {
         let container = UIView()
         container.backgroundColor = viewModel.headerBackgroundColor
