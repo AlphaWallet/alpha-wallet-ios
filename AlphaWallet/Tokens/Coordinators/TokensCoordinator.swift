@@ -7,7 +7,7 @@ import PromiseKit
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
-    func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
+    func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator)
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -251,7 +251,7 @@ extension TokensCoordinator: SelectAssetCoordinatorDelegate {
         case .pending(let address):
             let paymentFlow = PaymentFlow.send(type: .init(token: token, recipient: .address(address), amount: nil))
 
-            delegate?.didPress(for: paymentFlow, server: token.server, in: self)
+            delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
         case .none:
             break
         }
@@ -285,7 +285,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
         let paymentFlow = PaymentFlow.send(type: transactionType)
 
-        delegate?.didPress(for: paymentFlow, server: token.server, in: self)
+        delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {
@@ -408,8 +408,8 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         tokensViewController.fetch()
     }
 
-    func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator) {
-        delegate?.didPress(for: type, server: coordinator.session.server, in: self)
+    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didPress(for: type, server: coordinator.session.server, inViewController: viewController, in: self)
     }
 
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
