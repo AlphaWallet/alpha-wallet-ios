@@ -107,5 +107,5 @@ class DefaultActivityItemViewCell: UITableViewCell {
         tokenImageView.subscribable = viewModel.iconImage
 
         stateView.configure(viewModel: viewModel.activityStateViewViewModel)
-    }
+    } 
 }
