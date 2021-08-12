@@ -29,7 +29,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
-    func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
+    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
@@ -606,11 +606,11 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
     }
 
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
-        delegate?.didPress(for: .send(type: transactionType), inCoordinator: self)
+        delegate?.didPress(for: .send(type: transactionType), inViewController: viewController, in: self)
     }
 
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
-        delegate?.didPress(for: .request, inCoordinator: self)
+        delegate?.didPress(for: .request, inViewController: viewController, in: self)
     }
 
     func didTap(activity: Activity, inViewController viewController: TokenViewController) {
