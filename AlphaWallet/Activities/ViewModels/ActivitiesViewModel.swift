@@ -10,8 +10,27 @@ enum ActivityOrTransactionFilter {
 
 struct ActivitiesViewModel {
     static var formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy")
+    struct ActivityDateKey: Hashable, Equatable {
+        let date: Date
+        let stringValue: String
 
-    typealias MappedToDateActivityOrTransaction = (date: Date, items: [ActivityRowModel])
+        init(date: Date) {
+            self.date = date
+
+            stringValue = ActivitiesViewModel.formatter.string(from: date)
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(stringValue)
+        }
+
+
+        static func == (_ lhs: ActivityDateKey, _ rhs: ActivityDateKey) -> Bool {
+            return lhs.stringValue == rhs.stringValue
+        }
+    }
+
+    typealias MappedToDateActivityOrTransaction = (date: ActivityDateKey, items: [ActivityRowModel])
 
     private var items: [MappedToDateActivityOrTransaction] = []
     private var filteredItems: [MappedToDateActivityOrTransaction] = []
@@ -26,24 +45,18 @@ struct ActivitiesViewModel {
 // swiftlint:disable function_body_length
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
-        var newItems: [String: (date: Date, elements: NSMutableArray)] = [:]
+        var newItems: [ActivityDateKey: NSMutableArray] = [:]
 
         for each in activities {
-            let key: String = ActivitiesViewModel.formatter.string(from: each.date)
-
-            let currentItems: (date: Date, elements: NSMutableArray)
-            if let values = newItems[key] {
-                currentItems = values
-            } else {
-                currentItems = (each.date, .init())
-            }
-            currentItems.elements.add(each)
+            let key: ActivityDateKey = .init(date: each.date)
+            let currentItems = newItems[key] ?? .init()
+            currentItems.add(each)
 
             newItems[key] = currentItems
         }
 
         return newItems.map { each in
-            (date: each.value.0, items: (each.value.elements as! [ActivityRowModel]).sorted {
+            (date: each.key, items: (each.value as! [ActivityRowModel]).sorted {
                 //Show pending transactions at the top
                 if $0.blockNumber == 0 && $1.blockNumber != 0 {
                     return true
@@ -126,7 +139,7 @@ struct ActivitiesViewModel {
             })
         }
         .sorted { (object1, object2) -> Bool in
-            return object1.date.timeIntervalSince1970 > object2.date.timeIntervalSince1970
+            return object1.date.date.timeIntervalSince1970 > object2.date.date.timeIntervalSince1970
         }
     }
 // swiftlint:enable function_body_length
@@ -196,7 +209,7 @@ struct ActivitiesViewModel {
     }
 
     func titleForHeader(in section: Int) -> String {
-        let date = filteredItems[section].date
+        let date = filteredItems[section].date.date
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today().localizedUppercase
         }
@@ -204,7 +217,7 @@ struct ActivitiesViewModel {
             return R.string.localizable.yesterday().localizedUppercase
         }
 
-        return Self.formatter.string(from: date).localizedUppercase
+        return filteredItems[section].date.stringValue.localizedUppercase
     }
 
     private func splitIntoExactlyTwoKeywords(_ string: String) -> (String, String)? {
