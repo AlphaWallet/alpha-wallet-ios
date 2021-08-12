@@ -52,7 +52,9 @@ class AddHideTokensCoordinator: Coordinator {
         navigationController.pushViewController(viewController, animated: true)
 
         popularTokensCollection.fetchTokens().done { [weak self] tokens in
-            self?.viewController.set(popularTokens: tokens)
+            guard let strongSelf = self else { return }
+            let tokensForEnabledChains = tokens.filter { each in strongSelf.config.enabledServers.contains(each.server) }
+            self?.viewController.set(popularTokens: tokensForEnabledChains)
         }.cauterize()
     }
 
