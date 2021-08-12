@@ -272,7 +272,7 @@ class NewTokenViewController: UIViewController {
         case .nativeCryptocurrency, .erc20:
             decimalsViews.makeEach(isHidden: false)
             balanceViews.makeEach(isHidden: true)
-        case .erc721, .erc875, .erc721ForTickets:
+        case .erc721, .erc875, .erc721ForTickets, .erc1155:
             decimalsViews.makeEach(isHidden: true)
             balanceViews.makeEach(isHidden: false)
         }
@@ -316,7 +316,7 @@ class NewTokenViewController: UIViewController {
                     decimalsTextField.status = .error(error.prettyError)
                     isValid = false
                 }
-            case .erc721, .erc875, .erc721ForTickets:
+            case .erc721, .erc875, .erc721ForTickets, .erc1155:
                 if balanceTextField.value.trimmed.isEmpty {
                     let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
                     balanceTextField.status = .error(error.prettyError)

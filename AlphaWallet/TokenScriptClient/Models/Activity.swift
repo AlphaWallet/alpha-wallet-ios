@@ -100,7 +100,7 @@ struct Activity {
             } else {
                 return .none
             }
-        case .erc721, .erc721ForTickets:
+        case .erc721, .erc721ForTickets, .erc1155:
             if isBaseCard {
                 switch name {
                 case "sent":

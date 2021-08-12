@@ -12,7 +12,7 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
         for each in tokensDataStores.values {
             contracts.append(contentsOf: each.enabledObject.filter {
                 switch $0.type {
-                case .erc20, .erc721, .erc875, .erc721ForTickets:
+                case .erc20, .erc721, .erc875, .erc721ForTickets, .erc1155:
                     return true
                 case .nativeCryptocurrency:
                     return false

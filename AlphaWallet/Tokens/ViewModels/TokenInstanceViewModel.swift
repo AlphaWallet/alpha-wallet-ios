@@ -20,7 +20,7 @@ struct TokenInstanceViewModel {
                     .init(type: .nftSell),
                     .init(type: .nonFungibleTransfer)
                 ]
-            case .erc721:
+            case .erc721, .erc1155:
                 return [
                     .init(type: .nonFungibleTransfer)
                 ]

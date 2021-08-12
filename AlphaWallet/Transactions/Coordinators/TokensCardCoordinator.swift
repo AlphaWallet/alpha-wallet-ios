@@ -427,7 +427,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
         switch token.type {
-        case .erc721:
+        case .erc721, .erc1155:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
             transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never
@@ -480,7 +480,7 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
         switch token.type {
-        case .erc721:
+        case .erc721, .erc1155:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
             transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never

@@ -51,7 +51,7 @@ extension TransactionType {
             return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
         case .ERC20Token(let tokenObject, _, _):
             return .erc20(contract: tokenObject.contractAddress)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .claimPaidErc875MagicLink, .tokenScript:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript:
             return .none
         }
     }
@@ -632,7 +632,7 @@ fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInst
             return (activity.nativeViewType == .erc20Sent || activity.nativeViewType == .erc20Received) && isSameAmount() && isSameFrom() && isSameTo()
         case .erc20TokenApprove:
             return activity.nativeViewType == .erc20OwnerApproved || activity.nativeViewType == .erc20ApprovalObtained || activity.nativeViewType == .erc721OwnerApproved || activity.nativeViewType == .erc721ApprovalObtained
-        case .erc721TokenTransfer:
+        case .erc721TokenTransfer, .erc1155TokenTransfer:
             return (activity.nativeViewType == .erc721Sent || activity.nativeViewType == .erc721Received) && isSameAmount() && isSameFrom() && isSameTo()
         case .erc875TokenTransfer:
             return false

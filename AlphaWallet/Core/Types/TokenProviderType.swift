@@ -74,6 +74,10 @@ class TokenProvider: TokenProviderType {
         return GetIsERC721ContractCoordinator(forServer: server)
     }()
 
+    private lazy var getIsERC1155ContractCoordinator: GetIsERC1155ContractCoordinator = {
+        return GetIsERC1155ContractCoordinator(forServer: server)
+    }()
+
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
         return GetDecimalsCoordinator(forServer: server)
     }()
@@ -391,6 +395,22 @@ class TokenProvider: TokenProviderType {
                 }
             }
         }
+        let isErc1155Promise = Promise<Bool> { seal in
+            withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+                guard let strongSelf = self else { return }
+                strongSelf.getIsERC1155ContractCoordinator.getIsERC1155Contract(for: address) { [weak self] result in
+                    guard self != nil else { return }
+                    switch result {
+                    case .success(let isErc1155):
+                        seal.fulfill(isErc1155)
+                    case .failure:
+                        if !triggerRetry() {
+                            seal.fulfill(false)
+                        }
+                    }
+                }
+            }
+        }
 
         firstly {
             isErc721Promise
@@ -416,9 +436,19 @@ class TokenProvider: TokenProviderType {
         }.cauterize()
 
         firstly {
-            when(fulfilled: isErc875Promise.asVoid(), isErc721Promise.asVoid())
-        }.done { _, _ in
-            if isErc875Promise.value == false && isErc721Promise.value == .notErc721 {
+            isErc1155Promise
+        }.done { isErc1155 in
+            if isErc1155 {
+                completion(.erc1155)
+            } else {
+                //no-op
+            }
+        }.cauterize()
+
+        firstly {
+            when(fulfilled: isErc875Promise.asVoid(), isErc721Promise.asVoid(), isErc1155Promise.asVoid())
+        }.done { _, _, _ in
+            if isErc875Promise.value == false && isErc721Promise.value == .notErc721 && isErc1155Promise.value == false {
                 completion(.erc20)
             } else {
                 //no-op

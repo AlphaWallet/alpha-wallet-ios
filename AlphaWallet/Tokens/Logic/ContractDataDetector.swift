@@ -100,6 +100,10 @@ class ContractDataDetector {
                         self.callCompletionFailed()
                     }
                 }
+            case .erc1155:
+                let balance: [String] = .init()
+                self.nonFungibleBalanceSeal.fulfill(balance)
+                self.completionOfPartialData(.balance(balance: balance, tokenType: .erc1155))
             case .erc20:
                 self.tokenProvider.getDecimals(for: self.address) { result in
                     switch result {
@@ -145,7 +149,7 @@ class ContractDataDetector {
     private func callCompletionOnAllData() {
         if namePromise.isResolved, symbolPromise.isResolved, let tokenType = tokenTypePromise.value {
             switch tokenType {
-            case .erc875, .erc721, .erc721ForTickets:
+            case .erc875, .erc721, .erc721ForTickets, .erc1155:
                 if let nonFungibleBalance = nonFungibleBalancePromise.value {
                     let name = namePromise.value
                     let symbol = symbolPromise.value

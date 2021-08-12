@@ -264,7 +264,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                                 decimals: Int(decimals),
                                 type: .erc20,
                                 balance: ["0"]
-                            ))
+                            ), shouldUpdateBalance: true)
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                                 EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                             }

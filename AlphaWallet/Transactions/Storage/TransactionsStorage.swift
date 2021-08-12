@@ -268,6 +268,8 @@ class TransactionsStorage: Hashable {
                         tokenType = .erc721
                     case .erc875TokenTransfer:
                         tokenType = .erc875
+                    case .erc1155TokenTransfer:
+                        tokenType = .erc1155
                     case .unknown:
                         tokenType = .erc20
                     }

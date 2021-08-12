@@ -75,7 +75,7 @@ class SendCoordinator: Coordinator {
         case .ERC20Token(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
             controller.amountTextField.ethCost = amount ?? ""
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
         controller.delegate = self

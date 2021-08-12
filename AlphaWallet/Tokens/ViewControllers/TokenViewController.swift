@@ -47,6 +47,7 @@ class TokenViewController: UIViewController {
     private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
     private var activitiesSubscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
+
     init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, sessions: ServerDictionary<WalletSession>) {
         self.tokenObject = token
         self.viewModel = viewModel
@@ -192,7 +193,7 @@ class TokenViewController: UIViewController {
             tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.ethBalanceViewModel.currencyAmount
 
             configure(viewModel: viewModel)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,. ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -241,7 +242,7 @@ class TokenViewController: UIViewController {
                     tokenObject = TokenActionsServiceKey(tokenObject: token)
                 case .ERC20Token(let token, _, _):
                     tokenObject = TokenActionsServiceKey(tokenObject: token)
-                case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+                case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                     tokenObject = .none
                 }
 

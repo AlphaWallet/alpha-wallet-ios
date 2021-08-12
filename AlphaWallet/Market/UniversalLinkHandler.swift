@@ -58,7 +58,7 @@ public class UniversalLinkHandler {
             message = formatMessageForLink721Ticket(signedOrder: signedOrder)
         case .erc875:
             message = formatMessageForLink(signedOrder: signedOrder)
-        case .nativeCryptocurrency, .erc20, .erc721:
+        case .nativeCryptocurrency, .erc20, .erc721, .erc1155:
             // Should never happen
             return ""
         }
