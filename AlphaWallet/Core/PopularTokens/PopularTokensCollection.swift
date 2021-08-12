@@ -76,11 +76,11 @@ class PopularTokensCollection: NSObject, PopularTokensCollectionType {
                 queue.async {
                     do {
                         let data = try Data(contentsOf: self.tokensURL, options: .alwaysMapped)
-                        let respose = try JSONDecoder().decode(PopularTokenList.self, from: data)
+                        let response = try JSONDecoder().decode(PopularTokenList.self, from: data)
 
-                        Self.cache = respose.tokens
+                        Self.cache = response.tokens
 
-                        seal.fulfill(respose.tokens)
+                        seal.fulfill(response.tokens)
                     } catch {
                         seal.reject(error)
                     }
@@ -103,11 +103,11 @@ class LocalPopularTokensCollection: NSObject, PopularTokensCollectionType {
                 queue.async {
                     do {
                         let data = try Data(contentsOf: self.tokensURL, options: .alwaysMapped)
-                        let respose = try JSONDecoder().decode(PopularTokenList.self, from: data)
+                        let response = try JSONDecoder().decode(PopularTokenList.self, from: data)
 
-                        Self.cache = respose.tokens
+                        Self.cache = response.tokens
 
-                        seal.fulfill(respose.tokens)
+                        seal.fulfill(response.tokens)
                     } catch {
                         seal.reject(error)
                     }
