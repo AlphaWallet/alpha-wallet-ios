@@ -111,7 +111,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
             return
         case .erc875:
             redeemData = redeem.redeemMessage(indices: viewModel.tokenHolder.indices)
-        case .erc721, .erc721ForTickets:
+        case .erc721, .erc721ForTickets, .erc1155:
             redeemData = redeem.redeemMessage(tokenIds: viewModel.tokenHolder.tokens.map({ $0.id }))
         }
         switch session.account.type {

@@ -7,6 +7,7 @@ import Result
 import RealmSwift
 import SwiftyJSON
 
+// swiftlint:disable file_length
 enum TokenError: Error {
     case failedToFetch
 }
@@ -183,20 +184,20 @@ class TokensDataStore: NSObject {
     func addCustomPromise(token: ERCToken) -> Promise<TokenObject> {
         return Promise<TokenObject> { seal in
             DispatchQueue.main.async {
-                let token = self.addCustom(token: token)
+                let token = self.addCustom(token: token, shouldUpdateBalance: true)
                 seal.fulfill(token)
             }
         }
     }
 
-    @discardableResult func addCustom(token: ERCToken) -> TokenObject {
-        let newToken = TokensDataStore.tokenObject(ercToken: token)
+    @discardableResult func addCustom(token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
+        let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
         add(tokens: [newToken])
 
         return newToken
     }
 
-    private static func tokenObject(ercToken token: ERCToken) -> TokenObject {
+    private static func tokenObject(ercToken token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
                 server: token.server,
@@ -207,8 +208,10 @@ class TokensDataStore: NSObject {
                 isCustom: true,
                 type: token.type
         )
-        token.balance.forEach { balance in
-            newToken.balance.append(TokenBalance(balance: balance))
+        if shouldUpdateBalance {
+            token.balance.forEach { balance in
+                newToken.balance.append(TokenBalance(balance: balance))
+            }
         }
 
         return newToken
@@ -236,8 +239,7 @@ class TokensDataStore: NSObject {
                 case .delegateContracts(let delegateContract):
                     realm.add(delegateContract, update: .all)
                 case .ercToken(let token):
-                    let newToken = Self.tokenObject(ercToken: token)
-
+                    let newToken = Self.tokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
                     unsafeAddTokenOperation(tokenObject: newToken, realm: realm)
                     tokenObjects += [newToken]
                 case .tokenObject(let tokenObject):
@@ -351,7 +353,7 @@ class TokensDataStore: NSObject {
 
                     var value: Bool?
                     switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
+                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets, .erc1155:
                         break
                     case .erc20:
                         value = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .type(.erc721))
@@ -382,7 +384,7 @@ class TokensDataStore: NSObject {
                             balance: listOfJson
                     )
 
-                    strongSelf.addCustom(token: token)
+                    strongSelf.addCustom(token: token, shouldUpdateBalance: true)
 
                     seal.fulfill(true)
                 }
@@ -507,3 +509,21 @@ extension TokenObject {
         return .init(address: contractAddress, server: server)
     }
 }
+
+extension TokensDataStore {
+    class functional {}
+}
+
+extension TokensDataStore.functional {
+    static func nonFungibleTokenType(fromTokenType tokenType: TokenType) -> NonFungibleFromJsonTokenType {
+        switch tokenType {
+        case .erc721, .erc721ForTickets:
+            return NonFungibleFromJsonTokenType.erc721
+        case .erc1155:
+            return NonFungibleFromJsonTokenType.erc1155
+        case .nativeCryptocurrency, .erc20, .erc875:
+            return NonFungibleFromJsonTokenType.erc721
+        }
+    }
+}
+// swiftlint:enable file_length

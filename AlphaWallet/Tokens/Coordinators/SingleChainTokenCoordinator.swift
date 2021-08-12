@@ -250,10 +250,13 @@ class SingleChainTokenCoordinator: Coordinator {
                             return .value(.none)
                         }
                     case .erc721:
-                        //Handled in TokensDataStore.refreshBalanceForERC721Tokens()
+                        //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                         return .value(.none)
                     case .erc721ForTickets:
-                        //Handled in TokensDataStore.refreshBalanceForNonERC721TicketTokens()
+                        //Handled in PrivateBalanceFetcher.refreshBalanceForNonErc721Or1155Tokens()
+                        return .value(.none)
+                    case .erc1155:
+                        //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                         return .value(.none)
                     case .nativeCryptocurrency:
                         return .value(.none)
@@ -446,7 +449,7 @@ class SingleChainTokenCoordinator: Coordinator {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             break
-        case .erc721:
+        case .erc721, .erc1155:
             //TODO is this check still necessary?
             switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .backedByOpenSea:
@@ -527,7 +530,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func add(token: ERCToken) -> TokenObject {
-        let tokenObject = storage.addCustom(token: token)
+        let tokenObject = storage.addCustom(token: token, shouldUpdateBalance: true)
         notifyTokensDidChange()
 
         return tokenObject
@@ -669,7 +672,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch transactionType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .ERC1155Token, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: server)

@@ -58,7 +58,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
                                     type: .erc20,
                                     balance: ["0"]
                             )
-                            tokensDatastore.addCustom(token: token)
+                            tokensDatastore.addCustom(token: token, shouldUpdateBalance: true)
                             strongSelf.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
                         case .delegateTokenComplete:
                             break

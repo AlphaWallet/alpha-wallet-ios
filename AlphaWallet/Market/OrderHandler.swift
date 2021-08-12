@@ -83,7 +83,7 @@ public class OrderHandler {
                 )
                 messages.append(Data(bytes: message))
             }
-        case .erc721, .nativeCryptocurrency, .erc20:
+        case .erc721, .erc1155, .nativeCryptocurrency, .erc20:
             break
         }
         return messages

@@ -25,7 +25,7 @@ class TokenAdaptor {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return getNotSupportedByNonFungibleJsonTokenHolders(forWallet: account)
-        case .erc721:
+        case .erc721, .erc1155:
             let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: token)
             switch tokenType {
             case .supported:
@@ -40,7 +40,7 @@ class TokenAdaptor {
         let balance = token.balance
         var tokens = [Token]()
         switch token.type {
-        case .erc875, .erc721ForTickets, .erc721, .nativeCryptocurrency:
+        case .erc875, .erc721ForTickets, .erc721, .erc1155, .nativeCryptocurrency:
             for (index, item) in balance.enumerated() {
                 //id is the value of the bytes32 token
                 let id = item.balance
@@ -71,7 +71,7 @@ class TokenAdaptor {
         var tokens = [Token]()
         for item in balance {
             let jsonString = item.balance
-            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents) {
+            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
                 tokens.append(token)
             }
         }
@@ -86,7 +86,7 @@ class TokenAdaptor {
             } else {
                 break
             }
-        case .erc721, .erc721ForTickets:
+        case .erc721, .erc721ForTickets, .erc1155:
             return tokens.map { getTokenHolder(for: [$0]) }
         }
         var tokenHolders: [TokenHolder] = []
@@ -156,7 +156,7 @@ class TokenAdaptor {
         XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool) -> Token? {
+    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = nonFungible(fromJsonData: data) else { return nil }
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -208,7 +208,7 @@ class TokenAdaptor {
         }
         return Token(
                 tokenIdOrEvent: tokenIdOrEvent,
-                tokenType: TokenType.erc721,
+                tokenType: nonFungible.tokenType.asTokenType,
                 index: 0,
                 name: nonFungible.contractName,
                 symbol: "",

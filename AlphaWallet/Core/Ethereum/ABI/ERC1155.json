@@ -1,0 +1,67 @@
+[
+  {
+    "name" : "TransferSingle",
+    "inputs" : [
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_operator"
+      },
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_from"
+      },
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_to"
+      },
+      {
+        "type" : "uint256",
+        "name" : "_id",
+        "indexed" : false
+      },
+      {
+        "type" : "uint256",
+        "name" : "_value",
+        "indexed" : false
+      }
+    ],
+    "type" : "event",
+    "anonymous" : false
+  },
+
+  {
+    "name" : "TransferBatch",
+    "inputs" : [
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_operator"
+      },
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_from"
+      },
+      {
+        "type" : "address",
+        "indexed" : true,
+        "name" : "_to"
+      },
+      {
+        "type" : "uint256[]",
+        "name" : "_ids",
+        "indexed" : false
+      },
+      {
+        "type" : "uint256[]",
+        "name" : "_values",
+        "indexed" : false
+      }
+    ],
+    "type" : "event",
+    "anonymous" : false
+  }
+]

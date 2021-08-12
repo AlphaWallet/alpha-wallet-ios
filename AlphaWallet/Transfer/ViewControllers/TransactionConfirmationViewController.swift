@@ -207,7 +207,7 @@ class TransactionConfirmationViewController: UIViewController {
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
                     strongSelf.generateSubviews()
                 }
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
@@ -364,7 +364,7 @@ class TransactionConfirmationViewController: UIViewController {
                 let balanceBaseViewModel = sendFungiblesViewModel.session.balanceCoordinator.ethBalanceViewModel
 
                 sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 break
             }
         case .sendNftTransaction, .claimPaidErc875MagicLink:
