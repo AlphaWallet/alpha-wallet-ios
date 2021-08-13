@@ -39,8 +39,8 @@ class TokenImageView: UIView {
         }
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(edgeInsets: UIEdgeInsets = .zero) {
+        super.init(frame: .zero)
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imageView)
@@ -51,7 +51,7 @@ class TokenImageView: UIView {
         NSLayoutConstraint.activate([
             symbolLabel.anchorsConstraint(to: imageView),
 
-            imageView.anchorsConstraint(to: self),
+            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
     }
 

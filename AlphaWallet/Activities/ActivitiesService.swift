@@ -9,6 +9,7 @@ import UIKit
 import CoreFoundation
 
 protocol ActivitiesServiceType: class {
+    var sessions: ServerDictionary<WalletSession> { get }
     var subscribableViewModel: Subscribable<ActivitiesViewModel> { get }
     var subscribableUpdatedActivity: Subscribable<Activity> { get }
 
@@ -125,7 +126,7 @@ fileprivate class TokenObjectsCache: CachedTokenObjectResolverType {
 
 class ActivitiesService: NSObject, ActivitiesServiceType {
     private let config: Config
-    private let sessions: ServerDictionary<WalletSession>
+    let sessions: ServerDictionary<WalletSession>
     private let tokensStorages: ServerDictionary<TokensDataStore>
     private let tokenCollection: TokenCollection
 
@@ -393,6 +394,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             }
             //NOTE: using `tokenHolders[0]` i received crash with out of range exception
             guard let tokenHolder = tokenHolders.first else { return nil }
+
             let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
 
             return (activity: activity, tokenObject: tokenObject, tokenHolder: tokenHolder)

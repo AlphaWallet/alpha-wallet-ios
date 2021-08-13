@@ -1,5 +1,5 @@
 //
-//  SelectAssetViewModel.swift
+//  SelectTokenViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 17.07.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SelectAssetViewModel {
+class SelectTokenViewModel {
     let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
     let filter: WalletFilter

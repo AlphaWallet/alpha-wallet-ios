@@ -89,7 +89,8 @@ class TextView: UIControl {
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
-
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        
         return button
     }()
 

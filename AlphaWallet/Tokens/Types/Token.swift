@@ -14,7 +14,7 @@ struct Token {
         case available, sold, redeemed, forSale, transferred, pending, availableButDataUnavailable
     }
 
-    var id: BigUInt {
+    var id: TokenId {
         tokenIdOrEvent.tokenId
     }
     let tokenIdOrEvent: TokenIdOrEvent
@@ -24,6 +24,7 @@ struct Token {
     let symbol: String
     let status: Status
     let values: [AttributeId: AssetAttributeSyntaxValue]
+    let amount: Int? = .none
 
     static var empty: Token {
         return Token(

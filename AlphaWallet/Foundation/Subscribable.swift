@@ -10,6 +10,14 @@ open class Subscribable<T>: Hashable {
 
     public struct SubscribableKey: Hashable {
         let id = UUID()
+
+        public static func == (lhs: SubscribableKey, rhs: SubscribableKey) -> Bool {
+            return lhs.id == rhs.id
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     }
 
     private var _value: T?

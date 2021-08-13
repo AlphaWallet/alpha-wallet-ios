@@ -12,5 +12,5 @@ protocol TokenCardRowViewProtocol {
     var additionalHeightToCompensateForAutoLayout: CGFloat { get }
     var shouldOnlyRenderIfHeightIsCached: Bool { get set }
 
-    func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore)
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore)
 }

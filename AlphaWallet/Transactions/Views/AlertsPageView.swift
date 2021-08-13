@@ -7,9 +7,10 @@
 
 import UIKit
 
-class AlertsPageView: UIView, TokenPageViewType {
+class AlertsPageView: UIView, PageViewType {
     let title: String = "Alerts"
-
+    var rightBarButtonItem: UIBarButtonItem?
+    
     init() {
         super.init(frame: .zero)
 
