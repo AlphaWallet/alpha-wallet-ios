@@ -34,10 +34,6 @@ class TransactionDataCoordinator: Coordinator {
         return queue
     }()
 
-    weak var delegate: TransactionDataCoordinatorDelegate?
-    //TODO we do away with the Transactions tab and use Activity tab, we can remove this `delegate2`
-    weak var delegate2: TransactionDataCoordinatorDelegate?
-
     var coordinators: [Coordinator] = []
 
     init(
@@ -73,11 +69,6 @@ class TransactionDataCoordinator: Coordinator {
         for each in singleChainTransactionDataCoordinators {
             each.start()
         }
-
-        //Since start() is called at launch, and user don't see the Transactions tab immediately, we don't want it to block launching
-        DispatchQueue.global().async {
-            self.handleUpdateItems(reloadImmediately: false)
-        }
     }
 
     @objc private func stopTimers() {
@@ -108,7 +99,6 @@ class TransactionDataCoordinator: Coordinator {
         let tokensDataStore = tokensStorages[transaction.original.server]
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
         transactionCollection.add([transaction])
-        handleUpdateItems(reloadImmediately: true)
     }
 
     func stop() {
@@ -120,16 +110,10 @@ class TransactionDataCoordinator: Coordinator {
     private func singleChainTransactionDataCoordinator(forServer server: RPCServer) -> SingleChainTransactionDataCoordinator? {
         return singleChainTransactionDataCoordinators.first { $0.isServer(server) }
     }
-
-    private func handleUpdateItems(reloadImmediately: Bool) {
-        let objects = transactionCollection.objects
-        delegate?.didUpdate(result: .success(objects), reloadImmediately: reloadImmediately)
-        delegate2?.didUpdate(result: .success(objects), reloadImmediately: reloadImmediately)
-    }
 }
 
 extension TransactionDataCoordinator: SingleChainTransactionDataCoordinatorDelegate {
     func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator, reloadImmediately: Bool) {
-        handleUpdateItems(reloadImmediately: reloadImmediately)
+        // no-op
     }
 }

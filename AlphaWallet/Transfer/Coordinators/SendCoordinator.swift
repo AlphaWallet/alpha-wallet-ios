@@ -7,6 +7,7 @@ import PromiseKit
 import Result
 
 protocol SendCoordinatorDelegate: class, CanOpenURL {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
     func didCancel(in coordinator: SendCoordinator)
 }
@@ -151,13 +152,17 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
         coordinator.navigationController.displayError(message: error.prettyError)
     }
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: self)
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         coordinator.close { [weak self] in
             guard let strongSelf = self else { return }
 
             strongSelf.removeCoordinator(coordinator)
 
-            strongSelf.transactionConfirmationResult = result
+            strongSelf.transactionConfirmationResult = .confirmationResult(result)
 
             let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
             coordinator.delegate = strongSelf
