@@ -9,10 +9,10 @@ import UIKit
 
 struct TickerFieldValueViewModel {
     private let title: String
-    var attributedValue: NSAttributedString
+    var attributedValue: NSAttributedString?
     var separatorColor: UIColor = R.color.mercury()!
     
-    init(title: String, attributedValue: NSAttributedString) {
+    init(title: String, attributedValue: NSAttributedString?) {
         self.title = title
         self.attributedValue = attributedValue
     }
@@ -85,7 +85,7 @@ class TickerFieldValueView: UIView {
     func configure(viewModel: TickerFieldValueViewModel) {
         titleLabel.attributedText = viewModel.attributedTitle
         valueLabel.attributedText = viewModel.attributedValue
+        valueLabel.isHidden = valueLabel.attributedText == nil
         separatorView.backgroundColor = viewModel.separatorColor
     }
 }
-

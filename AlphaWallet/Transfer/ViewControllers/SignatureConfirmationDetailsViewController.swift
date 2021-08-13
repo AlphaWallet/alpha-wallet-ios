@@ -31,6 +31,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
         view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
+
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),

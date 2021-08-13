@@ -11,7 +11,7 @@ protocol TokenInfoPageViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView)
 }
 
-class TokenInfoPageView: UIView, TokenPageViewType {
+class TokenInfoPageView: UIView, PageViewType {
     private let headerViewRefreshInterval: TimeInterval = 5.0
 
     var title: String {
@@ -49,7 +49,8 @@ class TokenInfoPageView: UIView, TokenPageViewType {
     private let server: RPCServer
     private let token: TokenObject
     private let transactionType: TransactionType
-
+    var rightBarButtonItem: UIBarButtonItem?
+    
     init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
         self.server = server
         self.token = token

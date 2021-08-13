@@ -535,12 +535,7 @@ extension TokenInstanceWebView {
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
-}
-
-private func generateContainerCssId(forTokenHolder tokenHolder: TokenHolder) -> String {
-    //TODO this assumes tokenId is unique within an instance
-    return generateContainerCssId(forTokenId: tokenHolder.tokenIds[0])
-}
+} 
 
 private func generateContainerCssId(forTokenId tokenId: TokenId) -> String {
     return "token-card-\(tokenId)"
@@ -566,9 +561,12 @@ func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId: Token
                """
     }
 }
-
 func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder) -> String {
-    return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0])
+    return wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder, forTokenId: tokenHolder.tokenIds[0])
+}
+
+func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder, forTokenId: TokenId) -> String {
+    return wrapWithHtmlViewport(html: html, style: style, forTokenId: forTokenId)
 }
 
 extension String {

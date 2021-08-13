@@ -41,7 +41,6 @@ class SingleChainTokenCoordinator: Coordinator {
     private let coinTickersFetcher: CoinTickersFetcherType
     private let activitiesService: ActivitiesServiceType
     let session: WalletSession
-    private let sessions: ServerDictionary<WalletSession>
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
     private lazy var tokenProvider: TokenProviderType = TokenProvider(account: storage.account, server: storage.server)
@@ -64,10 +63,8 @@ class SingleChainTokenCoordinator: Coordinator {
             tokenActionsProvider: TokenActionsProvider,
             transactionsStorage: TransactionsStorage,
             coinTickersFetcher: CoinTickersFetcherType,
-            activitiesService: ActivitiesServiceType,
-            sessions: ServerDictionary<WalletSession>
+            activitiesService: ActivitiesServiceType
     ) {
-        self.sessions = sessions
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
@@ -422,6 +419,40 @@ class SingleChainTokenCoordinator: Coordinator {
             return
         }
 
+        switch token.type {
+        case .erc1155:
+            showTokensCardCollection(for: type, token: token, navigationController: navigationController)
+        case .erc721:
+            showTokenCard(for: type, token: token, navigationController: navigationController)
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+            break
+        }
+    }
+
+    private func showTokensCardCollection(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
+        let activitiesFilterStrategy: ActivitiesFilterStrategy = .erc20(contract: token.contractAddress)
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
+
+        let tokensCardCoordinator = TokensCardCollectionCoordinator(
+                session: session,
+                navigationController: navigationController,
+                keystore: keystore,
+                tokensStorage: storage,
+                ethPrice: cryptoPrice,
+                token: token,
+                assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: eventsDataStore,
+                analyticsCoordinator: analyticsCoordinator,
+                activitiesService: activitiesService
+        )
+
+        addCoordinator(tokensCardCoordinator)
+        //tokensCardCoordinator.delegate = self
+        tokensCardCoordinator.start()
+        tokensCardCoordinator.makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: type)
+    }
+
+    private func showTokenCard(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
         let tokensCardCoordinator = TokensCardCoordinator(
                 session: session,
                 navigationController: navigationController,
@@ -433,50 +464,30 @@ class SingleChainTokenCoordinator: Coordinator {
                 eventsDataStore: eventsDataStore,
                 analyticsCoordinator: analyticsCoordinator
         )
+
         addCoordinator(tokensCardCoordinator)
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
-
-        switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
-            makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
-        case (.send, .watch):
-            tokensCardCoordinator.isReadOnly = true
-        }
+        tokensCardCoordinator.makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(type: type)
     }
 
-    private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
-        switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            break
-        case .erc721, .erc1155:
-            //TODO is this check still necessary?
-            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-            case .backedByOpenSea:
-                break
-            case .notBackedByOpenSea:
-                coordinator.isReadOnly = true
-            }
-        }
-    }
-
-    private func transactionsFilter(for strategy: ActivitiesFilterStrategy, transactionType: TransactionType) -> TransactionsFilterStrategy {
+    private func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
         let filter = FilterInSingleTransactionsStorage(transactionsStorage: transactionsStorage) { tx in
             return strategy.isRecentTransaction(transaction: tx)
         }
 
-        return .filter(filter: filter, tokenObject: transactionType.tokenObject)
+        return .filter(filter: filter, tokenObject: tokenObject)
     }
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, transactionType: transactionType))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
         let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
-        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, sessions: sessions)
+        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService)
         viewController.delegate = self
 
-        //NOTE: refactor later with subscribable coin tiker, and chart history
+        //NOTE: refactor later with subscribable coin ticker, and chart history
         coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: token.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases).done { [weak self, weak viewController] history in
             guard let strongSelf = self, let viewController = viewController else { return }
 

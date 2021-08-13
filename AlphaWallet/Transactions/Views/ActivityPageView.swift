@@ -1,5 +1,5 @@
 //
-//  ActivityPageView.swift
+//  ActivitiesPageView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 12.05.2021.
@@ -20,19 +20,20 @@ struct ActivityPageViewModel {
     }
 }
 
-protocol ActivityPageViewDelegate: class {
-    func didTap(activity: Activity, in view: ActivityPageView)
-    func didTap(transaction: TransactionInstance, in view: ActivityPageView)
+protocol ActivitiesPageViewDelegate: class {
+    func didTap(activity: Activity, in view: ActivitiesPageView)
+    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView)
 }
 
-class ActivityPageView: UIView, TokenPageViewType {
+class ActivitiesPageView: UIView, PageViewType {
 
     var title: String { viewModel.title }
 
     private var activitiesView: ActivitiesView
     var viewModel: ActivityPageViewModel
-    weak var delegate: ActivityPageViewDelegate?
-
+    weak var delegate: ActivitiesPageViewDelegate?
+    var rightBarButtonItem: UIBarButtonItem?
+    
     init(viewModel: ActivityPageViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
         activitiesView = ActivitiesView(viewModel: viewModel.activitiesViewModel, sessions: sessions)
@@ -64,7 +65,7 @@ class ActivityPageView: UIView, TokenPageViewType {
     }
 }
 
-extension ActivityPageView: ActivitiesViewDelegate {
+extension ActivitiesPageView: ActivitiesViewDelegate {
 
     func didPressActivity(activity: Activity, in view: ActivitiesView) {
         delegate?.didTap(activity: activity, in: self)

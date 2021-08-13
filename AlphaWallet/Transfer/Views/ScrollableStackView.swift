@@ -40,7 +40,7 @@ class ScrollableStackView: UIView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-        ] + scrollView.anchorsConstraint(to: self))
+        ] + scrollView.anchorsConstraintSafeArea(to: self))
 
         configure(viewModel: viewModel)
     }

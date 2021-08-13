@@ -40,29 +40,29 @@ class SendViewSectionHeader: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    private let separatorHeight: CGFloat = 1
     private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(topSeparatorView)
         addSubview(textLabel)
         addSubview(bottomSeparatorView)
-        
+
+        topSeparatorLineHeight = topSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight)
         NSLayoutConstraint.activate([
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             textLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor, constant: -16),
             textLabel.topAnchor.constraint(equalTo: topAnchor, constant: 13),
             textLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13),
             
-            topSeparatorView.topAnchor.constraint(equalTo: topAnchor),
+            topSeparatorView.topAnchor.constraint(equalTo: topAnchor, constant: -separatorHeight),
             topSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
             
-            bottomSeparatorView.topAnchor.constraint(equalTo: bottomAnchor),
+            bottomSeparatorView.topAnchor.constraint(equalTo: bottomAnchor, constant: -separatorHeight),
             bottomSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
-            bottomSeparatorView.heightAnchor.constraint(equalToConstant: 1)
+            bottomSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight),
+            topSeparatorLineHeight
         ])
-        topSeparatorLineHeight = topSeparatorView.heightAnchor.constraint(equalToConstant: 1)
-        topSeparatorLineHeight.isActive = true
     }
     
     func configure(viewModel: SendViewSectionHeaderViewModel) {

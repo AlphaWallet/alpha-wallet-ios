@@ -95,7 +95,7 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
             }
         }
     }
-    
+
     //NOTE: in memory cache, should avoid crash while fetching tickers from file, `malloc: can't allocate region` received one time
     var tickers: [AddressAndRPCServer: CoinTicker] {
         get {
