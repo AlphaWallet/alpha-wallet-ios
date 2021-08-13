@@ -269,14 +269,14 @@ extension ActivitiesViewModel.functional {
         } else {
             switch (transactionRow.state, transactionRow.operation?.operationType) {
             case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingTransfer($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[safe: transactionRow.server]?.tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingTransfer($0) }
             case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedTransfer($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[safe: transactionRow.server]?.tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedTransfer($0) }
                     //Explicitly listing out combinations so future changes to enums will be caught by compiler
             case (.pending, .erc20TokenApprove):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingErc20Approval($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[safe: transactionRow.server]?.tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.pendingErc20Approval($0) }
             case (.completed, .erc20TokenApprove):
-                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[transactionRow.server].tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedErc20Approval($0) }
+                erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { tokensStorages[safe: transactionRow.server]?.tokenThreadSafe(forContract: $0) }.flatMap { TokenOperation.completedErc20Approval($0) }
             case (.unknown, _), (.error, _), (.failed, _), (_, .unknown), (.completed, .none), (.pending, nil):
                 erc20TokenOperation = .none
             }
