@@ -217,7 +217,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             for card in xmlHandler.activityCards {
                 let (filterName, filterValue) = card.eventOrigin.eventFilter
                 let interpolatedFilter: String
-                if let implicitAttribute = EventSourceCoordinatorForActivities.convertToImplicitAttribute(string: filterValue) {
+                if let implicitAttribute = EventSourceCoordinator.functional.convertToImplicitAttribute(string: filterValue) {
                     switch implicitAttribute {
                     case .tokenId:
                         continue

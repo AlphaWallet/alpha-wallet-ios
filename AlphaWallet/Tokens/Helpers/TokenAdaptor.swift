@@ -164,7 +164,7 @@ class TokenAdaptor {
         if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
             let filterValue: String
-            if let implicitAttribute = EventSourceCoordinator.convertToImplicitAttribute(string: eventFilter.value) {
+            if let implicitAttribute = EventSourceCoordinator.functional.convertToImplicitAttribute(string: eventFilter.value) {
                 switch implicitAttribute {
                 case .tokenId:
                     filterValue = eventFilter.value.replacingOccurrences(of: "${tokenId}", with: nonFungible.tokenId)
