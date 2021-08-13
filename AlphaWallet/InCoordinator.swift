@@ -1067,13 +1067,16 @@ extension InCoordinator: TokensCoordinatorDelegate {
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
+    
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {
+        handlePendingTransaction(transaction: transaction)
+    }
+
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         removeCoordinator(coordinator)
 
         switch result {
         case .sentTransaction(let transaction):
-            handlePendingTransaction(transaction: transaction)
-
             coordinator.dismiss(animated: false)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -1159,7 +1162,7 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
-    }
+    } 
 }
 
 // MARK: Analytics

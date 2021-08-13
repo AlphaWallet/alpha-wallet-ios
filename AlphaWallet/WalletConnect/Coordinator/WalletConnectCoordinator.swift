@@ -222,13 +222,15 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         let ethPrice = nativeCryptoCurrencyPrices[rpcServer]
         let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, ethPrice: ethPrice)
         return firstly {
-            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, account: session.account.address, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect)
+            TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect, didSendTransactionClosure: { [weak self] tx in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didSendTransaction(tx, inCoordinator: strongSelf)
+            })
         }.map { data -> WalletConnectServer.Callback in
             switch data {
             case .signedTransaction(let data):
                 return .init(id: id, url: url, value: data)
             case .sentTransaction(let transaction):
-                self.delegate?.didSendTransaction(transaction, inCoordinator: self)
                 let data = Data(_hex: transaction.id)
                 return .init(id: id, url: url, value: data)
             case .sentRawTransaction:
