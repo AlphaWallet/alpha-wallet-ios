@@ -124,24 +124,16 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
         coordinator.navigationController.displayError(message: error.prettyError)
     }
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: self)
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         coordinator.close { [weak self] in
             guard let strongSelf = self else { return }
 
             strongSelf.removeCoordinator(coordinator)
-
-            switch result {
-            case .confirmationResult(let confirmResult):
-                switch confirmResult {
-                case .sentTransaction(let transaction):
-                    strongSelf.delegate?.didSendTransaction(transaction, inCoordinator: strongSelf)
-                case .signedTransaction, .sentRawTransaction:
-                    break
-                }
-            case .noData:
-                break
-            }
-            strongSelf.transactionConfirmationResult = result
+            strongSelf.transactionConfirmationResult = .confirmationResult(result)
 
             let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.presentingViewController)
             coordinator.delegate = strongSelf

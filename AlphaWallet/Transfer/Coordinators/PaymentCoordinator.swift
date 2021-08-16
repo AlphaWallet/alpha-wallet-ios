@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 
 protocol PaymentCoordinatorDelegate: class, CanOpenURL {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)
     func didCancel(in coordinator: PaymentCoordinator)
 }
@@ -105,6 +106,10 @@ class PaymentCoordinator: Coordinator {
 }
 
 extension PaymentCoordinator: SendCoordinatorDelegate {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: self)
+    }
+
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator) {
         delegate?.didFinish(result, in: self)
     }

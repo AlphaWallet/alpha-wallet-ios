@@ -60,7 +60,8 @@ enum ConfirmResult {
 }
 
 protocol TransactionConfirmationCoordinatorDelegate: class, CanOpenURL {
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult)
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: TransactionConfirmationCoordinator)
 }
@@ -184,7 +185,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         firstly {
             sendTransaction()
         }.done { result in
-            self.showSuccess(result: result)
+            self.handleSendTransactionSuccessfully(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
             self.askUserToRateAppOrSubscribeToNewsletter()
         }.catch { error in
@@ -207,10 +208,17 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         return coordinator.send(transaction: transaction)
     }
 
-    private func showSuccess(result: ConfirmResult) {
+    private func handleSendTransactionSuccessfully(result: ConfirmResult) {
+        switch result {
+        case .sentTransaction(let tx):
+            delegate?.didSendTransaction(tx, inCoordinator: self)
+        case .sentRawTransaction, .signedTransaction:
+            break
+        }
+
         confirmationViewController.set(state: .done(withError: false)) {
             self.showFeedbackOnSuccess()
-            self.delegate?.coordinator(self, didCompleteTransaction: .confirmationResult(result))
+            self.delegate?.didFinish(result, in: self)
         }
     }
 

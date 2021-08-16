@@ -65,6 +65,14 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
         delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: result, inCoordinator: self)
     }
+
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        // no-op
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: .confirmationResult(result), inCoordinator: self)
+    }
 }
 
 extension TransferNFTCoordinator: CanOpenURL {

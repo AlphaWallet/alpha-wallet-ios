@@ -213,10 +213,14 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        // no-op
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         coordinator.close { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: result)
+            strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: .confirmationResult(result))
         }
         removeCoordinator(coordinator)
     }

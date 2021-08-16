@@ -399,30 +399,34 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
         removeCoordinator(coordinator)
         navigationController.dismiss(animated: true)
     }
+    
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        switch pendingTransaction {
+        case .data(let callbackID):
+            let data = Data(_hex: transaction.id)
+            let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
+            browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+            delegate?.didSentTransaction(transaction: transaction, inCoordinator: self)
+        case .none:
+            break
+        }
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         coordinator.close { [weak self] in
-            guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
+            guard let strongSelf = self else { return }
 
             switch (strongSelf.pendingTransaction, result) {
-            case (.data(let callbackID), .confirmationResult(let type)):
-                switch type {
-                case .signedTransaction(let data):
-                    let callback = DappCallback(id: callbackID, value: .signTransaction(data))
-                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-                    //TODO do we need to do this for a pending transaction?
-    //                    strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
-                case .sentTransaction(let transaction):
-                    // on send transaction we pass transaction ID only.
-                    let data = Data(_hex: transaction.id)
-                    let callback = DappCallback(id: callbackID, value: .sentTransaction(data))
-                    strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
-
-                    delegate.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
-                case .sentRawTransaction:
-                    break
-                }
-            case (.none, .noData), (.none, .confirmationResult), (.data, .noData):
+            case (.data(let callbackID), .signedTransaction(let data)):
+                let callback = DappCallback(id: callbackID, value: .signTransaction(data))
+                strongSelf.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+                //TODO do we need to do this for a pending transaction?
+                //strongSelf.delegate?.didSentTransaction(transaction: transaction, inCoordinator: strongSelf)
+            case (.data, .sentTransaction):
+                //moved up to `didSendTransaction` function
+                break
+            case (.none, _), (_, .sentTransaction), (_, .sentRawTransaction):
                 break
             }
 
