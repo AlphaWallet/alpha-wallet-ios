@@ -48,35 +48,7 @@ class TransactionsStorage: Hashable {
 
     var pendingObjects: [TransactionInstance] {
         objects.filter { $0.state == TransactionState.pending }.map { TransactionInstance(transaction: $0) }
-    }
-
-    func recentTransactions(for transactionType: TransactionType) -> [TransactionInstance] {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            return objects
-                    .filter { TransactionsStorage.filterTransactionsForNativeCryptocurrency(transaction: $0) }
-                    .map { TransactionInstance(transaction: $0) }
-
-        case .ERC20Token(let token, _, _):
-            return objects
-                    .filter { TransactionsStorage.filterTransactionsForERC20Token(transaction: $0, tokenObject: token) }
-                    .map { TransactionInstance(transaction: $0) }
-
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            return []
-        }
-    }
-
-    private static func filterTransactionsForNativeCryptocurrency(transaction: Transaction) -> Bool {
-        (transaction.state == .completed || transaction.state == .pending) && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
-    }
-
-    private static func filterTransactionsForERC20Token(transaction: Transaction, tokenObject token: TokenObject) -> Bool {
-        (transaction.state == .completed || transaction.state == .pending) && transaction.localizedOperations.contains(where: { op in
-            op.operationType == .erc20TokenTransfer && (op.contract.flatMap({ token.contractAddress.sameContract(as: $0) }) ?? false)
-        })
-    }
-
+    } 
 
     func transaction(withTransactionId transactionId: String) -> TransactionInstance? {
         realm.threadSafe.objects(Transaction.self)
@@ -292,7 +264,6 @@ class TransactionsStorage: Hashable {
             NSLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
     }
-
 
     static func deleteAllTransactions(realm: Realm) {
         for each in RPCServer.allCases {
