@@ -65,7 +65,7 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
+        let tokensStoragesForEnabledServers = config.enabledServers.compactMap { tokensStorages[safe: $0] }
         let fetchPromises = tokensStoragesForEnabledServers.flatMap {
             $0.enabledObject.flatMap { fetchEventsByTokenId(forToken: $0) }
         }
