@@ -12,7 +12,7 @@ enum TokenError: Error {
 }
 
 protocol TokensDataStoreDelegate: AnyObject {
-    func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
+    func didUpdate(in tokensDataStore: TokensDataStore, refreshImmediately: Bool)
 }
 
 protocol TokensDataStorePriceDelegate: AnyObject {
@@ -73,7 +73,6 @@ class TokensDataStore {
         return GetDecimalsCoordinator(forServer: server)
     }()
 
-    private let filterTokensCoordinator: FilterTokensCoordinator
     private let account: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
@@ -175,10 +174,8 @@ class TokensDataStore {
             account: Wallet,
             server: RPCServer,
             config: Config,
-            assetDefinitionStore: AssetDefinitionStore,
-            filterTokensCoordinator: FilterTokensCoordinator
+            assetDefinitionStore: AssetDefinitionStore
     ) {
-        self.filterTokensCoordinator = filterTokensCoordinator
         self.account = account
         self.server = server
         self.config = config
@@ -699,8 +696,7 @@ class TokensDataStore {
     private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
 
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: enabledObject, tickers: tickers)
-        delegate?.didUpdate(result: .success(tokensViewModel), refreshImmediately: refreshImmediately)
+        delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
     }
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
