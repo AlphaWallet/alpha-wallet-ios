@@ -53,6 +53,7 @@ struct ServerDictionary<T> {
 }
 
 extension ServerDictionary {
+    //TODO we should reduce the need for calling this as it implies we didn't clean up the app properly when switching wallets or it could hide programming errors where we access resources for chains that aren't enabled
     subscript(safe index: RPCServer) -> T? {
         return backingStore[index]
     }

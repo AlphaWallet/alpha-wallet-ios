@@ -281,7 +281,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             if let t = tokensCache[contract] {
                 token = t
             } else {
-                let tokensDatastore = tokensStorages[server]
+                guard let tokensDatastore = tokensStorages[safe: server] else { return nil }
                 guard let t = tokensDatastore.tokenThreadSafe(forContract: contract) else { return nil }
                 let tt = Activity.AssignedToken(tokenObject: t)
                 tokensCache[contract] = tt
@@ -312,7 +312,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
                     tokenHolders = [TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)]
                 } else {
-                    let tokensDatastore = tokensStorages[server]
+                    guard let tokensDatastore = tokensStorages[safe: server] else { return nil }
                     guard let t = tokensDatastore.tokenThreadSafe(forContract: tokenObject.contractAddress) else { return nil }
 
                     tokenHolders = TokenAdaptor(token: t, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet)
