@@ -103,7 +103,7 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
                 }
             }
 
-            group.notify(queue: self.backgroundQueue) {
+            group.notify(queue: backgroundQueue) {
                 completion()
             }
         } else {
