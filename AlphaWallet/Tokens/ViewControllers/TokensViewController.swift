@@ -272,9 +272,7 @@ class TokensViewController: UIViewController {
     }
 
     deinit {
-        if let key = subscriptionKey {
-            walletSummarySubscription.unsubscribe(key)
-        }
+        subscriptionKey.flatMap { walletSummarySubscription.unsubscribe($0) }
     }
 
     override func viewWillAppear(_ animated: Bool) {
