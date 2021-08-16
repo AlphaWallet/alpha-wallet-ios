@@ -15,7 +15,6 @@ class PaymentCoordinator: Coordinator {
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
-    private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
 
@@ -33,7 +32,6 @@ class PaymentCoordinator: Coordinator {
             keystore: Keystore,
             storage: TokensDataStore,
             ethPrice: Subscribable<Double>,
-            tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator
     ) {
@@ -43,7 +41,6 @@ class PaymentCoordinator: Coordinator {
         self.keystore = keystore
         self.storage = storage
         self.ethPrice = ethPrice
-        self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
 
@@ -57,16 +54,14 @@ class PaymentCoordinator: Coordinator {
         }
 
         switch (flow, session.account.type) {
-        case (.send(let type), .real(let account)):
+        case (.send(let type), .real):
             let coordinator = SendCoordinator(
                 transactionType: type,
                 navigationController: navigationController,
                 session: session,
                 keystore: keystore,
                 storage: storage,
-                account: account,
                 ethPrice: ethPrice,
-                tokenHolders: tokenHolders!,
                 assetDefinitionStore: assetDefinitionStore,
                 analyticsCoordinator: analyticsCoordinator
             )

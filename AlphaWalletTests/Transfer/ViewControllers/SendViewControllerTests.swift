@@ -135,7 +135,6 @@ class SendViewControllerTests: XCTestCase {
 
         let vc = SendViewController(session: session,
                                     storage: storage,
-                                    account: .make(),
                                     transactionType: nativeCryptocurrencyTransactionType,
                                     cryptoPrice: Subscribable<Double>.init(nil),
                                     assetDefinitionStore: AssetDefinitionStore())
