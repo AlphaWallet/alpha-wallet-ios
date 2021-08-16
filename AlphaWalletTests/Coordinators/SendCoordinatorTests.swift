@@ -13,7 +13,6 @@ class SendCoordinatorTests: XCTestCase {
             session: .make(),
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
-            account: .make(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService()
@@ -32,7 +31,6 @@ class SendCoordinatorTests: XCTestCase {
             session: .make(),
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
-            account: .make(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService()
