@@ -66,13 +66,14 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         let promises = firstly {
             tokensForEnabledRPCServers()
         }.map(on: queue, { data -> [Promise<Void>] in
-            data.flatMap { data in
-                self.fetchEvents(contract: data.contract, tokenType: data.tokenType, rpcServer: data.server)
+            return data.flatMap { [weak self] data -> [Promise<Void>] in
+                guard let strongSelf = self else { return [] }
+                return strongSelf.fetchEvents(contract: data.contract, tokenType: data.tokenType, rpcServer: data.server)
             }
         })
 
-        when(resolved: promises).done(on: queue, { _ in
-            self.isFetching = false
+        when(resolved: promises).done(on: queue, { [weak self] _ in
+            self?.isFetching = false
         })
     }
 
@@ -100,7 +101,6 @@ extension EventSourceCoordinatorForActivities.functional {
     static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void>? {
         return Promise { seal in
             queue.async {
-
                 let eventOrigin = card.eventOrigin
                 let (filterName, filterValue) = eventOrigin.eventFilter
                 let filterParam = eventOrigin.parameters.filter {
@@ -151,7 +151,7 @@ extension EventSourceCoordinatorForActivities.functional {
                             })
                     }
 
-                    return when(resolved: promises).map(on: queue, { res -> [EventActivityInstance] in
+                    return when(resolved: promises).map(on: queue, { _ -> [EventActivityInstance] in
                         promises.compactMap { $0.value }.compactMap { $0 }
                     })
                 }).then(on: queue, { events -> Promise<Void> in

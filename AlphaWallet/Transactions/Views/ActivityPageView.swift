@@ -31,20 +31,16 @@ class ActivityPageView: UIView, TokenPageViewType {
         viewModel.title
     }
 
-    private lazy var activitiesView: ActivitiesView = {
-        let view = ActivitiesView(viewModel: viewModel.activitiesViewModel, sessions: sessions)
-        view.delegate = self
-        return view
-    }()
+    private var activitiesView: ActivitiesView
     var viewModel: ActivityPageViewModel
-    private let sessions: ServerDictionary<WalletSession>
     weak var delegate: ActivityPageViewDelegate?
 
     init(viewModel: ActivityPageViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
-        self.sessions = sessions
+        activitiesView = ActivitiesView(viewModel: viewModel.activitiesViewModel, sessions: sessions)
         super.init(frame: .zero)
 
+        activitiesView.delegate = self
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(activitiesView)
 
@@ -53,6 +49,10 @@ class ActivityPageView: UIView, TokenPageViewType {
         ])
 
         configure(viewModel: viewModel)
+    }
+
+    deinit {
+        activitiesView.resetStatefulStateToReleaseObjectToAvoidMemoryLeak()
     }
 
     required init?(coder: NSCoder) {
