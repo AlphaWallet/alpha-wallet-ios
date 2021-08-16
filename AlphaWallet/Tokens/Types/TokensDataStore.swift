@@ -394,72 +394,103 @@ class TokensDataStore {
         return openSea.makeFetchPromise(forOwner: account.address)
     }
 
-    func getTokenType(for address: AlphaWallet.Address,
-                      completion: @escaping (TokenType) -> Void) {
-        var knownToBeNotERC721 = false
-        var knownToBeNotERC875 = false
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
-            //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
-            strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
-                guard self != nil else { return }
-                switch result {
-                case .success(let isERC875):
-                    if isERC875 {
-                        completion(.erc875)
-                        return
-                    } else {
-                        knownToBeNotERC875 = true
-                    }
-                case .failure:
-                    if !triggerRetry() {
-                        knownToBeNotERC875 = true
+    func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void) {
+        let isErc875Promise = Promise<Bool> { seal in
+            withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+                guard let strongSelf = self else { return }
+                //Function hash is "0x4f452b9a". This might cause many "execution reverted" RPC errors
+                //TODO rewrite flow so we reduce checks for this as it causes too many "execution reverted" RPC errors and looks scary when we look in Charles proxy. Maybe check for ERC20 (via EIP165) as well as ERC721 in parallel first, then fallback to this ERC875 check
+                strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
+                    guard self != nil else { return }
+                    switch result {
+                    case .success(let isERC875):
+                        if isERC875 {
+                            seal.fulfill(true)
+                        } else {
+                            seal.fulfill(false)
+                        }
+                    case .failure:
+                        if !triggerRetry() {
+                            seal.fulfill(false)
+                        }
                     }
                 }
-                if knownToBeNotERC721 && knownToBeNotERC875 {
-                    completion(.erc20)
+            }
+        }
+        enum Erc721Type {
+            case erc721
+            case erc721ForTickets
+            case notErc721
+        }
+        let isErc721Promise = Promise<Erc721Type> { seal in
+            withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+                guard let strongSelf = self else { return }
+                strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    switch result {
+                    case .success(let isERC721):
+                        if isERC721 {
+                            withRetry(times: strongSelf.numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry2 in
+                                guard let strongSelf = self else { return }
+                                strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { result in
+                                    switch result {
+                                    case .success(let isERC721ForTickets):
+                                        if isERC721ForTickets {
+                                            seal.fulfill(.erc721ForTickets)
+                                        } else {
+                                            seal.fulfill(.erc721)
+                                        }
+                                    case .failure:
+                                        if !triggerRetry2() {
+                                            seal.fulfill(.erc721)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            seal.fulfill(.notErc721)
+                        }
+                    case .failure:
+                        if !triggerRetry() {
+                            seal.fulfill(.notErc721)
+                        }
+                    }
                 }
             }
         }
 
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let isERC721):
-                    if isERC721 {
-                        withRetry(times: strongSelf.numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry2 in
-                            guard let strongSelf = self else { return }
-                            strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { result in
-                                switch result {
-                                case .success(let isERC721ForTickets):
-                                    if isERC721ForTickets {
-                                        completion(.erc721ForTickets)
-                                    } else {
-                                        completion(.erc721)
-                                    }
-                                case .failure:
-                                    if !triggerRetry2() {
-                                        completion(.erc721)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        knownToBeNotERC721 = true
-                    }
-                case .failure:
-                    if !triggerRetry() {
-                        knownToBeNotERC721 = true
-                    }
-                }
-                if knownToBeNotERC721 && knownToBeNotERC875 {
-                    completion(.erc20)
-                }
+        firstly {
+            isErc721Promise
+        }.done { isErc721 in
+            switch isErc721 {
+            case .erc721:
+                completion(.erc721)
+            case .erc721ForTickets:
+                completion(.erc721ForTickets)
+            case .notErc721:
+                break
             }
-        }
+        }.cauterize()
+
+        firstly {
+            isErc875Promise
+        }.done { isErc875 in
+            if isErc875 {
+                completion(.erc875)
+            } else {
+                //no-op
+            }
+        }.cauterize()
+
+        firstly {
+            when(fulfilled: isErc875Promise.asVoid(), isErc721Promise.asVoid())
+        }.done { _, _ in
+            if isErc875Promise.value == false && isErc721Promise.value == .notErc721 {
+                completion(.erc20)
+            } else {
+                //no-op
+            }
+        }.cauterize()
     }
 
     func tokenThreadSafe(forContract contract: AlphaWallet.Address) -> TokenObject? {
