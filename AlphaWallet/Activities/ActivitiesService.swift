@@ -276,7 +276,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
         //Cache tokens lookup for performance
         var tokensCache: [AlphaWallet.Address: Activity.AssignedToken] = .init()
-        let activitiesForThisCard: [(activity: Activity, tokenObject: Activity.AssignedToken, tokenHolders: TokenHolder)] = events.compactMap { eachEvent in
+        let activitiesForThisCard: [(activity: Activity, tokenObject: Activity.AssignedToken, tokenHolder: TokenHolder)] = events.compactMap { eachEvent in
             let token: Activity.AssignedToken
             if let t = tokensCache[contract] {
                 token = t
@@ -319,10 +319,11 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }
-
+            //NOTE: using `tokenHolders[0]` i received crash with out of range exception
+            guard let tokenHolder = tokenHolders.first else { return nil }
             let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
 
-            return (activity: activity, tokenObject: tokenObject, tokenHolders: tokenHolders[0])
+            return (activity: activity, tokenObject: tokenObject, tokenHolder: tokenHolder)
         }
 
         //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
