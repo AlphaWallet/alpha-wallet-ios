@@ -15,11 +15,9 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
-    private let account: AlphaWallet.Address
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
-    private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private var transactionConfirmationResult: TransactionConfirmationResult = .noData
@@ -38,20 +36,16 @@ class SendCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
-            account: AlphaWallet.Address,
             ethPrice: Subscribable<Double>,
-            tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.transactionType = transactionType
         self.navigationController = navigationController
         self.session = session
-        self.account = account
         self.keystore = keystore
         self.storage = storage
         self.ethPrice = ethPrice
-        self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator 
     }
@@ -66,7 +60,6 @@ class SendCoordinator: Coordinator {
         let controller = SendViewController(
             session: session,
             storage: storage,
-            account: account,
             transactionType: transactionType,
             cryptoPrice: ethPrice,
             assetDefinitionStore: assetDefinitionStore

@@ -27,7 +27,6 @@ class SendViewController: UIViewController {
     private var viewModel: SendViewModel
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
-    private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
@@ -58,13 +57,11 @@ class SendViewController: UIViewController {
     init(
             session: WalletSession,
             storage: TokensDataStore,
-            account: AlphaWallet.Address,
             transactionType: TransactionType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore
     ) {
         self.session = session
-        self.account = account
         self.storage = storage
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
