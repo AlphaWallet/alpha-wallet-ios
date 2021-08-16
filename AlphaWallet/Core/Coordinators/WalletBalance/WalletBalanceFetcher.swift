@@ -27,6 +27,8 @@ protocol WalletBalanceFetcherType: AnyObject {
     func start()
     func stop()
     func update(servers: [RPCServer])
+    func refreshEthBalance()
+    func refreshBalance()
 }
 
 class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
@@ -35,7 +37,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let wallet: Wallet
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
     let tokensChangeSubscribable: Subscribable<Void> = .init(nil)
-    private var tokensDataStores: ServerDictionary<(PrivateTokensDatastoreType, PrivateBalanceFetcherType)> = .init()
+    private var tokensDataStores: ServerDictionary<(PrivateTokensDatastoreType, PrivateBalanceFetcherType, TransactionsStorage)> = .init()
 
     var tokenObjects: [Activity.AssignedToken] {
         tokensDataStores.flatMap { $0.value.0.tokenObjects }
@@ -57,11 +59,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         super.init()
 
         for each in servers {
+            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
             let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, queue: queue)
+            balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
             balanceFetcher.delegate = self
 
-            self.tokensDataStores[each] = (tokensDatastore, balanceFetcher)
+            self.tokensDataStores[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
         }
 
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
@@ -79,11 +83,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             if tokensDataStores[safe: each] != nil {
                 //no-op
             } else {
+                let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
                 let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
                 let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, queue: queue)
+                balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
                 balanceFetcher.delegate = self
 
-                tokensDataStores[each] = (tokensDatastore, balanceFetcher)
+                tokensDataStores[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
             }
         }
 
@@ -95,7 +101,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func notifyUpdateTokenBalancesSubscribers() {
         for each in cache.value {
-            let tokensDatastore = tokensDataStores[each.key.server]
+            guard let tokensDatastore = tokensDataStores[safe: each.key.server] else { continue }
             guard let tokenObject = tokensDatastore.0.tokenObject(contract: each.key.address) else {
                 continue
             }
@@ -135,7 +141,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        let tokensDatastore = tokensDataStores[addressAndRPCServer.server]
+        guard let tokensDatastore = tokensDataStores[safe: addressAndRPCServer.server] else { return .init(nil) }
 
         guard let tokenObject = tokensDatastore.0.tokenObject(contract: addressAndRPCServer.address) else {
             return .init(nil)
@@ -187,20 +193,32 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func start() {
-        refreshBalance()
+        timedCallForBalanceRefresh()
 
         timer = Timer.scheduledTimer(withTimeInterval: Self.updateBalanceInterval, repeats: true) { [weak self] _ in
             guard let strongSelf = self else { return }
 
             strongSelf.queue.async {
-                strongSelf.refreshBalance()
+                strongSelf.timedCallForBalanceRefresh()
             }
         }
     }
 
-    private func refreshBalance() {
+    private func timedCallForBalanceRefresh() {
         for each in tokensDataStores {
-            each.value.1.refreshBalance()
+            each.value.1.refreshBalance(updatePolicy: .all, force: false)
+        }
+    }
+
+    func refreshEthBalance() {
+        for each in tokensDataStores {
+            each.value.1.refreshBalance(updatePolicy: .eth, force: true)
+        }
+    }
+
+    func refreshBalance() {
+        for each in tokensDataStores {
+            each.value.1.refreshBalance(updatePolicy: .ercTokens, force: true)
         }
     }
 

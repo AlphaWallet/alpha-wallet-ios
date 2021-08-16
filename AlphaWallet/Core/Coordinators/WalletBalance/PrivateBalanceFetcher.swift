@@ -19,12 +19,19 @@ protocol PrivateTokensDataStoreDelegate: AnyObject {
 
 protocol PrivateBalanceFetcherType: AnyObject {
     var delegate: PrivateTokensDataStoreDelegate? { get set }
+    var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
-    func refreshBalance()
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool)
 }
 
 class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     static let fetchContractDataTimeout = TimeInterval(4)
+    //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
+    private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
+        let configuration = URLSessionConfiguration.default
+        return SessionManager(configuration: configuration)
+    }()
+    weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     private lazy var getNativeCryptoCurrencyBalanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator = {
         return GetNativeCryptoCurrencyBalanceCoordinator(forServer: server, queue: backgroundQueue)
@@ -56,7 +63,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let openSea: OpenSea
     private let backgroundQueue: DispatchQueue
     private let server: RPCServer
-
+    private lazy var etherToken = Activity.AssignedToken(tokenObject: TokensDataStore.etherToken(forServer: server))
     private var isRefeshingBalance: Bool = false
     weak var delegate: PrivateTokensDataStoreDelegate?
     private var enabledObjectsObservation: NotificationToken?
@@ -77,13 +84,13 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             case .initial(let tokenObjects):
                 let tokenObjects = tokenObjects.map { Activity.AssignedToken(tokenObject: $0) }
 
-                strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), force: true)
+                strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: true)
             case .update(let updates, _, let insertions, _):
                 let values = updates.map { Activity.AssignedToken(tokenObject: $0) }
                 let tokenObjects = insertions.map { values[$0] }
                 guard !tokenObjects.isEmpty else { return }
 
-                strongSelf.refreshBalance(tokenObjects: tokenObjects, force: true)
+                strongSelf.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: true)
 
                 strongSelf.delegate?.didAddToken(in: strongSelf)
             case .error:
@@ -165,35 +172,22 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         return openSea.makeFetchPromise(forOwner: account.address)
     }
 
-    func refreshBalance() {
+    func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) {
         let tokenObjects = tokensDatastore.enabledObjects.map { Activity.AssignedToken(tokenObject: $0) }
-        refreshBalance(tokenObjects: Array(tokenObjects), force: false)
-    }
-
-    private func refreshBalance(tokenObjects: [Activity.AssignedToken], force: Bool = false) {
-        guard !isRefeshingBalance || force else { return }
-
-        isRefeshingBalance = true
-        let group: DispatchGroup = .init()
-
-        let nonERC721Tokens = tokenObjects.filter { !$0.isERC721AndNotForTickets }
-        //let erc721Tokens = tokenObjects.filter { $0.isERC721AndNotForTickets }
-
-        refreshBalanceForTokensThatAreNotNonTicket721(tokens: nonERC721Tokens, group: group)
-        //NOTE: Disable updating balance for ERC721 for now. need to pull upstream version, and update logic
-        //refreshBalanceForERC721Tokens(tokens: erc721Tokens, group: group, tokensDatastore: tokensDatastore)
-
-        group.notify(queue: backgroundQueue) {
-            self.isRefeshingBalance = false
-        }
+        refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: false)
     }
 
     private func refreshBalanceForTokensThatAreNotNonTicket721(tokens: [Activity.AssignedToken], group: DispatchGroup) {
+        assert(!tokens.contains { $0.isERC721AndNotForTickets })
+
         for tokenObject in tokens {
             group.enter()
 
             refreshBalance(forToken: tokenObject, tokensDatastore: tokensDatastore) { [weak self] balanceValueHasChange in
-                guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
+                guard let strongSelf = self, let delegate = strongSelf.delegate else {
+                    group.leave()
+                    return
+                }
 
                 if let value = balanceValueHasChange, value {
                     delegate.didUpdate(in: strongSelf)
@@ -204,17 +198,71 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
+    enum RefreshBalancePolicy {
+        case eth
+        case ercTokens
+        case all
+    }
+
+    private func refreshBalance(tokenObjects: [Activity.AssignedToken], updatePolicy: RefreshBalancePolicy, force: Bool = false) {
+        guard !isRefeshingBalance || force else { return }
+
+        isRefeshingBalance = true
+        let group: DispatchGroup = .init()
+
+        switch updatePolicy {
+        case .all:
+            refreshEthBalance(etherToken: etherToken, group: group)
+            refreshBalance(tokenObjects: tokenObjects, group: group)
+        case .ercTokens:
+            refreshBalance(tokenObjects: tokenObjects, group: group)
+        case .eth:
+            refreshEthBalance(etherToken: etherToken, group: group)
+        }
+
+        group.notify(queue: backgroundQueue) {
+            self.isRefeshingBalance = false
+        }
+    }
+
+    private func refreshEthBalance(etherToken: Activity.AssignedToken, group: DispatchGroup) {
+        let tokensDatastore = self.tokensDatastore
+        group.enter()
+        getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: account.address) { [weak self] result in
+            switch result {
+            case .success(let balance):
+                tokensDatastore.update(primaryKey: etherToken.primaryKey, action: .value(balance.value)) { balanceValueHasChange in
+                    guard let strongSelf = self, let delegate = strongSelf.delegate else {
+                        group.leave()
+                        return
+                    }
+
+                    if let value = balanceValueHasChange, value {
+                        delegate.didUpdate(in: strongSelf)
+                    }
+
+                    group.leave()
+                }
+            case .failure:
+                group.leave()
+            }
+        }
+    }
+
+    private func refreshBalance(tokenObjects: [Activity.AssignedToken], group: DispatchGroup) {
+        let updateTokens = tokenObjects.filter { $0 != etherToken }
+
+        let nonERC721Tokens = updateTokens.filter { !$0.isERC721AndNotForTickets }
+        let erc721Tokens = updateTokens.filter { $0.isERC721AndNotForTickets }
+
+        refreshBalanceForTokensThatAreNotNonTicket721(tokens: nonERC721Tokens, group: group)
+        refreshBalanceForERC721Tokens(tokens: erc721Tokens, group: group)
+    }
+
     private func refreshBalance(forToken tokenObject: Activity.AssignedToken, tokensDatastore: PrivateTokensDatastoreType, completion: @escaping (Bool?) -> Void) {
         switch tokenObject.type {
         case .nativeCryptocurrency:
-            getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: account.address) { result in
-                switch result {
-                case .success(let balance):
-                    tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .value(balance.value), completion: completion)
-                case .failure:
-                    completion(nil)
-                }
-            }
+            completion(nil)
         case .erc20:
             getERC20Balance(for: tokenObject.contractAddress, completion: { result in
                 switch result {
@@ -247,42 +295,118 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
-    private func refreshBalanceForERC721Tokens(tokens: [Activity.AssignedToken], group: DispatchGroup, tokensDatastore: PrivateTokensDatastoreType) {
-        guard OpenSea.isServerSupported(server) else { return }
-
-        getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
+    private func refreshBalanceForERC721Tokens(tokens: [Activity.AssignedToken], group: DispatchGroup) {
+        assert(!tokens.contains { !$0.isERC721AndNotForTickets })
+        firstly {
+            getTokensFromOpenSea()
+        }.done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
             let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0 }
             let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721ContractsFoundInOpenSea
+            strongSelf.updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea: erc721ContractsNotFoundInOpenSea, tokens: tokens, group: group)
+            strongSelf.updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, tokens: tokens, group: group)
+        }.cauterize()
+    }
 
-            for address in erc721ContractsNotFoundInOpenSea {
-                group.enter()
-                strongSelf.getERC721Balance(for: address) { [weak self] result in
-                    guard let strongSelf = self else { return }
+    private func updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea contracts: [AlphaWallet.Address], tokens: [Activity.AssignedToken], group: DispatchGroup) {
+        let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(contract: $0, tokens: tokens, tokensDatastore: tokensDatastore) }
+        group.enter()
 
-                    switch result {
-                    case .success(let balance):
-                        if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                            tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(balance)) { _ in
-                                group.leave()
-                                strongSelf.delegate?.didUpdate(in: strongSelf)
-                            }
-                        }
-                    case .failure:
-                        group.leave()
+        firstly {
+            when(resolved: promises)
+        }.done { _ in
+            group.leave()
+        }
+    }
+
+    private func updateNonOpenSeaNonFungiblesBalance(contract: AlphaWallet.Address, tokens: [Activity.AssignedToken], tokensDatastore: PrivateTokensDatastoreType) -> Promise<Void> {
+        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { _ in } }
+        return firstly {
+            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
+        }.then { tokenIds -> Promise<[String]> in
+            let guarantees: [Guarantee<String>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
+            return when(fulfilled: guarantees)
+        }.then { jsons -> Promise<Void> in
+            return Promise<Void> { seal in
+                guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else {
+                    seal.fulfill(())
+                    return
+                }
+                tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(jsons)) { _ in
+                    seal.fulfill(())
+                }
+            }
+        }.asVoid()
+    }
+
+    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
+        firstly {
+            Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
+        }.then {
+            self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
+        }.recover { _ in
+            var jsonDictionary = JSON()
+            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
+                jsonDictionary["tokenId"] = JSON(tokenId)
+                jsonDictionary["contractName"] = JSON(tokenObject.name)
+                jsonDictionary["symbol"] = JSON(tokenObject.symbol)
+                jsonDictionary["name"] = ""
+                jsonDictionary["imageUrl"] = ""
+                jsonDictionary["thumbnailUrl"] = ""
+                jsonDictionary["externalLink"] = ""
+            }
+            return .value(jsonDictionary.rawString()!)
+        }
+    }
+
+    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<String> {
+        struct Error: Swift.Error {
+        }
+        let uri = originalUri.rewrittenIfIpfs
+        return firstly {
+            //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
+            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
+        }.map { data, _ in
+            if let json = try? JSON(data: data) {
+                if json["error"] == "Internal Server Error" {
+                    throw Error()
+                } else {
+                    var jsonDictionary = json
+                    if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
+                        //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
+                        jsonDictionary["tokenId"] = JSON(tokenId)
+                        jsonDictionary["contractName"] = JSON(tokenObject.name)
+                        jsonDictionary["symbol"] = JSON(tokenObject.symbol)
+                        jsonDictionary["name"] = JSON(jsonDictionary["name"].stringValue)
+                        jsonDictionary["imageUrl"] = JSON(jsonDictionary["image"].string ?? jsonDictionary["image_url"].string ?? "")
+                        jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
+                        //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
+                        jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
+                    }
+                    if let jsonString = jsonDictionary.rawString() {
+                        return jsonString
+                    } else {
+                        throw Error()
                     }
                 }
+            } else {
+                throw Error()
             }
+        }
+    }
 
-            for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
-                group.enter()
-                tokensDatastore.addOrUpdateErc271(contract: contract, openSeaNonFungibles: openSeaNonFungibles, tokens: tokens) { [weak self] in
-                    guard let strongSelf = self else { return }
-
+    private func updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]], tokens: [Activity.AssignedToken], group: DispatchGroup) {
+        for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
+            group.enter()
+            tokensDatastore.addOrUpdateErc271(contract: contract, openSeaNonFungibles: openSeaNonFungibles, tokens: tokens) { [weak self] in
+                guard let strongSelf = self else {
                     group.leave()
-                    strongSelf.delegate?.didUpdate(in: strongSelf)
+                    return
                 }
+
+                group.leave()
+                strongSelf.delegate?.didUpdate(in: strongSelf)
             }
-        }.cauterize()
+        }
     }
 }
