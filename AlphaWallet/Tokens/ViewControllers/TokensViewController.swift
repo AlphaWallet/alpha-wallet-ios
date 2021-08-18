@@ -261,12 +261,11 @@ class TokensViewController: UIViewController {
         }
         blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
 
-        subscriptionKey = walletSummarySubscription.subscribe { [weak self] balance in
-            guard let strongSelf = self, let balance = balance else { return }
-
+        TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value)
+        subscriptionKey = walletSummarySubscription.subscribe { [weak walletSummaryView] balance in
             DispatchQueue.main.async {
-                let summary = WalletSummary(balances: [balance])
-                strongSelf.walletSummaryView.configure(viewModel: .init(summary: summary, alignment: .center))
+                guard let view = walletSummaryView else { return }
+                TokensViewController.reloadWalletSummaryView(view, with: balance)
             }
         }
     }
@@ -411,6 +410,11 @@ class TokensViewController: UIViewController {
         let size = tableViewHeader.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         tableViewHeader.bounds.size.height = size.height
         tableView.tableHeaderView = tableViewHeader
+    }
+
+    private static func reloadWalletSummaryView(_ walletSummaryView: WalletSummaryView, with balance: WalletBalance?) {
+        let summary = balance.map { WalletSummary(balances: [$0]) }
+        walletSummaryView.configure(viewModel: .init(summary: summary, alignment: .center))
     }
 }
 
