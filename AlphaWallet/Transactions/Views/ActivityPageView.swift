@@ -27,9 +27,7 @@ protocol ActivityPageViewDelegate: class {
 
 class ActivityPageView: UIView, TokenPageViewType {
 
-    var title: String {
-        viewModel.title
-    }
+    var title: String { viewModel.title }
 
     private var activitiesView: ActivitiesView
     var viewModel: ActivityPageViewModel
@@ -44,9 +42,7 @@ class ActivityPageView: UIView, TokenPageViewType {
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(activitiesView)
 
-        NSLayoutConstraint.activate([
-            activitiesView.anchorsConstraint(to: self)
-        ])
+        NSLayoutConstraint.activate([activitiesView.anchorsConstraint(to: self)])
 
         configure(viewModel: viewModel)
     }
