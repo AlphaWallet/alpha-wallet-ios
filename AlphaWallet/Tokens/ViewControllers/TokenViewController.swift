@@ -46,7 +46,7 @@ class TokenViewController: UIViewController {
     private lazy var alertsPageView = AlertsPageView()
     private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
-    
+    private var activitiesSubscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
     init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, sessions: ServerDictionary<WalletSession>) {
         self.tokenObject = token
         self.viewModel = viewModel
@@ -80,15 +80,19 @@ class TokenViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
-            guard let strongSelf = self, let viewModel = viewModel else { return }
+        activitiesSubscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak activityPageView] viewModel in
+            guard let view = activityPageView else { return }
 
-            strongSelf.activityPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
+            view.configure(viewModel: .init(activitiesViewModel: viewModel ?? .init(activities: [])))
         }
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    deinit {
+        activitiesSubscriptionKey.flatMap { activitiesService.subscribableViewModel.unsubscribe($0) }
     }
 
     override func viewDidLoad() {
