@@ -125,12 +125,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private var rateLimitedUpdater: RateLimiter?
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
-    private var lastActivitiesCount: Int = 0
-    private var lastTransactionRowsCount: Int = 0
-    private var lastTransactionBlockNumbers: [Int] = .init()
 
     let subscribableUpdatedActivity: Subscribable<Activity> = .init(nil)
-    let subscribableViewModel: Subscribable<ActivitiesViewModel> = .init(nil)
+    let subscribableViewModel: Subscribable<ActivitiesViewModel> = .init(.init(activities: []))
 
     private var tokensInDatabase: [TokenObject] {
         tokensStorages.values.flatMap { $0.enabledObject }
@@ -174,11 +171,11 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.transactionsFilterStrategy = transactionsFilterStrategy
         super.init()
         
-        filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] txs in
+        filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] _ in
             self?.reloadImpl(reloadImmediately: true)
         }
 
-        recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] activities in
+        recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] _ in
             self?.reloadImpl(reloadImmediately: true)
         }
     }
@@ -202,7 +199,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
     }
 
-    func reloadImpl(reloadImmediately: Bool) {
+    private func reloadImpl(reloadImmediately: Bool) {
         let contractServerXmlHandlers: [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)] = tokensInDatabase.compactMap { each in
             let eachContract = each.contractAddress
             let eachServer = each.server
@@ -244,7 +241,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             }
             return contractAndCard
         }
-
         let contractsAndCards = contractsAndCardsOptional.flatMap { $0 }
         fetchAndRefreshActivities(contractsAndCards: contractsAndCards, reloadImmediately: reloadImmediately)
     }
@@ -259,12 +255,15 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         activities = activitiesAndTokens.map { $0.0 }
         activities.sort { $0.blockNumber > $1.blockNumber }
         updateActivitiesIndexLookup()
+
         reloadViewController(reloadImmediately: reloadImmediately)
 
         for (activity, tokenObject, tokenHolder) in activitiesAndTokens {
             refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity)
         }
     }
+    //Cache tokens lookup for performance
+    private static var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
 
     private func getActivities(_ allActivities: [EventActivity], forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [(Activity, Activity.AssignedToken, TokenHolder)] {
         let events = allActivities.filter {
@@ -274,17 +273,14 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     && $0.filter == interpolatedFilter
         }
 
-        //Cache tokens lookup for performance
-        var tokensCache: [AlphaWallet.Address: Activity.AssignedToken] = .init()
         let activitiesForThisCard: [(activity: Activity, tokenObject: Activity.AssignedToken, tokenHolder: TokenHolder)] = events.compactMap { eachEvent in
             let token: Activity.AssignedToken
-            if let t = tokensCache[contract] {
+            if let t = Self.tokensCache[contract] {
                 token = t
             } else {
                 guard let tokensDatastore = tokensStorages[safe: server] else { return nil }
-                guard let t = tokensDatastore.tokenThreadSafe(forContract: contract) else { return nil }
-                let tt = Activity.AssignedToken(tokenObject: t)
-                tokensCache[contract] = tt
+                guard let tt = tokensDatastore.tokenThreadSafe(forContract: contract).flatMap({ Activity.AssignedToken(tokenObject: $0) }) else { return nil }
+                Self.tokensCache[contract] = tt
                 token = tt
             }
 
