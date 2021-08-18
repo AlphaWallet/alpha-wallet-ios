@@ -24,7 +24,6 @@ struct ActivitiesViewModel {
             hasher.combine(stringValue)
         }
 
-
         static func == (_ lhs: ActivityDateKey, _ rhs: ActivityDateKey) -> Bool {
             return lhs.stringValue == rhs.stringValue
         }

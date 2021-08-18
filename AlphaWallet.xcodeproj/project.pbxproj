@@ -732,6 +732,7 @@
 		87374A4525DFB17600267160 /* HoneySwapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */; };
 		8738DDDC2652B98200064CCA /* ActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDB2652B98200064CCA /* ActivitiesService.swift */; };
 		8738DDDE2652CD1300064CCA /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDD2652CD1300064CCA /* MulticastDelegate.swift */; };
+		8739BB8F26CCF2F70045CFED /* ActivitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB8E26CCF2F70045CFED /* ActivitiesView.swift */; };
 		873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */; };
 		8743CB50255059780039E469 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8743CB4F255059780039E469 /* DomainResolver.swift */; };
 		874AF0832603405F00D613A5 /* LoadingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */; };
@@ -1689,6 +1690,7 @@
 		87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwapERC20Token.swift; sourceTree = "<group>"; };
 		8738DDDB2652B98200064CCA /* ActivitiesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesService.swift; sourceTree = "<group>"; };
 		8738DDDD2652CD1300064CCA /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
+		8739BB8E26CCF2F70045CFED /* ActivitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesView.swift; sourceTree = "<group>"; };
 		873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyButton.swift; sourceTree = "<group>"; };
 		8743CB4F255059780039E469 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
 		874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorView.swift; sourceTree = "<group>"; };
@@ -3298,6 +3300,7 @@
 				5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */,
 				8795994426049EF8006722B2 /* ActivityStateView.swift */,
 				5E7C7E58DD0CF4E2B35B6ED2 /* GroupActivityViewCell.swift */,
+				8739BB8E26CCF2F70045CFED /* ActivitiesView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5170,6 +5173,7 @@
 				2963B6C11F9AE0E4003063C1 /* Data.swift in Sources */,
 				2932045E1F8EEE760095B7C1 /* BalanceCoordinator.swift in Sources */,
 				29F114F61FA8147300114A29 /* RequestCoordinator.swift in Sources */,
+				8739BB8F26CCF2F70045CFED /* ActivitiesView.swift in Sources */,
 				73ED85A520349BE400593BF3 /* StringFormatter.swift in Sources */,
 				293112101FC4ADCB00966EEA /* InCoordinatorViewModel.swift in Sources */,
 				87BBF9972563DD7600FF4846 /* TransactionInProgressCoordinatorBridgeToPromise.swift in Sources */,
