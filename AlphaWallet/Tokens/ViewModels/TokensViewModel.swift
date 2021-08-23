@@ -111,8 +111,12 @@ class TokensViewModel {
     private func filteredAndSortedTokens() -> [TokenObjectOrRpcServerPair] {
         let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
         let tokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
-
-        return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
+        switch filter {
+        case .all, .type, .currencyOnly, .assetsOnly, .keyword:
+            return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
+        case .collectiblesOnly:
+            return tokens.map { .tokenObject($0) }
+        }
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
