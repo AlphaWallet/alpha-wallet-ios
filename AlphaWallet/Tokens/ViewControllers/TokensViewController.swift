@@ -632,7 +632,7 @@ extension TokensViewController: SegmentedControlDelegate {
 }
 
 extension TokensViewController: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         //Defensive check to make sure we don't return the wrong count. iOS might decide to load (the first time especially) the collection view at some point even if we don't switch to it, thus getting the wrong count and then at some point asking for a cell for those non-existent rows/items. E.g 10 tokens total, only 3 are collectibles and asked for the 6th cell
         switch viewModel.filter {
         case .collectiblesOnly:
@@ -642,7 +642,7 @@ extension TokensViewController: UICollectionViewDataSource {
         }
     }
 
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch viewModel.item(for: indexPath.row, section: indexPath.section) {
         case .rpcServer:
             return UICollectionViewCell()
@@ -664,7 +664,7 @@ extension TokensViewController: UICollectionViewDataSource {
 }
 
 extension TokensViewController: UICollectionViewDelegate {
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
 
         switch viewModel.item(for: indexPath.item, section: indexPath.section) {
@@ -679,7 +679,7 @@ extension TokensViewController: UICollectionViewDelegate {
 extension TokensViewController: UISearchResultsUpdating {
     //At least on iOS 13 beta on a device. updateSearchResults(for:) is called when we set `searchController.isActive = false` to dismiss search (because user tapped on a filter), but the value of `searchController.isActive` remains `false` during the call, hence the async.
     //This behavior is not observed in iOS 12, simulator
-    public func updateSearchResults(for searchController: UISearchController) {
+    func updateSearchResults(for searchController: UISearchController) {
         DispatchQueue.main.async {
             self.processSearchWithKeywords()
         }
