@@ -62,6 +62,7 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: Method.signTypedMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.ethCall.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: WalletCommand.Method.walletAddEthereumChain.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: BrowserViewController.locationChangedEventName)
         //TODO extract like `Method.signTypedMessage.rawValue` when we have more than 1
         webViewConfig.userContentController.add(messageHandler, name: TokenInstanceWebView.SetProperties.setActionProps)
         return webViewConfig
@@ -147,6 +148,30 @@ extension WKWebViewConfiguration {
                return cb(null, addressHex)
              }
              window.ethereum = web3.currentProvider
+               
+             // So we can detect when sites use History API to generate the page location. Especially common with React and similar frameworks
+             ;(function() {
+               var pushState = history.pushState;
+               var replaceState = history.replaceState;
+
+               history.pushState = function() {
+                 pushState.apply(history, arguments);
+                 window.dispatchEvent(new Event('locationchange'));
+               };
+
+               history.replaceState = function() {
+                 replaceState.apply(history, arguments);
+                 window.dispatchEvent(new Event('locationchange'));
+               };
+
+               window.addEventListener('popstate', function() {
+                 window.dispatchEvent(new Event('locationchange'))
+               });
+             })();
+
+             window.addEventListener('locationchange', function(){
+               webkit.messageHandlers.\(BrowserViewController.locationChangedEventName).postMessage(window.location.href)
+             })
              """
     }
 
