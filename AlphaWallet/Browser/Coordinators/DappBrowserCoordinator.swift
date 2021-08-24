@@ -137,6 +137,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        //If we hit a bug where the stack doesn't change immediately, be sure that we haven't changed the stack (eg. push/pop) with animation and it hasn't comppleted yet
         navigationController.viewControllers = [rootViewController]
     }
 
@@ -399,7 +400,7 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
         removeCoordinator(coordinator)
         navigationController.dismiss(animated: true)
     }
-    
+
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         switch pendingTransaction {
         case .data(let callbackID):
@@ -757,9 +758,11 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
         case .auto:
             break
         case .server(let server):
-            coordinator.navigationController.popViewController(animated: true)
-            removeCoordinator(coordinator)
-            `switch`(toServer: server)
+            coordinator.navigationController.popViewController(animated: true) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.removeCoordinator(coordinator)
+                strongSelf.`switch`(toServer: server)
+            }
         }
     }
 
