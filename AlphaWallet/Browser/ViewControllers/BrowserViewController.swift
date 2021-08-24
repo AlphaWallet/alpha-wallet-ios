@@ -16,6 +16,8 @@ protocol BrowserViewControllerDelegate: AnyObject {
 }
 
 final class BrowserViewController: UIViewController {
+    static let locationChangedEventName = "locationChanged"
+
     private var myContext = 0
     private let account: Wallet
     private let server: RPCServer
@@ -238,7 +240,12 @@ extension BrowserViewController: WKNavigationDelegate {
 
 extension BrowserViewController: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let command = DappAction.fromMessage(message) else { return }
+        guard let command = DappAction.fromMessage(message) else {
+            if message.name == Self.locationChangedEventName {
+                recordURL()
+            }
+            return
+        }
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
         let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
