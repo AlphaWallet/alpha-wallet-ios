@@ -30,9 +30,25 @@ class TokensViewModel {
     var tokens: [TokenObject]
     let tickers: [AddressAndRPCServer: CoinTicker]
 
+    var isSearchActive: Bool = false
     var filter: WalletFilter = .all {
         didSet {
             filteredTokens = filteredAndSortedTokens()
+            refreshSections(walletConnectSessions: walletConnectSessions)
+        }
+    }
+    var walletConnectSessions: Int = 0
+    private (set) var sections: [TokensViewController.Section] = []
+
+    private func refreshSections(walletConnectSessions count: Int) {
+        if isSearchActive {
+            sections = [.tokens]
+        } else {
+            if count == .zero {
+                sections = [.walletSummary, .filters, .addHideToken, .tokens]
+            } else {
+                sections = [.walletSummary, .filters, .addHideToken, .activeWalletSession(count: count), .tokens]
+            }
         }
     }
 

@@ -37,6 +37,15 @@ extension UIView {
         layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
 
+    func anchorsConstraintLessThanOrEqualTo(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
+        return [
+            leadingAnchor.constraint(lessThanOrEqualTo: view.leadingAnchor, constant: edgeInsets.left),
+            trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -edgeInsets.right),
+            topAnchor.constraint(lessThanOrEqualTo: view.topAnchor, constant: edgeInsets.top),
+            bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -edgeInsets.bottom),
+        ]
+    }
+
     func anchorsConstraint(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
         return [
             leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: edgeInsets.left),
