@@ -19,7 +19,7 @@ class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
-    private enum Section {
+    enum Section {
         case walletSummary
         case filters
         case addHideToken
@@ -30,11 +30,13 @@ class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    private var sections: [Section] = [.walletSummary, .filters, .addHideToken, .tokens]
-
+    
     private var viewModel: TokensViewModel {
         didSet {
+            viewModel.walletConnectSessions = oldValue.walletConnectSessions
+            viewModel.isSearchActive = oldValue.isSearchActive
             viewModel.filter = oldValue.filter
+
             refreshView(viewModel: viewModel)
         }
     }
@@ -180,7 +182,7 @@ class TokensViewController: UIViewController {
             }
         }
     }
-    private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 10, right: 0))
+    private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: -10)
     private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
     private let walletSummarySubscription: Subscribable<WalletBalance>
 
@@ -208,7 +210,7 @@ class TokensViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
-
+        searchController.delegate = self
         view.backgroundColor = viewModel.backgroundColor
 
         tableViewFilterView.delegate = self
@@ -252,11 +254,11 @@ class TokensViewController: UIViewController {
 
         walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
             guard let strongSelf = self, let sessionsToURLServersMap = value else { return }
-            if sessionsToURLServersMap.sessions.isEmpty {
-                strongSelf.sections = [.walletSummary, .filters, .addHideToken, .tokens]
-            } else {
-                strongSelf.sections = [.walletSummary, .filters, .addHideToken, .activeWalletSession(count: sessionsToURLServersMap.sessions.count), .tokens]
-            }
+
+            let viewModel = strongSelf.viewModel
+            viewModel.walletConnectSessions = sessionsToURLServersMap.sessions.count
+            strongSelf.viewModel = viewModel
+
             strongSelf.tableView.reloadData()
         }
         blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
@@ -268,6 +270,7 @@ class TokensViewController: UIViewController {
                 TokensViewController.reloadWalletSummaryView(view, with: balance)
             }
         }
+        navigationItem.largeTitleDisplayMode = .never
     }
 
     deinit {
@@ -446,7 +449,7 @@ extension TokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch sections[section] {
+        switch viewModel.sections[section] {
         case .walletSummary:
             return 80
         case .filters:
@@ -461,7 +464,7 @@ extension TokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        switch sections[section] {
+        switch viewModel.sections[section] {
         case .walletSummary:
             let header: TokensViewController.GeneralTableViewSectionHeader<WalletSummaryView> = tableView.dequeueReusableHeaderFooterView()
             header.subview = walletSummaryView
@@ -500,7 +503,7 @@ extension TokensViewController: ActiveWalletSessionViewDelegate {
 extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch sections[indexPath.section] {
+        switch viewModel.sections[indexPath.section] {
         case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return UITableViewCell()
         case .tokens:
@@ -548,7 +551,7 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch sections[section] {
+        switch viewModel.sections[section] {
         case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return 0
         case .tokens:
@@ -557,11 +560,11 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        sections.count
+        viewModel.sections.count
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        switch sections[indexPath.section] {
+        switch viewModel.sections[indexPath.section] {
         case .addHideToken, .walletSummary, .filters, .activeWalletSession:
             return nil
         case .tokens:
@@ -663,6 +666,16 @@ extension TokensViewController: UICollectionViewDataSource {
     }
 }
 
+extension TokensViewController: UISearchControllerDelegate {
+    func willPresentSearchController(_ searchController: UISearchController) {
+        viewModel.isSearchActive = true
+    }
+
+    func willDismissSearchController(_ searchController: UISearchController) {
+        viewModel.isSearchActive = false
+    }
+}
+
 extension TokensViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
@@ -686,11 +699,7 @@ extension TokensViewController: UISearchResultsUpdating {
     }
 
     private func processSearchWithKeywords() {
-        if searchController.isActive {
-            shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = true
-        } else {
-            shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = false
-        }
+        shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = searchController.isActive
         guard searchController.isActive else {
             switch viewModel.filter {
             case .all, .currencyOnly, .assetsOnly, .collectiblesOnly, .type:
