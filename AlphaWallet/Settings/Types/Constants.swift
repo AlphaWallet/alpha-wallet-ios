@@ -182,6 +182,13 @@ public struct Constants {
 
     //EtherNumberFormatter
     static let etherFormatterFractionDigits = 4
+
+    static let defaultSortTokensParams: [SortTokensParam] =  [
+        .byField(field: .name, direction: .ascending),
+        .byField(field: .name, direction: .descending),
+        .byField(field: .value, direction: .ascending),
+        .byField(field: .value, direction: .descending)
+    ]
 }
 
 public struct UnitConfiguration {
