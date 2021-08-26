@@ -102,6 +102,16 @@ class TokenViewController: UIViewController {
         configure(viewModel: viewModel)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        hideNavigationBarTopSeparatorLine()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showNavigationBarTopSeparatorLine()
+    }
+
     func configure(viewModel: TokenViewControllerViewModel) {
         self.viewModel = viewModel
 
