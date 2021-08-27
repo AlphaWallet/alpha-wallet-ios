@@ -135,7 +135,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
+        ContractDataDetector(address: contract, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
     }
 }
 

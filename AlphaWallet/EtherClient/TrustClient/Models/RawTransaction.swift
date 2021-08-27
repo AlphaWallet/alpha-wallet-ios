@@ -103,10 +103,11 @@ extension TransactionInstance {
                 let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
                 return .value([result])
             } else {
-                let getContractName = tokensStorage.getContractName(for: contract)
-                let getContractSymbol = tokensStorage.getContractSymbol(for: contract)
-                let getDecimals = tokensStorage.getDecimals(for: contract)
-                let getTokenType = tokensStorage.getTokenType(for: contract)
+                let tokenProvider: TokenProviderType = TokenProvider(account: tokensStorage.account, server: tokensStorage.server)
+                let getContractName = tokenProvider.getContractName(for: contract)
+                let getContractSymbol = tokenProvider.getContractSymbol(for: contract)
+                let getDecimals = tokenProvider.getDecimals(for: contract)
+                let getTokenType = tokenProvider.getTokenType(for: contract)
 
                 return firstly {
                     when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)

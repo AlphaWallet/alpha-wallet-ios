@@ -509,6 +509,7 @@ class UniversalLinkCoordinator: Coordinator {
             }
 
             let tokensDatastore = strongSelf.tokensDatastore
+            let tokenProvider: TokenProviderType = TokenProvider(account: tokensDatastore.account, server: tokensDatastore.server)
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
                 let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
@@ -516,9 +517,9 @@ class UniversalLinkCoordinator: Coordinator {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                let getContractName = tokensDatastore.getContractName(for: contractAddress)
-                let getContractSymbol = tokensDatastore.getContractSymbol(for: contractAddress)
-                let getTokenType = tokensDatastore.getTokenType(for: contractAddress)
+                let getContractName = tokenProvider.getContractName(for: contractAddress)
+                let getContractSymbol = tokenProvider.getContractSymbol(for: contractAddress)
+                let getTokenType = tokenProvider.getTokenType(for: contractAddress)
                 firstly {
                     when(fulfilled: getContractName, getContractSymbol, getTokenType)
                 }.done { name, symbol, type in
