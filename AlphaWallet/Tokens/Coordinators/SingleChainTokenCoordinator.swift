@@ -8,17 +8,6 @@ import RealmSwift
 import PromiseKit
 import Result
 
-enum ContractData {
-    case name(String)
-    case symbol(String)
-    case balance(balance: [String], tokenType: TokenType)
-    case decimals(UInt8)
-    case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
-    case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
-    case delegateTokenComplete
-    case failed(networkReachable: Bool?)
-}
-
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {
         return R.string.localizable.aWalletNoTokens()
@@ -369,7 +358,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        fetchContractDataFor(address: address, storage: storage, assetDefinitionStore: assetDefinitionStore, completion: completion)
+        ContractDataDetector(address: address, storage: storage, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
     }
 
     func showTokenList(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
@@ -420,7 +409,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let filter = FilterInSingleTransactionsStorage(transactionsStorage: transactionsStorage) { tx in
             return strategy.isRecentTransaction(transaction: tx)
         }
-        
+
         return .filter(filter: filter)
     }
 
@@ -442,7 +431,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }.catch { _ in
             //no-op
         }
-        
+
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: {
             navigationController.popToRootViewController(animated: true)
         })
@@ -718,125 +707,3 @@ extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate 
         removeCoordinator(coordinator)
     }
 }
-
-/// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
-// swiftlint:disable function_body_length
-func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, completion: @escaping (ContractData) -> Void) {
-    var completedName: String?
-    var completedSymbol: String?
-    var completedBalance: [String]?
-    var completedDecimals: UInt8?
-    var completedTokenType: TokenType?
-    var failed = false
-
-    func callCompletionFailed() {
-        guard !failed else { return }
-        failed = true
-        //TODO maybe better to share an instance of the reachability manager
-        completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
-    }
-
-    func callCompletionAsDelegateTokenOrNot() {
-        assert(completedSymbol != nil && completedSymbol?.isEmpty == true)
-        //Must check because we also get an empty symbol (and name) if there's no connectivity
-        //TODO maybe better to share an instance of the reachability manager
-        if let reachabilityManager = NetworkReachabilityManager(), reachabilityManager.isReachable {
-            completion(.delegateTokenComplete)
-        } else {
-            callCompletionFailed()
-        }
-    }
-
-    func callCompletionOnAllData() {
-        if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
-            if completedSymbol.isEmpty {
-                callCompletionAsDelegateTokenOrNot()
-            } else {
-                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
-            }
-        } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
-            if completedSymbol.isEmpty {
-                callCompletionAsDelegateTokenOrNot()
-            } else {
-                completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
-            }
-        }
-    }
-
-    assetDefinitionStore.fetchXML(forContract: address)
-
-    storage.getContractName(for: address) { result in
-        switch result {
-        case .success(let name):
-            completedName = name
-            completion(.name(name))
-            callCompletionOnAllData()
-        case .failure:
-            callCompletionFailed()
-        }
-    }
-
-    storage.getContractSymbol(for: address) { result in
-        switch result {
-        case .success(let symbol):
-            completedSymbol = symbol
-            completion(.symbol(symbol))
-            callCompletionOnAllData()
-        case .failure:
-            callCompletionFailed()
-        }
-    }
-
-    storage.getTokenType(for: address) { tokenType in
-        completedTokenType = tokenType
-        switch tokenType {
-        case .erc875:
-            storage.getERC875Balance(for: address) { result in
-                switch result {
-                case .success(let balance):
-                    completedBalance = balance
-                    completion(.balance(balance: balance, tokenType: .erc875))
-                    callCompletionOnAllData()
-                case .failure:
-                    callCompletionFailed()
-                }
-            }
-        case .erc721:
-            storage.getERC721Balance(for: address) { result in
-                switch result {
-                case .success(let balance):
-                    completedBalance = balance
-                    completion(.balance(balance: balance, tokenType: .erc721))
-                    callCompletionOnAllData()
-                case .failure:
-                    callCompletionFailed()
-                }
-            }
-        case .erc721ForTickets:
-            storage.getERC721ForTicketsBalance(for: address) { result in
-                switch result {
-                case .success(let balance):
-                    completedBalance = balance
-                    completion(.balance(balance: balance, tokenType: .erc721ForTickets))
-                    callCompletionOnAllData()
-                case .failure:
-                    callCompletionFailed()
-                }
-            }
-        case .erc20:
-            storage.getDecimals(for: address) { result in
-                switch result {
-                case .success(let decimal):
-                    completedDecimals = decimal
-                    completion(.decimals(decimal))
-                    callCompletionOnAllData()
-                case .failure:
-                    callCompletionFailed()
-                }
-            }
-        case .nativeCryptocurrency:
-            break
-        }
-    }
-}
-// swiftlint:enable function_body_length

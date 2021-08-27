@@ -251,7 +251,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
-                    fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore) { result in
+                    ContractDataDetector(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore).fetch { result in
                         switch result {
                         case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             resolver.reject(CheckEIP681Error.contractInvalid)
