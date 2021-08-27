@@ -33,32 +33,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }()
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    private lazy var getNativeCryptoCurrencyBalanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator = {
-        return GetNativeCryptoCurrencyBalanceCoordinator(forServer: server, queue: backgroundQueue)
-    }()
-
-    private lazy var getERC20BalanceCoordinator: GetERC20BalanceCoordinator = {
-        return GetERC20BalanceCoordinator(forServer: server, queue: backgroundQueue)
-    }()
-
-    private lazy var getERC875BalanceCoordinator: GetERC875BalanceCoordinator = {
-        return GetERC875BalanceCoordinator(forServer: server, queue: backgroundQueue)
-    }()
-
-    private lazy var getERC721ForTicketsBalanceCoordinator: GetERC721ForTicketsBalanceCoordinator = {
-        return GetERC721ForTicketsBalanceCoordinator(forServer: server, queue: backgroundQueue)
-    }()
-
-    private lazy var getERC721BalanceCoordinator: GetERC721BalanceCoordinator = {
-        return GetERC721BalanceCoordinator(forServer: server, queue: backgroundQueue)
+    private lazy var tokenProvider: TokenProviderType = {
+        return TokenProvider(account: account, server: server, queue: backgroundQueue)
     }()
 
     private let account: Wallet
-    private let numberOfTimesToRetryFetchContractData = 2
-
-    private var chainId: Int {
-        return server.chainID
-    }
 
     private let openSea: OpenSea
     private let backgroundQueue: DispatchQueue
@@ -99,72 +78,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
-    private func getERC20Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void) {
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getERC20BalanceCoordinator.getBalance(for: strongSelf.account.address, contract: address) { result in
-                switch result {
-                case .success:
-                    completion(result)
-                case .failure:
-                    if !triggerRetry() {
-                        completion(result)
-                    }
-                }
-            }
-        }
-    }
-
-    private func getERC875Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getERC875BalanceCoordinator.getERC875TokenBalance(for: strongSelf.account.address, contract: address) { result in
-                switch result {
-                case .success:
-                    completion(result)
-                case .failure:
-                    if !triggerRetry() {
-                        completion(result)
-                    }
-                }
-            }
-        }
-    }
-
-    private func getERC721ForTicketsBalance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: strongSelf.account.address, contract: address) { result in
-                switch result {
-                case .success:
-                    completion(result)
-                case .failure:
-                    if !triggerRetry() {
-                        completion(result)
-                    }
-                }
-            }
-        }
-    }
-
-    private func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
-            guard let strongSelf = self else { return }
-            strongSelf.getERC721BalanceCoordinator.getERC721TokenBalance(for: strongSelf.account.address, contract: address) { result in
-                switch result {
-                case .success(let balance):
-                    if balance >= Int.max {
-                        completion(.failure(AnyError(Web3Error(description: ""))))
-                    } else {
-                        completion(.success([String](repeating: "0", count: Int(balance))))
-                    }
-                case .failure(let error):
-                    if !triggerRetry() {
-                        completion(.failure(error))
-                    }
-                }
-            }
-        }
+    deinit {
+        enabledObjectsObservation.flatMap{ $0.invalidate() }
     }
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
@@ -228,7 +143,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func refreshEthBalance(etherToken: Activity.AssignedToken, group: DispatchGroup) {
         let tokensDatastore = self.tokensDatastore
         group.enter()
-        getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: account.address) { [weak self] result in
+        tokenProvider.getEthBalance(for: account.address) { [weak self] result in
             switch result {
             case .success(let balance):
                 tokensDatastore.update(primaryKey: etherToken.primaryKey, action: .value(balance.value)) { balanceValueHasChange in
@@ -264,7 +179,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         case .nativeCryptocurrency:
             completion(nil)
         case .erc20:
-            getERC20Balance(for: tokenObject.contractAddress, completion: { result in
+            tokenProvider.getERC20Balance(for: tokenObject.contractAddress, completion: { result in
                 switch result {
                 case .success(let balance):
                     tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .value(balance), completion: completion)
@@ -273,7 +188,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 }
             })
         case .erc875:
-            getERC875Balance(for: tokenObject.contractAddress, completion: { result in
+            tokenProvider.getERC875Balance(for: tokenObject.contractAddress, completion: { result in
                 switch result {
                 case .success(let balance):
                     tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(balance), completion: completion)
@@ -284,7 +199,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         case .erc721:
             break
         case .erc721ForTickets:
-            getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { result in
+            tokenProvider.getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { result in
                 switch result {
                 case .success(let balance):
                     tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(balance), completion: completion)

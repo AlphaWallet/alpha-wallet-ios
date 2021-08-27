@@ -205,8 +205,9 @@ class SingleChainTokenCoordinator: Coordinator {
             completion()
             return
         }
+        let tokenProvider: TokenProviderType = TokenProvider(account: storage.account, server: storage.server)
         for each in contracts {
-            storage.getTokenType(for: each) { tokenType in
+            tokenProvider.getTokenType(for: each) { tokenType in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
@@ -358,7 +359,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
-        ContractDataDetector(address: address, storage: storage, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
+        ContractDataDetector(address: address, account: session.account, server: session.server, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
     }
 
     func showTokenList(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {

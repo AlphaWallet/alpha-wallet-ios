@@ -17,7 +17,7 @@ enum ContractData {
 
 class ContractDataDetector {
     private let address: AlphaWallet.Address
-    private let storage: TokensDataStore
+    private let tokenProvider: TokenProviderType
     private let assetDefinitionStore: AssetDefinitionStore
     private let namePromise: Promise<String>
     private let symbolPromise: Promise<String>
@@ -27,13 +27,22 @@ class ContractDataDetector {
     private var failed = false
     private var completion: ((ContractData) -> Void)?
 
-    init(address: AlphaWallet.Address, storage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    init(address: AlphaWallet.Address, account: Wallet, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.address = address
-        self.storage = storage
+        self.tokenProvider = TokenProvider(account: account, server: server)
         self.assetDefinitionStore = assetDefinitionStore
-        namePromise = storage.getContractName(for: address)
-        symbolPromise = storage.getContractSymbol(for: address)
-        tokenTypePromise = storage.getTokenType(for: address)
+        namePromise = tokenProvider.getContractName(for: address)
+        symbolPromise = tokenProvider.getContractSymbol(for: address)
+        tokenTypePromise = tokenProvider.getTokenType(for: address)
+    }
+
+    init(address: AlphaWallet.Address, tokenProvider: TokenProviderType, assetDefinitionStore: AssetDefinitionStore) {
+        self.address = address
+        self.tokenProvider = tokenProvider
+        self.assetDefinitionStore = assetDefinitionStore
+        namePromise = tokenProvider.getContractName(for: address)
+        symbolPromise = tokenProvider.getContractSymbol(for: address)
+        tokenTypePromise = tokenProvider.getTokenType(for: address)
     }
 
     /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
@@ -68,7 +77,7 @@ class ContractDataDetector {
         }.done { tokenType in
             switch tokenType {
             case .erc875:
-                self.storage.getERC875Balance(for: self.address) { result in
+                self.tokenProvider.getERC875Balance(for: self.address) { result in
                     switch result {
                     case .success(let balance):
                         self.nonFungibleBalanceSeal.fulfill(balance)
@@ -79,7 +88,7 @@ class ContractDataDetector {
                     }
                 }
             case .erc721:
-                self.storage.getERC721Balance(for: self.address) { result in
+                self.tokenProvider.getERC721Balance(for: self.address) { result in
                     switch result {
                     case .success(let balance):
                         self.nonFungibleBalanceSeal.fulfill(balance)
@@ -90,7 +99,7 @@ class ContractDataDetector {
                     }
                 }
             case .erc721ForTickets:
-                self.storage.getERC721ForTicketsBalance(for: self.address) { result in
+                self.tokenProvider.getERC721ForTicketsBalance(for: self.address) { result in
                     switch result {
                     case .success(let balance):
                         self.nonFungibleBalanceSeal.fulfill(balance)
@@ -101,7 +110,7 @@ class ContractDataDetector {
                     }
                 }
             case .erc20:
-                self.storage.getDecimals(for: self.address) { result in
+                self.tokenProvider.getDecimals(for: self.address) { result in
                     switch result {
                     case .success(let decimal):
                         self.decimalsSeal.fulfill(decimal)
