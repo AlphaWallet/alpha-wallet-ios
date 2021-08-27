@@ -7,8 +7,7 @@
 
 import UIKit
 
-
-protocol DropDownItemType: RawRepresentable, Equatable {
+protocol DropDownItemType: Equatable {
     var title: String { get }
 }
 
@@ -45,4 +44,25 @@ struct DropDownViewModel<T: DropDownItemType> {
 
         return .selected(UInt(index))
     }
+}
+
+extension SortTokensParam: DropDownItemType {
+    var title: String {
+        switch self {
+        case .byField(let field, let direction):
+            switch (field, direction) {
+            case (.name, .ascending):
+                return R.string.localizable.sortTokensParamNameAscending()
+            case (.name, .descending):
+                return R.string.localizable.sortTokensParamNameDescending()
+            case (.value, .ascending):
+                return R.string.localizable.sortTokensParamValueAscending()
+            case (.value, .descending):
+                return R.string.localizable.sortTokensParamValueDescending()
+            }
+        case .mostUsed:
+            return R.string.localizable.sortTokensParamMostUsed()
+        }
+    }
+
 }

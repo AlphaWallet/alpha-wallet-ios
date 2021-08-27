@@ -40,7 +40,7 @@ class AddHideTokensViewModel {
     private var hiddenTokens: [TokenObject] = []
     private var popularTokens: [PopularToken] = []
 
-    var sortTokensParam: SortTokensParam = .name {
+    var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
         didSet {
             filter(tokens: tokens)
         }
