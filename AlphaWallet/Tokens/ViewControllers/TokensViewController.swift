@@ -268,6 +268,7 @@ class TokensViewController: UIViewController {
                 TokensViewController.reloadWalletSummaryView(view, with: balance)
             }
         }
+        navigationItem.largeTitleDisplayMode = .never
     }
 
     deinit {
