@@ -123,10 +123,17 @@ class FilterTokensCoordinator {
             $0.shouldDisplay
         }.sorted(by: {
             switch sortTokensParam {
-            case .name:
-                return $0.name < $1.name
-            case .value:
-                return $0.value < $1.value
+            case .byField(let field, let direction):
+                switch (field, direction) {
+                case (.name, .ascending):
+                    return $0.name.lowercased() < $1.name.lowercased()
+                case (.name, .descending):
+                    return $0.name.lowercased() > $1.name.lowercased()
+                case (.value, .ascending):
+                    return $0.value.lowercased() < $1.value.lowercased()
+                case (.value, .descending):
+                    return $0.value.lowercased() > $1.value.lowercased()
+                }
             case .mostUsed:
                 // NOTE: not implemented yet
                 return false
