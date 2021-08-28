@@ -576,6 +576,7 @@
 		5E7C7DCE5242D2AC0A8DA65C /* TokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CAA3D0C19444005EA83 /* TokenCardRowViewModel.swift */; };
 		5E7C7DCF09B84E5675D58CED /* DiscoverDappCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74294562EB79EFCD3559 /* DiscoverDappCellViewModel.swift */; };
 		5E7C7DD4D2EAA036961F18F0 /* DAppRequster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778A54D7D3E196BC5542 /* DAppRequster.swift */; };
+		5E7C7DE51E4829295CABDC21 /* ContractDataDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F9030DA27EF7C3FBDEB /* ContractDataDetector.swift */; };
 		5E7C7DEE91E5A1B4A41826EB /* ActivityRowModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76B6284FE1484292EB4F /* ActivityRowModel.swift */; };
 		5E7C7DFC309C7CC499202375 /* DecodedFunctionCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A71851FA227231270BD /* DecodedFunctionCall.swift */; };
 		5E7C7E02785866606FF298F3 /* OpenSeaNonFungibleTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72FBC0D2787AAA804098 /* OpenSeaNonFungibleTokenViewCellViewModel.swift */; };
@@ -1581,6 +1582,7 @@
 		5E7C7F840AFFD4459FD3DBD6 /* DiscoverDappsViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverDappsViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7F89E3480D3680750EA9 /* TokenRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenRowView.swift; sourceTree = "<group>"; };
 		5E7C7F8F3CB3847D0E4E977B /* AlphaWalletAddress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletAddress.swift; sourceTree = "<group>"; };
+		5E7C7F9030DA27EF7C3FBDEB /* ContractDataDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractDataDetector.swift; sourceTree = "<group>"; };
 		5E7C7F932B48011A24C26733 /* TokensCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7FA63647CED0B0BA5A9C /* WalletConnectSessionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionCell.swift; sourceTree = "<group>"; };
 		5E7C7FB7C3FB2A9CC0CC51D7 /* TokensViewControllerTableViewSectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewControllerTableViewSectionHeader.swift; sourceTree = "<group>"; };
@@ -2290,6 +2292,7 @@
 				442FCB1A0F74A68425907AC9 /* Helpers */,
 				5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */,
 				5E7C72C3D9C939508F8EBFAC /* Models */,
+				5E7C7CF7DCE51F1980CFE2BE /* Logic */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -3700,6 +3703,14 @@
 				5E7C7A968681D718C8A32B47 /* Commands */,
 			);
 			path = RPC;
+			sourceTree = "<group>";
+		};
+		5E7C7CF7DCE51F1980CFE2BE /* Logic */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7F9030DA27EF7C3FBDEB /* ContractDataDetector.swift */,
+			);
+			path = Logic;
 			sourceTree = "<group>";
 		};
 		5E7C7D05CF5206E7F9573D5F /* TrustCore */ = {
@@ -5742,6 +5753,7 @@
 				5E7C72B4302A10E137EEF94A /* DappRequestSwitchCustomChainCoordinator.swift in Sources */,
 				5E7C732AA43385E80681B24F /* EmailList.swift in Sources */,
 				5E7C776B88B6CDC18CA39D72 /* Environment.swift in Sources */,
+				5E7C7DE51E4829295CABDC21 /* ContractDataDetector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
