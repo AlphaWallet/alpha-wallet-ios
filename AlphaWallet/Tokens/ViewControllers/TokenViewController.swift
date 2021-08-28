@@ -171,13 +171,13 @@ class TokenViewController: UIViewController {
     private func configureBalanceViewModel() {
         switch transactionType {
         case .nativeCryptocurrency:
-            session.balanceViewModel.subscribe { [weak self] viewModel in
+            session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
 
                 celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
-                let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
-                celf.tokenInfoPageView.viewModel.ticker = celf.tokensDataStore.coinTicker(for: etherToken)
-                celf.tokenInfoPageView.viewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
+
+                celf.tokenInfoPageView.viewModel.ticker = viewModel.ticker
+                celf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
 
                 celf.configure(viewModel: celf.viewModel)
             }
@@ -188,10 +188,8 @@ class TokenViewController: UIViewController {
             //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
 
-            let etherToken = TokensDataStore.etherToken(forServer: session.server)
-
-            tokenInfoPageView.viewModel.ticker = tokensDataStore.coinTicker(for: etherToken)
-            tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
+            tokenInfoPageView.viewModel.ticker = session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
+            tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.ethBalanceViewModel.currencyAmount
 
             configure(viewModel: viewModel)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:

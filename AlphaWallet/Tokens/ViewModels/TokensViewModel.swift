@@ -28,7 +28,6 @@ class TokensViewModel {
 
     private let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
-    let tickers: [AddressAndRPCServer: CoinTicker]
 
     var isSearchActive: Bool = false
     var filter: WalletFilter = .all {
@@ -99,18 +98,13 @@ class TokensViewModel {
         return filteredTokens[row]
     }
 
-    func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.addressAndRPCServer]
-    }
-
     func canDelete(for row: Int, section: Int) -> Bool {
         return item(for: row, section: section).canDelete
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker]) {
+    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
-        self.tickers = tickers
     }
 
     func markTokenHidden(token: TokenObject) -> Bool {
@@ -137,14 +131,7 @@ class TokensViewModel {
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
         return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: server).primaryKey })
-    }
-
-    func amount(for token: TokenObject) -> Double {
-        guard let ticker = tickers[token.addressAndRPCServer], !token.valueBigInt.isZero else { return 0 }
-        let tokenValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = ticker.price_usd
-        return tokenValue * price
-    }
+    } 
 
     func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> WalletFilter? {
         switch selection {
