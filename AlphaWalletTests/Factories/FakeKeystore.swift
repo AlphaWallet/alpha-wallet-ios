@@ -41,7 +41,7 @@ struct FakeKeystore: Keystore {
 
     init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = .none, assumeAllWalletsType: AssumeAllWalletsType = .hdWallet) {
         self.wallets = wallets
-        self.recentlyUsedWallet = recentlyUsedWallet
+        self.recentlyUsedWallet = recentlyUsedWallet ?? FakeKeystore.currentWallet
         self.assumeAllWalletsType = assumeAllWalletsType
     }
 

@@ -65,9 +65,9 @@ struct SendViewModel {
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let currentTokenInfo = storage.tickers[transactionType.addressAndRPCServer], currentTokenInfo.price_usd > 0 else {
+            guard let ticker = session.balanceCoordinator.coinTicker(transactionType.addressAndRPCServer), ticker.price_usd > 0 else {
                 return true
-            }
+            } 
             return false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return true
@@ -86,10 +86,7 @@ struct SendViewModel {
     var availableLabelText: String? {
         switch transactionType {
         case .nativeCryptocurrency:
-            if let balance = session.balance {
-                let value = EtherNumberFormatter.short.string(from: balance.value)
-                return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
-            }
+            return R.string.localizable.sendAvailable(session.balanceCoordinator.ethBalanceViewModel.amountShort)
         case .ERC20Token(let token, _, _):
             let value = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
@@ -103,7 +100,7 @@ struct SendViewModel {
     var availableTextHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.balance == nil
+            return false
         case .ERC20Token(let token, _, _):
             let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt
             return tokenBalance == nil
@@ -137,7 +134,7 @@ struct SendViewModel {
 
         switch transactionType {
         case .nativeCryptocurrency:
-            if let balance = session.balance, balance.value < value {
+            if session.balanceCoordinator.ethBalanceViewModel.value < value {
                 return nil
             }
         case .ERC20Token(let token, _, _):

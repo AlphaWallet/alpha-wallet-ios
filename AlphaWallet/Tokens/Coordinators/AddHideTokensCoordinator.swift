@@ -30,7 +30,7 @@ class AddHideTokensCoordinator: Coordinator {
     weak var delegate: AddHideTokensCoordinatorDelegate?
     private var tokens: [TokenObject]
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [AddressAndRPCServer: CoinTicker], sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
         self.sessions = sessions

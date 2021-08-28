@@ -205,7 +205,7 @@ class TokensViewController: UIViewController {
         self.walletConnectCoordinator = walletConnectCoordinator
         walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
 
-        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
+        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [])
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
@@ -523,8 +523,8 @@ extension TokensViewController: UITableViewDataSource {
                     let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                     cell.configure(viewModel: .init(
                         token: token,
-                        ticker: viewModel.ticker(for: token),
-                        currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                        ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer),
+                        currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmount,
                         assetDefinitionStore: assetDefinitionStore
                     ))
 
@@ -534,7 +534,7 @@ extension TokensViewController: UITableViewDataSource {
                     cell.configure(viewModel: .init(token: token,
                         assetDefinitionStore: assetDefinitionStore,
                         isVisible: isVisible,
-                        ticker: viewModel.ticker(for: token)
+                        ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
                 case .erc721, .erc721ForTickets:

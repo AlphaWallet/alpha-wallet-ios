@@ -15,58 +15,28 @@ protocol TokensDataStoreDelegate: AnyObject {
     func didUpdate(in tokensDataStore: TokensDataStore, refreshImmediately: Bool)
 }
 
-protocol TokensDataStorePriceDelegate: AnyObject {
-    func updatePrice(forTokenDataStore tokensDataStore: TokensDataStore)
-}
-
 // swiftlint:disable type_body_length
 class TokensDataStore {
     static let fetchContractDataTimeout = TimeInterval(4)
-
-    //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
-    private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
-        let configuration = URLSessionConfiguration.default
-        return SessionManager(configuration: configuration)
-    }()
-
-    private lazy var tokenProvider: TokenProviderType = {
-        return TokenProvider(account: account, server: server)
-    }()
-
-    private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
-    private var pricesTimer = Timer()
-    private var ethTimer = Timer()
-    //We should refresh prices every 5 minutes.
-    private let intervalToRefreshPrices = 300.0
-    private let intervalToETHRefresh = 10.0
-    private let numberOfTimesToRetryFetchContractData = 2
-
     private var chainId: Int {
         return server.chainID
     }
-    private var isFetchingPrices = false
     private let config: Config
-    private let openSea: OpenSea
-    private let queue = DispatchQueue.global()
+    private let queue = DispatchQueue.main
 
     let account: Wallet
     let server: RPCServer
 
     weak var delegate: TokensDataStoreDelegate?
-    weak var priceDelegate: TokensDataStorePriceDelegate?
-    weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
-    //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
-    var tickers: [AddressAndRPCServer: CoinTicker] = .init() {
-        didSet {
-            if oldValue == tickers {
-                //no-op
-            } else {
-                updateDelegate()
-            }
-        }
-    }
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
+
+    private var enabledObjectResults: Results<TokenObject> {
+        realm.objects(TokenObject.self)
+            .filter("chainId = \(self.chainId)")
+            .filter("contract != ''")
+            .filter("isDisabled = false")
+    }
 
     var objects: [TokenObject] {
         return Array(
@@ -129,25 +99,29 @@ class TokensDataStore {
                 type: .nativeCryptocurrency
         )
     }
+    private var enabledObjectsSubscription: NotificationToken?
 
     init(
             realm: Realm,
             account: Wallet,
             server: RPCServer,
-            config: Config,
-            assetDefinitionStore: AssetDefinitionStore
+            config: Config
     ) {
         self.account = account
         self.server = server
         self.config = config
-        self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
-        self.openSea = OpenSea.createInstance(forServer: server)
         self.addEthToken()
 
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
-        self.scheduledTimerForPricesUpdate()
-        self.scheduledTimerForEthBalanceUpdate()
+        enabledObjectsSubscription = enabledObjectResults.observe(on: queue) { [weak self] change in
+            switch change {
+            case .initial:
+                break
+            case .update, .error:
+                self?.updateDelegate(refreshImmediately: false)
+            }
+        }
     }
 
     private func addEthToken() {
@@ -177,13 +151,7 @@ class TokensDataStore {
     }
 
     func fetch() {
-        updatePrices()
         refreshBalance()
-    }
-
-    private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
-        //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return openSea.makeFetchPromise(forOwner: account.address)
     }
 
     func tokenThreadSafe(forContract contract: AlphaWallet.Address) -> TokenObject? {
@@ -198,233 +166,15 @@ class TokensDataStore {
                 .filter("chainId = \(chainId)").first
     }
 
-    func refreshBalance() {
+    private func refreshBalance() {
         //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Though it probably doesn't need to be called an additional time, every time. It is important to refresh immediately first, rather than be rate limited because we might be deleting (hiding) a token and the user should see the list of tokens refresh immediately
         updateDelegate(refreshImmediately: true)
-        guard !enabledObject.isEmpty else {
-            return
-        }
-        //TODO While we might want to improve it such as enabledObject still returning Realm's streaming list instead of a Swift array and filtering using predicates, it doesn't affect much here, yet.
-        let etherToken = TokensDataStore.etherToken(forServer: server)
-        let updateTokens = enabledObject.filter { $0 != etherToken }
-        let nonERC721Tokens = updateTokens.filter { !$0.isERC721AndNotForTickets }
-        let erc721Tokens = updateTokens.filter { $0.isERC721AndNotForTickets }
-        refreshBalanceForTokensThatAreNotNonTicket721(tokens: nonERC721Tokens)
-        refreshBalanceForERC721Tokens(tokens: erc721Tokens)
-    }
-
-    private func refreshBalanceForTokensThatAreNotNonTicket721(tokens: [TokenObject]) {
-        assert(!tokens.contains { $0.isERC721AndNotForTickets })
-        var count = 0
-        //So we refresh the UI. Possible improvement is to refresh earlier, but still refresh at the end
-        func incrementCountAndUpdateDelegate() {
-            count += 1
-            if count == tokens.count {
-                updateDelegate()
-            }
-        }
-        for tokenObject in tokens {
-            refreshBalance(forToken: tokenObject, completion: incrementCountAndUpdateDelegate)
-        }
-    }
-
-    private func refreshBalance(forToken tokenObject: TokenObject, completion: @escaping () -> Void) {
-        switch tokenObject.type {
-        case .nativeCryptocurrency:
-            completion()
-        case .erc20:
-            tokenProvider.getERC20Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                defer { completion() }
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let balance):
-                    strongSelf.update(token: tokenObject, action: .value(balance))
-                case .failure:
-                    break
-                }
-            })
-        case .erc875:
-            tokenProvider.getERC875Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                defer { completion() }
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let balance):
-                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                case .failure:
-                    break
-                }
-            })
-        case .erc721:
-            break
-        case .erc721ForTickets:
-            tokenProvider.getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                defer { completion() }
-                guard let strongSelf = self else { return }
-                switch result {
-                case .success(let balance):
-                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                case .failure:
-                    break
-                }
-            })
-        }
-    }
-
-    private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
-        assert(!tokens.contains { !$0.isERC721AndNotForTickets })
-        firstly {
-            getTokensFromOpenSea()
-        }.done { [weak self] contractToOpenSeaNonFungibles in
-            guard let strongSelf = self else { return }
-            let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0 }
-            let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721ContractsFoundInOpenSea
-            strongSelf.updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea: erc721ContractsNotFoundInOpenSea, tokens: tokens)
-            strongSelf.updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: contractToOpenSeaNonFungibles, tokens: tokens)
-            strongSelf.updateDelegate()
-        }.cauterize()
-    }
-
-    private func updateNonOpenSeaNonFungiblesBalance(erc721ContractsNotFoundInOpenSea contracts: [AlphaWallet.Address], tokens: [TokenObject]) {
-        let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(contract: $0, tokens: tokens) }
-        firstly {
-            when(resolved: promises)
-        }.done { _ in
-            self.updateDelegate()
-        }
-    }
-
-    private func updateNonOpenSeaNonFungiblesBalance(contract: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<Void> {
-        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { _ in } }
-        return firstly {
-            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
-        }.then { tokenIds -> Promise<[String]> in
-            let guarantees: [Guarantee<String>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
-            return when(fulfilled: guarantees)
-        }.done { jsons in
-            guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { return }
-            self.update(token: tokenObject, action: .nonFungibleBalance(jsons))
-        }.asVoid()
-    }
-
-    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [TokenObject]) -> Guarantee<String> {
-        firstly {
-            Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
-        }.then {
-            self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
-        }.recover { _ in
-            var jsonDictionary = JSON()
-            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                jsonDictionary["tokenId"] = JSON(tokenId)
-                jsonDictionary["contractName"] = JSON(tokenObject.name)
-                jsonDictionary["symbol"] = JSON(tokenObject.symbol)
-                jsonDictionary["name"] = ""
-                jsonDictionary["imageUrl"] = ""
-                jsonDictionary["thumbnailUrl"] = ""
-                jsonDictionary["externalLink"] = ""
-            }
-            return .value(jsonDictionary.rawString()!)
-        }
-    }
-
-    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<String> {
-        struct Error: Swift.Error {
-        }
-        let uri = originalUri.rewrittenIfIpfs
-        return firstly {
-            //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
-        }.map { data, _ in
-            if let json = try? JSON(data: data) {
-                if json["error"] == "Internal Server Error" {
-                    throw Error()
-                } else {
-                    var jsonDictionary = json
-                    if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                        //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
-                        jsonDictionary["tokenId"] = JSON(tokenId)
-                        jsonDictionary["contractName"] = JSON(tokenObject.name)
-                        jsonDictionary["symbol"] = JSON(tokenObject.symbol)
-                        jsonDictionary["name"] = JSON(jsonDictionary["name"].stringValue)
-                        jsonDictionary["imageUrl"] = JSON(jsonDictionary["image"].string ?? jsonDictionary["image_url"].string ?? "")
-                        jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
-                        //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
-                        jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
-                    }
-                    if let jsonString = jsonDictionary.rawString() {
-                        return jsonString
-                    } else {
-                        throw Error()
-                    }
-                }
-            } else {
-                throw Error()
-            }
-        }
-    }
-
-    private func updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]], tokens: [TokenObject]) {
-        for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
-            var listOfJson = [String]()
-            var anyNonFungible: OpenSeaNonFungible?
-            for each in openSeaNonFungibles {
-                if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                    anyNonFungible = each
-                    listOfJson.append(jsonString)
-                } else {
-                    //no op
-                }
-            }
-
-            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
-                switch tokenObject.type {
-                case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
-                    break
-                case .erc20:
-                    update(token: tokenObject, action: .type(.erc721))
-                }
-                update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
-                if let anyNonFungible = anyNonFungible {
-                    update(token: tokenObject, action: .name(anyNonFungible.contractName))
-                }
-            } else {
-                let token = ERCToken(
-                        contract: contract,
-                        server: server,
-                        name: openSeaNonFungibles[0].contractName,
-                        symbol: openSeaNonFungibles[0].symbol,
-                        decimals: 0,
-                        type: .erc721,
-                        balance: listOfJson
-                )
-
-                addCustom(token: token)
-            }
-        }
-    }
-
-    func refreshETHBalance() {
-        tokenProvider.getEthBalance(for: account.address) {  [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let balance):
-                //Defensive check, instead of force unwrapping the result. At least one crash due to token being nil. Perhaps a Realm bug or in our code, perhaps in between enabling/disabling of chains? Harmless to do an early return
-                guard let token = strongSelf.token(forContract: Constants.nativeCryptoAddressInDatabase) else { return }
-                //TODO why is each chain's balance updated so many times? (if we add console logs)
-                strongSelf.update(token: token, action: .value(balance.value))
-                strongSelf.updateDelegate()
-            case .failure: break
-            }
-        }
     }
 
     private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
 
         delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
-    }
-
-    func coinTicker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.addressAndRPCServer]
     }
 
     @discardableResult func addCustom(token: ERCToken) -> TokenObject {
@@ -444,14 +194,6 @@ class TokensDataStore {
         add(tokens: [newToken])
 
         return newToken
-    }
-
-    func updatePricesAfterComingOnline() {
-        updatePrices()
-    }
-
-    func updatePrices() {
-        priceDelegate?.updatePrice(forTokenDataStore: self)
     }
 
     func add(deadContracts: [DeletedContract]) {
@@ -574,73 +316,9 @@ class TokensDataStore {
         }
     }
 
-    enum TokenBalanceUpdateAction {
-        case updateJsonProperty(String, Any)
-    }
-
-    ///Note that it's possible for a contract to have the same tokenId repeated
-    func update(contract: AlphaWallet.Address, tokenId: String, action: TokenBalanceUpdateAction) {
-        guard let token = token(forContract: contract) else { return }
-        let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
-        let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }
-
-        try! realm.write {
-            switch action {
-            case .updateJsonProperty(let key, let value):
-                for each in balances {
-                    let json = each.json
-                    if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
-                        dictionary[key] = value
-                        if let updatedData = try? JSONSerialization.data(withJSONObject: dictionary), let updatedJson = String(data: updatedData, encoding: .utf8) {
-                            each.json = updatedJson
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    func jsonAttributeValue(forContract contract: AlphaWallet.Address, tokenId: String, attributeId: String) -> Any? {
-        guard let token = token(forContract: contract) else { return nil }
-        let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
-        guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
-        let json = balance.json
-        if let data = json.data(using: .utf8), let dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
-            return dictionary[attributeId]
-        } else {
-            return nil
-        }
-    }
-
-    private func scheduledTimerForPricesUpdate() {
-        guard !config.isAutoFetchingDisabled else { return }
-        updatePrices()
-        pricesTimer = Timer.scheduledTimer(timeInterval: intervalToRefreshPrices, target: BlockOperation { [weak self] in
-            self?.updatePrices()
-        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
-    }
-    private func scheduledTimerForEthBalanceUpdate() {
-        guard !config.isAutoFetchingDisabled else { return }
-        ethTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in
-            self?.refreshETHBalance()
-        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
-    }
-
-    private func updateTokenName(token: TokenObject, to name: String) {
-        try! realm.write {
-            token.name = name
-        }
-    }
-
     deinit {
         //We should make sure that timer is invalidate.
-        pricesTimer.invalidate()
-        ethTimer.invalidate()
-    }
-
-    func writeJsonForTransactions(toUrl url: URL) {
-        guard let transactionStorage = erc721TokenIdsFetcher as? TransactionsStorage else { return }
-        transactionStorage.writeJsonForTransactions(toUrl: url)
+        enabledObjectsSubscription.flatMap { $0.invalidate() }
     }
 }
 // swiftlint:enable type_body_length

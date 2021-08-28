@@ -237,32 +237,12 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
-        let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore)
-        storage.priceDelegate = self
+        let storage = TokensDataStore(realm: realm, account: wallet, server: server, config: config)
         return storage
     }
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
         return TransactionsStorage(realm: realm, server: server, delegate: self)
-    }
-
-    private func fetchCryptoPrice(forServer server: RPCServer) {
-        assert(!tokensStorages.isEmpty)
-
-        let tokensStorage = tokensStorages[server]
-
-        tokensStorage.tokensModel.subscribe { [weak self, weak tokensStorage] tokensModel in
-            guard let strongSelf = self, let tokensStorage = tokensStorage else { return }
-            let etherToken = TokensDataStore.etherToken(forServer: server)
-            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
-            //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
-            guard strongSelf.nativeCryptoCurrencyPrices.hasKey(server) else { return }
-            if let ticker = tokensStorage.coinTicker(for: eth) {
-                strongSelf.nativeCryptoCurrencyPrices[server].value = Double(ticker.price_usd)
-            } else {
-                tokensStorage.updatePricesAfterComingOnline()
-            }
-        }
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
@@ -294,32 +274,6 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func setupFetchTokenPrices() {
-        fetchTokenPrices()
-    }
-
-    private func fetchTokenPrices() {
-        let tokens: ServerDictionary<[TokenMappedToTicker]> = tokensStorages.mapValues { storage in
-            storage.enabledObject.map { TokenMappedToTicker(tokenObject: $0) }
-        }
-
-        firstly {
-            coinTickersFetcher.fetchPrices(forTokens: tokens)
-        }.done { [weak self] tickers in
-            guard let strongSelf = self else { return }
-            for (_, storage) in strongSelf.tokensStorages {
-                storage.tickers = tickers
-            }
-        }.catch {
-            if $0 == CoinTickersFetcher.Error.alreadyFetchingPrices {
-                //no-op
-            } else {
-                //We should already have retried upstream
-                //TODO good to log to remote, but might be connectivity problem etc
-            }
-        }
-    }
-
     private func setupTransactionsStorages() {
         transactionsStorages = .init()
         for each in config.enabledServers {
@@ -330,41 +284,12 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func setupEtherBalances() {
-        nativeCryptoCurrencyBalances = .init()
-        for each in config.enabledServers {
-            nativeCryptoCurrencyBalances[each] = createCryptoCurrencyBalanceSubscribable(forServer: each)
-            let tokensStorage = tokensStorages[each]
-
-            tokensStorage.tokensModel.subscribe { [weak self] tokensModel in
-                let etherToken = TokensDataStore.etherToken(forServer: each)
-                guard let strongSelf = self, let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
-                    return
-                }
-
-                if let balance = BigInt(eth.value) {
-                    //Defensive. Sometimes crash right after switch networks if price is refreshed just before the TokensStorage is destroyed
-                    guard strongSelf.nativeCryptoCurrencyBalances.hasKey(each) else { return }
-                    strongSelf.nativeCryptoCurrencyBalances[each].value = BigInt(eth.value)
-                    guard !(balance.isZero) else { return }
-                    //TODO don't backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
-                    guard !isRunningTests() else { return }
-                }
-            }
-        }
-    }
-
     private func setupWalletSessions() {
         walletSessions = .init()
         for each in config.enabledServers {
-            let tokensStorage = tokensStorages[each]
-            let balanceCoordinator = BalanceCoordinator(wallet: wallet, server: each, storage: tokensStorage)
-            let session = WalletSession(
-                    account: wallet,
-                    server: each,
-                    config: config,
-                    balanceCoordinator: balanceCoordinator
-            )
+            let balanceCoordinator = BalanceCoordinator(wallet: wallet, server: each, walletBalanceCoordinator: walletBalanceCoordinator)
+            let session = WalletSession(account: wallet, server: each, config: config, balanceCoordinator: balanceCoordinator)
+
             walletSessions[each] = session
         }
     }
@@ -373,26 +298,15 @@ class InCoordinator: NSObject, Coordinator {
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
-        setupTokenDataStores()
-        setupFetchTokenPrices()
+        setupTokenDataStores() 
         setupWalletSessions()
         setupNativeCryptoCurrencyPrices()
         setupNativeCryptoCurrencyBalances()
         setupTransactionsStorages()
-        setupEtherBalances()
         setupCallForAssetAttributeCoordinators()
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         eventSourceCoordinator = createEventSourceCoordinator()
         setUpEventSourceCoordinatorForActivities()
-        setUpErc721TokenIdsFetcher()
-    }
-
-    private func setUpErc721TokenIdsFetcher() {
-        for each in config.enabledServers {
-            let tokenStorage = tokensStorages[each]
-            let transactionStorage = transactionsStorages[each]
-            tokenStorage.erc721TokenIdsFetcher = transactionStorage
-        }
     }
 
     private func createTransactionsCollection() -> TransactionCollection {
@@ -453,7 +367,7 @@ class InCoordinator: NSObject, Coordinator {
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
         let tokenCollection = TokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokenDataStores: tokensStoragesForEnabledServers)
-        promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
+        promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withWalletSessions: walletSessions)
         pollEthereumEvents(tokenCollection: tokenCollection)
 
         let coordinator = TokensCoordinator(
@@ -693,9 +607,11 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createNativeCryptoCurrencyPriceSubscribable(forServer server: RPCServer) -> Subscribable<Double> {
-        let value = Subscribable<Double>(nil)
-        fetchCryptoPrice(forServer: server)
-        return value
+        let etherToken = TokensDataStore.etherToken(forServer: server).addressAndRPCServer
+        let subscription = walletSessions[server].balanceCoordinator.subscribableTokenBalance(etherToken)
+        return subscription.map({ viewModel -> Double? in
+            return viewModel.ticker?.price_usd
+        }, on: .main)
     }
 
     private func createEtherBalancesSubscribablesForAllChains() -> ServerDictionary<Subscribable<BigInt>> {
@@ -707,7 +623,10 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createCryptoCurrencyBalanceSubscribable(forServer server: RPCServer) -> Subscribable<BigInt> {
-        return Subscribable<BigInt>(nil)
+        let subscription = walletSessions[server].balanceCoordinator.subscribableEthBalanceViewModel
+        return subscription.map({ viewModel -> BigInt? in
+            return viewModel.value
+        }, on: .main)
     }
 
     private func isViewControllerDappBrowserTab(_ viewController: UIViewController) -> Bool {
@@ -1213,11 +1132,5 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
             break
         }
     }
-}
-
-extension InCoordinator: TokensDataStorePriceDelegate {
-    func updatePrice(forTokenDataStore tokensDataStore: TokensDataStore) {
-        fetchTokenPrices()
-    }
-}
+} 
 // swiftlint:enable file_length

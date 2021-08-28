@@ -20,7 +20,7 @@ struct ConfigureTransactionViewModel {
         configurator.session.server
     }
     private var currencyRate: CurrencyRate? {
-        configurator.session.balanceCoordinator.currencyRate
+        configurator.session.balanceCoordinator.ethBalanceViewModel.currencyRate
     }
 
     var recoveryMode: RecoveryMode
