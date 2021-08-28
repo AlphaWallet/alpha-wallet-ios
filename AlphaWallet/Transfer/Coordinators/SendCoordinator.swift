@@ -47,7 +47,7 @@ class SendCoordinator: Coordinator {
         self.storage = storage
         self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator 
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -135,7 +135,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
-        fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore, completion: completion)
+        ContractDataDetector(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore).fetch(completion: completion)
     }
 }
 
