@@ -30,6 +30,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private var isFetchingLatestTransactions = false
     var coordinators: [Coordinator] = []
     weak var delegate: SingleChainTransactionDataCoordinatorDelegate?
+    private lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
 
     required init(
             session: WalletSession,
@@ -181,7 +182,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
             //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
             let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-            let tokenTypePromises = contracts.map { self.tokensStorage.getTokenType(for: $0) }
+            let tokenTypePromises = contracts.map { self.tokenProvider.getTokenType(for: $0) }
 
             when(fulfilled: tokenTypePromises).map { tokenTypes in
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))

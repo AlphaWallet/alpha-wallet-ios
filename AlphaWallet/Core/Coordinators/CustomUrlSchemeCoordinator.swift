@@ -39,7 +39,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
                 if tokensDatastore.token(forContract: contract) != nil {
                     strongSelf.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
                 } else {
-                    ContractDataDetector(address: contract, storage: tokensDatastore, assetDefinitionStore: strongSelf.assetDefinitionStore).fetch { data in
+                    ContractDataDetector(address: contract, account: tokensDatastore.account, server: tokensDatastore.server, assetDefinitionStore: strongSelf.assetDefinitionStore).fetch { data in
                         switch data {
                         case .name, .symbol, .balance, .decimals:
                             break
