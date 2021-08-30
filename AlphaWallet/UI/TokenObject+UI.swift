@@ -3,7 +3,7 @@
 import UIKit
 import PromiseKit
 
-typealias TokenImage = (image: UIImage, symbol: String)
+typealias TokenImage = (image: UIImage, symbol: String, isFinal: Bool)
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
     let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server)
@@ -33,11 +33,11 @@ extension TokenObject {
         switch type {
         case .nativeCryptocurrency:
             if let img = server.iconImage {
-                return .init((image: img, symbol: ""))
+                return .init((image: img, symbol: "", isFinal: true))
             }
         case .erc20, .erc875, .erc721, .erc721ForTickets:
             if let img = contractAddress.tokenImage {
-                return .init((image: img, symbol: ""))
+                return .init((image: img, symbol: "", isFinal: true))
             }
         }
         return TokenImageFetcher.instance.image(forToken: self)
@@ -57,7 +57,7 @@ class TokenImageFetcher {
     private func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, server: RPCServer, symbol: String) -> TokenImage {
         let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min()!
         let symbol = symbol.substring(to: i)
-        return (image: programmaticallyGeneratedIconImage(for: contractAddress, server: server), symbol: symbol)
+        return (image: programmaticallyGeneratedIconImage(for: contractAddress, server: server), symbol: symbol, isFinal: false)
     }
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
@@ -66,6 +66,9 @@ class TokenImageFetcher {
         let key = "\(tokenObject.contractAddress.eip55String)-\(tokenObject.server.chainID)"
         if let sub = Self.subscribables[key] {
             subscribable = sub
+            if let value = sub.value, value.isFinal {
+                return subscribable
+            }
         } else {
             let sub = Subscribable<TokenImage>(nil)
             Self.subscribables[key] = sub
@@ -81,7 +84,7 @@ class TokenImageFetcher {
         if tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             queue.async {
                 let value = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: symbol)
-                
+
                 DispatchQueue.main.async {
                     subscribable.value = value
                 }
@@ -92,14 +95,12 @@ class TokenImageFetcher {
 
         queue.async {
             let generatedImage = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: symbol)
-
             self.fetchFromOpenSea(type, balance: balance).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "")
+                subscribable.value = (image: $0, symbol: "", isFinal: true)
             }).catch(on: self.queue) { [weak self] _ in
                 guard let strongSelf = self else { return }
-
                 strongSelf.fetchFromAssetGitHubRepo(contractAddress: contractAddress).done(on: .main, {
-                    subscribable.value = (image: $0, symbol: "")
+                    subscribable.value = (image: $0, symbol: "", isFinal: false)
                 }).catch(on: .main, { _ in
                     subscribable.value = generatedImage
                 })
@@ -133,9 +134,9 @@ class TokenImageFetcher {
 
         queue.async {
             let generatedImage = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
-            
+
             self.fetchFromAssetGitHubRepo(contractAddress: contractAddress).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "")
+                subscribable.value = (image: $0, symbol: "", isFinal: true)
             }).catch(on: .main, { _ in
                 subscribable.value = generatedImage
             })
