@@ -28,7 +28,6 @@ class SendViewController: UIViewController {
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let ethPrice: Subscribable<Double>
-    private let assetDefinitionStore: AssetDefinitionStore
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
     private let amountViewModel = SendViewSectionHeaderViewModel(
@@ -49,7 +48,7 @@ class SendViewController: UIViewController {
         return viewModel.transactionType
     }
 
-    let storage: TokensDataStore
+    private let storage: TokensDataStore
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
 
@@ -58,13 +57,11 @@ class SendViewController: UIViewController {
             session: WalletSession,
             storage: TokensDataStore,
             transactionType: TransactionType,
-            cryptoPrice: Subscribable<Double>,
-            assetDefinitionStore: AssetDefinitionStore
+            cryptoPrice: Subscribable<Double>
     ) {
         self.session = session
         self.storage = storage
         self.ethPrice = cryptoPrice
-        self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = .init(transactionType: transactionType, session: session, storage: storage)
 
         super.init(nibName: nil, bundle: nil)

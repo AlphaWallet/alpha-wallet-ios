@@ -51,7 +51,7 @@ class SendCoordinator: Coordinator {
     }
 
     func start() {
-        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, storage: sendViewController.storage))
+        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, storage: storage))
 
         navigationController.pushViewController(sendViewController, animated: true)
     }
@@ -61,8 +61,7 @@ class SendCoordinator: Coordinator {
             session: session,
             storage: storage,
             transactionType: transactionType,
-            cryptoPrice: ethPrice,
-            assetDefinitionStore: assetDefinitionStore
+            cryptoPrice: ethPrice
         )
 
         switch transactionType {
