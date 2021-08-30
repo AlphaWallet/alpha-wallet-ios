@@ -102,21 +102,19 @@ class PromptBackupCoordinator: Coordinator {
     }
 
     //TODO not the best way to watch Ether balance
-    func listenToNativeCryptoCurrencyBalance(withTokenCollection tokenCollection: TokenCollection) {
-        tokenCollection.subscribe { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let viewModel):
-                if let nativeCryptoCurrencyToken = viewModel.nativeCryptoCurrencyToken(forServer: .main) {
-                    let dollarValue = viewModel.amount(for: nativeCryptoCurrencyToken)
-                    if !dollarValue.isZero {
-                        strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
-                    }
-                }
-            case .failure:
-                break
+    func listenToNativeCryptoCurrencyBalance(withWalletSessions walletSessions: ServerDictionary<WalletSession>) {
+        guard let walletSession = walletSessions[safe: .main]  else { return }
+
+        let addressAndRPCServer = TokensDataStore.etherToken(forServer: .main).addressAndRPCServer
+        walletSession.balanceCoordinator.subscribableTokenBalance(addressAndRPCServer).subscribe { [weak self] viewModel in
+            guard let strongSelf = self, let viewModel = viewModel else { return }
+
+            let dollarValue = viewModel.currencyAmountWithoutSymbol ?? 0
+            if !dollarValue.isZero {
+                strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
             }
         }
+
     }
 
     // MARK: Update UI

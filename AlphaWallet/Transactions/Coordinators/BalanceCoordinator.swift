@@ -6,71 +6,77 @@ import JSONRPCKit
 import Result
 import BigInt
 
-protocol BalanceCoordinatorDelegate: AnyObject {
-    func didUpdate(viewModel: BalanceViewModel)
-}
-
 protocol BalanceCoordinatorType {
-    var balance: Balance? { get }
-    var currencyRate: CurrencyRate? { get }
-    var delegate: BalanceCoordinatorDelegate? { get set }
-    var viewModel: BalanceViewModel { get }
+    var ethBalanceViewModel: BalanceBaseViewModel { get }
+    var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> { get }
 
     func refresh()
     func refreshEthBalance()
+
+    // NOTE: only tests purposes
     func update()
+
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
+    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
 }
 
-class BalanceCoordinator: BalanceCoordinatorType {
+class BalanceCoordinator: NSObject, BalanceCoordinatorType {
     private let wallet: Wallet
     private let server: RPCServer
-    private let storage: TokensDataStore
 
-    var balance: Balance?
-    var currencyRate: CurrencyRate?
-    weak var delegate: BalanceCoordinatorDelegate?
-
-    var viewModel: BalanceViewModel {
-        return BalanceViewModel(
-            server: server,
-            balance: balance,
-            rate: currencyRate
-        )
+    var ethBalanceViewModel: BalanceBaseViewModel {
+        if let value = privateSubscribableViewModel.value {
+            return value
+        } else {
+            return NativecryptoBalanceViewModel(server: server, balance: Balance(value: .zero), ticker: nil)
+        }
     }
 
-    init(
-            wallet: Wallet,
-            server: RPCServer,
-            storage: TokensDataStore
-    ) {
+    lazy private (set) var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> = .init(ethBalanceViewModel)
+
+    lazy private var privateSubscribableViewModel: Subscribable<BalanceBaseViewModel> = {
+        let etherToken = TokensDataStore.etherToken(forServer: server).addressAndRPCServer
+        return subscribableTokenBalance(etherToken)
+    }()
+
+    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private var balanceSubscriptionKey: Subscribable<BalanceBaseViewModel>.SubscribableKey?
+    
+    init(wallet: Wallet, server: RPCServer, walletBalanceCoordinator: WalletBalanceCoordinatorType) {
         self.wallet = wallet
         self.server = server
-        self.storage = storage
-        //Since this is called at launch, we don't want it to block launching
-        DispatchQueue.global().async {
-            DispatchQueue.main.async { [weak self] in
-                self?.storage.refreshBalance()
-            }
-        }
+        self.walletBalanceCoordinator = walletBalanceCoordinator
 
-        storage.tokensModel.subscribe {[weak self] tokensModel in
-            let etherToken = TokensDataStore.etherToken(forServer: server)
-            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
-                return
+        super.init()
+
+        balanceSubscriptionKey = privateSubscribableViewModel.subscribe { [weak self] viewModel in
+            DispatchQueue.main.async {
+                self?.subscribableEthBalanceViewModel.value = viewModel
             }
-            let ticker = self?.storage.coinTicker(for: eth)
-            self?.balance = Balance(value: BigInt(eth.value, radix: 10) ?? BigInt(0))
-            self?.currencyRate = ticker?.rate
-            self?.update()
         }
     }
+
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
+        subscribableTokenBalance(addressAndRPCServer).value?.ticker
+    }
+
+    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
+        walletBalanceCoordinator.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
+    }
+
+    deinit {
+        balanceSubscriptionKey.flatMap { privateSubscribableViewModel.unsubscribe($0) }
+    }
+
     func refresh() {
-        storage.refreshBalance()
+        walletBalanceCoordinator.refreshBalance()
     }
     func refreshEthBalance() {
-        storage.refreshETHBalance()
+        walletBalanceCoordinator.refreshEthBalance()
     }
+
     func update() {
-        delegate?.didUpdate(viewModel: viewModel)
+        // NOTE: update method to refresh subscribable view model, only tests purposes
+        subscribableEthBalanceViewModel.value = ethBalanceViewModel
     }
 }

@@ -4,7 +4,6 @@ import Foundation
 
 //TODO probably should have an ID which is really good for debugging
 open class Subscribable<T>: Hashable {
-    
     public static func == (lhs: Subscribable<T>, rhs: Subscribable<T>) -> Bool {
         return lhs.uuid == rhs.uuid
     }
@@ -48,6 +47,26 @@ open class Subscribable<T>: Hashable {
         let key = SubscribableKey()
         _subscribers[key] = subscribe
         return key
+    }
+
+    func map<V>(_ mapClosure: @escaping (T) -> V?, on queue: DispatchQueue? = .none) -> Subscribable<V> {
+        let notifier = Subscribable<V>(nil)
+        
+        func updateNotifier(with value: T?, on queue: DispatchQueue?) {
+            if let queue = queue {
+                queue.async {
+                    notifier.value = value.flatMap { mapClosure($0) }
+                }
+            } else {
+                notifier.value = value.flatMap { mapClosure($0) }
+            }
+        }
+
+        subscribe { value in
+            updateNotifier(with: value, on: queue)
+        }
+
+        return notifier
     }
     
     open func subscribeOnce(_ subscribe: @escaping (T) -> Void) {

@@ -86,4 +86,12 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     func start() {
 
     }
+
+    func refreshBalance() {
+
+    }
+
+    func refreshEthBalance() {
+
+    }
 }

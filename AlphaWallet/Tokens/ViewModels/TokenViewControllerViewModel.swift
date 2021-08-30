@@ -103,8 +103,7 @@ struct TokenViewControllerViewModel {
     var fungibleBalance: BigInt? {
         switch transactionType {
         case .nativeCryptocurrency:
-            let string: String? = session.balanceViewModel.value?.amountShort
-            return string.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: session.server.decimals) }
+            return session.balanceCoordinator.ethBalanceViewModel.value
         case .ERC20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
@@ -129,7 +128,7 @@ struct TokenViewControllerViewModel {
     }
 
     var showAlternativeAmount: Bool {
-        guard let currentTokenInfo = tokensStore.tickers[transactionType.addressAndRPCServer], currentTokenInfo.price_usd > 0 else {
+        guard let coinTicker = session.balanceCoordinator.coinTicker(transactionType.addressAndRPCServer), coinTicker.price_usd > 0 else {
             return false
         }
         return true

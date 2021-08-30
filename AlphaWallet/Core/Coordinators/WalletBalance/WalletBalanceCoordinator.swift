@@ -16,6 +16,8 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance>
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
     func start()
+    func refreshBalance()
+    func refreshEthBalance()
 }
 
 class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
@@ -74,6 +76,14 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
             return pair.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
         }
         return .init(nil)
+    }
+
+    func refreshBalance() {
+        balanceFetchers[keystore.currentWallet].flatMap { $0.refreshBalance() }
+    }
+    
+    func refreshEthBalance() {
+        balanceFetchers[keystore.currentWallet].flatMap { $0.refreshEthBalance() }
     }
 
     func start() {

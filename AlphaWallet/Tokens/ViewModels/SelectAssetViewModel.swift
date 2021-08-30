@@ -10,7 +10,6 @@ import UIKit
 class SelectAssetViewModel {
     let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
-    let tickers: [AddressAndRPCServer: CoinTicker]
     let filter: WalletFilter
 
     lazy var filteredTokens: [TokenObject] = filteredAndSortedTokens()
@@ -35,10 +34,6 @@ class SelectAssetViewModel {
         return filteredTokens[row]
     }
 
-    func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.addressAndRPCServer]
-    }
-
     func accessoryType(_ selectedToken: TokenObject?, indexPath: IndexPath) -> UITableViewCell.AccessoryType {
         guard let selectedToken = selectedToken else { return .none }
 
@@ -48,13 +43,12 @@ class SelectAssetViewModel {
     }
 
     convenience init(tokensViewModel viewModel: TokensViewModel, filterTokensCoordinator: FilterTokensCoordinator, filter: WalletFilter) {
-        self.init(filterTokensCoordinator: filterTokensCoordinator, tokens: viewModel.tokens, tickers: viewModel.tickers, filter: filter)
+        self.init(filterTokensCoordinator: filterTokensCoordinator, tokens: viewModel.tokens, filter: filter)
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [AddressAndRPCServer: CoinTicker], filter: WalletFilter) {
+    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], filter: WalletFilter) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens
-        self.tickers = tickers
         self.filter = filter
     }
 
