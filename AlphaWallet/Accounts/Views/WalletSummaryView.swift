@@ -26,7 +26,7 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
             apprecation24HoursLabel,
         ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: spacing)
 
-        let stackView = [leftStackView].asStackView(spacing: 12, alignment: .fill)
+        let stackView = [leftStackView].asStackView(spacing: 0, alignment: .fill)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         apprecation24HoursLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -37,7 +37,9 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 0),
+            stackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: 0),
         ])
     }
 
