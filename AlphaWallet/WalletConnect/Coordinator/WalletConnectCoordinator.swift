@@ -35,7 +35,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
 
     var coordinators: [Coordinator] = []
-    var sessionsToURLServersMap: Subscribable<SessionsToURLServersMap> = .init(nil)
+    var sessionsToURLServersMap: Subscribable<SessionsToURLServersMap> = .init((sessions: [], urlToServer: [:]))
 
     private let keystore: Keystore
     private let sessions: ServerDictionary<WalletSession>
