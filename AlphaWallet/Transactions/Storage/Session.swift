@@ -10,18 +10,13 @@ enum RefreshType {
 class WalletSession {
     let account: Wallet
     let server: RPCServer
-    var balanceCoordinator: BalanceCoordinatorType
+    let balanceCoordinator: BalanceCoordinatorType
     let config: Config
     let chainState: ChainState
-    var balance: Balance? {
-        return balanceCoordinator.balance
-    }
 
     var sessionID: String {
         return Self.functional.sessionID(account: account, server: server)
     }
-
-    var balanceViewModel: Subscribable<BalanceBaseViewModel> = Subscribable(nil)
 
     init(
         account: Wallet,
@@ -34,7 +29,6 @@ class WalletSession {
         self.config = config
         self.chainState = ChainState(config: config, server: server)
         self.balanceCoordinator = balanceCoordinator
-        self.balanceCoordinator.delegate = self
 
         if config.isAutoFetchingDisabled {
             //no-op
@@ -54,12 +48,6 @@ class WalletSession {
 
     func stop() {
         chainState.stop()
-    }
-}
-
-extension WalletSession: BalanceCoordinatorDelegate {
-    func didUpdate(viewModel: BalanceViewModel) {
-        balanceViewModel.value = viewModel
     }
 }
 

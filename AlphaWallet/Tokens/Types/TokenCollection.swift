@@ -51,24 +51,17 @@ extension TokenCollection: TokensDataStoreDelegate {
 
     private func notifySubscribersOfUpdatedTokens() {
         //TODO not efficient. But how many elements can we actually have. Not that many?
-        var tickers: [AddressAndRPCServer: CoinTicker] = [:]
         var tokens: [TokenObject] = []
 
         for each in tokenDataStores {
-            for (key, value) in each.tickers {
-                tickers[key] = value
-            }
-
             tokens.append(contentsOf: each.enabledObject)
         }
-
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: tokens, tickers: tickers)
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: tokens)
         for each in subscribers {
             each(.success(tokensViewModel))
         }
     }
 }
-
 
 extension RPCServer {
     var displayOrderPriority: Int {

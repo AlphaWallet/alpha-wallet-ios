@@ -17,7 +17,6 @@ class SelectAssetViewController: UIViewController {
     private lazy var viewModel = SelectAssetViewModel(
         filterTokensCoordinator: filterTokensCoordinator,
         tokens: [],
-        tickers: [:],
         filter: filter
     )
     private let tokenCollection: TokenCollection
@@ -152,8 +151,8 @@ extension SelectAssetViewController: UITableViewDataSource {
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(
                 token: token,
-                ticker: viewModel.ticker(for: token),
-                currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer),
+                currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmount,
                 assetDefinitionStore: assetDefinitionStore
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
@@ -163,7 +162,7 @@ extension SelectAssetViewController: UITableViewDataSource {
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token,
                 assetDefinitionStore: assetDefinitionStore,
-                ticker: viewModel.ticker(for: token)
+                ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 

@@ -172,8 +172,8 @@ class SendViewController: UIViewController {
             addressControlsContainer.heightAnchor.constraint(equalToConstant: 30)
 
         ] + roundedBackground.createConstraintsWithContainer(view: view))
-
-        storage.updatePrices()
+        // NOTE: not sure do we need to call refresh balance here
+        //session.balanceCoordinator.refresh()
 
         observation = observe(\.isAllFunds, options: [.initial, .new]) { [weak self] _, _ in
             guard let strongSelf = self else { return }
@@ -281,8 +281,7 @@ class SendViewController: UIViewController {
     private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let balance = session.balance else { return nil }
-
+            let balance = session.balanceCoordinator.ethBalanceViewModel
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
@@ -342,11 +341,11 @@ class SendViewController: UIViewController {
     }
 
     private func configureBalanceViewModel() {
-        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceViewModel.unsubscribe($0) }
+        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
         currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceViewModel.subscribe { [weak self] viewModel in
+            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self else { return }
                 guard celf.storage.token(forContract: celf.viewModel.transactionType.contract) != nil else { return }
                 celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)

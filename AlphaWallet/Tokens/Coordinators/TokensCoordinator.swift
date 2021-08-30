@@ -196,7 +196,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
             filterTokensCoordinator: filterTokensCoordinator,
-            tickers: viewModel.tickers,
             sessions: sessions,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,

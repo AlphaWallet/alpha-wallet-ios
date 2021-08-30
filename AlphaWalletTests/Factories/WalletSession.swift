@@ -34,30 +34,35 @@ extension WalletSession {
 }
 
 class FakeBalanceCoordinator: BalanceCoordinatorType {
+
     var balance: Balance? = nil {
         didSet {
             update()
         }
     }
 
-    var currencyRate: CurrencyRate?
-
-    weak var delegate: BalanceCoordinatorDelegate?
-
-    var viewModel: BalanceViewModel {
-        .init(server: .main, balance: balance, rate: currencyRate)
+    var ethBalanceViewModel: BalanceBaseViewModel {
+        NativecryptoBalanceViewModel(server: .main, balance: balance ?? Balance(value: .zero), ticker: nil)
     }
+    var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> = .init(nil)
 
     func refresh() {
-        update()
-    }
 
+    }
     func refreshEthBalance() {
-        update()
+
     }
 
+    // NOTE: only tests purposes
     func update() {
-        delegate?.didUpdate(viewModel: viewModel)
+        subscribableEthBalanceViewModel.value = ethBalanceViewModel
+    }
+
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
+        return nil
+    }
+    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
+        return .init(nil)
     }
 
     static func make() -> FakeBalanceCoordinator {

@@ -189,7 +189,7 @@ class TransactionConfirmationViewController: UIViewController {
 
             switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
-                sendFungiblesViewModel.session.balanceViewModel.subscribe { [weak self] balanceBaseViewModel in
+                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] balanceBaseViewModel in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                     strongSelf.generateSubviews()
@@ -361,7 +361,7 @@ class TransactionConfirmationViewController: UIViewController {
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
-                guard let balanceBaseViewModel = sendFungiblesViewModel.session.balanceViewModel.value else { return }
+                let balanceBaseViewModel = sendFungiblesViewModel.session.balanceCoordinator.ethBalanceViewModel
 
                 sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
             case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
