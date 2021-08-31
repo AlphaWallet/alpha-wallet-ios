@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import PromiseKit
 
 protocol CoinTickersFetcherCacheType: AnyObject {
     var tickers: [AddressAndRPCServer: CoinTicker] { get set }
     var historyCache: [CoinTicker: [ChartHistoryPeriod: MappedChartHistory]] { get set }
     var lastFetchedDate: Date? { get set }
     var lastFetchedTickerIds: [String]? { get set }
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
+    func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer, dayChartHistoryCacheLifetime: TimeInterval) -> Promise<(ticker: CoinTicker, history: ChartHistory?)>
+    func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker)
 }
 
 class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
@@ -25,6 +29,42 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
     private enum Keys {
         static let lastFetchedDateKey = "lastFetchedDateKey"
         static let lastFetchedTickerIdsKey = "lastFetchedTickerIdsKey"
+    }
+
+    let tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
+
+    func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker) {
+        guard !result.prices.isEmpty else { return }
+        var newHistory = historyCache[ticker] ?? [:]
+        newHistory[period] = .init(history: result, fetchDate: Date())
+        historyCache[ticker] = newHistory
+    }
+
+    func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer, dayChartHistoryCacheLifetime: TimeInterval) -> Promise<(ticker: CoinTicker, history: ChartHistory?)> {
+        struct TickerNotFound: Swift.Error {
+        }
+        if let ticker = tickers[key] {
+            if let cached = historyCache[ticker]?[period] {
+                let hasCacheExpired: Bool
+                switch period {
+                case .day:
+                    let fetchDate = cached.fetchDate
+                    hasCacheExpired = Date().timeIntervalSince(fetchDate) > dayChartHistoryCacheLifetime
+                case .week, .month, .threeMonth, .year:
+                    hasCacheExpired = false
+                }
+                if hasCacheExpired || cached.history.prices.isEmpty {
+                    //TODO improve by returning the cached value and returning again after refetching. Harder to do with current implement because promises only resolves once. Maybe the Promise's type should be a subscribable?
+                    return .value((ticker: ticker, history: nil))
+                } else {
+                    return .value((ticker: ticker, history: cached.history))
+                }
+            } else {
+                return .value((ticker: ticker, history: nil))
+            }
+        } else {
+            return .init(error: TickerNotFound())
+        }
     }
 
     var lastFetchedTickerIds: [String]? {
@@ -63,6 +103,7 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
             guard let data = try? JSONEncoder().encode(newValue) else { return }
 
             save(data: data, url: tickersJsonPath)
+            tickersSubscribable.value = newValue
         }
     }
 
@@ -98,6 +139,11 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
         } catch {
             // Handle error
         }
+    }
+
+    override init() {
+        super .init()
+        tickersSubscribable.value = tickers
     }
 
 }

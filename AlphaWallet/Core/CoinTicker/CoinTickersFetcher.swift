@@ -34,7 +34,7 @@ protocol CoinTickersFetcherType {
     var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
     var tickers: [AddressAndRPCServer: CoinTicker] { get }
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]>
+    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void>
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
@@ -56,7 +56,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
     private var isFetchingPrices = false
 
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> {
+        return cache.tickersSubscribable
+    }
     var tickers: [AddressAndRPCServer: CoinTicker] {
         return cache.tickers
     }
@@ -65,8 +67,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     private let provider: MoyaProvider<AlphaWalletService>
     private let config: Config
     private let cache: CoinTickersFetcherCacheType
-
-    private var historyCache: [CoinTicker: [ChartHistoryPeriod: (history: ChartHistory, fetchDate: Date)]] = [:]
 
     init(provider: MoyaProvider<AlphaWalletService>, config: Config, cache: CoinTickersFetcherCacheType = CoinTickersFetcherFileCache()) {
         self.provider = provider
@@ -99,17 +99,15 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         Self.fetchSupportedTickers(config: config, provider: provider)
     }
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]> {
+    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void> {
+        let cache = self.cache
         return firstly {
             fetchTickers(forTokens: tokens)
-        }.get { [weak self] tickers, tickerIds in
-            self?.cache.tickers = tickers
-            self?.cache.lastFetchedTickerIds = tickerIds
-            self?.cache.lastFetchedDate = Date()
-            self?.tickersSubscribable.value = tickers
-        }.map {
-            $0.tickers
-        }
+        }.get { tickers, tickerIds in
+            cache.tickers = tickers
+            cache.lastFetchedTickerIds = tickerIds
+            cache.lastFetchedDate = Date()
+        }.map { _ in }
     }
 
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
@@ -129,16 +127,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         })
     }
 
-    private func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker) {
-        guard !result.prices.isEmpty else { return }
-        var newHistory = cache.historyCache[ticker] ?? [:]
-        newHistory[period] = .init(history: result, fetchDate: Date())
-        cache.historyCache[ticker] = newHistory
-    }
-
     func fetchChartHistory(force: Bool, period: ChartHistoryPeriod, for key: AddressAndRPCServer, shouldRetry: Bool = true) -> Promise<ChartHistory> {
         firstly {
-            getCachedChartHistory(period: period, for: key)
+            cache.getCachedChartHistory(period: period, for: key, dayChartHistoryCacheLifetime: dayChartHistoryCacheLifetime)
         }.then { values -> Promise<ChartHistory> in
             let ticker = values.ticker
             if let value = values.history, !force {
@@ -147,7 +138,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 return firstly {
                     self.fetchChartHistory(period: period, ticker: ticker)
                 }.get(on: CoinTickersFetcher.queue, {
-                    self.cacheChartHistory(result: $0, period: period, for: ticker)
+                    self.cache.cacheChartHistory(result: $0, period: period, for: ticker)
                 })
             }
         }.recover { _ -> Promise<ChartHistory> in
@@ -160,38 +151,16 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }
     }
 
-    private func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer) -> Promise<(ticker: CoinTicker, history: ChartHistory?)> {
-        struct TickerNotFound: Swift.Error {
-        }
-        if let ticker = cache.tickers[key] {
-            if let cached = cache.historyCache[ticker]?[period] {
-                let hasCacheExpired: Bool
-                switch period {
-                case .day:
-                    let fetchDate = cached.fetchDate
-                    hasCacheExpired = Date().timeIntervalSince(fetchDate) > dayChartHistoryCacheLifetime
-                case .week, .month, .threeMonth, .year:
-                    hasCacheExpired = false
-                }
-                if hasCacheExpired || cached.history.prices.isEmpty {
-                    //TODO improve by returning the cached value and returning again after refetching. Harder to do with current implement because promises only resolves once. Maybe the Promise's type should be a subscribable?
-                    return .value((ticker: ticker, history: nil))
-                } else {
-                    return .value((ticker: ticker, history: cached.history))
-                }
-            } else {
-                return .value((ticker: ticker, history: nil))
-            }
-        } else {
-            return .init(error: TickerNotFound())
-        }
-    }
-
     private func fetchTickers(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> {
         let tokens = tokens.values.flatMap { $0 }
         guard !isFetchingPrices else { return .init(error: Error.alreadyFetchingPrices) }
 
         isFetchingPrices = true
+
+        let cache = self.cache
+        let pricesCacheLifetime = self.pricesCacheLifetime
+        let provider = self.provider
+        let config = self.config
 
         return firstly {
             fetchSupportedTickers()
@@ -207,25 +176,25 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }).then(on: CoinTickersFetcher.queue, { mapped -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> in
             let tickerIds: [String] = Set(mapped).map { $0.tickerId }
             let ids: String = tickerIds.joined(separator: ",")
-            if let lastFetchedTickers = self.cache.lastFetchedTickerIds, let lastFetchingDate = self.cache.lastFetchedDate, lastFetchedTickers.containsSameElements(as: tickerIds) {
-                if Date().timeIntervalSince(lastFetchingDate) <= self.pricesCacheLifetime {
-                    return .value((tickers: self.cache.tickers, tickerIds: tickerIds))
+            if let lastFetchedTickers = cache.lastFetchedTickerIds, let lastFetchingDate = cache.lastFetchedDate, lastFetchedTickers.containsSameElements(as: tickerIds) {
+                if Date().timeIntervalSince(lastFetchingDate) <= pricesCacheLifetime {
+                    return .value((tickers: cache.tickers, tickerIds: tickerIds))
                 } else {
                     //no-op
                 }
             }
-            return self.fetchPrices(ids: ids, mappedCoinTickerIds: mapped, tickerIds: tickerIds).map { (tickers: $0, tickerIds: tickerIds) }
+            return Self.fetchPrices(provider: provider, config: config, ids: ids, mappedCoinTickerIds: mapped, tickerIds: tickerIds).map { (tickers: $0, tickerIds: tickerIds) }
         }).ensure(on: CoinTickersFetcher.queue, { [weak self] in
             self?.isFetchingPrices = false
         })
     }
 
-    private func fetchPrices(ids: String, mappedCoinTickerIds: [MappedCoinTickerId], tickerIds: [String]) -> Promise<[AddressAndRPCServer: CoinTicker]> {
+    private static func fetchPrices(provider: MoyaProvider<AlphaWalletService>, config: Config, ids: String, mappedCoinTickerIds: [MappedCoinTickerId], tickerIds: [String]) -> Promise<[AddressAndRPCServer: CoinTicker]> {
         var page = 1
         var allResults: [AddressAndRPCServer: CoinTicker] = .init()
         func fetchPageImpl() -> Promise<[AddressAndRPCServer: CoinTicker]> {
             return firstly {
-                fetchPricesPage(ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: true)
+                fetchPricesPage(provider: provider, config: config, ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: true)
             }.then { results -> Promise<[AddressAndRPCServer: CoinTicker]> in
                 if results.isEmpty {
                     return Promise<[AddressAndRPCServer: CoinTicker]>.value(allResults)
@@ -239,7 +208,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         return fetchPageImpl()
     }
 
-    private func fetchPricesPage(ids: String, mappedCoinTickerIds: [MappedCoinTickerId], tickerIds: [String], page: Int, shouldRetry: Bool) -> Promise<[AddressAndRPCServer: CoinTicker]> {
+    private static func fetchPricesPage(provider: MoyaProvider<AlphaWalletService>, config: Config, ids: String, mappedCoinTickerIds: [MappedCoinTickerId], tickerIds: [String], page: Int, shouldRetry: Bool) -> Promise<[AddressAndRPCServer: CoinTicker]> {
         firstly {
             provider.request(.pricesOfTokens(config: config, ids: ids, currency: Constants.Currency.usd, page: page))
         }.map(on: CoinTickersFetcher.queue, { response -> [AddressAndRPCServer: CoinTicker] in
@@ -256,7 +225,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
             return .value(tickers)
         }).recover(on: CoinTickersFetcher.queue, { _ -> Promise<[AddressAndRPCServer: CoinTicker]> in
             if shouldRetry {
-                return self.fetchPricesPage(ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: false)
+                return fetchPricesPage(provider: provider, config: config, ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: false)
             } else {
                 return .value(.init())
             }
