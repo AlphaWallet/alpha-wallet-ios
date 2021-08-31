@@ -54,16 +54,26 @@ class TokenImageFetcher {
     private static var subscribables: ThreadSafeDictionary<String, Subscribable<TokenImage>> = .init()
     private let queue: DispatchQueue = .global()
 
-    private func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, server: RPCServer, symbol: String) -> TokenImage {
-        let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min()!
+    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, server: RPCServer, symbol: String) -> TokenImage? {
+        guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
         return (image: programmaticallyGeneratedIconImage(for: contractAddress, server: server), symbol: symbol, isFinal: false)
     }
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
     func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
+        image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol, type: tokenObject.type, balance: tokenObject.balance.first?.balance)
+    }
+
+    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
+        // NOTE: not meatter what type we passa as `type`, here we are not going to fetch from OpenSea
+        image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil)
+    }
+
+    private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: String?) -> Subscribable<TokenImage> {
+        let queue = self.queue
         let subscribable: Subscribable<TokenImage>
-        let key = "\(tokenObject.contractAddress.eip55String)-\(tokenObject.server.chainID)"
+        let key = "\(contractAddress.eip55String)-\(server.chainID)"
         if let sub = Self.subscribables[key] {
             subscribable = sub
             if let value = sub.value, value.isFinal {
@@ -75,31 +85,23 @@ class TokenImageFetcher {
             subscribable = sub
         }
 
-        let contractAddress = tokenObject.contractAddress
-        let server = tokenObject.server
-        let symbol = tokenObject.symbol
-        let balance = tokenObject.balance.first?.balance
-        let type = tokenObject.type
-
-        if tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+        if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             queue.async {
-                let value = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: symbol)
+                let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
 
                 DispatchQueue.main.async {
-                    subscribable.value = value
+                    subscribable.value = generatedImage
                 }
             }
-
             return subscribable
         }
 
         queue.async {
-            let generatedImage = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: symbol)
-            self.fetchFromOpenSea(type, balance: balance).done(on: .main, {
+            let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
+            Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
                 subscribable.value = (image: $0, symbol: "", isFinal: true)
-            }).catch(on: self.queue) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.fetchFromAssetGitHubRepo(contractAddress: contractAddress).done(on: .main, {
+            }).catch(on: queue) { _ in
+                Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
                     subscribable.value = (image: $0, symbol: "", isFinal: false)
                 }).catch(on: .main, { _ in
                     subscribable.value = generatedImage
@@ -110,51 +112,16 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
-        let subscribable: Subscribable<TokenImage>
-        let key = "\(contractAddress.eip55String)-\(server.chainID)"
-        if let sub = Self.subscribables[key] {
-            subscribable = sub
-        } else {
-            let sub = Subscribable<TokenImage>(nil)
-            Self.subscribables[key] = sub
-            subscribable = sub
-        }
-
-        if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-            queue.async {
-                let generatedImage = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
-
-                DispatchQueue.main.async {
-                    subscribable.value = generatedImage
-                }
-            }
-            return subscribable
-        }
-
-        queue.async {
-            let generatedImage = self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
-
-            self.fetchFromAssetGitHubRepo(contractAddress: contractAddress).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "", isFinal: true)
-            }).catch(on: .main, { _ in
-                subscribable.value = generatedImage
-            })
-        }
-
-        return subscribable
-    }
-
-    private func fetchFromOpenSea(_ type: TokenType, balance: String?) -> Promise<UIImage> {
+    private static func fetchFromOpenSea(_ type: TokenType, balance: String?, queue: DispatchQueue) -> Promise<UIImage> {
         Promise { seal in
             queue.async {
                 switch type {
                 case .erc721:
                     if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data), !openSeaNonFungible.contractImageUrl.isEmpty {
                         let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
-                        self.fetch(request: request).done(on: self.queue, { image in
+                        fetch(request: request, queue: queue).done(on: queue, { image in
                             seal.fulfill(image)
-                        }).catch(on: self.queue, { _ in
+                        }).catch(on: queue, { _ in
                             seal.reject(ImageAvailabilityError.notAvailable)
                         })
                     } else {
@@ -167,23 +134,23 @@ class TokenImageFetcher {
         }
     }
 
-    private func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+    private static func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
         firstly {
             GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress)
         }.then(on: queue, { request -> Promise<UIImage> in
-            self.fetch(request: request)
+            fetch(request: request, queue: queue)
         })
     }
 
-    private func fetchFromAssetGitHubRepo(contractAddress: AlphaWallet.Address) -> Promise<UIImage> {
+    private static func fetchFromAssetGitHubRepo(contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
         firstly {
-            fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress)
+            fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress, queue: queue)
         }.recover(on: queue, { _ -> Promise<UIImage> in
-            self.fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress)
+            fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)
         })
     }
 
-    private func fetch(request: URLRequest) -> Promise<UIImage> {
+    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
         Promise { seal in
             queue.async {
                 let task = URLSession.shared.dataTask(with: request) { data, _, _ in
