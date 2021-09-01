@@ -249,8 +249,8 @@ final class FakeCoinTickersFetcher: CoinTickersFetcherType {
 
     var tickers: [AddressAndRPCServer: CoinTicker] = [:]
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<[AddressAndRPCServer: CoinTicker]> {
-        return .value([:])
+    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void> {
+        return .value(())
     }
 
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
