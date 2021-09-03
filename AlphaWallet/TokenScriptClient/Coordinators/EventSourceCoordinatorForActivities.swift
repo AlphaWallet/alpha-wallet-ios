@@ -90,7 +90,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
 
             seal.fulfill(data)
         }
-    } 
+    }
 }
 
 extension EventSourceCoordinatorForActivities {
@@ -128,7 +128,7 @@ extension EventSourceCoordinatorForActivities.functional {
 
                     let toBlock: EventFilter.Block
                     if server == .binance_smart_chain || server == .binance_smart_chain_testnet || server == .heco {
-                        //NOTE: binance_smart_chain not allows range more then 5000
+                        //NOTE: binance_smart_chain does not allow range more than 5000
                         toBlock = .blockNumber(fromBlock.1 + 4000)
                     } else {
                         toBlock = .latest
