@@ -317,6 +317,13 @@ extension WalletConnectServer: ServerDelegate {
             self.removeSession(for: session.url)
         }
     }
+    
+    func server(_ server: Server, didUpdate session: Session) {
+        DispatchQueue.main.async {
+            guard var sessions = self.sessions.value else { return }
+            sessions.append(session)
+        }
+    }
 }
 
 struct WalletConnectConnection {

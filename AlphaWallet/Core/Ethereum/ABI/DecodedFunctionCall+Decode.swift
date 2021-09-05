@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 11.05.2021.
 //
 
-import EthereumAddress
-import EthereumABI
+import web3swift
 import BigInt
 
 //NOTE: extracted to separated file to avoid missunderstanding with EthereumAddress address, web3swift and EthereumAddress contains the same struct for EthereumAddress. it causes types comparison issue

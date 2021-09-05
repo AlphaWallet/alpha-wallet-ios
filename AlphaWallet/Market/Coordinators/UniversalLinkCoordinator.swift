@@ -362,10 +362,9 @@ class UniversalLinkCoordinator: Coordinator {
             return true
         }
 
-        let recoveredSigner = ecrecover(signedOrder: signedOrder)
-        switch recoveredSigner {
-        case .success(let ethereumAddress):
-            let recoverAddress = AlphaWallet.Address(address: ethereumAddress)
+        do {
+            let recoveredSigner = try ecrecover(signedOrder: signedOrder)
+            let recoverAddress = AlphaWallet.Address(address: recoveredSigner)
             if signedOrder.order.nativeCurrencyDrop {
                 handleNativeCurrencyDrop(signedOrder: signedOrder)
             } else if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
@@ -377,7 +376,8 @@ class UniversalLinkCoordinator: Coordinator {
                         contractAsAddress: signedOrder.order.contractAddress
                 )
             }
-        case .failure:
+        }
+        catch {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
@@ -420,7 +420,7 @@ class UniversalLinkCoordinator: Coordinator {
             }
         }
     }
-    private func ecrecover(signedOrder: SignedOrder) -> ResultResult<web3swift.EthereumAddress, web3swift.Web3Error>.t {
+    private func ecrecover(signedOrder: SignedOrder) throws -> web3swift.EthereumAddress {
         //need to hash message here because the web3swift implementation adds prefix
         let messageHash = Data(bytes: signedOrder.message).sha3(.keccak256)
         //note: web3swift takes the v value as v - 27, so we need to manually convert this
@@ -432,7 +432,7 @@ class UniversalLinkCoordinator: Coordinator {
         let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
         let web3Instance = web3swift.web3(provider: provider)
 
-        return web3swift.web3.Personal(provider: provider, web3: web3Instance).ecrecover(
+        return try! web3swift.web3.Personal(provider: provider, web3: web3Instance).ecrecover(
             hash: messageHash,
             signature: Data(bytes: signature.hexToBytes)
         )

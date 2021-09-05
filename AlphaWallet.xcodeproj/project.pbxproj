@@ -895,7 +895,7 @@
 		C601B18D24407F4300C763D9 /* SettingTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18C24407F4300C763D9 /* SettingTableViewCellViewModel.swift */; };
 		C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */; };
 		C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */ = {isa = PBXBuildFile; fileRef = C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */; };
-		C8630C92268AD9640049B138 /* MailchimpSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C8630C91268AD9640049B138 /* MailchimpSDK */; };
+		C8630C92268AD9640049B138 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = C8630C91268AD9640049B138 /* SwiftPackageProductDependency */; };
 		C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
 		C868C536205409160059672B /* redeemInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C868C534205409160059672B /* redeemInfo.html */; };
 		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
@@ -1892,7 +1892,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8630C92268AD9640049B138 /* MailchimpSDK in Frameworks */,
+				C8630C92268AD9640049B138 /* BuildFile in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4508,7 +4508,7 @@
 			);
 			name = AlphaWallet;
 			packageProductDependencies = (
-				C8630C91268AD9640049B138 /* MailchimpSDK */,
+				C8630C91268AD9640049B138 /* SwiftPackageProductDependency */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -4637,7 +4637,7 @@
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
-				C8630C90268AD9640049B138 /* XCRemoteSwiftPackageReference "Mailchimp-SDK-iOS" */,
+				C8630C90268AD9640049B138 /* RemoteSwiftPackageReference */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -4771,17 +4771,13 @@
 				"${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework",
 				"${BUILT_PRODUCTS_DIR}/AWSSNS/AWSSNS.framework",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/Alamofire-Synchronous/Alamofire_Synchronous.framework",
 				"${BUILT_PRODUCTS_DIR}/AssistantKit/AssistantKit.framework",
-				"${BUILT_PRODUCTS_DIR}/Base58Swift/Base58Swift.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/BlockiesSwift/BlockiesSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Charts/Charts.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaAsyncSocket/CocoaAsyncSocket.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
 				"${BUILT_PRODUCTS_DIR}/CryptoSwift/CryptoSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/EthereumABI/EthereumABI.framework",
-				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/Eureka/Eureka.framework",
 				"${BUILT_PRODUCTS_DIR}/JSONRPCKit/JSONRPCKit.framework",
 				"${BUILT_PRODUCTS_DIR}/JavaScriptKit/JavaScriptKit.framework",
@@ -4799,7 +4795,6 @@
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/SAMKeychain/SAMKeychain.framework",
-				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/StatefulViewController/StatefulViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
@@ -4809,7 +4804,6 @@
 				"${BUILT_PRODUCTS_DIR}/TrustWalletCore/WalletCore.framework",
 				"${BUILT_PRODUCTS_DIR}/UnstoppableDomainsResolution/UnstoppableDomainsResolution.framework",
 				"${BUILT_PRODUCTS_DIR}/WalletConnectSwift/WalletConnectSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/libsodium/libsodium.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1_ios/secp256k1_ios.framework",
 				"${BUILT_PRODUCTS_DIR}/web3swift/web3swift.framework",
 			);
@@ -4819,17 +4813,13 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSSNS.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire_Synchronous.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AssistantKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Base58Swift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BlockiesSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Charts.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaAsyncSocket.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptoSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumABI.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Eureka.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JSONRPCKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JavaScriptKit.framework",
@@ -4847,7 +4837,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SAMKeychain.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StatefulViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
@@ -4857,7 +4846,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UnstoppableDomainsResolution.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WalletConnectSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libsodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/web3swift.framework",
 			);
@@ -6115,6 +6103,7 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
 				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -6160,6 +6149,7 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
 				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -6382,7 +6372,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C8630C90268AD9640049B138 /* XCRemoteSwiftPackageReference "Mailchimp-SDK-iOS" */ = {
+		C8630C90268AD9640049B138 /* RemoteSwiftPackageReference */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mailchimp/Mailchimp-SDK-iOS";
 			requirement = {
@@ -6393,9 +6383,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C8630C91268AD9640049B138 /* MailchimpSDK */ = {
+		C8630C91268AD9640049B138 /* SwiftPackageProductDependency */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C8630C90268AD9640049B138 /* XCRemoteSwiftPackageReference "Mailchimp-SDK-iOS" */;
+			package = C8630C90268AD9640049B138 /* RemoteSwiftPackageReference */;
 			productName = MailchimpSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

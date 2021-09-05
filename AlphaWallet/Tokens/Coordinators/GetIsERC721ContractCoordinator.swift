@@ -61,22 +61,22 @@ class GetIsERC721ContractCoordinator {
             let contractAddress = EthereumAddress(address: contract)
             let web3 = web3swift.web3(provider: webProvider)
             let function = GetInterfaceSupported165Encode()
-            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: function.abi, at: contractAddress, options: web3.options) else {
+            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: function.abi, at: contractAddress) else {
                 completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
                 return
             }
 
-            guard let cryptoKittyPromise = contractInstance.method(function.name, parameters: [ERC165Hash.onlyKat] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            guard let cryptoKittyPromise = contractInstance.method(function.name, parameters: [ERC165Hash.onlyKat] as [AnyObject])?.callPromise() else {
                 completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(ERC165Hash.onlyKat)"))))
                 return
             }
 
-            guard let nonCryptoKittyERC721Promise = contractInstance.method(function.name, parameters: [ERC165Hash.official] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            guard let nonCryptoKittyERC721Promise = contractInstance.method(function.name, parameters: [ERC165Hash.official] as [AnyObject])?.callPromise() else {
                 completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(ERC165Hash.official)"))))
                 return
             }
 
-            guard let nonCryptoKittyERC721WithOldInterfaceHashPromise = contractInstance.method(function.name, parameters: [ERC165Hash.old] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            guard let nonCryptoKittyERC721WithOldInterfaceHashPromise = contractInstance.method(function.name, parameters: [ERC165Hash.old] as [AnyObject])?.callPromise() else {
                 completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(ERC165Hash.old)"))))
                 return
             }

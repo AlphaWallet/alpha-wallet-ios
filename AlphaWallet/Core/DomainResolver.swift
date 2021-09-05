@@ -13,7 +13,11 @@ import web3swift
 extension Resolution {
     convenience init?(server: RPCServer) {
         guard let networkName = server.unstoppableDomainLookupName else { return nil }
-        try? self.init(providerUrl: server.rpcURL.absoluteString, network: networkName)
+        try? self.init(
+            configs: Configurations(
+                            ens: NamingServiceConfig(
+                                providerUrl: server.rpcURL.absoluteString,
+                                network: networkName)))
     }
 }
 

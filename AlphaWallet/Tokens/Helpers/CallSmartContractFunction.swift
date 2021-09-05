@@ -74,17 +74,17 @@ func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Addre
 
             let contractAddress = EthereumAddress(address: contract)
 
-            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
+            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress) else {
                 seal.reject( Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))
                 return
             }
-            guard let promiseCreator = contractInstance.method(functionName, parameters: parameters, options: nil) else {
+            guard let promiseCreator = contractInstance.method(functionName, parameters: parameters) else {
                 seal.reject( Web3Error(description: "Error calling \(contract.eip55String).\(functionName)() with parameters: \(parameters)"))
                 return
             }
 
             //callPromise() creates a promise. It doesn't "call" a promise. Bad name
-            promiseCreator.callPromise(options: nil).done(on: .main) { d in
+            promiseCreator.callPromise().done(on: .main) { d in
                 seal.fulfill(d)
             }.catch(on: .main) { e in
                 seal.reject(e)
@@ -112,7 +112,7 @@ func getEventLogs(
             throw Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)")
         }
 
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress) else {
             return Promise(error: Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()"))
         }
 

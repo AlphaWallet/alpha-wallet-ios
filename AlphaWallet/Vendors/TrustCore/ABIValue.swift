@@ -7,8 +7,13 @@
 import BigInt
 import Foundation
 import TrustKeystore
+import web3swift
 
 public indirect enum ABIValue: Equatable {
+    public static func == (lhs: ABIValue, rhs: ABIValue) -> Bool {
+        return true
+    }
+    
     /// Unsigned integer with `0 < bits <= 256`, `bits % 8 == 0`
     case uint(bits: Int, BigUInt)
 

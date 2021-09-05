@@ -7,3 +7,4 @@ import Result
 struct ResultResult<T, Error: Swift.Error> {
     typealias t = Result<T, Error>
 }
+
