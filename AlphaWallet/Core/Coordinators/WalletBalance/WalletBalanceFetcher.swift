@@ -8,6 +8,7 @@
 import UIKit
 import RealmSwift
 import BigInt
+import PromiseKit
 
 protocol WalletBalanceFetcherDelegate: AnyObject {
     func didAddToken(in fetcher: WalletBalanceFetcherType)
@@ -30,8 +31,9 @@ protocol WalletBalanceFetcherType: AnyObject {
     func refreshEthBalance()
     func refreshBalance()
     func transactionsStorage(server: RPCServer) -> TransactionsStorage
+    func tokensDatastore(server: RPCServer) -> TokensDataStore
 }
-typealias WalletBalanceFetcherSubServices = (tokensDataStore: PrivateTokensDatastoreType, balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
+typealias WalletBalanceFetcherSubServices = (tokensDataStore: TokensDataStore, balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
 
 class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
@@ -39,7 +41,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
-    let tokensChangeSubscribable: Subscribable<Void> = .init(nil)
     private var services: ServerDictionary<WalletBalanceFetcherSubServices> = .init()
 
     var tokenObjects: [Activity.AssignedToken] {
@@ -64,7 +65,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
         for each in servers {
             let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-            let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
+            let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: each)
             let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
             balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
             balanceFetcher.delegate = self
@@ -86,13 +87,17 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         services[server].transactionsStorage
     }
 
+    func tokensDatastore(server: RPCServer) -> TokensDataStore {
+        services[server].tokensDataStore
+    }
+
     func update(servers: [RPCServer]) {
         for each in servers {
             if services[safe: each] != nil {
                 //no-op
             } else {
                 let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-                let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
+                let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: each)
                 let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
                 balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
                 balanceFetcher.delegate = self
@@ -108,20 +113,33 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     private func notifyUpdateTokenBalancesSubscribers() {
-        for each in cache.values {
-            guard let tokensDatastore = services[safe: each.key.server] else { continue }
-            guard let tokenObject = tokensDatastore.tokensDataStore.tokenObject(contract: each.key.address) else {
-                continue
-            }
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
 
-            each.value.1.value = balanceViewModel(key: tokenObject)
+            for (key, each) in strongSelf.cache.values {
+                guard let tokensDatastore = strongSelf.services[safe: key.server] else { continue }
+                guard let tokenObject = tokensDatastore.tokensDataStore.token(forContract: key.address) else { continue }
+
+                each.1.value = strongSelf.balanceViewModel(key: tokenObject)
+            }
         }
     }
 
     private func notifyUpdateBalance() {
-        subscribableWalletBalance.value = balance
+        Promise<WalletBalance> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let value = strongSelf.balance
 
-        delegate?.didUpdate(in: self)
+                seal.fulfill(value)
+            }
+        }.get(on: .main, { [weak self] balance in
+            self?.subscribableWalletBalance.value = balance
+        }).done(on: queue, { [weak self] _ in
+            guard let strongSelf = self else { return }
+
+            strongSelf.delegate.flatMap { $0.didUpdate(in: strongSelf) }
+        }).cauterize()
     }
 
     private func balanceViewModel(key tokenObject: TokenObject) -> BalanceBaseViewModel? {
@@ -149,16 +167,17 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        guard let tokensDatastore = services[safe: addressAndRPCServer.server] else { return .init(nil) }
+        guard let services = services[safe: addressAndRPCServer.server] else { return .init(nil) }
 
-        guard let tokenObject = tokensDatastore.0.tokenObject(contract: addressAndRPCServer.address) else {
+        guard let tokenObject = services.tokensDataStore.token(forContract: addressAndRPCServer.address) else {
             return .init(nil)
         }
 
         if let value = cache[addressAndRPCServer] {
             return value.1
         } else {
-            let subscribable = Subscribable<BalanceBaseViewModel>(balanceViewModel(key: tokenObject))
+            let subscribable = Subscribable<BalanceBaseViewModel>(nil)
+
             let observation = tokenObject.observe(on: queue) { [weak self] change in
                 guard let strongSelf = self else { return }
 
@@ -175,12 +194,18 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             }
 
             cache[addressAndRPCServer] = (observation, subscribable)
+            let balance = balanceViewModel(key: tokenObject)
+
+            queue.async {
+                subscribable.value = balance
+            }
 
             return subscribable
         }
     }
 
     var balance: WalletBalance {
+        let tokenObjects = services.compactMap { $0.value.0.enabledObject }.flatMap { $0 }.map{ Activity.AssignedToken(tokenObject: $0) }
         var balances = Set<Activity.AssignedToken>()
 
         for var tokenObject in tokenObjects {
