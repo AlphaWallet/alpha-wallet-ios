@@ -36,15 +36,6 @@ class ContractDataDetector {
         tokenTypePromise = tokenProvider.getTokenType(for: address)
     }
 
-    init(address: AlphaWallet.Address, tokenProvider: TokenProviderType, assetDefinitionStore: AssetDefinitionStore) {
-        self.address = address
-        self.tokenProvider = tokenProvider
-        self.assetDefinitionStore = assetDefinitionStore
-        namePromise = tokenProvider.getContractName(for: address)
-        symbolPromise = tokenProvider.getContractSymbol(for: address)
-        tokenTypePromise = tokenProvider.getTokenType(for: address)
-    }
-
     /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
     //Have to use strong self in promises below, otherwise `self` will be destroyed before fetching completes
     func fetch(completion: @escaping (ContractData) -> Void) {
