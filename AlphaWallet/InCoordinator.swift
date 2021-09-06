@@ -238,7 +238,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
-        let storage = TokensDataStore(realm: realm, account: wallet, server: server)
+        let storage = walletBalanceCoordinator.tokensDatastore(wallet: wallet, server: server)
         return storage
     }
 

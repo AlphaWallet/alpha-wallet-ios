@@ -146,8 +146,8 @@ class SingleChainTokenCoordinator: Coordinator {
             let detectedContracts = contracts
 
             return strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, storage: strongSelf.storage).then(on: strongSelf.queue, { contractsToAdd -> Promise<Bool> in
-                let promises = contractsToAdd.compactMap { each -> Promise<PrepareToAddTokenData> in
-                    strongSelf.prepareToAddToken(for: each, server: strongSelf.server, storage: strongSelf.storage)
+                let promises = contractsToAdd.compactMap { each -> Promise<BatchObject> in
+                    strongSelf.fetchBatchObjectFromContractData(for: each, server: strongSelf.server, storage: strongSelf.storage)
                 }
 
                 return when(resolved: promises).then(on: .main, { values -> Promise<Bool> in
@@ -220,33 +220,33 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer, completion: @escaping () -> Void) {
         let address = keystore.currentWallet.address
-        contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.PrepareToAddTokenData>] in
-            contracts.map { [weak self] each -> Promise<PrepareToAddTokenData> in
+        contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
+            contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
-                return strongSelf.tokenProvider.getTokenType(for: each).then { tokenType -> Promise<PrepareToAddTokenData> in
+                return strongSelf.tokenProvider.getTokenType(for: each).then { tokenType -> Promise<BatchObject> in
                     switch tokenType {
                     case .erc875:
                         //TODO long and very similar code below. Extract function
                         let balanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
-                        return balanceCoordinator.getERC875TokenBalance(for: address, contract: each).then { balance -> Promise<PrepareToAddTokenData> in
+                        return balanceCoordinator.getERC875TokenBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
                             if balance.isEmpty {
                                 return .value(.none)
                             } else {
-                                return strongSelf.prepareToAddToken(for: each, server: server, storage: strongSelf.storage)
+                                return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
                             }
-                        }.recover { _ -> Guarantee<PrepareToAddTokenData> in
+                        }.recover { _ -> Guarantee<BatchObject> in
                             return .value(.none)
                         }
                     case .erc20:
                         let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
-                        return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<PrepareToAddTokenData> in
+                        return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
                             if balance > 0 {
-                                return strongSelf.prepareToAddToken(for: each, server: server, storage: strongSelf.storage)
+                                return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
                             } else {
                                 return .value(.none)
                             }
-                        }.recover { _ -> Guarantee<PrepareToAddTokenData> in
+                        }.recover { _ -> Guarantee<BatchObject> in
                             return .value(.none)
                         }
                     case .erc721:
@@ -282,7 +282,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }).cauterize().finally(completion)
     }
 
-    enum PrepareToAddTokenData {
+    enum BatchObject {
         case ercToken(ERCToken)
         case tokenObject(TokenObject)
         case delegateContracts([DelegateContract])
@@ -299,7 +299,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func prepareToAddToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, storage: TokensDataStore) -> Promise <PrepareToAddTokenData> {
+    private func fetchBatchObjectFromContractData(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, storage: TokensDataStore) -> Promise <BatchObject> {
         return Promise { seal in
             fetchContractData(for: contract) { data in
                 DispatchQueue.main.async {
@@ -351,7 +351,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func addToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, storage: TokensDataStore, completion: @escaping (TokenObject?) -> Void) {
         firstly {
-            prepareToAddToken(for: contract, server: server, storage: storage)
+            fetchBatchObjectFromContractData(for: contract, server: server, storage: storage)
         }.map(on: .main, { operation -> [TokenObject] in
             return storage.addBatchObjectsOperation(values: [operation])
         }).done(on: .main, { tokenObjects in
@@ -391,7 +391,7 @@ class SingleChainTokenCoordinator: Coordinator {
                     }
                 }
             }
-        }).get(on: .main, { [weak self] tokenObject in
+        }).get(on: .main, { [weak self] _ in
             guard let strongSelf = self else { return }
 
             strongSelf.notifyTokensDidChange()
