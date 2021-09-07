@@ -24,6 +24,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
 
     private let keystore: Keystore
     private let config: Config
+    private let assetDefinitionStore: AssetDefinitionStore
     private var coinTickersFetcher: CoinTickersFetcherType
     private var subscribableEnabledServersSubscriptionKey: Subscribable<[RPCServer]>.SubscribableKey!
     private var walletsSubscriptionKey: Subscribable<Set<Wallet>>.SubscribableKey!
@@ -33,9 +34,10 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(walletSummary)
     private let queue: DispatchQueue = DispatchQueue(label: "com.WalletBalanceCoordinator.updateQueue")
 
-    init(keystore: Keystore, config: Config, coinTickersFetcher: CoinTickersFetcherType) {
+    init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
         self.keystore = keystore
         self.config = config
+        self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
         super.init()
 
@@ -81,7 +83,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     func refreshBalance() {
         balanceFetchers[keystore.currentWallet].flatMap { $0.refreshBalance() }
     }
-    
+
     func refreshEthBalance() {
         balanceFetchers[keystore.currentWallet].flatMap { $0.refreshEthBalance() }
     }
@@ -113,7 +115,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     }
 
     private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, queue: queue, coinTickersFetcher: coinTickersFetcher)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher
