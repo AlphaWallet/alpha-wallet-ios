@@ -2,14 +2,16 @@
 
 import Foundation
 import Result
+import PromiseKit
 
 ///This contains tokens across multiple-chains
 class TokenCollection {
-    private var subscribers: [(Result<TokensViewModel, TokenError>) -> Void] = []
+    private var subscribers: [(Swift.Result<TokensViewModel, TokenError>) -> Void] = []
     private var rateLimitedUpdater: RateLimiter?
     private let filterTokensCoordinator: FilterTokensCoordinator
 
     let tokenDataStores: [TokensDataStore]
+    private var privateTokenObjects: [TokenObject] = []
 
     init(filterTokensCoordinator: FilterTokensCoordinator, tokenDataStores: [TokensDataStore]) {
         self.filterTokensCoordinator = filterTokensCoordinator
@@ -21,13 +23,50 @@ class TokenCollection {
     }
 
     func fetch() {
-        for each in tokenDataStores {
-            each.fetch()
+        notifySubscribersOfUpdatedTokens()
+    }
+
+    func subscribe(_ subscribe: @escaping (_ result: Swift.Result<TokensViewModel, TokenError>) -> Void) {
+        subscribers.append(subscribe)
+    }
+
+    var tokenObjects: Promise<[TokenObject]> {
+        return Promise<[TokenObject]> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                //NOTE: Fetch if empty, cound be if called before fetch() get called
+                if strongSelf.privateTokenObjects.isEmpty {
+                    strongSelf.privateTokenObjects = strongSelf.tokenDataStores.compactMap { $0.enabledObject }.flatMap { $0 }
+                }
+
+                seal.fulfill(strongSelf.privateTokenObjects)
+            }
         }
     }
 
-    func subscribe(_ subscribe: @escaping (_ result: Result<TokensViewModel, TokenError>) -> Void) {
-        subscribers.append(subscribe)
+    func tokenObjectPromise(for addressAndRPCServer: AddressAndRPCServer) -> Promise<TokenObject?> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let token = strongSelf.tokenObject(addressAndRPCServer: addressAndRPCServer)
+
+                seal.fulfill(token)
+            }
+        }
+    }
+
+    func tokenObjectPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?> {
+        tokenObjects.map { tokenObjects -> TokenObject? in
+            tokenObjects.first(where: { $0.contractAddress == contract })
+        }
+    }
+
+    func tokenObject(addressAndRPCServer: AddressAndRPCServer) -> TokenObject? {
+        if let token = privateTokenObjects.first(where: { $0.addressAndRPCServer == addressAndRPCServer }) {
+            return token
+        } else {
+            return tokenDataStores.first(where: { $0.server == addressAndRPCServer.server }).flatMap { $0.token(forContract: addressAndRPCServer.address) }
+        }
     }
 }
 
@@ -51,12 +90,8 @@ extension TokenCollection: TokensDataStoreDelegate {
 
     private func notifySubscribersOfUpdatedTokens() {
         //TODO not efficient. But how many elements can we actually have. Not that many?
-        var tokens: [TokenObject] = []
-
-        for each in tokenDataStores {
-            tokens.append(contentsOf: each.enabledObject)
-        }
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: tokens)
+        privateTokenObjects = tokenDataStores.compactMap { $0.enabledObject }.flatMap { $0 }
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: privateTokenObjects)
         for each in subscribers {
             each(.success(tokensViewModel))
         }
