@@ -233,10 +233,7 @@ class AddHideTokensViewModel {
             }
         }
         popularTokens = filterTokensCoordinator.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
-
         displayedTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
-        hiddenTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: hiddenTokens, sortTokensParam: sortTokensParam)
-
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 
