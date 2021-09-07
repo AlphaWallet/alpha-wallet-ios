@@ -53,7 +53,7 @@ struct RawTransaction: Decodable {
 }
 
 extension TransactionInstance {
-    static func from(transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<TransactionInstance?> {
+    static func from(transaction: RawTransaction, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType) -> Promise<TransactionInstance?> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }
@@ -68,7 +68,7 @@ extension TransactionInstance {
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
 
         return firstly {
-            createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage)
+            createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage, tokenProvider: tokenProvider)
         }.then { operations -> Promise<TransactionInstance?> in
             let result = TransactionInstance(
                     id: transaction.hash,
@@ -92,32 +92,33 @@ extension TransactionInstance {
         }
     }
 
-    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<[LocalizedOperationObjectInstance]> {
+    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType) -> Promise<[LocalizedOperationObjectInstance]> {
         guard let contract = transaction.toAddress else {
             return Promise.value([])
         }
 
         func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> Promise<[LocalizedOperationObjectInstance]> {
-            if let token = tokensStorage.tokenThreadSafe(forContract: contract) {
-                let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
-                let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
-                return .value([result])
-            } else {
-                let tokenProvider: TokenProviderType = TokenProvider(account: tokensStorage.account, server: tokensStorage.server)
-                let getContractName = tokenProvider.getContractName(for: contract)
-                let getContractSymbol = tokenProvider.getContractSymbol(for: contract)
-                let getDecimals = tokenProvider.getDecimals(for: contract)
-                let getTokenType = tokenProvider.getTokenType(for: contract)
-
-                return firstly {
-                    when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
-                }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
-                    let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
-                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
+            tokensStorage.tokenPromise(forContract: contract).then { token -> Promise<[LocalizedOperationObjectInstance]> in
+                if let token = token {
+                    let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
+                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
                     return .value([result])
-                }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
-                    //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
-                    return Promise.value([])
+                } else {
+                    let getContractName = tokenProvider.getContractName(for: contract)
+                    let getContractSymbol = tokenProvider.getContractSymbol(for: contract)
+                    let getDecimals = tokenProvider.getDecimals(for: contract)
+                    let getTokenType = tokenProvider.getTokenType(for: contract)
+
+                    return firstly {
+                        when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
+                    }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
+                        let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
+                        let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
+                        return .value([result])
+                    }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
+                        //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
+                        return Promise.value([])
+                    }
                 }
             }
         }
