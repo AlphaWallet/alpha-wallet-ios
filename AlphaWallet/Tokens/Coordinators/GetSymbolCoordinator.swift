@@ -4,6 +4,8 @@ import Foundation
 import Result
 import web3swift
 
+typealias AWResult = Result
+
 class GetSymbolCoordinator {
     private let server: RPCServer
 
