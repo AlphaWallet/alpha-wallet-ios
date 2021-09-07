@@ -102,7 +102,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     private func notifyUpdateTokenBalancesSubscribers() {
-        for each in cache.value {
+        for each in cache.values {
             guard let tokensDatastore = tokensDataStores[safe: each.key.server] else { continue }
             guard let tokenObject = tokensDatastore.0.tokenObject(contract: each.key.address) else {
                 continue
