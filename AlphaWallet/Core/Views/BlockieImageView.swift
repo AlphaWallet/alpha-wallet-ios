@@ -76,3 +76,17 @@ class BlockieImageView: UIView {
     }
 }
 
+
+extension BlockieImageView {
+    static var defaultBlockieImageView: BlockieImageView {
+        let imageView = BlockieImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.clipsToBounds = true
+
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 24),
+            imageView.heightAnchor.constraint(equalToConstant: 24),
+        ])
+        return imageView
+    }
+}

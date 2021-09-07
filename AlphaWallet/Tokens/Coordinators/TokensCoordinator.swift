@@ -183,6 +183,10 @@ class TokensCoordinator: Coordinator {
 
 extension TokensCoordinator: TokensViewControllerDelegate {
 
+    func myQRCodeButtonSelected(in viewController: UIViewController) {
+        delegate?.didPress(for: .request, server: config.anyEnabledServer(), inViewController: .none, in: self)
+    }
+
     func blockieSelected(in viewController: UIViewController) {
         delegate?.blockieSelected(in: self)
     }
