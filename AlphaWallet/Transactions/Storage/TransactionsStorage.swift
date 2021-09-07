@@ -21,7 +21,7 @@ class TransactionsStorage: Hashable {
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let realm: Realm
-    weak private var delegate: TransactionsStorageDelegate?
+    weak var delegate: TransactionsStorageDelegate?
 
     let server: RPCServer
 
@@ -36,77 +36,116 @@ class TransactionsStorage: Hashable {
     }
 
     var objects: Results<Transaction> {
-        realm.threadSafe.objects(Transaction.self)
+        realm.objects(Transaction.self)
             .sorted(byKeyPath: "date", ascending: false)
             .filter("chainId = \(self.server.chainID)")
             .filter("id != ''")
     }
 
-    var completedObjects: [Transaction] {
-        objects.filter { $0.state == .completed }
+    var completedObjects: Promise<[TransactionInstance]> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let objects = strongSelf.objects
+
+                let completedObjects = objects.filter { $0.state == .completed }.map { TransactionInstance(transaction: $0) }
+                seal.fulfill(Array(completedObjects))
+            }
+        }
     }
 
-    var pendingObjects: [TransactionInstance] {
-        objects.filter { $0.state == TransactionState.pending }.map { TransactionInstance(transaction: $0) }
-    } 
+    var pendingObjects: Promise<[TransactionInstance]> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let objects = strongSelf.objects
+
+                let pendingObjects = objects.filter { $0.state == TransactionState.pending }.map { TransactionInstance(transaction: $0) }
+                seal.fulfill(Array(pendingObjects))
+            }
+        }
+    }
+
+    func hasCompletedTransaction(withNonce nonce: String) -> Promise<Bool> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let value = !strongSelf.realm.objects(Transaction.self)
+                        .filter("nonce = '\(nonce)'")
+                        .filter("chainId = \(strongSelf.server.chainID)")
+                        .filter("internalState = \(TransactionState.completed.rawValue)")
+                        .isEmpty
+
+                seal.fulfill(value)
+            }
+        }
+    }
+
+    func transactionObjectsThatDoNotComeFromEventLogs() -> Promise<TransactionInstance?> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let transaction = strongSelf.realm.objects(Transaction.self)
+                    .sorted(byKeyPath: "date", ascending: false)
+                    .filter("chainId = \(strongSelf.server.chainID)")
+                    .filter("id != ''")
+                    .filter("internalState == \(TransactionState.completed.rawValue)")
+                    .filter("isERC20Interaction == false")
+                    .map { TransactionInstance(transaction: $0) }
+                    .first
+
+                seal.fulfill(transaction)
+            }
+        }
+    }
+
+    var transactions: Promise<[TransactionInstance]> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let transactions = strongSelf.realm.objects(Transaction.self)
+                    .sorted(byKeyPath: "date", ascending: false)
+                    .filter("chainId = \(strongSelf.server.chainID)")
+                    .filter("id != ''")
+                    .map { TransactionInstance(transaction: $0) }
+
+                seal.fulfill(Array(transactions))
+            }
+        }
+    }
 
     func transaction(withTransactionId transactionId: String) -> TransactionInstance? {
-        realm.threadSafe.objects(Transaction.self)
-            .filter("id = '\(transactionId)'")
-            .filter("chainId = \(server.chainID)")
-            .map { TransactionInstance(transaction: $0) }
-            .first
-    }
-
-    func hasCompletedTransaction(withNonce nonce: String) -> Bool {
-        !realm.threadSafe.objects(Transaction.self)
-                .filter("nonce = '\(nonce)'")
-                .filter("chainId = \(server.chainID)")
-                .filter("internalState = \(TransactionState.completed.rawValue)")
-                .isEmpty
-    }
-
-    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {
-        let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
-        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)
-        if !tokens.isEmpty {
-            TokensDataStore.update(in: realm, tokens: tokens)
-        }
-    } 
-
-    func transactionObjectsThatDoNotComeFromEventLogs() -> TransactionInstance? {
-        return realm.threadSafe.objects(Transaction.self)
+        realm.objects(Transaction.self)
             .sorted(byKeyPath: "date", ascending: false)
             .filter("chainId = \(self.server.chainID)")
-            .filter("id != ''")
-            .filter("internalState == \(TransactionState.completed.rawValue)")
-            .filter("isERC20Interaction == false")
+            .filter("id == '\(transactionId)'")
             .map { TransactionInstance(transaction: $0) }
             .first
-    }
-
-    var transactions: [TransactionInstance] {
-        realm.threadSafe.objects(Transaction.self)
-            .sorted(byKeyPath: "date", ascending: false)
-            .filter("chainId = \(self.server.chainID)")
-            .filter("id != ''")
-            .map { TransactionInstance(transaction: $0) }
     }
 
     func delete(transactions: [TransactionInstance]) -> Promise<Void> {
         return Promise { seal in
-            let realm = self.realm.threadSafe
-            let objects = transactions.compactMap {
-                realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)
-            }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-            do {
-                try realm.write {
-                    realm.delete(objects)
+                let realm = strongSelf.realm
+                let objects = transactions.compactMap {
+                    realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)
                 }
-                seal.fulfill(())
-            } catch {
-                seal.reject(error)
+
+                do {
+                    try realm.write {
+                        realm.delete(objects)
+                    }
+                    seal.fulfill(())
+                } catch {
+                    seal.reject(error)
+                }
             }
         }
     }
@@ -117,52 +156,75 @@ class TransactionsStorage: Hashable {
         }
 
         return Promise { seal in
-            let realm = self.realm.threadSafe
-            if let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) {
-                realm.beginWrite()
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let realm = strongSelf.realm
+                if let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) {
+                    realm.beginWrite()
 
-                if let pendingTransaction = pendingTransaction {
-                    value.gas = pendingTransaction.gas
-                    value.gasPrice = pendingTransaction.gasPrice
-                    value.nonce = pendingTransaction.nonce
-                    //We assume that by the time we get here, the block number is valid
-                    value.blockNumber = Int(pendingTransaction.blockNumber)!
-                }
-                value.internalState = state.rawValue
-
-                do {
-                    try realm.commitWrite()
+                    if let pendingTransaction = pendingTransaction {
+                        value.gas = pendingTransaction.gas
+                        value.gasPrice = pendingTransaction.gasPrice
+                        value.nonce = pendingTransaction.nonce
+                        //We assume that by the time we get here, the block number is valid
+                        value.blockNumber = Int(pendingTransaction.blockNumber)!
+                    }
+                    value.internalState = state.rawValue
                     let transaction = TransactionInstance(transaction: value)
 
-                    seal.fulfill(transaction)
-                } catch {
-                    seal.reject(error)
+                    do {
+                        try realm.commitWrite()
+
+                        seal.fulfill(transaction)
+                    } catch {
+                        seal.reject(error)
+                    }
+                } else {
+                    seal.reject(AnyError.invalid)
                 }
-            } else {
-                seal.reject(AnyError.invalid)
             }
         }
     }
 
     func add(transactions: [TransactionInstance], transactionsToPullContractsFrom: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
-
         guard !transactions.isEmpty else { return }
 
         let newTransactions = transactions.map { Transaction(object: $0) }
         let newTransactionsToPullContractsFrom = transactionsToPullContractsFrom.map { Transaction(object: $0) }
 
-        let realm = self.realm.threadSafe
 
-        let transactionsToCommit = self.filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
+        let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
         realm.beginWrite()
-
-        for transaction in transactionsToCommit {
-            realm.add(transaction, update: .all)
-        }
+        realm.add(transactionsToCommit, update: .all)
+        //NOTE: move adding transactions under single write realm transaction
+        addTokensWithContractAddresses(fromTransactions: newTransactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes, realm: realm)
 
         try! realm.commitWrite()
+    }
 
-        self.addTokensWithContractAddresses(fromTransactions: newTransactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes, realm: realm)
+    private func updateTransactionsWithoutCommitWrite(in realm: Realm, tokens: [TokenUpdate]) {
+        for token in tokens {
+            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
+            let update: [String: Any] = [
+                "primaryKey": token.primaryKey,
+                "contract": token.address.eip55String,
+                "chainId": token.server.chainID,
+                "name": token.name,
+                "symbol": token.symbol,
+                "decimals": token.decimals,
+                "rawType": token.tokenType.rawValue,
+            ]
+            realm.create(TokenObject.self, value: update, update: .all)
+        }
+    }
+
+    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {
+        let tokens = Self.tokens(from: transactions, server: server, contractsAndTokenTypes: contractsAndTokenTypes)
+        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)
+
+        if !tokens.isEmpty {
+            updateTransactionsWithoutCommitWrite(in: realm, tokens: tokens)
+        }
     }
 
     //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
@@ -185,7 +247,7 @@ class TransactionsStorage: Hashable {
         return items
     }
 
-    private func tokens(from transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
+    private static func tokens(from transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
         let tokens: [TokenUpdate] = transactions.flatMap { transaction -> [TokenUpdate] in
             let tokenUpdates: [TokenUpdate] = transaction.localizedOperations.compactMap { operation in
                 guard let contract = operation.contractAddress else { return nil }
@@ -230,14 +292,6 @@ class TransactionsStorage: Hashable {
         }
     }
 
-    @discardableResult
-    func update(state: TransactionState, for transaction: Transaction) -> Transaction {
-        realm.beginWrite()
-        transaction.internalState = state.rawValue
-        try! realm.commitWrite()
-        return transaction
-    }
-
     func removeTransactions(for states: [TransactionState]) {
         //TODO improve filtering/matching performance
         let objects = realm.objects(Transaction.self)
@@ -279,24 +333,27 @@ extension TransactionsStorage: Erc721TokenIdsFetcher {
             //Important to sort ascending to figure out ownership from transfers in and out
             //TODO is this really slow? getting all transactions, right?
             //TODO why are some isERC20Interaction = false
-            let transactions = objects
-                    .sorted(byKeyPath: "date", ascending: true)
-            let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
-            var tokenIds: Set<String> = .init()
-            for each in operations {
-                let tokenId = each.tokenId
-                guard !tokenId.isEmpty else { continue }
-                if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
-                    //no-op
-                } else if account.sameContract(as: each.from) {
-                    tokenIds.remove(tokenId)
-                } else if account.sameContract(as: each.to) {
-                    tokenIds.insert(tokenId)
-                } else {
-                    //no-op
+            DispatchQueue.main.async {
+                let transactions = self.objects
+                        .sorted(byKeyPath: "date", ascending: true)
+                let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
+                var tokenIds: Set<String> = .init()
+                for each in operations {
+                    let tokenId = each.tokenId
+                    guard !tokenId.isEmpty else { continue }
+                    if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
+                        //no-op
+                    } else if account.sameContract(as: each.from) {
+                        tokenIds.remove(tokenId)
+                    } else if account.sameContract(as: each.to) {
+                        tokenIds.insert(tokenId)
+                    } else {
+                        //no-op
+                    }
                 }
+
+                seal.fulfill(Array(tokenIds))
             }
-            seal.fulfill(Array(tokenIds))
         }
     }
 }

@@ -2,6 +2,7 @@
 
 import Foundation
 import RealmSwift
+import PromiseKit
 
 class FilterInSingleTransactionsStorage: Equatable, Hashable {
     let filter: (TransactionInstance) -> Bool
@@ -26,7 +27,7 @@ class FilterInSingleTransactionsStorage: Equatable, Hashable {
 
 enum TransactionsFilterStrategy: Hashable, CustomStringConvertible {
     case all
-    case filter(filter: FilterInSingleTransactionsStorage)
+    case filter(filter: FilterInSingleTransactionsStorage, tokenObject: TokenObject)
 
     var description: String {
         switch self {
@@ -41,8 +42,9 @@ enum TransactionsFilterStrategy: Hashable, CustomStringConvertible {
         switch self {
         case .all:
             hasher.combine(1)
-        case .filter(let filter):
+        case .filter(let filter, let tokenObject):
             hasher.combine(filter.hashValue)
+            hasher.combine(tokenObject.hashValue)
         }
     }
 }
@@ -81,7 +83,7 @@ class TransactionCollection: NSObject, TransactionCollectionType {
 
     func subscribableFor(filter: TransactionsFilterStrategy) -> Subscribable<[TransactionInstance]> {
         switch filter {
-        case .filter(let filterObject):
+        case .filter(let filterObject, _):
             let mapped = createSingleStorageSubscription(filterObject: filterObject)
             cache[mapped.notifier] = mapped.subscriptions
 
@@ -106,9 +108,15 @@ class TransactionCollection: NSObject, TransactionCollectionType {
             }
         }
 
-        queue.async {
-            notifier.value = Self.filter(results: filterObject.transactionsStorage.objects, filterObject: filterObject)
-        }
+        Promise<[TransactionInstance]> { seal in
+            DispatchQueue.main.async {
+                //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
+                let values = Array(filterObject.transactionsStorage.objects.map { TransactionInstance(transaction: $0) })
+                seal.fulfill(values)
+            }
+        }.done(on: queue, { trx in
+            notifier.value = trx.filter(filterObject.filter)
+        }).cauterize()
 
         return (notifier, [subscription])
     }
@@ -131,16 +139,18 @@ class TransactionCollection: NSObject, TransactionCollectionType {
                 //NOTE: we don't want to fire trigger initial change event for each storage
                 // and fire it only once. All lates updates will be fired for each storage
                 case .update:
-                    notifier.value = strongSelf.objects
+                    strongSelf.objects.done(on: strongSelf.queue, { transactions in
+                        notifier.value = transactions
+                    }).cauterize()
                 }
             }
 
             subscriptions.append(subscription)
         }
 
-        queue.async {
-            notifier.value = self.objects
-        }
+        objects.done(on: queue, { transactions in
+            notifier.value = transactions
+        }).cauterize()
 
         return (notifier, subscriptions)
     }
@@ -152,10 +162,14 @@ class TransactionCollection: NSObject, TransactionCollectionType {
         return storage.add(items)
     }
 
-    var objects: [TransactionInstance] {
-        //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
-        return transactionsStorages.flatMap {
-            return $0.objects.map { TransactionInstance(transaction: $0) }
+    private var objects: Promise<[TransactionInstance]> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
+                let values = strongSelf.transactionsStorages.map { $0.objects }.flatMap { $0 }.map { TransactionInstance(transaction: $0) }
+                seal.fulfill(values)
+            }
         }
     }
 

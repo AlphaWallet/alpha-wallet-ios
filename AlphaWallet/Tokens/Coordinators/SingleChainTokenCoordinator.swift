@@ -411,7 +411,7 @@ class SingleChainTokenCoordinator: Coordinator {
             return strategy.isRecentTransaction(transaction: tx)
         }
 
-        return .filter(filter: filter)
+        return .filter(filter: filter, tokenObject: transactionType.tokenObject)
     }
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {

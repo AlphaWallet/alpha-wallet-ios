@@ -30,7 +30,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private var isFetchingLatestTransactions = false
     var coordinators: [Coordinator] = []
     weak var delegate: SingleChainTransactionDataCoordinatorDelegate?
-    private lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
+    lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
 
     required init(
             session: WalletSession,
@@ -101,7 +101,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }.map { result in
             functional.extractBoundingBlockNumbers(fromTransactions: result)
         }.then { result, minBlockNumber, maxBlockNumber in
-            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, queue: self.queue).map { ($0, maxBlockNumber) }
+            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, tokenProvider: self.tokenProvider, queue: self.queue).map { ($0, maxBlockNumber) }
         }.done(on: queue) { backFilledTransactions, maxBlockNumber in
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
@@ -122,11 +122,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
             GetContractInteractions(queue: queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock)
-        }.map { result in
+        }.map(on: queue, { result in
             functional.extractBoundingBlockNumbers(fromTransactions: result)
-        }.then { result, minBlockNumber, maxBlockNumber in
-            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, queue: self.queue).map { ($0, maxBlockNumber) }
-        }.done(on: queue) { backFilledTransactions, maxBlockNumber in
+        }).then(on: queue, { result, minBlockNumber, maxBlockNumber in
+            functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, tokenProvider: self.tokenProvider, queue: self.queue).map { ($0, maxBlockNumber) }
+        }).done(on: queue) { backFilledTransactions, maxBlockNumber in
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
                 Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
@@ -139,11 +139,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     func fetch() {
-        self.queue.async {
-            DispatchQueue.main.async {
-                self.session.refresh(.balance)
-            }
-
+        queue.async {
+            self.session.refresh(.balance)
             self.fetchLatestTransactions()
             self.fetchPendingTransactions()
         }
@@ -152,24 +149,28 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private func update(items: [TransactionInstance]) {
         guard !items.isEmpty else { return }
 
-        filterTransactionsToPullContractsFrom(items).done(on: self.queue, { transactionsToPullContractsFrom, contractsAndTokenTypes in
+        filterTransactionsToPullContractsFrom(items).done(on: .main, { transactionsToPullContractsFrom, contractsAndTokenTypes in
+            //NOTE: Realm write operation!
             self.storage.add(transactions: items, transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
             self.delegate?.handleUpdateItems(inCoordinator: self, reloadImmediately: false)
         }).cauterize()
     }
 
-    private var contractsToAvoid: [AlphaWallet.Address] {
-        let alreadyAddedContracts = tokensStorage.enabledObject.map { $0.contractAddress }
-        let deletedContracts = tokensStorage.deletedContracts.map { $0.contractAddress }
-        let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
-        let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
+    private func detectContractsToAvoid(for tokensStorage: TokensDataStore) -> Promise<[AlphaWallet.Address]> {
+        return Promise { seal in
+            DispatchQueue.main.async {
+                let deletedContracts = tokensStorage.deletedContracts.map { $0.contractAddress }
+                let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
+                let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
 
-        return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
+                let values = tokensStorage.enabledObjectAddresses + deletedContracts + hiddenContracts + delegateContracts
+                seal.fulfill(values)
+            }
+        }
     }
 
     private func filterTransactionsToPullContractsFrom(_ transactions: [TransactionInstance]) -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> {
-        Promise { seal in
-            let contractsToAvoid = self.contractsToAvoid
+        return detectContractsToAvoid(for: tokensStorage).then(on: queue, { contractsToAvoid -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> in
             let filteredTransactions = transactions.filter {
                 if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {
                     return false
@@ -184,21 +185,19 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
             let tokenTypePromises = contracts.map { self.tokenProvider.getTokenType(for: $0) }
 
-            when(fulfilled: tokenTypePromises).map { tokenTypes in
+            return when(fulfilled: tokenTypePromises).map(on: self.queue, { tokenTypes in
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            }.done { val in
-                seal.fulfill(val)
-            }.catch { error in
-                seal.reject(error)
-            }
-        }
+            })
+        })
     }
 
     private func fetchPendingTransactions() {
-        storage.pendingObjects.forEach {
-            self.updatePendingTransaction($0)
-        }
+        storage.pendingObjects.done { txs in
+            for each in txs {
+                self.updatePendingTransaction(each )
+            }
+        }.cauterize()
     }
 
     private func updatePendingTransaction(_ transaction: TransactionInstance) {
@@ -221,9 +220,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 case .responseError:
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
-                    if self.storage.hasCompletedTransaction(withNonce: transaction.nonce) {
-                        self.delete(transactions: [transaction])
-                    }
+                    self.storage.hasCompletedTransaction(withNonce: transaction.nonce).done(on: self.queue, { value in
+                        if value {
+                            self.delete(transactions: [transaction])
+                        }
+                    }).cauterize()
                     //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to TaiChi and fetch pending status through Etherscan
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                     break
@@ -235,7 +236,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func delete(transactions: [TransactionInstance]) {
-        storage.delete(transactions: transactions).done({ _ in
+        storage.delete(transactions: transactions).done(on: self.queue, { _ in
             self.delegate?.handleUpdateItems(inCoordinator: self, reloadImmediately: true)
         }).cauterize()
     }
@@ -253,21 +254,21 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         guard !isFetchingLatestTransactions else { return }
         isFetchingLatestTransactions = true
 
-        let value = storage.transactionObjectsThatDoNotComeFromEventLogs()
+        storage.transactionObjectsThatDoNotComeFromEventLogs().done(on: self.queue, { value in
+            let startBlock: Int
+            let sortOrder: AlphaWalletService.SortOrder
 
-        let startBlock: Int
-        let sortOrder: AlphaWalletService.SortOrder
+            if let newestCachedTransaction = value {
+                startBlock = newestCachedTransaction.blockNumber + 1
+                sortOrder = .asc
+            } else {
+                startBlock = 1
+                sortOrder = .desc
+            }
 
-        if let newestCachedTransaction = value {
-            startBlock = newestCachedTransaction.blockNumber + 1
-            sortOrder = .asc
-        } else {
-            startBlock = 1
-            sortOrder = .desc
-        }
-
-        let operation = FetchLatestTransactionsOperation(forSession: session, coordinator: self, startBlock: startBlock, sortOrder: sortOrder, queue: self.queue)
-        fetchLatestTransactionsQueue.addOperation(operation)
+            let operation = FetchLatestTransactionsOperation(forSession: self.session, coordinator: self, startBlock: startBlock, sortOrder: sortOrder, queue: self.queue)
+            self.fetchLatestTransactionsQueue.addOperation(operation)
+        }).cauterize()
     }
 
     private func handleError(error: Error) {
@@ -281,46 +282,48 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
         let wallet = keystore.currentWallet
 
-        let objects = storage.transactions
-        var toNotify: [TransactionInstance]
+        storage.transactions.done(on: queue, { objects in
+            var toNotify: [TransactionInstance]
 
-        if let newestCached = objects.first {
-            toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
-        } else {
-            toNotify = transactions
-        }
-
-        //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
-        let maximumNumberOfNotifications = 10
-        if toNotify.count > maximumNumberOfNotifications {
-            toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
-        }
-        let toNotifyUnique: [TransactionInstance] = filterUniqueTransactions(toNotify)
-        let newIncomingEthTransactions = toNotifyUnique.filter { wallet.address.sameContract(as: $0.to) }
-        let formatter = EtherNumberFormatter.short
-        let thresholdToShowNotification = Date.yesterday
-        for each in newIncomingEthTransactions {
-            let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
-            if each.date > thresholdToShowNotification {
-                self.notifyUserEtherReceived(for: each.id, amount: amount)
+            if let newestCached = objects.first {
+                toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
+            } else {
+                toNotify = transactions
             }
-        }
-        let etherReceivedUsedForBackupPrompt = newIncomingEthTransactions
-                .last { wallet.address.sameContract(as: $0.to) }
-                .flatMap { BigInt($0.value) }
 
-        switch session.server {
-        //TODO make this work for other mainnets
-        case .main:
-            etherReceivedUsedForBackupPrompt.flatMap {
-                self.promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0)
+            //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
+            let maximumNumberOfNotifications = 10
+            if toNotify.count > maximumNumberOfNotifications {
+                toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
             }
-        case .classic, .xDai:
-            break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
-            break
-        }
+            let toNotifyUnique: [TransactionInstance] = self.filterUniqueTransactions(toNotify)
+            let newIncomingEthTransactions = toNotifyUnique.filter { wallet.address.sameContract(as: $0.to) }
+            let formatter = EtherNumberFormatter.short
+            let thresholdToShowNotification = Date.yesterday
+            for each in newIncomingEthTransactions {
+                let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
+                if each.date > thresholdToShowNotification {
+                    self.notifyUserEtherReceived(for: each.id, amount: amount)
+                }
+            }
+            let etherReceivedUsedForBackupPrompt = newIncomingEthTransactions
+                    .last { wallet.address.sameContract(as: $0.to) }
+                    .flatMap { BigInt($0.value) }
 
+            DispatchQueue.main.async {
+                switch self.session.server {
+                //TODO make this work for other mainnets
+                case .main:
+                    etherReceivedUsedForBackupPrompt.flatMap {
+                        self.promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0)
+                    }
+                case .classic, .xDai:
+                    break
+                case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+                    break
+                }
+            }
+        }).cauterize()
     }
 
     //Etherscan for Ropsten returns the same transaction twice. Normally Realm will take care of this, but since we are showing user a notification, we don't want to show duplicates
@@ -354,27 +357,29 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func fetchOlderTransactions(for address: AlphaWallet.Address) {
-        guard let oldestCachedTransaction = storage.completedObjects.last else { return }
+        storage.completedObjects.done(on: self.queue, { txs in
+            guard let oldestCachedTransaction = txs.last else { return }
 
-        let promise = functional.fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, alphaWalletProvider: alphaWalletProvider, tokensStorage: tokensStorage, queue: queue)
-        promise.done(on: self.queue, { [weak self] transactions in
-            guard let strongSelf = self else { return }
+            let promise = functional.fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: self.session, alphaWalletProvider: self.alphaWalletProvider, tokensStorage: self.tokensStorage, tokenProvider: self.tokenProvider, queue: self.queue)
+            promise.done(on: self.queue, { [weak self] transactions in
+                guard let strongSelf = self else { return }
 
-            strongSelf.update(items: transactions)
+                strongSelf.update(items: transactions)
 
-            if transactions.isEmpty {
-                strongSelf.transactionsTracker.fetchingState = .done
-            } else {
-                let timeout = DispatchTime.now() + .milliseconds(300)
-                strongSelf.queue.asyncAfter(deadline: timeout) {
-                    strongSelf.fetchOlderTransactions(for: address)
+                if transactions.isEmpty {
+                    strongSelf.transactionsTracker.fetchingState = .done
+                } else {
+                    let timeout = DispatchTime.now() + .milliseconds(300)
+                    strongSelf.queue.asyncAfter(deadline: timeout) {
+                        strongSelf.fetchOlderTransactions(for: address)
+                    }
                 }
-            }
-        }).catch(on: self.queue) { [weak self] _ in
-            guard let strongSelf = self else { return }
+            }).catch(on: self.queue) { [weak self] _ in
+                guard let strongSelf = self else { return }
 
-            strongSelf.transactionsTracker.fetchingState = .failed
-        }
+                strongSelf.transactionsTracker.fetchingState = .failed
+            }
+        }).cauterize()
     }
 
     func stop() {
@@ -420,8 +425,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             guard let coordinator = self.coordinator else { return }
 
             firstly {
-                SingleChainTransactionEtherscanDataCoordinator.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensStorage: coordinator.tokensStorage, queue: coordinator.queue)
-            }.then(on: .main, { transactions -> Promise<[TransactionInstance]> in
+                SingleChainTransactionEtherscanDataCoordinator.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensStorage: coordinator.tokensStorage, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
+            }.then(on: queue, { transactions -> Promise<[TransactionInstance]> in
                 //NOTE: we want to perform notification creating on main thread
                 coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
 
@@ -459,12 +464,12 @@ extension SingleChainTransactionEtherscanDataCoordinator.functional {
         }
     }
 
-    static func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+    static func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
         firstly {
             alphaWalletProvider.request(.getTransactions(config: session.config, server: session.server, address: address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
         }.map(on: queue) {
             try $0.map(ArrayResponse<RawTransaction>.self).result.map {
-                TransactionInstance.from(transaction: $0, tokensStorage: tokensStorage)
+                TransactionInstance.from(transaction: $0, tokensStorage: tokensStorage, tokenProvider: tokenProvider)
             }
         }.then(on: queue) {
             when(fulfilled: $0).compactMap(on: queue) {
@@ -473,10 +478,10 @@ extension SingleChainTransactionEtherscanDataCoordinator.functional {
         }
     }
 
-    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+    static func backFillTransactionGroup(_ transactionsToFill: [TransactionInstance], startBlock: Int, endBlock: Int, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
         guard !transactionsToFill.isEmpty else { return .value([]) }
         return firstly {
-            fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, alphaWalletProvider: alphaWalletProvider, tokensStorage: tokensStorage, queue: queue)
+            fetchTransactions(for: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: .asc, session: session, alphaWalletProvider: alphaWalletProvider, tokensStorage: tokensStorage, tokenProvider: tokenProvider, queue: queue)
         }.map(on: queue) { fillerTransactions -> [TransactionInstance] in
             var results: [TransactionInstance] = .init()
             for each in transactionsToFill {
