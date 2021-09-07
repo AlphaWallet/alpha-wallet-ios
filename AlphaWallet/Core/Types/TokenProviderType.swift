@@ -24,6 +24,7 @@ protocol TokenProviderType: class {
     func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void)
     func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void)
     func getEthBalance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void)
+    func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance>
 }
 
 class TokenProvider: TokenProviderType {
@@ -103,6 +104,19 @@ class TokenProvider: TokenProviderType {
 
     func getEthBalance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void) {
         getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: address, completion: completion)
+    }
+
+    func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
+        Promise { seal in
+            getEthBalance(for: address) { result in
+                switch result {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
     }
 
     func getContractSymbol(for address: AlphaWallet.Address,
