@@ -8,8 +8,7 @@ protocol EventsActivityDataStoreProtocol {
     var recentEventsSubscribable: Subscribable<Void> { get }
     func removeSubscription(subscription: Subscribable<Void>)
 
-    func getRecentEvents() -> [EventActivity]
-    func getRecentEventsPromise() -> Promise<[EventActivity]>
+    func getRecentEvents() -> Promise<[EventActivity]>
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
 }
@@ -69,13 +68,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         }
     }
 
-    func getRecentEvents() -> [EventActivity] {
-        return Array(realm.threadSafe.objects(EventActivity.self)
-            .sorted(byKeyPath: "date", ascending: false)
-            .prefix(Self.numberOfActivitiesToUse))
-    }
-
-    func getRecentEventsPromise() -> Promise<[EventActivity]> {
+    func getRecentEvents() -> Promise<[EventActivity]> {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }

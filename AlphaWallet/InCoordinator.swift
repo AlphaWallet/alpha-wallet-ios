@@ -203,26 +203,27 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivitiesService() -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection, queue: queue)
+        return ActivitiesService(config: config, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection, queue: queue, tokensCollection: tokenCollection)
     }
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
-            let tokens = strongSelf.tokensStorages.values.flatMap { $0.enabledObject }
-            //Assume same contract don't exist in multiple chains
-            guard let token = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { return }
-            let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
-            guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
-            switch server {
-            case .any:
-                for each in strongSelf.config.enabledServers {
-                    strongSelf.fetchEvents(forTokenContract: contract, server: each)
+            strongSelf.tokenCollection.tokenObjectPromise(forContract: contract).done { tokenObject in
+                //Assume same contract don't exist in multiple chains
+                guard let token = tokenObject else { return }
+                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
+                switch server {
+                case .any:
+                    for each in strongSelf.config.enabledServers {
+                        strongSelf.fetchEvents(forTokenContract: contract, server: each)
+                    }
+                case .server(let server):
+                    strongSelf.fetchEvents(forTokenContract: contract, server: server)
                 }
-            case .server(let server):
-                strongSelf.fetchEvents(forTokenContract: contract, server: server)
-            }
+            }.cauterize()
         }
     }
 
@@ -298,7 +299,7 @@ class InCoordinator: NSObject, Coordinator {
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
-        setupTokenDataStores() 
+        setupTokenDataStores()
         setupWalletSessions()
         setupNativeCryptoCurrencyPrices()
         setupNativeCryptoCurrencyBalances()
@@ -968,7 +969,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         } else {
             navigationController = coordinator.navigationController
         }
-        
+
         showPaymentFlow(for: type, server: server, navigationController: navigationController)
     }
 
@@ -990,7 +991,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
-    
+
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
@@ -1085,7 +1086,7 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
-    } 
+    }
 }
 
 // MARK: Analytics
@@ -1136,5 +1137,5 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
             break
         }
     }
-} 
+}
 // swiftlint:enable file_length
