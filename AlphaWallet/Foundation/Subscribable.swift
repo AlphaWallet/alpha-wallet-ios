@@ -13,7 +13,7 @@ open class Subscribable<T>: Hashable {
     }
 
     private var _value: T?
-    private var _subscribers: [SubscribableKey: (T?) -> Void] = .init()
+    private var _subscribers: ThreadSafeDictionary<SubscribableKey, (T?) -> Void> = .init()
     private var _oneTimeSubscribers: [(T) -> Void] = []
     open var value: T? {
         get {
@@ -21,7 +21,7 @@ open class Subscribable<T>: Hashable {
         }
         set {
             _value = newValue
-            for f in _subscribers.values {
+            for (_, f) in _subscribers.values {
                 f(value)
             }
 
@@ -51,7 +51,7 @@ open class Subscribable<T>: Hashable {
 
     func map<V>(_ mapClosure: @escaping (T) -> V?, on queue: DispatchQueue? = .none) -> Subscribable<V> {
         let notifier = Subscribable<V>(nil)
-        
+
         func updateNotifier(with value: T?, on queue: DispatchQueue?) {
             if let queue = queue {
                 queue.async {
@@ -68,7 +68,7 @@ open class Subscribable<T>: Hashable {
 
         return notifier
     }
-    
+
     open func subscribeOnce(_ subscribe: @escaping (T) -> Void) {
         if let value = _value {
             subscribe(value)
@@ -84,7 +84,7 @@ open class Subscribable<T>: Hashable {
     func unsubscribeAll() {
         _subscribers.removeAll()
     }
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
     }
