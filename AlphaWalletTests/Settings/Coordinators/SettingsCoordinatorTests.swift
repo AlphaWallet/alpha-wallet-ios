@@ -94,4 +94,12 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     func refreshEthBalance() {
 
     }
+    
+    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
+        FakeTransactionsStorage()
+    }
+
+    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore {
+        FakeTokensDataStore()
+    }
 }

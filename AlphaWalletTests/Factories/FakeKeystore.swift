@@ -27,7 +27,7 @@ struct FakeKeystore: Keystore {
     }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
-    var subscribableWallets: Subscribable<Set<Wallet>> = .init(nil)
+    var subscribableWallets: Subscribable<Set<Wallet>>
     var currentWallet: Wallet {
         //Better crash now instead of populating callers with optionals
         if let wallet = recentlyUsedWallet {
@@ -43,6 +43,7 @@ struct FakeKeystore: Keystore {
         self.wallets = wallets
         self.recentlyUsedWallet = recentlyUsedWallet ?? FakeKeystore.currentWallet
         self.assumeAllWalletsType = assumeAllWalletsType
+        self.subscribableWallets = .init(Set(wallets))
     }
 
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
