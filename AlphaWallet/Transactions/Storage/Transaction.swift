@@ -136,7 +136,7 @@ extension Transaction {
 
     //TODO add support for more types of pending transactions
     fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, contractOrRecipient: AlphaWallet.Address?, tokensDataStore: TokensDataStore) -> (operations: [LocalizedOperationObject], isErc20Interaction: Bool) {
-        if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.tokenThreadSafe(forContract: contract) {
+        if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.token(forContract: contract) {
             switch functionCallMetaData.type {
             case .erc20Approve(let spender, let value):
                 return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
