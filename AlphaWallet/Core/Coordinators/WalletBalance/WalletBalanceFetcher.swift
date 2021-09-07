@@ -29,7 +29,9 @@ protocol WalletBalanceFetcherType: AnyObject {
     func update(servers: [RPCServer])
     func refreshEthBalance()
     func refreshBalance()
+    func transactionsStorage(server: RPCServer) -> TransactionsStorage
 }
+typealias WalletBalanceFetcherSubServices = (tokensDataStore: PrivateTokensDatastoreType, balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
 
 class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
@@ -38,10 +40,10 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let assetDefinitionStore: AssetDefinitionStore
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
     let tokensChangeSubscribable: Subscribable<Void> = .init(nil)
-    private var tokensDataStores: ServerDictionary<(PrivateTokensDatastoreType, PrivateBalanceFetcherType, TransactionsStorage)> = .init()
+    private var services: ServerDictionary<WalletBalanceFetcherSubServices> = .init()
 
     var tokenObjects: [Activity.AssignedToken] {
-        tokensDataStores.flatMap { $0.value.0.tokenObjects }
+        services.flatMap { $0.value.tokensDataStore.tokenObjects }
     }
 
     private let queue: DispatchQueue
@@ -67,7 +69,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
             balanceFetcher.delegate = self
 
-            self.tokensDataStores[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
+            self.services[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
         }
 
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
@@ -80,9 +82,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
     }
 
+    func transactionsStorage(server: RPCServer) -> TransactionsStorage {
+        services[server].transactionsStorage
+    }
+
     func update(servers: [RPCServer]) {
         for each in servers {
-            if tokensDataStores[safe: each] != nil {
+            if services[safe: each] != nil {
                 //no-op
             } else {
                 let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
@@ -91,20 +97,20 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                 balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
                 balanceFetcher.delegate = self
 
-                tokensDataStores[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
+                services[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
             }
         }
 
-        let delatedServers = tokensDataStores.filter { !servers.contains($0.key) }.map { $0.key }
+        let delatedServers = services.filter { !servers.contains($0.key) }.map { $0.key }
         for each in delatedServers {
-            tokensDataStores.remove(at: each)
+            services.remove(at: each)
         }
     }
 
     private func notifyUpdateTokenBalancesSubscribers() {
         for each in cache.values {
-            guard let tokensDatastore = tokensDataStores[safe: each.key.server] else { continue }
-            guard let tokenObject = tokensDatastore.0.tokenObject(contract: each.key.address) else {
+            guard let tokensDatastore = services[safe: each.key.server] else { continue }
+            guard let tokenObject = tokensDatastore.tokensDataStore.tokenObject(contract: each.key.address) else {
                 continue
             }
 
@@ -143,7 +149,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        guard let tokensDatastore = tokensDataStores[safe: addressAndRPCServer.server] else { return .init(nil) }
+        guard let tokensDatastore = services[safe: addressAndRPCServer.server] else { return .init(nil) }
 
         guard let tokenObject = tokensDatastore.0.tokenObject(contract: addressAndRPCServer.address) else {
             return .init(nil)
@@ -207,19 +213,19 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     private func timedCallForBalanceRefresh() {
-        for each in tokensDataStores {
+        for each in services {
             each.value.1.refreshBalance(updatePolicy: .all, force: false)
         }
     }
 
     func refreshEthBalance() {
-        for each in tokensDataStores {
+        for each in services {
             each.value.1.refreshBalance(updatePolicy: .eth, force: true)
         }
     }
 
     func refreshBalance() {
-        for each in tokensDataStores {
+        for each in services {
             each.value.1.refreshBalance(updatePolicy: .ercTokens, force: true)
         }
     }

@@ -243,7 +243,10 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
-        return TransactionsStorage(realm: realm, server: server, delegate: self)
+        let storage = walletBalanceCoordinator.transactionsStorage(wallet: wallet, server: server)
+        storage.delegate = self
+
+        return storage
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
