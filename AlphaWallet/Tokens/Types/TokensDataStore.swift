@@ -38,6 +38,12 @@ class TokensDataStore {
             .filter("isDisabled = false")
     }
 
+    var enabledObjectAddresses: [AlphaWallet.Address] {
+        return enabledObjectResults
+            .filter("isDisabled = false")
+            .map { $0.contractAddress }
+    }
+
     var objects: [TokenObject] {
         return Array(
                 realm.objects(TokenObject.self)
@@ -158,6 +164,20 @@ class TokensDataStore {
         realm.threadSafe.objects(TokenObject.self)
                 .filter("contract = '\(contract.eip55String)'")
                 .filter("chainId = \(chainId)").first
+    }
+
+    func tokenPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let token = strongSelf.realm.objects(TokenObject.self)
+                    .filter("contract = '\(contract.eip55String)'")
+                    .filter("chainId = \(strongSelf.chainId)").first
+
+                seal.fulfill(token)
+            }
+        }
     }
 
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {

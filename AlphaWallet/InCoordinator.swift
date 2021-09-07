@@ -870,7 +870,7 @@ extension InCoordinator: ActivityViewControllerDelegate {
     }
 
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionsStorages[server].transactions.first(where: { $0.id == transactionId }) else { return }
+        guard let transaction = transactionsStorages[server].transaction(withTransactionId: transactionId) else { return }
         let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
         let session = walletSessions[transaction.server]
         guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup) else { return }
@@ -880,7 +880,7 @@ extension InCoordinator: ActivityViewControllerDelegate {
     }
 
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
-        guard let transaction = transactionsStorages[server].transactions.first(where: { $0.id == transactionId }) else { return }
+        guard let transaction = transactionsStorages[server].transaction(withTransactionId: transactionId) else { return }
         let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
         let session = walletSessions[transaction.server]
         guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel) else { return }
