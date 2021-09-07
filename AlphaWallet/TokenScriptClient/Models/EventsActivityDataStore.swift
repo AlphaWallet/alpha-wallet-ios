@@ -5,11 +5,12 @@ import RealmSwift
 import PromiseKit
 
 protocol EventsActivityDataStoreProtocol {
-    var recentEventsSubscribable: Subscribable<[EventActivity]> { get }
-    func removeSubscription(subscription: Subscribable<[EventActivity]>)
+    var recentEventsSubscribable: Subscribable<Void> { get }
+    func removeSubscription(subscription: Subscribable<Void>)
 
     func getRecentEvents() -> [EventActivity]
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?>
+    func getRecentEventsPromise() -> Promise<[EventActivity]>
+    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
 }
 
@@ -25,28 +26,18 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         self.queue = queue
     }
 
-    private var cachedRecentEventsSubscribable: [Subscribable<[EventActivity]>: NotificationToken] = [:]
+    private var cachedRecentEventsSubscribable: [Subscribable<Void>: NotificationToken] = [:]
+    //NOTE: we are need only fact that we got events,
+    //its easier way to determiene that events got updated
+    var recentEventsSubscribable: Subscribable<Void> {
+        let notifier = Subscribable<Void>(nil)
+        let recentEvents = realm.objects(EventActivity.self)
+            .sorted(byKeyPath: "date", ascending: false)
 
-    var recentEventsSubscribable: Subscribable<[EventActivity]> {
-        func getRecentEvents() -> Results<EventActivity> {
-            realm.threadSafe
-                .objects(EventActivity.self)
-                .sorted(byKeyPath: "date", ascending: false)
-        }
-
-        let notifier = Subscribable<[EventActivity]>(nil)
-
-        let subscription = getRecentEvents().observe(on: queue) {  change in
-            switch change {
-            case .initial, .error:
-                break
-            case .update(let events, _, _, _):
-                notifier.value = events.map { $0 }
+        let subscription = recentEvents.observe(on: queue) { _ in
+            self.queue.async {
+                notifier.value = ()
             }
-        }
-
-        queue.async {
-            notifier.value = getRecentEvents().map { $0 }
         }
 
         cachedRecentEventsSubscribable[notifier] = subscription
@@ -54,30 +45,48 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         return notifier
     }
 
-    func removeSubscription(subscription: Subscribable<[EventActivity]>) {
+    func removeSubscription(subscription: Subscribable<Void>) {
         cachedRecentEventsSubscribable[subscription] = nil
     }
 
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
 
         return Promise { seal in
-            let objects = realm.threadSafe.objects(EventActivity.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("tokenContract = '\(tokenContract.eip55String)'")
-                .filter("chainId = \(server.chainID)")
-                .filter("eventName = '\(eventName)'")
-                .sorted(byKeyPath: "blockNumber")
-                .last
-                .map { EventActivityInstance(event: $0) }
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-            seal.fulfill(objects)
+                let objects = strongSelf.realm.objects(EventActivity.self)
+                    .filter("contract = '\(contract.eip55String)'")
+                    .filter("tokenContract = '\(tokenContract.eip55String)'")
+                    .filter("chainId = \(server.chainID)")
+                    .filter("eventName = '\(eventName)'")
+                    .sorted(byKeyPath: "blockNumber")
+                    .last
+                    .map { EventActivityInstance(event: $0) }
+
+                seal.fulfill(objects)
+            }
         }
     }
 
     func getRecentEvents() -> [EventActivity] {
         return Array(realm.threadSafe.objects(EventActivity.self)
-                .sorted(byKeyPath: "date", ascending: false)
-                .prefix(Self.numberOfActivitiesToUse))
+            .sorted(byKeyPath: "date", ascending: false)
+            .prefix(Self.numberOfActivitiesToUse))
+    }
+
+    func getRecentEventsPromise() -> Promise<[EventActivity]> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let values = Array(strongSelf.realm.objects(EventActivity.self)
+                    .sorted(byKeyPath: "date", ascending: false)
+                    .prefix(Self.numberOfActivitiesToUse))
+
+                seal.fulfill(values)
+            }
+        }
     }
 
     private func delete<S: Sequence>(events: S) where S.Element: EventActivity {
@@ -87,21 +96,25 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     }
 
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        if events.isEmpty {
-            return .value(())
-        } else {
-            return Promise { seal in
-                let eventsToSave = events.map { EventActivity(value: $0) }
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                do {
-                    let realm = self.realm.threadSafe
-                    try realm.write {
+                if events.isEmpty {
+                    seal.fulfill(())
+                } else {
+                    let realm = strongSelf.realm
+                    let eventsToSave = events.map { EventActivity(value: $0) }
+
+                    do {
+                        realm.beginWrite()
                         realm.add(eventsToSave, update: .all)
+                        try realm.commitWrite()
 
                         seal.fulfill(())
+                    } catch {
+                        seal.reject(error)
                     }
-                } catch {
-                    seal.reject(error)
                 }
             }
         }

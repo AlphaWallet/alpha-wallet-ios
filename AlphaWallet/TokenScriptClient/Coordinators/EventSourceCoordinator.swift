@@ -5,6 +5,17 @@ import BigInt
 import PromiseKit
 import web3swift
 
+extension PromiseKit.Result {
+    var optionalValue: T? {
+        switch self {
+        case .fulfilled(let value):
+            return value
+        case .rejected:
+            return nil
+        }
+    }
+}
+
 protocol EventSourceCoordinatorType: class {
     func fetchEthereumEvents()
     func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
@@ -13,18 +24,16 @@ protocol EventSourceCoordinatorType: class {
 //TODO rename this generic name to reflect that it's for event instances, not for event activity
 class EventSourceCoordinator: EventSourceCoordinatorType {
     private var wallet: Wallet
-    private let config: Config
-    private let tokensStorages: ServerDictionary<TokensDataStore>
+    private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
 
-    init(wallet: Wallet, config: Config, tokensStorages: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
+    init(wallet: Wallet, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.wallet = wallet
-        self.config = config
-        self.tokensStorages = tokensStorages
+        self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
     }
@@ -65,14 +74,19 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokensStoragesForEnabledServers = config.enabledServers.compactMap { tokensStorages[safe: $0] }
-        let fetchPromises = tokensStoragesForEnabledServers.flatMap {
-            $0.enabledObject.flatMap { fetchEventsByTokenId(forToken: $0) }
-        }
-
-        when(resolved: fetchPromises).done { _ in
+        firstly {
+            tokenCollection.tokenObjects
+        //NOTE: calling .fetchEventsByTokenId shoul be performed on .main queue
+        }.then(on: .main, { tokens -> Promise<Void> in
+            return Promise { seal in
+                let promises = tokens.map { self.fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
+                when(resolved: promises).done { _ in
+                    seal.fulfill(())
+                }
+            }
+        }).done(on: queue, { _ in
             self.isFetching = false
-        }
+        }).cauterize()
     }
 }
 
