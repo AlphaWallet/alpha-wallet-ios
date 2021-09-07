@@ -14,35 +14,40 @@ class ThreadSafeDictionary<Key: Hashable, Value> {
     subscript(server: Key) -> Value? {
         get {
             var element: Value?
-            queue.sync {
-                element = cache[server]
+            queue.sync { [weak self] in
+                element = self?.cache[server]
             }
             return element
         }
         set {
-            queue.async(flags: .barrier) {
-                self.cache[server] = newValue
+            queue.async(flags: .barrier) { [weak self] in
+                self?.cache[server] = newValue
             }
         }
     }
 
     func removeAll() {
-        queue.async(flags: .barrier) {
-            self.cache.removeAll()
+        queue.async(flags: .barrier) { [weak self] in
+            self?.cache.removeAll()
         }
     }
 
     @discardableResult func removeValue(forKey key: Key) -> Value? {
         var element: Value?
-        queue.sync {
-            if let index = cache.firstIndex(where: { $0.key == key }) {
-                element = cache.remove(at: index).value
+        queue.sync { [weak self] in
+            if let index = self?.cache.firstIndex(where: { $0.key == key }) {
+                element = self?.cache.remove(at: index).value
             }
         }
         return element
     }
 
-    var value: [Key: Value] {
-        return cache
+    var values: [Key: Value] {
+        var elements: [Key: Value] = [:]
+        queue.sync { [weak self] in
+            elements = self?.cache ?? [:]
+        }
+
+        return elements
     }
 }
