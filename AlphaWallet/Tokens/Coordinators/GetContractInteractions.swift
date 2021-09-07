@@ -26,7 +26,7 @@ class GetContractInteractions {
     }
 
     func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> Promise<([AlphaWallet.Address], Int?)> {
-        functional.getContractList(address: address, server: server, startBlock: startBlock, erc20: erc20)
+        functional.getContractList(address: address, server: server, startBlock: startBlock, erc20: erc20, queue: queue)
     }
 }
 
@@ -40,8 +40,7 @@ extension GetContractInteractions.functional {
         guard let etherscanURL = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) else { return .value([]) }
         return firstly {
             Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [])
-        //TODO queue?
-        }.map(on: DispatchQueue.global()) { rawJson, _ in
+        }.map(on: queue) { rawJson, _ in
             guard let rawJson = rawJson as? [String: Any] else { throw GetContractInteractions.E() }
             let json = JSON(rawJson)
 
@@ -103,8 +102,7 @@ extension GetContractInteractions.functional {
         guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: address, startBlock: startBlock) else { return .value([]) }
         return firstly {
             Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [])
-        //TODO queue?
-        }.map(on: DispatchQueue.global()) { rawJson, _ in
+        }.map(on: queue) { rawJson, _ in
             guard let rawJson = rawJson as? [String: Any] else { throw GetContractInteractions.E() }
             let json = JSON(rawJson)
 
@@ -175,7 +173,7 @@ extension GetContractInteractions.functional {
         return results
     }
 
-    static func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> Promise<([AlphaWallet.Address], Int?)> {
+    static func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, queue: DispatchQueue) -> Promise<([AlphaWallet.Address], Int?)> {
         let etherscanURL: URL
         if erc20 {
             if let url = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) {
@@ -191,9 +189,8 @@ extension GetContractInteractions.functional {
             }
         }
         return firstly {
-            Alamofire.request(etherscanURL).validate().responseJSON()
-        //TODO queue?
-        }.map(on: DispatchQueue.global()) { rawJson, _ in
+            Alamofire.request(etherscanURL).validate().responseJSON(queue: queue)
+        }.map(on: queue) { rawJson, _ in
             guard let rawJson = rawJson as? [String: Any] else { throw GetContractInteractions.E() }
             //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
             let json = JSON(rawJson)
