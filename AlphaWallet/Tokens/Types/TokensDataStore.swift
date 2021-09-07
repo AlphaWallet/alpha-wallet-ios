@@ -16,46 +16,43 @@ protocol TokensDataStoreDelegate: AnyObject {
 }
 
 // swiftlint:disable type_body_length
-class TokensDataStore {
+class TokensDataStore: NSObject {
     static let fetchContractDataTimeout = TimeInterval(4)
+
     private let realm: Realm
     private var chainId: Int {
         return server.chainID
     }
-    private let config: Config
-    private let queue = DispatchQueue.main
-
     let account: Wallet
     let server: RPCServer
 
     weak var delegate: TokensDataStoreDelegate?
-    var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
 
-    private var enabledObjectResults: Results<TokenObject> {
+    var enabledObjectResults: Results<TokenObject> {
         realm.objects(TokenObject.self)
-            .filter("chainId = \(self.chainId)")
+            .filter("chainId = \(chainId)")
             .filter("contract != ''")
             .filter("isDisabled = false")
     }
 
     var enabledObjectAddresses: [AlphaWallet.Address] {
-        return enabledObjectResults
+        enabledObjectResults
             .filter("isDisabled = false")
             .map { $0.contractAddress }
     }
 
-    var objects: [TokenObject] {
+    private var objects: [TokenObject] {
         return Array(
                 realm.objects(TokenObject.self)
-                        .filter("chainId = \(self.chainId)")
+                        .filter("chainId = \(chainId)")
                         .filter("contract != ''")
         )
     }
 
     //TODO might be good to change `enabledObject` to just return the streaming list from Realm instead of a Swift native Array and other properties/callers can convert to Array if necessary
     var enabledObject: [TokenObject] {
-        let result = Array(realm.threadSafe.objects(TokenObject.self)
-                .filter("chainId = \(self.chainId)")
+        let result = Array(realm.objects(TokenObject.self)
+                .filter("chainId = \(chainId)")
                 .filter("isDisabled = false"))
         if let erc20AddressForNativeToken = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: erc20AddressForNativeToken) }) {
             return result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) }
@@ -64,19 +61,24 @@ class TokensDataStore {
         }
     }
 
+    var tokenObjects: [Activity.AssignedToken] {
+        let tokenObjects = enabledObject.map { Activity.AssignedToken(tokenObject: $0) }
+        return Array(tokenObjects)
+    }
+
     var deletedContracts: [DeletedContract] {
-        return Array(realm.threadSafe.objects(DeletedContract.self)
-                .filter("chainId = \(self.chainId)"))
+        return Array(realm.objects(DeletedContract.self)
+            .filter("chainId = \(chainId)"))
     }
 
     var delegateContracts: [DelegateContract] {
-        return Array(realm.threadSafe.objects(DelegateContract.self)
-                .filter("chainId = \(self.chainId)"))
+        return Array(realm.objects(DelegateContract.self)
+            .filter("chainId = \(chainId)"))
     }
 
     var hiddenContracts: [HiddenContract] {
-        return Array(realm.threadSafe.objects(HiddenContract.self)
-                .filter("chainId = \(self.chainId)"))
+        return Array(realm.objects(HiddenContract.self)
+            .filter("chainId = \(chainId)"))
     }
 
     static func etherToken(forServer server: RPCServer) -> TokenObject {
@@ -107,25 +109,22 @@ class TokensDataStore {
     }
     private var enabledObjectsSubscription: NotificationToken?
 
-    init(
-            realm: Realm,
-            account: Wallet,
-            server: RPCServer,
-            config: Config
-    ) {
+    init(realm: Realm, account: Wallet, server: RPCServer) {
         self.account = account
         self.server = server
-        self.config = config
         self.realm = realm
+
+        super.init()
+
         self.addEthToken()
 
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
-        enabledObjectsSubscription = enabledObjectResults.observe(on: queue) { [weak self] change in
+        enabledObjectsSubscription = enabledObjectResults.observe(on: .main) { [weak self] change in
             switch change {
-            case .initial:
+            case .update:
+                self?.updateDelegate(refreshImmediately: true)
+            case .initial, .error:
                 break
-            case .update, .error:
-                self?.updateDelegate(refreshImmediately: false)
             }
         }
     }
@@ -156,16 +155,6 @@ class TokensDataStore {
         try! realm.commitWrite()
     }
 
-    func fetch() {
-        refreshBalance()
-    }
-
-    func tokenThreadSafe(forContract contract: AlphaWallet.Address) -> TokenObject? {
-        realm.threadSafe.objects(TokenObject.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("chainId = \(chainId)").first
-    }
-
     func tokenPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?> {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
@@ -182,22 +171,32 @@ class TokensDataStore {
 
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
         realm.objects(TokenObject.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("chainId = \(chainId)").first
-    }
-
-    private func refreshBalance() {
-        //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Though it probably doesn't need to be called an additional time, every time. It is important to refresh immediately first, rather than be rate limited because we might be deleting (hiding) a token and the user should see the list of tokens refresh immediately
-        updateDelegate(refreshImmediately: true)
+            .filter("contract = '\(contract.eip55String)'")
+            .filter("chainId = \(chainId)").first
     }
 
     private func updateDelegate(refreshImmediately: Bool = false) {
-        tokensModel.value = enabledObject
+        //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Though it probably doesn't need to be called an additional time, every time. It is important to refresh immediately first, rather than be rate limited because we might be deleting (hiding) a token and the user should see the list of tokens refresh immediately
+        delegate.flatMap { $0.didUpdate(in: self, refreshImmediately: refreshImmediately) }
+    }
 
-        delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
+    func addCustomPromise(token: ERCToken) -> Promise<TokenObject> {
+        return Promise<TokenObject> { seal in
+            DispatchQueue.main.async {
+                let token = self.addCustom(token: token)
+                seal.fulfill(token)
+            }
+        }
     }
 
     @discardableResult func addCustom(token: ERCToken) -> TokenObject {
+        let newToken = TokensDataStore.tokenObject(ercToken: token)
+        add(tokens: [newToken])
+
+        return newToken
+    }
+
+    private static func tokenObject(ercToken token: ERCToken) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
                 server: token.server,
@@ -211,9 +210,48 @@ class TokensDataStore {
         token.balance.forEach { balance in
             newToken.balance.append(TokenBalance(balance: balance))
         }
-        add(tokens: [newToken])
 
         return newToken
+    }
+
+    @discardableResult private func unsafeAddTokenOperation(tokenObject: TokenObject, realm: Realm) -> TokenObject {
+        //TODO: save existed sort index and displaying state
+        if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: tokenObject.primaryKey) {
+            tokenObject.sortIndex = object.sortIndex
+            tokenObject.shouldDisplay = object.shouldDisplay
+        }
+
+        realm.add(tokenObject, update: .all)
+
+        return tokenObject
+    }
+
+    @discardableResult func addBatchObjectsOperation(values: [SingleChainTokenCoordinator.PrepareToAddTokenData]) -> [TokenObject] {
+        guard !values.isEmpty else { return [] }
+        var tokenObjects: [TokenObject] = []
+
+        try! realm.write {
+            for each in values {
+                switch each {
+                case .delegateContracts(let delegateContract):
+                    realm.add(delegateContract, update: .all)
+                case .ercToken(let token):
+                    let newToken = Self.tokenObject(ercToken: token)
+
+                    unsafeAddTokenOperation(tokenObject: newToken, realm: realm)
+                    tokenObjects += [newToken]
+                case .tokenObject(let tokenObject):
+                    unsafeAddTokenOperation(tokenObject: tokenObject, realm: realm)
+                    tokenObjects += [tokenObject]
+                case .deletedContracts(let deadContracts):
+                    realm.add(deadContracts, update: .all)
+                case .none:
+                    break
+                }
+            }
+        }
+
+        return tokenObjects
     }
 
     func add(deadContracts: [DeletedContract]) {
@@ -234,20 +272,16 @@ class TokensDataStore {
         }
     }
 
-    @discardableResult
-    func add(tokens: [TokenObject]) -> [TokenObject] {
+    @discardableResult func add(tokens: [TokenObject]) -> [TokenObject] {
         realm.beginWrite()
 
         //TODO: save existed sort index and displaying state
         for token in tokens {
-            if let object = self.realm.object(ofType: TokenObject.self, forPrimaryKey: token.primaryKey) {
-                token.sortIndex = object.sortIndex
-                token.shouldDisplay = object.shouldDisplay
-            }
-            realm.add(token, update: .all)
+            unsafeAddTokenOperation(tokenObject: token, realm: realm)
         }
 
         try! realm.commitWrite()
+
         return tokens
     }
 
@@ -273,9 +307,7 @@ class TokensDataStore {
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
-        let orderedTokensIds = orderedTokens.map {
-            $0.primaryKey
-        }
+        let orderedTokensIds = orderedTokens.map { $0.primaryKey }
 
         let storedTokens = realm.objects(TokenObject.self)
 
@@ -288,57 +320,178 @@ class TokensDataStore {
 
     func update(token: TokenObject, action: TokenUpdateAction) {
         guard !token.isInvalidated else { return }
-        switch action {
-        case .isHidden(let value):
-            try! realm.write {
-                token.shouldDisplay = !value
-                if !value {
-                    token.sortIndex.value = nil
-                }
-            }
-        case .value(let value):
-            try! realm.write {
-                token.value = value.description
-            }
-        case .isDisabled(let value):
-            try! realm.write {
-                token.isDisabled = value
-            }
-        case .nonFungibleBalance(let balance):
-            //Performance: if we use realm.write {} directly, the UI will block for a few seconds because we are reading from Realm, appending to an array and writing back to Realm many times (once for each token) in the main thread. Instead, we do this for each token in a background thread
-            let primaryKey = token.primaryKey
-            queue.async {
-                let realmInBackground = try! Realm(configuration: self.realm.configuration)
-                let token = realmInBackground.object(ofType: TokenObject.self, forPrimaryKey: primaryKey)!
-                var newBalance = [TokenBalance]()
-                if !balance.isEmpty {
-                    for i in 0...balance.count - 1 {
-                        if let oldBalance = token.balance.first(where: { $0.balance == balance[i] }) {
-                            newBalance.append(TokenBalance(balance: balance[i], json: oldBalance.json))
-                        } else {
-                            newBalance.append(TokenBalance(balance: balance[i]))
-                        }
-                    }
-                }
-                try! realmInBackground.write {
-                    realmInBackground.delete(token.balance)
-                    token.balance.append(objectsIn: newBalance)
-                }
-            }
-        case .name(let name):
-            try! realm.write {
-                token.name = name
-            }
-        case .type(let type):
-            try! realm.write {
-                token.type = type
-            }
+        try! realm.write {
+            updateTokenUnsafe(primaryKey: token.primaryKey, action: action)
         }
     }
 
     deinit {
         //We should make sure that timer is invalidate.
         enabledObjectsSubscription.flatMap { $0.invalidate() }
+    }
+
+    func addOrUpdateErc271(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken]) -> Promise<Bool?> {
+        return Promise<Bool?> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                var listOfJson = [String]()
+                var anyNonFungible: OpenSeaNonFungible?
+                for each in openSeaNonFungibles {
+                    if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                        anyNonFungible = each
+                        listOfJson.append(jsonString)
+                    } else {
+                        //no op
+                    }
+                }
+
+                if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
+                    strongSelf.realm.beginWrite()
+
+                    var value: Bool?
+                    switch tokenObject.type {
+                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
+                        break
+                    case .erc20:
+                        value = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .type(.erc721))
+                    }
+
+                    let v1 = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(listOfJson))
+                    if value != nil {
+                        value = v1
+                    }
+                    if let anyNonFungible = anyNonFungible {
+                        let v2 = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .name(anyNonFungible.contractName))
+                        if value != nil {
+                            value = v2
+                        }
+                    }
+
+                    try! strongSelf.realm.commitWrite()
+
+                    seal.fulfill(value)
+                } else {
+                    let token = ERCToken(
+                            contract: contract,
+                            server: strongSelf.server,
+                            name: openSeaNonFungibles[0].contractName,
+                            symbol: openSeaNonFungibles[0].symbol,
+                            decimals: 0,
+                            type: .erc721,
+                            balance: listOfJson
+                    )
+
+                    strongSelf.addCustom(token: token)
+
+                    seal.fulfill(true)
+                }
+            }
+        }
+    }
+
+    func batchUpdateTokenPromise(_ actions: [(tokenObject: Activity.AssignedToken, action: TokensDataStore.TokenUpdateAction)]) -> Promise<Bool?> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                strongSelf.realm.beginWrite()
+                var result: Bool?
+
+                for each in actions {
+                    let value = strongSelf.updateTokenUnsafe(primaryKey: each.tokenObject.primaryKey, action: each.action)
+                    if result == nil {
+                        result = value
+                    }
+                }
+
+                try! strongSelf.realm.commitWrite()
+
+                seal.fulfill(result)
+            }
+        }
+    }
+
+    func updateTokenPromise(primaryKey: String, action: TokenUpdateAction) -> Promise<Bool?> {
+        return Promise { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+
+                let result = strongSelf.update(primaryKey: primaryKey, action: action)
+
+                seal.fulfill(result)
+            }
+        }
+    }
+
+    @discardableResult private func update(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+        var result: Bool?
+
+        realm.beginWrite()
+        result = updateTokenUnsafe(primaryKey: primaryKey, action: action)
+
+        try! realm.commitWrite()
+
+        return result
+    }
+
+    @discardableResult private func updateTokenUnsafe(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+        guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else {
+            return nil
+        }
+
+        var result: Bool = false
+
+        switch action {
+        case .value(let value):
+            if tokenObject.value != value.description {
+                tokenObject.value = value.description
+
+                result = true
+            }
+        case .nonFungibleBalance(let balance):
+            var newBalance = [TokenBalance]()
+            if !balance.isEmpty {
+                for i in 0...balance.count - 1 {
+                    if let oldBalance = tokenObject.balance.first(where: { $0.balance == balance[i] }) {
+                        newBalance.append(TokenBalance(balance: balance[i], json: oldBalance.json))
+                    } else {
+                        newBalance.append(TokenBalance(balance: balance[i]))
+                    }
+                }
+            }
+
+            result = true
+
+            realm.delete(tokenObject.balance)
+            tokenObject.balance.append(objectsIn: newBalance)
+
+            //NOTE: for now we mark balance as hasn't changed for nonFungibleBalance, How to check that balance has update?
+            result = true
+        case .name(let name):
+            if tokenObject.name != name {
+                tokenObject.name = name
+                result = true
+            }
+        case .type(let type):
+            if tokenObject.rawType != type.rawValue {
+                tokenObject.rawType = type.rawValue
+                result = true
+            }
+        case .isDisabled(let value):
+            result = true
+
+            tokenObject.isDisabled = value
+        case .isHidden(let value):
+            result = true
+
+            tokenObject.shouldDisplay = !value
+            if !value {
+                tokenObject.sortIndex.value = nil
+            }
+        }
+
+        return result
     }
 }
 // swiftlint:enable type_body_length
