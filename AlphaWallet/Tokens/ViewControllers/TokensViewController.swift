@@ -11,6 +11,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func didHide(token: TokenObject, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func scanQRCodeSelected(in viewController: UIViewController)
+    func myQRCodeButtonSelected(in viewController: UIViewController)
     func blockieSelected(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
 }
@@ -100,17 +101,7 @@ class TokensViewController: UIViewController {
 
         return collectionView
     }()
-    private lazy var blockieImageView: BlockieImageView = {
-        let imageView = BlockieImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.clipsToBounds = true
-
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 24),
-            imageView.heightAnchor.constraint(equalToConstant: 24),
-        ])
-        return imageView
-    }()
+    private lazy var blockieImageView: BlockieImageView = .defaultBlockieImageView
     private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private var consoleButton: UIButton {
@@ -124,7 +115,6 @@ class TokensViewController: UIViewController {
         return TableViewHeader(consoleButton: UIButton(type: .system), promptBackupWalletViewHolder: UIView())
     }()
     private var isSearchBarConfigured = false
-    private let hideTokenWidth: CGFloat = 170
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     private let config: Config
@@ -249,7 +239,10 @@ class TokensViewController: UIViewController {
 
         setupFilteringWithKeyword()
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem.myqrCodeBarButton(self, selector: #selector(myQRCodeButtonSelected)),
+            UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+        ]
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
 
         walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
@@ -301,6 +294,10 @@ class TokensViewController: UIViewController {
 
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
         delegate?.scanQRCodeSelected(in: self)
+    }
+
+    @objc private func myQRCodeButtonSelected(_ sender: UIBarButtonItem) {
+        delegate?.myQRCodeButtonSelected(in: self)
     }
 
     private func getWalletName() {
