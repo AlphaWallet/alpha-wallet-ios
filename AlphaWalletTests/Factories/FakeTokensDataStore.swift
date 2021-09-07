@@ -10,6 +10,6 @@ class FakeTokensDataStore: TokensDataStore {
         let account: Wallet = .make()
         let config: Config = .make()
 
-        self.init(realm: realm, account: account, server: .main, config: config)
+        self.init(realm: realm, account: account, server: .main)
     }
 }

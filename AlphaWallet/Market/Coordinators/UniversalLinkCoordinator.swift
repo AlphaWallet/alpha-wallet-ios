@@ -498,6 +498,9 @@ class UniversalLinkCoordinator: Coordinator {
         }
         return filteredTokens
     }
+    private lazy var tokenProvider: TokenProviderType = {
+         return TokenProvider(account: tokensDatastore.account, server: tokensDatastore.server)
+    }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
         assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] _ in
@@ -509,7 +512,6 @@ class UniversalLinkCoordinator: Coordinator {
             }
 
             let tokensDatastore = strongSelf.tokensDatastore
-            let tokenProvider: TokenProviderType = TokenProvider(account: tokensDatastore.account, server: tokensDatastore.server)
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
                 let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
@@ -517,9 +519,9 @@ class UniversalLinkCoordinator: Coordinator {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                let getContractName = tokenProvider.getContractName(for: contractAddress)
-                let getContractSymbol = tokenProvider.getContractSymbol(for: contractAddress)
-                let getTokenType = tokenProvider.getTokenType(for: contractAddress)
+                let getContractName = strongSelf.tokenProvider.getContractName(for: contractAddress)
+                let getContractSymbol = strongSelf.tokenProvider.getContractSymbol(for: contractAddress)
+                let getTokenType = strongSelf.tokenProvider.getTokenType(for: contractAddress)
                 firstly {
                     when(fulfilled: getContractName, getContractSymbol, getTokenType)
                 }.done { name, symbol, type in
