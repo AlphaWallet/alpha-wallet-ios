@@ -25,6 +25,10 @@ protocol TokenProviderType: class {
     func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void)
     func getEthBalance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void)
     func getEthBalance(for address: AlphaWallet.Address) -> Promise<Balance>
+    func getERC20Balance(for address: AlphaWallet.Address) -> Promise<BigInt>
+    func getERC875Balance(for address: AlphaWallet.Address) -> Promise<[String]>
+    func getERC721ForTicketsBalance(for address: AlphaWallet.Address) -> Promise<[String]>
+    func getERC721Balance(for address: AlphaWallet.Address) -> Promise<[String]>
 }
 
 class TokenProvider: TokenProviderType {
@@ -200,6 +204,19 @@ class TokenProvider: TokenProviderType {
         }
     }
 
+    func getERC20Balance(for address: AlphaWallet.Address) -> Promise<BigInt> {
+        Promise { seal in
+            getERC20Balance(for: address) { result in
+                switch result {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
     func getERC20Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void) {
         withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
             guard let strongSelf = self else { return }
@@ -211,6 +228,19 @@ class TokenProvider: TokenProviderType {
                     if !triggerRetry() {
                         completion(result)
                     }
+                }
+            }
+        }
+    }
+
+    func getERC875Balance(for address: AlphaWallet.Address) -> Promise<[String]> {
+        Promise { seal in
+            getERC875Balance(for: address) { result in
+                switch result {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
                 }
             }
         }
@@ -233,6 +263,19 @@ class TokenProvider: TokenProviderType {
         }
     }
 
+    func getERC721ForTicketsBalance(for address: AlphaWallet.Address) -> Promise<[String]> {
+        Promise { seal in
+            getERC721ForTicketsBalance(for: address) { result in
+                switch result {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
     func getERC721ForTicketsBalance(for address: AlphaWallet.Address,
                                     completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
@@ -245,6 +288,19 @@ class TokenProvider: TokenProviderType {
                     if !triggerRetry() {
                         completion(result)
                     }
+                }
+            }
+        }
+    }
+
+    func getERC721Balance(for address: AlphaWallet.Address) -> Promise<[String]> {
+        Promise { seal in
+            getERC721Balance(for: address) { result in
+                switch result {
+                case .success(let value):
+                    seal.fulfill(value)
+                case .failure(let error):
+                    seal.reject(error)
                 }
             }
         }
