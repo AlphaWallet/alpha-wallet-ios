@@ -18,6 +18,8 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func start()
     func refreshBalance()
     func refreshEthBalance()
+
+    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage
 }
 
 class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
@@ -92,6 +94,10 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         queue.async { [weak self] in
             self?.fetchTokenPrices()
         }
+    }
+
+    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
+        balanceFetchers[wallet]!.transactionsStorage(server: server)
     }
 
     private var availableTokenObjects: ServerDictionary<[TokenMappedToTicker]> {
