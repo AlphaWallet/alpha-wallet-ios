@@ -14,17 +14,17 @@ protocol EventSourceCoordinatorForActivitiesType: AnyObject {
 class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesType {
     private var wallet: Wallet
     private let config: Config
-    private let tokensStorages: ServerDictionary<TokensDataStore>
+    private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsActivityDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
 
-    init(wallet: Wallet, config: Config, tokensStorages: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
+    init(wallet: Wallet, config: Config, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
         self.config = config
-        self.tokensStorages = tokensStorages
+        self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
     }
@@ -79,16 +79,8 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
 
     typealias EnabledTokenAddreses = [(contract: AlphaWallet.Address, tokenType: TokenType, server: RPCServer)]
     private func tokensForEnabledRPCServers() -> Promise<EnabledTokenAddreses> {
-        return Promise { seal in
-            let tokensStoragesForEnabledServers = self.config.enabledServers.compactMap { self.tokensStorages[safe: $0] }
-
-            let data = tokensStoragesForEnabledServers.flatMap {
-                $0.enabledObject
-            }.compactMap {
-                (contract: $0.contractAddress, tokenType: $0.type, server: $0.server)
-            }
-
-            seal.fulfill(data)
+        tokenCollection.tokenObjects.map { tokenObjects -> EnabledTokenAddreses in
+            tokenObjects.compactMap { (contract: $0.contractAddress, tokenType: $0.type, server: $0.server) }
         }
     }
 }
@@ -151,8 +143,8 @@ extension EventSourceCoordinatorForActivities.functional {
                             })
                     }
 
-                    return when(resolved: promises).map(on: queue, { _ -> [EventActivityInstance] in
-                        promises.compactMap { $0.value }.compactMap { $0 }
+                    return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
+                        values.compactMap { $0.optionalValue }.compactMap { $0 }
                     })
                 }).then(on: queue, { events -> Promise<Void> in
                     if events.isEmpty {
