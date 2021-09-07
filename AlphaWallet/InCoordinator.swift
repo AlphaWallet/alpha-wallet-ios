@@ -258,12 +258,12 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createEventSourceCoordinator() -> EventSourceCoordinatorType {
-        return EventSourceCoordinator(wallet: wallet, config: config, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+        return EventSourceCoordinator(wallet: wallet, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
     }
 
     private func setUpEventSourceCoordinatorForActivities() {
         guard Features.isActivityEnabled else { return }
-        eventSourceCoordinatorForActivities = EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
+        eventSourceCoordinatorForActivities = EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokenCollection: tokenCollection, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }
 
     private func setupTokenDataStores() {
@@ -364,9 +364,13 @@ class InCoordinator: NSObject, Coordinator {
         promptBackupCoordinator.start()
     }
 
-    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {
+    private lazy var tokenCollection: TokenCollection = {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
         let tokenCollection = TokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokenDataStores: tokensStoragesForEnabledServers)
+        return tokenCollection
+    }()
+
+    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withWalletSessions: walletSessions)
         pollEthereumEvents(tokenCollection: tokenCollection)
 

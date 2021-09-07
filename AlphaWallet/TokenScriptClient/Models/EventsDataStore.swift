@@ -37,7 +37,7 @@ class EventsDataStore: EventsDataStoreProtocol {
                 .filter("eventName = '\(eventName)'")
                 //Filter stored as string, so we do a string comparison
                 .filter("filter = '\(filterName)=\(filterValue)'"))
-    } 
+    }
 
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {
         let events = getEvents(forTokenContract: contract)
@@ -57,35 +57,46 @@ class EventsDataStore: EventsDataStoreProtocol {
 
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?> {
         return Promise { seal in
-            let event = Array(realm.threadSafe.objects(EventInstance.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("tokenContract = '\(tokenContract.eip55String)'")
-                .filter("chainId = \(server.chainID)")
-                .filter("eventName = '\(eventName)'")
-                .sorted(byKeyPath: "blockNumber"))
-                .map{ EventInstanceValue(event: $0) }
-                .last 
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-            seal.fulfill(event)
+                let event = Array(strongSelf.realm.objects(EventInstance.self)
+                    .filter("contract = '\(contract.eip55String)'")
+                    .filter("tokenContract = '\(tokenContract.eip55String)'")
+                    .filter("chainId = \(server.chainID)")
+                    .filter("eventName = '\(eventName)'")
+                    .sorted(byKeyPath: "blockNumber"))
+                    .map { EventInstanceValue(event: $0) }
+                    .last
+
+                seal.fulfill(event)
+            }
         }
     }
 
     func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        if events.isEmpty {
-            return .value(())
-        }
-
         return Promise { seal in
-            do {
-                let realm = self.realm.threadSafe
-                try realm.write {
-                    let eventsToSave = events.map { EventInstance(event: $0) }
-                    realm.add(eventsToSave, update: .all)
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                    seal.fulfill(())
+                if events.isEmpty {
+                    return seal.fulfill(())
+                } else {
+                    do {
+                        let realm = strongSelf.realm
+                        let eventsToSave = events.map { EventInstance(event: $0) }
+
+                        realm.beginWrite()
+                        realm.add(eventsToSave, update: .all)
+                        try realm.commitWrite()
+
+                        seal.fulfill(())
+                    } catch {
+                        seal.reject(error)
+                    }
+
+                    strongSelf.triggerSubscribers(forContract: contract)
                 }
-            } catch {
-                seal.reject(error)
             }
         }
     }
