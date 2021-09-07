@@ -18,6 +18,7 @@ protocol PrivateTokensDatastoreType {
 
     func addOrUpdateErc271(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken], completion: @escaping () -> Void)
     func addCustom(token: ERCToken, completion: @escaping () -> Void)
+    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void)
     func update(primaryKey: String, action: PrivateTokensDatastore.TokenUpdateAction, completion: @escaping (Bool?) -> Void)
     func tokenObject(contract: AlphaWallet.Address) -> TokenObject?
 }
@@ -120,41 +121,44 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
             addCustom(token: token, completion: completion)
         }
     }
-
-    func addCustom(token: ERCToken, completion: @escaping () -> Void) {
+    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void) {
         backgroundQueue.async {
             let backgroundRealm = self.realm.threadSafe
-            let newToken = TokenObject(
-                    contract: token.contract,
-                    server: token.server,
-                    name: token.name,
-                    symbol: token.symbol,
-                    decimals: token.decimals,
-                    value: "0",
-                    isCustom: true,
-                    type: token.type
-            )
-            token.balance.forEach { balance in
-                newToken.balance.append(TokenBalance(balance: balance))
-            }
+            let newTokens: [TokenObject] = tokens.map { token in
+                let newToken = TokenObject(
+                        contract: token.contract,
+                        server: token.server,
+                        name: token.name,
+                        symbol: token.symbol,
+                        decimals: token.decimals,
+                        value: "0",
+                        isCustom: true,
+                        type: token.type
+                )
+                token.balance.forEach { balance in
+                    newToken.balance.append(TokenBalance(balance: balance))
+                }
 
-            if let object = backgroundRealm.object(ofType: TokenObject.self, forPrimaryKey: newToken.primaryKey) {
-                newToken.sortIndex = object.sortIndex
-                newToken.shouldDisplay = object.shouldDisplay
+                if let object = backgroundRealm.object(ofType: TokenObject.self, forPrimaryKey: newToken.primaryKey) {
+                    newToken.sortIndex = object.sortIndex
+                    newToken.shouldDisplay = object.shouldDisplay
+                }
+                return newToken
             }
 
             do {
                 backgroundRealm.beginWrite()
-
-                backgroundRealm.add(newToken, update: .all)
-
+                backgroundRealm.add(newTokens, update: .all)
                 try backgroundRealm.commitWrite()
-
             } catch {
                 //no-op
             }
             completion()
         }
+    }
+
+    func addCustom(token: ERCToken, completion: @escaping () -> Void) {
+        addCustom(tokens: [token], completion: completion)
     }
 
     func update(primaryKey: String, action: TokenUpdateAction, completion: @escaping (Bool?) -> Void) {
