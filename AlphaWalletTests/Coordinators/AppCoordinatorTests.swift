@@ -27,7 +27,8 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analyticsService: FakeAnalyticsService(),
                 keystore: FakeKeystore(
-                    wallets: [.make()]
+                    wallets: [.make()],
+                    recentlyUsedWallet: .make()
                 ),
                 navigationController: FakeNavigationController()
             )
@@ -49,7 +50,8 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analyticsService: FakeAnalyticsService(),
                 keystore: FakeKeystore(
-                    wallets: [.make()]
+                    wallets: [.make()],
+                    recentlyUsedWallet: .make()
                 )
             )
             coordinator.start()
@@ -67,7 +69,8 @@ class AppCoordinatorTests: XCTestCase {
                 window: UIWindow(),
                 analyticsService: FakeAnalyticsService(),
                 keystore: FakeKeystore(
-                    wallets: [.make()]
+                    wallets: [.make()],
+                    recentlyUsedWallet: .make()
                 ),
                 navigationController: FakeNavigationController()
             )
@@ -85,14 +88,17 @@ class AppCoordinatorTests: XCTestCase {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
                 analyticsService: FakeAnalyticsService(),
-                keystore: FakeKeystore(),
+                keystore: FakeKeystore(
+                    wallets: [.make()],
+                    recentlyUsedWallet: .make()
+                ),
                 navigationController: FakeNavigationController()
             )
             coordinator.start()
 
             coordinator.showTransactions(for: .make(), animated: true)
 
-            XCTAssertEqual(5, coordinator.coordinators.count)
+            XCTAssertEqual(7, coordinator.coordinators.count)
             XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
             XCTAssertTrue(coordinator.navigationController.viewControllers[1] is UITabBarController)
         } catch {
@@ -105,7 +111,10 @@ class AppCoordinatorTests: XCTestCase {
             let coordinator = try AppCoordinator(
                 window: .init(),
                 analyticsService: FakeAnalyticsService(),
-                keystore: FakeKeystore(wallets: [.make()])
+                keystore: FakeKeystore(
+                    wallets: [.make()],
+                    recentlyUsedWallet: .make()
+                )
             )
 
             coordinator.start()
