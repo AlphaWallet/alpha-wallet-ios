@@ -141,7 +141,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private var filteredTransactionsSubscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
-    private var recentEventsSubscriptionKey: Subscribable<[EventActivity]>.SubscribableKey!
+    private var recentEventsSubscriptionKey: Subscribable<Void>.SubscribableKey!
     private let transactionCollection: TransactionCollection
     private lazy var recentEventsSubscribable = eventsActivityDataStore.recentEventsSubscribable
     private lazy var filteredTransactionsSubscription = transactionCollection.subscribableFor(filter: transactionsFilterStrategy)
