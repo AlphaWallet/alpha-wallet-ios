@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit 
+import UIKit
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -44,7 +44,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
-    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = WalletBalanceCoordinator(keystore: keystore, config: config, coinTickersFetcher: coinTickersFetcher)
+    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = WalletBalanceCoordinator(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher)
 
     private var pendingInCoordinator: InCoordinator?
 
@@ -463,7 +463,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
-    } 
+    }
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         TransactionsStorage.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))

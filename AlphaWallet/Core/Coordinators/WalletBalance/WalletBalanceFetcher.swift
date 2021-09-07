@@ -35,6 +35,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
     private var timer: Timer?
     private let wallet: Wallet
+    private let assetDefinitionStore: AssetDefinitionStore
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
     let tokensChangeSubscribable: Subscribable<Void> = .init(nil)
     private var tokensDataStores: ServerDictionary<(PrivateTokensDatastoreType, PrivateBalanceFetcherType, TransactionsStorage)> = .init()
@@ -51,8 +52,9 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
 
-    required init(wallet: Wallet, servers: [RPCServer], queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    required init(wallet: Wallet, servers: [RPCServer], assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
+        self.assetDefinitionStore = assetDefinitionStore
         self.queue = queue
         self.coinTickersFetcher = coinTickersFetcher
 
@@ -61,7 +63,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         for each in servers {
             let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
-            let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, queue: queue)
+            let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
             balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
             balanceFetcher.delegate = self
 
@@ -85,7 +87,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             } else {
                 let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
                 let tokensDatastore: PrivateTokensDatastoreType = PrivateTokensDatastore(realm: realm, server: each, queue: queue)
-                let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, queue: queue)
+                let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
                 balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
                 balanceFetcher.delegate = self
 
@@ -182,7 +184,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
 
         return .init(wallet: wallet, values: balances)
-    } 
+    }
 
     var isRunning: Bool {
         if let timer = timer {

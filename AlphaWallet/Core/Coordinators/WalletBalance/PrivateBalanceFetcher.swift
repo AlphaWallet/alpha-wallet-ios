@@ -46,15 +46,16 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private var isRefeshingBalance: Bool = false
     weak var delegate: PrivateTokensDataStoreDelegate?
     private var enabledObjectsObservation: NotificationToken?
-
     private let tokensDatastore: PrivateTokensDatastoreType
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(account: Wallet, tokensDatastore: PrivateTokensDatastoreType, server: RPCServer, queue: DispatchQueue) {
+    init(account: Wallet, tokensDatastore: PrivateTokensDatastoreType, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
         self.account = account
         self.server = server
         self.backgroundQueue = queue
         self.openSea = OpenSea.createInstance(forServer: server)
         self.tokensDatastore = tokensDatastore
+        self.assetDefinitionStore = assetDefinitionStore
         //NOTE: fire refresh balance only for initial scope, and while adding new tokens
         enabledObjectsObservation = tokensDatastore.enabledObjects.observe(on: backgroundQueue) { [weak self] change in
             guard let strongSelf = self else { return }
