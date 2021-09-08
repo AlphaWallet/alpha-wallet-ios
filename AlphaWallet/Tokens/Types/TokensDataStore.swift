@@ -197,6 +197,33 @@ class TokensDataStore: NSObject {
         return newToken
     }
 
+    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            self.addCustom(tokens: tokens, shouldUpdateBalance: true)
+
+            completion()
+        }
+    }
+
+    func addCustom(token: ERCToken, completion: @escaping () -> Void) {
+        addCustom(tokens: [token], completion: completion)
+    }
+
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject] {
+        let newTokens = tokens.compactMap { TokensDataStore.tokenObject(ercToken: $0, shouldUpdateBalance: shouldUpdateBalance) }
+        add(tokens: newTokens)
+
+        return newTokens
+    }
+
+    @discardableResult func addCustom(token: ERCToken) -> TokenObject {
+        let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: true)
+
+        add(tokens: [newToken])
+
+        return newToken
+    }
+
     private static func tokenObject(ercToken token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
@@ -229,7 +256,7 @@ class TokensDataStore: NSObject {
         return tokenObject
     }
 
-    @discardableResult func addBatchObjectsOperation(values: [SingleChainTokenCoordinator.PrepareToAddTokenData]) -> [TokenObject] {
+    @discardableResult func addBatchObjectsOperation(values: [SingleChainTokenCoordinator.BatchObject]) -> [TokenObject] {
         guard !values.isEmpty else { return [] }
         var tokenObjects: [TokenObject] = []
 
@@ -392,7 +419,7 @@ class TokensDataStore: NSObject {
         }
     }
 
-    func batchUpdateTokenPromise(_ actions: [(tokenObject: Activity.AssignedToken, action: TokensDataStore.TokenUpdateAction)]) -> Promise<Bool?> {
+    func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Promise<Bool?> {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
@@ -401,7 +428,17 @@ class TokensDataStore: NSObject {
                 var result: Bool?
 
                 for each in actions {
-                    let value = strongSelf.updateTokenUnsafe(primaryKey: each.tokenObject.primaryKey, action: each.action)
+                    var value: Bool?
+                    switch each {
+                    case .add(let token, let shouldUpdateBalance):
+                        let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
+                        strongSelf.unsafeAddTokenOperation(tokenObject: newToken, realm: strongSelf.realm)
+
+                        value = true
+                    case .update(let tokenObject, let action):
+                        value = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: action)
+                    }
+
                     if result == nil {
                         result = value
                     }
@@ -426,7 +463,7 @@ class TokensDataStore: NSObject {
         }
     }
 
-    @discardableResult private func update(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+    @discardableResult func update(primaryKey: String, action: TokenUpdateAction) -> Bool? {
         var result: Bool?
 
         realm.beginWrite()
@@ -495,14 +532,8 @@ class TokensDataStore: NSObject {
 
         return result
     }
-}
+} 
 // swiftlint:enable type_body_length
-
-extension Realm {
-    var threadSafe: Realm {
-         try! Realm(configuration: self.configuration)
-    }
-}
 
 extension TokenObject {
     var addressAndRPCServer: AddressAndRPCServer {
@@ -526,4 +557,4 @@ extension TokensDataStore.functional {
         }
     }
 }
-// swiftlint:enable file_length
+// swiftlint:enable file_length 

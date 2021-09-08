@@ -20,6 +20,7 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func refreshEthBalance()
 
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage
+    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore
 }
 
 class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
@@ -33,7 +34,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
 
     private lazy var servers: [RPCServer] = config.enabledServers
-    private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(walletSummary)
+    private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
     private let queue: DispatchQueue = DispatchQueue(label: "com.WalletBalanceCoordinator.updateQueue")
 
     init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
@@ -93,6 +94,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     func start() {
         queue.async { [weak self] in
             self?.fetchTokenPrices()
+            self?.notifyWalletSummary()
         }
     }
 
@@ -100,24 +102,37 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         balanceFetchers[wallet]!.transactionsStorage(server: server)
     }
 
-    private var availableTokenObjects: ServerDictionary<[TokenMappedToTicker]> {
-        let uniqueTokenObjectsOfAllWallets = Set(balanceFetchers.flatMap { (_, value) in value.tokenObjects })
+    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore {
+        balanceFetchers[wallet]!.tokensDatastore(server: server)
+    }
 
-        var tokens = ServerDictionary<[TokenMappedToTicker]>()
-        for each in uniqueTokenObjectsOfAllWallets {
-            var array: [TokenMappedToTicker]
-            if let value = tokens[safe: each.server] {
-                array = value
-            } else {
-                array = .init()
+    private var availableTokenObjects: Promise<ServerDictionary<[TokenMappedToTicker]>> {
+        Promise<[Activity.AssignedToken]> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let tokenObjects = strongSelf.balanceFetchers.map { $0.value.tokenObjects }.flatMap { $0 }
+
+                seal.fulfill(tokenObjects)
             }
+        }.map(on: queue, { objects -> ServerDictionary<[TokenMappedToTicker]> in
+            let uniqueTokenObjectsOfAllWallets = Set(objects)
 
-            array.append(TokenMappedToTicker(token: each))
+            var tokens = ServerDictionary<[TokenMappedToTicker]>()
 
-            tokens[each.server] = array
-        }
+            for each in uniqueTokenObjectsOfAllWallets {
+                var array: [TokenMappedToTicker]
+                if let value = tokens[safe: each.server] {
+                    array = value
+                } else {
+                    array = .init()
+                }
 
-        return tokens
+                array.append(TokenMappedToTicker(token: each))
+
+                tokens[each.server] = array
+            }
+            return tokens
+        })
     }
 
     private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
@@ -142,21 +157,30 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
 
     private func fetchTokenPrices() {
         firstly {
-            coinTickersFetcher.fetchPrices(forTokens: availableTokenObjects)
-        }.done(on: queue, { _ in
+            availableTokenObjects
+        }.then(on: queue, { values -> Promise<Void> in
+            self.coinTickersFetcher.fetchPrices(forTokens: values)
+        }).done(on: queue, { _ in
             //no-op
-        }).catch { _ in
-            //no-op
-        }
+        }).cauterize()
     }
 
     private func notifyWalletSummary() {
-        subscribableWalletsSummary.value = walletSummary
+        walletSummary.done(on: queue, { [weak self] summary in
+            self?.subscribableWalletsSummary.value = summary
+        }).cauterize()
     }
 
-    private var walletSummary: WalletSummary {
-        let balances = balanceFetchers.map { $0.value.balance }
-        return .init(balances: balances)
+    private var walletSummary: Promise<WalletSummary> {
+        Promise<[WalletBalance]> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let balances = strongSelf.balanceFetchers.map { $0.value.balance }
+                seal.fulfill(balances)
+            }
+        }.map(on: queue, { balances -> WalletSummary in
+            return WalletSummary(balances: balances)
+        })
     }
 }
 
