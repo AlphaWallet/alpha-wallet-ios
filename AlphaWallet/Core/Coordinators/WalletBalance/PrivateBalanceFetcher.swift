@@ -26,9 +26,8 @@ protocol PrivateBalanceFetcherType: AnyObject {
 
 // swiftlint:disable type_body_length
 class PrivateBalanceFetcher: PrivateBalanceFetcherType {
-    typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, json: String, value: BigInt)
+    typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, json: String)
 
-    static let fetchContractDataTimeout = TimeInterval(4)
     //Unlike `SessionManager.default`, this doesn't add default HTTP headers. It looks like POAP token URLs (e.g. https://api.poap.xyz/metadata/2503/278569) don't like them and return `406` in the JSON. It's strangely not responsible when curling, but only when running in the app
     private var sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
@@ -170,8 +169,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let promise2 = refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
         let tokensDatastore = self.tokensDatastore
         return when(resolved: [promise1, promise2]).then(on: queue, { value -> Promise<Bool?> in
-            let resolved = value.compactMap { $0.optionalValue }.flatMap { $0 }
-
+            let resolved: [TokenBatchOperation] = value.compactMap { $0.optionalValue }.flatMap { $0 }
             return tokensDatastore.batchUpdateTokenPromise(resolved).recover { _ -> Guarantee<Bool?> in
                 return .value(nil)
             }
@@ -229,32 +227,30 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func updateNonOpenSeaNonFungiblesBalance(contracts: [AlphaWallet.Address], tokens: [Activity.AssignedToken]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
-        let promises = contracts.map { updateNonOpenSeaNonFungiblesBalance(erc721Or1115ContractNotFoundInOpenSea: $0, tokens: tokens) }
-
+        let erc721Contracts = filterAwayErc1155Tokens(contracts: contracts)
+        let erc721Promises: [Promise<[TokenBatchOperation]>] = erc721Contracts.map { updateNonOpenSeaErc721Balance(contract: $0, tokens: tokens).map { $0 == nil ? [] : [$0!] } }
+        let erc1155Promise: Promise<[TokenBatchOperation]> = updateNonOpenSeaErc1155Balance(tokens: tokens)
         return firstly {
-            when(fulfilled: promises)
+            when(fulfilled: erc721Promises + [erc1155Promise])
         }.map(on: queue, { results in
-            return results.compactMap { $0 }.flatMap { $0 }
+            results.compactMap { $0 }.flatMap { $0 }
         })
     }
 
-    private func updateNonOpenSeaNonFungiblesBalance(erc721Or1115ContractNotFoundInOpenSea contract: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<[TokenBatchOperation]> {
-        let erc721Promise = updateNonOpenSeaErc721Balance(contract: contract, tokens: tokens)
-        let erc1155Promise: Promise<TokenBatchOperation?> = Promise.value(nil)
-
-        return firstly {
-            when(fulfilled: [erc721Promise, erc1155Promise]).map(on: queue, { results -> [TokenBatchOperation] in
-                return results.compactMap { $0 }
-            })
+    private func filterAwayErc1155Tokens(contracts: [AlphaWallet.Address]) -> [AlphaWallet.Address] {
+        if let erc1155Contracts = Erc1155TokenIdsFetcher(address: account.address, server: server).knownErc1155Contracts() {
+            return contracts.filter { !erc1155Contracts.contains($0) }
+        } else {
+            return contracts
         }
     }
 
     private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<TokenBatchOperation?> {
-        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return Promise { _ in } }
+        guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return .value(nil) }
         return firstly {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
         }.then(on: queue, { tokenIds -> Promise<[String]> in
-            let guarantees: [Guarantee<String>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, address: contract, tokens: tokens) }
+            let guarantees: [Guarantee<String>] = tokenIds.map { self.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, tokens: tokens) }
             return when(fulfilled: guarantees)
         }).map(on: queue, { jsons -> TokenBatchOperation? in
             guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else {
@@ -266,38 +262,62 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
-    private func updateNonOpenSeaErc1155Balance(contract: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<Void> {
-        guard let contractsTokenIdsAndValue = Erc1155TokenIdsFetcher(address: account.address, server: server).readJson() else {
-            return .value(())
-        }
+    private func updateNonOpenSeaErc1155Balance(tokens: [Activity.AssignedToken]) -> Promise<[TokenBatchOperation]> {
+        //Local copies so we don't access the wrong ones during async operation
+        let account = account
+        let server = server
+        let tokensDatastore = tokensDatastore
+
         return firstly {
-            addUnknownErc1155ContractsToDatabase(contractsTokenIdsAndValue: contractsTokenIdsAndValue.tokens, tokens: tokens)
-        }.then { (contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues) -> Promise<[TokenIdMetaData]> in
-            self.fetchErc1155NonFungibleJsons(contractsTokenIdsAndValue: contractsTokenIdsAndValue, tokens: tokens)
-        }.then { (results: [TokenIdMetaData]) -> Promise<Void> in
-            self.updateErc1155TokenIdBalancesInDatabase(tokenIdsData: results, tokens: tokens)
+            Erc1155TokenIdsFetcher(address: account.address, server: server).detectContractsAndTokenIds()
+        }.then { contractsAndTokenIds in
+            self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens, tokens: tokens)
+        }.then { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
+            self.fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens).map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0)}
+        }.then { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]) -> Promise<[TokenBatchOperation]> in
+            let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractsAndTokenIds.mapValues { tokenIds -> [BigInt] in
+                tokenIds.compactMap { BigInt($0) }
+            }
+            let promises = contractsToTokenIds.map { contract, tokenIds in
+                Erc1155BalanceFetcher(address: account.address, server: server).fetch(contract: contract, tokenIds: Set(tokenIds)).map { (contract: contract, balances: $0 )}
+            }
+            return firstly {
+                when(fulfilled: promises)
+            }.map { (contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])]) in
+                var contractToTokenIds: [AlphaWallet.Address: [NonFungibleFromTokenUri]] = .init()
+                for each in tokenIdMetaDatas {
+                    guard let data = each.json.data(using: .utf8) else { continue }
+                    guard let nonFungible = nonFungible(fromJsonData: data, tokenType: .erc1155) as? NonFungibleFromTokenUri else { continue }
+                    var nonFungibles = contractToTokenIds[each.contract] ?? .init()
+                    nonFungibles.append(nonFungible)
+                    contractToTokenIds[each.contract] = nonFungibles
+                }
+                return functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToTokenIds, contractsAndBalances: contractsAndBalances)
+            }.map { contractToOpenSeaNonFungiblesWithUpdatedBalances in
+                functional.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToOpenSeaNonFungiblesWithUpdatedBalances as [AlphaWallet.Address: [NonFungibleFromTokenUri]], server: server, tokens: tokens, tokensDatastore: tokensDatastore)
+            }
         }
         //TODO log error remotely
     }
 
-    private func addUnknownErc1155ContractsToDatabase(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken]) -> Promise<Erc1155TokenIds.ContractsTokenIdsAndValues> {
+    private func addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokens: [Activity.AssignedToken]) -> Promise<Erc1155TokenIds.ContractsAndTokenIds> {
         let tokensDatastore = self.tokensDatastore
         return firstly {
-            functional.fetchUnknownErc1155ContractsDetails(contractsTokenIdsAndValue: contractsTokenIdsAndValue, tokens: tokens, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
-        }.then(on: .main, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsTokenIdsAndValues> in
-            let (promise, seal) = Promise<Erc1155TokenIds.ContractsTokenIdsAndValues>.pending()
+            functional.fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
+        }.then(on: .main, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
+            let (promise, seal) = Promise<Erc1155TokenIds.ContractsAndTokenIds>.pending()
             tokensDatastore.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
-            seal.fulfill(contractsTokenIdsAndValue)
+            seal.fulfill(contractsAndTokenIds)
             return promise
         })
     }
 
-    private func fetchErc1155NonFungibleJsons(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken]) -> Promise<[TokenIdMetaData]> {
+    private func fetchErc1155NonFungibleJsons(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokens: [Activity.AssignedToken]) -> Promise<[TokenIdMetaData]> {
         var allGuarantees: [Guarantee<TokenIdMetaData>] = .init()
-        for (contract, tokenIdsAndValues) in contractsTokenIdsAndValue {
-            let guarantees: [Guarantee<TokenIdMetaData>] = tokenIdsAndValues.map { tokenId, value -> Guarantee<TokenIdMetaData> in
-                fetchNonFungibleJson(forTokenId: String(tokenId), address: contract, tokens: tokens).map { jsonString -> TokenIdMetaData in
-                    (contract: contract, tokenId: tokenId, json: jsonString, value: value)
+        for (contract, tokenIds) in contractsAndTokenIds {
+            let guarantees: [Guarantee<TokenIdMetaData>] = tokenIds.map { tokenId -> Guarantee<TokenIdMetaData> in
+                fetchNonFungibleJson(forTokenId: String(tokenId), tokenType: .erc1155, address: contract, tokens: tokens).map { jsonString -> TokenIdMetaData in
+                    return (contract: contract, tokenId: tokenId, json: jsonString)
                 }
             }
             allGuarantees.append(contentsOf: guarantees)
@@ -305,82 +325,22 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         return when(fulfilled: allGuarantees)
     }
 
-    private func updateErc1155TokenIdBalancesInDatabase(tokenIdsData: [TokenIdMetaData], tokens: [Activity.AssignedToken]) -> Promise<Void> {
-        let (promise, seal) = Promise<Void>.pending()
-
-        var contractsTokenIdsAndValue: [AlphaWallet.Address: [BigUInt: String]] = .init()
-        for (contract, tokenId, json, value) in tokenIdsData {
-            var tokenIdsAndValue: [BigUInt: String] = contractsTokenIdsAndValue[contract] ?? .init()
-            tokenIdsAndValue[tokenId] = json
-            contractsTokenIdsAndValue[contract] = tokenIdsAndValue
-        }
-        for (contract, tokenIdsAndJsons) in contractsTokenIdsAndValue {
-            guard let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else {
-                assertImpossibleCodePath(message: "ERC1155 contract: \(contract.eip55String) not found in database when setting balance for 1155")
-                return promise
-            }
-            let jsons: [String] = Array(tokenIdsAndJsons.values)
-            tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(jsons))
-            tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .type(.erc1155))
-        }
-
-        seal.fulfill(())
-        return promise
-    }
-
     //Misnomer, we call this "nonFungible", but this includes ERC1155 which can contain (semi-)fungibles, but there's no better name
-    private func fetchNonFungibleJson(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
+    private func fetchNonFungibleJson(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
         firstly {
             Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
         }.then(on: queue, {
-            self.fetchTokenJson(forTokenId: tokenId, uri: $0, address: address, tokens: tokens)
+            self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, tokens: tokens)
         }).recover(on: queue, { _ in
-            return self.generateTokenJsonFallback(forTokenId: tokenId, address: address, tokens: tokens)
+            return self.generateTokenJsonFallback(forTokenId: tokenId, tokenType: tokenType, address: address, tokens: tokens)
         })
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [TokenObject]) -> Promise<String> {
-        struct Error: Swift.Error {
-        }
-        let uri = originalUri.rewrittenIfIpfs
-        return firstly {
-            //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
-        }.map(on: queue, { data, _ in
-            if let json = try? JSON(data: data) {
-                if json["error"] == "Internal Server Error" {
-                    throw Error()
-                } else {
-                    var jsonDictionary = json
-                    if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                        //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
-                        jsonDictionary["tokenId"] = JSON(tokenId)
-                        jsonDictionary["tokenType"] = JSON(TokensDataStore.functional.nonFungibleTokenType(fromTokenType: tokenObject.type).rawValue)
-                        jsonDictionary["contractName"] = JSON(tokenObject.name)
-                        jsonDictionary["symbol"] = JSON(tokenObject.symbol)
-                        jsonDictionary["name"] = JSON(jsonDictionary["name"].stringValue)
-                        jsonDictionary["imageUrl"] = JSON(jsonDictionary["image"].string ?? jsonDictionary["image_url"].string ?? "")
-                        jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
-                        //POAP tokens (https://blockscout.com/xdai/mainnet/address/0x22C1f6050E56d2876009903609a2cC3fEf83B415/transactions), eg. https://api.poap.xyz/metadata/2503/278569, use `home_url` as the key for what they should use `external_url` for and they use `external_url` to point back to the token URI
-                        jsonDictionary["externalLink"] = JSON(jsonDictionary["home_url"].string ?? jsonDictionary["external_url"].string ?? "")
-                    }
-                    if let jsonString = jsonDictionary.rawString() {
-                        return jsonString
-                    } else {
-                        throw Error()
-                    }
-                }
-            } else {
-                throw Error()
-            }
-        })
-    }
-
-    private func generateTokenJsonFallback(forTokenId tokenId: String, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
+    private func generateTokenJsonFallback(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
         var jsonDictionary = JSON()
         if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
             jsonDictionary["tokenId"] = JSON(tokenId)
-            jsonDictionary["tokenType"] = JSON(TokensDataStore.functional.nonFungibleTokenType(fromTokenType: tokenObject.type).rawValue)
+            jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
             jsonDictionary["contractName"] = JSON(tokenObject.name)
             jsonDictionary["decimals"] = JSON(0)
             jsonDictionary["symbol"] = JSON(tokenObject.symbol)
@@ -392,7 +352,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         return .value(jsonDictionary.rawString()!)
     }
 
-    private func fetchTokenJson(forTokenId tokenId: String, uri originalUri: URL, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<String> {
+    private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<String> {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
@@ -406,7 +366,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 } else {
                     var jsonDictionary = json
                     if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
-                        jsonDictionary["tokenType"] = JSON(TokensDataStore.functional.nonFungibleTokenType(fromTokenType: tokenObject.type).rawValue)
+                        jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
                         //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
                         jsonDictionary["contractName"] = JSON(tokenObject.name)
                         jsonDictionary["symbol"] = JSON(tokenObject.symbol)
@@ -431,58 +391,39 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]], tokens: [Activity.AssignedToken]) -> Promise<[TokenBatchOperation]> {
-        return Promise<[TokenBatchOperation]> { seal in
-            var actions: [TokenBatchOperation] = []
-            for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
-                var listOfJson = [String]()
-                var anyNonFungible: OpenSeaNonFungible?
-                for each in openSeaNonFungibles {
-                    if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                        anyNonFungible = each
-                        listOfJson.append(jsonString)
-                    } else {
-                        //no op
-                    }
-                }
-                let tokenType: TokenType
-                if let anyNonFungible = anyNonFungible {
-                    tokenType = anyNonFungible.tokenType.asTokenType
-                } else {
-                    //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
-                    tokenType = .erc721
-                }
+        let erc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.tokenType == .erc1155 }
+        //All non-ERC1155 to be defensive
+        let nonErc1155ContractToOpenSeaNonFungibles = contractToOpenSeaNonFungibles.filter { $0.value.randomElement()?.tokenType != .erc1155 }
 
-                if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
-                    switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets, .erc1155:
-                        break
-                    case .erc20:
-                        tokensDatastore.update(primaryKey: tokenObject.primaryKey, action: .type(tokenType))
-                        actions += [.update(tokenObject: tokenObject, action: .type(tokenType))]
-                    }
-                    actions += [.update(tokenObject: tokenObject, action: .nonFungibleBalance(listOfJson))]
-                    if let anyNonFungible = anyNonFungible {
-                        actions += [.update(tokenObject: tokenObject, action: .name(anyNonFungible.contractName))]
-                    }
-                } else {
-                    let token = ERCToken(
-                            contract: contract,
-                            server: server,
-                            name: openSeaNonFungibles[0].contractName,
-                            symbol: openSeaNonFungibles[0].symbol,
-                            decimals: 0,
-                            type: tokenType,
-                            balance: listOfJson
-                    )
-
-                    actions += [.add(token, shouldUpdateBalance: tokenType.shouldUpdateBalanceWhenDetected)]
-                }
+        func _buildErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> Promise<[TokenBatchOperation]> {
+            let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractToOpenSeaNonFungibles.mapValues { openSeaNonFungibles -> [BigInt] in
+                openSeaNonFungibles.compactMap { BigInt($0.tokenId) }
             }
+            //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
+            let promises = contractsToTokenIds.map { contract, tokenIds in
+                Erc1155BalanceFetcher(address: account.address, server: server).fetch(contract: contract, tokenIds: Set(tokenIds)).map { (contract: contract, balances: $0 )}
+            }
+            return firstly {
+                when(fulfilled: promises)
+            }.map { (contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])]) in
+                functional.fillErc1155NonFungiblesWithBalance(contractToNonFungibles: contractToOpenSeaNonFungibles, contractsAndBalances: contractsAndBalances)
+            }.map { contractToOpenSeaNonFungiblesWithUpdatedBalances in
+                functional.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToOpenSeaNonFungiblesWithUpdatedBalances, server: self.server, tokens: tokens, tokensDatastore: self.tokensDatastore)
+            }
+        }
 
-            seal.fulfill(actions)
+        func _buildNonErc1155Updater(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]]) -> [TokenBatchOperation] {
+            functional.buildUpdateNonFungiblesBalanceActions(contractToNonFungibles: contractToOpenSeaNonFungibles, server: server, tokens: tokens, tokensDatastore: tokensDatastore)
+        }
+
+        return firstly {
+            _buildErc1155Updater(contractToOpenSeaNonFungibles: erc1155ContractToOpenSeaNonFungibles)
+        }.map {
+            $0 + _buildNonErc1155Updater(contractToOpenSeaNonFungibles: nonErc1155ContractToOpenSeaNonFungibles)
         }
     }
 
+    ///For development only
     func writeJsonForTransactions(toUrl url: URL) {
         guard let transactionStorage = erc721TokenIdsFetcher as? TransactionsStorage else { return }
         transactionStorage.writeJsonForTransactions(toUrl: url)
@@ -494,14 +435,12 @@ extension PrivateBalanceFetcher {
 }
 
 fileprivate extension PrivateBalanceFetcher.functional {
-    static func fetchUnknownErc1155ContractsDetails(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken], server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> Promise<[ERCToken]> {
-        let contractsToAdd: [AlphaWallet.Address] = contractsTokenIdsAndValue.keys.filter { contract in
-            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract) })
+    static func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokens: [Activity.AssignedToken], server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> Promise<[ERCToken]> {
+        let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { contract in
+            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract)})
         }
 
-        guard !contractsToAdd.isEmpty else {
-            return Promise<[ERCToken]>.value(.init())
-        }
+        guard !contractsToAdd.isEmpty else { return Promise<[ERCToken]>.value(.init()) }
 
         let (promise, seal) = Promise<[ERCToken]>.pending()
 
@@ -543,6 +482,68 @@ fileprivate extension PrivateBalanceFetcher.functional {
             }
         }
         return promise
+    }
+
+    static func buildUpdateNonFungiblesBalanceActions<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [T]], server: RPCServer, tokens: [Activity.AssignedToken], tokensDatastore: TokensDataStore) -> [PrivateBalanceFetcher.TokenBatchOperation] {
+        var actions: [PrivateBalanceFetcher.TokenBatchOperation] = []
+        for (contract, nonFungibles) in contractToNonFungibles {
+            var listOfJson = [String]()
+            var anyNonFungible: T?
+            for each in nonFungibles {
+                if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                    anyNonFungible = each
+                    listOfJson.append(jsonString)
+                } else {
+                    //no op
+                }
+            }
+            let tokenType: TokenType
+            if let anyNonFungible = anyNonFungible {
+                tokenType = anyNonFungible.tokenType.asTokenType
+            } else {
+                //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
+                tokenType = .erc721
+            }
+            if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
+                actions += [
+                    .update(tokenObject: tokenObject, action: .type(tokenType)),
+                    .update(tokenObject: tokenObject, action: .nonFungibleBalance(listOfJson)),
+                ]
+                if let anyNonFungible = anyNonFungible {
+                    actions += [.update(tokenObject: tokenObject, action: .name(anyNonFungible.contractName))]
+                }
+            } else {
+                let token = ERCToken(
+                        contract: contract,
+                        server: server,
+                        name: nonFungibles[0].contractName,
+                        symbol: nonFungibles[0].symbol,
+                        decimals: 0,
+                        type: tokenType,
+                        balance: listOfJson
+                )
+
+                actions += [.add(token, shouldUpdateBalance: tokenType.shouldUpdateBalanceWhenDetected)]
+            }
+        }
+        return actions
+    }
+
+    static func fillErc1155NonFungiblesWithBalance<T: NonFungibleFromJson>(contractToNonFungibles: [AlphaWallet.Address: [T]], contractsAndBalances: [(contract: AlphaWallet.Address, balances: [BigInt: BigUInt])]) -> [AlphaWallet.Address: [T]] {
+        let contractsAndBalances = Dictionary(uniqueKeysWithValues: contractsAndBalances)
+        let contractToNonFungiblesWithUpdatedBalances: [AlphaWallet.Address: [T]] = Dictionary(uniqueKeysWithValues: contractToNonFungibles.map { contract, nonFungibles in
+            let nonFungiblesWithUpdatedBalance = nonFungibles.map { each -> T in
+                if let tokenId = BigInt(each.tokenId), let balances = contractsAndBalances[contract], let value = balances[tokenId] {
+                    var tokenWithBalance = each
+                    tokenWithBalance.value = BigInt(value)
+                    return tokenWithBalance
+                } else {
+                    return each
+                }
+            }
+            return (contract, nonFungiblesWithUpdatedBalance)
+        })
+        return contractToNonFungiblesWithUpdatedBalances
     }
 }
 // swiftlint:enable type_body_length

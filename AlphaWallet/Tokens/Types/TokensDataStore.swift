@@ -472,7 +472,7 @@ class TokensDataStore: NSObject {
 
         return result
     }
-} 
+}
 // swiftlint:enable type_body_length
 
 extension TokenObject {
@@ -497,4 +497,4 @@ extension TokensDataStore.functional {
         }
     }
 }
-// swiftlint:enable file_length 
+// swiftlint:enable file_length

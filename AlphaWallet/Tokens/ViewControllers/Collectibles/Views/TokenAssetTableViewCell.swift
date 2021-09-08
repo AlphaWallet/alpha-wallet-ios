@@ -8,7 +8,7 @@
 import UIKit
 
 class SimplifiedTokenCardRowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView {
-    
+
     var checkboxImageView: UIImageView = UIImageView()
     var stateLabel: UILabel = UILabel()
     var tokenView: TokenView

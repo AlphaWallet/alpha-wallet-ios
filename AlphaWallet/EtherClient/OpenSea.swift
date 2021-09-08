@@ -2,6 +2,7 @@
 
 import Foundation
 import Alamofire
+import BigInt
 import PromiseKit
 import Result
 import SwiftyJSON
@@ -134,6 +135,14 @@ class OpenSea {
                 let contractName = each["asset_contract"]["name"].stringValue
                 //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
                 let decimals = each["decimals"].intValue
+                let value: BigInt
+                switch tokenType {
+                case .erc721:
+                    value = 1
+                case .erc1155:
+                    //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract
+                    value = 0
+                }
                 let symbol = each["asset_contract"]["symbol"].stringValue
                 let name = each["name"].stringValue
                 let description = each["description"].stringValue
@@ -155,7 +164,7 @@ class OpenSea {
                     traits.append(trait)
                 }
                 if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
-                    let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                    let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, value: value, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
                     if var list = results[contract] {
                         list.append(cat)
                         results[contract] = list
