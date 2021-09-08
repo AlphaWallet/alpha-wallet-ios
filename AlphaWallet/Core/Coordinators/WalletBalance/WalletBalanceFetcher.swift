@@ -134,7 +134,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         case .erc20:
             let balance = ERC20Balance(tokenObject: tokenObject)
             return ERC20BalanceViewModel(server: tokenObject.server, balance: balance, ticker: ticker)
-        case .erc875, .erc721, .erc721ForTickets:
+        case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return nil
         }
     }

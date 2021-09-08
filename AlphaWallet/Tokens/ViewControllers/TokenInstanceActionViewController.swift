@@ -37,7 +37,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             return true
         case .erc20:
             return true
-        case .erc721:
+        case .erc721, .erc1155:
             return false
         case .erc875:
             return false

@@ -35,7 +35,7 @@ extension TokenObject {
             if let img = server.iconImage {
                 return .init((image: img, symbol: "", isFinal: true))
             }
-        case .erc20, .erc875, .erc721, .erc721ForTickets:
+        case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
             if let img = contractAddress.tokenImage {
                 return .init((image: img, symbol: "", isFinal: true))
             }
@@ -116,7 +116,7 @@ class TokenImageFetcher {
         Promise { seal in
             queue.async {
                 switch type {
-                case .erc721:
+                case .erc721, .erc1155:
                     if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data), !openSeaNonFungible.contractImageUrl.isEmpty {
                         let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
                         fetch(request: request, queue: queue).done(on: queue, { image in

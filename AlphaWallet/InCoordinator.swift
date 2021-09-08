@@ -839,6 +839,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
+        Erc1155TokenIdsFetcher.deleteForWallet(account.address)
         TransactionsStorage.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
     }
 
@@ -941,7 +942,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
         switch transactionType {
-        case .nativeCryptocurrency(let token, _, _), .ERC20Token(let token, _, _), .ERC875Token(let token), .ERC721Token(let token):
+        case .nativeCryptocurrency(let token, _, _), .ERC20Token(let token, _, _), .ERC875Token(let token), .ERC721Token(let token), .ERC1155Token(let token):
             if shouldSwitchServer {
                 open(url: url, onServer: token.server)
             } else {

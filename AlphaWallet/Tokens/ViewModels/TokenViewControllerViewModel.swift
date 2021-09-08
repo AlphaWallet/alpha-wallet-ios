@@ -20,7 +20,7 @@ struct TokenViewControllerViewModel {
             return TokensDataStore.etherToken(forServer: session.server)
         case .ERC20Token(let token, _, _):
             return token
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -38,6 +38,8 @@ struct TokenViewControllerViewModel {
             case .erc721:
                 return []
             case .erc721ForTickets:
+                return []
+            case .erc1155:
                 return []
             case .erc20:
                 let actions: [TokenInstanceAction] = [
@@ -60,7 +62,7 @@ struct TokenViewControllerViewModel {
             }
         } else {
             switch token.type {
-            case .erc875, .erc721, .erc721ForTickets:
+            case .erc875, .erc721, .erc721ForTickets, .erc1155:
                 return actionsFromTokenScript
             case .erc20:
                 return actionsFromTokenScript + tokenActionsProvider.actions(token: key)
@@ -106,7 +108,7 @@ struct TokenViewControllerViewModel {
             return session.balanceCoordinator.ethBalanceViewModel.value
         case .ERC20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }

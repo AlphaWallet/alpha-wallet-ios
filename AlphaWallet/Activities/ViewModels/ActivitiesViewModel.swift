@@ -266,12 +266,12 @@ extension ActivitiesViewModel.functional {
         if transactionRow.operation == nil {
             erc20TokenOperation = .nativeCryptoTransfer(TokensDataStore.etherToken(forServer: transactionRow.server))
         } else {
+            //Explicitly listing out combinations so future changes to enums will be caught by compiler
             switch (transactionRow.state, transactionRow.operation?.operationType) {
-            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer):
+            case (.pending, .nativeCurrencyTokenTransfer), (.pending, .erc20TokenTransfer), (.pending, .erc721TokenTransfer), (.pending, .erc875TokenTransfer), (.pending, .erc1155TokenTransfer):
                 erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { cache.tokenObject(address: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingTransfer($0) }
-            case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer):
+            case (.completed, .nativeCurrencyTokenTransfer), (.completed, .erc20TokenTransfer), (.completed, .erc721TokenTransfer), (.completed, .erc875TokenTransfer), (.completed, .erc1155TokenTransfer):
                 erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { cache.tokenObject(address: $0, server: transactionRow.server) }.flatMap { TokenOperation.completedTransfer($0) }
-                    //Explicitly listing out combinations so future changes to enums will be caught by compiler
             case (.pending, .erc20TokenApprove):
                 erc20TokenOperation = transactionRow.operation?.contractAddress.flatMap { cache.tokenObject(address: $0, server: transactionRow.server) }.flatMap { TokenOperation.pendingErc20Approval($0) }
             case (.completed, .erc20TokenApprove):

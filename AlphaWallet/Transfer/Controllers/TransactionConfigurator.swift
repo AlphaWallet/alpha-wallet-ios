@@ -99,7 +99,7 @@ class TransactionConfigurator {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .tokenScript, .claimPaidErc875MagicLink:
             return transaction.contract
         }
     }
@@ -113,6 +113,7 @@ class TransactionConfigurator {
         case .ERC875TokenOrder: return transaction.value
         case .ERC721Token: return 0
         case .ERC721ForTicketToken: return 0
+        case .ERC1155Token: return 0
         case .tokenScript: return transaction.value
         case .claimPaidErc875MagicLink: return transaction.value
         }
@@ -370,7 +371,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC721Token(let token), .ERC721ForTicketToken(let token):
+            case .ERC721Token(let token), .ERC721ForTicketToken(let token), .ERC1155Token(let token):
                 let function: Function
                 let parameters: [Any]
 

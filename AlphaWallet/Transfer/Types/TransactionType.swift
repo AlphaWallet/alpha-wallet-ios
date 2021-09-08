@@ -18,6 +18,8 @@ enum TransactionType {
                 return .ERC721Token(token)
             case .erc721ForTickets:
                 return .ERC721ForTicketToken(token)
+            case .erc1155:
+                return .ERC1155Token(token)
             }
         }()
     }
@@ -28,6 +30,7 @@ enum TransactionType {
     case ERC875TokenOrder(TokenObject)
     case ERC721Token(TokenObject)
     case ERC721ForTicketToken(TokenObject)
+    case ERC1155Token(TokenObject)
     case dapp(TokenObject, DAppRequester)
     case claimPaidErc875MagicLink(TokenObject)
     case tokenScript(TokenObject)
@@ -38,7 +41,7 @@ enum TransactionType {
             return nil
         case .ERC20Token(let token, _, _):
             return token.contractAddress
-        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .claimPaidErc875MagicLink:
+        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -66,6 +69,8 @@ extension TransactionType {
             return token.symbol
         case .ERC721ForTicketToken(let token):
             return token.symbol
+        case .ERC1155Token(let token):
+            return token.symbol
         case .claimPaidErc875MagicLink(let token):
             return token.symbol
         }
@@ -86,6 +91,8 @@ extension TransactionType {
         case .ERC721Token(let token):
             return token
         case .ERC721ForTicketToken(let token):
+            return token
+        case .ERC1155Token(let token):
             return token
         case .claimPaidErc875MagicLink(let token):
             return token
@@ -108,6 +115,8 @@ extension TransactionType {
             return token.server
         case .ERC721ForTicketToken(let token):
             return token.server
+        case .ERC1155Token(let token):
+            return token.server
         case .claimPaidErc875MagicLink(let token):
             return token.server
         }
@@ -126,6 +135,8 @@ extension TransactionType {
         case .ERC721Token(let token):
             return token.contractAddress
         case .ERC721ForTicketToken(let token):
+            return token.contractAddress
+        case .ERC1155Token(let token):
             return token.contractAddress
         case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress

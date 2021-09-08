@@ -32,7 +32,7 @@ class FilterTokensCoordinator {
         case .assetsOnly:
             filteredTokens = tokens.filter { $0.type != .nativeCryptocurrency && $0.type != .erc20 }
         case .collectiblesOnly:
-            filteredTokens = tokens.filter { $0.type == .erc721 && !$0.balance.isEmpty }
+            filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balance.isEmpty }
         case .keyword(let keyword):
             let lowercasedKeyword = keyword.trimmed.lowercased()
             if lowercasedKeyword.isEmpty {
@@ -45,6 +45,8 @@ class FilterTokensCoordinator {
                         return $0.type == .erc721
                     } else if lowercasedKeyword == "erc875" || lowercasedKeyword == "erc 875" {
                         return $0.type == .erc875
+                    } else if lowercasedKeyword == "erc1155" || lowercasedKeyword == "erc 1155" {
+                        return $0.type == .erc1155
                     } else if lowercasedKeyword == "tokenscript" {
                         let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
@@ -64,7 +66,7 @@ class FilterTokensCoordinator {
 
         return filteredTokens
     }
-    
+
     func filterTokens(tokens: [PopularToken], walletTokens: [TokenObject], filter: WalletFilter) -> [PopularToken] {
         var filteredTokens: [PopularToken] = tokens.filter { token in
             !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty

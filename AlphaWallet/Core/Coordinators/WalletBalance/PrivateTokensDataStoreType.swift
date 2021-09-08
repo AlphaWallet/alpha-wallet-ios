@@ -16,9 +16,9 @@ protocol PrivateTokensDatastoreType {
     var enabledObjects: Results<TokenObject> { get }
     var tokenObjects: [Activity.AssignedToken] { get }
 
-    func addOrUpdateErc271(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken], completion: @escaping () -> Void)
-    func addCustom(token: ERCToken, completion: @escaping () -> Void)
-    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void)
+    func addOrUpdateOpenSeaNonFungible(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken], completion: @escaping () -> Void)
+    func addCustom(token: ERCToken, shouldUpdateBalance: Bool, completion: @escaping () -> Void)
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool, completion: @escaping () -> Void)
     func update(primaryKey: String, action: PrivateTokensDatastore.TokenUpdateAction, completion: @escaping (Bool?) -> Void)
     func tokenObject(contract: AlphaWallet.Address) -> TokenObject?
 }
@@ -67,7 +67,7 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
         case type(TokenType)
     }
 
-    func addOrUpdateErc271(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken], completion: @escaping () -> Void) {
+    func addOrUpdateOpenSeaNonFungible(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken], completion: @escaping () -> Void) {
         var listOfJson = [String]()
         var anyNonFungible: OpenSeaNonFungible?
         for each in openSeaNonFungibles {
@@ -78,16 +78,23 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
                 //no op
             }
         }
+        let tokenType: TokenType
+        if let anyNonFungible = anyNonFungible {
+            tokenType = anyNonFungible.tokenType.asTokenType
+        } else {
+            //Default to ERC721 because this is what we supported (from OpenSea) before adding ERC1155 support
+            tokenType = .erc721
+        }
 
         if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
             let group = DispatchGroup()
 
             switch tokenObject.type {
-            case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
+            case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets, .erc1155:
                 break
             case .erc20:
                 group.enter()
-                update(primaryKey: tokenObject.primaryKey, action: .type(.erc721)) { _ in
+                update(primaryKey: tokenObject.primaryKey, action: .type(tokenType)) { _ in
                     group.leave()
                 }
             }
@@ -114,14 +121,14 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
                     name: openSeaNonFungibles[0].contractName,
                     symbol: openSeaNonFungibles[0].symbol,
                     decimals: 0,
-                    type: .erc721,
+                    type: tokenType,
                     balance: listOfJson
             )
-
-            addCustom(token: token, completion: completion)
+            addCustom(token: token, shouldUpdateBalance: tokenType.shouldUpdateBalanceWhenDetected, completion: completion)
         }
     }
-    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void) {
+
+    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool, completion: @escaping () -> Void) {
         backgroundQueue.async {
             let backgroundRealm = self.realm.threadSafe
             let newTokens: [TokenObject] = tokens.map { token in
@@ -135,8 +142,10 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
                         isCustom: true,
                         type: token.type
                 )
-                token.balance.forEach { balance in
-                    newToken.balance.append(TokenBalance(balance: balance))
+                if shouldUpdateBalance {
+                    token.balance.forEach { balance in
+                        newToken.balance.append(TokenBalance(balance: balance))
+                    }
                 }
 
                 if let object = backgroundRealm.object(ofType: TokenObject.self, forPrimaryKey: newToken.primaryKey) {
@@ -157,8 +166,8 @@ class PrivateTokensDatastore: PrivateTokensDatastoreType {
         }
     }
 
-    func addCustom(token: ERCToken, completion: @escaping () -> Void) {
-        addCustom(tokens: [token], completion: completion)
+    func addCustom(token: ERCToken, shouldUpdateBalance: Bool, completion: @escaping () -> Void) {
+        addCustom(tokens: [token], shouldUpdateBalance: shouldUpdateBalance, completion: completion)
     }
 
     func update(primaryKey: String, action: TokenUpdateAction, completion: @escaping (Bool?) -> Void) {

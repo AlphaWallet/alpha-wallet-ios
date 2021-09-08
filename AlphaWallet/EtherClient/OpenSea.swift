@@ -124,9 +124,11 @@ class OpenSea {
                 var results = sum
                 for (_, each): (String, JSON) in json["assets"] {
                     let type = each["asset_contract"]["schema_name"].stringValue
-                    guard type == "ERC721" else { continue }
+                    guard let tokenType = NonFungibleFromJsonTokenType(rawString: type) else { continue }
                     let tokenId = each["token_id"].stringValue
                     let contractName = each["asset_contract"]["name"].stringValue
+                    //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
+                    let decimals = each["decimals"].intValue
                     let symbol = each["asset_contract"]["symbol"].stringValue
                     let name = each["name"].stringValue
                     let description = each["description"].stringValue
@@ -148,7 +150,7 @@ class OpenSea {
                         traits.append(trait)
                     }
                     if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
-                        let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                        let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
                         if var list = results[contract] {
                             list.append(cat)
                             results[contract] = list

@@ -152,6 +152,8 @@ extension TransactionInstance {
             return .erc721TokenTransfer
         case (.erc875, _):
             return .erc875TokenTransfer
+        case (.erc1155, _):
+            return .erc1155TokenTransfer
         case (.erc20, .nativeCryptoTransfer), (.erc20, .others):
             return .unknown
         }
