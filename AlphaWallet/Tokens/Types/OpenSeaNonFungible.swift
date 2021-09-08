@@ -9,7 +9,9 @@ struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
     public static let cooldownIndexTraitName = "cooldown_index"
 
     let tokenId: String
+    let tokenType: NonFungibleFromJsonTokenType
     let contractName: String
+    let decimals: Int
     let symbol: String
     let name: String
     let description: String
@@ -32,4 +34,30 @@ struct OpenSeaNonFungibleTrait: Codable {
 
 struct OpenSeaError: Error {
     var localizedDescription: String
+}
+
+struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
+    //Not every token might used the same name. This is just common in OpenSea
+    public static let generationTraitName = "generation"
+    public static let cooldownIndexTraitName = "cooldown_index"
+
+    let tokenId: String
+    let contractName: String
+    let symbol: String
+    let name: String
+    let description: String
+    let thumbnailUrl: String
+    let imageUrl: String
+    let contractImageUrl: String
+    let externalLink: String
+    let backgroundColor: String?
+    let traits: [OpenSeaNonFungibleTrait]
+    var generationTrait: OpenSeaNonFungibleTrait? {
+        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
+    }
+
+    var asPostErc1155Support: NonFungibleFromJson {
+        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: .erc721, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+        return result
+    }
 }

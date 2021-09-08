@@ -69,7 +69,7 @@ extension Activity {
             case .erc20, .nativeCryptocurrency:
                 let fullValue = EtherNumberFormatter.plain.string(from: tokenObject.valueBigInt, decimals: decimals)
                 balance = .value(fullValue.optionalDecimalValue)
-            case .erc721, .erc721ForTickets, .erc875:
+            case .erc721, .erc721ForTickets, .erc875, .erc1155:
                 balance = .nftBalance(.init(value: tokenObject.balance.count))
             }
         }
@@ -123,9 +123,9 @@ extension Activity {
             }
         }
 
-        var isERC721AndNotForTickets: Bool {
+        var isERC721Or1155AndNotForTickets: Bool {
             switch type {
-            case .erc721:
+            case .erc721, .erc1155:
                 return true
             case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
                 return false
@@ -259,9 +259,9 @@ class TokenObject: Object {
         }
     }
 
-    var isERC721AndNotForTickets: Bool {
+    var isERC721Or1155AndNotForTickets: Bool {
         switch type {
-        case .erc721:
+        case .erc721, .erc1155:
             return true
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return false
@@ -285,7 +285,7 @@ func isZeroBalance(_ balance: String, tokenType: TokenType) -> Bool {
             return true
         }
         return false
-    case .erc721, .erc721ForTickets:
+    case .erc721, .erc721ForTickets, .erc1155:
         return balance.isEmpty
     }
 }

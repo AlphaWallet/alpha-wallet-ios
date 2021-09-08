@@ -243,7 +243,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
@@ -273,7 +273,7 @@ class SendViewController: UIViewController {
             isAllFunds = true
 
             amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -291,7 +291,7 @@ class SendViewController: UIViewController {
             let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -304,7 +304,7 @@ class SendViewController: UIViewController {
         switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             checkIfGreaterThanZero = false
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token:
             checkIfGreaterThanZero = true
         }
 
@@ -354,7 +354,7 @@ class SendViewController: UIViewController {
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,. ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -415,7 +415,7 @@ class SendViewController: UIViewController {
                                 type: .erc20,
                                 balance: ["0"]
                         )
-                        self.storage.addCustom(token: token)
+                        self.storage.addCustom(token: token, shouldUpdateBalance: true)
                         self.configureFor(contract: contract, recipient: recipient, amount: amount)
                         self.activateAmountView()
                     case .delegateTokenComplete:
@@ -449,7 +449,7 @@ class SendViewController: UIViewController {
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,. ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }

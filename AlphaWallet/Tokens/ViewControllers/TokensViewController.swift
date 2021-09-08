@@ -31,7 +31,7 @@ class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    
+
     private var viewModel: TokensViewModel {
         didSet {
             viewModel.walletConnectSessions = oldValue.walletConnectSessions
@@ -534,7 +534,7 @@ extension TokensViewController: UITableViewDataSource {
                         ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
-                case .erc721, .erc721ForTickets:
+                case .erc721, .erc721ForTickets, .erc1155:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                     cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
                     return cell

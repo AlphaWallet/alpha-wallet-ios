@@ -38,6 +38,8 @@ struct SendViewModel {
             return token
         case .ERC721ForTicketToken(let token):
             return token
+        case .ERC1155Token(let token):
+            return token
         case .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
@@ -69,7 +71,7 @@ struct SendViewModel {
                 return true
             } 
             return false
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return true
         }
     }
@@ -78,7 +80,7 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency, .ERC20Token:
             return false
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return true
         }
     }
@@ -90,7 +92,7 @@ struct SendViewModel {
         case .ERC20Token(let token, _, _):
             let value = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC1155Token, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
 
@@ -104,7 +106,7 @@ struct SendViewModel {
         case .ERC20Token(let token, _, _):
             let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt
             return tokenBalance == nil
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
         return true
@@ -125,6 +127,8 @@ struct SendViewModel {
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .ERC721ForTicketToken(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC1155Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
 
@@ -141,7 +145,7 @@ struct SendViewModel {
             if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
                 return nil
             }
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
 

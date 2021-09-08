@@ -8,6 +8,7 @@ enum OperationType: String {
     case erc20TokenApprove
     case erc721TokenTransfer
     case erc875TokenTransfer
+    case erc1155TokenTransfer
     case unknown
 
     init(string: String) {
@@ -16,7 +17,7 @@ enum OperationType: String {
 
     var isTransfer: Bool {
         switch self {
-        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
+        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer, .erc1155TokenTransfer:
             return true
         case .erc20TokenApprove:
             return false
@@ -27,7 +28,7 @@ enum OperationType: String {
 
     var isSend: Bool {
         switch self {
-        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
+        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer, .erc1155TokenTransfer:
             return true
         case .erc20TokenApprove:
             return false

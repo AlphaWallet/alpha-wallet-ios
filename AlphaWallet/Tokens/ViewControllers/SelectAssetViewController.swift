@@ -167,7 +167,7 @@ extension SelectAssetViewController: UITableViewDataSource {
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 
             return cell
-        case .erc721, .erc721ForTickets, .erc875:
+        case .erc721, .erc721ForTickets, .erc875, .erc1155:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)

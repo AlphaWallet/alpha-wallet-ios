@@ -531,6 +531,8 @@ private class PrivateXMLHandler {
             } else {
                 actions = [.nftSell, .nonFungibleTransfer]
             }
+        case .erc1155:
+            actions = [.nonFungibleTransfer]
         }
         return actions.map { .init(type: $0) }
     }
@@ -552,6 +554,8 @@ private class PrivateXMLHandler {
             } else {
                 actions = [.nftSell, .nonFungibleTransfer]
             }
+        case .erc1155:
+            actions = [.nonFungibleTransfer]
         }
         return actions.map { .init(type: $0) }
     }

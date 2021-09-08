@@ -8,6 +8,7 @@ enum TokenType: String {
     case erc875 = "ERC875"
     case erc721 = "ERC721"
     case erc721ForTickets = "ERC721ForTickets"
+    case erc1155 = "ERC1155"
 
     init(tokenInterfaceType: TokenInterfaceType) {
         switch tokenInterfaceType {
@@ -17,6 +18,18 @@ enum TokenType: String {
             self = .erc721
         case .erc875:
             self = .erc875
+        case .erc1155:
+            self = .erc1155
+        }
+    }
+
+    //Leaky abstraction. We shouldn't update the balance if it is ERC1155, because we are just setting a dummy value to signal completion of token data detection
+    var shouldUpdateBalanceWhenDetected: Bool {
+        switch self {
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721, .erc721ForTickets:
+            return true
+        case .erc1155:
+            return false
         }
     }
 }

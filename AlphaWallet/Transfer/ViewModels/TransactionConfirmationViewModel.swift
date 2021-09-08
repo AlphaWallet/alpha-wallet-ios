@@ -218,7 +218,7 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return "\(amount.value) \(token.symbol)"
                 }
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,  .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
         }
