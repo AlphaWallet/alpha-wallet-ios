@@ -1,11 +1,13 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
+import BigInt
 
 //Shape of this originally created to match OpenSea's API output
 protocol NonFungibleFromJson: Codable {
     var tokenId: String { get }
     var tokenType: NonFungibleFromJsonTokenType { get }
+    var value: BigInt { get set }
     var contractName: String { get }
     var decimals: Int { get }
     var symbol: String { get }
@@ -20,7 +22,7 @@ protocol NonFungibleFromJson: Codable {
     var generationTrait: OpenSeaNonFungibleTrait? { get }
 }
 
-func nonFungible(fromJsonData jsonData: Data) -> NonFungibleFromJson? {
+func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {
     if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: jsonData) {
         return nonFungible
     }
@@ -28,12 +30,13 @@ func nonFungible(fromJsonData jsonData: Data) -> NonFungibleFromJson? {
         return nonFungible
     }
 
-    //Parse JSON strings which were saved before we added support for ERC1155. So they are all ERC721s with missing fields
+    let nonFungibleTokenType = tokenType.flatMap { TokensDataStore.functional.nonFungibleTokenType(fromTokenType: $0) }
+    //Parse JSON strings which were saved before we added support for ERC1155. So they are might be ERC721s with missing fields
     if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungibleBeforeErc1155Support.self, from: jsonData) {
-        return nonFungible.asPostErc1155Support
+        return nonFungible.asPostErc1155Support(tokenType: nonFungibleTokenType)
     }
     if let nonFungible = try? JSONDecoder().decode(NonFungibleFromTokenUriBeforeErc1155Support.self, from: jsonData) {
-        return nonFungible.asPostErc1155Support
+        return nonFungible.asPostErc1155Support(tokenType: nonFungibleTokenType)
     }
 
     return nil

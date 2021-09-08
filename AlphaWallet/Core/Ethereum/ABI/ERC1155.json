@@ -63,5 +63,27 @@
     ],
     "type" : "event",
     "anonymous" : false
+  },
+
+  {
+    "name" : "balanceOfBatch",
+    "constant": true,
+    "type" : "function",
+    "inputs" : [
+      {
+        "type" : "address[]",
+        "name" : "_owners"
+      },
+      {
+        "type" : "uint256[]",
+        "name" : "_ids"
+      },
+    ],
+    "outputs" : [
+      {
+        "type" : "uint256[]",
+        "name" : ""
+      }
+    ]
   }
 ]

@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import BigInt
 
 //Some fields are duplicated across token IDs within the same contract like the contractName, symbol, contractImageUrl, etc. The space savings in the database aren't work the normalization
 struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
@@ -10,6 +11,7 @@ struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
 
     let tokenId: String
     let tokenType: NonFungibleFromJsonTokenType
+    var value: BigInt
     let contractName: String
     let decimals: Int
     let symbol: String
@@ -56,8 +58,8 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
         return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
     }
 
-    var asPostErc1155Support: NonFungibleFromJson {
-        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: .erc721, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+    func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
+        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
         return result
     }
 }
