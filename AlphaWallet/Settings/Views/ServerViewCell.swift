@@ -11,7 +11,11 @@ class ServerTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        let stackView = [.spacerWidth(Table.Metric.plainLeftMargin), nameLabel].asStackView(axis: .horizontal)
+        let stackView = [
+            .spacer(height: 20),
+            nameLabel,
+            .spacer(height: 20),
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(topSeparator)
@@ -21,9 +25,7 @@ class ServerTableViewCell: UITableViewCell {
             topSeparator.topAnchor.constraint(equalTo: contentView.topAnchor),
             topSeparator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             topSeparator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: StyleLayout.sideMargin, bottom: 7, right: StyleLayout.sideMargin)),
-            stackView.heightAnchor.constraint(equalToConstant: 44),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: StyleLayout.sideMargin, bottom: 0, right: StyleLayout.sideMargin)),
         ])
     }
 
@@ -37,7 +39,9 @@ class ServerTableViewCell: UITableViewCell {
 
         accessoryType = viewModel.accessoryType
         topSeparator.isHidden = viewModel.isTopSeparatorHidden
+        nameLabel.textAlignment = .left
         nameLabel.font = viewModel.serverFont
+        nameLabel.textColor = viewModel.serverColor
         nameLabel.text = viewModel.serverName
     }
 }

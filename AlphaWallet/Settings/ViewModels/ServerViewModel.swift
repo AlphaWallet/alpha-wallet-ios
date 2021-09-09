@@ -9,6 +9,7 @@ protocol ServerTableViewCellViewModelType {
     var backgroundColor: UIColor { get }
     var serverFont: UIFont { get }
     var serverName: String { get }
+    var serverColor: UIColor { get }
     var selectionStyle: UITableViewCell.SelectionStyle { get set }
 }
 
@@ -40,7 +41,7 @@ struct ServerViewModel: ServerTableViewCellViewModelType {
     var backgroundColor: UIColor = Colors.appBackground
 
     var serverFont: UIFont = Fonts.regular(size: 17)
-
+    var serverColor: UIColor = Colors.black
     var serverName: String {
         return server.displayName
     }
@@ -57,9 +58,9 @@ struct TokenListServerTableViewCellViewModel: ServerTableViewCellViewModelType {
     }
 
     var accessoryType: UITableViewCell.AccessoryType = LocaleViewCell.selectionAccessoryType.unselected
-    var backgroundColor: UIColor = GroupedTable.Color.background
-    var serverFont: UIFont = Fonts.regular(size: 17)
-
+    var backgroundColor: UIColor = R.color.alabaster()!
+    var serverFont: UIFont = Fonts.semibold(size: 15)
+    var serverColor: UIColor = R.color.dove()!
     var serverName: String {
         return server.displayName.uppercased()
     }
