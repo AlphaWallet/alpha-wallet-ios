@@ -117,8 +117,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             guard let strongSelf = self else { return }
 
             for (key, each) in strongSelf.cache.values {
-                guard let tokensDatastore = strongSelf.services[safe: key.server] else { continue }
-                guard let tokenObject = tokensDatastore.tokensDataStore.token(forContract: key.address) else { continue }
+                guard let service = strongSelf.services[safe: key.server] else { continue }
+                guard let tokenObject = service.tokensDataStore.token(forContract: key.address) else { continue }
 
                 each.1.value = strongSelf.balanceViewModel(key: tokenObject)
             }
@@ -205,7 +205,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     var balance: WalletBalance {
-        let tokenObjects = services.compactMap { $0.value.0.enabledObject }.flatMap { $0 }.map{ Activity.AssignedToken(tokenObject: $0) }
+        let tokenObjects = services.compactMap { $0.value.0.enabledObject }.flatMap { $0 }.map { Activity.AssignedToken(tokenObject: $0) }
         var balances = Set<Activity.AssignedToken>()
 
         for var tokenObject in tokenObjects {
