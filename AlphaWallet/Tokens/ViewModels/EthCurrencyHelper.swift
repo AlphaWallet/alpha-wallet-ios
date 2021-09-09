@@ -113,7 +113,7 @@ class BalanceHelper {
         case .appreciate:
             return Colors.appHighlightGreen
         case .depreciate:
-            return Colors.appRed
+            return Colors.apprecationRed
         case .none:
             return Colors.appGrayLabel
         }
