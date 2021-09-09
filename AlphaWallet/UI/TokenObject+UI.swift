@@ -98,6 +98,12 @@ class TokenImageFetcher {
 
         queue.async {
             let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
+            DispatchQueue.main.async {
+                if subscribable.value == nil {
+                    subscribable.value = generatedImage
+                }
+            }
+
             Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
                 subscribable.value = (image: $0, symbol: "", isFinal: true)
             }).catch(on: queue) { _ in
