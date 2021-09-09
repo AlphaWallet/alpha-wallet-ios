@@ -43,8 +43,8 @@ class TokensViewController: UIViewController {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
-    lazy private var tableViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
-    lazy private var collectiblesCollectionViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
+    lazy private var tableViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
+    lazy private var collectiblesCollectionViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.register(FungibleTokenViewCell.self)
