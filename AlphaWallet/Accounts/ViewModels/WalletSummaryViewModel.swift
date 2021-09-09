@@ -61,7 +61,7 @@ extension WalletSummaryViewModel {
         static func todaysApprecationColorAndStringValuePair(summary: WalletSummary?) -> (String, UIColor) {
             let valueChangeValue: String = {
                 if let value = summary?.changeDouble {
-                    return NumberFormatter.usd.string(from: value) ?? "-"
+                    return NumberFormatter.usd(format: .priceChangeFormat).string(from: value) ?? "-"
                 } else {
                     return "-"
                 }
@@ -70,7 +70,7 @@ extension WalletSummaryViewModel {
             var valuePercentageChangeValue: String {
                 switch BalanceHelper().change24h(from: summary?.changePercentage) {
                 case .appreciate(let percentageChange24h):
-                    return "(+ \(percentageChange24h)%)"
+                    return "(+\(percentageChange24h)%)"
                 case .depreciate(let percentageChange24h):
                     return "(\(percentageChange24h)%)"
                 case .none:

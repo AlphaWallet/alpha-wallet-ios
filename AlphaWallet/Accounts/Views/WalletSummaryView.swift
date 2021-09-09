@@ -11,7 +11,7 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
     private let apprecation24HoursLabel = UILabel()
     private let balanceLabel = UILabel()
 
-    var viewModel: WalletSummaryViewModel?
+    private (set) var viewModel: WalletSummaryViewModel?
     var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey?
 
     init(edgeInsets: UIEdgeInsets = .init(top: 20, left: 20, bottom: 20, right: 0), spacing: CGFloat = 0) {
