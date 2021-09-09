@@ -295,10 +295,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func fetchErc1155NonFungibleJsons(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken]) -> Promise<[TokenIdMetaData]> {
         var allGuarantees: [Guarantee<TokenIdMetaData>] = .init()
         for (contract, tokenIdsAndValues) in contractsTokenIdsAndValue {
-            let tokenIds = tokenIdsAndValues.keys
-            let guarantees: [Guarantee<TokenIdMetaData>] = tokenIds.map { tokenId -> Guarantee<TokenIdMetaData> in
+            let guarantees: [Guarantee<TokenIdMetaData>] = tokenIdsAndValues.map { tokenId, value -> Guarantee<TokenIdMetaData> in
                 fetchNonFungibleJson(forTokenId: String(tokenId), address: contract, tokens: tokens).map { jsonString -> TokenIdMetaData in
-                    (contract: contract, tokenId: tokenId, json: jsonString, value: tokenIdsAndValues[tokenId]!)
+                    (contract: contract, tokenId: tokenId, json: jsonString, value: value)
                 }
             }
             allGuarantees.append(contentsOf: guarantees)
