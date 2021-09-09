@@ -52,7 +52,7 @@ class TokensViewController: UIViewController {
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.register(ServerTableViewCell.self)
 
-        tableView.registerHeaderFooterView(TableViewSectionHeader.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<SegmentedControl>.self)
         tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
@@ -172,7 +172,7 @@ class TokensViewController: UIViewController {
             }
         }
     }
-    private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: -10)
+    private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
     private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
     private let walletSummarySubscription: Subscribable<WalletBalance>
 
@@ -468,8 +468,9 @@ extension TokensViewController: UITableViewDelegate {
 
             return header
         case .filters:
-            let header: TableViewSectionHeader = tableView.dequeueReusableHeaderFooterView()
-            header.filterView = tableViewFilterView
+            let header: TokensViewController.GeneralTableViewSectionHeader<SegmentedControl> = tableView.dequeueReusableHeaderFooterView()
+            header.subview = tableViewFilterView
+            header.useSeparatorLine = false
 
             return header
         case .addHideToken:

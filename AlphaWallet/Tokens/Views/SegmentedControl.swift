@@ -17,7 +17,7 @@ extension SegmentedControl {
     }
 }
 
-class SegmentedControl: UIView {
+class SegmentedControl: UIView, ReusableTableHeaderViewType {
     enum Alignment {
         case left
         case right

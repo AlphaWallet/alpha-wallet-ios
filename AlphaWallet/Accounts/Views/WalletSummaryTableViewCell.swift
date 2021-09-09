@@ -8,10 +8,7 @@
 import UIKit
 
 class WalletSummaryTableViewCell: UITableViewCell {
-    var viewModel: WalletSummaryViewModel? {
-        get { summaryView.viewModel }
-        set { summaryView.viewModel = newValue }
-    }
+    var viewModel: WalletSummaryViewModel? { summaryView.viewModel }
 
     var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey? {
         get { summaryView.walletSummarySubscriptionKey }
@@ -36,8 +33,6 @@ class WalletSummaryTableViewCell: UITableViewCell {
     }
 
     func configure(viewModel: WalletSummaryViewModel) {
-        self.viewModel = viewModel
-
         backgroundColor = viewModel.backgroundColor
         summaryView.configure(viewModel: viewModel)
 
