@@ -76,17 +76,22 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     }
 
     func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: PaymentFlow) {
-        switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            break
-        case .erc721, .erc1155:
-            //TODO is this check still necessary?
-            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-            case .backedByOpenSea:
+        switch (type, session.account.type) {
+        case (.send, .real), (.request, _):
+            switch token.type {
+            case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
                 break
-            case .notBackedByOpenSea:
-                isReadOnly = true
+            case .erc721, .erc1155:
+                //TODO is this check still necessary?
+                switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+                case .backedByOpenSea:
+                    break
+                case .notBackedByOpenSea:
+                    isReadOnly = true
+                }
             }
+        case (.send, .watch):
+            isReadOnly = true
         }
     }
 
