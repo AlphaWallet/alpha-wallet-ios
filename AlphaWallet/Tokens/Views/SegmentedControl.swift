@@ -7,7 +7,6 @@ protocol SegmentedControlDelegate: AnyObject {
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl)
 }
 
-
 class SegmentedControl: UIView {
     enum Alignment {
         case left

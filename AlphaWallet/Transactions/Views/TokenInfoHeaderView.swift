@@ -32,13 +32,13 @@ class TokenInfoHeaderView: UIView {
         return label
     }()
 
-    init() {
+    init(edgeInsets: UIEdgeInsets = .init(top: 15, left: 10, bottom: 20, right: 0)) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.anchorsConstraint(to: self, edgeInsets: .init(top: 15, left: 10, bottom: 20, right: 0))
+            label.anchorsConstraint(to: self, edgeInsets: edgeInsets)
         ])
     }
 

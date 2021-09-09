@@ -16,7 +16,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private var viewModel: TokenInstanceViewModel
-    private let tokensStorage: TokensDataStore
     private let account: Wallet
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
@@ -52,11 +51,10 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         }
     }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokenObject = tokenObject
         self.account = account
-        self.tokensStorage = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = .init(token: tokenObject, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         super.init(nibName: nil, bundle: nil)
@@ -91,7 +89,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-
+            stackView.bottomAnchor.constraint(greaterThanOrEqualTo: footerBar.topAnchor),
             footerBar.anchorsConstraint(to: view),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -130,7 +128,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }
         }
 
-        tokenRowView.configure(tokenHolder: tokenHolder, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
+        tokenRowView.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
     }
 
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
@@ -150,41 +148,38 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transactionType), in: self)
     }
 
-    private func handle(action: TokenInstanceAction) {
-        switch action.type {
-        case .erc20Send, .erc20Receive, .swap, .xDaiBridge, .buy:
-            //TODO when we support TokenScript views for ERC20s, we need to perform the action here
-            break
-        case .nftRedeem:
-            redeem()
-        case .nftSell:
-            sell()
-        case .nonFungibleTransfer:
-            transfer()
-        case .tokenScript:
-            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                if let denialMessage = selection.denial {
-                    UIAlertController.alert(
-                            title: nil,
-                            message: denialMessage,
-                            alertButtonTitles: [R.string.localizable.oK()],
-                            alertButtonStyles: [.default],
-                            viewController: self,
-                            completion: nil
-                    )
-                } else {
-                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                }
-            } else {
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-            }
-        }
-    }
-
     @objc func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            handle(action: action)
+            switch action.type {
+            case .erc20Send, .erc20Receive, .swap, .xDaiBridge, .buy:
+                //TODO when we support TokenScript views for ERC20s, we need to perform the action here
+                break
+            case .nftRedeem:
+                redeem()
+            case .nftSell:
+                sell()
+            case .nonFungibleTransfer:
+                transfer()
+            case .tokenScript:
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                    if let denialMessage = selection.denial {
+                        UIAlertController.alert(
+                                title: nil,
+                                message: denialMessage,
+                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonStyles: [.default],
+                                viewController: self,
+                                completion: nil
+                        )
+                    } else {
+                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    }
+                } else {
+                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                }
+            }
+
             break
         }
     }

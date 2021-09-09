@@ -73,6 +73,21 @@ class TokensCardCoordinator: NSObject, Coordinator {
         refreshUponEthereumEventChanges()
     }
 
+    func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(type: PaymentFlow) {
+        switch token.type {
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+            break
+        case .erc721, .erc1155:
+            //TODO is this check still necessary?
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+            case .backedByOpenSea:
+                break
+            case .notBackedByOpenSea:
+                isReadOnly = true
+            }
+        }
+    }
+
     private func refreshUponEthereumEventChanges() {
         eventsDataStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
@@ -380,6 +395,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 }
             }
         }
+
         viewController.present(vc, animated: true)
     }
 
@@ -398,7 +414,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func showTokenInstanceViewController(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
-        let vc = TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, account: session.account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore)
+        let vc = TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, account: session.account, assetDefinitionStore: assetDefinitionStore)
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never

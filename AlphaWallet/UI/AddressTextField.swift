@@ -46,7 +46,8 @@ class AddressTextField: UIControl {
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
-
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        
         return button
     }()
 
@@ -58,7 +59,7 @@ class AddressTextField: UIControl {
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
-
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         return button
     }()
 
@@ -183,6 +184,20 @@ class AddressTextField: UIControl {
         return stackView
     }
 
+    func defaultLayout(edgeInsets: UIEdgeInsets) -> UIView {
+        [
+            .spacerWidth(edgeInsets.left),
+            [
+                .spacer(height: edgeInsets.top),
+                label,
+                .spacer(height: 4),
+                defaultLayout(),
+                .spacer(height: edgeInsets.bottom),
+            ].asStackView(axis: .vertical),
+            .spacerWidth(edgeInsets.right)
+        ].asStackView(axis: .horizontal)
+    }
+
     @objc private func textDidChangeNotification(_ notification: Notification) {
         guard textField == notification.object as? UITextField, let text = textField.text else {
             return
@@ -246,7 +261,7 @@ class AddressTextField: UIControl {
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
         scanQRCodeButton.clipsToBounds = false
         scanQRCodeButton.layer.masksToBounds = false
-
+        scanQRCodeButton.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         targetAddressRightView.clipsToBounds = false
         targetAddressRightView.layer.masksToBounds = false

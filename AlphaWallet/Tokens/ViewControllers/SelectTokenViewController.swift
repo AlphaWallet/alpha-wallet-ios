@@ -1,5 +1,5 @@
 //
-//  SelectAssetCoordinator.swift
+//  SelectTokenCoordinator.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 17.07.2020.
@@ -8,13 +8,13 @@
 import UIKit
 import StatefulViewController
 
-protocol SelectAssetViewControllerDelegate: AnyObject {
-    func controller(_ controller: SelectAssetViewController, didSelectToken token: TokenObject)
-    func controller(_ controller: SelectAssetViewController, didCancelSelected sender: UIBarButtonItem)
+protocol SelectTokenViewControllerDelegate: AnyObject {
+    func controller(_ controller: SelectTokenViewController, didSelectToken token: TokenObject)
+    func controller(_ controller: SelectTokenViewController, didCancelSelected sender: UIBarButtonItem)
 }
 
-class SelectAssetViewController: UIViewController {
-    private lazy var viewModel = SelectAssetViewModel(
+class SelectTokenViewController: UIViewController {
+    private lazy var viewModel = SelectTokenViewModel(
         filterTokensCoordinator: filterTokensCoordinator,
         tokens: [],
         filter: filter
@@ -41,7 +41,7 @@ class SelectAssetViewController: UIViewController {
         return tableView
     }()
 
-    weak var delegate: SelectAssetViewControllerDelegate?
+    weak var delegate: SelectTokenViewControllerDelegate?
 
     override func loadView() {
         view = tableView
@@ -93,7 +93,7 @@ class SelectAssetViewController: UIViewController {
         return nil
     }
 
-    private func configure(viewModel: SelectAssetViewModel) {
+    private func configure(viewModel: SelectTokenViewModel) {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
@@ -120,14 +120,14 @@ class SelectAssetViewController: UIViewController {
     }
 }
 
-extension SelectAssetViewController: StatefulViewController {
+extension SelectTokenViewController: StatefulViewController {
     //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
         return true
     }
 }
 
-extension SelectAssetViewController: UITableViewDelegate {
+extension SelectTokenViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -139,7 +139,7 @@ extension SelectAssetViewController: UITableViewDelegate {
     }
 }
 
-extension SelectAssetViewController: UITableViewDataSource {
+extension SelectTokenViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row)

@@ -91,7 +91,7 @@ public class OrderHandler {
 
     private func bulkSignOrders(messages: [Data], account: AlphaWallet.Address, orders: [Order]) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
-        let signatures = try! keystore.signMessageBulk(messages, for: account).dematerialize()
+        let signatures = try keystore.signMessageBulk(messages, for: account).dematerialize()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
                     order: orders[i],

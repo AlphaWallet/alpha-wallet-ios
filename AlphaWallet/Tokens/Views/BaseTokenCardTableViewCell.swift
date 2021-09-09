@@ -56,7 +56,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         contentView.backgroundColor = GroupedTable.Color.background
 
         rowView?.tokenView = viewModel.tokenView
-        rowView?.configure(tokenHolder: viewModel.tokenHolder, tokenView: viewModel.tokenView, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth, assetDefinitionStore: assetDefinitionStore)
+        rowView?.configure(tokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenHolder.tokenId, tokenView: viewModel.tokenView, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth, assetDefinitionStore: assetDefinitionStore)
 
         if showCheckbox() {
             rowView?.checkboxImageView.image = viewModel.checkboxImage
