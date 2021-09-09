@@ -3,6 +3,7 @@
 @testable import AlphaWallet
 
 class FakeActivitiesService: ActivitiesServiceType {
+    var sessions: ServerDictionary<WalletSession> { .make() }
     var subscribableViewModel: Subscribable<ActivitiesViewModel> { .init(nil) }
     var subscribableUpdatedActivity: Subscribable<Activity> { .init(nil) }
 

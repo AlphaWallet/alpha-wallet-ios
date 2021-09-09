@@ -7,15 +7,15 @@ import Kingfisher
 class FungibleTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let apprecation24hoursLabel = UILabel()
+    private let apprecation24hoursView = ApprecationView()
     private let priceChangeLabel = UILabel()
     private let fiatValueLabel = UILabel()
     private let cryptoValueLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, apprecation24hoursLabel, priceChangeLabel]
+        [titleLabel, apprecation24hoursView, priceChangeLabel]
     }
 
-    private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursLabel].asStackView(spacing: 5)
+    private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursView].asStackView(spacing: 5)
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -30,17 +30,17 @@ class FungibleTokenViewCell: UITableViewCell {
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
-        apprecation24hoursLabel.textAlignment = .center
         priceChangeLabel.textAlignment = .center
         fiatValueLabel.textAlignment = .center
         fiatValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         fiatValueLabel.setContentHuggingPriority(.required, for: .horizontal)
 
         let col0 = tokenIconImageView
+        let row1 = [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5, alignment: .center)
         let col1 = [
             [titleLabel, UIView.spacerWidth(flexible: true), fiatValueLabel].asStackView(spacing: 5),
-            [cryptoValueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
-        ].asStackView(axis: .vertical, spacing: 2)
+            row1
+        ].asStackView(axis: .vertical)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
@@ -48,7 +48,8 @@ class FungibleTokenViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
+            row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 20, bottom: 16, right: 12)),
             background.anchorsConstraint(to: contentView)
         ])
     }
@@ -70,10 +71,9 @@ class FungibleTokenViewCell: UITableViewCell {
         cryptoValueLabel.attributedText = viewModel.cryptoValueAttributedString
         cryptoValueLabel.baselineAdjustment = .alignCenters
 
-        apprecation24hoursLabel.attributedText = viewModel.apprecation24hoursAttributedString
-        apprecation24hoursLabel.backgroundColor = viewModel.apprecation24hoursBackgroundColor
+        apprecation24hoursView.configure(viewModel: viewModel.apprecationViewModel)
 
-        priceChangeLabel.attributedText = viewModel.priceChangeUSDAttributedString
+        priceChangeLabel.attributedText = viewModel.priceChangeUSDValueAttributedString
 
         fiatValueLabel.attributedText = viewModel.fiatValueAttributedString
 

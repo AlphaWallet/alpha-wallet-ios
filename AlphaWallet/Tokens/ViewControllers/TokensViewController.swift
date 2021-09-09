@@ -521,7 +521,7 @@ extension TokensViewController: UITableViewDataSource {
                     cell.configure(viewModel: .init(
                         token: token,
                         ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer),
-                        currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmount,
+                        currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmountWithoutSymbol,
                         assetDefinitionStore: assetDefinitionStore
                     ))
 

@@ -60,6 +60,14 @@ extension UIView {
             bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -edgeInsets.bottom),
         ]
     }
+    func anchorsConstraintGreaterThanOrEqualTo(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
+        return [
+            leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: edgeInsets.left),
+            trailingAnchor.constraint(greaterThanOrEqualTo: view.trailingAnchor, constant: -edgeInsets.right),
+            topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: edgeInsets.top),
+            bottomAnchor.constraint(greaterThanOrEqualTo: view.bottomAnchor, constant: -edgeInsets.bottom),
+        ]
+    }
 
     func anchorsConstraint(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
         return [

@@ -14,14 +14,16 @@ class BlockchainTagLabel: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    private var heightConstraint: NSLayoutConstraint!
 
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
-
+        heightConstraint = heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight)
+        
         NSLayoutConstraint.activate([
-            label.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
+            heightConstraint,
             label.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 10, bottom: 0, right: 10)),
         ])
     }
@@ -34,6 +36,11 @@ class BlockchainTagLabel: UIView {
         backgroundColor = viewModel.blockChainNameBackgroundColor
         layer.cornerRadius = viewModel.blockChainNameCornerRadius
         isHidden = viewModel.blockChainNameLabelHidden
+        if isHidden {
+            NSLayoutConstraint.deactivate([heightConstraint])
+        } else {
+            NSLayoutConstraint.activate([heightConstraint])
+        }
 
         label.textAlignment = viewModel.blockChainNameTextAlignment
         label.textColor = viewModel.blockChainNameColor

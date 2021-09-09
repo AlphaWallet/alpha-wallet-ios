@@ -7,14 +7,14 @@ import BigInt
 struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
-    private let currencyAmount: String?
+    private let currencyAmount: Double?
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     init(
         token: TokenObject,
         ticker: CoinTicker?,
-        currencyAmount: String?,
+        currencyAmount: Double?,
         assetDefinitionStore: AssetDefinitionStore,
         isVisible: Bool = true
     ) {
@@ -30,7 +30,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private var title: String {
-        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        return token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     var backgroundColor: UIColor {
@@ -55,50 +55,54 @@ struct EthTokenViewCellViewModel {
         ])
     }
 
-    func cryptoValueAttributedString(amount: String) -> NSAttributedString {
-        return NSAttributedString(string: amount + " " + token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore), attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
-        ])
-    }
-
     private var valuePercentageChangeColor: UIColor {
         return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
     }
 
-    var apprecation24hoursBackgroundColor: UIColor {
+    private var apprecation24hoursBackgroundColor: UIColor {
         valuePercentageChangeColor.withAlphaComponent(0.07)
     }
 
-    var apprecation24hoursAttributedString: NSAttributedString {
-        return NSAttributedString(string: " " + valuePercentageChangeValue + " ", attributes: [
+    private var apprecation24hoursImage: UIImage? {
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate:
+            return R.image.price_up()
+        case .depreciate:
+            return R.image.price_down()
+        case .none:
+            return .none
+        }
+    }
+
+    private var apprecation24hoursAttributedString: NSAttributedString {
+        let valuePercentageChangeValue: String = {
+            switch EthCurrencyHelper(ticker: ticker).change24h {
+            case .appreciate(let percentageChange24h):
+                return "\(percentageChange24h)%"
+            case .depreciate(let percentageChange24h):
+                return "\(percentageChange24h)%"
+            case .none:
+                return "-"
+            }
+        }()
+
+        return NSAttributedString(string: valuePercentageChangeValue, attributes: [
             .foregroundColor: valuePercentageChangeColor,
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
     }
 
-    private var valuePercentageChangeValue: String {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate(let percentageChange24h):
-            return "▲ \(percentageChange24h)%"
-        case .depreciate(let percentageChange24h):
-            return "▼ \(percentageChange24h)%"
-        case .none:
-            return "-"
-        }
-    }
-
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd.string(from: result) ?? "-"
+            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? "-"
         } else {
             return "-"
         }
     }
 
-    var priceChangeUSDAttributedString: NSAttributedString {
+    var priceChangeUSDValueAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChangeUSDValue, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.valueChangeLabel,
+            .foregroundColor: valuePercentageChangeColor,
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
     }
@@ -107,7 +111,7 @@ struct EthTokenViewCellViewModel {
         if token.server.isTestnet {
             return nil
         } else {
-            return currencyAmount
+            return currencyAmount.flatMap { NumberFormatter.usd(format: .fiatFormat).string(from: $0) ?? "-" }
         }
     }
 
@@ -128,13 +132,6 @@ struct EthTokenViewCellViewModel {
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
         return .init(server: token.server)
-    }
-
-    func priceChangeUSDAttributedString(ticker: CoinTicker?) -> NSAttributedString {
-        return NSAttributedString(string: priceChangeUSDValue, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.valueChangeLabel,
-            .font: Screen.TokenCard.Font.valueChangeLabel
-        ])
     }
 
     private func amountAccordingRPCServer(currencyAmount: String?) -> String? {
@@ -169,6 +166,10 @@ struct EthTokenViewCellViewModel {
             .foregroundColor: valuePercentageChangeColor,
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
+    }
+
+    var apprecationViewModel: ApprecationViewModel {
+        .init(icon: apprecation24hoursImage, valueAttributedString: apprecation24hoursAttributedString, backgroundColor: apprecation24hoursBackgroundColor)
     }
 
     private func valuePercentageChangeColor(ticker: CoinTicker?) -> UIColor {
