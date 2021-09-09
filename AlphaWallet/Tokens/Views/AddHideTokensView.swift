@@ -65,7 +65,7 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
 
         NSLayoutConstraint.activate([
             addTokenButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            addTokenButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            addTokenButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             badgeIndicatorView.widthAnchor.constraint(greaterThanOrEqualTo: badgeIndicatorView.heightAnchor),
             badgeIndicatorView.centerXAnchor.constraint(equalTo: addTokenButton.trailingAnchor, constant: -2),
             badgeIndicatorView.centerYAnchor.constraint(equalTo: addTokenButton.topAnchor),
@@ -79,8 +79,7 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
     }
 
     func configure(viewModel: ShowAddHideTokensViewModel = .init()) {
-        contentView.backgroundColor = R.color.alabaster()
-        addTokenButton.setImage(viewModel.addHideTokensIcon, for: .normal)
+        contentView.backgroundColor = viewModel.backgroundColor
         addTokenButton.setTitle(viewModel.addHideTokensTitle, for: .normal)
         addTokenButton.setTitleColor(viewModel.addHideTokensTintColor, for: .normal)
         addTokenButton.titleLabel?.font = viewModel.addHideTokensTintFont
