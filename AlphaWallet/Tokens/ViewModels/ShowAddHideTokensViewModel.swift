@@ -8,10 +8,6 @@
 import UIKit
 
 struct ShowAddHideTokensViewModel {
-    var addHideTokensIcon: UIImage? {
-        R.image.add_hide_tokens()
-    }
-
     var addHideTokensTitle: String? {
         R.string.localizable.walletsAddHideTokensTitle()
     }
@@ -27,6 +23,8 @@ struct ShowAddHideTokensViewModel {
     var badgeBackgroundColor: UIColor? {
         R.color.radical()
     }
+
+    var backgroundColor: UIColor = Colors.appWhite
 
     var badgeText: String?
 }

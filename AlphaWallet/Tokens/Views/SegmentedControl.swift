@@ -7,6 +7,16 @@ protocol SegmentedControlDelegate: AnyObject {
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl)
 }
 
+extension SegmentedControl {
+    static func tokensSegmentControl(titles: [String]) -> SegmentedControl {
+        let isNarrowScreen = ScreenChecker().isNarrowScreen
+        let spacing: CGFloat = isNarrowScreen ? 30 : 40
+        let inset: CGFloat = isNarrowScreen ? 7 : 20
+
+        return .init(titles: titles, segmentConfiguration: .init(spacing: spacing, selectionIndicatorInsets: .init(top: 0, left: inset, bottom: 0, right: inset), selectionBarHeight: 3, barHeight: 1))
+    }
+}
+
 class SegmentedControl: UIView {
     enum Alignment {
         case left
@@ -34,9 +44,18 @@ class SegmentedControl: UIView {
         }
     }
 
-    init(titles: [String], alignment: Alignment = .left, distribution: UIStackView.Distribution = .fill) {
-        self.buttons = SegmentedControl.createButtons(fromTitles: titles)
+    struct SegmentConfiguration {
+        var spacing: CGFloat = 20
+        var selectionIndicatorInsets: UIEdgeInsets = .init(top: 0, left: 7, bottom: 0, right: 7)
+        var selectionBarHeight: CGFloat = 3
+        var barHeight: CGFloat = 1
+    }
 
+    private let segmentConfiguration: SegmentConfiguration
+
+    init(titles: [String], alignment: Alignment = .left, distribution: UIStackView.Distribution = .fill, segmentConfiguration: SegmentConfiguration = .init()) {
+        self.buttons = SegmentedControl.createButtons(fromTitles: titles)
+        self.segmentConfiguration = segmentConfiguration
         super.init(frame: .zero)
 
         backgroundColor = viewModel.backgroundColor
@@ -44,7 +63,7 @@ class SegmentedControl: UIView {
         for each in buttons {
             each.addTarget(self, action: #selector(segmentTapped), for: .touchUpInside)
         }
-        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(distribution: distribution, spacing: 20)
+        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(distribution: distribution, spacing: segmentConfiguration.spacing)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonsStackView)
 
@@ -56,7 +75,7 @@ class SegmentedControl: UIView {
         highlightedBar.translatesAutoresizingMaskIntoConstraints = false
         fullWidthBar.addSubview(highlightedBar)
 
-        let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 2)
+        let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: segmentConfiguration.barHeight)
         barHeightConstraint.priority = .defaultHigh
 
         var contraints: [NSLayoutConstraint] = []
@@ -97,7 +116,7 @@ class SegmentedControl: UIView {
             barHeightConstraint,
             fullWidthBar.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            highlightedBar.heightAnchor.constraint(equalToConstant: 3),
+            highlightedBar.heightAnchor.constraint(equalToConstant: segmentConfiguration.selectionBarHeight),
             highlightedBar.bottomAnchor.constraint(equalTo: fullWidthBar.bottomAnchor),
         ])
 
@@ -119,7 +138,7 @@ class SegmentedControl: UIView {
 
     @objc private func segmentTapped(_ source: UIButton) {
         guard let segment = buttons.firstIndex(of: source).flatMap({ UInt($0) }) else { return }
-        delegate?.didTapSegment(atSelection: .selected(segment), inSegmentedControl: self)
+        delegate.flatMap { $0.didTapSegment(atSelection: .selected(segment), inSegmentedControl: self) }
     }
 
     func configureTitleButtons() {
@@ -141,8 +160,8 @@ class SegmentedControl: UIView {
                 NSLayoutConstraint.deactivate(previousConstraints)
             }
             highlightBarHorizontalConstraints = [
-                highlightedBar.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: -7),
-                highlightedBar.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: 7),
+                highlightedBar.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: -segmentConfiguration.selectionIndicatorInsets.left),
+                highlightedBar.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: segmentConfiguration.selectionIndicatorInsets.right),
             ]
             if let constraints = highlightBarHorizontalConstraints {
                 NSLayoutConstraint.activate(constraints)
