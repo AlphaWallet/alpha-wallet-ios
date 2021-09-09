@@ -139,7 +139,7 @@ class TokensCoordinator: Coordinator {
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, sessions: sessions)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -247,9 +247,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 }
 
-extension TokensCoordinator: SelectAssetCoordinatorDelegate {
+extension TokensCoordinator: SelectTokenCoordinatorDelegate {
 
-    func coordinator(_ coordinator: SelectAssetCoordinator, didSelectToken token: TokenObject) {
+    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: TokenObject) {
         removeCoordinator(coordinator)
 
         switch sendToAddressState {
@@ -262,7 +262,7 @@ extension TokensCoordinator: SelectAssetCoordinatorDelegate {
         }
     }
 
-    func selectAssetDidCancel(in coordinator: SelectAssetCoordinator) {
+    func selectAssetDidCancel(in coordinator: SelectTokenCoordinator) {
         removeCoordinator(coordinator)
     }
 }
@@ -332,7 +332,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     private func handleSendToAddress(_ address: AlphaWallet.Address) {
         sendToAddressState = .pending(address: address)
 
-        let coordinator = SelectAssetCoordinator(
+        let coordinator = SelectTokenCoordinator(
             assetDefinitionStore: assetDefinitionStore,
             sessions: sessions,
             tokenCollection: tokenCollection,

@@ -95,7 +95,7 @@ struct TokenInstanceAction {
     let type: ActionType
 
     //TODO we can live-reload the action view screen now if we observe for changes
-    func viewHtml(forTokenHolder tokenHolder: TokenHolder) -> (html: String, hash: Int) {
+    func viewHtml(forTokenHolder tokenHolder: TokenHolder, tokenId: TokenId) -> (html: String, hash: Int) {
         switch type {
         case .erc20Send, .erc20Receive, .swap, .xDaiBridge, .buy:
             return (html: "", hash: 0)
@@ -124,6 +124,25 @@ struct TokenInstanceAction {
             let tokenHolder = selectedTokenHolders[0]
             let parser = TokenScriptFilterParser(expression: selection.filter)
             let filterExpressionIsTrue = parser.parse(withValues: tokenHolder.values, ownerAddress: walletAddress, symbol: tokenHolder.symbol, fungibleBalance: fungibleBalance)
+            if filterExpressionIsTrue {
+                return selection
+            } else {
+                return nil
+            }
+        }
+    }
+
+    func activeExcludingSelection(selectedTokenHolder tokenHolder: TokenHolder, tokenId: TokenId, forWalletAddress walletAddress: AlphaWallet.Address, fungibleBalance: BigInt? = nil) -> TokenScriptSelection? {
+        switch type {
+        case .erc20Send, .erc20Receive, .swap, .xDaiBridge, .buy:
+            return nil
+        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+            return nil
+        case .tokenScript(_, _, _, _, _, let selection):
+            guard let selection = selection, let values = tokenHolder.values(tokenId: tokenId), let symbol = tokenHolder.symbol(tokenId: tokenId) else { return nil }
+            let parser = TokenScriptFilterParser(expression: selection.filter)
+
+            let filterExpressionIsTrue = parser.parse(withValues: values, ownerAddress: walletAddress, symbol: symbol, fungibleBalance: fungibleBalance)
             if filterExpressionIsTrue {
                 return selection
             } else {

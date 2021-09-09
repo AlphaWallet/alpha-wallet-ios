@@ -64,6 +64,7 @@ enum ButtonsBarConfiguration {
 enum ButtonsBarButtonType {
     case green
     case white
+    case system
 }
 
 class BarButton: TransitionButton {
@@ -92,57 +93,15 @@ class BarButton: TransitionButton {
     }
 }
 
-class ButtonsBarBackgroundView: UIView {
-
-    private let buttonsBar: ButtonsBar
-    private let separatorLine: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.mike()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    private var observation: NSKeyValueObservation?
-
-    init(buttonsBar: ButtonsBar, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets, separatorHeight: CGFloat = DataEntry.Metric.ButtonsBar.separatorHeight) {
-        self.buttonsBar = buttonsBar
-        super.init(frame: .zero)
-
-        addSubview(separatorLine)
-        addSubview(buttonsBar)
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Colors.appWhite
-
-        NSLayoutConstraint.activate([
-            separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separatorLine.topAnchor.constraint(equalTo: topAnchor),
-            separatorLine.heightAnchor.constraint(equalToConstant: separatorHeight),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: edgeInsets.left),
-            buttonsBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -edgeInsets.right),
-            buttonsBar.topAnchor.constraint(equalTo: separatorLine.bottomAnchor, constant: edgeInsets.top),
-            buttonsBar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -edgeInsets.bottom),
-        ])
-
-        observation = buttonsBar.observe(\.buttons) { [weak self] sender, _ in
-            self?.isHidden = sender.buttons.isEmpty
-        }
-    }
-
-    func anchorsConstraint(to view: UIView) -> [NSLayoutConstraint] {
-        return [
-            leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ]
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
+protocol ButtonObservationProtocol: class {
+    func observeButtonUpdates(closure: @escaping (_ sender: ButtonsBarViewType) -> Void)
 }
 
-class ButtonsBar: UIView {
+protocol ButtonsBarViewType: UIView, ButtonObservationProtocol {
+    var buttons: [BarButton] { get }
+}
+
+class ButtonsBar: UIView, ButtonsBarViewType {
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
@@ -203,8 +162,24 @@ class ButtonsBar: UIView {
         didUpdateView(with: configuration)
     }
 
+    private var observation: NSKeyValueObservation?
+
+    func observeButtonUpdates(closure: @escaping (_ sender: ButtonsBarViewType) -> Void) {
+        guard observation == nil else { return }
+
+        observation = observe(\.buttons) { [weak self] _, _ in
+            guard let strongSelf = self else { return }
+
+            closure(strongSelf)
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
         return nil
+    }
+
+    deinit {
+        observation.flatMap { $0.invalidate() }
     }
 
     private func didUpdateView(with configuration: ButtonsBarConfiguration) {
@@ -239,6 +214,9 @@ class ButtonsBar: UIView {
         button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal)
         button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
 
+        viewModel.highlightedButtonBackgroundColor.flatMap { button.setBackgroundColor($0, forState: .highlighted) }
+        viewModel.highlightedButtonTitleColor.flatMap { button.setTitleColor($0, for: .highlighted) }
+
         button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
         button.setBorderColor(viewModel.buttonBorderColor, for: .normal)
@@ -272,8 +250,9 @@ class ButtonsBar: UIView {
 
             view.childView.setContentHuggingPriority(.required, for: .horizontal)
             view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
-            view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
+
             view.childView.setBackgroundImage(R.image.more(), for: .normal)
+            view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
 
             NSLayoutConstraint.activate([
                 view.childView.widthAnchor.constraint(equalTo: view.childView.heightAnchor)
@@ -292,6 +271,8 @@ class ButtonsBar: UIView {
                 setup(viewModel: .greenButton, view: combined.1)
             case .white:
                 setup(viewModel: .whiteButton, view: combined.1)
+            case .system:
+                setup(viewModel: .systemButton, view: combined.1)
             }
         }
 
@@ -368,15 +349,26 @@ struct ButtonsBarViewModel {
         disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3)
     )
 
+    static let systemButton = ButtonsBarViewModel(
+        buttonBackgroundColor: Colors.appWhite,
+        highlightedButtonBackgroundColor: Colors.appWhite,
+        disabledButtonBackgroundColor: Colors.appWhite,
+        disabledButtonBorderColor: Colors.appWhite,
+        highlightedButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
+        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
+        buttonFont: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20),
+        buttonBorderWidth: 0.0
+    )
+
     static let moreButton = ButtonsBarViewModel()
 
     var buttonBackgroundColor: UIColor = Colors.appWhite
-
+    var highlightedButtonBackgroundColor: UIColor?
     var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
     var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
 
     var buttonTitleColor: UIColor = R.color.azure()!
-
+    var highlightedButtonTitleColor: UIColor?
     var disabledButtonTitleColor: UIColor = Colors.appWhite
 
     var buttonCornerRadius: CGFloat {
@@ -399,9 +391,7 @@ struct ButtonsBarViewModel {
         return 2
     }
 
-    var buttonFont: UIFont {
-        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
-    }
+    var buttonFont: UIFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
 
     var buttonBorderColor: UIColor = R.color.azure()!
 

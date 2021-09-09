@@ -18,7 +18,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let targetAddressLabel = UILabel()
     private let targetAddressTextField = AddressTextField()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
-    private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
+    private (set) var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     private var tokenHolder: TokenHolder
     private var paymentFlow: PaymentFlow
 

@@ -135,7 +135,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         button.addTarget(self, action: #selector(proceed), for: .touchUpInside)
 
-        let (html: html, hash: hash) = action.viewHtml(forTokenHolder: tokenHolder)
+        let (html: html, hash: hash) = action.viewHtml(forTokenHolder: tokenHolder, tokenId: tokenHolder.tokenIds[0])
         tokenScriptRendererView.loadHtml(html, hash: hash)
 
         //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated

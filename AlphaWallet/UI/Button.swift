@@ -104,6 +104,7 @@ enum ButtonStyle {
 }
 
 class Button: UIButton {
+    var heightConstraint: NSLayoutConstraint?
 
     init(size: ButtonSize, style: ButtonStyle) {
         super.init(frame: .zero)
@@ -115,9 +116,12 @@ class Button: UIButton {
     }
 
     func apply(size: ButtonSize, style: ButtonStyle) {
-        NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: size.height),
-        ])
+        heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+
+        let constraint = heightAnchor.constraint(equalToConstant: size.height)
+        NSLayoutConstraint.activate([constraint])
+
+        heightConstraint = constraint
 
         backgroundColor = style.backgroundColor
         layer.cornerRadius = style.cornerRadius

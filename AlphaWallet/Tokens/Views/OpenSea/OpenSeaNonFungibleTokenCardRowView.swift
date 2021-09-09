@@ -365,7 +365,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         delegate?.didTapURL(url: url)
     }
 
-    func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
         configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: areDetailsVisible, width: width))
     }
 

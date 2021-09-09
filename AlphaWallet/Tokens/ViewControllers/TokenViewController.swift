@@ -36,35 +36,32 @@ class TokenViewController: UIViewController {
 
         return view
     }()
-    private lazy var activityPageView: ActivityPageView = {
-        let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivityPageView(viewModel: viewModel, sessions: sessions)
-        view.delegate = self
-
-        return view
-    }()
+    private var activitiesPageView: ActivitiesPageView
     private lazy var alertsPageView = AlertsPageView()
-    private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
     private var activitiesSubscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, sessions: ServerDictionary<WalletSession>) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
-        self.sessions = sessions
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
         self.transactionType = transactionType
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
+
+        activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
+
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
+
+        activitiesPageView.delegate = self
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        let containerView = TokenPagesContainerView(pages: [tokenInfoPageView, activityPageView])
+        let containerView = PagesContainerView(pages: [tokenInfoPageView, activitiesPageView])
         roundedBackground.addSubview(containerView)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
@@ -81,8 +78,8 @@ class TokenViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        activitiesSubscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak activityPageView] viewModel in
-            guard let view = activityPageView else { return }
+        activitiesSubscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak activitiesPageView] viewModel in
+            guard let view = activitiesPageView else { return }
 
             view.configure(viewModel: .init(activitiesViewModel: viewModel ?? .init(activities: [])))
         }
@@ -298,12 +295,12 @@ extension TokenViewController: TokenInfoPageViewDelegate {
     }
 }
 
-extension TokenViewController: ActivityPageViewDelegate {
-    func didTap(activity: Activity, in view: ActivityPageView) {
+extension TokenViewController: ActivitiesPageViewDelegate {
+    func didTap(activity: Activity, in view: ActivitiesPageView) {
         delegate?.didTap(activity: activity, inViewController: self)
     }
 
-    func didTap(transaction: TransactionInstance, in view: ActivityPageView) {
+    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
         delegate?.didTap(transaction: transaction, inViewController: self)
     }
 }
@@ -313,4 +310,4 @@ extension TokenViewController {
     private func logStartOnRamp(name: String) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name])
     }
-}
+} 
