@@ -5,10 +5,14 @@ import Foundation
 extension NumberFormatter {
 
     static let currency = Formatter(.currency)
-    static let usd = Formatter(.usd)
+    static let usd = Formatter(.usd(format: .withTrailingCurrency))
     static let percent = Formatter(.percent)
     static let shortCrypto = Formatter(.shortCrypto)
 
+    static func usd(format: USDFormat) -> Formatter {
+        Formatter(.usd(format: format))
+    }
+    
     class Formatter {
         private let formatter: NumberFormatter
 
@@ -22,8 +26,21 @@ extension NumberFormatter {
     }
 }
 
+enum USDFormat {
+    case withTrailingCurrency
+    case withLeadingCurrencySymbol(positiveSymbol: String)
+
+    static var priceChangeFormat: USDFormat {
+        .withLeadingCurrencySymbol(positiveSymbol: "+")
+    }
+
+    static var fiatFormat: USDFormat {
+        .withLeadingCurrencySymbol(positiveSymbol: "")
+    }
+}
+
 private enum NumberFormatterConfiguration {
-    case usd
+    case usd(format: USDFormat)
     case currency
     case percent
     case shortCrypto
@@ -39,9 +56,16 @@ private enum NumberFormatterConfiguration {
         case .currency:
             //TODO support multiple currency values
             formatter.currencyCode = Currency.USD.rawValue
-        case .usd:
-            formatter.positiveFormat = "0.00" + " " + Constants.Currency.usd
-            formatter.negativeFormat = "-0.00" + " " + Constants.Currency.usd
+        case .usd(let format):
+            switch format {
+            case .withTrailingCurrency:
+                formatter.positiveFormat = "0.00" + " " + Constants.Currency.usd
+                formatter.negativeFormat = "-0.00" + " " + Constants.Currency.usd
+            case .withLeadingCurrencySymbol(let positiveSymbol):
+                formatter.positiveFormat = positiveSymbol + "$0.00"
+                formatter.negativeFormat = "-$0.00"
+            }
+
             formatter.currencyCode = String()
         case .percent:
             formatter.positiveFormat = "0.00"

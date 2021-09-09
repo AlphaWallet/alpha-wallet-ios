@@ -66,6 +66,8 @@ struct Colors {
     static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
     static let appLightButtonSeparator = UIColor(red: 255, green: 255, blue: 255, alpha: 0.2)
     static let appRed = UIColor(red: 204, green: 71, blue: 65)
+    static let apprecationRed = UIColor(hex: "ff3b30")
+    static let apprecationGreen = Colors.appHighlightGreen
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
     static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
@@ -270,14 +272,14 @@ enum Screen {
             static let title = Colors.appText
             static let subtitle = Colors.appSubtitle
             static let valueChangeLabel = Colors.appGrayLabel
-            static func valueChangeValue(ticker: CoinTicker?) -> UIColor {
+            static func valueChangeValue(ticker: CoinTicker?, emptyValueColor: UIColor = Colors.appGrayLabel) -> UIColor {
                 switch EthCurrencyHelper(ticker: ticker).change24h {
                 case .appreciate:
-                    return Colors.appHighlightGreen
+                    return Colors.apprecationGreen
                 case .depreciate:
-                    return Colors.appRed
+                    return Colors.apprecationRed
                 case .none:
-                    return Colors.appGrayLabel
+                    return emptyValueColor
                 }
             }
             static let blockChainName = Colors.appWhite
