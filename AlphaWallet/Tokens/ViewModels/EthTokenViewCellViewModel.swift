@@ -30,7 +30,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private var title: String {
-        return token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        return token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     var backgroundColor: UIColor {
@@ -161,29 +161,11 @@ struct EthTokenViewCellViewModel {
         valuePercentageChangeColor(ticker: ticker).withAlphaComponent(0.07)
     }
 
-    func apprecation24hoursAttributedString(ticker: CoinTicker?) -> NSAttributedString {
-        return NSAttributedString(string: " " + valuePercentageChangeValue(ticker: ticker) + " ", attributes: [
-            .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
-        ])
-    }
-
     var apprecationViewModel: ApprecationViewModel {
         .init(icon: apprecation24hoursImage, valueAttributedString: apprecation24hoursAttributedString, backgroundColor: apprecation24hoursBackgroundColor)
     }
 
     private func valuePercentageChangeColor(ticker: CoinTicker?) -> UIColor {
         return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
-    }
-
-    private func valuePercentageChangeValue(ticker: CoinTicker?) -> String {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate(let percentageChange24h):
-            return "▲ \(percentageChange24h)%"
-        case .depreciate(let percentageChange24h):
-            return "▼ \(percentageChange24h)%"
-        case .none:
-            return "-"
-        }
-    }
+    } 
 }

@@ -19,7 +19,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var title: String {
-        return token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        return token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     private var amount: String {
