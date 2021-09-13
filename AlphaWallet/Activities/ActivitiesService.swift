@@ -127,7 +127,6 @@ fileprivate class TokenObjectsCache: CachedTokenObjectResolverType {
 class ActivitiesService: NSObject, ActivitiesServiceType {
     private let config: Config
     let sessions: ServerDictionary<WalletSession>
-    private let tokensStorages: ServerDictionary<TokensDataStore>
     private let tokenCollection: TokenCollection
 
     private let assetDefinitionStore: AssetDefinitionStore
@@ -178,7 +177,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     init(
         config: Config,
         sessions: ServerDictionary<WalletSession>,
-        tokensStorages: ServerDictionary<TokensDataStore>,
         assetDefinitionStore: AssetDefinitionStore,
         eventsActivityDataStore: EventsActivityDataStoreProtocol,
         eventsDataStore: EventsDataStoreProtocol,
@@ -191,7 +189,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.queue = queue
         self.config = config
         self.sessions = sessions
-        self.tokensStorages = tokensStorages
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.eventsActivityDataStore = eventsActivityDataStore
@@ -219,7 +216,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionCollection, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue, tokensCollection: tokenCollection)
+        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionCollection, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue, tokensCollection: tokenCollection)
     }
 
     func stop() {
@@ -307,6 +304,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             guard let strongSelf = self else { return [] }
 
             var activitiesAndTokens: [ActivityTokenObjectTokenHolder] = .init()
+            //NOTE: here is a lot of calculations, `contractsAndCards` could reach up of 1000 items, as well as recentEvents could reach 1000.Simply it call inner function 1 000 000 times
             for (eachContract, eachServer, card, interpolatedFilter) in contractsAndCards {
                 let activities = strongSelf.getActivities(recentEvents, forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
                 activitiesAndTokens.append(contentsOf: activities)
