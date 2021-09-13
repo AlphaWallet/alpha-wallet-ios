@@ -203,7 +203,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivitiesService() -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection, queue: queue, tokensCollection: tokenCollection)
+        return ActivitiesService(config: config, sessions: walletSessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionsCollection, queue: queue, tokensCollection: tokenCollection)
     }
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
