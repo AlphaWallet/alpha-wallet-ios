@@ -77,6 +77,7 @@ enum OriginalDapps {
         Dapp(name: "Matic Faucet", description: "Matic Faucet to access Mumbai and Goerli testnet tokens", url: "https://faucet.matic.network/", cat: "Tool")
         Dapp(name: "Eth Gas Station", description: "Consumer oriented metrics for Eth Gas Market", url: "https://ethgasstation.info", cat: "Tool")
         Dapp(name: "Gas Now", description: "Eth Gas Price forecast system", url: "https://www.gasnow.org/", cat: "Tool")
+        Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool")
 
     ]
 
