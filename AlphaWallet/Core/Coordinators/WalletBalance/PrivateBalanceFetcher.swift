@@ -41,7 +41,6 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }()
 
     private let account: Wallet
-
     private let openSea: OpenSea
     private let queue: DispatchQueue
     private let server: RPCServer
@@ -56,7 +55,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.account = account
         self.server = server
         self.queue = queue
-        self.openSea = OpenSea.createInstance(forServer: server)
+        self.openSea = OpenSea.createInstance(with: AddressAndRPCServer(address: account.address, server: server))
         self.tokensDatastore = tokensDatastore
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -89,7 +88,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return openSea.makeFetchPromise(forOwner: account.address)
+        return openSea.makeFetchPromise()
     }
 
     func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) {
@@ -169,11 +168,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
         let promise1 = refreshBalanceForNonErc721Or1155Tokens(tokens: notErc721Or1155Tokens)
         let promise2 = refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
-
+        let tokensDatastore = self.tokensDatastore
         return when(resolved: [promise1, promise2]).then(on: queue, { value -> Promise<Bool?> in
             let resolved = value.compactMap { $0.optionalValue }.flatMap { $0 }
 
-            return self.tokensDatastore.batchUpdateTokenPromise(resolved).recover { _ -> Guarantee<Bool?> in
+            return tokensDatastore.batchUpdateTokenPromise(resolved).recover { _ -> Guarantee<Bool?> in
                 return .value(nil)
             }
         })
@@ -282,11 +281,12 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func addUnknownErc1155ContractsToDatabase(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken]) -> Promise<Erc1155TokenIds.ContractsTokenIdsAndValues> {
-        firstly {
+        let tokensDatastore = self.tokensDatastore
+        return firstly {
             functional.fetchUnknownErc1155ContractsDetails(contractsTokenIdsAndValue: contractsTokenIdsAndValue, tokens: tokens, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
         }.then(on: .main, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsTokenIdsAndValues> in
             let (promise, seal) = Promise<Erc1155TokenIds.ContractsTokenIdsAndValues>.pending()
-            self.tokensDatastore.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
+            tokensDatastore.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
             seal.fulfill(contractsTokenIdsAndValue)
             return promise
         })
@@ -496,7 +496,7 @@ extension PrivateBalanceFetcher {
 fileprivate extension PrivateBalanceFetcher.functional {
     static func fetchUnknownErc1155ContractsDetails(contractsTokenIdsAndValue: Erc1155TokenIds.ContractsTokenIdsAndValues, tokens: [Activity.AssignedToken], server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> Promise<[ERCToken]> {
         let contractsToAdd: [AlphaWallet.Address] = contractsTokenIdsAndValue.keys.filter { contract in
-            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract)})
+            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract) })
         }
 
         guard !contractsToAdd.isEmpty else {

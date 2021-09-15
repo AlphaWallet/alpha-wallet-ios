@@ -244,7 +244,7 @@ class TokensDataStore: NSObject {
         return newToken
     }
 
-    @discardableResult private func unsafeAddTokenOperation(tokenObject: TokenObject, realm: Realm) -> TokenObject {
+    @discardableResult private func addTokenUnsafe(tokenObject: TokenObject, realm: Realm) -> TokenObject {
         //TODO: save existed sort index and displaying state
         if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: tokenObject.primaryKey) {
             tokenObject.sortIndex = object.sortIndex
@@ -267,10 +267,10 @@ class TokensDataStore: NSObject {
                     realm.add(delegateContract, update: .all)
                 case .ercToken(let token):
                     let newToken = Self.tokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
-                    unsafeAddTokenOperation(tokenObject: newToken, realm: realm)
+                    addTokenUnsafe(tokenObject: newToken, realm: realm)
                     tokenObjects += [newToken]
                 case .tokenObject(let tokenObject):
-                    unsafeAddTokenOperation(tokenObject: tokenObject, realm: realm)
+                    addTokenUnsafe(tokenObject: tokenObject, realm: realm)
                     tokenObjects += [tokenObject]
                 case .deletedContracts(let deadContracts):
                     realm.add(deadContracts, update: .all)
@@ -306,7 +306,7 @@ class TokensDataStore: NSObject {
 
         //TODO: save existed sort index and displaying state
         for token in tokens {
-            unsafeAddTokenOperation(tokenObject: token, realm: realm)
+            addTokenUnsafe(tokenObject: token, realm: realm)
         }
 
         try! realm.commitWrite()
@@ -359,66 +359,6 @@ class TokensDataStore: NSObject {
         enabledObjectsSubscription.flatMap { $0.invalidate() }
     }
 
-    func addOrUpdateErc271(contract: AlphaWallet.Address, openSeaNonFungibles: [OpenSeaNonFungible], tokens: [Activity.AssignedToken]) -> Promise<Bool?> {
-        return Promise<Bool?> { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                var listOfJson = [String]()
-                var anyNonFungible: OpenSeaNonFungible?
-                for each in openSeaNonFungibles {
-                    if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                        anyNonFungible = each
-                        listOfJson.append(jsonString)
-                    } else {
-                        //no op
-                    }
-                }
-
-                if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
-                    strongSelf.realm.beginWrite()
-
-                    var value: Bool?
-                    switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets, .erc1155:
-                        break
-                    case .erc20:
-                        value = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .type(.erc721))
-                    }
-
-                    let v1 = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .nonFungibleBalance(listOfJson))
-                    if value != nil {
-                        value = v1
-                    }
-                    if let anyNonFungible = anyNonFungible {
-                        let v2 = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: .name(anyNonFungible.contractName))
-                        if value != nil {
-                            value = v2
-                        }
-                    }
-
-                    try! strongSelf.realm.commitWrite()
-
-                    seal.fulfill(value)
-                } else {
-                    let token = ERCToken(
-                            contract: contract,
-                            server: strongSelf.server,
-                            name: openSeaNonFungibles[0].contractName,
-                            symbol: openSeaNonFungibles[0].symbol,
-                            decimals: 0,
-                            type: .erc721,
-                            balance: listOfJson
-                    )
-
-                    strongSelf.addCustom(token: token, shouldUpdateBalance: true)
-
-                    seal.fulfill(true)
-                }
-            }
-        }
-    }
-
     func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Promise<Bool?> {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
@@ -432,7 +372,7 @@ class TokensDataStore: NSObject {
                     switch each {
                     case .add(let token, let shouldUpdateBalance):
                         let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
-                        strongSelf.unsafeAddTokenOperation(tokenObject: newToken, realm: strongSelf.realm)
+                        strongSelf.addTokenUnsafe(tokenObject: newToken, realm: strongSelf.realm)
 
                         value = true
                     case .update(let tokenObject, let action):
