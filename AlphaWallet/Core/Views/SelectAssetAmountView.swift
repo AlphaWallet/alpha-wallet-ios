@@ -170,14 +170,14 @@ class SelectTokenCardAmountView: UIView {
         viewModel.increaseCounter()
         updateCounterLabel()
 
-        delegate.flatMap { $0.valueDidChange(in: self) }
+        delegate?.valueDidChange(in: self)
     }
 
     @objc private func minusButtonSelected(_ sender: UIButton) {
         viewModel.decreaseCounter()
         updateCounterLabel()
 
-        delegate.flatMap { $0.valueDidChange(in: self) }
+        delegate?.valueDidChange(in: self)
     }
 }
 
@@ -264,7 +264,7 @@ class SingleTokenCardAmountSelectionToolbarView: UIView {
     }
 
     @objc private func closeButtonSelected(_ sender: UIButton) {
-        delegate.flatMap { $0.closeSelected(in: self) }
+        delegate?.closeSelected(in: self)
     }
 }
 

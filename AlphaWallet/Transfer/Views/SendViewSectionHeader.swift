@@ -30,41 +30,36 @@ class SendViewSectionHeader: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+
     private var topSeparatorLineHeight: NSLayoutConstraint!
-    
+    private let separatorHeight: CGFloat = 1
+
     init() {
         super.init(frame: .zero)
-        setupView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    private let separatorHeight: CGFloat = 1
-    private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
-        
-        addSubview(topSeparatorView)
-        addSubview(textLabel)
-        addSubview(bottomSeparatorView)
 
+        let stackView = [
+            topSeparatorView,
+            [.spacerWidth(16), textLabel, .spacerWidth(16)].asStackView(),
+            bottomSeparatorView
+        ].asStackView(axis: .vertical, spacing: 13)
+
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
+        //NOTE: we want heigh to be 50 points, with setting textLabel.heightAnchor 22 we satisfy it
         topSeparatorLineHeight = topSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight)
         NSLayoutConstraint.activate([
-            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            textLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor, constant: -16),
-            textLabel.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            textLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13),
-            
-            topSeparatorView.topAnchor.constraint(equalTo: topAnchor, constant: -separatorHeight),
-            topSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
-            
-            bottomSeparatorView.topAnchor.constraint(equalTo: bottomAnchor, constant: -separatorHeight),
-            bottomSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
             bottomSeparatorView.heightAnchor.constraint(equalToConstant: separatorHeight),
-            topSeparatorLineHeight
+            topSeparatorLineHeight,
+            textLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 22),
+            stackView.anchorsConstraint(to: self)
         ])
     }
     
+    required init?(coder: NSCoder) {
+        return nil
+    }
+
     func configure(viewModel: SendViewSectionHeaderViewModel) {
         textLabel.text = viewModel.text
         textLabel.textColor = viewModel.textColor
@@ -72,7 +67,7 @@ class SendViewSectionHeader: UIView {
         backgroundColor = viewModel.backgroundColor
         topSeparatorView.backgroundColor = viewModel.separatorBackgroundColor
         bottomSeparatorView.backgroundColor = viewModel.separatorBackgroundColor
-        topSeparatorLineHeight.constant = viewModel.showTopSeparatorLine ? 1 : 0
+        topSeparatorLineHeight.constant = viewModel.showTopSeparatorLine ? separatorHeight : 0
     }
 }
 

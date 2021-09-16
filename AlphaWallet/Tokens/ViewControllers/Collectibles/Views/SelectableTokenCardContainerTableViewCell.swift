@@ -111,7 +111,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
         if let viewModel = viewModel, viewModel.selectionViewModel.isHidden {
             let newSelection = viewModel.selectionViewModel.isSelected ? 0 : 1
 
-            delegate.flatMap { $0.didCloseSelection(in: self, with: newSelection) }
+            delegate?.didCloseSelection(in: self, with: newSelection)
         } else {
             hiddenTextField.becomeFirstResponder()
         }
@@ -124,6 +124,6 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
 
 extension SelectableTokenCardContainerTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
     func closeSelected(in view: SingleTokenCardAmountSelectionToolbarView) {
-        delegate.flatMap { $0.didCloseSelection(in: self, with: view.viewModel.counter) }
+        delegate?.didCloseSelection(in: self, with: view.viewModel.counter)
     }
 }

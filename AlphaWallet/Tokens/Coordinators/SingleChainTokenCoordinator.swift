@@ -22,6 +22,8 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
+    func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator)
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in cordinator: SingleChainTokenCoordinator)
 }
 
 // swiftlint:disable type_body_length
@@ -49,7 +51,7 @@ class SingleChainTokenCoordinator: Coordinator {
         session.server
     }
     private let queue = DispatchQueue(label: "com.SingleChainTokenCoordinator.updateQueue")
-
+    private let alertService: PriceAlertServiceType
     init(
             session: WalletSession,
             keystore: Keystore,
@@ -63,7 +65,8 @@ class SingleChainTokenCoordinator: Coordinator {
             tokenActionsProvider: TokenActionsProvider,
             transactionsStorage: TransactionsStorage,
             coinTickersFetcher: CoinTickersFetcherType,
-            activitiesService: ActivitiesServiceType
+            activitiesService: ActivitiesServiceType,
+            alertService: PriceAlertServiceType
     ) {
         self.session = session
         self.keystore = keystore
@@ -78,6 +81,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.transactionsStorage = transactionsStorage
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
+        self.alertService = alertService
     }
 
     func start() {
@@ -165,7 +169,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func notifyTokensDidChange() {
         //NOTE: as UI is going to get updated from realm notification not sure if we still need it here
-        // delegate.flatMap { $0.tokensDidChange(inCoordinator: self) }
+        // delegate?.tokensDidChange(inCoordinator: self)
     }
 
     private func autoDetectPartnerTokens() {
@@ -483,15 +487,15 @@ class SingleChainTokenCoordinator: Coordinator {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
-        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, tokensStore: storage, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
-        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService)
+        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
+        let viewController = TokenViewController(session: session, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
         viewController.delegate = self
 
         //NOTE: refactor later with subscribable coin ticker, and chart history
         coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: token.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases).done { [weak self, weak viewController] history in
             guard let strongSelf = self, let viewController = viewController else { return }
 
-            var viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
+            var viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewModel.chartHistory = history
             viewController.configure(viewModel: viewModel)
         }.catch { _ in
@@ -511,13 +515,13 @@ class SingleChainTokenCoordinator: Coordinator {
         assetDefinitionStore.subscribeToBodyChanges { [weak self, weak viewController] contract in
             guard let strongSelf = self, let viewController = viewController else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
         }
         assetDefinitionStore.subscribeToSignatureChanges { [weak self, weak viewController] contract in
             guard let strongSelf = self, let viewController = viewController else { return }
             guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, tokensStore: strongSelf.storage, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewController.configure(viewModel: viewModel)
         }
     }
@@ -651,6 +655,14 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
 }
 
 extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
+
+    func didTapAddAlert(for tokenObject: TokenObject, in viewController: TokenViewController) {
+        delegate?.didTapAddAlert(for: tokenObject, in: self)
+    }
+
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: TokenViewController) {
+        delegate?.didTapEditAlert(for: tokenObject, alert: alert, in: self)
+    }
 
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController) {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)

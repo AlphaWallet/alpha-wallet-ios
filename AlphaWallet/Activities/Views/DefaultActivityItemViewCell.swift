@@ -43,7 +43,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
             timestampLabel,
         ].asStackView(axis: .vertical, alignment: .trailing)
 
-        let stackView = [tokenImageView, leftStackView, rightStackView].asStackView(spacing: 15)
+        let stackView = [tokenImageView, leftStackView, rightStackView].asStackView(axis: .horizontal, spacing: 15, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         tokenImageView.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
@@ -57,7 +57,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
         background.addSubview(stateView)
 
         leftEdgeConstraint = stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin)
-
+        // NOTE: Cells height is specifying by table view and currently it equals 80
         NSLayoutConstraint.activate([
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
 
@@ -66,13 +66,11 @@ class DefaultActivityItemViewCell: UITableViewCell {
 
             leftEdgeConstraint,
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 14),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -14),
-
+            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 20),
+            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -20),
             background.anchorsConstraint(to: contentView),
-
-            contentView.heightAnchor.constraint(equalToConstant: 80)
-        ] + stateView.anchorConstraints(to: tokenImageView))
+            
+            ] + stateView.anchorConstraints(to: tokenImageView))
     }
 
     required init?(coder aDecoder: NSCoder) {

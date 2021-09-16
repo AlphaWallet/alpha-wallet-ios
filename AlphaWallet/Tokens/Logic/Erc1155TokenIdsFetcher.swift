@@ -59,8 +59,8 @@ class Erc1155TokenIdsFetcher {
     }
 
     func detectContractsAndTokenIds() -> Promise<Erc1155TokenIds> {
-        let address = address
-        let server = server
+        let address = self.address
+        let server = self.server
         //Should really be -1 instead 0, but so we don't fight with the type system (negative) and doesn't matter in practice being off by 1 at the start
         let fromPreviousRead: Erc1155TokenIds = readJson() ?? .init(tokens: .init(), lastBlockNumber: 0)
         let fromBlockNumber = fromPreviousRead.lastBlockNumber + 1

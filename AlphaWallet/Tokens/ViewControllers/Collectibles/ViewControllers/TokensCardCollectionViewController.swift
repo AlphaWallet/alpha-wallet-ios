@@ -212,7 +212,7 @@ extension TokensCardCollectionViewController: PagesContainerViewDelegate {
     }
 
     @objc private func assetSelectionSelected(_ sender: UIBarButtonItem) {
-        delegate.flatMap { $0.didSelectAssetSelection(in: self) }
+        delegate?.didSelectAssetSelection(in: self)
     }
 }
 
@@ -240,7 +240,7 @@ extension TokensCardCollectionViewController: ActivitiesPageViewDelegate {
 
 extension TokensCardCollectionViewController: AssetsPageViewDelegate {
     func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder) {
-        delegate.flatMap { $0.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder) }
+        delegate?.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder)
     }
 }
 

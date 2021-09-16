@@ -93,7 +93,7 @@ class CollectUsersEmailViewController: ModalViewController {
         view.endEditing(true)
 
         dismissViewAnimated(with: {
-            self._delegate.flatMap { $0.didFinish(in: self, email: email) }
+            self._delegate?.didFinish(in: self, email: email)
             self.dismiss(animated: false)
         })
     }
@@ -128,7 +128,7 @@ extension CollectUsersEmailViewController: ModalViewControllerDelegate {
 
     func didDismiss(_ controller: ModalViewController) {
         view.endEditing(true)
-        _delegate.flatMap { $0.didClose(in: self) }
+        _delegate?.didClose(in: self)
         dismiss(animated: false)
     }
 
@@ -136,7 +136,7 @@ extension CollectUsersEmailViewController: ModalViewControllerDelegate {
         view.endEditing(true)
 
         dismissViewAnimated(with: {
-            self._delegate.flatMap { $0.didClose(in: self) }
+            self._delegate?.didClose(in: self) 
             self.dismiss(animated: false)
         })
     }
