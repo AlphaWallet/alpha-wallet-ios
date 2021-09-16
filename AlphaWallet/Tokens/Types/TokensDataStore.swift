@@ -178,7 +178,7 @@ class TokensDataStore: NSObject {
 
     private func updateDelegate(refreshImmediately: Bool = false) {
         //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Though it probably doesn't need to be called an additional time, every time. It is important to refresh immediately first, rather than be rate limited because we might be deleting (hiding) a token and the user should see the list of tokens refresh immediately
-        delegate.flatMap { $0.didUpdate(in: self, refreshImmediately: refreshImmediately) }
+        delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
     }
 
     func addCustomPromise(token: ERCToken) -> Promise<TokenObject> {

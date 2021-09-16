@@ -144,7 +144,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             self.isRefeshingBalance = false
 
             if let value = balanceValueHasChange, value {
-                self.delegate.flatMap { $0.didUpdate(in: self) }
+                self.delegate?.didUpdate(in: self) 
             }
         })
     }
@@ -264,9 +264,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
     private func updateNonOpenSeaErc1155Balance(tokens: [Activity.AssignedToken]) -> Promise<[TokenBatchOperation]> {
         //Local copies so we don't access the wrong ones during async operation
-        let account = account
-        let server = server
-        let tokensDatastore = tokensDatastore
+        let account = self.account
+        let server = self.server
+        let tokensDatastore = self.tokensDatastore
 
         return firstly {
             Erc1155TokenIdsFetcher(address: account.address, server: server).detectContractsAndTokenIds()

@@ -104,6 +104,7 @@ public struct Constants {
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
+    public static let alertReceivedNotificationIdentifier = "alertReceivedNotificationIdentifier"
     static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
                                             AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
     static let legacy721Addresses = [

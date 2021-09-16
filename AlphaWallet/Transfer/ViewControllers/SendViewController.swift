@@ -17,31 +17,38 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 
 // swiftlint:disable type_body_length
 class SendViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
-    private let scrollView = UIScrollView()
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
-    private let recipientAddressLabel = UILabel()
-    private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SendViewModel
-    private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let ethPrice: Subscribable<Double>
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
-    private let amountViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendAmount().uppercased(),
-        showTopSeparatorLine: false
-    )
-    private let recipientViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendRecipient().uppercased()
-    )
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
-    let targetAddressTextField = AddressTextField()
-    lazy var amountTextField = AmountTextField(tokenObject: transactionType.tokenObject)
+    lazy var targetAddressTextField: AddressTextField = {
+        let targetAddressTextField = AddressTextField()
+        targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
+        targetAddressTextField.delegate = self
+        targetAddressTextField.returnKeyType = .done
+        targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
+
+        return targetAddressTextField
+    }()
+
+    lazy var amountTextField: AmountTextField = {
+        let amountTextField = AmountTextField(tokenObject: transactionType.tokenObject)
+        amountTextField.translatesAutoresizingMaskIntoConstraints = false
+        amountTextField.delegate = self
+        amountTextField.accessoryButtonTitle = .next
+        amountTextField.errorState = .none
+        amountTextField.isAlternativeAmountEnabled = false
+        amountTextField.allFundsAvailable = Features.isSendAllFundsFungibleEnabled
+
+        return amountTextField
+    }()
     weak var delegate: SendViewControllerDelegate?
 
     var transactionType: TransactionType {
@@ -52,7 +59,11 @@ class SendViewController: UIViewController {
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
 
-// swiftlint:disable function_body_length
+    private lazy var containerView: ScrollableStackView = {
+        let view = ScrollableStackView()
+        return view
+    }()
+
     init(
             session: WalletSession,
             storage: TokensDataStore,
@@ -68,110 +79,29 @@ class SendViewController: UIViewController {
 
         configureBalanceViewModel()
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(scrollView)
-
-        targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
-        targetAddressTextField.delegate = self
-        targetAddressTextField.returnKeyType = .done
-
-        amountTextField.translatesAutoresizingMaskIntoConstraints = false
-        amountTextField.delegate = self
-        amountTextField.accessoryButtonTitle = .next
-        amountTextField.errorState = .none
-
-        let addressControlsContainer = UIView()
-        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
-        addressControlsContainer.backgroundColor = .clear
-
-        targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
-        let addressControlsStackView = [
-            targetAddressTextField.pasteButton,
-            targetAddressTextField.clearButton
-        ].asStackView(axis: .horizontal, alignment: .trailing)
-        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
-        addressControlsStackView.setContentHuggingPriority(.required, for: .horizontal)
-        addressControlsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
-
-        addressControlsContainer.addSubview(addressControlsStackView)
-
-        let stackView = [
+        containerView.stackView.addArrangedSubviews([
             amountHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
-            amountLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
-            amountTextField,
-            .spacer(height: 4),
-            [amountTextField.statusLabelContainer, amountTextField.allFundsContainer].asStackView(axis: .horizontal, alignment: .fill),
-            amountTextField.alternativeAmountLabelContainer,
+            amountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
-            [.spacerWidth(16), recipientAddressLabel].asStackView(axis: .horizontal),
-            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
-            targetAddressTextField,
-            .spacer(height: 4), [
-                [.spacerWidth(16), targetAddressTextField.ensAddressView, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
-                addressControlsContainer
-            ].asStackView(axis: .horizontal),
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
+            targetAddressTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16))
+        ])
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
+        view.addSubview(footerBar)
+        view.addSubview(containerView)
 
         NSLayoutConstraint.activate([
-            amountHeader.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 0),
-            amountHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
-            amountHeader.heightAnchor.constraint(equalToConstant: 50),
+            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            recipientHeader.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 0),
-            recipientHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
-            recipientHeader.heightAnchor.constraint(equalToConstant: 50),
+            footerBar.anchorsConstraint(to: view),
+        ])
 
-            recipientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
-            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
-            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
-
-            amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
-            amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
-            amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
-
-            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
-            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
-            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
-            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
-            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30)
-
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
         // NOTE: not sure do we need to call refresh balance here
         //session.balanceCoordinator.refresh()
 
@@ -181,7 +111,6 @@ class SendViewController: UIViewController {
             strongSelf.amountTextField.isAllFunds = strongSelf.isAllFunds
         }
     }
-// swiftlint:enable function_body_length
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -203,17 +132,9 @@ class SendViewController: UIViewController {
 
         view.backgroundColor = viewModel.backgroundColor
 
-        amountHeader.configure(viewModel: amountViewModel)
-        recipientHeader.configure(viewModel: recipientViewModel)
+        amountHeader.configure(viewModel: viewModel.amountViewModel)
+        recipientHeader.configure(viewModel: viewModel.recipientViewModel)
 
-        recipientAddressLabel.text = viewModel.recipientsAddress
-        recipientAddressLabel.font = viewModel.recipientLabelFont
-        recipientAddressLabel.textColor = viewModel.recepientLabelTextColor
-
-        amountLabel.font = viewModel.textFieldsLabelFont
-        amountLabel.textColor = viewModel.textFieldsLabelTextColor
-        amountTextField.isAlternativeAmountEnabled = false
-        amountTextField.allFundsAvailable = Features.isSendAllFundsFungibleEnabled
         amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
         amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
 
@@ -354,7 +275,7 @@ class SendViewController: UIViewController {
         case .ERC20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,. ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -449,7 +370,7 @@ class SendViewController: UIViewController {
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .ERC20Token(_, _, let amount):
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,. ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }

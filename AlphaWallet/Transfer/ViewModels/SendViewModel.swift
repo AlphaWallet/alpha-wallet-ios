@@ -16,6 +16,14 @@ struct SendViewModel {
         self.storage = storage
     }
 
+    let amountViewModel = SendViewSectionHeaderViewModel(
+        text: R.string.localizable.sendAmount().uppercased(),
+        showTopSeparatorLine: true
+    )
+    let recipientViewModel = SendViewSectionHeaderViewModel(
+        text: R.string.localizable.sendRecipient().uppercased()
+    )
+
     var destinationAddress: AlphaWallet.Address {
         return transactionType.contract
     }

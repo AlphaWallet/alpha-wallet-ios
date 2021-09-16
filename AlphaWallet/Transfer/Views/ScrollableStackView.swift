@@ -49,7 +49,7 @@ class ScrollableStackView: UIView {
         return nil
     }
 
-    private func configure(viewModel: ScrollableStackViewModel) {
+    func configure(viewModel: ScrollableStackViewModel) {
         backgroundColor = viewModel.backgroundColor
         scrollView.backgroundColor = viewModel.backgroundColor
     }
