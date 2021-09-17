@@ -182,7 +182,7 @@ open class EtherKeystore: NSObject, Keystore {
                 return
             }
             let result = strongSelf.createAccount()
-            DispatchQueue.main.async {
+            OperationQueue.main.addOperation {
                 completion(result)
             }
         }
@@ -260,8 +260,18 @@ open class EtherKeystore: NSObject, Keystore {
             watchAddresses = [watchAddresses, [address.eip55String]].flatMap {
                 $0
             }
-            subscribableWallets.value = Set<Wallet>(wallets)
+
+            notifyWalletUpdated()
+
             return .success(Wallet(type: .watch(address)))
+        }
+    }
+
+    private func notifyWalletUpdated() {
+        // NOTE: application crashes because adding a new wallet performed on background queue, we want to perform it on .main
+        // using .addOperation we want to save operations order, hope it willn't crash. with DispatchQueue.main.async it crashes
+        OperationQueue.main.addOperation {
+            self.subscribableWallets.value = Set<Wallet>(self.wallets)
         }
     }
 
@@ -269,21 +279,21 @@ open class EtherKeystore: NSObject, Keystore {
         let updatedOwnedAddresses = Array(Set(ethereumAddressesWithPrivateKeys + [address.eip55String]))
         ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
 
-        subscribableWallets.value = Set<Wallet>(wallets)
+        notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
         ethereumAddressesWithSeed = updated
 
-        subscribableWallets.value = Set<Wallet>(wallets)
+        notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         ethereumAddressesProtectedByUserPresence = updated
 
-        subscribableWallets.value = Set<Wallet>(wallets)
+        notifyWalletUpdated()
     }
 
     private func generateMnemonic() -> String {
@@ -430,7 +440,7 @@ open class EtherKeystore: NSObject, Keystore {
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.eip55String }
 
-        subscribableWallets.value = Set<Wallet>(wallets)
+        notifyWalletUpdated()
     }
 
     func isHdWallet(account: AlphaWallet.Address) -> Bool {
