@@ -19,22 +19,24 @@ class OpenSea {
     //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests
     private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
     private static let minimumSecondsBetweenRequests = TimeInterval(60)
-    private static var instances = [RPCServer: WeakRef<OpenSea>]()
-
-    private let server: RPCServer
+    private static var instances = [AddressAndRPCServer: WeakRef<OpenSea>]()
+    //NOTE: using AddressAndRPCServer fixes issue with incorrect tokens returned from makeFetchPromise
+    // the problem was that cached OpenSea returned tokens from multiple wallets
+    private let key: AddressAndRPCServer
     private var recentWalletsWithManyTokens = [AlphaWallet.Address: (Date, PromiseResult)]()
     private var fetch = OpenSea.makeEmptyFulfilledPromise()
+    private let queue = DispatchQueue.global(qos: .userInitiated)
 
-    private init(server: RPCServer) {
-        self.server = server
+    private init(key: AddressAndRPCServer) {
+        self.key = key
     }
 
-    static func createInstance(forServer server: RPCServer) -> OpenSea {
-        if let instance = instances[server]?.object {
+    static func createInstance(with key: AddressAndRPCServer) -> OpenSea {
+        if let instance = instances[key]?.object {
             return instance
         } else {
-            let instance = OpenSea(server: server)
-            instances[server] = WeakRef(object: instance)
+            let instance = OpenSea(key: key)
+            instances[key] = WeakRef(object: instance)
             return instance
         }
     }
@@ -66,12 +68,12 @@ class OpenSea {
     }
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
-    func makeFetchPromise(forOwner owner: AlphaWallet.Address) -> PromiseResult {
-        guard OpenSea.isServerSupported(server) else {
+    func makeFetchPromise() -> PromiseResult {
+        guard OpenSea.isServerSupported(key.server) else {
             fetch = .value([:])
             return fetch
         }
-
+        let owner = key.address
         trimCachedPromises()
         if let cachedPromise = cachedPromise(forOwner: owner) {
             return cachedPromise
@@ -83,6 +85,7 @@ class OpenSea {
                 fetchPage(forOwner: owner, offset: offset) { result in
                     switch result {
                     case .success(let result):
+
                         seal.fulfill(result)
                     case .failure(let error):
                         seal.reject(error)
@@ -94,7 +97,7 @@ class OpenSea {
     }
 
     private func getBaseURLForOpensea() -> String {
-        switch server {
+        switch key.server {
         case .main:
             return Constants.openseaAPI
         case .rinkeby:
@@ -111,75 +114,75 @@ class OpenSea {
             completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
             return
         }
+
         Alamofire.request(
                 url,
                 method: .get,
                 headers: ["X-API-KEY": Constants.Credentials.openseaKey]
-        ).responseJSON { response in
+        ).responseJSON(queue: queue, options: .allowFragments, completionHandler: { [weak self] response in
+            guard let strongSelf = self else { return }
             guard let data = response.data, let json = try? JSON(data: data) else {
                 completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API: \(String(describing: response.error))"))))
                 return
             }
-            DispatchQueue.global(qos: .userInitiated).async {
-                var results = sum
-                for (_, each): (String, JSON) in json["assets"] {
-                    let type = each["asset_contract"]["schema_name"].stringValue
-                    guard let tokenType = NonFungibleFromJsonTokenType(rawString: type) else { continue }
-                    let tokenId = each["token_id"].stringValue
-                    let contractName = each["asset_contract"]["name"].stringValue
-                    //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
-                    let decimals = each["decimals"].intValue
-                    let symbol = each["asset_contract"]["symbol"].stringValue
-                    let name = each["name"].stringValue
-                    let description = each["description"].stringValue
-                    let thumbnailUrl = each["image_thumbnail_url"].stringValue
-                    //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
-                    var imageUrl = each["image_preview_url"].stringValue
-                    if imageUrl.isEmpty {
-                        imageUrl = each["image_url"].stringValue
-                    }
-                    let contractImageUrl = each["asset_contract"]["image_url"].stringValue
-                    let externalLink = each["external_link"].stringValue
-                    let backgroundColor = each["background_color"].stringValue
-                    var traits = [OpenSeaNonFungibleTrait]()
-                    for each in each["traits"].arrayValue {
-                        let traitCount = each["trait_count"].intValue
-                        let traitType = each["trait_type"].stringValue
-                        let traitValue = each["value"].stringValue
-                        let trait = OpenSeaNonFungibleTrait(count: traitCount, type: traitType, value: traitValue)
-                        traits.append(trait)
-                    }
-                    if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
-                        let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
-                        if var list = results[contract] {
-                            list.append(cat)
-                            results[contract] = list
-                        } else {
-                            let list = [cat]
-                            results[contract] = list
-                        }
-                    }
+
+            var results = sum
+            for (_, each): (String, JSON) in json["assets"] {
+                let type = each["asset_contract"]["schema_name"].stringValue
+                guard let tokenType = NonFungibleFromJsonTokenType(rawString: type) else { continue }
+                let tokenId = each["token_id"].stringValue
+                let contractName = each["asset_contract"]["name"].stringValue
+                //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
+                let decimals = each["decimals"].intValue
+                let symbol = each["asset_contract"]["symbol"].stringValue
+                let name = each["name"].stringValue
+                let description = each["description"].stringValue
+                let thumbnailUrl = each["image_thumbnail_url"].stringValue
+                //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
+                var imageUrl = each["image_preview_url"].stringValue
+                if imageUrl.isEmpty {
+                    imageUrl = each["image_url"].stringValue
                 }
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    let fetchedCount = json["assets"].count
-                    if fetchedCount > 0 {
-                        strongSelf.fetchPage(forOwner: owner, offset: offset + fetchedCount, sum: results) { results in
-                            completion(results)
-                        }
+                let contractImageUrl = each["asset_contract"]["image_url"].stringValue
+                let externalLink = each["external_link"].stringValue
+                let backgroundColor = each["background_color"].stringValue
+                var traits = [OpenSeaNonFungibleTrait]()
+                for each in each["traits"].arrayValue {
+                    let traitCount = each["trait_count"].intValue
+                    let traitType = each["trait_type"].stringValue
+                    let traitValue = each["value"].stringValue
+                    let trait = OpenSeaNonFungibleTrait(count: traitCount, type: traitType, value: traitValue)
+                    traits.append(trait)
+                }
+                if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
+                    let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                    if var list = results[contract] {
+                        list.append(cat)
+                        results[contract] = list
                     } else {
-                        //Ignore UEFA from OpenSea, otherwise the token type would be saved wrongly as `.erc721` instead of `.erc721ForTickets`
-                        let excludingUefa = sum.filter { !$0.key.isUEFATicketContract }
-                        var tokenIdCount = 0
-                        for (_, tokenIds) in excludingUefa {
-                            tokenIdCount += tokenIds.count
-                        }
-                        strongSelf.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
-                        completion(.success(excludingUefa))
+                        let list = [cat]
+                        results[contract] = list
                     }
                 }
             }
-        }
+
+            let fetchedCount = json["assets"].count
+            if fetchedCount > 0 {
+                strongSelf.fetchPage(forOwner: owner, offset: offset + fetchedCount, sum: results) { results in
+                    completion(results)
+                }
+            } else {
+                //Ignore UEFA from OpenSea, otherwise the token type would be saved wrongly as `.erc721` instead of `.erc721ForTickets`
+                let excludingUefa = sum.filter { !$0.key.isUEFATicketContract }
+                var tokenIdCount = 0
+                for (_, tokenIds) in excludingUefa {
+                    tokenIdCount += tokenIds.count
+                }
+                strongSelf.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
+
+                completion(.success(excludingUefa))
+            }
+        })
     }
 
     private func cachePromise(withTokenIdCount tokenIdCount: Int, forOwner wallet: AlphaWallet.Address) {
