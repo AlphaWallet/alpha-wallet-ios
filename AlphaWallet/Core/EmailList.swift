@@ -2,6 +2,7 @@
 
 import Foundation
 import MailchimpSDK
+import UIKit
 
 class EmailList {
     private let listSpecificKey: String

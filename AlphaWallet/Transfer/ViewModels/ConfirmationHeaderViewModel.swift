@@ -26,9 +26,11 @@ struct ConfirmationHeaderViewModel {
             .foregroundColor: Colors.darkGray
         ])
     }
+    var swipeIndicationHidden: Bool
 
-    init(title: String, isMinimalMode: Bool = false) {
+    init(title: String, isMinimalMode: Bool = false, swipeIndicationHidden: Bool = true) {
         self.title = title
+        self.swipeIndicationHidden = swipeIndicationHidden
         self.isMinimalMode = isMinimalMode
     }
 }
