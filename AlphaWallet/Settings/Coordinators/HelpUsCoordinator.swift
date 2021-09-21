@@ -44,27 +44,11 @@ class HelpUsCoordinator: Coordinator {
         guard !appTracker.hasCompletedPromptForNewsletter else { return }
         appTracker.hasCompletedPromptForNewsletter = true
 
-        let controller = UIAlertController.alertController(title: R.string.localizable.emailListPromptTitle(), message: R.string.localizable.emailListPromptMessage(), style: .alert, in: navigationController)
-        controller.addTextField { textField in
-            textField.placeholder = R.string.localizable.emailListPromptEmailPlaceholder()
-        }
+        let controller = CollectUsersEmailViewController()
+        controller._delegate = self
+        controller.configure(viewModel: .init())
 
-        //Intentionally hold strong reference to self for UIAlertAction to work. Making `self` weak requires current coordinator to be retained; too easy to forgot
-        let subscribeAction = UIAlertAction(title: R.string.localizable.emailListPromptSubscribeButtonTitle(), style: .default, handler: { [weak self] _ in
-            guard let email = controller.textFields?.first?.text?.trimmed else { return }
-            if email.isEmpty {
-                self?.logEmailNewsletterSubscription(isSubscribed: false)
-            } else {
-                EmailList(listSpecificKey: Constants.Credentials.mailChimpListSpecificKey).subscribe(email: email)
-                self?.logEmailNewsletterSubscription(isSubscribed: true)
-            }
-        })
-        controller.addAction(subscribeAction)
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
-            self?.logEmailNewsletterSubscription(isSubscribed: false)
-        }
-        controller.addAction(cancelAction)
-        navigationController.present(controller, animated: true, completion: nil)
+        navigationController.present(controller, animated: true)
     }
 
     private func rateUs() {
@@ -94,6 +78,21 @@ class HelpUsCoordinator: Coordinator {
         activityViewController.popoverPresentationController?.sourceView = sender
         activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
         viewController.present(activityViewController, animated: true, completion: nil)
+    }
+}
+
+extension HelpUsCoordinator: CollectUsersEmailViewControllerDelegate {
+    func didClose(in viewController: CollectUsersEmailViewController) {
+        logEmailNewsletterSubscription(isSubscribed: false)
+    }
+
+    func didFinish(in viewController: CollectUsersEmailViewController, email: String) {
+        if email.isEmpty {
+            logEmailNewsletterSubscription(isSubscribed: false)
+        } else {
+            EmailList(listSpecificKey: Constants.Credentials.mailChimpListSpecificKey).subscribe(email: email)
+            logEmailNewsletterSubscription(isSubscribed: true)
+        }
     }
 }
 
