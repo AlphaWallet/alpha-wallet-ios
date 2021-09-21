@@ -225,7 +225,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .erc875, .erc721ForTickets:
             coordinator.showTokenList(for: .send(type: .ERC875Token(token)), token: token, navigationController: navigationController)
         case .erc1155:
-            coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .ERC1155Token(token)), token: token, navigationController: navigationController)
         }
     }
 

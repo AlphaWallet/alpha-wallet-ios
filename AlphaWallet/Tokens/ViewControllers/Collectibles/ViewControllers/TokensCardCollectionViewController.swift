@@ -40,7 +40,7 @@ class TokensCardCollectionViewController: UIViewController {
     private var activitiesPageView: ActivitiesPageView
     private var assetsPageView: AssetsPageView
     var isReadOnly: Bool = false
-    
+
     private let activitiesService: ActivitiesServiceType
     private let containerView: PagesContainerView
 

@@ -2,6 +2,8 @@
 import UIKit
 import AWSSNS
 import AWSCore
+import PromiseKit
+
 import UserNotifications
 
 @UIApplicationMain
