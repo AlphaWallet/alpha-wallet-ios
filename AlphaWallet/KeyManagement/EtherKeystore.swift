@@ -270,8 +270,12 @@ open class EtherKeystore: NSObject, Keystore {
     private func notifyWalletUpdated() {
         // NOTE: application crashes because adding a new wallet performed on background queue, we want to perform it on .main
         // using .addOperation we want to save operations order, hope it willn't crash. with DispatchQueue.main.async it crashes
-        OperationQueue.main.addOperation {
-            self.subscribableWallets.value = Set<Wallet>(self.wallets)
+        if Thread.isMainThread {
+            subscribableWallets.value = Set<Wallet>(wallets)
+        } else {
+            OperationQueue.main.addOperation {
+                self.subscribableWallets.value = Set<Wallet>(self.wallets)
+            }
         }
     }
 
