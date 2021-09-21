@@ -760,6 +760,8 @@
 		874DED1524C1BAFF006C8FCE /* SelectTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1424C1BAFF006C8FCE /* SelectTokenCoordinator.swift */; };
 		874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */; };
 		874DED1924C1BD2C006C8FCE /* SelectTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */; };
+		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
+		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91624EE5AE100E19DFF /* RecipientResolver.swift */; };
 		8750F91924EE66D700E19DFF /* GasSpeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91824EE66D700E19DFF /* GasSpeedTableViewCell.swift */; };
 		87574A3025E7D41E00CAA0BB /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87574A2F25E7D41E00CAA0BB /* AnalyticsService.swift */; };
@@ -1747,6 +1749,8 @@
 		874DED1424C1BAFF006C8FCE /* SelectTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenCoordinator.swift; sourceTree = "<group>"; };
 		874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewController.swift; sourceTree = "<group>"; };
 		874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewModel.swift; sourceTree = "<group>"; };
+		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
+		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91624EE5AE100E19DFF /* RecipientResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientResolver.swift; sourceTree = "<group>"; };
 		8750F91824EE66D700E19DFF /* GasSpeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCell.swift; sourceTree = "<group>"; };
 		87574A2F25E7D41E00CAA0BB /* AnalyticsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
@@ -3151,6 +3155,7 @@
 				87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */,
 				87ED8FAC2488EA610005C69B /* SupportViewController.swift */,
 				876C80CE267398F900B16595 /* AddRPCServerViewController.swift */,
+				87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3564,6 +3569,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */,
+				87509A5F26F8D63600D3EE85 /* ModalViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -5138,6 +5144,7 @@
 				29F114F21FA7966300114A29 /* PrivateKeyRule.swift in Sources */,
 				29F1C853200363B2003780D8 /* PassphraseViewController.swift in Sources */,
 				29E2E33A1F7A008C000CF94A /* UIView.swift in Sources */,
+				87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */,
 				87A0C93225AEF1E400E73F60 /* EventInstanceValue.swift in Sources */,
 				299B5E491FD2C8900051361C /* ConfigureTransaction.swift in Sources */,
 				77872D25202505B70032D687 /* EnterPasswordViewController.swift in Sources */,
@@ -5915,6 +5922,7 @@
 				5E7C71FA0D6A918598005EF3 /* SendTransactionError.swift in Sources */,
 				5E7C715B5921162B65A9A706 /* PromptViewController.swift in Sources */,
 				5E7C785C39CC8243BEC1219C /* PromptViewModel.swift in Sources */,
+				87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */,
 				5E7C7FD7D2C8BCF6B127FB84 /* EnableServersHeaderView.swift in Sources */,
 				5E7C7C60BAF11B0BD135FC1E /* GroupActivityViewCell.swift in Sources */,
 				5E7C7BFE70D7C2CC0C84B72A /* GroupActivityCellViewModel.swift in Sources */,
