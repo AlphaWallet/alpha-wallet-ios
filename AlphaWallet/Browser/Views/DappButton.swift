@@ -20,7 +20,7 @@ class DappButton: UIControl {
 
         let stackView = [imageView, label].asStackView(
                 axis: .vertical,
-                contentHuggingPriority: .required,
+                spacing: 8, contentHuggingPriority: .required,
                 alignment: .center
         )
         stackView.translatesAutoresizingMaskIntoConstraints = false

@@ -138,6 +138,8 @@ class InCoordinator: NSObject, Coordinator {
     lazy var tabBarController: UITabBarController = {
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
+        tabBarController.delegate = self
+
         return tabBarController
     }()
     private let accountsCoordinator: AccountsCoordinator
@@ -515,6 +517,7 @@ class InCoordinator: NSObject, Coordinator {
             if let nav = controller as? UINavigationController {
                 if nav.viewControllers[0].className == selectTab.className {
                     tabBarController.selectedViewController = nav
+                    loadHomePageIfEmpty()
                 }
             }
         }
@@ -904,6 +907,35 @@ extension InCoordinator: ActivityViewControllerDelegate {
 
     func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController) {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
+}
+
+extension InCoordinator: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if isViewControllerDappBrowserTab(viewController) && viewController == tabBarController.selectedViewController {
+            loadHomePageIfNeeded()
+            return false
+        }
+        return true
+    }
+
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        if isViewControllerDappBrowserTab(viewController) {
+            loadHomePageIfEmpty()
+        }
+    }
+
+    private func loadHomePageIfNeeded() {
+        // NOTE: open home web page if tap on browser tab bar icon, should we only when browser opened
+        guard let coordinator = dappBrowserCoordinator, let url = config.homePageURL else { return }
+
+        coordinator.open(url: url, animated: false)
+    }
+
+    private func loadHomePageIfEmpty() {
+        guard let coordinator = dappBrowserCoordinator, let url = config.homePageURL, !coordinator.hasWebPageLoaded else { return }
+
+        coordinator.open(url: url, animated: false)
     }
 }
 

@@ -154,6 +154,7 @@ struct Config {
         static let walletNames = "walletNames"
         static let useTaiChiNetwork = "useTaiChiNetworkKey"
         static let customRpcServers = "customRpcServers"
+        static let homePageURL = "homePageURL"
     }
 
     let defaults: UserDefaults
@@ -190,6 +191,15 @@ struct Config {
         }
         set {
             defaults.set(newValue, forKey: Keys.customRpcServers)
+        }
+    }
+
+    var homePageURL: URL? {
+        get {
+            return defaults.string(forKey: Keys.homePageURL).flatMap { URL(string: $0) }
+        }
+        set {
+            defaults.set(newValue?.absoluteString, forKey: Keys.homePageURL)
         }
     }
 

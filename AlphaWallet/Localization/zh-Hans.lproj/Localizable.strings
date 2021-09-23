@@ -9,6 +9,9 @@
 "Delete" = "删除";
 "Reload" = "重新加载";
 "Share" = "共享";
+"setAsHomePage" = "Set as Home Page";
+"browserHistory" = "History";
+"myBookmarks" = "My Bookmarks";
 "New" = "新";
 "Bookmarks" = "书签夹";
 "History" = "历史记录";
@@ -222,7 +225,7 @@
 "browser.noHistory.label.title" = "此处将显示您的浏览器历史记录。";
 "browser.bookmarks.confirm.delete.title" = "是否确定要删除此书签？";
 "browser.noBookmarks.label.title" = "尚无书签！";
-"browser.url.textfield.placeholder" = "搜索或输入网站 URL";
+"browser.url.textfield.placeholder" = "Search or type URL";
 "browser.settings.network.description.title" = "在“设置”标签中启用后，您将可看到更多网络";
 "configureTransaction.gasPriceGwei.label.title" = "燃料价格（Gwei）";
 "enterPassword.navigation.title" = "设置密钥库密码";
