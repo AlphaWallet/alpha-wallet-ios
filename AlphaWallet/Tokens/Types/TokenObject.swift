@@ -234,7 +234,11 @@ class TokenObject: Object {
             if daiSymbol == symbol {
                 return "\(compositeName) (DAI)"
             } else {
-                return "\(compositeName) (\(symbol))"
+                if symbol.isEmpty {
+                    return compositeName
+                } else {
+                    return "\(compositeName) (\(symbol))"
+                }
             }
         }
     }
@@ -345,8 +349,11 @@ func isZeroBalance(_ balance: String, tokenType: TokenType) -> Bool {
             return true
         }
         return false
-    case .erc721, .erc721ForTickets, .erc1155:
+    case .erc721, .erc721ForTickets:
         return balance.isEmpty
+    case .erc1155:
+        //TODO this makes an assumption about the serialization format for `BigInt`, but avoids the performance hit for deserializing the JSON string to a type. Improve this architecture-wise
+        return balance.isEmpty || balance.contains("value\":[\"+\",0],\"")
     }
 }
 

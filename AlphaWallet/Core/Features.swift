@@ -13,5 +13,5 @@ enum Features {
     static let isEip3085AddEthereumChainEnabled = true
     static let isPromptForEmailListSubscriptionEnabled = true
     static let isAlertsEnabled = false
-    static let isErc1155Enabled = false
+    static let isErc1155Enabled = true
 }

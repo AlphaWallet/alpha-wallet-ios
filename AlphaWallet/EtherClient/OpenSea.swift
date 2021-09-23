@@ -20,6 +20,12 @@ class OpenSea {
     //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests
     private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
     private static let minimumSecondsBetweenRequests = TimeInterval(60)
+    private static let dateFormatter: DateFormatter = {
+        //Expect date string from asset_contract/created_date, etc as: "2020-05-27T16:53:32.834583"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        return dateFormatter
+    }()
     private static var instances = [AddressAndRPCServer: WeakRef<OpenSea>]()
     //NOTE: using AddressAndRPCServer fixes issue with incorrect tokens returned from makeFetchPromise
     // the problem was that cached OpenSea returned tokens from multiple wallets
@@ -141,7 +147,7 @@ class OpenSea {
                 case .erc721:
                     value = 1
                 case .erc1155:
-                    //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract
+                    //OpenSea API doesn't include value for ERC1155, so we'll have to batch fetch it later for each contract before we update the database
                     value = 0
                 }
                 let symbol = each["asset_contract"]["symbol"].stringValue
@@ -165,7 +171,9 @@ class OpenSea {
                     traits.append(trait)
                 }
                 if let contract = AlphaWallet.Address(string: each["asset_contract"]["address"].stringValue) {
-                    let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, value: value, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                    let collectionCreatedDate = each["asset_contract"]["created_date"].string.flatMap { OpenSea.dateFormatter.date(from: $0) }
+                    let collectionDescription = each["asset_contract"]["description"].string
+                    let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, value: value, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: collectionCreatedDate, collectionDescription: collectionDescription)
                     if var list = results[contract] {
                         list.append(cat)
                         results[contract] = list

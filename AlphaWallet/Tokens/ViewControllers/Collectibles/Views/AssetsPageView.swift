@@ -25,21 +25,17 @@ class TokenCardTableViewCellFactory {
     }
 
     func create(for tokenHolder: TokenHolder, edgeInsets: UIEdgeInsets = .init(top: 16, left: 20, bottom: 16, right: 16)) -> UIView & TokenCardRowViewProtocol & SelectionPositioningView {
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         var rowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView
-
-        switch tokenType {
-        case .backedByOpenSea:
-            rowView = SimplifiedBackedOpenSeaTokenCardRowView(tokenView: .viewIconified, edgeInsets: edgeInsets)
-        case .notBackedByOpenSea:
-            rowView = SimplifiedTokenCardRowView(tokenView: .view, edgeInsets: edgeInsets)
+        switch tokenHolder.tokenType {
+        case .erc875:
+            rowView = Erc875NonFungibleRowView(tokenView: .view, edgeInsets: edgeInsets)
+        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+            rowView = NonFungibleRowView(tokenView: .viewIconified, edgeInsets: edgeInsets)
         }
-
         rowView.shouldOnlyRenderIfHeightIsCached = false
-
         return rowView
     }
-    
+
 }
 
 class AssetsPageView: UIView, PageViewType {

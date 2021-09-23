@@ -158,6 +158,12 @@ class TokenAdaptor {
 
     private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = nonFungible(fromJsonData: data) else { return nil }
+        switch nonFungible.tokenType {
+        case .erc721:
+            break
+        case .erc1155:
+            guard !nonFungible.value.isZero else { return nil }
+        }
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let event: EventInstance?
@@ -190,14 +196,26 @@ class TokenAdaptor {
         }
         var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
         values["tokenId"] = .init(directoryString: nonFungible.tokenId)
+        if let date = nonFungible.collectionCreatedDate {
+            //Storing as GeneralisedTime because we only support that for date/time formats in TokenScript. We are using the same `values` infrastructure
+            var generalisedTime = GeneralisedTime()
+            generalisedTime.timeZone = TimeZone.current
+            generalisedTime.date = date
+            values["collectionCreatedDate"] = .init(generalisedTime: generalisedTime)
+        }
+        values["collectionDescription"] = nonFungible.collectionDescription.flatMap { .init(directoryString: $0) }
         values["name"] = .init(directoryString: nonFungible.name)
         values["description"] = .init(directoryString: nonFungible.description)
         values["imageUrl"] = .init(directoryString: nonFungible.imageUrl)
         values["contractImageUrl"] = .init(directoryString: nonFungible.contractImageUrl)
         values["thumbnailUrl"] = .init(directoryString: nonFungible.thumbnailUrl)
         values["externalLink"] = .init(directoryString: nonFungible.externalLink)
+        values["externalLink"] = .init(directoryString: nonFungible.externalLink)
         values["backgroundColor"] = nonFungible.backgroundColor.flatMap { .init(directoryString: $0) }
         values["traits"] = .init(openSeaTraits: nonFungible.traits)
+        values["value"] = .init(int: nonFungible.value)
+        values["decimals"] = .init(int: BigInt(nonFungible.decimals))
+        values["tokenType"] = .init(directoryString: nonFungible.tokenType.rawValue)
 
         let status: Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"

@@ -7,8 +7,8 @@
 
 import UIKit
 
-class SimplifiedTokenCardRowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView {
-
+//Very similar to NonFungibleRowView below, but keeping around to render FIFA tickets because some attributes are hardcoded
+class Erc875NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView {
     var checkboxImageView: UIImageView = UIImageView()
     var stateLabel: UILabel = UILabel()
     var tokenView: TokenView
@@ -17,7 +17,6 @@ class SimplifiedTokenCardRowView: TokenCardRowViewProtocol & UIView & SelectionP
     var additionalHeightToCompensateForAutoLayout: CGFloat = 0.0
     var shouldOnlyRenderIfHeightIsCached: Bool = false
 
-//    private var viewModel: TokenAssetTableViewCellViewModel?
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let tokenCountLabel = UILabel()
@@ -60,32 +59,21 @@ class SimplifiedTokenCardRowView: TokenCardRowViewProtocol & UIView & SelectionP
         return nil
     }
 
-    func configure(viewModel: SimplifiedTokenCardRowViewModel) {
+    func configure(viewModel: Erc875NonFungibleRowViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
-//        background.backgroundColor = viewModel.contentsBackgroundColor
-
-//        tokenCountLabel.textColor = viewModel.countColor
-//        tokenCountLabel.font = viewModel.tokenCountFont
-//        tokenCountLabel.text = viewModel.tokenCount
-
         titleLabel.text = viewModel.title
-        thumbnailImageView.url = nil//viewModel.imageUrl
-        descriptionLabel.attributedText = viewModel.attributedSescriptionText
+        thumbnailImageView.url = nil
+        descriptionLabel.attributedText = viewModel.attributedDescriptionText
     }
 
     func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenView = tokenView
-        configure(viewModel: SimplifiedTokenCardRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
+        configure(viewModel: Erc875NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
     }
 
 }
 
-class SimplifiedBackedOpenSeaTokenCardRowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView {
-
-    var positioningView: UIView {
-        return thumbnailImageView
-    }
-
+class NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView {
     var checkboxImageView: UIImageView = UIImageView()
     var stateLabel: UILabel = UILabel()
     var tokenView: TokenView
@@ -94,10 +82,12 @@ class SimplifiedBackedOpenSeaTokenCardRowView: TokenCardRowViewProtocol & UIView
     var additionalHeightToCompensateForAutoLayout: CGFloat = 0.0
     var shouldOnlyRenderIfHeightIsCached: Bool = false
 
-//    private let background = UIView()
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
-    private let tokenCountLabel = UILabel()
+
+    var positioningView: UIView {
+        thumbnailImageView
+    }
 
     private var thumbnailImageView: WebImageView = {
         let imageView = WebImageView(type: .thumbnail)
@@ -110,20 +100,19 @@ class SimplifiedBackedOpenSeaTokenCardRowView: TokenCardRowViewProtocol & UIView
         super.init(frame: .zero)
 
         titleLabel.baselineAdjustment = .alignCenters
-        tokenCountLabel.baselineAdjustment = .alignCenters
         descriptionLabel.baselineAdjustment = .alignCenters
 
         let col0 = thumbnailImageView
         let col1 = [
             [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5),
-            [descriptionLabel, UIView.spacerWidth(flexible: true), tokenCountLabel].asStackView(spacing: 5)
+            [descriptionLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)
         ].asStackView(axis: .vertical, spacing: 2)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-//            thumbnailImageView.heightAnchor.constraint(equalToConstant: 40),
+            thumbnailImageView.heightAnchor.constraint(equalToConstant: 40),
             thumbnailImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
         ])
@@ -133,33 +122,20 @@ class SimplifiedBackedOpenSeaTokenCardRowView: TokenCardRowViewProtocol & UIView
         return nil
     }
 
-    func configure(viewModel: SimplifiedOpenSeaNonFungibleTokenCardRowViewModel) {
+    func configure(viewModel: NonFungibleRowViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
-//        background.backgroundColor = viewModel.contentsBackgroundColor
-
-//        stateLabel.backgroundColor = viewModel.stateBackgroundColor
-//        stateLabel.layer.cornerRadius = 8
-//        stateLabel.clipsToBounds = true
-//        stateLabel.textColor = viewModel.stateColor
-//        stateLabel.font = viewModel.subtitleFont
-
-//        tokenCountLabel.textColor = viewModel.countColor
-//        tokenCountLabel.font = viewModel.tokenCountFont
-//        tokenCountLabel.text = viewModel.tokenCount
-
         titleLabel.text = viewModel.title
-
         thumbnailImageView.url = viewModel.imageUrl
         descriptionLabel.attributedText = viewModel.attributedDescriptionText
     }
 
     func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenView = tokenView
-        configure(viewModel: SimplifiedOpenSeaNonFungibleTokenCardRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: areDetailsVisible, width: width))
+        configure(viewModel: NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: areDetailsVisible, width: width))
     }
 }
 
-struct SimplifiedTokenCardRowViewModel: TokenCardRowViewModelProtocol {
+struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     private let tokenHolder: TokenHolder
     private let tokenView: TokenView
     private let assetDefinitionStore: AssetDefinitionStore
@@ -187,15 +163,19 @@ struct SimplifiedTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    var attributedSescriptionText: NSAttributedString {
-        return .init(string: "Assets \(tokenHolder.tokens.count) | Fixed Fungible Token", attributes: [
+    var attributedDescriptionText: NSAttributedString {
+        return .init(string: R.string.localizable.semifungiblesAssetsCount(_tokenCount), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])
     }
 
+    var _tokenCount: Int {
+        Int(tokenHolder.values["value"]?.intValue ?? 0)
+    }
+
     var tokenCount: String {
-        return "x\(tokenHolder.tokens.count)"
+        return "x\(_tokenCount)"
     }
 
     var city: String {
@@ -349,8 +329,7 @@ struct SimplifiedTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     }
 }
 
-struct SimplifiedOpenSeaNonFungibleTokenCardRowViewModel {
-    //private static var imageGenerator = ConvertSVGToPNG()
+struct NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let _tokenId: TokenId
@@ -382,12 +361,8 @@ struct SimplifiedOpenSeaNonFungibleTokenCardRowViewModel {
         return Colors.appHighlightGreen
     }
 
-    var tokenCount: String {
-        return "x\(tokenHolder.tokens.count)"
-    }
-
     var attributedDescriptionText: NSAttributedString {
-        return .init(string: "Assets \(tokenHolder.tokens.count) | Fixed Non Fungible Token", attributes: [
+        return .init(string: R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values["value"]?.intValue ?? 0)), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import BigInt
 
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
@@ -54,26 +55,29 @@ struct TokenInstanceViewModel2 {
     var configurations: [TokenInstanceViewConfiguration] {
         guard let values = tokenHolder.values(tokenId: tokenId), !values.isEmpty else { return [] }
         var previewViewModels: [TokenInstanceViewConfiguration] = []
-        for (key, each) in values {
-            guard key != "description" else { continue }
-            guard var value = each.value.resolvedValue?.description, !each.value.isSubscribableValue else { continue }
-            value = value.isEmpty ? "None" : value
-
+        if let tokenId = values["tokenId"]?.stringValue {
             previewViewModels += [
-                .field(viewModel: .init(title: key, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(value)))
+                .field(viewModel: .init(title: R.string.localizable.semifungiblesTokenId(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId)))
             ]
         }
-
-        if let value = values["description"]?.value.resolvedValue?.description, value.nonEmpty {
+        let value: BigInt = values["value"]?.intValue ?? 0
+        previewViewModels += [
+            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
+        ]
+        if let description = values["description"]?.value.resolvedValue?.stringValue.nilIfEmpty {
             previewViewModels += [
-                .header(viewModel: .init(title: "Details")),
-                .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(value, alignment: .left), isSeparatorHidden: true))
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left), isSeparatorHidden: true))
             ]
         }
 
         return [
-            .header(viewModel: .init(title: "Details"))
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
         ] + previewViewModels
+    }
+
+    var navigationTitle: String? {
+        tokenHolder.values["name"]?.stringValue
     }
 
     func toggleSelection(for indexPath: IndexPath) {
