@@ -4,23 +4,23 @@ import Foundation
 import BigInt
 import PromiseKit
 
-class Erc721Contract {
+class NonFungibleContract {
     private let server: RPCServer
 
     init(server: RPCServer) {
         self.server = server
     }
 
-    func getErc721TokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+    func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         firstly {
-            getErc721TokenUriImpl(for: tokenId, contract: contract)
+            getTokenUriImpl(for: tokenId, contract: contract)
         }.recover { _ in
-            self.getErc721Uri(for: tokenId, contract: contract)
+            self.getUri(for: tokenId, contract: contract)
         }
     }
 
-    private func getErc721TokenUriImpl(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetERC721TokenUri()
+    private func getTokenUriImpl(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+        let function = GetTokenUri()
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout)
         }.map { uriResult -> URL in
@@ -33,8 +33,8 @@ class Erc721Contract {
         }
     }
 
-    private func getErc721Uri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
-        let function = GetERC721Uri()
+    private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
+        let function = GetUri()
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout)
         }.map { uriResult -> URL in
