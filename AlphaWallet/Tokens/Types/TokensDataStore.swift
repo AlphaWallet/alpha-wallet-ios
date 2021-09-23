@@ -256,7 +256,7 @@ class TokensDataStore: NSObject {
         return tokenObject
     }
 
-    @discardableResult func addBatchObjectsOperation(values: [SingleChainTokenCoordinator.BatchObject]) -> [TokenObject] {
+    @discardableResult func addBatchObjects(values: [SingleChainTokenCoordinator.BatchObject]) -> [TokenObject] {
         guard !values.isEmpty else { return [] }
         var tokenObjects: [TokenObject] = []
 
@@ -396,14 +396,14 @@ class TokensDataStore: NSObject {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                let result = strongSelf.update(primaryKey: primaryKey, action: action)
+                let result = strongSelf.updateToken(primaryKey: primaryKey, action: action)
 
                 seal.fulfill(result)
             }
         }
     }
 
-    @discardableResult func update(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+    @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
         var result: Bool?
 
         realm.beginWrite()
