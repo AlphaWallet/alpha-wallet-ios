@@ -66,62 +66,62 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
     }
 
     private func promptAndActivateExistingServer(existingServer: RPCServer, inViewController viewController: UIViewController, callbackID: Int) {
-        let title = R.string.localizable.addCustomChainEnableExisting(existingServer.displayName, existingServer.chainID)
-        UIAlertController.alert(title: title,
-                message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
-                alertButtonStyles: [.destructive, .cancel],
-                viewController: viewController,
-                completion: { [self] choice in
-                    if choice == 0 {
-                        let enableChain = EnableChain(existingServer, restartQueue: self.restartQueue, url: self.currentUrl)
-                        enableChain.delegate = self
-                        enableChain.run()
-                    } else {
-                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
-                    }
-                })
+        func runEnableChain() {
+            let enableChain = EnableChain(existingServer, restartQueue: restartQueue, url: currentUrl)
+            enableChain.delegate = self
+            enableChain.run()
+        }
+
+        let configuration: SwitchChainRequestConfiguration = .promptAndActivateExistingServer(existingServer: existingServer)
+        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { result in
+            // NOTE: here we pretty sure that there is only one action
+            switch result {
+            case .action:
+                runEnableChain()
+            case .canceled:
+                self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+            }
+        }.cauterize()
     }
 
     private func promptAndAddAndActivateServer(customChain: WalletAddEthereumChainObject, customChainId: Int, inViewController viewController: UIViewController, callbackID: Int) {
-        let title = R.string.localizable.addCustomChainAddAndSwitch(customChain.chainName ?? R.string.localizable.addCustomChainUnnamed(), customChainId)
-        UIAlertController.alert(title: title,
-                message: nil,
-                alertButtonTitles: [R.string.localizable.settingsEnabledNetworksMainnet(), R.string.localizable.settingsEnabledNetworksTestnet(), R.string.localizable.cancel()],
-                alertButtonStyles: [.destructive, .destructive, .cancel],
-                viewController: viewController,
-                completion: { [self] choice in
-                    func runAddCustomChain(isTestnet: Bool) {
-                        let addCustomChain = AddCustomChain(customChain, isTestnet: isTestnet, restartQueue: self.restartQueue, url: self.currentUrl)
-                        self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
-                        addCustomChain.delegate = self
-                        addCustomChain.run()
-                    }
-                    switch choice {
-                    case 0:
-                        runAddCustomChain(isTestnet: false)
-                    case 1:
-                        runAddCustomChain(isTestnet: true)
-                    default:
-                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
-                    }
-                })
+        func runAddCustomChain(isTestnet: Bool) {
+            let addCustomChain = AddCustomChain(customChain, isTestnet: isTestnet, restartQueue: restartQueue, url: currentUrl)
+            self.addCustomChain = (chain: addCustomChain, callbackId: callbackID)
+            addCustomChain.delegate = self
+            addCustomChain.run()
+        }
+
+        let configuration: SwitchChainRequestConfiguration = .promptAndAddAndActivateServer(customChain: customChain, customChainId: customChainId)
+        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { result in
+            // NOTE: here we pretty sure that there is only one action
+            switch result {
+            case .action(let choice):
+                switch choice {
+                case 0:
+                    runAddCustomChain(isTestnet: false)
+                case 1:
+                    runAddCustomChain(isTestnet: true)
+                default:
+                    self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+                }
+            case .canceled:
+                self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+            }
+        }.cauterize()
     }
 
     private func promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer, viewController: UIViewController, callbackID: Int) {
-        let title = R.string.localizable.addCustomChainSwitchToExisting(existingServer.displayName, existingServer.chainID)
-        UIAlertController.alert(title: title,
-                message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
-                alertButtonStyles: [.destructive, .cancel],
-                viewController: viewController,
-                completion: { [self] choice in
-                    if choice == 0 {
-                        self.delegate?.switchBrowserToExistingServer(existingServer, url: self.currentUrl, inCoordinator: self)
-                    } else {
-                        self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
-                    }
-                })
+        let configuration: SwitchChainRequestConfiguration = .promptAndSwitchToExistingServerInBrowser(existingServer: existingServer)
+        SwitchChainRequestViewController.promise(viewController, configuration: configuration).done { result in
+            // NOTE: here we pretty sure that there is only one action
+            switch result {
+            case .action:
+                self.delegate?.switchBrowserToExistingServer(existingServer, url: self.currentUrl, inCoordinator: self)
+            case .canceled:
+                self.delegate?.userCancelled(withCallbackId: callbackID, inCoordinator: self)
+            }
+        }.cauterize()
     }
 
     //This is really only (and should only be) fired when the chain is already enabled and activated in browser. i.e. we are not supposed to have restarted the app UI or browser. It's a no-op. If DApps detect that the browser is already connected to the right chain, they might not even trigger this

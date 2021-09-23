@@ -87,7 +87,7 @@ extension AddRPCServerCoordinator: AddCustomChainDelegate {
 extension UIAlertController {
     static func promptToUseUnresolvedExplorerURL(customChain: WalletAddEthereumChainObject, chainId: Int, viewController: UIViewController) -> Promise<Bool> {
         let (promise, seal) = Promise<Bool>.pending()
-        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl(customChain.chainName ?? "-")
+        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl()
         let alertController = UIAlertController.alertController(title: R.string.localizable.warning(), message: message, style: .alert, in: viewController)
         let continueAction = UIAlertAction(title: R.string.localizable.continue(), style: .destructive, handler: { _ in
             seal.fulfill(true)
