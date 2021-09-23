@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 protocol AddRPCServerCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: AddRPCServerCoordinator)
@@ -66,6 +67,10 @@ extension AddRPCServerCoordinator: AddRPCServerViewControllerDelegate {
 }
 
 extension AddRPCServerCoordinator: AddCustomChainDelegate {
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
+        UIAlertController.promptToUseUnresolvedExplorerURL(customChain: customChain, chainId: chainId, viewController: navigationController)
+    }
+
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
@@ -77,4 +82,27 @@ extension AddRPCServerCoordinator: AddCustomChainDelegate {
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
     }
+}
+
+extension UIAlertController {
+    static func promptToUseUnresolvedExplorerURL(customChain: WalletAddEthereumChainObject, chainId: Int, viewController: UIViewController) -> Promise<Bool> {
+        let (promise, seal) = Promise<Bool>.pending()
+        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl(customChain.chainName ?? "-")
+        let alertController = UIAlertController.alertController(title: R.string.localizable.warning(), message: message, style: .alert, in: viewController)
+        let continueAction = UIAlertAction(title: R.string.localizable.continue(), style: .destructive, handler: { _ in
+            seal.fulfill(true)
+        })
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+            seal.fulfill(false)
+        })
+
+        alertController.addAction(continueAction)
+        alertController.addAction(cancelAction)
+
+        viewController.present(alertController, animated: true)
+
+        return promise
+    }
+    
 }

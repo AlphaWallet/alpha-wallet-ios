@@ -20,9 +20,14 @@ enum AddCustomChainError: Error {
     }
 }
 
+private enum ResolveExplorerApiHostnameError: Error {
+    case resolveExplorerApiHostnameFailure
+}
+
 protocol AddCustomChainDelegate: AnyObject {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain)
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain)
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool>
 }
 
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
@@ -41,11 +46,18 @@ class AddCustomChain {
         self.url = url
     }
 
+    typealias CustomChainWithChainIdAndRPC = (customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)
     func run() {
         firstly {
             functional.checkChainId(customChain)
-        }.then { customChain, chainId -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> in
-            functional.checkAndDetectUrls(customChain, chainId: chainId)
+        }.then { customChain, chainId -> Promise<CustomChainWithChainIdAndRPC> in
+            functional.checkAndDetectUrls(customChain, chainId: chainId).recover { e -> Promise<CustomChainWithChainIdAndRPC> in
+                if case ResolveExplorerApiHostnameError.resolveExplorerApiHostnameFailure = e {
+                    return self.requestToUseFailedExplorerHostname(customChain: customChain, chainId: chainId)
+                } else {
+                    throw e
+                }
+            }
         }.then { customChain, chainId, rpcUrl -> Promise<(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType)> in
             self.customChain = customChain
             return functional.checkExplorerType(customChain).map { (chainId: chainId, rpcUrl: rpcUrl, explorerType: $0) }
@@ -58,6 +70,20 @@ class AddCustomChain {
                 self.delegate?.notifyAddCustomChainFailed(error: error, in: self)
             } else {
                 self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown()) — \($0)"), in: self)
+            }
+        }
+    }
+
+    private func requestToUseFailedExplorerHostname(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<CustomChainWithChainIdAndRPC> {
+        guard let delegate = self.delegate else {
+            return .init(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
+        }
+
+        return delegate.notifyAddExplorerApiHostnameFailure(customChain: customChain, chainId: chainId).map { continueWithoutExplorerURL -> CustomChainWithChainIdAndRPC in
+            if let rpcUrl = customChain.rpcUrls?.first, continueWithoutExplorerURL {
+                return (customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
+            } else {
+                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl())
             }
         }
     }
@@ -134,6 +160,8 @@ extension AddCustomChain.functional {
                 updatedCustomChain.blockExplorerUrls = [newUrlString]
                 return (customChain: updatedCustomChain, chainId: chainId, rpcUrl: rpcUrl)
             }
+        }.recover { _ -> Guarantee<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> in
+            throw ResolveExplorerApiHostnameError.resolveExplorerApiHostnameFailure
         }
     }
 
@@ -156,6 +184,8 @@ extension AddCustomChain.functional {
             } else {
                 return .unknown
             }
+        }.recover { _ -> Guarantee<RPCServer.EtherscanCompatibleType> in
+            return .value(.unknown)
         }
     }
 

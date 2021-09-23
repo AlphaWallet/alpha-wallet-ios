@@ -91,11 +91,11 @@ extension UIAlertController {
         title: String? = .none,
         message: String? = .none,
         style: UIAlertController.Style,
-        in navigationController: UINavigationController
+        in viewController: UIViewController
     ) -> UIAlertController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: style)
-        alertController.popoverPresentationController?.sourceView = navigationController.view
-        alertController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
+        alertController.popoverPresentationController?.sourceView = viewController.view
+        alertController.popoverPresentationController?.sourceRect = viewController.view.centerRect
         return alertController
     }
 }
