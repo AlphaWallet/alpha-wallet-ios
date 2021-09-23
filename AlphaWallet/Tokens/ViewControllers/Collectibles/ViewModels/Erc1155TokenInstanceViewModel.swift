@@ -18,7 +18,7 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
-struct TokenInstanceViewModel2 {
+struct Erc1155TokenInstanceViewModel {
     let tokenId: TokenId
     let token: TokenObject
     let tokenHolder: TokenHolder
