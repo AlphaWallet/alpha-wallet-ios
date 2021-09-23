@@ -107,11 +107,11 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         let redeem = CreateRedeem(token: token)
         let redeemData: (message: String, qrCode: String)
         switch token.type {
-        case .nativeCryptocurrency, .erc20:
+        case .nativeCryptocurrency, .erc20, .erc1155:
             return
         case .erc875:
             redeemData = redeem.redeemMessage(indices: viewModel.tokenHolder.indices)
-        case .erc721, .erc721ForTickets, .erc1155:
+        case .erc721, .erc721ForTickets:
             redeemData = redeem.redeemMessage(tokenIds: viewModel.tokenHolder.tokens.map({ $0.id }))
         }
         switch session.account.type {

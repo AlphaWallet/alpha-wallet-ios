@@ -15,6 +15,7 @@ protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, C
     func some(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
 }
 
+//TODO support ERC1155 fungibles (where decimals is provided and > 0)
 class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let token: TokenObject
@@ -43,13 +44,12 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private lazy var selectedTokenCardsHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: "Selected tokens".uppercased()))
-
+        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens().uppercased()))
         return view
     }()
 
     private lazy var selectTokenCardAmountView: SelectTokenCardAmountView = {
-        let view = SelectTokenCardAmountView(viewModel: .init(availableAmount: 20, selectedAmount: 0))
+        let view = SelectTokenCardAmountView(viewModel: .init(availableAmount: 0, selectedAmount: 0))
         view.delegate = self
 
         return view
@@ -117,7 +117,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
             amountHeaderView,
             selectTokenCardAmountView,
             selectedTokenCardsHeaderView
-        ] + [selectedTokenCardsHeaderView] + generateViewsForSelectedTokenHolders(viewModel: viewModel)
+        ] + generateViewsForSelectedTokenHolders(viewModel: viewModel)
 
         containerView.stackView.addArrangedSubviews(subViews)
     }
@@ -191,11 +191,11 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         targetAddressTextField.label.attributedText = viewModel.targetAddressAttributedString
         targetAddressTextField.configureOnce()
 
-        selectTokenCardAmountView.configure(viewModel: .init(availableAmount: 10, selectedAmount: 0))
+        selectTokenCardAmountView.configure(viewModel: .init(availableAmount: Int(viewModel.tokenHolders[0].values["value"]?.intValue ?? 0), selectedAmount: 0))
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         amountHeaderView.isHidden = viewModel.isAmountSelectionHidden

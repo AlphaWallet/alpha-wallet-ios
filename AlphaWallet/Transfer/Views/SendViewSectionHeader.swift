@@ -8,23 +8,23 @@
 import UIKit
 
 class SendViewSectionHeader: UIView {
-    
+
     private let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.setContentHuggingPriority(.required, for: .vertical)
         label.setContentCompressionResistancePriority(.required, for: .vertical)
-        
+
         return label
     }()
-    
+
     private let topSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     private let bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class SendViewSectionHeader: UIView {
             stackView.anchorsConstraint(to: self)
         ])
     }
-    
+
     required init?(coder: NSCoder) {
         return nil
     }
@@ -70,4 +70,3 @@ class SendViewSectionHeader: UIView {
         topSeparatorLineHeight.constant = viewModel.showTopSeparatorLine ? separatorHeight : 0
     }
 }
-

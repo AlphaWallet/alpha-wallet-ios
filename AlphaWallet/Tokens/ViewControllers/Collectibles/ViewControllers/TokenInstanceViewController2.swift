@@ -10,7 +10,6 @@ import UIKit
 protocol TokenInstanceViewControllerDelegate2: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController2)
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController2)
-//    func didPressGenerateMagicLink(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController2)
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController2)
     func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController2)
     func didTapURL(url: URL, in viewController: TokenInstanceViewController2)
@@ -22,7 +21,8 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
     private let tokenObject: TokenObject
     private var viewModel: TokenInstanceViewModel2
     private let account: Wallet
-    private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
+    private let bigImageView = WebImageView(type: .original)
+    lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
 
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
 
@@ -73,7 +73,10 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
 
-        NSLayoutConstraint.activate([stackView.anchorsConstraint(to: view)])
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view),
+            bigImageHolderHeightConstraint,
+        ])
 
         configure(viewModel: viewModel)
     }
@@ -82,11 +85,24 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         fatalError("init(coder:) has not been implemented")
     }
 
+    //Blank out the title before pushing the send screen because longer (not even very long ones) titles will overlay the Send screen's back button
+    override func viewWillAppear(_ animated: Bool) {
+        title = viewModel.navigationTitle
+        super.viewWillAppear(animated)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        title = ""
+        super.viewWillDisappear(animated)
+    }
+
     private func generateSubviews(viewModel: TokenInstanceViewModel2) {
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
 
-        var subviews: [UIView] = [tokenRowView]
+        bigImageView.contentMode = .scaleAspectFit
+        bigImageView.backgroundColor = .clear
+        bigImageView.clipsToBounds = true
+        var subviews: [UIView] = [bigImageView]
 
         for each in viewModel.configurations {
             switch each {
@@ -114,6 +130,7 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         view.backgroundColor = viewModel.backgroundColor
         containerView.backgroundColor = viewModel.backgroundColor
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
+        title = viewModel.navigationTitle
 
         switch mode {
         case .preview:
@@ -126,20 +143,18 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
                 let action = viewModel.actions[index]
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-    //            switch account.type {
-    //            case .real:
-    //                if let selection = action.activeExcludingSelection(selectedTokenHolder: tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: account.address) {
-    //                    if selection.denial == nil {
-    //                        button.displayButton = false
-    //                    }
-    //                }
-    //            case .watch:
-    //                button.isEnabled = false
-    //            }
             }
         }
 
-        tokenRowView.configure(tokenHolder: tokenHolder, tokenId: viewModel.tokenId, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
+        if let url = tokenHolder.values["imageUrl"]?.stringValue.flatMap({ URL(string: $0) }) {
+            bigImageView.url = url
+            bigImageHolderHeightConstraint.constant = 300
+        } else if let url = tokenHolder.values["thumbnailUrl"]?.stringValue.flatMap({ URL(string: $0) }) {
+            bigImageView.url = url
+            bigImageHolderHeightConstraint.constant = 300
+        } else {
+            bigImageHolderHeightConstraint.constant = 0
+        }
 
         generateSubviews(viewModel: viewModel)
     }
@@ -148,20 +163,20 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == viewModel.tokenId }) }).flatMap { ($0, viewModel.tokenId) }
     }
 
-    func redeem() {
+    private func redeem() {
         delegate?.didPressRedeem(token: tokenObject, tokenHolder: tokenHolder, in: self)
     }
 
-    func sell() {
+    private func sell() {
         delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .ERC875Token(tokenObject)), in: self)
     }
 
-    func transfer() {
+    private func transfer() {
         let transactionType = TransactionType(token: tokenObject)
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transactionType), in: self)
     }
 
-    @objc func actionButtonTapped(sender: UIButton) {
+    @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
@@ -192,42 +207,6 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
                     delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
                 }
             }
-            break
-        }
-    }
-
-    private func createTokenRowView() -> TokenCardRowViewProtocol & UIView {
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
-        let rowView: TokenCardRowViewProtocol & UIView
-        switch tokenType {
-        case .backedByOpenSea:
-            rowView = {
-                let rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .view, showCheckbox: false)
-                rowView.delegate = self
-
-                let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOpenSeaTokenCardRowView))
-                rowView.addGestureRecognizer(tapGestureRecognizer)
-
-                return rowView
-            }()
-        case .notBackedByOpenSea:
-            rowView = {
-                let view = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
-                view.isStandalone = true
-                view.tokenScriptRendererView.isWebViewInteractionEnabled = true
-                return view
-            }()
-        }
-        return rowView
-    }
-
-    @objc private func tappedOpenSeaTokenCardRowView() {
-        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
-        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view) {
-        case .backedByOpenSea:
-            viewModel.toggleSelection(for: .init(row: 0, section: 0))
-            configure()
-        case .notBackedByOpenSea:
             break
         }
     }

@@ -559,18 +559,37 @@ extension TransactionConfirmationViewModel {
                     return .init(title: .normal(configurationTitle), headerName: headerName, details: gasFee, configuration: configuration)
                 }
             case .tokenId:
-                let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
-                let title: String
-                if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
-                    if let tokenId = tokenId {
-                        title = "\(tokenInstanceName) (\(tokenId))"
+                switch transactionType {
+                case .ERC1155Token:
+                    let title: String
+                    if let tokenIdAndValue = configurator.transaction.tokenIdsAndValues?.first {
+                        let tokenId = tokenIdAndValue.tokenId
+                        let value = tokenIdAndValue.value
+                        if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
+                            title = "\(value) x \(tokenInstanceName) (\(tokenId))"
+                        } else {
+                            title = "\(value) x \(tokenId)"
+                        }
                     } else {
-                        title = tokenInstanceName
+                        //TODO this really shouldn't be possible
+                        title = tokenInstanceName ?? ""
                     }
-                } else {
-                    title = tokenId ?? ""
+                    return .init(title: .normal(title), headerName: headerName, configuration: configuration)
+                case .nativeCryptocurrency, .ERC20Token, .ERC721Token, .claimPaidErc875MagicLink, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .dapp, .tokenScript:
+                    //This is really just for ERC721, but the type system…
+                    let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
+                    let title: String
+                    if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
+                        if let tokenId = tokenId {
+                            title = "\(tokenInstanceName) (\(tokenId))"
+                        } else {
+                            title = tokenInstanceName
+                        }
+                    } else {
+                        title = tokenId ?? ""
+                    }
+                    return .init(title: .normal(title), headerName: headerName, configuration: configuration)
                 }
-                return .init(title: .normal(title), headerName: headerName, configuration: configuration)
             case .recipient:
                 return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)
             }

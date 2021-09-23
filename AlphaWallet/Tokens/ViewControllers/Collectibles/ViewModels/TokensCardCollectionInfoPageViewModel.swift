@@ -34,37 +34,16 @@ struct TokensCardCollectionInfoPageViewModel {
         configurations = generateConfigurations(token, tokenHolders: tokenHolders)
     }
 
-    var issuerViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Issuer", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("Enjin"))
-    }
-
-    var totalReserveViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Total Reserve", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("3 ETH"))
-    }
-
     var createdDateViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Created", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("27 Apr 2021 10:52:15"))
-    }
-
-    var assetsViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Assets", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("215 Assets in 4 Types"))
-    }
-
-    var meltsViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Melts", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("0"))
-    }
-
-    var hodlersViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Hodlers", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("1"))
-    }
-
-    var transfersViewModel: TokenInstanceAttributeViewModel {
-        return .init(title: "Transfers", attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString("0"))
+        let string: String? = tokenHolders.first?.values["collectionCreatedDate"]?.generalisedTimeValue?.formatAsShortDateString()
+        let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+        return .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: attributedString)
     }
 
     var descriptionViewModel: TokenInstanceAttributeViewModel {
-        let value = "This is Mathilde Cretier's artwork collection. It was reproduced by tomek.eth"
-        return .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(value, alignment: .left), isSeparatorHidden: true)
+        let string: String? = tokenHolders.first?.values["collectionDescription"]?.stringValue
+        let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .left) }
+        return .init(title: nil, attributedValue: attributedString, isSeparatorHidden: true)
     }
 
     var backgroundColor: UIColor {
@@ -83,17 +62,12 @@ struct TokensCardCollectionInfoPageViewModel {
         var configurations: [TokensCardCollectionInfoPageViewConfiguration] = []
 
         configurations = [
-            .header(viewModel: .init(title: "Details")),
-            .field(viewModel: issuerViewModel),
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails())),
             .field(viewModel: createdDateViewModel),
-            .field(viewModel: assetsViewModel),
-            .field(viewModel: meltsViewModel),
-            .field(viewModel: hodlersViewModel),
-            .field(viewModel: transfersViewModel),
         ]
 
         configurations += [
-            .header(viewModel: .init(title: "Description")),
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
             .field(viewModel: descriptionViewModel),
         ]
 

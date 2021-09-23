@@ -12,13 +12,8 @@ import PromiseKit
 import RealmSwift
 
 protocol TokensCardCollectionViewControllerDelegate: class, CanOpenURL {
-//    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokensCardCollectionViewController)
-//    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, inViewController viewController: TokensCardCollectionViewController)
-//    func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokensCardCollectionViewController)
-//    func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokensCardCollectionViewController)
     func didTap(transaction: TransactionInstance, in viewController: TokensCardCollectionViewController)
     func didTap(activity: Activity, in viewController: TokensCardCollectionViewController)
-//    func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokensCardCollectionViewController)
     func didSelectAssetSelection(in viewController: TokensCardCollectionViewController)
     func didSelectTokenHolder(in viewController: TokensCardCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder)
 }
@@ -88,7 +83,8 @@ class TokensCardCollectionViewController: UIViewController {
 
             strongSelf.activitiesPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
         }
-        assetsPageView.rightBarButtonItem = UIBarButtonItem(title: "Select", style: .plain, target: self, action: #selector(assetSelectionSelected))
+        //TODO disabled until we support batch transfers. Selection doesn't work correctly too
+        //assetsPageView.rightBarButtonItem = UIBarButtonItem(title: "Select", style: .plain, target: self, action: #selector(assetSelectionSelected))
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -159,49 +155,7 @@ class TokensCardCollectionViewController: UIViewController {
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-//            switch action.type {
-//            case .swap(let service):
-//                delegate?.didTapSwap(forTransactionType: transactionType, service: service, inViewController: self)
-//            case .erc20Send:
-//                send()
-//            case .erc20Receive:
-//                receive()
-//            case .nftRedeem, .nftSell, .nonFungibleTransfer:
-//                break
-//            case .tokenScript:
-//                if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
-//                    if let denialMessage = selection.denial {
-//                        UIAlertController.alert(
-//                                message: denialMessage,
-//                                alertButtonTitles: [R.string.localizable.oK()],
-//                                alertButtonStyles: [.default],
-//                                viewController: self
-//                        )
-//                    } else {
-//                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-//                    }
-//                } else {
-//                    delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
-//                }
-//            case .xDaiBridge:
-//                delegate?.shouldOpen(url: Constants.xDaiBridge, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
-//            case .buy(let service):
-//                var tokenObject: TokenActionsServiceKey?
-//                switch transactionType {
-//                case .nativeCryptocurrency(let token, _, _):
-//                    tokenObject = TokenActionsServiceKey(tokenObject: token)
-//                case .ERC20Token(let token, _, _):
-//                    tokenObject = TokenActionsServiceKey(tokenObject: token)
-//                case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-//                    tokenObject = .none
-//                }
-//
-//                guard let token = tokenObject, let url = service.url(token: token) else { return }
-//
-//                logStartOnRamp(name: "Ramp")
-//                delegate?.shouldOpen(url: url, shouldSwitchServer: false, forTransactionType: transactionType, inViewController: self)
-//            }
-//            break
+            //TODO ?!
         }
     }
 }
@@ -251,35 +205,9 @@ struct TokensCardCollectionViewControllerViewModel {
     }
 
     private let assetDefinitionStore: AssetDefinitionStore
-
     let token: TokenObject
     let tokenHolders: [TokenHolder]
-
-    var actions: [TokenInstanceAction] {
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        let actionsFromTokenScript = xmlHandler.actions
-        if actionsFromTokenScript.isEmpty {
-            switch token.type {
-            case .erc875, .erc721ForTickets:
-                return [
-                    .init(type: .nftSell),
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .erc1155:
-                return [
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .erc721:
-                return [
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .nativeCryptocurrency, .erc20:
-                return []
-            }
-        } else {
-            return actionsFromTokenScript
-        }
-    }
+    let actions: [TokenInstanceAction] = []
 
     var backgroundColor: UIColor {
         return Colors.appBackground

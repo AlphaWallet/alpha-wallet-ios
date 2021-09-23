@@ -15,9 +15,10 @@ struct SelectableTokenCardContainerTableViewCellViewModel {
     }
 
     var availableAmount: Int {
-        token?.amount ?? 1
+        //TODO check correct?
+        return token?.amount ?? 1
     }
-    
+
     var contentsBackgroundColor: UIColor {
         return selectionViewModel.isSelected ? R.color.solitude()! : Screen.TokenCard.Color.background
     }
@@ -33,15 +34,6 @@ struct SelectableTokenCardContainerTableViewCellViewModel {
         return NSAttributedString(string: "Infinite Fungible Token", attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
-        ])
-    }
-
-    var amountAttributedString: NSAttributedString? {
-        guard let amount = token?.amount else { return nil }
-
-        return NSAttributedString(string: "x\(amount)", attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.valueChangeValue
         ])
     }
 
