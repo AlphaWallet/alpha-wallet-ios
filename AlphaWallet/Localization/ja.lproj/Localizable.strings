@@ -674,3 +674,7 @@ You can check the latest gas price on gasnow.org";
 "sortTokens.param.valueDescending" = "Value: Descending";
 "sortTokens.param.mostUsed" = "Most Used";
 "sortTokens.sortBy" = "Sort: By %@";
+"switchChainRequest.title" = "Switch Chain Request";
+"switchChainRequest.action.enableSwitchReload" = "Enable, Switch & Reload";
+"switchChainRequest.action.switchReload" = "Switch & Reload";
+"switchChainRequest.action.addSwitchReload" = "Add, Switch & Reload %@";
