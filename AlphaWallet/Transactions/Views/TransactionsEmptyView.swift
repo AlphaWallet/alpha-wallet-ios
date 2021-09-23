@@ -16,6 +16,7 @@ class TransactionsEmptyView: UIView {
         title: String = R.string.localizable.transactionsNoTransactionsLabelTitle(),
         image: UIImage? = R.image.no_transactions_mascot(),
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
+        spacing: CGFloat = 30,
         onRetry: (() -> Void)? = .none
     ) {
         self.insets = insets
@@ -39,7 +40,7 @@ class TransactionsEmptyView: UIView {
         let stackView = [
             imageView,
             titleLabel,
-        ].asStackView(axis: .vertical, spacing: 30, alignment: .center)
+        ].asStackView(axis: .vertical, spacing: spacing, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         if onRetry != nil {

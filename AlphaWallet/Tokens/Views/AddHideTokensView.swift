@@ -2,11 +2,11 @@
 
 import UIKit
 
-protocol ShowAddHideTokensViewDelegate: AnyObject {
-    func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton)
+protocol AddHideTokensViewDelegate: AnyObject {
+    func view(_ view: AddHideTokensView, didSelectAddHideTokensButton sender: UIButton)
 }
 
-class ShowAddHideTokensView: UITableViewHeaderFooterView {
+class AddHideTokensView: UIView, ReusableTableHeaderViewType {
     private let addTokenTitleLeftInset: CGFloat = 7
     private lazy var addTokenButton: UIButton = {
         let button = UIButton()
@@ -47,18 +47,11 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
         }
     }
 
-    weak var delegate: ShowAddHideTokensViewDelegate?
+    weak var delegate: AddHideTokensViewDelegate?
 
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
-        setupViews()
-    }
-
-    required init?(coder: NSCoder) {
-        return nil
-    }
-
-    private func setupViews() {
+    init() {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
         addSubview(addTokenButton)
         addSubview(badgeIndicatorView)
         badgeIndicatorView.addSubview(badgeLabel)
@@ -69,17 +62,22 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
             badgeIndicatorView.widthAnchor.constraint(greaterThanOrEqualTo: badgeIndicatorView.heightAnchor),
             badgeIndicatorView.centerXAnchor.constraint(equalTo: addTokenButton.trailingAnchor, constant: -2),
             badgeIndicatorView.centerYAnchor.constraint(equalTo: addTokenButton.topAnchor),
-            badgeLabel.anchorsConstraint(to: badgeIndicatorView)
+            badgeLabel.anchorsConstraint(to: badgeIndicatorView),
         ])
 
         //NOTE: We add tap gesture to prevent broke layout for 'badgeIndicatorView', because it snapped to buttons top, and we can't set buttons height is equal to superview height.
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
-        contentView.isUserInteractionEnabled = true
-        contentView.addGestureRecognizer(tap)
+        isUserInteractionEnabled = true
+        addGestureRecognizer(tap)
+    }
+
+    required init?(coder: NSCoder) {
+        return nil
     }
 
     func configure(viewModel: ShowAddHideTokensViewModel = .init()) {
-        contentView.backgroundColor = viewModel.backgroundColor
+        backgroundColor = viewModel.backgroundColor
+        addTokenButton.setImage(viewModel.addHideTokensIcon, for: .normal)
         addTokenButton.setTitle(viewModel.addHideTokensTitle, for: .normal)
         addTokenButton.setTitleColor(viewModel.addHideTokensTintColor, for: .normal)
         addTokenButton.titleLabel?.font = viewModel.addHideTokensTintFont
@@ -102,3 +100,4 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
         delegate?.view(self, didSelectAddHideTokensButton: sender)
     }
 }
+

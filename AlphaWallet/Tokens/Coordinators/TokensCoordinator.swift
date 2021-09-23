@@ -84,6 +84,10 @@ class TokensCoordinator: Coordinator {
         return tokensViewController
     }()
     private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private lazy var alertService: PriceAlertServiceType = {
+        PriceAlertService(datastore: PriceAlertDataStore(wallet: sessions.anyValue.account), wallet: sessions.anyValue.account)
+    }()
+
     init(
             navigationController: UINavigationController = UINavigationController(),
             sessions: ServerDictionary<WalletSession>,
@@ -131,6 +135,7 @@ class TokensCoordinator: Coordinator {
         }
         addUefaTokenIfAny()
         showTokens()
+        alertService.start()
     }
 
     private func setupSingleChainTokenCoordinators() {
@@ -139,7 +144,7 @@ class TokensCoordinator: Coordinator {
             let session = sessions[server]
             let price = nativeCryptoCurrencyPrices[server]
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -399,7 +404,31 @@ extension TokensCoordinator: WalletCoordinatorDelegate {
     }
 }
 
+extension TokensCoordinator: EditPriceAlertCoordinatorDelegate {
+    func didClose(in coordinator: EditPriceAlertCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didUpdateAlert(in coordinator: EditPriceAlertCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
+
+    func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: cordinator.session, alertService: alertService)
+        addCoordinator(coordinatorToAdd)
+        coordinatorToAdd.delegate = self
+        coordinatorToAdd.start()
+    }
+
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in cordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), tokenObject: tokenObject, session: cordinator.session, alertService: alertService)
+        addCoordinator(coordinatorToAdd)
+        coordinatorToAdd.delegate = self
+        coordinatorToAdd.start()
+    }
 
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)

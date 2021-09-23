@@ -8,9 +8,10 @@
 import UIKit
 
 struct ShowAddHideTokensViewModel {
-    var addHideTokensTitle: String? {
-        R.string.localizable.walletsAddHideTokensTitle()
-    }
+
+    var addHideTokensIcon: UIImage? = nil
+
+    var addHideTokensTitle: String? = R.string.localizable.walletsAddHideTokensTitle()
 
     var addHideTokensTintColor: UIColor {
         Colors.appTint

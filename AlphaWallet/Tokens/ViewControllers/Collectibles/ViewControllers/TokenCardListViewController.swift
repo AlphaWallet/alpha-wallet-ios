@@ -148,7 +148,7 @@ extension TokenCardListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
 
-        delegate.flatMap { $0.didSelectTokenCard(in: self, tokenId: selection.tokenId) }
+        delegate?.didSelectTokenCard(in: self, tokenId: selection.tokenId)
     }
 }
 

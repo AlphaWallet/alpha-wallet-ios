@@ -159,9 +159,9 @@ class TokenCardSelectionViewController: UIViewController {
             case .clear:
                 clearAllSelections()
             case .sell:
-                delegate.flatMap { $0.didTapSell(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders) }
+                delegate?.didTapSell(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
             case .deal:
-                delegate.flatMap { $0.didTapDeal(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders) }
+                delegate?.didTapDeal(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
             }
         }
     }
@@ -496,7 +496,7 @@ extension TokenCardSelectionViewController {
         }
 
         func selectAllSelected(in view: TokenCardSelectionViewController.SelectAllAssetsView) {
-            delegate.flatMap { $0.didSelectAll(in: self) }
+            delegate?.didSelectAll(in: self)
         }
 
     }

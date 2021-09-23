@@ -18,7 +18,7 @@ protocol TokensViewControllerDelegate: AnyObject {
 
 class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
-    private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
+    static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
     enum Section {
         case walletSummary
@@ -53,7 +53,7 @@ class TokensViewController: UIViewController {
         tableView.register(ServerTableViewCell.self)
 
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<SegmentedControl>.self)
-        tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
@@ -175,6 +175,14 @@ class TokensViewController: UIViewController {
     private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
     private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
     private let walletSummarySubscription: Subscribable<WalletBalance>
+
+    private lazy var addHideTokens: AddHideTokensView = {
+        let view = AddHideTokensView()
+        view.delegate = self
+        view.configure()
+
+        return view
+    }()
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -474,9 +482,9 @@ extension TokensViewController: UITableViewDelegate {
 
             return header
         case .addHideToken:
-            let header: ShowAddHideTokensView = tableView.dequeueReusableHeaderFooterView()
-            header.delegate = self
-            header.configure()
+            let header: TokensViewController.GeneralTableViewSectionHeader<AddHideTokensView> = tableView.dequeueReusableHeaderFooterView()
+            header.subview = addHideTokens
+            header.useSeparatorLine = false
 
             return header
         case .activeWalletSession(let count):
@@ -494,7 +502,7 @@ extension TokensViewController: UITableViewDelegate {
 extension TokensViewController: ActiveWalletSessionViewDelegate {
 
     func view(_ view: ActiveWalletSessionView, didSelectTap sender: UITapGestureRecognizer) {
-        delegate.flatMap { $0.walletConnectSelected(in: self) }
+        delegate?.walletConnectSelected(in: self)
     }
 }
 
@@ -769,8 +777,8 @@ extension TokensViewController {
     }
 }
 
-extension TokensViewController: ShowAddHideTokensViewDelegate {
-    func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
+extension TokensViewController: AddHideTokensViewDelegate {
+    func view(_ view: AddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
         delegate?.didPressAddHideTokens(viewModel: viewModel)
     }
 }

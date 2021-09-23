@@ -160,7 +160,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         UITapGestureRecognizer(addToView: subview) { [weak self] in
             guard let strongSelf = self else { return }
 
-            strongSelf.delegate.flatMap { $0.some(tokenHolder: tokenHolder, in: strongSelf) }
+            strongSelf.delegate?.some(tokenHolder: tokenHolder, in: strongSelf)
         }
     }
 

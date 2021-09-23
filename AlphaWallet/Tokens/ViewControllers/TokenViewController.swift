@@ -14,15 +14,15 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, inViewController viewController: TokenViewController)
     func didTap(activity: Activity, inViewController viewController: TokenViewController)
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController)
+    func didTapAddAlert(for tokenObject: TokenObject, in viewController: TokenViewController)
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: TokenViewController)
 }
 
 class TokenViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
     private var viewModel: TokenViewControllerViewModel
     private var tokenHolder: TokenHolder?
     private let tokenObject: TokenObject
     private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let transactionType: TransactionType
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -37,44 +37,45 @@ class TokenViewController: UIViewController {
         return view
     }()
     private var activitiesPageView: ActivitiesPageView
-    private lazy var alertsPageView = AlertsPageView()
+    private var alertsPageView: PriceAlertsPageView
     private let activitiesService: ActivitiesServiceType
     private var activitiesSubscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
+    private var alertsSubscriptionKey: Subscribable<[PriceAlert]>.SubscribableKey?
+    private let alertService: PriceAlertServiceType
+    private lazy var alertsSubscribable = alertService.alertsSubscribable(strategy: .token(tokenObject))
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType) {
+    init(session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
         self.transactionType = transactionType
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
+        self.alertService = alertService
 
         activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
+        alertsPageView = PriceAlertsPageView(viewModel: .init(alerts: []))
 
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
 
         activitiesPageView.delegate = self
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        let containerView = PagesContainerView(pages: [tokenInfoPageView, activitiesPageView])
-        roundedBackground.addSubview(containerView)
+        alertsPageView.delegate = self
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
-        roundedBackground.addSubview(footerBar)
+        let pageWithFooter = PageViewWithFooter(pageView: tokenInfoPageView, footerBar: footerBar)
+        let pages: [PageViewType]
+        if Features.isAlertsEnabled && viewModel.balanceViewModel?.ticker != nil {
+            pages = [pageWithFooter, activitiesPageView, alertsPageView]
+        } else {
+            pages = [pageWithFooter, activitiesPageView]
+        }
 
-        NSLayoutConstraint.activate([
-            footerBar.anchorsConstraint(to: view),
+        let containerView = PagesContainerView(pages: pages)
 
-            containerView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            containerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        view.addSubview(containerView)
+        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
         navigationItem.largeTitleDisplayMode = .never
 
@@ -83,6 +84,12 @@ class TokenViewController: UIViewController {
 
             view.configure(viewModel: .init(activitiesViewModel: viewModel ?? .init(activities: [])))
         }
+
+        alertsSubscriptionKey = alertsSubscribable.subscribe { [weak alertsPageView] alerts in
+            guard let view = alertsPageView else { return }
+
+            view.configure(viewModel: .init(alerts: alerts ?? []))
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -90,6 +97,7 @@ class TokenViewController: UIViewController {
     }
 
     deinit {
+        alertsSubscriptionKey.flatMap { alertsSubscribable.unsubscribe($0) }
         activitiesSubscriptionKey.flatMap { activitiesService.subscribableViewModel.unsubscribe($0) }
     }
 
@@ -121,6 +129,7 @@ class TokenViewController: UIViewController {
         viewModel2.values = viewModel.chartHistory
 
         tokenInfoPageView.configure(viewModel: viewModel2)
+        alertsPageView.configure(viewModel: .init(alerts: alertsSubscribable.value ?? []))
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
@@ -261,7 +270,7 @@ class TokenViewController: UIViewController {
         guard let tokenObject = viewModel.token else { return nil }
         let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: session.server, account: session.account)
         let subscribablesForAttributeValues = values.values
         let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
         if allResolved {
@@ -292,6 +301,28 @@ extension TokenViewController: CanOpenURL2 {
 extension TokenViewController: TokenInfoPageViewDelegate {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
+    }
+}
+
+extension TokenViewController: PriceAlertsPageViewDelegate {
+    func addAlertSelected(in view: PriceAlertsPageView) {
+        delegate?.didTapAddAlert(for: tokenObject, in: self)
+    }
+
+    func editAlertSelected(in view: PriceAlertsPageView, alert: PriceAlert) {
+        delegate?.didTapEditAlert(for: tokenObject, alert: alert, in: self)
+    }
+
+    func removeAlert(in view: PriceAlertsPageView, indexPath: IndexPath) {
+        alertService.remove(indexPath: indexPath).done { _ in
+            // no-op
+        }.cauterize()
+    }
+
+    func updateAlert(in view: PriceAlertsPageView, value: Bool, indexPath: IndexPath) {
+        alertService.update(indexPath: indexPath, update: .enabled(value)).done { _ in
+            // no-op
+        }.cauterize()
     }
 }
 

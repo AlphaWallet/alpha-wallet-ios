@@ -47,7 +47,7 @@ class TokenCardSelectionCoordinator: Coordinator {
 
     @objc private func doneButtonSelected(_ sender: UIBarButtonItem) {
         parentsNavigationController.dismiss(animated: true) {
-            self.delegate.flatMap { $0.didFinish(in: self) }
+            self.delegate?.didFinish(in: self)
         }
     }
 }
@@ -55,13 +55,13 @@ class TokenCardSelectionCoordinator: Coordinator {
 extension TokenCardSelectionCoordinator: TokenCardSelectionViewControllerDelegate {
     func didTapSell(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
-            self.delegate.flatMap { $0.didTapSell(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders) }
+            self.delegate?.didTapSell(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
         }
     }
 
     func didTapDeal(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
-            self.delegate.flatMap { $0.didTapDeal(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders) }
+            self.delegate?.didTapDeal(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
         }
     }
 }

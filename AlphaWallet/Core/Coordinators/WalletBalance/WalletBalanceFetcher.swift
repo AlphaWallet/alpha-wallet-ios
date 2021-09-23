@@ -138,7 +138,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }).done(on: queue, { [weak self] _ in
             guard let strongSelf = self else { return }
 
-            strongSelf.delegate.flatMap { $0.didUpdate(in: strongSelf) }
+            strongSelf.delegate?.didUpdate(in: strongSelf)
         }).cauterize()
     }
 
