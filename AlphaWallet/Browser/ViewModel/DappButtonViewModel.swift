@@ -5,11 +5,11 @@ import UIKit
 
 struct DappButtonViewModel {
     var font: UIFont? {
-        return Fonts.semibold(size: 10)
+        return Fonts.regular(size: 13)
     }
 
     var textColor: UIColor? {
-        return .init(red: 77, green: 77, blue: 77)
+        return R.color.dove()
     }
 
     var imageForEnabledMode: UIImage? {

@@ -10,6 +10,7 @@ protocol DappBrowserNavigationBarDelegate: AnyObject {
     func didTapForward(inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapClose(inNavigationBar navigationBar: DappBrowserNavigationBar)
+    func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar)
 }
 
 private enum State {
@@ -26,17 +27,90 @@ private struct Layout {
 
 final class DappBrowserNavigationBar: UINavigationBar {
     private let stackView = UIStackView()
-    private let moreButton = UIButton(type: .system)
+    private let moreButton: UIButton = {
+        let moreButton = UIButton(type: .system)
+        moreButton.tintColor = Colors.black
+        moreButton.adjustsImageWhenHighlighted = true
+        moreButton.setImage(R.image.toolbarMenu(), for: .normal)
+        moreButton.backgroundColor = Colors.appWhite
+        return moreButton
+    }()
+
+    private let homeButton: UIButton = {
+        let homeButton = UIButton(type: .system)
+        homeButton.tintColor = Colors.black
+        homeButton.adjustsImageWhenHighlighted = true
+        homeButton.setImage(R.image.iconsSystemHome(), for: .normal)
+
+        return homeButton
+    }()
+
     //Change server button is remove, for now to make browser more generic
     //TODO re-evaluate if we can put it back
     private let changeServerButton = UIButton(type: .system)
-    private let cancelEditingButton = UIButton(type: .system)
-    private let closeButton = UIButton(type: .system)
+    private let cancelEditingButton: UIButton = {
+        let cancelEditingButton = UIButton(type: .system)
+        cancelEditingButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        //compression and hugging priority required to make cancel button appear reliably yet not be too wide
+        cancelEditingButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        cancelEditingButton.isHidden = true
+        cancelEditingButton.clipsToBounds = true
+        cancelEditingButton.backgroundColor = Colors.appWhite
 
-    private let textField = UITextField()
+        return cancelEditingButton
+    }()
+    private let closeButton: UIButton = {
+        let closeButton = UIButton(type: .system)
+        closeButton.tintColor = Colors.black
+        closeButton.isHidden = true
+        closeButton.setTitle(R.string.localizable.done(), for: .normal)
+        closeButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        closeButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        return closeButton
+    }()
+
+    private lazy var textField: UITextField = {
+        let textField = UITextField()
+        textField.autocapitalizationType = .none
+        textField.autoresizingMask = .flexibleWidth
+        textField.delegate = self
+        textField.autocorrectionType = .no
+        textField.returnKeyType = .go
+        textField.clearButtonMode = .whileEditing
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 40))
+        textField.leftViewMode = .always
+        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
+        textField.keyboardType = .webSearch
+        textField.borderStyle = .none
+        textField.backgroundColor = .white
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.cornerRadius = DataEntry.Metric.cornerRadius
+
+        return textField
+    }()
+
     private let domainNameLabel = UILabel()
-    private let backButton = UIButton(type: .system)
-    private let forwardButton = UIButton(type: .system)
+    private let backButton: UIButton = {
+        let backButton = UIButton(type: .system)
+        backButton.tintColor = Colors.black
+        backButton.adjustsImageWhenHighlighted = true
+        backButton.setImage(R.image.toolbarBack(), for: .normal)
+
+        return backButton
+    }()
+    private let forwardButton: UIButton = {
+        let forwardButton = UIButton(type: .system)
+        forwardButton.tintColor = Colors.black
+        forwardButton.adjustsImageWhenHighlighted = true
+        forwardButton.setImage(R.image.toolbarForward(), for: .normal)
+
+        return forwardButton
+    }()
     private var viewsToShowWhenNotEditing = [UIView]()
     private var viewsToShowWhenEditing = [UIView]()
     private var viewsToShowWhenBrowserOnly = [UIView]()
@@ -55,9 +129,12 @@ final class DappBrowserNavigationBar: UINavigationBar {
                 hide = viewsToShowWhenEditing + viewsToShowWhenNotEditing - viewsToShowWhenBrowserOnly
                 show = viewsToShowWhenBrowserOnly
             }
+
             hide.hideAll()
             show.showAll()
+            //FIXME: need to resolve somehow show/hide animation, show is broked when animation view
             UIView.animate(withDuration: 0.3) {
+                self.layoutIfNeeded()
                 self.stackView.layoutIfNeeded()
             }
         }
@@ -67,8 +144,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 
     var url: URL? {
-        guard let url = textField.text else { return nil }
-        return URL(string: url)
+        return textField.text.flatMap { URL(string: $0) }
     }
 
     weak var navigationBarDelegate: DappBrowserNavigationBarDelegate?
@@ -76,78 +152,40 @@ final class DappBrowserNavigationBar: UINavigationBar {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        textField.autocapitalizationType = .none
-        textField.autoresizingMask = .flexibleWidth
-        textField.delegate = self
-        textField.autocorrectionType = .no
-        textField.returnKeyType = .go
-        textField.clearButtonMode = .whileEditing
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 30))
-        textField.leftViewMode = .always
-        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
-        textField.keyboardType = .webSearch
-        textField.borderStyle = .none
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
-        textField.layer.borderColor = UIColor.clear.cgColor
-        textField.cornerRadius = DataEntry.Metric.cornerRadius
-
         domainNameLabel.isHidden = true
 
-        moreButton.tintColor = Colors.black
-        moreButton.adjustsImageWhenHighlighted = true
-        moreButton.setImage(R.image.toolbarMenu(), for: .normal)
         moreButton.addTarget(self, action: #selector(moreAction), for: .touchUpInside)
-
-        closeButton.tintColor = Colors.black
-        closeButton.isHidden = true
-        closeButton.setTitle(R.string.localizable.done(), for: .normal)
-        closeButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
+        homeButton.addTarget(self, action: #selector(homeAction), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-        closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        closeButton.setContentHuggingPriority(.required, for: .horizontal)
-
         changeServerButton.addTarget(self, action: #selector(changeServerAction), for: .touchUpInside)
-
-        backButton.tintColor = Colors.black
-        backButton.adjustsImageWhenHighlighted = true
-        backButton.setImage(R.image.toolbarBack(), for: .normal)
         backButton.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
-
-        forwardButton.tintColor = Colors.black
-        forwardButton.adjustsImageWhenHighlighted = true
-        forwardButton.setImage(R.image.toolbarForward(), for: .normal)
         forwardButton.addTarget(self, action: #selector(goForwardAction), for: .touchUpInside)
-
-        cancelEditingButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
-        //compression and hugging priority required to make cancel button appear reliably yet not be too wide
-        cancelEditingButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         cancelEditingButton.addTarget(self, action: #selector(cancelEditing), for: .touchUpInside)
 
         let spacer0 = UIView.spacerWidth()
         let spacer1 = UIView.spacerWidth()
         let spacer2 = UIView.spacerWidth()
-        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backButton, forwardButton, textField, spacer2, moreButton])
-        viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
-        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backButton, forwardButton, domainNameLabel, spacer1, closeButton, spacer2, moreButton])
+        //NOTE: remove spacing beetwen backButton and forwardButton buttons
+        let backwardForwardButtonStackView = [backButton, forwardButton].asStackView(axis: .horizontal)
 
-        cancelEditingButton.isHidden = true
+        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, moreButton])
+        viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
+        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer2, homeButton, moreButton])
 
         changeServerButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         changeServerButton.setContentHuggingPriority(.required, for: .horizontal)
+
         stackView.addArrangedSubviews([
             spacer0,
-            backButton,
-            forwardButton,
+            backwardForwardButtonStackView,
             textField,
             domainNameLabel,
             spacer1,
             closeButton,
             spacer2,
+            homeButton,
             moreButton,
-            cancelEditingButton,
+            cancelEditingButton
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -169,6 +207,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             forwardButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
+            homeButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth)
         ])
     }
 
@@ -182,7 +221,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         forwardButton.imageView?.tintColor = color
         changeServerButton.tintColor = color
         moreButton.imageView?.tintColor = color
-
+        homeButton.imageView?.tintColor = color
         domainNameLabel.textColor = color
         domainNameLabel.textAlignment = .center
 
@@ -208,6 +247,11 @@ final class DappBrowserNavigationBar: UINavigationBar {
     @objc private func moreAction(_ sender: UIView) {
         cancelEditing()
         navigationBarDelegate?.didTapMore(sender: sender, inNavigationBar: self)
+    }
+
+    @objc private func homeAction(_ sender: UIView) {
+        cancelEditing()
+        navigationBarDelegate?.didTapHome(sender: sender, inNavigationBar: self)
     }
 
     @objc private func changeServerAction(_ sender: UIView) {
@@ -258,6 +302,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         forwardButton.isEnabled = false
         changeServerButton.isEnabled = false
         moreButton.isEnabled = false
+        homeButton.isEnabled = false
         textField.isEnabled = false
         cancelEditingButton.isEnabled = false
         closeButton.isEnabled = false
@@ -268,6 +313,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         forwardButton.isEnabled = true
         changeServerButton.isEnabled = true
         moreButton.isEnabled = true
+        homeButton.isEnabled = true
         textField.isEnabled = true
         cancelEditingButton.isEnabled = true
         closeButton.isEnabled = true
