@@ -12,4 +12,5 @@ enum Features {
     static let shouldPrintCURLForOutgoingRequest = false
     static let isEip3085AddEthereumChainEnabled = true
     static let isPromptForEmailListSubscriptionEnabled = true
+    static let isAlertsEnabled = false
 }

@@ -43,7 +43,7 @@ class ActivitiesPageView: UIView, PageViewType {
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(activitiesView)
 
-        NSLayoutConstraint.activate([activitiesView.anchorsConstraint(to: self)])
+        NSLayoutConstraint.activate([activitiesView.anchorsConstraintSafeArea(to: self)])
 
         configure(viewModel: viewModel)
     }

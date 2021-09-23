@@ -138,7 +138,7 @@ class SegmentedControl: UIView, ReusableTableHeaderViewType {
 
     @objc private func segmentTapped(_ source: UIButton) {
         guard let segment = buttons.firstIndex(of: source).flatMap({ UInt($0) }) else { return }
-        delegate.flatMap { $0.didTapSegment(atSelection: .selected(segment), inSegmentedControl: self) }
+        delegate?.didTapSegment(atSelection: .selected(segment), inSegmentedControl: self)
     }
 
     func configureTitleButtons() {

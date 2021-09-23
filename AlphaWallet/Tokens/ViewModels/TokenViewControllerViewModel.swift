@@ -8,7 +8,6 @@ import PromiseKit
 struct TokenViewControllerViewModel {
     private let transactionType: TransactionType
     private let session: WalletSession
-    private let tokensStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenActionsProvider: TokenActionsProvider
     var chartHistory: [ChartHistory] = []
@@ -113,10 +112,20 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    init(transactionType: TransactionType, session: WalletSession, tokensStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: TokenActionsProvider) {
+    var balanceViewModel: BalanceBaseViewModel? {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            return session.balanceCoordinator.subscribableEthBalanceViewModel.value
+        case .ERC20Token(let token, _, _):
+            return session.balanceCoordinator.subscribableTokenBalance(token.addressAndRPCServer).value
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            return nil
+        }
+    }
+
+    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: TokenActionsProvider) {
         self.transactionType = transactionType
         self.session = session
-        self.tokensStore = tokensStore
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsProvider = tokenActionsProvider
     }

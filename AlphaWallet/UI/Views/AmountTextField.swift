@@ -369,16 +369,16 @@ class AmountTextField: UIControl {
         }
     }
 
-    lazy var statusLabelContainer: UIView = {
-        return [.spacerWidth(16), statusLabel].asStackView(axis: .horizontal)
+    private lazy var statusLabelContainer: UIView = {
+        return [statusLabel].asStackView(axis: .horizontal)
     }()
 
-    lazy var allFundsContainer: UIView = {
+    private lazy var allFundsContainer: UIView = {
         return [allFundsButton, .spacerWidth(8)].asStackView(axis: .horizontal)
     }()
 
-    lazy var alternativeAmountLabelContainer: UIView = {
-        return [.spacerWidth(16), alternativeAmountLabel].asStackView(axis: .horizontal)
+    private lazy var alternativeAmountLabelContainer: UIView = {
+        return [alternativeAmountLabel].asStackView(axis: .horizontal)
     }()
 
     var currencySymbol: String {
@@ -407,6 +407,22 @@ class AmountTextField: UIControl {
         ])
 
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
+    }
+
+    func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
+        let stackView = [
+            .spacer(height: edgeInsets.top),
+            //NOTE: remove spacers when refactor send token screen, there is to many lines related to constraints
+            //remove spacers for inner containers like: statusLabelContainer, alternativeAmountLabelContainer
+            //left it for now, too many changes for 1 pr.
+            self,
+            .spacer(height: 4),
+            [statusLabelContainer, allFundsContainer].asStackView(axis: .horizontal, alignment: .fill),
+            alternativeAmountLabelContainer,
+            .spacer(height: edgeInsets.bottom)
+        ].asStackView(axis: .vertical)
+
+        return [.spacerWidth(edgeInsets.left), stackView, .spacerWidth(edgeInsets.right)].asStackView()
     }
 
     private func updateAlternateAmountLabel(_ value: NSDecimalNumber?) {

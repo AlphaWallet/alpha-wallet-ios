@@ -56,11 +56,11 @@ class ModalViewController: UINavigationController {
 extension ModalViewController: _ModalViewControllerDelegate {
 
     fileprivate func didDismiss(_ controller: _ModalViewController) {
-        presentationDelegate.flatMap { $0.didDismiss(self) }
+        presentationDelegate?.didDismiss(self)
     }
 
     fileprivate func didClose(_ controller: _ModalViewController) {
-        presentationDelegate.flatMap { $0.didClose(self) }
+        presentationDelegate?.didClose(self)
     }
 }
 
@@ -273,7 +273,7 @@ private class _ModalViewController: UIViewController {
                         self.backgroundView.alpha = 0
                     }, completion: { _ in
                         self.dismiss(animated: false)
-                        self.delegate.flatMap { $0.didDismiss(self) }
+                        self.delegate?.didDismiss(self)
                     })
                 } else {
                     restoreStateAnimated(restorationHeight, keyboardHostView: keyboardHostView)

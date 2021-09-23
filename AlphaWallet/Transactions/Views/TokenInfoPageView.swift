@@ -26,20 +26,13 @@ class TokenInfoPageView: UIView, PageViewType {
         return chartView
     }()
 
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+    private var stackView: UIStackView {
+        return containerView.stackView
+    }
 
-        return stackView
-    }()
-
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
-        return scrollView
+    private lazy var containerView: ScrollableStackView = {
+        let view = ScrollableStackView()
+        return view
     }()
 
     lazy var viewModel = TokenInfoPageViewModel(server: server, token: token, transactionType: transactionType)
@@ -59,19 +52,9 @@ class TokenInfoPageView: UIView, PageViewType {
 
         translatesAutoresizingMaskIntoConstraints = false
 
-        addSubview(scrollView)
+        addSubview(containerView)
 
-        NSLayoutConstraint.activate([
-            scrollView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            scrollView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            scrollView.widthAnchor.constraint(equalTo: widthAnchor),
-            scrollView.heightAnchor.constraint(equalTo: heightAnchor),
-
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-        ])
+        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: self)])
 
         generateSubviews(viewModel: viewModel)
 

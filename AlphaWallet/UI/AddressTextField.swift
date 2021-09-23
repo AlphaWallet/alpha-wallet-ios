@@ -185,17 +185,15 @@ class AddressTextField: UIControl {
     }
 
     func defaultLayout(edgeInsets: UIEdgeInsets) -> UIView {
-        [
-            .spacerWidth(edgeInsets.left),
-            [
-                .spacer(height: edgeInsets.top),
-                label,
-                .spacer(height: 4),
-                defaultLayout(),
-                .spacer(height: edgeInsets.bottom),
-            ].asStackView(axis: .vertical),
-            .spacerWidth(edgeInsets.right)
-        ].asStackView(axis: .horizontal)
+        let stackView = [
+            .spacer(height: edgeInsets.top),
+            label,
+            .spacer(height: 4),
+            defaultLayout(),
+            .spacer(height: edgeInsets.bottom),
+        ].asStackView(axis: .vertical)
+
+        return [.spacerWidth(edgeInsets.left), stackView, .spacerWidth(edgeInsets.right)].asStackView(axis: .horizontal)
     }
 
     @objc private func textDidChangeNotification(_ notification: Notification) {

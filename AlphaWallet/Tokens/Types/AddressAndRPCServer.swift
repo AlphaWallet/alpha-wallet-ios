@@ -7,9 +7,13 @@
 
 import UIKit
 
-struct AddressAndRPCServer: Hashable, Codable {
+struct AddressAndRPCServer: Hashable, Codable, CustomStringConvertible {
     let address: AlphaWallet.Address
     let server: RPCServer
+
+    var description: String {
+        return "\(address.eip55String)-\(server)"
+    }
 }
 
 extension AddressAndRPCServer: Equatable {

@@ -185,7 +185,7 @@ extension AssetsPageView: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let tokenHolder = viewModel.item(atIndexPath: indexPath) else { return }
 
-        delegate.flatMap { $0.assetsPageView(self, didSelectTokenHolder: tokenHolder) }
+        delegate?.assetsPageView(self, didSelectTokenHolder: tokenHolder)
     }
 }
 

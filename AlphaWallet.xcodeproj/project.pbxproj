@@ -719,6 +719,15 @@
 		8703F66B26136A500082EE25 /* RenameWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F66A26136A500082EE25 /* RenameWalletViewController.swift */; };
 		8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8703F686261461E40082EE25 /* RenameWalletViewModel.swift */; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
+		8712A37F26F315190009C376 /* EditPriceAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */; };
+		8712A38326F475830009C376 /* PriceAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38226F475830009C376 /* PriceAlert.swift */; };
+		8712A38526F475A20009C376 /* PriceAlertDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38426F475A20009C376 /* PriceAlertDataStore.swift */; };
+		8712A38726F475C00009C376 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38626F475C00009C376 /* StorageType.swift */; };
+		8712A38926F475DC0009C376 /* PriceAlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38826F475DC0009C376 /* PriceAlertService.swift */; };
+		8712A38B26F476030009C376 /* StatefulView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38A26F476030009C376 /* StatefulView.swift */; };
+		8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */; };
+		8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */; };
+		8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */; };
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
 		871E684324E56A4200F220A7 /* TransactionConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */; };
 		871E684524E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */; };
@@ -793,7 +802,7 @@
 		87713EB0264BAB2500B1B9CB /* TokenPagesContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */; };
 		87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */; };
 		87713EB4264BAB5A00B1B9CB /* ActivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */; };
-		87713EB6264BAB6E00B1B9CB /* AlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* AlertsPageView.swift */; };
+		87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
@@ -1709,6 +1718,15 @@
 		8703F66A26136A500082EE25 /* RenameWalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameWalletViewController.swift; sourceTree = "<group>"; };
 		8703F686261461E40082EE25 /* RenameWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameWalletViewModel.swift; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
+		8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewController.swift; sourceTree = "<group>"; };
+		8712A38226F475830009C376 /* PriceAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlert.swift; sourceTree = "<group>"; };
+		8712A38426F475A20009C376 /* PriceAlertDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertDataStore.swift; sourceTree = "<group>"; };
+		8712A38626F475C00009C376 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
+		8712A38826F475DC0009C376 /* PriceAlertService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertService.swift; sourceTree = "<group>"; };
+		8712A38A26F476030009C376 /* StatefulView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulView.swift; sourceTree = "<group>"; };
+		8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertViewModel.swift; sourceTree = "<group>"; };
+		8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertCoordinator.swift; sourceTree = "<group>"; };
+		8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageViewModel.swift; sourceTree = "<group>"; };
 		8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryTableViewCell.swift; sourceTree = "<group>"; };
 		871E684224E56A4200F220A7 /* TransactionConfirmationHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationHeaderView.swift; sourceTree = "<group>"; };
 		871E684424E56A6000F220A7 /* TransactionConfirmationTableHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationTableHeaderViewModel.swift; sourceTree = "<group>"; };
@@ -1783,7 +1801,7 @@
 		87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPagesContainerView.swift; sourceTree = "<group>"; };
 		87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoPageView.swift; sourceTree = "<group>"; };
 		87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityPageView.swift; sourceTree = "<group>"; };
-		87713EB5264BAB6E00B1B9CB /* AlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsPageView.swift; sourceTree = "<group>"; };
+		87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageView.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
@@ -2036,6 +2054,7 @@
 		2912CCF71F6A830700C6CBE3 /* AlphaWallet */ = {
 			isa = PBXGroup;
 			children = (
+				8712A37A26F314EF0009C376 /* Alerts */,
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
 				878EE942255BC352000210DE /* Share */,
 				C80DC77C22AB7FAD009CFA1C /* TokenScriptFiles */,
@@ -2501,7 +2520,6 @@
 				87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */,
 				87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */,
 				87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */,
-				87713EB5264BAB6E00B1B9CB /* AlertsPageView.swift */,
 				879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */,
 				879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */,
 				879E1E43264C0717006CD362 /* TickerFieldValueView.swift */,
@@ -3507,6 +3525,7 @@
 				87F4D41926C26C0700EFB9BC /* DropDownView.swift */,
 				87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */,
 				87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */,
+				8712A38A26F476030009C376 /* StatefulView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -4204,6 +4223,69 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		8712A37A26F314EF0009C376 /* Alerts */ = {
+			isa = PBXGroup;
+			children = (
+				8712A38026F315420009C376 /* Views */,
+				8712A37B26F314EF0009C376 /* Coordinators */,
+				8712A37C26F314EF0009C376 /* ViewControllers */,
+				8712A38E26F476680009C376 /* ViewModels */,
+			);
+			path = Alerts;
+			sourceTree = "<group>";
+		};
+		8712A37B26F314EF0009C376 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		8712A37C26F314EF0009C376 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				8712A37E26F315190009C376 /* EditPriceAlertViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		8712A37D26F315070009C376 /* Alerts */ = {
+			isa = PBXGroup;
+			children = (
+				8712A38126F475700009C376 /* Types */,
+				8712A38426F475A20009C376 /* PriceAlertDataStore.swift */,
+				8712A38626F475C00009C376 /* StorageType.swift */,
+				8712A38826F475DC0009C376 /* PriceAlertService.swift */,
+			);
+			path = Alerts;
+			sourceTree = "<group>";
+		};
+		8712A38026F315420009C376 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				87713EB5264BAB6E00B1B9CB /* PriceAlertsPageView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		8712A38126F475700009C376 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				8712A38226F475830009C376 /* PriceAlert.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
+		8712A38E26F476680009C376 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				8712A38C26F476540009C376 /* EditPriceAlertViewModel.swift */,
+				8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		8731E6D92565267800A6A7DA /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -4636,6 +4718,7 @@
 		CCCD74FF1FD2D95F004A087D /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				8712A37D26F315070009C376 /* Alerts */,
 				87C65F512660DD1700919819 /* WalletBalance */,
 				CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */,
 				5E7C7BF7C9B44B3C2D5330CE /* CustomUrlSchemeCoordinator.swift */,
@@ -5309,6 +5392,7 @@
 				2912CD2B1F6A833E00C6CBE3 /* TransactionsViewController.swift in Sources */,
 				BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */,
 				87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */,
+				8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */,
 				77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */,
 				29F1C863200375D2003780D8 /* Wallet.swift in Sources */,
 				29E6E06E1FE897EE0079265A /* BrowserViewController.swift in Sources */,
@@ -5407,7 +5491,7 @@
 				879F185726E74077000602F2 /* TokensCardCollectionInfoPageViewModel.swift in Sources */,
 				442FCE0DAE5527A93F54022C /* RedeemTokenCardQuantitySelectionViewController.swift in Sources */,
 				442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */,
-				87713EB6264BAB6E00B1B9CB /* AlertsPageView.swift in Sources */,
+				87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */,
 				442FCE2BEE8D475C7DEB39C1 /* RedeemTokenCardQuantitySelectionViewModel.swift in Sources */,
 				8739BBC726CD29510045CFED /* TokenCardSelectionViewController.swift in Sources */,
 				442FCB9CF5BC243F0705F4FE /* TokenCardRedemptionViewController.swift in Sources */,
@@ -5510,6 +5594,7 @@
 				8739BB5526CCECD10045CFED /* TokenAssetTableViewCell.swift in Sources */,
 				5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */,
 				5E7C78F1D29280E3FF4EAF5E /* RoundedBackground.swift in Sources */,
+				8712A38726F475C00009C376 /* StorageType.swift in Sources */,
 				5E7C7E68425E20834B898D06 /* AppLocale.swift in Sources */,
 				5E7C7488D5CAE24B7462815A /* LiveLocaleSwitcherBundle.swift in Sources */,
 				5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */,
@@ -5561,6 +5646,7 @@
 				5E7C76D09352C069C140B6CF /* PreferencesController.swift in Sources */,
 				5E7C7569C4D26E565F3E4F56 /* PreferenceOption.swift in Sources */,
 				5E7C7D4CC66FE44C01C0F393 /* Scrollable.swift in Sources */,
+				8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */,
 				5E7C744B0282FD7B3A29AA7B /* ScriptMessageProxy.swift in Sources */,
 				5E7C7DD4D2EAA036961F18F0 /* DAppRequster.swift in Sources */,
 				5E7C7CF668657D6EE78381CD /* SearchEngine.swift in Sources */,
@@ -5584,6 +5670,7 @@
 				5E7C7EC725C711F5EA12CB1C /* History.swift in Sources */,
 				5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */,
 				878EE94E255BE1F0000210DE /* UrlSchemeCoordinator.swift in Sources */,
+				8712A38926F475DC0009C376 /* PriceAlertService.swift in Sources */,
 				5E7C77D5AD018763345D8DD5 /* CanOpenContractWebPage.swift in Sources */,
 				5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */,
 				87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */,
@@ -5705,6 +5792,7 @@
 				5E7C751D847B47B2BA67F6B5 /* CustomUrlSchemeCoordinator.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
+				8712A38526F475A20009C376 /* PriceAlertDataStore.swift in Sources */,
 				87584B4725EFB0950070063B /* Ramp.swift in Sources */,
 				5E7C7A656817D7E5AADF310E /* TokenInstanceViewController.swift in Sources */,
 				5E7C72402E57B627B6E56934 /* TokenInstanceViewModel.swift in Sources */,
@@ -5720,7 +5808,9 @@
 				5E7C7307F0253556A6BC57A9 /* AlphaWalletAddressExtension.swift in Sources */,
 				5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */,
 				5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */,
+				8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */,
 				87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */,
+				8712A38326F475830009C376 /* PriceAlert.swift in Sources */,
 				5E7C73092E428F9519787284 /* Core.swift in Sources */,
 				5E7C70397E7E3A9C88E995B1 /* WKWebViewExtension.swift in Sources */,
 				5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */,
@@ -5864,6 +5954,7 @@
 				5E7C782069BAD4A667543979 /* SettingsViewController.swift in Sources */,
 				8762002A266E14C10059B05A /* WalletTokenViewCell.swift in Sources */,
 				5E7C750721DA2745432B1857 /* TokenObject+UI.swift in Sources */,
+				8712A38B26F476030009C376 /* StatefulView.swift in Sources */,
 				5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */,
 				878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */,
 				5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */,
@@ -5933,6 +6024,7 @@
 				5E7C7D7D1531464B489871EA /* NonFungibleFromTokenUri.swift in Sources */,
 				5E7C730CA247D13ECBCB94ED /* NonFungibleFromJson.swift in Sources */,
 				5E7C71AE26F2201CFAC81C99 /* Erc721Contract.swift in Sources */,
+				8712A37F26F315190009C376 /* EditPriceAlertViewController.swift in Sources */,
 				5E7C73F723684B295A8DEEB3 /* GetERC721TokenUri.swift in Sources */,
 				5E7C738FFC4292F6B0D6BC4B /* Erc721TokenIdsFetcher.swift in Sources */,
 				5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */,
