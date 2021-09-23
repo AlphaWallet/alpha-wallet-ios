@@ -90,6 +90,8 @@ class TokenViewController: UIViewController {
 
             view.configure(viewModel: .init(alerts: alerts ?? []))
         }
+        
+        refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType: transactionType)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -148,6 +150,21 @@ class TokenViewController: UIViewController {
             case .watch:
                 button.isEnabled = false
             }
+        }
+    }
+
+    private func refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType transactionType: TransactionType) {
+        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
+            guard let strongSelf = self, contract.sameContract(as: transactionType.contract) else { return }
+
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+            strongSelf.configure(viewModel: viewModel)
+        }
+        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
+            guard let strongSelf = self, contract.sameContract(as: transactionType.contract) else { return }
+
+            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+            strongSelf.configure(viewModel: viewModel)
         }
     }
 
