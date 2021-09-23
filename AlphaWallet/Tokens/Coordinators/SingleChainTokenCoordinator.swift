@@ -153,7 +153,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
                 return when(resolved: promises).then(on: .main, { values -> Promise<Bool> in
                     let values = values.compactMap { $0.optionalValue }.filter { $0.nonEmptyAction }
-                    strongSelf.storage.addBatchObjectsOperation(values: values)
+                    strongSelf.storage.addBatchObjects(values: values)
 
                     return .value(!values.isEmpty)
                 })
@@ -219,9 +219,9 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer, completion: @escaping () -> Void) {
+    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<Void> {
         let address = keystore.currentWallet.address
-        contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
+        return contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
             contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -270,17 +270,17 @@ class SingleChainTokenCoordinator: Coordinator {
 
                 let values = results.compactMap { $0.optionalValue }.filter { $0.nonEmptyAction }
 
-                strongSelf.storage.addBatchObjectsOperation(values: values)
+                strongSelf.storage.addBatchObjects(values: values)
 
                 return .value(!values.isEmpty)
             })
-        }).done(on: .main, { [weak self] didUpdate in
+        }).get(on: .main, { [weak self] didUpdate in
             guard let strongSelf = self else { return }
 
             if didUpdate {
                 strongSelf.notifyTokensDidChange()
             }
-        }).cauterize().finally(completion)
+        }).asVoid()
     }
 
     enum BatchObject {
@@ -350,27 +350,12 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func addToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, storage: TokensDataStore, completion: @escaping (TokenObject?) -> Void) {
-        firstly {
-            fetchBatchObjectFromContractData(for: contract, server: server, storage: storage)
-        }.map(on: .main, { operation -> [TokenObject] in
-            return storage.addBatchObjectsOperation(values: [operation])
-        }).done(on: .main, { tokenObjects in
-            completion(tokenObjects.first)
-        }).catch(on: .main, { _ in
-            completion(nil)
-        })
-    }
-
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) {
         firstly {
-            delete(hiddenContract: contract)
-        }.then { [weak self] _ -> Promise<TokenObject> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-            return strongSelf.addImportedTokenPromise(forContract: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+            addImportedTokenPromise(forContract: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
         }.done { _ in
-
+            // no-op
         }.cauterize()
     }
 
@@ -380,18 +365,20 @@ class SingleChainTokenCoordinator: Coordinator {
 
         return firstly {
             delete(hiddenContract: contract)
-        }.then(on: .main, { _ -> Promise<TokenObject> in
-            return Promise<TokenObject> { [weak self] seal in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+        }.then(on: .main, { [weak self] _ -> Promise<TokenObject> in
+            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
-                return strongSelf.addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance, server: strongSelf.server, storage: strongSelf.storage) { tokenObject in
-                    if let tokenObject = tokenObject {
-                        seal.fulfill(tokenObject)
-                    } else {
-                        seal.reject(ImportTokenError())
-                    }
+            return firstly {
+                strongSelf.fetchBatchObjectFromContractData(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance, server: strongSelf.server, storage: strongSelf.storage)
+            }.map(on: .main, { operation -> [TokenObject] in
+                return strongSelf.storage.addBatchObjects(values: [operation])
+            }).map(on: .main, { tokenObjects -> TokenObject in
+                if let tokenObject = tokenObjects.first {
+                    return tokenObject
+                } else {
+                    throw ImportTokenError()
                 }
-            }
+            })
         }).get(on: .main, { [weak self] _ in
             guard let strongSelf = self else { return }
 
@@ -507,23 +494,6 @@ class SingleChainTokenCoordinator: Coordinator {
         })
 
         navigationController.pushViewController(viewController, animated: true)
-
-        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransactionType: transactionType)
-    }
-
-    private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransactionType transactionType: TransactionType) {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self, weak viewController] contract in
-            guard let strongSelf = self, let viewController = viewController else { return }
-            guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
-            viewController.configure(viewModel: viewModel)
-        }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self, weak viewController] contract in
-            guard let strongSelf = self, let viewController = viewController else { return }
-            guard contract.sameContract(as: transactionType.contract) else { return }
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
-            viewController.configure(viewModel: viewModel)
-        }
     }
 
     func delete(token: TokenObject) {
@@ -613,15 +583,17 @@ class SingleChainTokenCoordinator: Coordinator {
         }
 
         override func main() {
-            coordinator?.autoDetectTokensImpl(withContracts: tokens, server: server) { [weak self, weak coordinator] in
-                guard let strongSelf = self, let coordinator = coordinator else { return }
+            guard let strongCoordinator = coordinator else { return }
+
+            strongCoordinator.autoDetectTokensImpl(withContracts: tokens, server: server).done { [weak self] in
+                guard let strongSelf = self else { return }
 
                 strongSelf.willChangeValue(forKey: "isExecuting")
                 strongSelf.willChangeValue(forKey: "isFinished")
-                coordinator.isAutoDetectingTokens = false
+                strongCoordinator.isAutoDetectingTokens = false
                 strongSelf.didChangeValue(forKey: "isExecuting")
                 strongSelf.didChangeValue(forKey: "isFinished")
-            }
+            }.cauterize()
         }
     }
 
