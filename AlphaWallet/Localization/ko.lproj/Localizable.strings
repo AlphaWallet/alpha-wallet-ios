@@ -9,6 +9,9 @@
 "Delete" = "삭제";
 "Reload" = "다시 불러오기";
 "Share" = "공유";
+"setAsHomePage" = "Set as Home Page";
+"browserHistory" = "History";
+"myBookmarks" = "My Bookmarks";
 "New" = "신규";
 "Bookmarks" = "북마크";
 "History" = "기록";
@@ -222,7 +225,7 @@
 "browser.noHistory.label.title" = "Your browser history appears here.";
 "browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
 "browser.noBookmarks.label.title" = "No bookmarks yet!";
-"browser.url.textfield.placeholder" = "Search or enter website URL";
+"browser.url.textfield.placeholder" = "Search or type URL";
 "browser.settings.network.description.title" = "More networks will be available when they are enabled in the Settings tab";
 "configureTransaction.gasPriceGwei.label.title" = "가스 요금 (Gwei)";
 "enterPassword.navigation.title" = "Set Keystore Password";
