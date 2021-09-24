@@ -705,7 +705,11 @@ class InCoordinator: NSObject, Coordinator {
             case .enableServer(let server):
                 restartQueue.remove(each)
                 var c = config
-                c.enabledServers.append(server)
+                // NOTE: we need to make sure that we don't enableServer test net server when main net is selected.
+                // update enabledServers with added server
+                var servers = c.enabledServers.filter({ $0.isTestnet == server.isTestnet })
+                servers.append(server)
+                c.enabledServers = servers
             case .switchDappServer(server: let server):
                 restartQueue.remove(each)
                 Config.setChainId(server.chainID)

@@ -15,6 +15,7 @@
 "DuckDuckGo" = "DuckDuckGo";
 "Google" = "Google";
 "error" = "Error";
+"warning" = "Warning";
 "configureTransaction.error.gasFeeTooHigh" = "Tarifa de gas demasiado alta. Máximo disponible: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Límite de gas demasiado alto. Máximo disponible: %d";
 "configureTransaction.error.nonceNotPositiveNumber" = "El nonce debe ser un número positivo";
@@ -629,6 +630,7 @@ You can check the latest gas price on gasnow.org";
 "addCustomChain.addAndSwitch" = "This site is requesting you to add and switch to the %@ chain with chain ID: %d. This will reload the page.";
 "addCustomChain.error.unknown" = "Unknown Error";
 "addCustomChain.error.chainIdNotMatch" = "Chain IDs returned by the RPC server do not match: %@ vs. %@";
+"addCustomChain.warning.noBlockchainExplorerUrl" = "Blockchain explorer URL can't be resolved. Would you like to continue without it? Transaction history will not be fetched";
 "addrpcServer.navigation.title" = "Add Custom RPC Network";
 "addrpcServer.saveButton.title" = "Add Network";
 "addrpcServer.networkName.title" = "Network Name";

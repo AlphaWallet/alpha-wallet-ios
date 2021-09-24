@@ -15,6 +15,7 @@
 "DuckDuckGo" = "DuckDuckGo";
 "Google" = "Google";
 "error" = "오류";
+"warning" = "Warning";
 "configureTransaction.error.gasFeeTooHigh" = "가스 수수료가 너무 높습니다. 최대 이용 한도: %@";
 "configureTransaction.error.gasLimitTooHigh" = "가스 한도가 너무 높습니다. 최대 이용 한도: %d";
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
@@ -629,6 +630,7 @@ You can check the latest gas price on gasnow.org";
 "addCustomChain.addAndSwitch" = "This site is requesting you to add and switch to the %@ chain with chain ID: %d. This will reload the page.";
 "addCustomChain.error.unknown" = "Unknown Error";
 "addCustomChain.error.chainIdNotMatch" = "Chain IDs returned by the RPC server do not match: %@ vs. %@";
+"addCustomChain.warning.noBlockchainExplorerUrl" = "Blockchain explorer URL can't be resolved. Would you like to continue without it? Transaction history will not be fetched";
 "addrpcServer.navigation.title" = "Add Custom RPC Network";
 "addrpcServer.saveButton.title" = "Add Network";
 "addrpcServer.networkName.title" = "Network Name";
