@@ -578,6 +578,15 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    var endRecordsContract: AlphaWallet.Address {
+        switch self {
+        case .main, .xDai, .kovan, .ropsten, .rinkeby, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+            return Constants.ENSRecordsContractAddress
+        case .poa:
+            return Constants.ENSRecordsContractAddressPOA
+        }
+    }
+
     var networkRequestsQueuePriority: Operation.QueuePriority {
         switch self {
         case .main, .xDai:

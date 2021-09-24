@@ -6,7 +6,7 @@ import PromiseKit
 //Use the wallet name which the user has set, otherwise fallback to ENS, if available
 class GetWalletNameCoordinator {
     private let config: Config
-
+    private let resolver = ENSReverseLookupCoordinator(server: .forResolvingEns)
     init(config: Config) {
         self.config = config
     }
@@ -16,7 +16,7 @@ class GetWalletNameCoordinator {
             if let walletName = config.walletNames[address] {
                 seal.fulfill(walletName)
             } else {
-                ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { result in
+                resolver.getENSNameFromResolver(forAddress: address) { result in
                     seal.fulfill(result.value)
                 }
             }

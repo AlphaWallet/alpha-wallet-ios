@@ -3,6 +3,7 @@
 import Foundation
 import Result
 import web3swift
+import PromiseKit
 
 //This class performs a ENS reverse lookup — figure out Ethereum address from a given ENS name — and then forward resolves the ENS name (look up Ethereum address from ENS name) to verify it. This is necessary because:
 // (quoted from https://docs.ens.domains/dapp-developer-guide/resolving-names)
@@ -22,10 +23,23 @@ class ENSReverseLookupCoordinator {
         self.server = server
     }
 
+    func getENSNameFromResolver(forAddress input: AlphaWallet.Address) -> Promise<String> {
+        return Promise<String> { seal in
+            getENSNameFromResolver(forAddress: input) { result in
+                switch result {
+                case .failure(let error):
+                    seal.reject(error)
+                case .success(let value):
+                    seal.fulfill(value)
+                }
+            }
+        }
+    }
+
     //TODO make calls from multiple callers at the same time for the same address more efficient
     func getENSNameFromResolver(
             forAddress input: AlphaWallet.Address,
-            completion: @escaping (Result<String, AnyError>) -> Void
+            completion: @escaping (AWResult<String, AnyError>) -> Void
     ) {
         let node = "\(input.eip55String.drop0x).addr.reverse".lowercased().nameHash
         if let cachedResult = cachedResult(forNode: node) {

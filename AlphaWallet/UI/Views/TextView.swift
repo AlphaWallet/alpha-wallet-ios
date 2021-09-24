@@ -112,7 +112,7 @@ class TextView: UIControl {
         ])
     }
 
-    var ensAddressView: UIStackView {
+    var statusContainerView: UIStackView {
         return [statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
     }
 
@@ -131,7 +131,7 @@ class TextView: UIControl {
 
         let stackView = [
             label, .spacer(height: 4), self, .spacer(height: 4), [
-                ensAddressView,
+                statusContainerView,
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
         ].asStackView(axis: .vertical)

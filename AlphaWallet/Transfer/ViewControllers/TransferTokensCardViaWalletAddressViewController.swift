@@ -87,7 +87,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             .spacer(height: 4),
             targetAddressTextField,
             .spacer(height: 4), [
-                [.spacerWidth(16), targetAddressTextField.ensAddressView, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                [.spacerWidth(16), targetAddressTextField.ensAddressView].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
         ].asStackView(axis: .vertical)
