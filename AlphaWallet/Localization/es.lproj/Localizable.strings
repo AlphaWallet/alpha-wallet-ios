@@ -289,7 +289,7 @@
 "a.wallet.token.sell.confirm.expiryDateDescription" = "MagicLink expira el: %@";
 "a.wallet.token.sell.confirm.singleTokenSelected.title" = "1 %@";
 "a.wallet.token.sell.confirm.multipleTokenSelected.title" = "%d %@";
-"a.wallet.token.transfer.button.title" = "Transferir";
+"a.wallet.token.transfer.button.title" = "Enviar";
 "a.wallet.token.transfer.selectTokens.title" = "Selecciona %@ para transferir:";
 "a.wallet.token.transfer.selectTokenQuantity.atLeastOne.title" = "Selecciona la cantidad de %@";
 "a.wallet.token.transfer.selectTokens.atLeastOne.title" = "Selecciona un %@ para transferir";
