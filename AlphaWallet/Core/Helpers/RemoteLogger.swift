@@ -2,6 +2,35 @@
 
 import Foundation
 import PaperTrailLumberjack
+import CocoaLumberjack
+
+func debug(_ message: Any, _ loggger: Logger = DDLogger.instance) {
+    loggger.debug(message)
+}
+
+func info(_ message: Any, _ loggger: Logger = DDLogger.instance) {
+    loggger.info(message)
+}
+
+func warn(_ message: Any, _ loggger: Logger = DDLogger.instance) {
+    loggger.warn(message)
+}
+
+func verbose(_ message: Any, _ loggger: Logger = DDLogger.instance) {
+    loggger.verbose(message)
+}
+
+func error(_ message: Any, _ loggger: Logger = DDLogger.instance) {
+    loggger.error(message)
+} 
+
+protocol Logger {
+    func debug(_ message: Any)
+    func info(_ message: Any)
+    func warn(_ message: Any)
+    func verbose(_ message: Any)
+    func error(_ message: Any)
+}
 
 class RemoteLogger {
     private let isActive: Bool
@@ -40,5 +69,38 @@ class RemoteLogger {
         } else {
             RemoteLogger.instance.logOtherWebApiErrorMessage("\(message) | from: \(url)")
         }
+    }
+}
+
+final class DDLogger: Logger {
+    static let instance = DDLogger()
+
+    init() {
+        let fileLogger = DDFileLogger(logFileManager: DDLogFileManagerDefault())
+        fileLogger.rollingFrequency = 60 * 60 * 24
+        fileLogger.logFileManager.maximumNumberOfLogFiles = 7
+
+        DDLog.add(DDASLLogger.sharedInstance)
+        DDLog.add(fileLogger, with: .info)
+    }
+
+    func debug(_ message: Any) {
+        DDLogDebug(message)
+    }
+
+    func info(_ message: Any) {
+        DDLogInfo(message)
+    }
+
+    func warn(_ message: Any) {
+        DDLogWarn(message)
+    }
+
+    func verbose(_ message: Any) {
+        DDLogVerbose(message)
+    }
+
+    func error(_ message: Any) {
+        DDLogError(message)
     }
 }
