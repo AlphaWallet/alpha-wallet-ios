@@ -21,7 +21,7 @@ open class Subscribable<T>: Hashable {
     }
 
     private var _value: T?
-    private var _subscribers: ThreadSafeDictionary<SubscribableKey, (T?) -> Void> = .init()
+    private var _subscribers: ThreadSafeDictionary<SubscribableKey, Subscription> = .init()
     private var _oneTimeSubscribers: [(T) -> Void] = []
     open var value: T? {
         get {
@@ -30,7 +30,11 @@ open class Subscribable<T>: Hashable {
         set {
             _value = newValue
             for (_, f) in _subscribers.values {
-                f(value)
+                if let q = f.queue {
+                    q.async { f.callback(newValue) }
+                } else {
+                    f.callback(newValue)
+                }
             }
 
             if let value = value {
@@ -48,12 +52,21 @@ open class Subscribable<T>: Hashable {
         _value = value
     }
 
-    @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {
+    private struct Subscription {
+        let queue: DispatchQueue?
+        let callback: (T?) -> Void
+    }
+
+    @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void, on queue: DispatchQueue? = .none) -> SubscribableKey {
         if let value = _value {
-            subscribe(value)
+            if let q = queue {
+                q.async { subscribe(value) }
+            } else {
+                subscribe(value)
+            }
         }
         let key = SubscribableKey()
-        _subscribers[key] = subscribe
+        _subscribers[key] = Subscription(queue: queue, callback: subscribe)
         return key
     }
 
