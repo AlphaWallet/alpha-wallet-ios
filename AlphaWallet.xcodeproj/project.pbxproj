@@ -841,6 +841,8 @@
 		879F185C26E74507000602F2 /* ButtonsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185B26E74507000602F2 /* ButtonsBar.swift */; };
 		879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */; };
 		879F186026E74543000602F2 /* ToolButtonsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185F26E74543000602F2 /* ToolButtonsBarView.swift */; };
+		87A05C7526FCCA5C00AE26CA /* SwitchChainRequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05C7426FCCA5C00AE26CA /* SwitchChainRequestViewController.swift */; };
+		87A05C7726FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05C7626FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift */; };
 		87A0C93225AEF1E400E73F60 /* EventInstanceValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A0C93125AEF1E400E73F60 /* EventInstanceValue.swift */; };
 		87A3020924BEE243000DF32E /* TransactionInProgressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */; };
 		87A3020B24BF04B6000DF32E /* TransactionInProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */; };
@@ -1839,6 +1841,8 @@
 		879F185B26E74507000602F2 /* ButtonsBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonsBar.swift; sourceTree = "<group>"; };
 		879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarBackgroundView.swift; sourceTree = "<group>"; };
 		879F185F26E74543000602F2 /* ToolButtonsBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolButtonsBarView.swift; sourceTree = "<group>"; };
+		87A05C7426FCCA5C00AE26CA /* SwitchChainRequestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainRequestViewController.swift; sourceTree = "<group>"; };
+		87A05C7626FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainRequestViewModel.swift; sourceTree = "<group>"; };
 		87A0C93125AEF1E400E73F60 /* EventInstanceValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInstanceValue.swift; sourceTree = "<group>"; };
 		87A3020824BEE243000DF32E /* TransactionInProgressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewController.swift; sourceTree = "<group>"; };
 		87A3020A24BF04B6000DF32E /* TransactionInProgressViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressViewModel.swift; sourceTree = "<group>"; };
@@ -3044,6 +3048,7 @@
 				76F1DAFCBB43B6639472A229 /* BrowserHistoryViewController.swift */,
 				5E7C76EE22984D66A3C18E70 /* DappsAutoCompletionViewController.swift */,
 				5E7C7F55495A6095B3E86248 /* EditMyDappViewController.swift */,
+				87A05C7426FCCA5C00AE26CA /* SwitchChainRequestViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -4219,6 +4224,7 @@
 				5E7C776B129861728FFB8CC8 /* EditMyDappViewControllerViewModel.swift */,
 				5E7C7D8D618A8A8D55479CDF /* Dapp.swift */,
 				5E7C7C0AC267283F3F2A6E37 /* EmptyDapps.swift */,
+				87A05C7626FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -5541,6 +5547,7 @@
 				5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */,
 				5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */,
 				87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */,
+				87A05C7526FCCA5C00AE26CA /* SwitchChainRequestViewController.swift in Sources */,
 				5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */,
 				5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */,
 				87F4D41E26C26C3A00EFB9BC /* SortTokensParam.swift in Sources */,
@@ -5578,6 +5585,7 @@
 				5E7C7FCC321493B41C1083C1 /* EnterSellTokensCardPriceQuantityViewControllerViewModel.swift in Sources */,
 				5E7C7669BBE6255A2377E070 /* SetSellTokensCardExpiryDateViewController.swift in Sources */,
 				5E7C7A4384A8E3F22D3F8249 /* SetSellTokensCardExpiryDateViewControllerViewModel.swift in Sources */,
+				87A05C7726FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift in Sources */,
 				5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */,
 				5E7C7692C981580CD32228EB /* ChooseTokenCardTransferModeViewController.swift in Sources */,
 				5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewControllerViewModel.swift in Sources */,
