@@ -24,25 +24,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
-    private let config: Config
+    private var config: Config
     private let analyticsCoordinator: AnalyticsCoordinator
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
     }
 
-    private lazy var historyViewController: BrowserHistoryViewController = {
-        let controller = BrowserHistoryViewController(store: historyStore)
-        controller.configure(viewModel: HistoriesViewModel(store: historyStore))
-        controller.delegate = self
-        return controller
-    }()
-
-    private lazy var browserViewController: BrowserViewController = {
-        let controller = BrowserViewController(account: session.account, server: server)
-        controller.delegate = self
-        controller.webView.uiDelegate = self
-        return controller
-    }()
+    private lazy var browserViewController: BrowserViewController = createBrowserViewController()
 
     private let sharedRealm: Realm
     private let browserOnly: Bool
@@ -92,7 +80,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return browserViewController.webView.url
     }
 
-    private var hasWebPageLoaded: Bool {
+    var hasWebPageLoaded: Bool {
         return currentUrl != nil
     }
 
@@ -146,6 +134,28 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.dismiss(animated: true)
     }
 
+    private func createHistoryViewController() -> BrowserHistoryViewController {
+        let controller = BrowserHistoryViewController(store: historyStore)
+        controller.configure(viewModel: HistoriesViewModel(store: historyStore))
+        controller.delegate = self
+        return controller
+    }
+
+    private func createMyDappsViewController() -> MyDappsViewController {
+        let viewController = MyDappsViewController(bookmarksStore: bookmarksStore)
+        viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
+        viewController.delegate = self
+        return viewController
+    }
+
+    private func createBrowserViewController() -> BrowserViewController {
+        let browserViewController = BrowserViewController(account: session.account, server: server)
+        browserViewController.delegate = self
+        browserViewController.webView.uiDelegate = self
+
+        return browserViewController
+    }
+
     private enum PendingTransaction {
         case none
         case data(callbackID: Int)
@@ -186,13 +196,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             return
         }
 
-        //TODO maybe not the best idea to check like this. Because it will always create the browserViewController twice the first time (or maybe it's ok. Just once)
-        if navigationController.topViewController != browserViewController {
-            browserViewController = BrowserViewController(account: session.account, server: server)
-            browserViewController.delegate = self
-            browserViewController.webView.uiDelegate = self
-            pushOntoNavigationController(viewController: browserViewController, animated: animated)
-        }
+        browserViewController = createBrowserViewController()
+        pushOntoNavigationController(viewController: browserViewController, animated: animated)
+        navigationController.removeViewControllerOfSameType(except: browserViewController)
+
         browserNavBar?.display(url: url)
         if browserOnly {
             browserNavBar?.makeBrowserOnly()
@@ -201,7 +208,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserViewController.goTo(url: url)
     }
 
-    func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
+    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         firstly {
             SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser)
         }.done { data in
@@ -238,6 +245,20 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         reloadAction.isEnabled = hasWebPageLoaded
 
+        let myBookmarksAction = UIAlertAction(title: R.string.localizable.myBookmarks(), style: .default) { [weak self] _ in
+            self?.showMyDapps()
+        }
+
+        let historyAction = UIAlertAction(title: R.string.localizable.browserHistory(), style: .default) { [weak self] _ in
+            self?.showBrowserHistory()
+        }
+
+        let setAsHomePageAction = UIAlertAction(title: R.string.localizable.setAsHomePage(), style: .default) { [weak self] _ in
+            self?.config.homePageURL = self?.currentUrl
+            UINotificationFeedbackGenerator.show(feedbackType: .success)
+        }
+        setAsHomePageAction.isEnabled = hasWebPageLoaded
+
         let shareAction = UIAlertAction(title: R.string.localizable.share(), style: .default) { [weak self] _ in
             self?.share(sender: sender)
         }
@@ -259,9 +280,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
         alertController.addAction(reloadAction)
+        alertController.addAction(myBookmarksAction)
+        alertController.addAction(historyAction)
+        alertController.addAction(setAsHomePageAction)
         alertController.addAction(shareAction)
         alertController.addAction(addBookmarkAction)
         alertController.addAction(switchNetworkAction)
+
         if browserOnly {
             //no-op
         } else {
@@ -573,17 +598,27 @@ extension DappBrowserCoordinator: WKUIDelegate {
 }
 
 extension DappBrowserCoordinator: DappsHomeViewControllerDelegate {
-    func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController) {
+
+    private func showMyDapps() {
         logShowDapps()
-        let viewController = MyDappsViewController(bookmarksStore: bookmarksStore)
-        viewController.configure(viewModel: .init(bookmarksStore: bookmarksStore))
-        viewController.delegate = self
+        let viewController = createMyDappsViewController()
         pushOntoNavigationController(viewController: viewController, animated: true)
+        navigationController.removeViewControllerOfSameType(except: viewController)
+    }
+
+    private func showBrowserHistory() {
+        logShowHistory()
+        let viewController = createHistoryViewController()
+        pushOntoNavigationController(viewController: viewController, animated: true)
+        navigationController.removeViewControllerOfSameType(except: viewController)
+    }
+
+    func didTapShowMyDappsViewController(inViewController viewController: DappsHomeViewController) {
+        showMyDapps()
     }
 
     func didTapShowBrowserHistoryViewController(inViewController viewController: DappsHomeViewController) {
-        logShowHistory()
-        pushOntoNavigationController(viewController: historyViewController, animated: true)
+        showBrowserHistory()
     }
 
     func didTapShowDiscoverDappsViewController(inViewController viewController: DappsHomeViewController) {
@@ -629,11 +664,18 @@ extension DappBrowserCoordinator: DiscoverDappsViewControllerDelegate {
 }
 
 extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
-    func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
+
+    private func createEditMyDappViewController(dapp: Bookmark) -> EditMyDappViewController {
         let viewController = EditMyDappViewController()
         viewController.delegate = self
         viewController.configure(viewModel: .init(dapp: dapp))
         viewController.hidesBottomBarWhenPushed = true
+
+        return viewController
+    }
+
+    func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
+        let viewController = createEditMyDappViewController(dapp: dapp)
 
         browserNavBar?.setBrowserBar(hidden: true)
 
@@ -670,6 +712,12 @@ extension DappBrowserCoordinator: DappsAutoCompletionViewControllerDelegate {
 
 extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 
+    func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
+        guard let url = config.homePageURL else { return }
+
+        open(url: url, animated: true, forceReload: true)
+    }
+
     func didTapBack(inNavigationBar navigationBar: DappBrowserNavigationBar) {
         if let browserVC = navigationController.topViewController as? BrowserViewController, browserVC.webView.canGoBack {
             browserViewController.webView.goBack()
@@ -691,7 +739,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
         logTapMore()
         let alertController = makeMoreAlertSheet(sender: sender)
-        navigationController.present(alertController, animated: true, completion: nil)
+        navigationController.present(alertController, animated: true)
     }
 
     func didTapClose(inNavigationBar navigationBar: DappBrowserNavigationBar) {
@@ -703,11 +751,8 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
-        let text = text.trimmed
-        if text.isEmpty {
-            if navigationController.topViewController as? DappsAutoCompletionViewController != nil {
-                navigationController.popViewController(animated: false)
-            }
+        if navigationController.topViewController as? DappsAutoCompletionViewController != nil && text.trimmed.isEmpty {
+            navigationController.popViewController(animated: false)
         }
     }
 
@@ -864,5 +909,12 @@ extension DappBrowserCoordinator: DappRequestSwitchCustomChainCoordinatorDelegat
 
     func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension UINavigationController {
+    /// Removes all instances of view controller from navigation stack of type `T` skipping instance `avoidToRemove`
+    func removeViewControllerOfSameType<T>(except avoidToRemove: T) where T: UIViewController {
+        viewControllers = viewControllers.filter { !($0 is T) || $0 == avoidToRemove }
     }
 }

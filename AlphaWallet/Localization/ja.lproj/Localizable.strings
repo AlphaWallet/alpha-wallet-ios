@@ -9,6 +9,9 @@
 "Delete" = "削除";
 "Reload" = "再読み込み";
 "Share" = "シェア";
+"setAsHomePage" = "Set as Home Page";
+"browserHistory" = "History";
+"myBookmarks" = "My Bookmarks";
 "New" = "新規";
 "Bookmarks" = "ブックマーク";
 "History" = "履歴";
@@ -223,7 +226,7 @@
 "browser.noHistory.label.title" = "Your browser history appears here.";
 "browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
 "browser.noBookmarks.label.title" = "No bookmarks yet!";
-"browser.url.textfield.placeholder" = "Search or enter website URL";
+"browser.url.textfield.placeholder" = "Search or type URL";
 "browser.settings.network.description.title" = "More networks will be available when they are enabled in the Settings tab";
 "configureTransaction.gasPriceGwei.label.title" = "ガス価格 (Gwei)";
 "enterPassword.navigation.title" = "Set Keystore Password";

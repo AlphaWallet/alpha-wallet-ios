@@ -9,6 +9,9 @@
 "Delete" = "Eliminar";
 "Reload" = "Volver a cargar";
 "Share" = "Compartir";
+"setAsHomePage" = "Set as Home Page";
+"browserHistory" = "History";
+"myBookmarks" = "My Bookmarks";
 "New" = "Nuevo";
 "Bookmarks" = "Marcadores";
 "History" = "Historial";
@@ -223,7 +226,7 @@
 "browser.noHistory.label.title" = "Tu historial de navegación aparece aquí.";
 "browser.bookmarks.confirm.delete.title" = "¿Seguro que deseas eliminar este marcador?";
 "browser.noBookmarks.label.title" = "¡Todavía no hay ningún marcador!";
-"browser.url.textfield.placeholder" = "Busca o introduce la URL del sitio web";
+"browser.url.textfield.placeholder" = "Search or type URL";
 "browser.settings.network.description.title" = "Habrá más redes disponibles cuando se activen en la pestaña de Ajustes";
 "configureTransaction.gasPriceGwei.label.title" = "Precio del gas (Gwei)";
 "enterPassword.navigation.title" = "Establecer la contraseña del almacén de claves";
