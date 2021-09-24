@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
     func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator)
@@ -137,6 +138,11 @@ extension DappRequestSwitchCustomChainCoordinator: EnableChainDelegate {
 }
 
 extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
+
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
+        UIAlertController.promptToUseUnresolvedExplorerURL(customChain: customChain, chainId: chainId, viewController: viewController)
+    }
+
     //Don't need to notify browser/dapp since we are restarting UI
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
         analyticsCoordinator.log(action: Analytics.Action.addCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "dapp"])
