@@ -288,7 +288,7 @@
 "a.wallet.token.sell.confirm.expiryDateDescription" = "MagicLink 만료 날짜: %@";
 "a.wallet.token.sell.confirm.singleTokenSelected.title" = "1 %@";
 "a.wallet.token.sell.confirm.multipleTokenSelected.title" = "%d %@";
-"a.wallet.token.transfer.button.title" = "전송";
+"a.wallet.token.transfer.button.title" = "보내기";
 "a.wallet.token.transfer.selectTokens.title" = "전송할 %@ 선택:";
 "a.wallet.token.transfer.selectTokenQuantity.atLeastOne.title" = "%@의 수량을 선택하십시오";
 "a.wallet.token.transfer.selectTokens.atLeastOne.title" = "전송할 %@을(를) 선택하십시오";
