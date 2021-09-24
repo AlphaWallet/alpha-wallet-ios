@@ -23,7 +23,7 @@ class AddressTextField: UIControl {
     }()
 
     var ensAddressView: UIStackView {
-        return [ensAddressLabel.loadingIndicator, ensAddressLabel, statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+        return [ensAddressLabel.defaultLayout(), statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
     }
 
     private var textFieldText: String {
@@ -47,7 +47,11 @@ class AddressTextField: UIControl {
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
-        
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.titleEdgeInsets = .zero
+        button.contentEdgeInsets = .zero
+
         return button
     }()
 
@@ -60,6 +64,11 @@ class AddressTextField: UIControl {
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.titleEdgeInsets = .zero
+        button.contentEdgeInsets = .zero
+
         return button
     }()
 
@@ -168,17 +177,19 @@ class AddressTextField: UIControl {
         let stackView = [
             self, .spacer(height: 4), [
                 ensAddressView,
+                .spacerWidth(4, flexible: true),
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
             addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
             addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
             addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
             addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
+            addressControlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 50)
         ])
 
         return stackView
@@ -286,10 +297,9 @@ class AddressTextField: UIControl {
             textFieldText = value
 
             delegate?.didPaste(in: self)
-
-            ensAddressLabel.resolve(value) { [weak self] resolution in
+            ensAddressLabel.resolve(value).done { [weak self] resolution in
                 self?.addressOrEnsNameDidResolve(resolution, whileTextWasPaste: true)
-            }
+            }.cauterize()
         } else {
             ensAddressLabel.clear()
             delegate?.displayError(error: SendInputErrors.emptyClipBoard, for: self)
@@ -345,17 +355,17 @@ extension AddressTextField: UITextFieldDelegate {
     }
 
     private func ensAddressResolve(value: String) {
-        ensAddressLabel.resolve(value) { [weak self] resolution in
+        ensAddressLabel.resolve(value).done { [weak self] resolution in
             self?.addressOrEnsNameDidResolve(resolution, whileTextWasPaste: false)
-        }
+        }.cauterize()
     }
 
-    private func addressOrEnsNameDidResolve(_ resolution: AddressOrEnsNameLabel.AddressOrEnsResolution, whileTextWasPaste: Bool) {
+    private func addressOrEnsNameDidResolve(_ response: AddressOrEnsNameLabel.BlockieAndAddressOrEnsResolution, whileTextWasPaste: Bool) {
         guard value == textField.text?.trimmed else {
             return
         }
 
-        switch resolution {
+        switch response.resolution {
         case .invalidInput:
             if whileTextWasPaste {
                 delegate?.displayError(error: Errors.invalidAddress, for: self)
@@ -366,6 +376,7 @@ extension AddressTextField: UITextFieldDelegate {
 
             if let addressOrEnsName = resolved {
                 ensAddressLabel.addressOrEnsName = addressOrEnsName
+                ensAddressLabel.blockieImage = response.image
             } else {
                 ensAddressLabel.clear()
             }

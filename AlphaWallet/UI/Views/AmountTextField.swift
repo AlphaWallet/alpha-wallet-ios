@@ -138,6 +138,7 @@ class AmountTextField: UIControl {
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        button.contentEdgeInsets = .zero
 
         return button
     }()
@@ -374,7 +375,7 @@ class AmountTextField: UIControl {
     }()
 
     private lazy var allFundsContainer: UIView = {
-        return [allFundsButton, .spacerWidth(8)].asStackView(axis: .horizontal)
+        return [allFundsButton].asStackView(axis: .horizontal)
     }()
 
     private lazy var alternativeAmountLabelContainer: UIView = {
