@@ -172,7 +172,12 @@ struct Config {
     var enabledServers: [RPCServer] {
         get {
             if let chainIds = defaults.array(forKey: Keys.enabledServers) as? [Int] {
-                return chainIds.map { .init(chainID: $0) }
+                if chainIds.isEmpty {
+                    //TODO remote log. Why is this possible? Note it's not nil (which is possible for new installs)
+                    return Constants.defaultEnabledServers
+                } else {
+                    return chainIds.map { .init(chainID: $0) }
+                }
             } else {
                 return Constants.defaultEnabledServers
             }
