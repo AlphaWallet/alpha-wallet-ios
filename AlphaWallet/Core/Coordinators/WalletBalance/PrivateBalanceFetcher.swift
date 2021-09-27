@@ -328,7 +328,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     //Misnomer, we call this "nonFungible", but this includes ERC1155 which can contain (semi-)fungibles, but there's no better name
     private func fetchNonFungibleJson(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Guarantee<String> {
         firstly {
-            Erc721Contract(server: server).getErc721TokenUri(for: tokenId, contract: address)
+            NonFungibleContract(server: server).getTokenUri(for: tokenId, contract: address)
         }.then(on: queue, {
             self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, tokens: tokens)
         }).recover(on: queue, { _ in
