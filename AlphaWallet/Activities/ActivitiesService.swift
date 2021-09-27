@@ -21,13 +21,13 @@ protocol ActivitiesServiceType: class {
 enum ActivitiesFilterStrategy {
     case none
     case nativeCryptocurrency(primaryKey: String)
-    case erc20(contract: AlphaWallet.Address)
+    case contract(contract: AlphaWallet.Address)
 
     func isRecentTransaction(transaction: TransactionInstance) -> Bool {
         switch self {
         case .nativeCryptocurrency:
             return ActivitiesFilterStrategy.filterTransactionsForNativeCryptocurrency(transaction: transaction)
-        case .erc20(let contract):
+        case .contract(let contract):
             return ActivitiesFilterStrategy.filterTransactionsForERC20Token(transaction: transaction, contract: contract)
         case .none:
             return true
@@ -51,7 +51,7 @@ extension TransactionType {
         case .nativeCryptocurrency(let tokenObject, _, _):
             return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
         case .ERC20Token(let tokenObject, _, _):
-            return .erc20(contract: tokenObject.contractAddress)
+            return .contract(contract: tokenObject.contractAddress)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript:
             return .none
         }
@@ -331,7 +331,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         switch strategy {
         case .none:
             return filteredActivitiesForThisCard
-        case .erc20(let contract):
+        case .contract(let contract):
             return filteredActivitiesForThisCard.filter { mapped -> Bool in
                 return mapped.tokenObject.contractAddress.sameContract(as: contract)
             }
