@@ -391,9 +391,12 @@ class SingleChainTokenCoordinator: Coordinator {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                guard let hiddenContract = strongSelf.storage.hiddenContracts.first(where: { contract.sameContract(as: $0.contract) }) else { return seal.reject(PMKError.cancelled) }
-                //TODO we need to make sure it's all uppercase?
-                strongSelf.storage.delete(hiddenContracts: [hiddenContract])
+                if let hiddenContract = strongSelf.storage.hiddenContracts.first(where: { contract.sameContract(as: $0.contract) }) {
+                    //TODO we need to make sure it's all uppercase?
+                    strongSelf.storage.delete(hiddenContracts: [hiddenContract])
+                } else {
+                    //no-op
+                }
 
                 seal.fulfill(())
             }
