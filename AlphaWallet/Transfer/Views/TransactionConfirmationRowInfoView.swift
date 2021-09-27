@@ -19,12 +19,24 @@ class TransactionConfirmationRowInfoView: UIView {
         return titleLabel
     }()
 
+    private let subTitleLabel: UILabel = {
+        let subTitleLabel = UILabel(frame: .zero)
+        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subTitleLabel.textAlignment = .left
+        subTitleLabel.textColor = Colors.black
+        subTitleLabel.font = Fonts.light(size: ScreenChecker().isNarrowScreen ? 13 : 15)
+        subTitleLabel.numberOfLines = 0
+
+        return subTitleLabel
+    }()
+
     init(viewModel: TransactionRowInfoTableViewCellViewModel) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
             titleLabel,
+            subTitleLabel,
         ].asStackView(axis: .vertical)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -45,11 +57,14 @@ class TransactionConfirmationRowInfoView: UIView {
 
     private func configure(viewModel: TransactionRowInfoTableViewCellViewModel) {
         titleLabel.text = viewModel.title
+        subTitleLabel.text = viewModel.subtitle
+        subTitleLabel.isHidden = viewModel.isSubtitleHidden
     }
 }
 
 struct TransactionRowInfoTableViewCellViewModel {
     let title: String
     let subtitle: String?
+    var isSubtitleHidden: Bool { subtitle?.trimmed.isEmpty ?? true }
 }
 
