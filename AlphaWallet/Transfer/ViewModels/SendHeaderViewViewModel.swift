@@ -190,13 +190,13 @@ struct TokenInfoPageViewModel {
             return nil
         } else {
             switch transactionType {
-            case .nativeCryptocurrency, .ERC20Token:
+            case .nativeCryptocurrency, .erc20Token:
                 if isShowingValue {
                     return tokenValueAttributedString
                 } else {
                     return marketPriceAttributedString
                 }
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return nil
             }
         }

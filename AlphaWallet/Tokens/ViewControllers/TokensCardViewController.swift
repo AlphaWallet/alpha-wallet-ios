@@ -204,7 +204,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
     func sell() {
         guard let selectedTokenHolder = selectedTokenHolder else { return }
-        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .ERC875Token(viewModel.token)), in: self)
+        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .erc875Token(viewModel.token)), in: self)
     }
 
     func transfer() {
