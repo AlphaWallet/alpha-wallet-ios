@@ -19,11 +19,8 @@ struct SingleTokenCardSelectionViewModel {
     }
 
     var isHidden: Bool {
-        tokenHolder.token(tokenId: tokenId)?.amount == nil
-    }
-
-    var availableAmount: Int? {
-        tokenHolder.token(tokenId: tokenId)?.amount
+        //TODO check correct?
+        return tokenHolder.token(tokenId: tokenId)?.amount == nil
     }
 
     let tokenId: TokenId

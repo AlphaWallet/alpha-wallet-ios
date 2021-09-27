@@ -373,7 +373,6 @@ class TokensDataStore: NSObject {
                     case .add(let token, let shouldUpdateBalance):
                         let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
                         strongSelf.addTokenUnsafe(tokenObject: newToken, realm: strongSelf.realm)
-
                         value = true
                     case .update(let tokenObject, let action):
                         value = strongSelf.updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: action)
@@ -405,7 +404,6 @@ class TokensDataStore: NSObject {
 
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
         var result: Bool?
-
         realm.beginWrite()
         result = updateTokenUnsafe(primaryKey: primaryKey, action: action)
 

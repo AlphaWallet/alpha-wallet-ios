@@ -44,7 +44,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
     }()
 
     private lazy var toolbarAmountSelectionView: SingleTokenCardAmountSelectionToolbarView = {
-        let view = SingleTokenCardAmountSelectionToolbarView(viewModel: .init(availableAmount: 20, selectedAmount: 0))
+        let view = SingleTokenCardAmountSelectionToolbarView(viewModel: .init(availableAmount: 20, selectedAmount: 1))
         view.delegate = self
 
         return view

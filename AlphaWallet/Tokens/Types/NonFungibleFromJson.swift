@@ -20,6 +20,8 @@ protocol NonFungibleFromJson: Codable {
     var backgroundColor: String? { get }
     var traits: [OpenSeaNonFungibleTrait] { get }
     var generationTrait: OpenSeaNonFungibleTrait? { get }
+    var collectionCreatedDate: Date? { get }
+    var collectionDescription: String? { get }
 }
 
 func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {

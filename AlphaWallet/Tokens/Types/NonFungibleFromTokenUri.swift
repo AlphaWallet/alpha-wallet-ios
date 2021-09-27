@@ -30,6 +30,8 @@ struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
     var generationTrait: OpenSeaNonFungibleTrait? {
         nil
     }
+    let collectionCreatedDate: Date?
+    let collectionDescription: String?
 }
 
 struct NonFungibleFromTokenUriBeforeErc1155Support: Codable {
@@ -57,7 +59,7 @@ struct NonFungibleFromTokenUriBeforeErc1155Support: Codable {
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink)
+        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, collectionCreatedDate: nil, collectionDescription: nil)
         return result
     }
 }

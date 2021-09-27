@@ -448,14 +448,14 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
         switch token.type {
-        case .erc721, .erc1155:
+        case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
             transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: type, in: viewController)
-        case .nativeCryptocurrency, .erc20:
+        case .nativeCryptocurrency, .erc20, .erc1155:
             break
         }
     }
@@ -501,14 +501,14 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
         switch token.type {
-        case .erc721, .erc1155:
+        case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
             transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
-        case .nativeCryptocurrency, .erc20:
+        case .nativeCryptocurrency, .erc20, .erc1155:
             break
         }
     }

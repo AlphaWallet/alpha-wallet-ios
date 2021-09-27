@@ -66,10 +66,10 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         for each in viewModel.configurations {
             switch each {
             case .header(let viewModel):
-                let perfomanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
-                perfomanceHeader.configure(viewModel: viewModel)
+                let performanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
+                performanceHeader.configure(viewModel: viewModel)
 
-                stackView.addArrangedSubview(perfomanceHeader)
+                stackView.addArrangedSubview(performanceHeader)
             case .field(let viewModel):
                 let field = TokenInstanceAttributeView()
                 field.configure(viewModel: viewModel)

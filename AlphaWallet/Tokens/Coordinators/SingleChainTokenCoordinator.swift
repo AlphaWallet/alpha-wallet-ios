@@ -413,10 +413,8 @@ class SingleChainTokenCoordinator: Coordinator {
         switch token.type {
         case .erc1155:
             showTokensCardCollection(for: type, token: token, navigationController: navigationController)
-        case .erc721:
+        case .erc721, .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             showTokenCard(for: type, token: token, navigationController: navigationController)
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            break
         }
     }
 
