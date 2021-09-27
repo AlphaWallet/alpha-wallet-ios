@@ -1,5 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import Foundation
 import UIKit
 import BigInt
@@ -72,10 +70,10 @@ class SendCoordinator: Coordinator {
             } else {
                 //do nothing, especially not set it to a default BigInt() / 0
             }
-        case .ERC20Token(_, let destination, let amount):
+        case .erc20Token(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.stringValue ?? ""
             controller.amountTextField.ethCost = amount ?? ""
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
         controller.delegate = self

@@ -90,7 +90,7 @@ class TokenViewController: UIViewController {
 
             view.configure(viewModel: .init(alerts: alerts ?? []))
         }
-        
+
         refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType: transactionType)
     }
 
@@ -207,7 +207,7 @@ class TokenViewController: UIViewController {
             }
 
             session.refresh(.ethBalance)
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
@@ -216,7 +216,7 @@ class TokenViewController: UIViewController {
             tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.ethBalanceViewModel.currencyAmount
 
             configure(viewModel: viewModel)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -263,9 +263,9 @@ class TokenViewController: UIViewController {
                 switch transactionType {
                 case .nativeCryptocurrency(let token, _, _):
                     tokenObject = TokenActionsServiceKey(tokenObject: token)
-                case .ERC20Token(let token, _, _):
+                case .erc20Token(let token, _, _):
                     tokenObject = TokenActionsServiceKey(tokenObject: token)
-                case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+                case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                     tokenObject = .none
                 }
 
@@ -358,4 +358,4 @@ extension TokenViewController {
     private func logStartOnRamp(name: String) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name])
     }
-} 
+}

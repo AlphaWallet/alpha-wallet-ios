@@ -50,9 +50,9 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency(let tokenObject, _, _):
             return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
-        case .ERC20Token(let tokenObject, _, _):
+        case .erc20Token(let tokenObject, _, _):
             return .contract(contract: tokenObject.contractAddress)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript:
             return .none
         }
     }

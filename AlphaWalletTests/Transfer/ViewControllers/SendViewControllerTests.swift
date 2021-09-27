@@ -73,7 +73,7 @@ class SendViewControllerTests: XCTestCase {
     func testERC20AllFunds() {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
 
-        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .ERC20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
@@ -89,7 +89,7 @@ class SendViewControllerTests: XCTestCase {
     func testERC20AllFundsSpanish() {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
 
-        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .ERC20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: .erc20Token(token, destination: .none, amount: nil))
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
@@ -104,7 +104,7 @@ class SendViewControllerTests: XCTestCase {
 
     func testERC20AllFundsEnglish() {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
-        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .ERC20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
 
         XCTAssertEqual(vc.amountTextField.value, "")
 
@@ -119,7 +119,7 @@ class SendViewControllerTests: XCTestCase {
 
     func testERC20English() {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
-        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .ERC20Token(token, destination: .none, amount: nil))
+        let vc = createSendViewControllerAndSetLocale(locale: .english, transactionType: .erc20Token(token, destination: .none, amount: nil))
 
         XCTAssertEqual(vc.amountTextField.value, "")
 

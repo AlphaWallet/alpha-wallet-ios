@@ -140,7 +140,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
 
     func sell() {
-        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .ERC875Token(tokenObject)), in: self)
+        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject)), in: self)
     }
 
     func transfer() {

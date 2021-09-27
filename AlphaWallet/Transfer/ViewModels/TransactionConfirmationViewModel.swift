@@ -212,13 +212,13 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return "\(amount.value) \(token.symbol)"
                 }
-            case .ERC20Token(let token, _, _):
+            case .erc20Token(let token, _, _):
                 if let amount = amount.shortValue, amount.nonEmpty {
                     return "\(amount) \(token.symbol)"
                 } else {
                     return "\(amount.value) \(token.symbol)"
                 }
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken,  .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken,  .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 return String()
             }
         }
@@ -560,7 +560,7 @@ extension TransactionConfirmationViewModel {
                 }
             case .tokenId:
                 switch transactionType {
-                case .ERC1155Token:
+                case .erc1155Token:
                     let title: String
                     if let tokenIdAndValue = configurator.transaction.tokenIdsAndValues?.first {
                         let tokenId = tokenIdAndValue.tokenId
@@ -575,7 +575,7 @@ extension TransactionConfirmationViewModel {
                         title = tokenInstanceName ?? ""
                     }
                     return .init(title: .normal(title), headerName: headerName, configuration: configuration)
-                case .nativeCryptocurrency, .ERC20Token, .ERC721Token, .claimPaidErc875MagicLink, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .dapp, .tokenScript:
+                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript:
                     //This is really just for ERC721, but the type system…
                     let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
                     let title: String
