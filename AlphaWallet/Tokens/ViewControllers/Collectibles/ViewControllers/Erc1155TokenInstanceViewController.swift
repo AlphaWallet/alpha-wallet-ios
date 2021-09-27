@@ -7,19 +7,19 @@
 
 import UIKit
 
-protocol TokenInstanceViewControllerDelegate2: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController2)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController2)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController2)
-    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController2)
-    func didTapURL(url: URL, in viewController: TokenInstanceViewController2)
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController2)
+protocol Erc1155TokenInstanceViewControllerDelegate: class, CanOpenURL {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: Erc1155TokenInstanceViewController)
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController)
+    func didPressViewRedemptionInfo(in viewController: Erc1155TokenInstanceViewController)
+    func didTapURL(url: URL, in viewController: Erc1155TokenInstanceViewController)
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: Erc1155TokenInstanceViewController)
 }
 
-class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewController {
+class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
-    private var viewModel: TokenInstanceViewModel2
+    private var viewModel: Erc1155TokenInstanceViewModel
     private let account: Wallet
     private let bigImageView = WebImageView(type: .original)
     lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
@@ -36,7 +36,7 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         return tokenObject.contractAddress
     }
     let assetDefinitionStore: AssetDefinitionStore
-    weak var delegate: TokenInstanceViewControllerDelegate2?
+    weak var delegate: Erc1155TokenInstanceViewControllerDelegate?
 
     var isReadOnly = false {
         didSet {
@@ -95,7 +95,7 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         super.viewWillDisappear(animated)
     }
 
-    private func generateSubviews(viewModel: TokenInstanceViewModel2) {
+    private func generateSubviews(viewModel: Erc1155TokenInstanceViewModel) {
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
 
@@ -122,7 +122,7 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
         stackView.addArrangedSubviews(subviews)
     }
 
-    func configure(viewModel newViewModel: TokenInstanceViewModel2? = nil) {
+    func configure(viewModel newViewModel: Erc1155TokenInstanceViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
@@ -212,7 +212,7 @@ class TokenInstanceViewController2: UIViewController, TokenVerifiableStatusViewC
     }
 }
 
-extension TokenInstanceViewController2: VerifiableStatusViewController {
+extension Erc1155TokenInstanceViewController: VerifiableStatusViewController {
     func showInfo() {
         delegate?.didPressViewRedemptionInfo(in: self)
     }
@@ -226,19 +226,19 @@ extension TokenInstanceViewController2: VerifiableStatusViewController {
     }
 }
 
-extension TokenInstanceViewController2: BaseTokenCardTableViewCellDelegate {
+extension Erc1155TokenInstanceViewController: BaseTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
 
-extension TokenInstanceViewController2: TokenCardsViewControllerHeaderDelegate {
+extension Erc1155TokenInstanceViewController: TokenCardsViewControllerHeaderDelegate {
     func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
         showContractWebPage()
     }
 }
 
-extension TokenInstanceViewController2: OpenSeaNonFungibleTokenCardRowViewDelegate {
+extension Erc1155TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegate {
     //Implemented as part of implementing BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate
 //    func didTapURL(url: URL) {
 //        delegate?.didPressOpenWebPage(url, in: self)
