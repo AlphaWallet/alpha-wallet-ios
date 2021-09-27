@@ -23,7 +23,7 @@ class AssetsPageViewModel {
         GroupedTable.Color.background
     }
 
-    private var tokenHolders: [TokenHolder]
+    private let tokenHolders: [TokenHolder]
     private let sections: [AssetsSection] = [.assets]
 
     init(tokenHolders: [TokenHolder]) {
@@ -51,6 +51,6 @@ class AssetsPageViewModel {
         case .none:
             return nil
         }
-    } 
+    }
 }
 

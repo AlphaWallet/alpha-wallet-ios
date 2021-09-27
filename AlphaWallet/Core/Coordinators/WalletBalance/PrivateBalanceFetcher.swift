@@ -61,7 +61,6 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         //NOTE: fire refresh balance only for initial scope, and while adding new tokens
         enabledObjectsObservation = tokensDatastore.enabledObjectResults.observe(on: queue) { [weak self] change in
             guard let strongSelf = self else { return }
-
             switch change {
             case .initial(let tokenObjects):
                 let tokenObjects = tokenObjects.map { Activity.AssignedToken(tokenObject: $0) }
@@ -440,11 +439,8 @@ fileprivate extension PrivateBalanceFetcher.functional {
         let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { contract in
             !tokens.contains(where: { $0.contractAddress.sameContract(as: contract)})
         }
-
         guard !contractsToAdd.isEmpty else { return Promise<[ERCToken]>.value(.init()) }
-
         let (promise, seal) = Promise<[ERCToken]>.pending()
-
         //Can't use `DispatchGroup` because `ContractDataDetector.fetch()` doesn't call `completion` once and only once
         var contractsProcessed: Set<AlphaWallet.Address> = .init()
         var erc1155TokensToAdd: [ERCToken] = .init()

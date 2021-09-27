@@ -26,6 +26,8 @@ struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
     var generationTrait: OpenSeaNonFungibleTrait? {
         return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
     }
+    let collectionCreatedDate: Date?
+    let collectionDescription: String?
 }
 
 struct OpenSeaNonFungibleTrait: Codable {
@@ -59,7 +61,7 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil)
         return result
     }
 }

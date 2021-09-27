@@ -9,7 +9,7 @@ import UIKit
 
 struct SelectTokenCardAmountViewModel {
     var backgroundColor: UIColor = Colors.appWhite
-    let availableAmount: Int
+    private let availableAmount: Int
     private(set) var counter: Int = 0
 
     init(availableAmount: Int, selectedAmount: Int) {
@@ -159,7 +159,7 @@ class SelectTokenCardAmountView: UIView {
     }
 
     private func updateCounterLabel() {
-        countLabel.text = "\(viewModel.counter)"
+        countLabel.text = String(viewModel.counter)
     }
 
     required init?(coder: NSCoder) {

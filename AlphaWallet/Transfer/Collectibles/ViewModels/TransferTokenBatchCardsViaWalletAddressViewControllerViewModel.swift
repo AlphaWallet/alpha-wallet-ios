@@ -13,12 +13,7 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var navigationTitle: String {
-        //NOTE: Replace later
-        if tokenHolders.count == 1 {
-            return "Send Token"
-        } else {
-            return "Send Tokens"
-        }
+        R.string.localizable.send()
     }
 
     var backgroundColor: UIColor {

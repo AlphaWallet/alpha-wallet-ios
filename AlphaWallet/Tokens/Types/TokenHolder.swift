@@ -10,8 +10,8 @@ import Foundation
 import BigInt
 
 struct TokenSelection: Equatable {
-    var amount: Int?
     let tokenId: TokenId
+    let value: Int
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.tokenId == rhs.tokenId
@@ -31,59 +31,44 @@ enum TokenHolderUnselectionStrategy {
 extension TokenHolder {
 
     func isSelected(tokenId: TokenId) -> Bool {
-        guard let selection = selections.first(where: { $0.tokenId == tokenId }) else { return false }
-
-        if let amount = selection.amount {
-            return amount > 0
-        } else {
-            return true
-        }
+        selections.contains { $0.tokenId == tokenId }
     }
 
     var totalSelectedCount: Int {
         var sum: Int = 0
         for each in selections {
-            if let amount = each.amount {
-                sum += amount
-            } else {
-                sum += 1
-            }
+            sum += each.value
         }
 
         return sum
     }
 
     func selectedCount(tokenId: TokenId) -> Int? {
-        selections.first(where: { $0.tokenId == tokenId }).flatMap { $0.amount }
+        selections.first(where: { $0.tokenId == tokenId }).flatMap { $0.value }
     }
 
     func select(with strategy: TokenHolderSelectionStrategy) {
         switch strategy {
         case .all:
-            selections = tokens.map { TokenSelection(amount: $0.amount, tokenId: $0.id) }
+            selections = tokens.compactMap {
+                //TODO need to make sure the available `amount` is set previously  so we can use it here
+                if let amount = $0.amount {
+                    return TokenSelection(tokenId: $0.id, value: amount)
+                } else {
+                    return nil
+                }
+            }
         case .token(let tokenId, let newAmount):
-            guard let token = tokens.first(where: { $0.id == tokenId }) else { return }
-
+            guard tokens.contains(where: { $0.id == tokenId }) else { return }
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
                 if newAmount > 0 {
-                    let selection: TokenSelection
-                    if let available = token.amount {
-                        selection = TokenSelection(amount: min(available, newAmount), tokenId: tokenId)
-                    } else {
-                        selection = TokenSelection(amount: nil, tokenId: tokenId)
-                    }
-                    selections[index] = selection
+                    selections[index] = TokenSelection(tokenId: tokenId, value: newAmount)
                 } else {
                     selections.remove(at: index)
                 }
             } else {
                 guard newAmount > 0 else { return }
-
-                if let available = token.amount {
-                    selections += [TokenSelection(amount: min(available, newAmount), tokenId: tokenId)]
-                } else {
-                    selections += [TokenSelection(amount: nil, tokenId: tokenId)]
-                }
+                selections.append(TokenSelection(tokenId: tokenId, value: newAmount))
             }
         }
     }
@@ -94,12 +79,7 @@ extension TokenHolder {
             selections = []
         case .token(let tokenId, let amount):
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
-                if let availableAmount = selections[index].amount {
-                    let newAmount = max(0, availableAmount - amount)
-                    selections[index] = TokenSelection(amount: newAmount, tokenId: tokenId)
-                } else {
-                    selections.remove(at: index)
-                }
+                selections[index] = TokenSelection(tokenId: tokenId, value: amount)
             } else {
                 // no-op
             }
@@ -119,8 +99,7 @@ class TokenHolder {
 
     var isSelected = false
     var areDetailsVisible = false
-
-    fileprivate var selections: [TokenSelection] = []
+    var selections: [TokenSelection] = []
 
     init(tokens: [Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
         self.tokens = tokens

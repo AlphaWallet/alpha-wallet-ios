@@ -62,12 +62,12 @@ class TokenImageFetcher {
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
     func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
-        image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol, type: tokenObject.type, balance: tokenObject.balance.first?.balance)
+        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.balance)
     }
 
     func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
         // NOTE: not meatter what type we passa as `type`, here we are not going to fetch from OpenSea
-        image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil)
+        return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil)
     }
 
     private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: String?) -> Subscribable<TokenImage> {
@@ -98,6 +98,7 @@ class TokenImageFetcher {
 
         queue.async {
             let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
+
             DispatchQueue.main.async {
                 if subscribable.value == nil {
                     subscribable.value = generatedImage

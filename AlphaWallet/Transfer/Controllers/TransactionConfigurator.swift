@@ -371,7 +371,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC721Token(let token), .ERC721ForTicketToken(let token), .ERC1155Token(let token):
+            case .ERC721Token(let token), .ERC721ForTicketToken(let token):
                 let function: Function
                 let parameters: [Any]
 
@@ -388,6 +388,19 @@ class TransactionConfigurator {
                         transaction.tokenId!
                     ]
                 }
+                let encoder = ABIEncoder()
+                try encoder.encode(function: function, arguments: parameters)
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+            case .ERC1155Token:
+                //TODO Support ERC1155 batch transfers too
+                let function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256), .uint(bits: 256), .dynamicBytes])
+                let parameters: [Any] = [
+                    TrustKeystore.Address(address: account),
+                    TrustKeystore.Address(address: transaction.recipient!),
+                    transaction.tokenIdsAndValues![0].tokenId,
+                    transaction.tokenIdsAndValues![0].value,
+                    Data()
+                ]
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)

@@ -65,10 +65,18 @@ class Erc1155TokenIdsFetcher {
         let fromPreviousRead: Erc1155TokenIds = readJson() ?? .init(tokens: .init(), lastBlockNumber: 0)
         let fromBlockNumber = fromPreviousRead.lastBlockNumber + 1
         let toBlock: EventFilter.Block
-        if server == .binance_smart_chain || server == .binance_smart_chain_testnet || server == .heco {
-            //NOTE: binance_smart_chain does not allow range more than 5000
-            toBlock = .blockNumber(UInt64(fromBlockNumber) + 4000)
-        } else {
+
+        switch server {
+        case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            //These do not allow range more than 5000
+            toBlock = .blockNumber(UInt64(fromBlockNumber) + 4990)
+        case .optimistic:
+            //These not allow range more than 10000
+            toBlock = .blockNumber(UInt64(fromBlockNumber) + 9999)
+        case .polygon, .mumbai_testnet, .cronosTestnet:
+            //These not allow range more than 100000
+            toBlock = .blockNumber(UInt64(fromBlockNumber) + 99990)
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom:
             toBlock = .latest
         }
 
@@ -211,8 +219,8 @@ extension Erc1155TokenIdsFetcher.functional {
                     }
                 }
                 seal.fulfill(results)
-            }.catch { error in
-                //TODO log error
+            }.catch { _ in
+                //no-op
             }
         }
     }
