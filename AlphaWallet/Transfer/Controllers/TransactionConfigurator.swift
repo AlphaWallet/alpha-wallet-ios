@@ -99,7 +99,7 @@ class TransactionConfigurator {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink:
             return transaction.contract
         }
     }
@@ -108,12 +108,12 @@ class TransactionConfigurator {
         //TODO why not all `transaction.value`? Shouldn't the other types of transactions make sure their `transaction.value` is 0?
         switch transaction.transactionType {
         case .nativeCryptocurrency, .dapp: return transaction.value
-        case .ERC20Token: return 0
-        case .ERC875Token: return 0
-        case .ERC875TokenOrder: return transaction.value
-        case .ERC721Token: return 0
-        case .ERC721ForTicketToken: return 0
-        case .ERC1155Token: return 0
+        case .erc20Token: return 0
+        case .erc875Token: return 0
+        case .erc875TokenOrder: return transaction.value
+        case .erc721Token: return 0
+        case .erc721ForTicketToken: return 0
+        case .erc1155Token: return 0
         case .tokenScript: return transaction.value
         case .claimPaidErc875MagicLink: return transaction.value
         }
@@ -327,13 +327,13 @@ class TransactionConfigurator {
                 return createConfiguration(server: server, transaction: transaction, gasLimit: GasLimitConfiguration.minGasLimit, data: transaction.data ?? .init())
             case .tokenScript:
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
-            case .ERC20Token:
+            case .erc20Token:
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: [Address(address: transaction.recipient!), BigUInt(transaction.value)])
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC875Token(let token):
+            case .erc875Token(let token):
                 let parameters: [Any] = [TrustKeystore.Address(address: transaction.recipient!), transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
@@ -345,7 +345,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC875TokenOrder(let token):
+            case .erc875TokenOrder(let token):
                 let parameters: [Any] = [
                     transaction.expiry!,
                     transaction.indices!.map({ BigUInt($0) }),
@@ -371,7 +371,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC721Token(let token), .ERC721ForTicketToken(let token):
+            case .erc721Token(let token), .erc721ForTicketToken(let token):
                 let function: Function
                 let parameters: [Any]
 
@@ -391,7 +391,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .ERC1155Token:
+            case .erc1155Token:
                 //TODO Support ERC1155 batch transfers too
                 let function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256), .uint(bits: 256), .dynamicBytes])
                 let parameters: [Any] = [

@@ -1,5 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import UIKit
 import BigInt
 import PromiseKit
@@ -978,13 +976,13 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
         switch transactionType {
-        case .nativeCryptocurrency(let token, _, _), .ERC20Token(let token, _, _), .ERC875Token(let token), .ERC721Token(let token), .ERC1155Token(let token):
+        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token), .erc721Token(let token), .erc1155Token(let token):
             if shouldSwitchServer {
                 open(url: url, onServer: token.server)
             } else {
                 open(for: url)
             }
-        case .ERC875TokenOrder, .ERC721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }

@@ -298,7 +298,7 @@ extension TokensCardCollectionCoordinator: TokenCardSelectionCoordinatorDelegate
     func didTapDeal(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         removeCoordinator(coordinator)
         let filteredTokenHolders = tokenHolders.filter { $0.totalSelectedCount > 0 }
-        let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: filteredTokenHolders, paymentFlow: .send(type: .ERC875Token(tokenObject)))
+        let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: filteredTokenHolders, paymentFlow: .send(type: .erc875Token(tokenObject)))
         //            transferTokensViewController = vc
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(vc, animated: true)
@@ -404,7 +404,7 @@ extension TokensCardCollectionCoordinator: TransferTokenBatchCardsViaWalletAddre
         guard let tokenHolder = tokenHolders.first else { return }
         guard let selection = tokenHolder.selections.first else { return }
         let transaction = UnconfirmedTransaction(
-                transactionType: .ERC1155Token(token),
+                transactionType: .erc1155Token(token),
                 value: BigInt(0),
                 recipient: recipient,
                 contract: tokenHolder.contractAddress,

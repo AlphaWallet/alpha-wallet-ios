@@ -1,4 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
@@ -154,7 +153,7 @@ class SendViewController: UIViewController {
                     self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
                 }
             }
-        case .ERC20Token(_, let recipient, let amount):
+        case .erc20Token(_, let recipient, let amount):
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
 
@@ -164,7 +163,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
@@ -189,12 +188,12 @@ class SendViewController: UIViewController {
             isAllFunds = true
 
             amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
-        case .ERC20Token:
+        case .erc20Token:
             guard let ethCost = allFundsFormattedValues else { return }
             isAllFunds = true
 
             amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -207,12 +206,12 @@ class SendViewController: UIViewController {
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC1155Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -225,7 +224,7 @@ class SendViewController: UIViewController {
         switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             checkIfGreaterThanZero = false
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token:
+        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             checkIfGreaterThanZero = true
         }
 
@@ -272,10 +271,10 @@ class SendViewController: UIViewController {
                 celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
             }
             session.refresh(.ethBalance)
-        case .ERC20Token(let token, let recipient, let amount):
+        case .erc20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
     }
@@ -368,9 +367,9 @@ class SendViewController: UIViewController {
             switch viewModel.transactionType {
             case .nativeCryptocurrency(_, _, let amount):
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
-            case .ERC20Token(_, _, let amount):
+            case .erc20Token(_, _, let amount):
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }

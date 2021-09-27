@@ -666,9 +666,9 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
 
         let token: TokenObject
         switch transactionType {
-        case .ERC20Token(let erc20Token, _, _):
+        case .erc20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken, .ERC1155Token, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721Token, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: server)

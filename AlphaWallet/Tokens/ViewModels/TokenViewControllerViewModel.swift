@@ -17,9 +17,9 @@ struct TokenViewControllerViewModel {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return TokensDataStore.etherToken(forServer: session.server)
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -105,9 +105,9 @@ struct TokenViewControllerViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             return session.balanceCoordinator.ethBalanceViewModel.value
-        case .ERC20Token(let tokenObject, _, _):
+        case .erc20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -116,9 +116,9 @@ struct TokenViewControllerViewModel {
         switch transactionType {
         case .nativeCryptocurrency:
             return session.balanceCoordinator.subscribableEthBalanceViewModel.value
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return session.balanceCoordinator.subscribableTokenBalance(token.addressAndRPCServer).value
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }
