@@ -132,7 +132,7 @@ class TransactionConfigurator {
 
     func updateTransaction(value: BigInt) {
         let tx = self.transaction
-        self.transaction = .init(transactionType: tx.transactionType, value: value, recipient: tx.recipient, contract: tx.contract, data: tx.data, tokenId: tx.tokenId, indices: tx.indices, gasLimit: tx.gasLimit, gasPrice: tx.gasPrice, nonce: tx.nonce)
+        self.transaction = .init(transactionType: tx.transactionType, value: value, recipient: tx.recipient, contract: tx.contract, data: tx.data, tokenId: tx.tokenId, tokenIdsAndValues: tx.tokenIdsAndValues, indices: tx.indices, gasLimit: tx.gasLimit, gasPrice: tx.gasPrice, nonce: tx.nonce)
     }
 
     private func estimateGasLimit() {
