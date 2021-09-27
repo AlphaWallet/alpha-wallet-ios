@@ -131,6 +131,7 @@ class OpenSea {
             for (_, each): (String, JSON) in json["assets"] {
                 let type = each["asset_contract"]["schema_name"].stringValue
                 guard let tokenType = NonFungibleFromJsonTokenType(rawString: type) else { continue }
+                if !Features.isErc1155Enabled && tokenType == .erc1155 { continue }
                 let tokenId = each["token_id"].stringValue
                 let contractName = each["asset_contract"]["name"].stringValue
                 //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
