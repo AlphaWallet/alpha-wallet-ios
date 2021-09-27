@@ -14,12 +14,12 @@ extension AlphaWallet {
 }
 extension AlphaWallet.Ethereum.ABI {
     static let ERC20: Data = {
-        let url = Bundle.main.url(forResource: "ERC20", withExtension: "json")!
+        let url = R.file.erc20Json()!
         return try! Data(contentsOf: url)
     }()
 
     static let erc1155: Data = {
-        let url = Bundle.main.url(forResource: "ERC1155", withExtension: "json")!
+        let url = R.file.erc1155Json()!
         return try! Data(contentsOf: url)
     }()
 
