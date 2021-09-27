@@ -302,7 +302,6 @@ class TransactionConfirmationViewController: UIViewController {
         }, completion: { _ in
             completion()
         })
-        completion()
     }
 
     func set(state: State, completion: (() -> Void)? = nil) {
