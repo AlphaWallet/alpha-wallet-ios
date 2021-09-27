@@ -422,7 +422,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func showTokensCardCollection(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
-        let activitiesFilterStrategy: ActivitiesFilterStrategy = .erc20(contract: token.contractAddress)
+        let activitiesFilterStrategy: ActivitiesFilterStrategy = .contract(contract: token.contractAddress)
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
 
         let tokensCardCoordinator = TokensCardCollectionCoordinator(
