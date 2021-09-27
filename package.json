@@ -10,6 +10,7 @@
     "yargs-parser": "^13.1.2",
     "ssri": "^8.0.1",
     "y18n": "^4.0.1",
-    "set-value": "4.0.1"
+    "set-value": "4.0.1",
+    "ansi-regex": "5.0.1"
   }
 }
