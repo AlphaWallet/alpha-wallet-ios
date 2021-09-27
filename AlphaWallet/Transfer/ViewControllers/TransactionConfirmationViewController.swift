@@ -200,14 +200,14 @@ class TransactionConfirmationViewController: UIViewController {
                     strongSelf.generateSubviews()
                 }
                 sendFungiblesViewModel.session.refresh(.ethBalance)
-            case .ERC20Token(let token, _, _):
+            case .erc20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
                     strongSelf.generateSubviews()
                 }
-            case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
@@ -363,7 +363,7 @@ class TransactionConfirmationViewController: UIViewController {
                 let balanceBaseViewModel = sendFungiblesViewModel.session.balanceCoordinator.ethBalanceViewModel
 
                 sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
                 break
             }
         case .sendNftTransaction, .claimPaidErc875MagicLink:

@@ -63,9 +63,9 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency(let token, _, _):
             return TokenActionsServiceKey(tokenObject: token)
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return TokenActionsServiceKey(tokenObject: token)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
     }

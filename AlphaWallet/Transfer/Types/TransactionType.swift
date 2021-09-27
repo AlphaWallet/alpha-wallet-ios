@@ -1,5 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import Foundation
 import BigInt
 
@@ -11,26 +9,26 @@ enum TransactionType {
                 return .nativeCryptocurrency(token, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
             case .erc20:
                 //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
-                return .ERC20Token(token, destination: recipient, amount: amount)
+                return .erc20Token(token, destination: recipient, amount: amount)
             case .erc875:
-                return .ERC875Token(token)
+                return .erc875Token(token)
             case .erc721:
-                return .ERC721Token(token)
+                return .erc721Token(token)
             case .erc721ForTickets:
-                return .ERC721ForTicketToken(token)
+                return .erc721ForTicketToken(token)
             case .erc1155:
-                return .ERC1155Token(token)
+                return .erc1155Token(token)
             }
         }()
     }
 
     case nativeCryptocurrency(TokenObject, destination: AddressOrEnsName?, amount: BigInt?)
-    case ERC20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
-    case ERC875Token(TokenObject)
-    case ERC875TokenOrder(TokenObject)
-    case ERC721Token(TokenObject)
-    case ERC721ForTicketToken(TokenObject)
-    case ERC1155Token(TokenObject)
+    case erc20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
+    case erc875Token(TokenObject)
+    case erc875TokenOrder(TokenObject)
+    case erc721Token(TokenObject)
+    case erc721ForTicketToken(TokenObject)
+    case erc1155Token(TokenObject)
     case dapp(TokenObject, DAppRequester)
     case claimPaidErc875MagicLink(TokenObject)
     case tokenScript(TokenObject)
@@ -39,9 +37,9 @@ enum TransactionType {
         switch self {
         case .nativeCryptocurrency:
             return nil
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token.contractAddress
-        case .dapp, .tokenScript, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .ERC1155Token, .claimPaidErc875MagicLink:
+        case .dapp, .tokenScript, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink:
             return nil
         }
     }
@@ -59,17 +57,17 @@ extension TransactionType {
             return server.symbol
         case .dapp(let token, _), .tokenScript(let token):
             return token.symbol
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token.symbol
-        case .ERC875Token(let token):
+        case .erc875Token(let token):
             return token.symbol
-        case .ERC875TokenOrder(let token):
+        case .erc875TokenOrder(let token):
             return token.symbol
-        case .ERC721Token(let token):
+        case .erc721Token(let token):
             return token.symbol
-        case .ERC721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token):
             return token.symbol
-        case .ERC1155Token(let token):
+        case .erc1155Token(let token):
             return token.symbol
         case .claimPaidErc875MagicLink(let token):
             return token.symbol
@@ -82,17 +80,17 @@ extension TransactionType {
             return token
         case .dapp(let token, _), .tokenScript(let token):
             return token
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token
-        case .ERC875Token(let token):
+        case .erc875Token(let token):
             return token
-        case .ERC875TokenOrder(let token):
+        case .erc875TokenOrder(let token):
             return token
-        case .ERC721Token(let token):
+        case .erc721Token(let token):
             return token
-        case .ERC721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token):
             return token
-        case .ERC1155Token(let token):
+        case .erc1155Token(let token):
             return token
         case .claimPaidErc875MagicLink(let token):
             return token
@@ -105,17 +103,17 @@ extension TransactionType {
             return token.server
         case .dapp(let token, _), .tokenScript(let token):
             return token.server
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token.server
-        case .ERC875Token(let token):
+        case .erc875Token(let token):
             return token.server
-        case .ERC875TokenOrder(let token):
+        case .erc875TokenOrder(let token):
             return token.server
-        case .ERC721Token(let token):
+        case .erc721Token(let token):
             return token.server
-        case .ERC721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token):
             return token.server
-        case .ERC1155Token(let token):
+        case .erc1155Token(let token):
             return token.server
         case .claimPaidErc875MagicLink(let token):
             return token.server
@@ -126,17 +124,17 @@ extension TransactionType {
         switch self {
         case .nativeCryptocurrency:
             return Constants.nativeCryptoAddressInDatabase
-        case .ERC20Token(let token, _, _):
+        case .erc20Token(let token, _, _):
             return token.contractAddress
-        case .ERC875Token(let token):
+        case .erc875Token(let token):
             return token.contractAddress
-        case .ERC875TokenOrder(let token):
+        case .erc875TokenOrder(let token):
             return token.contractAddress
-        case .ERC721Token(let token):
+        case .erc721Token(let token):
             return token.contractAddress
-        case .ERC721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token):
             return token.contractAddress
-        case .ERC1155Token(let token):
+        case .erc1155Token(let token):
             return token.contractAddress
         case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress
