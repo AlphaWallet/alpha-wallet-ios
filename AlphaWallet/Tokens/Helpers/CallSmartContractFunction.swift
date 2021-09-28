@@ -43,7 +43,7 @@ func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws ->
 }
 
 private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
-func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [AnyObject](), timeout: TimeInterval? = nil) -> Promise<[String: Any]> {
+func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], timeout: TimeInterval? = nil) -> Promise<[String: Any]> {
     let timeout: TimeInterval = 60
     //We must include the ABI string in the key because the order of elements in a dictionary when serialized in the string is not ordered. Parameters (which is ordered) should ensure it's the same function
     let cacheKey = "\(contract).\(functionName) \(parameters) \(server.chainID)"

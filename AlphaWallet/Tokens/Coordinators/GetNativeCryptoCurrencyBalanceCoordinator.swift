@@ -30,17 +30,8 @@ class GetNativeCryptoCurrencyBalanceCoordinator: CallbackQueueProvider {
         self.queue = queue
     }
 
-    func getBalance(
-        for address: AlphaWallet.Address,
-        completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void
-    ) {
+    func getBalance(for address: AlphaWallet.Address) -> Promise<Balance> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
-        firstly {
-            Session.send(request, callbackQueue: callbackQueue)
-        }.done(on: queue, {
-            completion(.success($0))
-        }).catch(on: queue, {
-            completion(.failure(AnyError($0)))
-        })
+        return Session.send(request, callbackQueue: callbackQueue)
     }
 }
