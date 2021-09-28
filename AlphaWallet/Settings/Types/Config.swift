@@ -144,6 +144,7 @@ struct Config {
         static let isDebugEnabled = "isDebugEnabled"
         static let currencyID = "currencyID"
         static let dAppBrowser = "dAppBrowser"
+        //There *is* a trailing space in the key
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
         static let locale = "locale"
         static let enabledServers = "enabledChains"
@@ -219,6 +220,7 @@ struct Config {
 
     var oldWalletAddressesAlreadyPromptedForBackUp: [String] {
         //We hard code the key here because it's used for migrating off the old value, there should be no reason why this key will change in the next line
+        //There *is* a trailing space in the key
         if let addresses = defaults.array(forKey: "walletAddressesAlreadyPromptedForBackUp ") {
             return addresses as! [String]
         } else {
