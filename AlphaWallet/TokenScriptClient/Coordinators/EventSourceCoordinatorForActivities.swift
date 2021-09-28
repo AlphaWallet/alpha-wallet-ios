@@ -117,14 +117,7 @@ extension EventSourceCoordinatorForActivities.functional {
                 }).map(on: queue, { fromBlock -> EventFilter in
                     let parameterFilters = filterParam.map { $0?.filter }
                     let addresses = [EthereumAddress(address: eventOrigin.contract)]
-
-                    let toBlock: EventFilter.Block
-                    if server == .binance_smart_chain || server == .binance_smart_chain_testnet || server == .heco {
-                        //NOTE: binance_smart_chain does not allow range more than 5000
-                        toBlock = .blockNumber(fromBlock.1 + 4000)
-                    } else {
-                        toBlock = .latest
-                    }
+                    let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
                     return EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
                 }).then(on: queue, { eventFilter in
                     getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
