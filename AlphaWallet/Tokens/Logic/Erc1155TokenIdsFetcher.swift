@@ -27,7 +27,7 @@ fileprivate struct Erc1155TransferEvent: Comparable {
     let transactionIndex: BigUInt
     let logIndex: BigUInt
 
-    static func <(lhs: Erc1155TransferEvent, rhs: Erc1155TransferEvent) -> Bool {
+    static func < (lhs: Erc1155TransferEvent, rhs: Erc1155TransferEvent) -> Bool {
         if lhs.blockNumber == rhs.blockNumber {
             if lhs.transactionIndex == rhs.transactionIndex {
                 return lhs.logIndex < rhs.logIndex

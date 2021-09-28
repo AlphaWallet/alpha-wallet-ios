@@ -188,6 +188,7 @@ class TokenListFormatRowView: UIView {
         //TODO cancel the request if we reuse the cell before it's finished downloading
         if let url = viewModel.thumbnailImageUrl {
             var request = URLRequest(url: url)
+            verbose("Loading thumbnail URL: \(url.absoluteString)…")
             request.httpMethod = "GET"
             request.cachePolicy = .returnCacheDataElseLoad
             Alamofire.request(request).response { [weak self] response in
