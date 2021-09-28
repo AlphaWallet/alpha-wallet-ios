@@ -64,22 +64,7 @@ class Erc1155TokenIdsFetcher {
         //Should really be -1 instead 0, but so we don't fight with the type system (negative) and doesn't matter in practice being off by 1 at the start
         let fromPreviousRead: Erc1155TokenIds = readJson() ?? .init(tokens: .init(), lastBlockNumber: 0)
         let fromBlockNumber = fromPreviousRead.lastBlockNumber + 1
-        let toBlock: EventFilter.Block
-
-        switch server {
-        case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
-            //These do not allow range more than 5000
-            toBlock = .blockNumber(UInt64(fromBlockNumber) + 4990)
-        case .optimistic:
-            //These not allow range more than 10000
-            toBlock = .blockNumber(UInt64(fromBlockNumber) + 9999)
-        case .polygon, .mumbai_testnet, .cronosTestnet:
-            //These not allow range more than 100000
-            toBlock = .blockNumber(UInt64(fromBlockNumber) + 99990)
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom:
-            toBlock = .latest
-        }
-
+        let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: UInt64(fromBlockNumber))
         return firstly {
             functional.fetchEvents(forAddress: address, server: server, fromBlock: .blockNumber(UInt64(fromBlockNumber)), toBlock: toBlock)
         }.map { fetched -> Erc1155TokenIds in

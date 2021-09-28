@@ -772,6 +772,21 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    func makeMaximumToBlockForEvents(fromBlockNumber: UInt64) -> EventFilter.Block {
+        switch self {
+        case .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+            //These do not allow range more than 5000
+            return .blockNumber(fromBlockNumber + 4990)
+        case .optimistic:
+            //These not allow range more than 10000
+            return .blockNumber(fromBlockNumber + 9999)
+        case .polygon, .mumbai_testnet, .cronosTestnet:
+            //These not allow range more than 100000
+            return .blockNumber(fromBlockNumber + 99990)
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom:
+            return .latest
+        }
+    }
 }
 // swiftlint:enable type_body_length
 
