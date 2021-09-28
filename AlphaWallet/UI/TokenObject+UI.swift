@@ -158,21 +158,11 @@ class TokenImageFetcher {
     }
 
     private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
-        Promise { seal in
-            queue.async {
-                let task = URLSession.shared.dataTask(with: request) { data, _, _ in
-                    if let data = data {
-                        let image = UIImage(data: data)
-                        if let img = image {
-                            seal.fulfill(img)
-                        } else {
-                            seal.reject(ImageAvailabilityError.notAvailable)
-                        }
-                    } else {
-                        seal.reject(ImageAvailabilityError.notAvailable)
-                    }
-                }
-                task.resume()
+        Alamofire.request(request).responseData().map(on: queue) { response -> UIImage in
+            if let img = UIImage(data: response.data) {
+                return img
+            } else {
+                throw ImageAvailabilityError.notAvailable
             }
         }
     }

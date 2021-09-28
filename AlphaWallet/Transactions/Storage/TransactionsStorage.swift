@@ -315,9 +315,9 @@ class TransactionsStorage: Hashable {
         do {
             let data = try functional.generateJsonForTransactions(transactionStorage: self, toUrl: url)
             try data.write(to: url)
-            NSLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
+            verbose("Written transactions for \(server) to JSON to: \(url.absoluteString)")
         } catch {
-            NSLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
+            verbose("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
     }
 

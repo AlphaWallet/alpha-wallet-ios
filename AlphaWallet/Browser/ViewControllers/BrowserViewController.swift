@@ -148,6 +148,7 @@ final class BrowserViewController: UIViewController {
 
     func goTo(url: URL) {
         hideErrorView()
+        verbose("Loading URL: \(url.absoluteString)…")
         webView.load(URLRequest(url: url))
     }
 
