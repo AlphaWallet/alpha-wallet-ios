@@ -118,7 +118,8 @@ extension AddCustomChain.functional {
     }
 
     static func checkAndDetectUrls(_ customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
-        guard let rpcUrl = customChain.rpcUrls?.first else {
+        //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
+        guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
             return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
         }
