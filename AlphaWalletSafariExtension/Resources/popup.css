@@ -1,0 +1,12 @@
+:root {
+    color-scheme: light dark;
+}
+
+body {
+    padding: 10px;
+    font-family: system-ui;
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Dark Mode styles go here. */
+}
