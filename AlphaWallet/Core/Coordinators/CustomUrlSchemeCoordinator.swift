@@ -20,31 +20,40 @@ class CustomUrlSchemeCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
     }
 
+    static func canHandleOpen(url: URL) -> Bool {
+        guard let scheme = url.scheme, scheme == Eip681Parser.scheme else { return false }
+        guard let result = QRCodeValueParser.from(string: url.absoluteString) else { return false }
+        switch result {
+        case .address:
+            return false
+        case .eip681:
+            return true
+        }
+    }
+
     /// Return true if handled
     func handleOpen(url: URL) -> Bool {
         guard let scheme = url.scheme, scheme == Eip681Parser.scheme else { return false }
         guard let result = QRCodeValueParser.from(string: url.absoluteString) else { return false }
         switch result {
         case .address:
-            break
+            return false
         case .eip681(let protocolName, let address, let functionName, let params):
             firstly {
                 Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse()
-            }.done { [weak self] result in
-                guard let strongSelf = self else { return }
-
-                guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else { return }
+            }.done { result in
+                guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else {
+                    return
+                }
                 let server = optionalServer ?? .main
-                let tokensDatastore = strongSelf.tokensDatastores[server]
+                //NOTE: self is required here because object has delated before resolving state
+                let tokensDatastore = self.tokensDatastores[server]
                 if tokensDatastore.token(forContract: contract) != nil {
-                    strongSelf.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
+                    self.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
                 } else {
-                    ContractDataDetector(address: contract, account: tokensDatastore.account, server: tokensDatastore.server, assetDefinitionStore: strongSelf.assetDefinitionStore).fetch { data in
+                    ContractDataDetector(address: contract, account: tokensDatastore.account, server: tokensDatastore.server, assetDefinitionStore: self.assetDefinitionStore).fetch { data in
                         switch data {
-                        case .name, .symbol, .balance, .decimals:
-                            break
-                        case .nonFungibleTokenComplete:
-                            //Not expecting NFT
+                        case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             break
                         case .fungibleTokenComplete(let name, let symbol, let decimals):
                             //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
@@ -59,16 +68,13 @@ class CustomUrlSchemeCoordinator: Coordinator {
                                     balance: ["0"]
                             )
                             tokensDatastore.addCustom(token: token, shouldUpdateBalance: true)
-                            strongSelf.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
-                        case .delegateTokenComplete:
-                            break
-                        case .failed:
-                            break
+                            self.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
                         }
                     }
                 }
             }.cauterize()
         }
+
         return true
     }
 

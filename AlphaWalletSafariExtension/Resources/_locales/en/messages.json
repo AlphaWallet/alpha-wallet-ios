@@ -1,0 +1,8 @@
+{
+    "extension_name": {
+        "message": "AlphaWallet"
+    },
+    "extension_description": {
+        "message": "Launch AlphaWallet when you tap on EIP681 links"
+    }
+}
