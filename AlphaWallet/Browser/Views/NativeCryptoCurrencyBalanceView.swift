@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import PromiseKit
 
 //TODO create view model to clean up
 class NativeCryptoCurrencyBalanceView: UIView {
@@ -93,11 +94,15 @@ class NativeCryptoCurrencyBalanceView: UIView {
 
     private func refreshWalletBalance() {
         let address = session.account.address
-        balanceCoordinator.getBalance(for: address, completion: { [weak self] (result) in
-            guard let strongSelf = self else { return }
-            strongSelf.balances[address] = result.value
-            strongSelf.configure()
-        })
+        firstly {
+            balanceCoordinator.getBalance(for: address)
+        }.done { [weak self] result in
+            self?.balances[address] = result
+        }.catch { [weak self] _ in
+            self?.balances[address] = nil
+        }.finally { [weak self] in
+            self?.configure()
+        }
     }
 
     private func amountAttributedString(for value: String) -> NSAttributedString {
