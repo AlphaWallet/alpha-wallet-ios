@@ -12,12 +12,14 @@ struct TokenActionsServiceKey {
     let server: RPCServer
     var symbol: String
     var decimals: Int
+    let type: TokenType
 
     init(tokenObject: TokenObject) {
         self.contractAddress = tokenObject.contractAddress
         self.server = tokenObject.server
         self.symbol = tokenObject.symbol
         self.decimals = tokenObject.decimals
+        self.type = tokenObject.type
     }
 }
 
@@ -28,8 +30,9 @@ protocol TokenActionsProvider {
 
 protocol SwapTokenURLProviderType {
     var action: String { get }
-    var rpcServer: RPCServer? { get }
     var analyticsName: String { get }
+
+    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer?
     func url(token: TokenActionsServiceKey) -> URL?
 }
 

@@ -14,7 +14,7 @@ class GetERC20BalanceCoordinator: CallbackQueueProvider {
         self.server = server
         self.queue = queue
     }
-    
+
     func getBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
         return Promise { seal in
             getBalance(for: address, contract: contract) { result in

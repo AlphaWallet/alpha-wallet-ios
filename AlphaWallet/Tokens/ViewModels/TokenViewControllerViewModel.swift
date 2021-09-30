@@ -27,7 +27,7 @@ struct TokenViewControllerViewModel {
     var actions: [TokenInstanceAction] {
         guard let token = token else { return [] }
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        var actionsFromTokenScript = xmlHandler.actions
+        let actionsFromTokenScript = xmlHandler.actions
         let key = TokenActionsServiceKey(tokenObject: token)
 
         if actionsFromTokenScript.isEmpty {
@@ -54,8 +54,8 @@ struct TokenViewControllerViewModel {
                 ]
                 switch token.server {
                 case .xDai:
-                    return [.init(type: .erc20Send), .init(type: .xDaiBridge), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: key)
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+                    return [.init(type: .erc20Send), .init(type: .erc20Receive)] + tokenActionsProvider.actions(token: key)
+                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum:
                     return actions + tokenActionsProvider.actions(token: key)
                 }
             }
@@ -66,18 +66,9 @@ struct TokenViewControllerViewModel {
             case .erc20:
                 return actionsFromTokenScript + tokenActionsProvider.actions(token: key)
             case .nativeCryptocurrency:
-                let xDaiBridgeActions: [TokenInstanceAction]
-                switch token.server {
-                case .xDai:
-                    xDaiBridgeActions = [.init(type: .xDaiBridge)]
-                case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
-                    xDaiBridgeActions = []
-                }
-
-                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
+//                TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
                 if let server = xmlHandler.server, server.matches(server: token.server) {
-                    actionsFromTokenScript += tokenActionsProvider.actions(token: key)
-                    return xDaiBridgeActions + actionsFromTokenScript
+                    return actionsFromTokenScript + tokenActionsProvider.actions(token: key)
                 } else {
                     //TODO .erc20Send and .erc20Receive names aren't appropriate
                     let actions: [TokenInstanceAction] = [
@@ -85,7 +76,7 @@ struct TokenViewControllerViewModel {
                         .init(type: .erc20Receive)
                     ]
 
-                    return xDaiBridgeActions + actions + tokenActionsProvider.actions(token: key)
+                    return actions + tokenActionsProvider.actions(token: key)
                 }
             }
         }

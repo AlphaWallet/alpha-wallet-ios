@@ -152,7 +152,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
-            case .erc20Send, .erc20Receive, .swap, .xDaiBridge, .buy:
+            case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
                 //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                 break
             case .nftRedeem:

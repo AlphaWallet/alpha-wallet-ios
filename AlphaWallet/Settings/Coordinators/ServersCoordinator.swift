@@ -37,6 +37,7 @@ class ServersCoordinator: Coordinator {
             .optimistic,
             .optimisticKovan,
             .cronosTestnet,
+            .arbitrum
         ] + RPCServer.customServers
     }
 

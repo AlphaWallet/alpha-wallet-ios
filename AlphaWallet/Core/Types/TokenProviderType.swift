@@ -408,7 +408,9 @@ class TokenProvider: TokenProviderType {
             case .notErc721:
                 break
             }
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, pref: "isErc721Promise", address: address)
+        })
 
         firstly {
             isErc875Promise
@@ -418,7 +420,9 @@ class TokenProvider: TokenProviderType {
             } else {
                 //no-op
             }
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, pref: "isErc875Promise", address: address)
+        })
 
         firstly {
             isErc1155Promise
@@ -428,7 +432,9 @@ class TokenProvider: TokenProviderType {
             } else {
                 //no-op
             }
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, pref: "isErc1155Promise", address: address)
+        })
 
         firstly {
             when(fulfilled: isErc875Promise.asVoid(), isErc721Promise.asVoid(), isErc1155Promise.asVoid())
@@ -438,7 +444,9 @@ class TokenProvider: TokenProviderType {
             } else {
                 //no-op
             }
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, pref: "isErc20Promise", address: address)
+        })
     }
 }
 

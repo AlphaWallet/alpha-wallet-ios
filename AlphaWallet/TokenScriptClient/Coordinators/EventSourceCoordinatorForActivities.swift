@@ -150,6 +150,7 @@ extension EventSourceCoordinatorForActivities.functional {
                 }).done { _ in
                     seal.fulfill(())
                 }.catch { e in
+                    error(value: e, rpcServer: server, address: tokenContract)
                     seal.reject(e)
                 }
             }

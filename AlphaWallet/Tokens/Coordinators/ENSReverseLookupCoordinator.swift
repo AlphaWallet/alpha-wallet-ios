@@ -67,7 +67,6 @@ class ENSReverseLookupCoordinator {
                             }
                         }
                     }.cauterize()
-
                 }
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(self.server.ensRegistrarContract).\(function.name)()"))))
