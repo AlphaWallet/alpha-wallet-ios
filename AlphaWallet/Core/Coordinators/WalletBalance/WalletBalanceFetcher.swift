@@ -156,7 +156,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     private func balanceViewModel(key tokenObject: TokenObject) -> BalanceBaseViewModel? {
-        let ticker = coinTickersFetcher.tickers[tokenObject.addressAndRPCServer]
+        let ticker = coinTickersFetcher.ticker(for: tokenObject.addressAndRPCServer)
 
         switch tokenObject.type {
         case .nativeCryptocurrency:
@@ -222,7 +222,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         var balances = Set<Activity.AssignedToken>()
 
         for var tokenObject in tokenObjects {
-            tokenObject.ticker = coinTickersFetcher.tickers[tokenObject.addressAndRPCServer]
+            tokenObject.ticker = coinTickersFetcher.ticker(for: tokenObject.addressAndRPCServer)
 
             balances.insert(tokenObject)
         }

@@ -32,9 +32,9 @@ struct TokenMappedToTicker: Hashable {
 
 protocol CoinTickersFetcherType {
     var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
-    var tickers: [AddressAndRPCServer: CoinTicker] { get }
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void>
+    func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void>
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
@@ -59,9 +59,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> {
         return cache.tickersSubscribable
     }
-    var tickers: [AddressAndRPCServer: CoinTicker] {
-        return cache.tickers
-    }
+
     private static let queue: DispatchQueue = DispatchQueue(label: "com.CoinTickersFetcher.updateQueue")
 
     private let provider: MoyaProvider<AlphaWalletService>
@@ -72,6 +70,16 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         self.provider = provider
         self.config = config
         self.cache = cache
+    }
+
+    func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
+        //NOTE: If it doesn't include the price for the native token, hardwire it to use Ethereum's mainnet's native token price.
+        if addressAndPRCServer.server == .arbitrum && addressAndPRCServer.address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            let overridenAddressAndPRCServer: AddressAndRPCServer = .init(address: Constants.nativeCryptoAddressInDatabase, server: .main)
+            return cache.tickers[overridenAddressAndPRCServer]
+        } else {
+            return cache.tickers[addressAndPRCServer]
+        }
     }
 
     //Important in implementation to not cache the returned promise (which is used to further fetch prices). We only want to cache the promise/request for fetching supported tickers
@@ -99,7 +107,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         Self.fetchSupportedTickers(config: config, provider: provider)
     }
 
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void> {
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
         let cache = self.cache
         return firstly {
             fetchTickers(forTokens: tokens)
@@ -151,8 +159,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }
     }
 
-    private func fetchTickers(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> {
-        let tokens = tokens.values.flatMap { $0 }
+    private func fetchTickers(forTokens tokens: [TokenMappedToTicker]) -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> {
         guard !isFetchingPrices else { return .init(error: Error.alreadyFetchingPrices) }
 
         isFetchingPrices = true
@@ -307,7 +314,8 @@ fileprivate struct Ticker: Codable {
         case .avalanche: return platform == "avalanche"
         case .polygon: return platform == "polygon-pos"
         case .fantom: return platform == "fantom"
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet:
+        case .arbitrum: return platform == "arbitrum-one"
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum:
             return false
         }
     }
@@ -320,6 +328,7 @@ fileprivate struct Ticker: Codable {
         case .binance_smart_chain: return true
         case .avalanche: return true
         case .polygon: return true
+        case .arbitrum: return true
         case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet:
             return false
         }

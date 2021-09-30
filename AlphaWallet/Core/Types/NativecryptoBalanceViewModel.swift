@@ -44,7 +44,7 @@ struct NativecryptoBalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmountWithoutSymbol: Double? {
         guard let rate = ticker?.rate else { return nil }
-        let symbol = mapSymbolToVersionInRates(server.symbol.lowercased())
+        let symbol = mapSymbolToVersionInRates(server)
         guard let currentRate = (rate.rates.filter { $0.code == symbol }.first), currentRate.price > 0, amount > 0 else { return nil }
 
         return amount * currentRate.price
@@ -62,8 +62,10 @@ struct NativecryptoBalanceViewModel: BalanceBaseViewModel {
         return server.symbol
     }
 
-    private func mapSymbolToVersionInRates(_ symbol: String) -> String {
-        let mapping = ["xdai": "dai"]
+    private func mapSymbolToVersionInRates(_ server: RPCServer) -> String {
+        let symbol = server.symbol.lowercased()
+        let mapping = ["xdai": "dai", "aeth": "eth"]
+        
         return mapping[symbol] ?? symbol
     }
 }

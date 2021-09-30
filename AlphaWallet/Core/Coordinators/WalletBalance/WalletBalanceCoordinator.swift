@@ -117,13 +117,20 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         balanceFetchers[wallet]!.tokensDatastore(server: server)
     }
 
+        //NOTE: for case if we disable rpc server, we don't fetch ticker for its native crypto
+    private static var nativeCryptoForAllChains: [Activity.AssignedToken] {
+        return RPCServer.allCases.map { server in
+            Activity.AssignedToken.init(tokenObject: TokensDataStore.etherToken(forServer: server))
+        }
+    }
+
     private var availableTokenObjects: Promise<ServerDictionary<[TokenMappedToTicker]>> {
         Promise<[Activity.AssignedToken]> { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
                 let tokenObjects = strongSelf.balanceFetchers.map { $0.value.tokenObjects }.flatMap { $0 }
-
-                seal.fulfill(tokenObjects)
+                
+                seal.fulfill(tokenObjects + Self.nativeCryptoForAllChains)
             }
         }.map(on: queue, { objects -> ServerDictionary<[TokenMappedToTicker]> in
             let uniqueTokenObjectsOfAllWallets = Set(objects)
@@ -170,10 +177,12 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         firstly {
             availableTokenObjects
         }.then(on: queue, { values -> Promise<Void> in
-            self.coinTickersFetcher.fetchPrices(forTokens: values)
+            self.coinTickersFetcher.fetchPrices(forTokens: values.values.flatMap({ $0 }))
         }).done(on: queue, { _ in
             //no-op
-        }).cauterize()
+        }).catch({ e in
+            error(value: e)
+        })
     }
 
     private func notifyWalletSummary() {

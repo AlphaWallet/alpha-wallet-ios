@@ -127,6 +127,7 @@ extension RPCServer {
         case .optimistic: return 22
         case .optimisticKovan: return 23
         case .cronosTestnet: return 24
+        case .arbitrum: return 25
         }
     }
 }

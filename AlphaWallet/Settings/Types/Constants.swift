@@ -37,6 +37,8 @@ public struct Constants {
     public static let optimisticMagicLinkHost = "optimistic.aw.app"
     public static let optimisticTestMagicLinkHost = "optimistic-kovan.aw.app"
     public static let cronosTestMagicLinkHost = "test-cronos.aw.app"
+    public static let arbitrumMagicLinkHost = "arbitrum.aw.app"
+
 
     public enum Currency {
         static let usd = "USD"
@@ -87,6 +89,7 @@ public struct Constants {
 
     //xDai dapps
     static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
+    static let arbitrumBridge = URL(string: "https://bridge.arbitrum.io/")!
     static let buyXDaiWitRampUrl = "https://buy.ramp.network/?hostApiKey=\(Constants.Credentials.rampApiKey)&hostLogoUrl=https%3A%2F%2Falphawallet.com%2Fwp-content%2Fthemes%2Falphawallet%2Fimg%2Falphawallet-logo.svg&hostAppName=AlphaWallet&swapAsset=xDai"
 
     static func buyWitRampUrl(asset: String) -> String {
@@ -172,7 +175,7 @@ public struct Constants {
 
     static let ensContractOnMainnet = AlphaWallet.Address.ethereumAddress(eip55String: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85")
 
-    static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .polygon]
+    static let defaultEnabledServers: [RPCServer] = [.arbitrum]//[.main, .xDai, .polygon]
     static let defaultEnabledTestnetServers: [RPCServer] = [.ropsten]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"

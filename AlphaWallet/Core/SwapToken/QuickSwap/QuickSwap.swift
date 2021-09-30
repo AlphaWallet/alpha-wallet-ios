@@ -12,8 +12,9 @@ struct QuickSwap: TokenActionsProvider, SwapTokenURLProviderType {
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle()
     }
-    var rpcServer: RPCServer? {
-        .polygon
+
+    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
+        return .polygon
     }
 
     var analyticsName: String {
@@ -101,7 +102,7 @@ struct QuickSwap: TokenActionsProvider, SwapTokenURLProviderType {
         switch token.server {
         case .polygon:
             return true
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .xDai, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .xDai, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum:
             return false
         }
     }

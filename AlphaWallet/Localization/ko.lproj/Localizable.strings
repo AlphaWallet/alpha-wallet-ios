@@ -441,6 +441,7 @@
 "blockchain.Optimistic" = "Optimistic Testnet";
 "blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "blockchain.Cronos.Testnet" = "Cronos Testnet";
+"blockchain.arbitrum" = "Arbitrum";
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Browse";
 "light" = "Light";
@@ -531,6 +532,7 @@
 "a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
 "a.wallet.token.erc20ExchangeHoneyswap.button.title" = "Swap";
 "a.wallet.token.xDaiBridge.button.title" = "Convert to DAI";
+"a.wallet.token.arbitrumBridge.button.title" = "Convert to Arbitrum";
 "a.wallet.token.buy.xDai.title" = "Buy xDai";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";

@@ -9,6 +9,7 @@ import Moya
 import PromiseKit
 import Result
 import UserNotifications
+import Mixpanel
 
 class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionDataCoordinator {
     private let storage: TransactionsStorage
@@ -115,7 +116,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
             strongSelf.update(items: backFilledTransactions)
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, function: #function, rpcServer: server, address: wallet)
+        })
         .finally { [weak self] in
             self?.isAutoDetectingERC20Transactions = false
         }
@@ -141,7 +144,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
             strongSelf.update(items: backFilledTransactions)
-        }.cauterize()
+        }.catch({ e in
+            error(value: e, rpcServer: server, address: wallet)
+        })
         .finally { [weak self] in
             self?.isAutoDetectingErc721Transactions = false
         }
@@ -295,9 +300,10 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }).cauterize()
     }
 
-    private func handleError(error: Error) {
+    private func handleError(error e: Error) {
         //delegate?.didUpdate(result: .failure(TransactionError.failedToFetch))
         // Avoid showing an error on failed request, instead show cached transactions.
+        error(value: e)
     }
 
     //TODO notify user of received tokens too
@@ -345,7 +351,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                     }
                 case .classic, .xDai:
                     break
-                case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+                case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum:
                     break
                 }
             }
@@ -370,7 +376,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         switch session.server {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)
         }
         content.sound = .default
@@ -406,7 +412,9 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
                 strongSelf.transactionsTracker.fetchingState = .failed
             }
-        }).cauterize()
+        }).catch({ e in
+            error(value: e, rpcServer: self.session.server, address: address)
+        })
     }
 
     func stop() {
@@ -461,7 +469,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             }).done(on: queue, { transactions in
                 coordinator.update(items: transactions)
             }).catch { e in
-                coordinator.handleError(error: e)
+                error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
             }.finally { [weak self] in
                 guard let strongSelf = self else { return }
 
@@ -492,10 +500,12 @@ extension SingleChainTransactionEtherscanDataCoordinator.functional {
     }
 
     static func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
-        firstly {
-            alphaWalletProvider.request(.getTransactions(config: session.config, server: session.server, address: address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder))
-        }.map(on: queue) {
-            try $0.map(ArrayResponse<RawTransaction>.self).result.map {
+        let target: AlphaWalletService = .getTransactions(config: session.config, server: session.server, address: address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)
+
+        return firstly {
+            alphaWalletProvider.request(target)
+        }.map(on: queue) { response -> [Promise<TransactionInstance?>] in
+            return try response.map(ArrayResponse<RawTransaction>.self).result.map {
                 TransactionInstance.from(transaction: $0, tokensStorage: tokensStorage, tokenProvider: tokenProvider)
             }
         }.then(on: queue) {
@@ -525,4 +535,15 @@ extension SingleChainTransactionEtherscanDataCoordinator.functional {
             return results
         }
     }
+}
+
+func error(value e: Error, pref: String = "", function f: String = #function, rpcServer: RPCServer? = nil, address: AlphaWallet.Address? = nil) {
+
+    var description = "\(f)"
+    description += pref.isEmpty ? "" : " \(pref)"
+    description += rpcServer.flatMap { " server: \($0)" } ?? ""
+    description += address.flatMap { " address: \($0.eip55String)" } ?? ""
+    description += " \(e)"
+
+    error(description)
 }
