@@ -50,7 +50,6 @@ class AddressTextField: UIControl {
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
         button.titleEdgeInsets = .zero
-        button.contentEdgeInsets = .zero
 
         return button
     }()
@@ -67,7 +66,6 @@ class AddressTextField: UIControl {
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
         button.titleEdgeInsets = .zero
-        button.contentEdgeInsets = .zero
 
         return button
     }()
