@@ -260,11 +260,11 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
     }
 
     func didTap(transaction: TransactionInstance, in viewController: TokensCardCollectionViewController) {
-        print("didTap(transaction")
+        debug("didTap(transaction")
     }
 
     func didTap(activity: Activity, in viewController: TokensCardCollectionViewController) {
-        print("didTap(activity")
+        debug("didTap(activity")
     }
 
     func didSelectAssetSelection(in viewController: TokensCardCollectionViewController) {

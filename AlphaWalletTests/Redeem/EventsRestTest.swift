@@ -20,10 +20,10 @@ class EventsRestTest: XCTestCase {
 //        EventsRest().getEvents { result in
 //            switch result {
 //            case .success(let events):
-//                print(events)
+//                debug(events)
 //                expectation.fulfill()
 //            case .failure(let error):
-//                print(error)
+//                debug(error)
 //            }
 //        }
 //        wait(for: expectations, timeout: 10)

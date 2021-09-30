@@ -21,8 +21,8 @@ class CreateRedeemTests: XCTestCase {
 
         let signature = try! keyStore.signMessageData(data!, for: account.dematerialize())
         //message and signature is to go in qr code
-        print("message: " + message)
-        print(try! "signature: " + signature.dematerialize().hexString)
+        debug("message: " + message)
+        debug(try! "signature: " + signature.dematerialize().hexString)
         //TODO no test?
     }
 }

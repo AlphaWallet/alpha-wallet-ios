@@ -119,11 +119,9 @@ extension MigrationInitializer {
 
     func oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: AssetDefinitionStore) {
         let migration = self
-
-        #if DEBUG
-            print(migration.config.fileURL!)
-            print(migration.config.fileURL!.deletingLastPathComponent())
-        #endif
+        
+        debug(migration.config.fileURL!)
+        debug(migration.config.fileURL!.deletingLastPathComponent())
 
         let exists: Bool
         if let path = migration.config.fileURL?.path {

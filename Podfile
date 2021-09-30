@@ -39,6 +39,7 @@ target 'AlphaWallet' do
   pod 'AssistantKit'
   # pod 'AWSCognito'
   pod 'Charts'
+  pod 'CocoaLumberjack'
   
   target 'AlphaWalletTests' do
       inherit! :search_paths
