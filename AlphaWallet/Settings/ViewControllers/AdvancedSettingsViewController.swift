@@ -20,7 +20,7 @@ class AdvancedSettingsViewController: UIViewController {
 
     private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.register(SwitchTableViewCell.self)

@@ -42,29 +42,22 @@ class SwitchTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+        switchView.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
 
         selectionStyle = .none
         accessoryType = .none
 
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(iconImageView)
-        contentView.addSubview(switchView)
+        let stackView = [
+            iconImageView, titleLabel, .spacerWidth(flexible: true), switchView
+        ].asStackView(axis: .horizontal, spacing: 16)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            iconImageView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 10),
-            iconImageView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: -10),
-            iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             iconImageView.widthAnchor.constraint(equalToConstant: 40),
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
 
-            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: switchView.leadingAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-
-            switchView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            switchView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 20))
         ])
     }
 

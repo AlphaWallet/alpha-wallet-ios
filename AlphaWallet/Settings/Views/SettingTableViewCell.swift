@@ -13,6 +13,12 @@ class SettingTableViewCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.clipsToBounds = true
+
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 40),
+            imageView.heightAnchor.constraint(equalToConstant: 40),
+        ])
+
         return imageView
     }()
 
@@ -41,39 +47,27 @@ class SettingTableViewCell: UITableViewCell {
         return label
     }()
 
-    private var iconAndTextTopBottomConstraints: [NSLayoutConstraint] = []
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         accessoryType = .disclosureIndicator
 
-        let stackView = [
+        let col1 = [
             titleLabel,
             subTitleLabel
         ].asStackView(axis: .vertical, spacing: 0)
 
+        let stackView = [
+            iconImageView, col1
+        ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
+
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView.addSubview(iconImageView)
         contentView.addSubview(stackView)
-        iconAndTextTopBottomConstraints = [
-            iconImageView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 10),
-            iconImageView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: -10),
-            stackView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 10),
-            stackView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: 10),
-        ]
 
         NSLayoutConstraint.activate([
-            iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            iconImageView.widthAnchor.constraint(equalToConstant: 40),
-            iconImageView.heightAnchor.constraint(equalToConstant: 40),
-
-            stackView.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-        ] + iconAndTextTopBottomConstraints)
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 10, left: 16, bottom: 10, right: 10))
+        ])
     }
 
     override func prepareForReuse() {
@@ -93,9 +87,5 @@ class SettingTableViewCell: UITableViewCell {
         subTitleLabel.isHidden = viewModel.subTitleHidden
         subTitleLabel.font = viewModel.subTitleFont
         subTitleLabel.textColor = viewModel.subTitleTextColor
-
-        for constraint in iconAndTextTopBottomConstraints {
-            constraint.constant = viewModel.subTitleHidden ? 10 : 20
-        }
     }
 }

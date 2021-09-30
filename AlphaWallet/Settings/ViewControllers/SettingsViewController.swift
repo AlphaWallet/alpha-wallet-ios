@@ -23,21 +23,20 @@ class SettingsViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let promptBackupWalletViewHolder = UIView()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.registerHeaderFooterView(SettingViewHeader.self)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(SettingTableViewCell.self)
         tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
-        
+        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+
         return tableView
     }()
     private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account, keystore: keystore)
-    private let roundedBackground = RoundedBackground()
-    
+
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
         didSet {
@@ -67,17 +66,11 @@ class SettingsViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
-
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(tableView)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+            tableView.anchorsConstraint(to: view)
+        ])
     }
 
     override func viewDidLoad() {
@@ -124,7 +117,7 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
+    private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, indexPath: IndexPath, cell: SettingTableViewCell) {
         cell.configure(viewModel: .init(
             titleText: row.title,
             subTitleText: viewModel.addressReplacedWithENSOrWalletName(),
@@ -134,8 +127,8 @@ class SettingsViewController: UIViewController {
         firstly {
             GetWalletNameCoordinator(config: config).getName(forAddress: account.address)
         }.done { [weak self] name in
-            guard let strongSelf = self else { return }
-            //TODO check if still correct cell, since this is async
+            //NOTE check if still correct cell, since this is async
+            guard let strongSelf = self, cell.indexPath == indexPath else { return }
             let viewModel: SettingTableViewCellViewModel = .init(
                     titleText: row.title,
                     subTitleText: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name),
@@ -231,7 +224,7 @@ extension SettingsViewController: UITableViewDataSource {
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
-                configureChangeWalletCellWithResolvedENS(row, cell: cell)
+                configureChangeWalletCellWithResolvedENS(row, indexPath: indexPath, cell: cell)
 
                 return cell
             case .backup:
@@ -254,14 +247,18 @@ extension SettingsViewController: UITableViewDataSource {
 
 extension SettingsViewController: UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView: SettingViewHeader = tableView.dequeueReusableHeaderFooterView()
-        let section = viewModel.sections[section]
-        let viewModel = SettingViewHeaderViewModel(section: section)
+        let headerView: SettingViewHeader = SettingViewHeader()
+        let viewModel = SettingViewHeaderViewModel(section: self.viewModel.sections[section])
         headerView.configure(viewModel: viewModel)
 
         return headerView
@@ -288,9 +285,7 @@ extension SettingsViewController: UITableViewDelegate {
             switch rows[indexPath.row] {
             case .advanced:
                 delegate?.settingsViewControllerAdvancedSettingsSelected(in: self)
-            case .notifications:
-                break
-            case .passcode:
+            case .notifications, .passcode:
                 break
             case .selectActiveNetworks:
                 delegate?.settingsViewControllerActiveNetworksSelected(in: self)

@@ -123,7 +123,7 @@ class ImportWalletViewController: UIViewController {
     private lazy var watchControlsStackView: UIStackView = [
         watchAddressTextField.label,
         .spacer(height: 4),
-        watchAddressTextField.defaultLayout(),
+        watchAddressTextField.defaultLayout(edgeInsets: .zero),
         .spacer(height: 4),
     ].asStackView(axis: .vertical)
 
@@ -185,7 +185,7 @@ class ImportWalletViewController: UIViewController {
 
         let stackView = [
             tabBar,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 5 : 10),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
             mnemonicControlsStackView,
             keystoreJSONControlsStackView,
             privateKeyControlsStackView,
@@ -208,7 +208,7 @@ class ImportWalletViewController: UIViewController {
 
         footerBar.addSubview(buttonsBar)
 
-        let xMargin = CGFloat(7)
+        let xMargin = CGFloat(16)
         let heightThatFitsPrivateKeyNicely = CGFloat(ScreenChecker().isNarrowScreen ? 80 : 100)
 
         footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
