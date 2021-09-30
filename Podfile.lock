@@ -124,6 +124,7 @@ DEPENDENCIES:
   - BigInt (~> 3.1)
   - BlockiesSwift
   - Charts
+  - CocoaLumberjack
   - CryptoSwift (~> 1.0)
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, commit `5c54e2607632ce586010e50e91d9adcb6bb3909e`)
   - iOSSnapshotTestCase
@@ -304,6 +305,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: cd5e056cec5a2f44e92b8595199e7f2f9f0bd92d
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: e15f876f8b24ff3243a6307c505701c18be2abc3
+PODFILE CHECKSUM: 5432a4ca2e15639caf3dd8bcd7270f844451c22a
 
 COCOAPODS: 1.10.1

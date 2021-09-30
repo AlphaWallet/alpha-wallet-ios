@@ -58,7 +58,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     deinit {
-        print("\(self).deinit")
+        debug("\(self).deinit")
     }
 
     func stopTimers() {
