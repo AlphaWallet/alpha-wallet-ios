@@ -240,9 +240,7 @@ class ConfigureTransactionViewController: UIViewController {
             warningIcon.widthAnchor.constraint(equalToConstant: 24),
             warningIcon.widthAnchor.constraint(equalTo: warningIcon.heightAnchor),
 
-            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50),
-
-            descriptionLabel.widthAnchor.constraint(equalToConstant: 250),
+            descriptionLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor, constant: -50) 
         ])
 
         var frame = footer.frame

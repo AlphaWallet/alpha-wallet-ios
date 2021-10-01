@@ -209,24 +209,24 @@ class TransactionConfigurator {
     }
 
     static func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
-        switch server {
-        case .main:
-            return firstly {
-                estimateGasPriceForEthMainnetUsingThirdPartyApi()
-            }.recover { _ in
+        if EtherscanGasPriceEstimator.supports(server: server) {
+            return estimateGasPriceForUsingEtherscanApi(server: server).recover { _ in
                 estimateGasPriceForUseRpcNode(server: server)
             }
-        case .xDai:
-            return estimateGasPriceForXDai()
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
-            return Promise(estimateGasPriceForUseRpcNode(server: server))
+        } else {
+            switch server {
+            case .xDai:
+                return estimateGasPriceForXDai()
+            case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+                return Promise(estimateGasPriceForUseRpcNode(server: server))
+            }
         }
     }
 
-    private static func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
-        let estimator = GasNowGasPriceEstimator()
+    private static func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> Promise<GasEstimates> {
+        let estimator = EtherscanGasPriceEstimator()
         return firstly {
-            estimator.fetch()
+            estimator.fetch(server: server)
         }.map { estimates in
             GasEstimates(standard: BigInt(estimates.standard), others: [
                 TransactionConfigurationType.slow: BigInt(estimates.slow),
@@ -290,9 +290,11 @@ class TransactionConfigurator {
         }
         switch session.server {
         case .main:
-            if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardGasThresholdGwei {
-                return .networkCongested
-            }
+            //NOTE: Suppose that these lines were related to GasNow
+            //if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardGasThresholdGwei {
+            //    return .networkCongested
+            //}
+            break
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .fantom, .fantom_testnet, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
             break
         }
