@@ -165,12 +165,13 @@ final class DappBrowserNavigationBar: UINavigationBar {
         let spacer0 = UIView.spacerWidth()
         let spacer1 = UIView.spacerWidth()
         let spacer2 = UIView.spacerWidth()
+        let spacer3 = UIView.spacerWidth(10)
         //NOTE: remove spacing beetwen backButton and forwardButton buttons
         let backwardForwardButtonStackView = [backButton, forwardButton].asStackView(axis: .horizontal)
 
-        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, homeButton, moreButton])
+        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, homeButton, spacer3, moreButton])
         viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
-        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer2, homeButton, moreButton])
+        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer2, homeButton, spacer3, moreButton])
 
         changeServerButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         changeServerButton.setContentHuggingPriority(.required, for: .horizontal)
@@ -184,6 +185,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             closeButton,
             spacer2,
             homeButton,
+            spacer3,
             moreButton,
             cancelEditingButton
         ])
