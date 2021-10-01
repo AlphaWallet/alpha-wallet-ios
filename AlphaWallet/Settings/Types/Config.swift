@@ -153,22 +153,11 @@ struct Config {
         static let lastFetchedAutoDetectedTransactedTokenErc721BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc721BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
-        static let useTaiChiNetwork = "useTaiChiNetworkKey"
         static let customRpcServers = "customRpcServers"
         static let homePageURL = "homePageURL"
     }
 
     let defaults: UserDefaults
-
-    var useTaiChiNetwork: Bool {
-        get {
-            defaults.bool(forKey: Keys.useTaiChiNetwork)
-        }
-
-        set {
-            defaults.set(newValue, forKey: Keys.useTaiChiNetwork)
-        }
-    }
 
     var enabledServers: [RPCServer] {
         get {
@@ -245,15 +234,6 @@ struct Config {
     let oneInch = URL(string: "https://api.1inch.exchange")!
     let honeySwapTokens = URL(string: "https://tokens.honeyswap.org/")!
     let rampAssets = URL(string: "https://api-instant.ramp.network")!
-
-    var taichiPrivateRpcUrl: URL? {
-        let key = Constants.Credentials.taiChiRPCKey
-        if key.isEmpty {
-            return nil
-        } else {
-            return URL(string: "http://api.taichi.network:10000/rpc/\(key)?txroute=private")!
-        }
-    }
 
     func anyEnabledServer() -> RPCServer {
         let servers = enabledServers
