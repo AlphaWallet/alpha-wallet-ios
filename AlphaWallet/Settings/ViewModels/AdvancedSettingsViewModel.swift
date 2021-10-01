@@ -11,9 +11,9 @@ import UIKit
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow] = {
         if Features.isLanguageSwitcherDisabled {
-            return [.console, .clearBrowserCache, .tokenScript, .useTaiChiNetwork]
+            return [.console, .clearBrowserCache, .tokenScript]
         } else {
-            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage, .useTaiChiNetwork]
+            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage]
         }
     }()
 
@@ -29,7 +29,6 @@ enum AdvancedSettingsRow: CaseIterable {
     case changeLanguage
     case changeCurrency
     case analytics
-    case useTaiChiNetwork
 
     var title: String {
         switch self {
@@ -45,8 +44,6 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsChangeCurrencyTitle()
         case .analytics:
             return R.string.localizable.settingsAnalitycsTitle()
-        case .useTaiChiNetwork:
-            return R.string.localizable.settingsUseTaichiNetworkButtonTitle()
         }
     }
 
@@ -64,8 +61,6 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.settings_currency()!
         case .analytics:
             return R.image.settings_analytics()!
-        case .useTaiChiNetwork:
-            return R.image.iconsSettingsTaiChi()!
         }
     }
 }

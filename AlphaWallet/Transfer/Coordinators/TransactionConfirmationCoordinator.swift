@@ -326,8 +326,7 @@ extension TransactionConfirmationCoordinator {
         var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,
-            Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
-            Analytics.Properties.isTaiChiEnabled.rawValue: configurator.session.config.useTaiChiNetwork,
+            Analytics.Properties.transactionType.rawValue: transactionType.rawValue
         ]
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
