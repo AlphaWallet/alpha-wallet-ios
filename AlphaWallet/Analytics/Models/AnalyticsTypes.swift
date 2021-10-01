@@ -72,7 +72,6 @@ enum Analytics {
         case transactionType
         case name
         case messageType
-        case isTaiChiEnabled
         case type
         case isAllFunds
         case addCustomChainType
