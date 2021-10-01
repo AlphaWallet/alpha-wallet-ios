@@ -38,3 +38,35 @@ struct GasNowPriceEstimates: Decodable {
         case code
     }
 }
+
+extension EtherscanPriceEstimates {
+
+    /// Current label in UI    Key to pull gas price from
+    /// - Rapid    "FastGasPrice" * 1.2
+    /// - Fast    "FastGasPrice"
+    /// - Standard/Average    "ProposeGasPrice"
+    /// - Slow    "SafeGasPrice"
+    static func bridgeToGasNowPriceEstimates(for value: EtherscanPriceEstimates) -> GasNowPriceEstimates? {
+        let slow = EtherNumberFormatter.full.number(from: value.safeGasPrice, units: UnitConfiguration.gasPriceUnit)!
+        let standard = EtherNumberFormatter.full.number(from: value.proposeGasPrice, units: UnitConfiguration.gasPriceUnit)!
+        let fastGasPrice = EtherNumberFormatter.full.number(from: value.fastGasPrice, units: UnitConfiguration.gasPriceUnit)!
+
+        guard let slow = Int(slow.description), let standard = Int(standard.description), let fast = Int(fastGasPrice.description) else { return nil }
+        let data = GasNowPriceEstimates.Data(slow: slow, standard: standard, fast: fast, rapid: Int((Double(fast) * 1.2).rounded(.down)))
+        return GasNowPriceEstimates(data: data, code: 1)
+    }
+}
+
+struct EtherscanPriceEstimates: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case fastGasPrice = "FastGasPrice"
+        case proposeGasPrice = "ProposeGasPrice"
+        case safeGasPrice = "SafeGasPrice"
+        case suggestBaseFee = "suggestBaseFee"
+    }
+
+    let fastGasPrice: String
+    let proposeGasPrice: String
+    let safeGasPrice: String
+    let suggestBaseFee: String
+}
