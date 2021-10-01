@@ -168,7 +168,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         //NOTE: remove spacing beetwen backButton and forwardButton buttons
         let backwardForwardButtonStackView = [backButton, forwardButton].asStackView(axis: .horizontal)
 
-        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, moreButton])
+        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, homeButton, moreButton])
         viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
         viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer2, homeButton, moreButton])
 
