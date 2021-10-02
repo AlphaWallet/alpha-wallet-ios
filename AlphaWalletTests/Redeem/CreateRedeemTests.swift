@@ -18,11 +18,14 @@ class CreateRedeemTests: XCTestCase {
         let account = keyStore.createAccount()
         let message = CreateRedeem(token: TokenObject()).redeemMessage(tokenIds: token).0
         let data = message.data(using: String.Encoding.utf8)
-
-        let signature = try! keyStore.signMessageData(data!, for: account.dematerialize())
-        //message and signature is to go in qr code
-        debug("message: " + message)
-        debug(try! "signature: " + signature.dematerialize().hexString)
-        //TODO no test?
+        do {
+            let signature = try keyStore.signMessageData(data!, for: account.dematerialize())
+            //message and signature is to go in qr code
+            debug("message: " + message)
+            debug(try "signature: " + signature.dematerialize().hexString)
+            //TODO no test?
+        } catch {
+            debug(error)
+        }
     }
 }
