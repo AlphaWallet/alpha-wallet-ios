@@ -16,9 +16,10 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance>
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
     func start()
-    func refreshBalance()
-    func refreshEthBalance()
-
+    func refreshBalance() -> Promise<Void>
+    func refreshEthBalance() -> Promise<Void>
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
+    
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage
     func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore
 }
@@ -83,12 +84,22 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         return .init(nil)
     }
 
-    func refreshBalance() {
-        balanceFetchers[keystore.currentWallet].flatMap { $0.refreshBalance() }
+    func refreshBalance() -> Promise<Void> {
+        guard let promise = balanceFetchers[keystore.currentWallet].flatMap({ $0.refreshBalance() }) else { return .value(()) }
+        return promise
     }
 
-    func refreshEthBalance() {
-        balanceFetchers[keystore.currentWallet].flatMap { $0.refreshEthBalance() }
+    func refreshEthBalance() -> Promise<Void> {
+        guard let promise = balanceFetchers[keystore.currentWallet].flatMap({ $0.refreshEthBalance() }) else { return .value(()) }
+        return promise
+    }
+
+    ///Refreshes available wallets balances
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+        let promises = keystore.wallets.compactMap { wallet in
+            balanceFetchers[wallet]?.refreshBalance(updatePolicy: updatePolicy, force: force)
+        }
+        return when(resolved: promises).asVoid()
     }
 
     func start() {

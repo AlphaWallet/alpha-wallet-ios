@@ -43,6 +43,7 @@ class AccountsViewController: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
         tableView.register(WalletSummaryTableViewCell.self)
+        tableView.addSubview(tableViewRefreshControl)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -52,6 +53,12 @@ class AccountsViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
+
+    private lazy var tableViewRefreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        return control
+    }()
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -78,6 +85,15 @@ class AccountsViewController: UIViewController {
                 strongSelf.delete(account: account)
             case .failure: break
             }
+        }
+    }
+
+    @objc private func pullToRefresh(_ sender: UIRefreshControl) {
+        tableViewRefreshControl.beginRefreshing()
+        walletBalanceCoordinator.refreshBalance(updatePolicy: .all, force: true).done { _ in
+            // no-op
+        }.cauterize().finally { [weak self] in
+            self?.tableViewRefreshControl.endRefreshing()
         }
     }
 
