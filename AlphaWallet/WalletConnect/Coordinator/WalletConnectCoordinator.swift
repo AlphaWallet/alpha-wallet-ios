@@ -161,10 +161,12 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession) {
+        info("WalletConnect didConnect session: \(session.url.absoluteString)")
         resetSessionsToRemoveLoadingIfNeeded()
     }
 
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest) {
+        info("WalletConnect action: \(action)")
         if let rpcServer = server.urlToServer[request.url] {
             let session = sessions[rpcServer]
 
@@ -210,7 +212,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
-        firstly {
+        info("WalletConnect signMessage: \(type)")
+        return firstly {
             SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect)
         }.map { data -> WalletConnectServer.Callback in
             return .init(id: id, url: url, value: data)
@@ -221,6 +224,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         guard let rpcServer = server.urlToServer[url] else { return Promise(error: WalletConnectError.connectionInvalid) }
         let ethPrice = nativeCryptoCurrencyPrices[rpcServer]
         let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, ethPrice: ethPrice)
+        info("WalletConnect executeTransaction: \(transaction) type: \(type)")
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect, didSendTransactionClosure: { [weak self] tx in
                 guard let strongSelf = self else { return }
@@ -269,6 +273,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, didFail error: Error) {
+        info("WalletConnect didFail error: \(error)")
         let errorMessage = R.string.localizable.walletConnectFailureTitle()
 
         if let presentedController = notificationAlertController {
@@ -285,6 +290,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
+        info("WalletConnect shouldConnectFor connection: \(connection)")
         firstly {
             WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, connection: connection, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
         }.done { choise in
@@ -297,6 +303,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func sendRawTransaction(session: WalletSession, rawTransaction: String, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
+        info("WalletConnect sendRawTransaction: \(rawTransaction)")
         return firstly {
             showSignRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: rawTransaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
@@ -318,7 +325,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func getTransactionCount(session: WalletSession, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
-        firstly {
+        info("WalletConnect getTransactionCount url: \(url)")
+        return firstly {
             GetNextNonce(server: session.server, wallet: session.account.address).promise()
         }.map {
             if let data = Data(fromHexEncodedString: String(format: "%02X", $0)) {
@@ -330,6 +338,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func showSignRawTransaction(title: String, message: String) -> Promise<Bool> {
+        info("WalletConnect showSignRawTransaction title: \(title) message: \(message)")
         return Promise { seal in
             let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
 
@@ -357,6 +366,7 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
     }
 
     func didClose(in viewController: WalletConnectSessionsViewController) {
+        info("WalletConnect didClose")
         //NOTE: even if we haven't sessions view controller pushed to navigation stack, we need to make sure that root NavigationBar will be hidden
         navigationController.setNavigationBarHidden(true, animated: false)
 
@@ -365,6 +375,7 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
     }
 
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController) {
+        info("WalletConnect didSelect session: \(session)")
         guard let navigationController = viewController.navigationController else { return }
 
         display(session: session, in: navigationController)
