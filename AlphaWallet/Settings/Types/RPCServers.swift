@@ -807,7 +807,7 @@ extension RPCServer: Codable {
     }
 }
 
-fileprivate extension URL {
+extension URL {
     //Much better to use URLComponents, but this is much simpler for our use. This probably doesn't percent-escape probably, but we shouldn't need it for the URLs we access here
 	func appendingQueryString(_ queryString: String) -> URL? {
         let urlString = absoluteString
