@@ -247,9 +247,15 @@ class TokensViewController: UIViewController {
 
         setupFilteringWithKeyword()
 
+        //NOTE: https://github.com/AlphaWallet/alpha-wallet-ios/issues/3255
+        let myqrCodeBarButton = UIBarButtonItem.myqrCodeBarButton(self, selector: #selector(myQRCodeButtonSelected))
+        let qrCodeBarButton = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+        myqrCodeBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
+        qrCodeBarButton.imageInsets = .init(top: 0, left: 10, bottom: 0, right: -10)
+
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem.myqrCodeBarButton(self, selector: #selector(myQRCodeButtonSelected)),
-            UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+            myqrCodeBarButton,
+            qrCodeBarButton
         ]
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
 
