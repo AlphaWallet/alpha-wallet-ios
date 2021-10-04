@@ -33,6 +33,8 @@ class SendTransactionCoordinator {
             Session.send(request)
         }.map { transactionID in
             .sentRawTransaction(id: transactionID, original: rawTransaction)
+        }.get {
+            info("Sent rawTransaction with transactionId: \($0)")
         }
     }
 
@@ -92,6 +94,8 @@ class SendTransactionCoordinator {
             Session.send(request)
         }.map { transactionID in
             .sentTransaction(SentTransaction(id: transactionID, original: transaction))
+        }.get {
+            info("Sent transaction with transactionId: \($0)")
         }
     }
 
