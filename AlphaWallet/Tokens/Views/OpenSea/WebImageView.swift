@@ -23,6 +23,8 @@ class WebImageView: UIView {
     var url: URL? {
         didSet {
             imageView.image = nil
+            setIsLoadingImageFromURL(true)
+            
             if let url = url?.rewrittenIfIpfs {
                 if url.pathExtension == "svg" {
                     switch type {
@@ -44,8 +46,14 @@ class WebImageView: UIView {
     var image: UIImage? {
         didSet {
             imageView.image = image
+            setIsLoadingImageFromURL(false)
             webView.loadHTMLString("", baseURL: nil)
         }
+    }
+
+    private func setIsLoadingImageFromURL(_ value: Bool) {
+        imageView.isHidden = value
+        webView.isHidden = !imageView.isHidden
     }
 
     init(type: ImageType) {
