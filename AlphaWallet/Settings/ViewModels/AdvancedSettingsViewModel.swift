@@ -10,10 +10,11 @@ import UIKit
 
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow] = {
+        let privateNerworkRow: [AdvancedSettingsRow] = Features.isUsingPrivateNetwork ? [.usePrivateNetwork] : []
         if Features.isLanguageSwitcherDisabled {
-            return [.console, .clearBrowserCache, .tokenScript]
+            return [.console, .clearBrowserCache, .tokenScript] + privateNerworkRow
         } else {
-            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage]
+            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage] + privateNerworkRow
         }
     }()
 
@@ -29,6 +30,7 @@ enum AdvancedSettingsRow: CaseIterable {
     case changeLanguage
     case changeCurrency
     case analytics
+    case usePrivateNetwork
 
     var title: String {
         switch self {
@@ -44,6 +46,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsChangeCurrencyTitle()
         case .analytics:
             return R.string.localizable.settingsAnalitycsTitle()
+        case .usePrivateNetwork:
+            return R.string.localizable.settingsUseEthermineNetworkButtonTitle()
         }
     }
 
@@ -61,6 +65,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.settings_currency()!
         case .analytics:
             return R.image.settings_analytics()!
+        case .usePrivateNetwork:
+            return R.image.iconsSettingsTaiChi()!
         }
     }
 }

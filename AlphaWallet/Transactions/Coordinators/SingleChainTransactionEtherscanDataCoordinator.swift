@@ -245,7 +245,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                             strongSelf.delete(transactions: [transaction])
                         }
                     }).cauterize()
-                    //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to TaiChi and fetch pending status through Etherscan
+                    //The transaction might not be posted to this node yet (ie. it doesn't even think that this transaction is pending). Especially common if we post a transaction to Ethermine and fetch pending status through Etherscan
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse, .none:
                     break
                 }
