@@ -120,9 +120,9 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     ///For development
     private func printInboxContents() {
         guard let contents = inboxContents else { return }
-        NSLog("Contents of inbox:")
+        verbose("Contents of inbox:")
         for each in contents {
-            NSLog("  In inbox: \(each)")
+            verbose("  In inbox: \(each)")
         }
     }
 

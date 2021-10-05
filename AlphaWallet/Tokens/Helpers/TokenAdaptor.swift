@@ -210,7 +210,6 @@ class TokenAdaptor {
         values["contractImageUrl"] = .init(directoryString: nonFungible.contractImageUrl)
         values["thumbnailUrl"] = .init(directoryString: nonFungible.thumbnailUrl)
         values["externalLink"] = .init(directoryString: nonFungible.externalLink)
-        values["externalLink"] = .init(directoryString: nonFungible.externalLink)
         values["backgroundColor"] = nonFungible.backgroundColor.flatMap { .init(directoryString: $0) }
         values["traits"] = .init(openSeaTraits: nonFungible.traits)
         values["value"] = .init(int: nonFungible.value)
