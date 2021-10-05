@@ -926,7 +926,6 @@
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
 		AA26C628204134C500318B9B /* TokenCardTableViewCellWithoutCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C627204134C500318B9B /* TokenCardTableViewCellWithoutCheckbox.swift */; };
 		AA4E531820425A9500143A09 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4E531720425A9500143A09 /* Date.swift */; };
-		AA574E632054ECA400F4B3AF /* RestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA574E622054ECA400F4B3AF /* RestClient.swift */; };
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
@@ -1927,7 +1926,6 @@
 		AA26C62220412A4100318B9B /* Double.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
 		AA26C627204134C500318B9B /* TokenCardTableViewCellWithoutCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellWithoutCheckbox.swift; sourceTree = "<group>"; };
 		AA4E531720425A9500143A09 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
-		AA574E622054ECA400F4B3AF /* RestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestClient.swift; sourceTree = "<group>"; };
 		AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalance.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B1CCA9D1215B615A0000FBF7 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2062,7 +2060,6 @@
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
 				878EE942255BC352000210DE /* Share */,
 				C80DC77C22AB7FAD009CFA1C /* TokenScriptFiles */,
-				AA574E612054EC8B00F4B3AF /* Rest */,
 				C8803302205436EE00D73D6F /* ImagesOutsideAssetCatalog */,
 				C876FF69204A77B400B7D0EA /* Fonts */,
 				73ACEEF620163B4E003DD71D /* Lock */,
@@ -4610,14 +4607,6 @@
 			path = ABI;
 			sourceTree = "<group>";
 		};
-		AA574E612054EC8B00F4B3AF /* Rest */ = {
-			isa = PBXGroup;
-			children = (
-				AA574E622054ECA400F4B3AF /* RestClient.swift */,
-			);
-			path = Rest;
-			sourceTree = "<group>";
-		};
 		AAEF2CA92050A64F0038BE0D /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -5282,7 +5271,6 @@
 				291D73C61F7F500D00A8AB56 /* TransactionItemState.swift in Sources */,
 				29BE3FD21F707DC300F6BFC2 /* TransactionDataCoordinator.swift in Sources */,
 				29F1C85120032688003780D8 /* Address.swift in Sources */,
-				AA574E632054ECA400F4B3AF /* RestClient.swift in Sources */,
 				29FA00D4201EC662002F7DC5 /* NSObject.swift in Sources */,
 				771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */,
 				29FF6D6B2011D2AF00A3011C /* InCoordinatorError.swift in Sources */,

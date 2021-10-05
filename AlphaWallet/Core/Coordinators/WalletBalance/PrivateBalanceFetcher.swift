@@ -273,13 +273,14 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }.then { contractsAndTokenIds in
             self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens, tokens: tokens)
         }.then { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
-            self.fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens).map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0)}
+            self.fetchErc1155NonFungibleJsons(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens)
+                .map { (contractsAndTokenIds: contractsAndTokenIds, tokenIdMetaDatas: $0) }
         }.then { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData]) -> Promise<[TokenBatchOperation]> in
             let contractsToTokenIds: [AlphaWallet.Address: [BigInt]] = contractsAndTokenIds.mapValues { tokenIds -> [BigInt] in
                 tokenIds.compactMap { BigInt($0) }
             }
             let promises = contractsToTokenIds.map { contract, tokenIds in
-                Erc1155BalanceFetcher(address: account.address, server: server).fetch(contract: contract, tokenIds: Set(tokenIds)).map { (contract: contract, balances: $0 )}
+                Erc1155BalanceFetcher(address: account.address, server: server).fetch(contract: contract, tokenIds: Set(tokenIds)).map { (contract: contract, balances: $0 ) }
             }
             return firstly {
                 when(fulfilled: promises)
@@ -356,6 +357,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
+
         return firstly {
             //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
             sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
@@ -371,7 +373,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                         jsonDictionary["contractName"] = JSON(tokenObject.name)
                         jsonDictionary["symbol"] = JSON(tokenObject.symbol)
                         jsonDictionary["tokenId"] = JSON(tokenId)
-                        jsonDictionary["decimals"] = JSON(jsonDictionary["decimals"].intValue ?? 0)
+                        jsonDictionary["decimals"] = JSON(jsonDictionary["decimals"].intValue)
                         jsonDictionary["name"] = JSON(jsonDictionary["name"].stringValue)
                         jsonDictionary["imageUrl"] = JSON(jsonDictionary["image"].string ?? jsonDictionary["image_url"].string ?? "")
                         jsonDictionary["thumbnailUrl"] = jsonDictionary["imageUrl"]
@@ -401,7 +403,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
             let promises = contractsToTokenIds.map { contract, tokenIds in
-                Erc1155BalanceFetcher(address: account.address, server: server).fetch(contract: contract, tokenIds: Set(tokenIds)).map { (contract: contract, balances: $0 )}
+                Erc1155BalanceFetcher(address: account.address, server: server)
+                    .fetch(contract: contract, tokenIds: Set(tokenIds))
+                    .map { (contract: contract, balances: $0) }
             }
             return firstly {
                 when(fulfilled: promises)
@@ -437,7 +441,7 @@ extension PrivateBalanceFetcher {
 fileprivate extension PrivateBalanceFetcher.functional {
     static func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokens: [Activity.AssignedToken], server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> Promise<[ERCToken]> {
         let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { contract in
-            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract)})
+            !tokens.contains(where: { $0.contractAddress.sameContract(as: contract) })
         }
         guard !contractsToAdd.isEmpty else { return Promise<[ERCToken]>.value(.init()) }
         let (promise, seal) = Promise<[ERCToken]>.pending()
