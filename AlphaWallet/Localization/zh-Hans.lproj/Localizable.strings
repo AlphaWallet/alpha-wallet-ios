@@ -89,6 +89,7 @@
 "settings.backupWallet.button.title" = "备份此钱包";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
 "settings.walletConnect.button.title" = "WalletConnect";
+"settings.useEthermineNetwork.button.title" = "Use Ethermine for Ethereum";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
 "settings.tokenScriptStandard.title" = "TokenScript 兼容性";

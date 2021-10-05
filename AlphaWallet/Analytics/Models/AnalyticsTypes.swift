@@ -72,6 +72,7 @@ enum Analytics {
         case transactionType
         case name
         case messageType
+        case isPrivateNetworkEnabled
         case type
         case isAllFunds
         case addCustomChainType

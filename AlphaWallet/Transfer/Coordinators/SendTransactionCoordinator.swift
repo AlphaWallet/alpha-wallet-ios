@@ -100,7 +100,22 @@ class SendTransactionCoordinator {
     }
 
     private var rpcURL: URL {
-        session.server.rpcURL
+        session.server.rpcURLReplaceMainWithPrivateNetworkIfNeeded(config: config)
+    }
+}
+
+fileprivate extension RPCServer {
+    func rpcURLReplaceMainWithPrivateNetworkIfNeeded(config: Config) -> URL {
+        switch self {
+        case .main where config.usePrivateNetwork:
+            if let url = config.privateRpcUrl {
+                return url
+            } else {
+                return rpcURL
+            }
+        case .xDai, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .main, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet:
+            return self.rpcURL
+        }
     }
 }
 
