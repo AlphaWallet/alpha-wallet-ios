@@ -326,7 +326,8 @@ extension TransactionConfirmationCoordinator {
         var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,
-            Analytics.Properties.transactionType.rawValue: transactionType.rawValue
+            Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
+            Analytics.Properties.isPrivateNetworkEnabled.rawValue: configurator.session.config.usePrivateNetwork,
         ]
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount, _):

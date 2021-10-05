@@ -73,10 +73,33 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = viewModel.rows[indexPath.row]
-        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
+        switch row {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
 
-        return cell
+            return cell
+        case .usePrivateNetwork:
+            let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.usePrivateNetwork))
+            cell.delegate = self
+
+            return cell
+        }
+    }
+}
+
+extension AdvancedSettingsViewController: SwitchTableViewCellDelegate {
+
+    func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
+        guard let indexPath = cell.indexPath else { return }
+
+        switch viewModel.rows[indexPath.row] {
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
+            break
+        case .usePrivateNetwork:
+            config.usePrivateNetwork = isOn
+        }
     }
 }
 
@@ -116,6 +139,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.advancedSettingsViewControllerChangeCurrencySelected(in: self)
         case .analytics:
             delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
+        case .usePrivateNetwork:
+            break
         }
     }
 }

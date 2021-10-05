@@ -153,11 +153,26 @@ struct Config {
         static let lastFetchedAutoDetectedTransactedTokenErc721BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc721BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
         static let walletNames = "walletNames"
+        static let usePrivateNetwork = "usePrivateNetworkKey"
         static let customRpcServers = "customRpcServers"
         static let homePageURL = "homePageURL"
     }
 
     let defaults: UserDefaults
+
+    var usePrivateNetwork: Bool {
+        get {
+            guard Features.isUsingPrivateNetwork else { return false }
+
+            return defaults.bool(forKey: Keys.usePrivateNetwork)
+        }
+
+        set {
+            guard Features.isUsingPrivateNetwork else { return }
+
+            defaults.set(newValue, forKey: Keys.usePrivateNetwork)
+        }
+    }
 
     var enabledServers: [RPCServer] {
         get {
@@ -234,6 +249,7 @@ struct Config {
     let oneInch = URL(string: "https://api.1inch.exchange")!
     let honeySwapTokens = URL(string: "https://tokens.honeyswap.org/")!
     let rampAssets = URL(string: "https://api-instant.ramp.network")!
+    let privateRpcUrl = URL(string: "https://rpc.ethermine.org")
 
     func anyEnabledServer() -> RPCServer {
         let servers = enabledServers
