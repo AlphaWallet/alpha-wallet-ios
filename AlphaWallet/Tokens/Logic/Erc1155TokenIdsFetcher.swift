@@ -117,7 +117,7 @@ class Erc1155TokenIdsFetcher {
     }
 
     static func deleteForWallet(_ address: AlphaWallet.Address) {
-        for each in RPCServer.allCases {
+        for each in RPCServer.availableServers {
             let file = fileUrl(forWallet: address, server: each)
             try? FileManager.default.removeItem(at: file)
         }

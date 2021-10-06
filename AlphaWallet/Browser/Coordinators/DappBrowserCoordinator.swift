@@ -376,7 +376,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func isMagicLink(_ url: URL) -> Bool {
-        return RPCServer.allCases.contains { $0.magicLinkHost == url.host }
+        return RPCServer.availableServers.contains { $0.magicLinkHost == url.host }
     }
 
     func `switch`(toServer server: RPCServer, url: URL? = nil) {
