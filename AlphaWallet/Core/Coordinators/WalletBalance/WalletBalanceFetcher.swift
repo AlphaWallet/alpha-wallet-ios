@@ -28,8 +28,9 @@ protocol WalletBalanceFetcherType: AnyObject {
     func start()
     func stop()
     func update(servers: [RPCServer])
-    func refreshEthBalance()
-    func refreshBalance()
+    func refreshEthBalance() -> Promise<Void>
+    func refreshBalance() -> Promise<Void>
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
     func transactionsStorage(server: RPCServer) -> TransactionsStorage
     func tokensDatastore(server: RPCServer) -> TokensDataStore
 }
@@ -106,8 +107,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             }
         }
 
-        let delatedServers = services.filter { !servers.contains($0.key) }.map { $0.key }
-        for each in delatedServers {
+        let deletedServers = services.filter { !servers.contains($0.key) }.map { $0.key }
+        for each in deletedServers {
             services.remove(at: each)
         }
     }
@@ -226,33 +227,48 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func start() {
-        timedCallForBalanceRefresh()
+        timedCallForBalanceRefresh().done { _ in
+
+        }.cauterize()
 
         timer = Timer.scheduledTimer(withTimeInterval: Self.updateBalanceInterval, repeats: true) { [weak self] _ in
             guard let strongSelf = self else { return }
 
             strongSelf.queue.async {
-                strongSelf.timedCallForBalanceRefresh()
+                strongSelf.timedCallForBalanceRefresh().done { _ in
+
+                }.cauterize()
             }
         }
     }
 
-    private func timedCallForBalanceRefresh() {
-        for each in services {
+    private func timedCallForBalanceRefresh() -> Promise<Void> {
+        let promises = services.map { each in
             each.value.1.refreshBalance(updatePolicy: .all, force: false)
         }
+        return when(resolved: promises).asVoid()
     }
 
-    func refreshEthBalance() {
-        for each in services {
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+        let promises = services.map { each in
+            each.value.1.refreshBalance(updatePolicy: updatePolicy, force: force)
+        }
+        return when(resolved: promises).asVoid()
+    }
+
+    func refreshEthBalance() -> Promise<Void> {
+        let promises = services.map { each in
             each.value.1.refreshBalance(updatePolicy: .eth, force: true)
         }
+        return when(resolved: promises).asVoid()
     }
 
-    func refreshBalance() {
-        for each in services {
+    func refreshBalance() -> Promise<Void> {
+        let promises = services.map { each in
             each.value.1.refreshBalance(updatePolicy: .ercTokens, force: true)
         }
+
+        return when(resolved: promises).asVoid()
     }
 
     func stop() {

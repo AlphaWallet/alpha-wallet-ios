@@ -69,10 +69,14 @@ class BalanceCoordinator: NSObject, BalanceCoordinatorType {
     }
 
     func refresh() {
-        walletBalanceCoordinator.refreshBalance()
+        walletBalanceCoordinator.refreshBalance().done { _ in
+
+        }.cauterize()
     }
     func refreshEthBalance() {
-        walletBalanceCoordinator.refreshEthBalance()
+        walletBalanceCoordinator.refreshEthBalance().done { _ in
+
+        }.cauterize()
     }
 
     func update() {
