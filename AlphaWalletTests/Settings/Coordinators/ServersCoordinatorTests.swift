@@ -5,6 +5,6 @@ import XCTest
 
 class ServersCoordinatorTests: XCTestCase {
     func testServerListIsComplete() {
-        XCTAssertEqual(Set(ServersCoordinator.serversOrdered), Set(RPCServer.allCases))
+        XCTAssertEqual(Set(ServersCoordinator.serversOrdered), Set(RPCServer.availableServers))
     }
 }

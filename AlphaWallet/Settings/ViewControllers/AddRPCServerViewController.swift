@@ -218,7 +218,7 @@ class AddRPCServerViewController: UIViewController {
         }
 
         if let chainId = Int(chainId0xString: chainIDTextField.value.trimmed), chainId > 0 {
-            if config.enabledServers.contains(where: { $0.chainID == chainId }) {
+            if RPCServer.availableServers.contains(where: { $0.chainID == chainId }) {
                 isValid = false
                 //TODO maybe a prompt with button to enable it instead?
                 chainIDTextField.status = .error(R.string.localizable.addrpcServerChainIdAlreadySupported())

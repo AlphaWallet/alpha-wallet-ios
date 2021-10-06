@@ -125,6 +125,6 @@ extension Session {
 
 extension RPCServer {
     static func serverWithRpcURL(_ string: String) -> RPCServer? {
-        RPCServer.allCases.first { $0.rpcURL.absoluteString == string }
+        RPCServer.availableServers.first { $0.rpcURL.absoluteString == string }
     }
 }

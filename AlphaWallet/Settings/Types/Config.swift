@@ -181,7 +181,7 @@ struct Config {
                     //TODO remote log. Why is this possible? Note it's not nil (which is possible for new installs)
                     return Constants.defaultEnabledServers
                 } else {
-                    return chainIds.map { .init(chainID: $0) }
+                    return chainIds.map { .init(chainID: $0) }.filter { $0.conflictedServer == nil }
                 }
             } else {
                 return Constants.defaultEnabledServers
