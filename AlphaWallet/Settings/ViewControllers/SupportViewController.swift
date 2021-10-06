@@ -137,7 +137,8 @@ extension SupportViewController: UITableViewDelegate {
         case .blog:
             break
         case .email:
-            resolver.present(from: self)
+            let attachments = Features.isAttachingLogFilesToSupportEmailEnabled ? DDLogger.logFilesAttachments : []
+            resolver.present(from: self, attachments: attachments)
         }
     }
 

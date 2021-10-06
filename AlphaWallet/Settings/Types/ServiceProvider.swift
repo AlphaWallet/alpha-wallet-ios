@@ -28,7 +28,7 @@ enum URLServiceProvider {
         }
     }
 
-    //TODO should probably change or remove `localURL` since iOS supports deep links now
+    // TODO should probably change or remove `localURL` since iOS supports deep links now
     var deepLinkURL: URL? {
         switch self {
         case .discord:
@@ -82,12 +82,12 @@ enum URLServiceProvider {
 }
 
 import MessageUI
-class ContactUsEmailResolver: NSObject {
+
+final class ContactUsEmailResolver: NSObject {
 
     private var emailTemplate: String {
         return """
                \n\n\n
-
                \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
                \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
                \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
@@ -96,22 +96,26 @@ class ContactUsEmailResolver: NSObject {
                """
     }
 
-    private lazy var mailComposeViewController: MFMailComposeViewController = {
-        let viewController = MFMailComposeViewController()
+    private lazy var mailComposer: MFMailComposeViewController = {
+        let mailComposer = MFMailComposeViewController()
 
-        viewController.setToRecipients([Constants.supportEmail])
-        viewController.setSubject(R.string.localizable.aHelpContactEmailSubject())
-        viewController.setMessageBody(emailTemplate, isHTML: false)
-        viewController.makePresentationFullScreenForiOS13Migration()
+        mailComposer.setToRecipients([Constants.supportEmail])
+        mailComposer.setSubject(R.string.localizable.aHelpContactEmailSubject())
+        mailComposer.setMessageBody(emailTemplate, isHTML: false)
+        mailComposer.makePresentationFullScreenForiOS13Migration()
 
-        return viewController
+        return mailComposer
     }()
 
-    func present(from viewController: UIViewController) {
+    func present(from viewController: UIViewController, attachments: [EmailAttachment]) {
         if MFMailComposeViewController.canSendMail() {
-            mailComposeViewController.mailComposeDelegate = self
+            mailComposer.mailComposeDelegate = self
 
-            viewController.present(mailComposeViewController, animated: true)
+            for attachment in attachments {
+                mailComposer.addAttachmentData(attachment.data, mimeType: attachment.mimeType, fileName: attachment.fileName)
+            }
+
+            viewController.present(mailComposer, animated: true)
         }
     }
 }
@@ -120,5 +124,16 @@ extension ContactUsEmailResolver: MFMailComposeViewControllerDelegate {
 
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true)
+    }
+}
+
+typealias EmailAttachment = (data: Data, mimeType: String, fileName: String)
+extension Logger {
+    static var logFilesAttachments: [EmailAttachment] {
+        return Self.logFileURLs.compactMap { url -> EmailAttachment? in
+            guard let data = try? Data(contentsOf: url), let mimeType = url.mimeType else { return nil }
+
+            return (data, mimeType, url.lastPathComponent)
+        }
     }
 }

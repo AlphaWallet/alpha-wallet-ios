@@ -2,6 +2,12 @@
 
 import Foundation
 
+    /// Helper enum representing feature enable state, provides ability to set configured enabled state value
+enum FeaturesState<T> {
+    case enabled(value: T)
+    case disabled
+}
+
 enum Features {
     static let isActivityEnabled = true
     static let isSendAllFundsFungibleEnabled = true
@@ -16,4 +22,5 @@ enum Features {
     static let isErc1155Enabled = true
     static let isUsingPrivateNetwork = false
     static let isUsingAppEnforcedTimeoutForMakingWalletConnectConnections = false
+    static let isAttachingLogFilesToSupportEmailEnabled = false
 }
