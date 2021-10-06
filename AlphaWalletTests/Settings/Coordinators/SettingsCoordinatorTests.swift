@@ -72,6 +72,8 @@ class SettingsCoordinatorTests: XCTestCase {
     }
 }
 
+import PromiseKit
+
 final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
 
@@ -87,12 +89,16 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
 
     }
 
-    func refreshBalance() {
-
+    func refreshBalance() -> Promise<Void> {
+        return .value(())
     }
 
-    func refreshEthBalance() {
+    func refreshEthBalance() -> Promise<Void> {
+        return .value(())
+    }
 
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+        return .value(())
     }
     
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {

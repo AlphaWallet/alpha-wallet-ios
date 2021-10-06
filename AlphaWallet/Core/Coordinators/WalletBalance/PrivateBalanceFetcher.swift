@@ -21,7 +21,7 @@ protocol PrivateBalanceFetcherType: AnyObject {
     var delegate: PrivateTokensDataStoreDelegate? { get set }
     var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool)
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
 // swiftlint:disable type_body_length
@@ -65,13 +65,17 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             case .initial(let tokenObjects):
                 let tokenObjects = tokenObjects.map { Activity.AssignedToken(tokenObject: $0) }
 
-                strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: true)
+                strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: true).done { _ in
+                        // no-op
+                }.cauterize()
             case .update(let updates, _, let insertions, _):
                 let values = updates.map { Activity.AssignedToken(tokenObject: $0) }
                 let tokenObjects = insertions.map { values[$0] }
                 guard !tokenObjects.isEmpty else { return }
 
-                strongSelf.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: true)
+                strongSelf.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: true).done { _ in
+                    // no-op
+                }.cauterize()
 
                 strongSelf.delegate?.didAddToken(in: strongSelf)
             case .error:
@@ -89,7 +93,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         return openSea.makeFetchPromise()
     }
 
-    func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) {
+    func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) -> Promise<Void> {
         Promise<[Activity.AssignedToken]> { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
@@ -97,9 +101,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
                 seal.fulfill(tokenObjects)
             }
-        }.done(on: queue, { tokenObjects in
-            self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: false)
-        }).cauterize()
+        }.then(on: queue, { tokenObjects in
+            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: false)
+        })
     }
 
     private func refreshBalanceForNonErc721Or1155Tokens(tokens: [Activity.AssignedToken]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
@@ -118,8 +122,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         case all
     }
 
-    private func refreshBalance(tokenObjects: [Activity.AssignedToken], updatePolicy: RefreshBalancePolicy, force: Bool = false) {
-        guard !isRefeshingBalance || force else { return }
+    private func refreshBalance(tokenObjects: [Activity.AssignedToken], updatePolicy: RefreshBalancePolicy, force: Bool = false) -> Promise<Void> {
+        guard !isRefeshingBalance || force else { return .value(()) }
 
         isRefeshingBalance = true
         var promises: [Promise<Bool?>] = []
@@ -134,18 +138,18 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             promises += [refreshEthBalance(etherToken: etherToken)]
         }
 
-        firstly {
+        return firstly {
             when(resolved: promises).map(on: queue, { values -> Bool? in
                 //NOTE: taking for first element means that values was updated
                 return values.compactMap { $0.optionalValue }.compactMap { $0 }.first
             })
-        }.done(on: queue, { balanceValueHasChange in
+        }.get(on: queue, { balanceValueHasChange in
             self.isRefeshingBalance = false
 
             if let value = balanceValueHasChange, value {
                 self.delegate?.didUpdate(in: self)
             }
-        })
+        }).asVoid()
     }
 
     private func refreshEthBalance(etherToken: Activity.AssignedToken) -> Promise<Bool?> {
