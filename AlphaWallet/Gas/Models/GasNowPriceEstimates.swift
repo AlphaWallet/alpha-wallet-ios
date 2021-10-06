@@ -47,11 +47,11 @@ extension EtherscanPriceEstimates {
     /// - Standard/Average    "ProposeGasPrice"
     /// - Slow    "SafeGasPrice"
     static func bridgeToGasNowPriceEstimates(for value: EtherscanPriceEstimates) -> GasNowPriceEstimates? {
-        let slow = EtherNumberFormatter.full.number(from: value.safeGasPrice, units: UnitConfiguration.gasPriceUnit)!
-        let standard = EtherNumberFormatter.full.number(from: value.proposeGasPrice, units: UnitConfiguration.gasPriceUnit)!
-        let fastGasPrice = EtherNumberFormatter.full.number(from: value.fastGasPrice, units: UnitConfiguration.gasPriceUnit)!
+        let _slow = EtherNumberFormatter.full.number(from: value.safeGasPrice, units: UnitConfiguration.gasPriceUnit)!
+        let _standard = EtherNumberFormatter.full.number(from: value.proposeGasPrice, units: UnitConfiguration.gasPriceUnit)!
+        let _fastGasPrice = EtherNumberFormatter.full.number(from: value.fastGasPrice, units: UnitConfiguration.gasPriceUnit)!
 
-        guard let slow = Int(slow.description), let standard = Int(standard.description), let fast = Int(fastGasPrice.description) else { return nil }
+        guard let slow = Int(_slow.description), let standard = Int(_standard.description), let fast = Int(_fastGasPrice.description) else { return nil }
         let data = GasNowPriceEstimates.Data(slow: slow, standard: standard, fast: fast, rapid: Int((Double(fast) * 1.2).rounded(.down)))
         return GasNowPriceEstimates(data: data, code: 1)
     }
