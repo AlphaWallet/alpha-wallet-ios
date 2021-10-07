@@ -21,6 +21,7 @@ protocol WalletConnectServerDelegate: AnyObject {
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void)
     func server(_ server: WalletConnectServer, action: WalletConnectServer.Action, request: WalletConnectRequest)
     func server(_ server: WalletConnectServer, didFail error: Error)
+    func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: WalletConnectURL)
 }
 
 typealias WalletConnectRequest = WalletConnectSwift.Request
@@ -34,6 +35,8 @@ extension WalletConnectSession {
 }
 
 class WalletConnectServer {
+    private static let connectionTimeout: TimeInterval = 10
+
     enum ConnectionChoice {
         case connect(RPCServer)
         case cancel
@@ -63,6 +66,7 @@ class WalletConnectServer {
 
     private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: URL(string: Constants.website)!)
     private let wallet: AlphaWallet.Address
+    private var connectionTimeoutTimers: [WalletConnectURL: Timer] = .init()
     static var server: Server?
     //NOTE: We are using singleton server value because while every creation server object dones't release prev instances, WalletConnect meamory issue.
     private var server: Server {
@@ -101,6 +105,18 @@ class WalletConnectServer {
     }
 
     func connect(url: WalletConnectURL) throws {
+        let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { timer in
+            let isStillWatching = self.connectionTimeoutTimers[url] != nil
+            debug("WalletConnect app-enforced connection timer is up for: \(url.absoluteString) isStillWatching: \(isStillWatching)")
+            if isStillWatching {
+                //TODO be good if we can do `server.communicator.disconnect(from: url)` here on in the delegate. But `communicator` is not accessible
+                self.delegate?.server(self, tookTooLongToConnectToUrl: url)
+            } else {
+                //no-op
+            }
+        }
+        connectionTimeoutTimers[url] = timer
+
         try server.connect(to: url)
     }
 
@@ -173,6 +189,7 @@ extension RequestHandlerToAvoidMemoryLeak: RequestHandler {
 extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectSwift.Request) {
+        debug("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             guard let delegate = strongSelf.delegate, let id = request.id else { return }
@@ -190,10 +207,12 @@ extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
     }
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectSwift.Request) -> Bool {
+        debug("WalletConnect canHandle: \(request.method) url: \(request.url.absoluteString)")
         return true
     }
 
     private func convert(request: WalletConnectSwift.Request) -> Promise<Action.ActionType> {
+        debug("WalletConnect convert request: \(request.method) url: \(request.url.absoluteString)")
         guard let sessions = sessions.value else { return .init(error: WalletConnectError.connectionInvalid) }
         guard let session = sessions.first(where: { $0.url == request.url }) else { return .init(error: WalletConnectError.connectionInvalid) }
         guard let rpcServer = urlToServer[request.url] else { return .init(error: WalletConnectError.connectionInvalid) }
@@ -250,6 +269,7 @@ extension WalletConnectServer: ServerDelegate {
     }
 
     func server(_ server: Server, didFailToConnect url: WalletConnectURL) {
+        debug("WalletConnect didFailToConnect: \(url)")
         DispatchQueue.main.async {
             guard let delegate = self.delegate else { return }
 
@@ -275,6 +295,8 @@ extension WalletConnectServer: ServerDelegate {
     }
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
+        connectionTimeoutTimers[session.url] = nil
+
         DispatchQueue.main.async {
             if let delegate = self.delegate {
                 let connection = WalletConnectConnection(dAppInfo: session.dAppInfo, url: session.url)
@@ -295,6 +317,7 @@ extension WalletConnectServer: ServerDelegate {
     }
 
     func server(_ server: Server, didConnect session: Session) {
+        debug("WalletConnect didConnect: \(session.url.absoluteString)")
         DispatchQueue.main.async {
             guard var sessions = self.sessions.value else { return }
             if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
