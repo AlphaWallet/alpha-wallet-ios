@@ -52,6 +52,7 @@ enum Analytics {
         case walletConnectConnect = "WalletConnect Connect"
         case walletConnectCancel = "WalletConnect Cancel"
         case walletConnectDisconnect = "WalletConnect Disconnect"
+        case walletConnectConnectionTimeout = "WalletConnect Connection Timeout"
         case clearBrowserCache = "Clear Browser Cache"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
         case nameWallet = "Name Wallet"
@@ -161,4 +162,8 @@ enum Analytics {
         case `import`
         case watch
     }
+
+   enum WalletConnectAction: String {
+       case bridgeUrl
+   }
 }

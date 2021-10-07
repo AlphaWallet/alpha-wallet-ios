@@ -144,6 +144,18 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         coordinator.start()
         addCoordinator(coordinator)
     }
+
+    private func displayErrorMessage(_ errorMessage: String) {
+        if let presentedController = notificationAlertController {
+            presentedController.dismiss(animated: true) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.notificationAlertController = strongSelf.presentationViewController.displaySuccess(message: errorMessage)
+            }
+        } else {
+            notificationAlertController = presentationViewController.displaySuccess(message: errorMessage)
+        }
+        resetSessionsToRemoveLoadingIfNeeded()
+    }
 }
 
 extension WalletConnectCoordinator: WalletConnectSessionCoordinatorDelegate {
@@ -275,18 +287,19 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     func server(_ server: WalletConnectServer, didFail error: Error) {
         info("WalletConnect didFail error: \(error)")
         let errorMessage = R.string.localizable.walletConnectFailureTitle()
+        displayErrorMessage(errorMessage)
+    }
 
-        if let presentedController = notificationAlertController {
-            presentedController.dismiss(animated: true) { [weak self] in
-                guard let strongSelf = self else { return }
-
-                strongSelf.notificationAlertController = strongSelf.presentationViewController.displaySuccess(message: errorMessage)
-            }
+    func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: WalletConnectURL) {
+        if Features.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections {
+            info("WalletConnect app-enforced timeout for waiting for new connection")
+            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [Analytics.WalletConnectAction.bridgeUrl.rawValue: url.bridgeURL.absoluteString])
+            //TODO replace with proper error message, localized
+            let errorMessage = "Too long"
+            displayErrorMessage(errorMessage)
         } else {
-            notificationAlertController = presentationViewController.displaySuccess(message: errorMessage)
+            info("WalletConnect app-enforced timeout for waiting for new connection. Disabled")
         }
-
-        resetSessionsToRemoveLoadingIfNeeded()
     }
 
     func server(_ server: WalletConnectServer, shouldConnectFor connection: WalletConnectConnection, completion: @escaping (WalletConnectServer.ConnectionChoice) -> Void) {
