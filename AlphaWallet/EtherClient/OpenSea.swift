@@ -6,6 +6,7 @@ import BigInt
 import PromiseKit
 import Result
 import SwiftyJSON
+import PromiseKit
 
 class OpenSea {
     private class WeakRef<T: AnyObject> {
@@ -103,8 +104,8 @@ class OpenSea {
         return fetch
     }
 
-    private func getBaseURLForOpensea() -> String {
-        switch key.server {
+    private static func getBaseURLForOpensea(for server: RPCServer) -> String {
+        switch server {
         case .main:
             return Constants.openseaAPI
         case .rinkeby:
@@ -114,8 +115,31 @@ class OpenSea {
         }
     }
 
+    static func fetchAsset(for value: Eip155URL) -> Promise<URL> {
+        let baseURL = getBaseURLForOpensea(for: .main)
+        guard let url = URL(string: "\(baseURL)api/v1/asset/\(value.path)") else {
+            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+        }
+
+        return Promise<URL> { seal in
+            Alamofire
+                .request(url, method: .get, headers: ["X-API-KEY": Constants.Credentials.openseaKey])
+                .responseJSON(queue: .main, options: .allowFragments, completionHandler: { response in
+                    guard let data = response.data, let json = try? JSON(data: data) else {
+                        return seal.reject(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API: \(String(describing: response.error))")))
+                    }
+
+                    let image = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
+                    guard let url = URL(string: image) else {
+                        return seal.reject(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API: \(String(describing: response.error))")))
+                    }
+                    seal.fulfill(url)
+            })
+        }
+    }
+
     private func fetchPage(forOwner owner: AlphaWallet.Address, offset: Int, sum: [AlphaWallet.Address: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[AlphaWallet.Address: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
-        let baseURL = getBaseURLForOpensea()
+        let baseURL = Self.getBaseURLForOpensea(for: key.server)
         //Careful to `order_by` with a valid value otherwise OpenSea will return 0 results
         guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner.eip55String)&order_by=pk&order_direction=asc&limit=50&offset=\(offset)") else {
             completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
