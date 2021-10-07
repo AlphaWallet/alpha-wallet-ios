@@ -45,7 +45,7 @@ extension TokenObject {
 }
 
 class TokenImageFetcher {
-    private enum ImageAvailabilityError: LocalizedError {
+    enum ImageAvailabilityError: LocalizedError {
         case notAvailable
     }
 

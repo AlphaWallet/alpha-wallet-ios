@@ -7,6 +7,7 @@
 
 import UIKit
 import PromiseKit
+import CryptoSwift
 
 class AddressOrEnsNameLabel: UILabel {
 
@@ -39,7 +40,7 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    let loadingIndicator: UIActivityIndicatorView = {
+    private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .gray)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
@@ -47,6 +48,15 @@ class AddressOrEnsNameLabel: UILabel {
         indicator.widthAnchor.constraint(equalToConstant: 15).isActive = true
 
         return indicator
+    }()
+
+    let blockieImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+
+        return imageView
     }()
 
     var addressString: String? {
@@ -96,41 +106,71 @@ class AddressOrEnsNameLabel: UILabel {
         return nil
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        blockieImageView.cornerRadius = 10
+    }
+
     func clear() {
+        blockieImage = nil
         addressOrEnsName = nil
         inResolvingState = false
     }
 
-    func resolve(_ value: String, completion: @escaping ((AddressOrEnsResolution) -> Void)) {
-        clear()
-
-        if let address = AlphaWallet.Address(string: value) {
-            inResolvingState = true
-            ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
-                guard let strongSelf = self else { return }
-                strongSelf.inResolvingState = false
-
-                if let resolvedEnsName = result.value {
-                    completion(.resolved(.ensName(resolvedEnsName)))
-                } else {
-                    completion(.resolved(.none))
-                }
-            }
-        } else if value.contains(".") {
-            inResolvingState = true
-
-            DomainResolver(server: .forResolvingEns).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
-                GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value)
-            }.done { address in
-                completion(.resolved(.address(address)))
-            }.catch { _ in
-                completion(.resolved(.none))
-            }.finally {
-                self.inResolvingState = false
-            }
-        } else {
-            completion(.invalidInput)
+    var blockieImage: UIImage? {
+        didSet {
+            blockieImageView.image = blockieImage
+            blockieImageView.isHidden = blockieImage == nil
         }
     }
-}
 
+    func defaultLayout() -> UIView {
+        [loadingIndicator, blockieImageView, self].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+    }
+
+    typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
+
+    func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
+        return Promise<BlockieAndAddressOrEnsResolution> { seal in
+            clear()
+
+            if let address = AlphaWallet.Address(string: value) {
+                inResolvingState = true
+
+                firstly {
+                    ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address)
+                }.then { ens -> Promise<BlockieAndAddressOrEnsResolution> in
+                    return BlockiesGenerator().promise(address: address, ens: ens).map { image -> BlockieAndAddressOrEnsResolution in
+                        return (image, .resolved(.ensName(ens)))
+                    }.recover { _ -> Promise<BlockieAndAddressOrEnsResolution> in
+                        return .value((nil, .resolved(.ensName(ens))))
+                    }
+                }.done { value in
+                    seal.fulfill(value)
+                }.catch { _ in
+                    seal.fulfill((nil, .resolved(.none)))
+                }
+            } else if value.contains(".") {
+                inResolvingState = true
+
+                DomainResolver(server: .forResolvingEns).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
+                    GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value)
+                }.then { addr -> Promise<BlockieAndAddressOrEnsResolution> in
+                    return BlockiesGenerator().promise(address: addr).map { image -> BlockieAndAddressOrEnsResolution in
+                        return (image, .resolved(.address(addr)))
+                    }.recover { _ -> Promise<BlockieAndAddressOrEnsResolution> in
+                        return .value((nil, .resolved(.address(addr))))
+                    }
+                }.done { value in
+                    seal.fulfill(value)
+                }.catch { _ in
+                    seal.fulfill((nil, .resolved(.none)))
+                }
+            } else {
+                seal.fulfill((nil, .resolved(.none)))
+            }
+        }.ensure {
+            self.inResolvingState = false
+        }
+    }
+} 
