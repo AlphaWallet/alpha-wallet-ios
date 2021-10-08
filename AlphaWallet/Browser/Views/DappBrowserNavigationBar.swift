@@ -171,7 +171,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backwardForwardButtonStackView, textField, spacer2, homeButton, spacer3, moreButton])
         viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
-        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer2, homeButton, spacer3, moreButton])
+        viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backwardForwardButtonStackView, domainNameLabel, spacer1, closeButton, spacer3, moreButton])
 
         changeServerButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         changeServerButton.setContentHuggingPriority(.required, for: .horizontal)
