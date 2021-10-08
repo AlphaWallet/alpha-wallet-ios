@@ -32,6 +32,14 @@ protocol Logger {
     func error(_ message: Any)
 }
 
+extension Logger {
+    static var logFileURLs: [URL] {
+        guard let url = URL(string: DDLogger.logDirectory) else { return [] }
+
+        return (try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)) ?? []
+    }
+}
+
 class RemoteLogger {
     private let isActive: Bool
 
@@ -74,6 +82,10 @@ class RemoteLogger {
 
 final class DDLogger: Logger {
     static let instance = DDLogger()
+
+    static var logDirectory: String {
+        return DDLogFileManagerDefault().logsDirectory
+    }
 
     init() {
         let fileLogger = DDFileLogger(logFileManager: DDLogFileManagerDefault())
