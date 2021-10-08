@@ -279,20 +279,24 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
-        alertController.addAction(reloadAction)
-        alertController.addAction(myBookmarksAction)
-        alertController.addAction(historyAction)
-        alertController.addAction(setAsHomePageAction)
-        alertController.addAction(shareAction)
-        alertController.addAction(addBookmarkAction)
-        alertController.addAction(switchNetworkAction)
+        let mappedAlertActionsToDisplay: [(action: UIAlertAction, flag: Bool)] = [
+            (action: reloadAction, flag: true),
+            (action: myBookmarksAction, flag: !browserOnly),
+            (action: historyAction, flag: !browserOnly),
+            (action: setAsHomePageAction, flag: !browserOnly),
+            (action: shareAction, flag: true),
+            (action: addBookmarkAction, flag: !browserOnly),
+            (action: switchNetworkAction, flag: !browserOnly),
+            (action: scanQrCodeAction, flag: !browserOnly),
+            (action: cancelAction, flag: true)
+        ]
 
-        if browserOnly {
-            //no-op
-        } else {
-            alertController.addAction(scanQrCodeAction)
+        for each in mappedAlertActionsToDisplay {
+            guard each.flag else { continue }
+
+            alertController.addAction(each.action)
         }
-        alertController.addAction(cancelAction)
+        
         return alertController
     }
 
