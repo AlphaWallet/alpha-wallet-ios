@@ -103,6 +103,8 @@ public struct Constants {
 
     static let gasNowEndpointBaseUrl = "https://www.gasnow.org"
     static let highStandardGasThresholdGwei = BigInt(55)
+    //DAS
+    static let dasLookupURL = URL(string: "https://indexer.da.systems/")!
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
@@ -198,4 +200,10 @@ public struct UnitConfiguration {
     public static let gasPriceUnit: EthereumUnit = .gwei
     public static let gasFeeUnit: EthereumUnit = .ether
     public static let finneyUnit: EthereumUnit = .finney
+}
+
+extension URL {
+    static var forResolvingDAS: URL {
+        return Constants.dasLookupURL
+    }
 }
