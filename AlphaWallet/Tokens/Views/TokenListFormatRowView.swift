@@ -197,6 +197,8 @@ class TokenListFormatRowView: UIView {
                     if url == viewModel.thumbnailImageUrl {
                         strongSelf.thumbnailImageView.image = image
                     }
+                } else {
+                    verbose("Loading thumbnail URL: \(url.absoluteString) error")
                 }
             }
         }
