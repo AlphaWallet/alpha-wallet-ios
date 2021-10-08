@@ -361,15 +361,20 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         struct Error: Swift.Error {
         }
         let uri = originalUri.rewrittenIfIpfs
-
+        //TODO check this doesn't print duplicates, including unnecessary fetches
+        verbose("Fetching token URI: \(originalUri.absoluteString)…")
         return firstly {
             //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
             sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
-        }.map(on: queue, { data, _ in
+        }.map(on: queue, { (data, _) -> String in
             if let json = try? JSON(data: data) {
+                if let errorMessage = json["error"].string {
+                    verbose("Fetched token URI: \(originalUri.absoluteString) error: \(errorMessage)")
+                }
                 if json["error"] == "Internal Server Error" {
                     throw Error()
                 } else {
+                    verbose("Fetched token URI: \(originalUri.absoluteString)")
                     var jsonDictionary = json
                     if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
                         jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
@@ -391,9 +396,13 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                     }
                 }
             } else {
+                verbose("Fetched token URI: \(originalUri.absoluteString) failed")
                 throw Error()
             }
-        })
+        }).recover { error -> Promise<String> in
+            verbose("Fetching token URI: \(originalUri) error: \(error)")
+            throw error
+        }
     }
 
     private func updateOpenSeaNonFungiblesBalanceAndAttributes(contractToOpenSeaNonFungibles: [AlphaWallet.Address: [OpenSeaNonFungible]], tokens: [Activity.AssignedToken]) -> Promise<[TokenBatchOperation]> {
