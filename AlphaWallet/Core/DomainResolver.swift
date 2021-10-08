@@ -51,14 +51,23 @@ class DomainResolver {
             return .value(value)
         }
 
+        return DASNameLookupCoordinator()
+            .resolve(rpcURL: .forResolvingDAS, value: input)
+            .recover { _ -> Promise<AlphaWallet.Address> in
+                self.domainResolvation(domain: input)
+            }.get { address in
+                self.cache(forNode: node, result: address)
+            }
+    }
+
+    private func domainResolvation(domain: String) -> Promise<AlphaWallet.Address> {
         guard let resolution = resolution else { return .init(error: AnyError.invalidAddress) }
 
         return Promise { seal in
-            resolution.addr(domain: input, ticker: self.ticker) { result in
+            resolution.addr(domain: domain, ticker: self.ticker) { result in
                 switch result {
                 case .success(let value):
                     if let address = AlphaWallet.Address(string: value) {
-                        self.cache(forNode: node, result: address)
 
                         seal.fulfill(address)
                     } else {
