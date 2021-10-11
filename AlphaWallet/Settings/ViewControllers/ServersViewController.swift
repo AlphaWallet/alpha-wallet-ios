@@ -8,7 +8,7 @@ protocol ServersViewControllerDelegate: AnyObject {
 
 class ServersViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self

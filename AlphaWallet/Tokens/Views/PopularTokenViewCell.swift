@@ -25,17 +25,14 @@ class PopularTokenViewCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        let col0 = tokenIconImageView
-        let col1 = [
-            [titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)
-        ].asStackView(axis: .vertical, spacing: 2)
-        let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
+        let stackView = [
+            tokenIconImageView, titleLabel, UIView.spacerWidth(flexible: true)
+        ].asStackView(axis: .horizontal, spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        background.addSubview(stackView)
+        background.addSubview(stackView) 
 
         NSLayoutConstraint.activate([
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),

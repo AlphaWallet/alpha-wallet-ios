@@ -46,7 +46,7 @@ class TokensViewController: UIViewController {
     lazy private var tableViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
     lazy private var collectiblesCollectionViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)

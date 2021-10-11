@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SettingViewHeader: UITableViewHeaderFooterView {
+class SettingViewHeader: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -37,27 +37,26 @@ class SettingViewHeader: UITableViewHeaderFooterView {
 
     private var topSeparatorHeight: NSLayoutConstraint!
 
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
+    init() {
+        super.init(frame: .zero)
 
         let stackView = [
             topSeparator,
             .spacer(height: 13, backgroundColor: .clear),
-            [.spacerWidth(16), titleLabel, detailsLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
+            [.spacerWidth(16), titleLabel, detailsLabel, .spacerWidth(16)].asStackView(axis: .horizontal, alignment: .center),
             .spacer(height: 13, backgroundColor: .clear),
             bottomSperator
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(stackView)
-
-        NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            bottomSperator.heightAnchor.constraint(equalToConstant: 1)
-        ])
+        addSubview(stackView)
 
         topSeparatorHeight = topSeparator.heightAnchor.constraint(equalToConstant: 1)
-        topSeparatorHeight.isActive = true
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: self),
+            bottomSperator.heightAnchor.constraint(equalToConstant: 1),
+            topSeparatorHeight
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -74,7 +73,7 @@ class SettingViewHeader: UITableViewHeaderFooterView {
         detailsLabel.font = viewModel.detailsTextFont
         topSeparator.backgroundColor = viewModel.separatorColor
         bottomSperator.backgroundColor = viewModel.separatorColor
-        contentView.backgroundColor = viewModel.backgroundColor
+        backgroundColor = viewModel.backgroundColor
         topSeparatorHeight.constant = viewModel.showTopSeparator ? 1 : 0
     }
 }

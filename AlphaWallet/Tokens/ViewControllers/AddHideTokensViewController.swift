@@ -20,17 +20,13 @@ class AddHideTokensViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
-        tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
         tableView.registerHeaderFooterView(TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>>.self)
+        //NOTE: Facing strange behavoir, while using isEditing for table view it brakes constraints while `isEditing = false` its not.
         tableView.isEditing = true
-        tableView.estimatedRowHeight = 100
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.separatorInset = .zero
-        tableView.contentInset = .zero
-        tableView.contentOffset = .zero
-        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: 0.01))
+        tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
@@ -45,7 +41,6 @@ class AddHideTokensViewController: UIViewController {
     }()
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
-
     weak var delegate: AddHideTokensViewControllerDelegate?
 
     init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
@@ -270,6 +265,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
 }
 
 extension AddHideTokensViewController: UITableViewDelegate {
+
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         viewModel.editingStyle(indexPath: indexPath)
     }
@@ -292,26 +288,17 @@ extension AddHideTokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch viewModel.sections[section] {
         case .sortingFilters:
-            let header: TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>> = tableView.dequeueReusableHeaderFooterView()
+            let header = TokensViewController.ContainerView(subview: tokenFilterView)
             header.useSeparatorLine = true
-            header.subview = tokenFilterView
-
             return header
         case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
-            let view: AddHideTokenSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
-            view.configure(viewModel: .init(text: viewModel.titleForSection(section)))
-            
-            return view
+            let viewModel: AddHideTokenSectionHeaderViewModel = .init(titleText: self.viewModel.titleForSection(section))
+            return AddHideTokensViewController.functional.headerView(for: section, viewModel: viewModel)
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch viewModel.sections[section] {
-        case .sortingFilters:
-            return 60
-        case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
-            return 65
-        }
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
     }
 
     //Hide the footer

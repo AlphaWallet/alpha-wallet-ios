@@ -37,6 +37,8 @@ class TextView: UIControl {
         }
         set {
             textView.text = newValue
+            let notification = Notification(name: UITextView.textDidChangeNotification, object: textView)
+            notifications.post(notification)
         }
     }
     var inputAccessoryButtonType = InputAccessoryButtonType.none {
@@ -90,26 +92,55 @@ class TextView: UIControl {
         button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        button.contentEdgeInsets = .zero
         
+        return button
+    }()
+
+    var clearButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Clear", for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.setBackgroundColor(.clear, forState: .normal)
+        button.contentHorizontalAlignment = .right
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        button.contentEdgeInsets = .zero
+
         return button
     }()
 
     private var isConfigured = false
     weak var delegate: TextViewDelegate?
+    private let notifications = NotificationCenter.default
 
     init() {
         super.init(frame: .zero)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
         translatesAutoresizingMaskIntoConstraints = false
 
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
         textView.textContainerInset = .init(top: 10, left: 12, bottom: 10, right: 12)
+
+        updateClearAndPasteButtons(value)
+
         addSubview(textView)
 
         NSLayoutConstraint.activate([
             textView.anchorsConstraint(to: self),
         ])
+
+        notifications.addObserver(self,
+                                  selector: #selector(textDidChangeNotification),
+                                  name: UITextView.textDidChangeNotification, object: nil)
+    }
+
+    @objc func clearAction() {
+        value = String()
+        errorState = .none
     }
 
     var statusContainerView: UIStackView {
@@ -124,6 +155,7 @@ class TextView: UIControl {
 
         let addressControlsStackView = [
             pasteButton,
+            clearButton
         ].asStackView(axis: .horizontal)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -138,7 +170,7 @@ class TextView: UIControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
             addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
             addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
             addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
@@ -146,6 +178,19 @@ class TextView: UIControl {
         ])
 
         return stackView
+    }
+
+    @objc private func textDidChangeNotification(_ notification: Notification) {
+        guard textView == notification.object as? UITextView, let text = textView.text else {
+            return
+        }
+
+        updateClearAndPasteButtons(text)
+    }
+
+    private func updateClearAndPasteButtons(_ text: String) {
+        clearButton.isHidden = text.isEmpty
+        pasteButton.isHidden = !text.isEmpty
     }
 
     func configureOnce() {
