@@ -28,17 +28,13 @@ class WalletTokenViewCell: UITableViewCell {
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
-        cryptoValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        cryptoValueLabel.setContentHuggingPriority(.required, for: .horizontal)
-
-        let col0 = tokenIconImageView
-        let col1 = [
+        let stackView = [
+            tokenIconImageView,
             [cryptoValueLabel, titleLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)
-        ].asStackView(axis: .vertical, spacing: 2)
-        let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
+        ].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
-
+        
         NSLayoutConstraint.activate([
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),

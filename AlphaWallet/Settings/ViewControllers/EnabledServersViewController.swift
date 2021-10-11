@@ -16,7 +16,7 @@ class EnabledServersViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let headers = (mainnet: EnableServersHeaderView(), testnet: EnableServersHeaderView())
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine

@@ -11,7 +11,20 @@ protocol AccountsViewControllerDelegate: AnyObject {
 
 class AccountsViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView()
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.register(AccountViewCell.self)
+        tableView.register(WalletSummaryTableViewCell.self)
+        tableView.addSubview(tableViewRefreshControl)
+        return tableView
+    }()
     private var viewModel: AccountsViewModel
     private let config: Config
     private let keystore: Keystore
@@ -30,28 +43,14 @@ class AccountsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
-        
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
-
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
-        tableView.tableFooterView = UIView()
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.register(AccountViewCell.self)
-        tableView.register(WalletSummaryTableViewCell.self)
-        tableView.addSubview(tableViewRefreshControl)
         roundedBackground.addSubview(tableView)
 
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        NSLayoutConstraint.activate(
+            tableView.anchorsConstraintSafeArea(to: roundedBackground) +
+            roundedBackground.createConstraintsWithContainer(view: view)
+        )
     }
 
     private lazy var tableViewRefreshControl: UIRefreshControl = {
@@ -208,6 +207,10 @@ extension AccountsViewController: UITableViewDataSource {
 }
 
 extension AccountsViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return viewModel.shouldHideHeader(in: section).shouldHide ? .leastNormalMagnitude : UITableView.automaticDimension
+    }
 
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let value = viewModel.shouldHideHeader(in: section)

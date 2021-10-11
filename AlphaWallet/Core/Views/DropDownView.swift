@@ -63,7 +63,8 @@ final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewTy
         button.setImage(R.image.iconsSystemExpandMore(), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
         button.semanticContentAttribute = .forceRightToLeft
-
+        button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
+        
         return button
     }()
 

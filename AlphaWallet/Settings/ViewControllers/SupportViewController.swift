@@ -17,7 +17,6 @@ class SupportViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reusableIdentifier)
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background

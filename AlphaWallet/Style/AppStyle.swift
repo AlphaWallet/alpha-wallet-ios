@@ -19,6 +19,29 @@ func applyStyle() {
         .font: Fonts.bold(size: 36) as Any,
     ]
 
+    // NOTE: Fixes iOS 15 navigation bar black background
+    if #available(iOS 15.0, *) {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = Colors.appBackground
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    } else {
+        // Fallback on earlier versions
+    }
+
+    if #available(iOS 13.0, *) {
+        //NOTE: Hides back button text
+        let titleTextAttributes: [NSAttributedString.Key : Any] = [
+            .foregroundColor: UIColor.clear
+        ]
+        UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
+        UINavigationBar.appearance().compactAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
+        UINavigationBar.appearance().scrollEdgeAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
+    } else {
+        // Fallback on earlier versions
+    }
+
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
     UIBarButtonItem.appearance().tintColor = Colors.navigationButtonTintColor
