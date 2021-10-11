@@ -22,7 +22,7 @@ func verbose(_ message: Any, _ loggger: Logger = DDLogger.instance) {
 
 func error(_ message: Any, _ loggger: Logger = DDLogger.instance) {
     loggger.error(message)
-} 
+}
 
 protocol Logger {
     func debug(_ message: Any)
@@ -92,7 +92,7 @@ final class DDLogger: Logger {
         fileLogger.rollingFrequency = 60 * 60 * 24
         fileLogger.logFileManager.maximumNumberOfLogFiles = 7
 
-        DDLog.add(DDASLLogger.sharedInstance)
+        DDLog.add(DDASLLogger.sharedInstance, with: .debug)
         DDLog.add(fileLogger, with: .info)
     }
 
