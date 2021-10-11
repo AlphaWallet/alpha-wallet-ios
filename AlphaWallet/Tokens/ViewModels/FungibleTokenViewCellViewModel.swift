@@ -71,7 +71,7 @@ struct FungibleTokenViewCellViewModel {
                 return "-"
             }
         }()
-        
+
         return NSAttributedString(string: apprecation24hours, attributes: [
             .foregroundColor: valuePercentageChangeColor,
             .font: Screen.TokenCard.Font.valueChangeLabel
@@ -103,7 +103,7 @@ struct FungibleTokenViewCellViewModel {
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
     }
-    
+
     private var fiatValue: String {
         if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.optionalDecimalValue) {
             return NumberFormatter.usd(format: .fiatFormat).string(from: fiatValue) ?? "-"

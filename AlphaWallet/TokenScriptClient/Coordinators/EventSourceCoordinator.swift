@@ -126,6 +126,7 @@ extension EventSourceCoordinator.functional {
                 }).done(on: queue, { _ in
                     seal.fulfill(())
                 }).catch(on: queue, { e in
+                    error(value: e, rpcServer: tokenServer, address: contractAddress)
                     seal.reject(e)
                 })
             }
