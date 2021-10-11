@@ -44,6 +44,7 @@ class RemoteLogger {
     private let isActive: Bool
 
     static var instance: RemoteLogger = .init()
+    private let logger = DDLog()
 
     private init() {
         guard !Constants.Credentials.paperTrail.host.isEmpty else {
@@ -58,17 +59,17 @@ class RemoteLogger {
         let paperTrailLogger: RMPaperTrailLogger = RMPaperTrailLogger.sharedInstance()!
         paperTrailLogger.host = Constants.Credentials.paperTrail.host
         paperTrailLogger.port = Constants.Credentials.paperTrail.port
-        DDLog.add(paperTrailLogger)
+        logger.add(paperTrailLogger)
     }
 
     private func logRpcErrorMessage(_ message: String) {
         guard isActive else { return }
-        DDLogVerbose("Build: \(Bundle.main.buildNumber!) | RPC node error: \(message)")
+        DDLogVerbose("Build: \(Bundle.main.buildNumber!) | RPC node error: \(message)", ddlog: logger)
     }
 
     private func logOtherWebApiErrorMessage(_ message: String) {
         guard isActive else { return }
-        DDLogVerbose("Build: \(Bundle.main.buildNumber!) | Other web API error: \(message)")
+        DDLogVerbose("Build: \(Bundle.main.buildNumber!) | Other web API error: \(message)", ddlog: logger)
     }
 
     func logRpcOrOtherWebError(_ message: String, url: String) {
@@ -86,33 +87,34 @@ final class DDLogger: Logger {
     static var logDirectory: String {
         return DDLogFileManagerDefault().logsDirectory
     }
+    private let logger = DDLog()
 
     init() {
         let fileLogger = DDFileLogger(logFileManager: DDLogFileManagerDefault())
         fileLogger.rollingFrequency = 60 * 60 * 24
         fileLogger.logFileManager.maximumNumberOfLogFiles = 7
 
-        DDLog.add(DDASLLogger.sharedInstance, with: .debug)
-        DDLog.add(fileLogger, with: .info)
+        logger.add(DDASLLogger.sharedInstance, with: .debug)
+        logger.add(fileLogger, with: .info)
     }
 
     func debug(_ message: Any) {
-        DDLogDebug(message)
+        DDLogDebug(message, ddlog: logger)
     }
 
     func info(_ message: Any) {
-        DDLogInfo(message)
+        DDLogInfo(message, ddlog: logger)
     }
 
     func warn(_ message: Any) {
-        DDLogWarn(message)
+        DDLogWarn(message, ddlog: logger)
     }
 
     func verbose(_ message: Any) {
-        DDLogVerbose(message)
+        DDLogVerbose(message, ddlog: logger)
     }
 
     func error(_ message: Any) {
-        DDLogError(message)
+        DDLogError(message, ddlog: logger)
     }
 }
