@@ -8,11 +8,13 @@
 import UIKit
 
 class GasSpeedTableViewCell: UITableViewCell {
+    static let height: CGFloat = CGFloat(100)
 
     private let estimatedTimeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 0 
+
         return label
     }()
 
@@ -20,6 +22,7 @@ class GasSpeedTableViewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
+
         return label
     }()
 
@@ -51,10 +54,6 @@ class GasSpeedTableViewCell: UITableViewCell {
 
         let row = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), col0, col1, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal)
 
-        let separator = UIView()
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = R.color.mercury()
-
         let stackView = [
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20),
             row,
@@ -64,14 +63,9 @@ class GasSpeedTableViewCell: UITableViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(stackView)
-        addSubview(separator)
 
         NSLayoutConstraint.activate([
             col1.widthAnchor.constraint(equalToConstant: 100),
-            separator.heightAnchor.constraint(equalToConstant: 1),
-            separator.leadingAnchor.constraint(equalTo: leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: trailingAnchor),
-            separator.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
