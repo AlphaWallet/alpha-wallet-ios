@@ -245,13 +245,12 @@ class InCoordinatorTests: XCTestCase {
 import PromiseKit
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
-
-    var tickers: [AddressAndRPCServer: CoinTicker] = [:]
-
-    func fetchPrices(forTokens tokens: ServerDictionary<[TokenMappedToTicker]>) -> Promise<Void> {
+    
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
         return .value(())
     }
+
+    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
 
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
         return .value([])
@@ -260,4 +259,9 @@ final class FakeCoinTickersFetcher: CoinTickersFetcherType {
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
         return Promise { _ in }
     }
+
+    func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
+        return nil
+    }
+
 }
