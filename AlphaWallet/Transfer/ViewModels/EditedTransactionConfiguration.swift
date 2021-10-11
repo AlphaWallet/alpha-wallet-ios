@@ -27,8 +27,8 @@ struct EditedTransactionConfiguration {
     var dataRawValue: String
     var nonceRawValue: Int?
 
-    var overridenMaxGasPrice: Int?
-    var overridenMaxGasLimit: Int?
+    var overriddenMaxGasPrice: Int?
+    var overriddenMaxGasLimit: Int?
 
     let defaultMinGasLimit = Int(GasLimitConfiguration.minGasLimit)
     let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
@@ -37,16 +37,16 @@ struct EditedTransactionConfiguration {
     private let defaultMaxGasPrice: Int = Int(GasPriceConfiguration.maxPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
 
     var maxGasPrice: Int {
-        if let overridenValue = overridenMaxGasPrice {
-            return overridenValue
+        if let overriddenValue = overriddenMaxGasPrice {
+            return overriddenValue
         } else {
             return defaultMaxGasPrice
         }
     }
 
     var maxGasLimit: Int {
-        if let overridenValue = overridenMaxGasLimit {
-            return overridenValue
+        if let overriddenValue = overriddenMaxGasLimit {
+            return overriddenValue
         } else {
             return defaultMaxGasLimit
         }
@@ -54,17 +54,17 @@ struct EditedTransactionConfiguration {
 
     mutating func updateMaxGasLimitIfNeeded(_ value: Int) {
         if value > defaultMaxGasLimit {
-            overridenMaxGasLimit = value
+            overriddenMaxGasLimit = value
         } else if value < defaultMinGasLimit {
-            overridenMaxGasLimit = nil
+            overriddenMaxGasLimit = nil
         }
     }
 
     mutating func updateMaxGasPriceIfNeeded(_ value: Int) {
         if value > defaultMaxGasPrice {
-            overridenMaxGasPrice = value
+            overriddenMaxGasPrice = value
         } else if value < defaultMaxGasPrice {
-            overridenMaxGasPrice = nil
+            overriddenMaxGasPrice = nil
         }
     }
 
