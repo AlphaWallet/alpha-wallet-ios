@@ -75,8 +75,8 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker? {
         //NOTE: If it doesn't include the price for the native token, hardwire it to use Ethereum's mainnet's native token price.
         if addressAndPRCServer.server == .arbitrum && addressAndPRCServer.address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-            let overridenAddressAndPRCServer: AddressAndRPCServer = .init(address: Constants.nativeCryptoAddressInDatabase, server: .main)
-            return cache.tickers[overridenAddressAndPRCServer]
+            let overriddenAddressAndPRCServer: AddressAndRPCServer = .init(address: Constants.nativeCryptoAddressInDatabase, server: .main)
+            return cache.tickers[overriddenAddressAndPRCServer]
         } else {
             return cache.tickers[addressAndPRCServer]
         }
