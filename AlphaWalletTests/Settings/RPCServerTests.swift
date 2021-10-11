@@ -24,19 +24,19 @@ class RPCServerTests: XCTestCase {
     }
 
     func testInitByNameCorrect() {
-        for each in RPCServer.allCases {
+        for each in RPCServer.availableServers {
             XCTAssertEqual(RPCServer(name: each.name), each)
         }
     }
 
     func testInitByChainIdCorrect() {
-        for each in RPCServer.allCases {
+        for each in RPCServer.availableServers {
             XCTAssertEqual(RPCServer(chainID: each.chainID), each)
         }
     }
 
     func testDisplayOrderPriorityUnique() {
-        let all = RPCServer.allCases
+        let all = RPCServer.availableServers
         let orders = Set(all.map(\.displayOrderPriority))
         XCTAssertEqual(orders.count, all.count)
     }
