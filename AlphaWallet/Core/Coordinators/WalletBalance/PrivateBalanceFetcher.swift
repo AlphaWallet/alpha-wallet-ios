@@ -102,14 +102,19 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 seal.fulfill(tokenObjects)
             }
         }.then(on: queue, { tokenObjects in
-            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: false)
+            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: force)
+        }).recover(on: queue, { e -> Promise<Void> in
+            error(value: e)
+            throw e
         })
     }
 
     private func refreshBalanceForNonErc721Or1155Tokens(tokens: [Activity.AssignedToken]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
         assert(!tokens.contains { $0.isERC721Or1155AndNotForTickets })
+        guard !tokens.isEmpty else { return .value([]) }
 
         let promises = tokens.map { getBalanceForNonErc721Or1155Tokens(forToken: $0) }
+        let id = UUID().uuidString
 
         return when(resolved: promises).map { values -> [PrivateBalanceFetcher.TokenBatchOperation] in
             return values.compactMap { $0.optionalValue }.compactMap { $0 }
@@ -143,9 +148,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 //NOTE: taking for first element means that values was updated
                 return values.compactMap { $0.optionalValue }.compactMap { $0 }.first
             })
-        }.get(on: queue, { balanceValueHasChange in
+        }.ensure({
             self.isRefeshingBalance = false
-
+        }).get(on: queue, { balanceValueHasChange in
             if let value = balanceValueHasChange, value {
                 self.delegate?.didUpdate(in: self)
             }
@@ -171,6 +176,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let promise1 = refreshBalanceForNonErc721Or1155Tokens(tokens: notErc721Or1155Tokens)
         let promise2 = refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
         let tokensDatastore = self.tokensDatastore
+
         return when(resolved: [promise1, promise2]).then(on: queue, { value -> Promise<Bool?> in
             let resolved: [TokenBatchOperation] = value.compactMap { $0.optionalValue }.flatMap { $0 }
             return tokensDatastore.batchUpdateTokenPromise(resolved).recover { _ -> Guarantee<Bool?> in
@@ -182,6 +188,15 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     enum TokenBatchOperation {
         case add(ERCToken, shouldUpdateBalance: Bool)
         case update(tokenObject: Activity.AssignedToken, action: TokensDataStore.TokenUpdateAction)
+
+        var updateAction: TokensDataStore.TokenUpdateAction? {
+            switch self {
+            case .add:
+                return nil
+            case .update(_, let action):
+                return action
+            }
+        }
     }
 
     private func getBalanceForNonErc721Or1155Tokens(forToken tokenObject: Activity.AssignedToken) -> Promise<TokenBatchOperation?> {
@@ -213,6 +228,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
     private func refreshBalanceForErc721Or1155Tokens(tokens: [Activity.AssignedToken]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
         assert(!tokens.contains { !$0.isERC721Or1155AndNotForTickets })
+        guard !tokens.isEmpty else { return .value([]) }
+
         return firstly {
             getTokensFromOpenSea()
         }.then(on: queue, { [weak self] contractToOpenSeaNonFungibles -> Guarantee<[PrivateBalanceFetcher.TokenBatchOperation]> in

@@ -125,6 +125,8 @@ class InCoordinator: NSObject, Coordinator {
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
 
         service.register(service: quickSwap)
+        service.register(service: ArbitrumBridge())
+        service.register(service: xDaiBridge())
 
         return service
     }()
@@ -967,7 +969,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         logTappedSwap(service: service)
         guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
-        if let server = service.rpcServer {
+        if let server = service.rpcServer(forToken: token) {
             open(url: url, onServer: server)
         } else {
             open(for: url)

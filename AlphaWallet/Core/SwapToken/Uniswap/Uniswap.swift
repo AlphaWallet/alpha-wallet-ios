@@ -12,8 +12,9 @@ struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
     }
-    var rpcServer: RPCServer? {
-        .main
+    
+    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer? {
+        return .main
     }
 
     var analyticsName: String {

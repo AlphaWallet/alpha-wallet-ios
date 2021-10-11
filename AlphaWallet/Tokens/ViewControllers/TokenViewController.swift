@@ -256,20 +256,12 @@ class TokenViewController: UIViewController {
                 } else {
                     delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
                 }
-            case .xDaiBridge:
-                delegate?.shouldOpen(url: Constants.xDaiBridge, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
-            case .buy(let service):
-                var tokenObject: TokenActionsServiceKey?
-                switch transactionType {
-                case .nativeCryptocurrency(let token, _, _):
-                    tokenObject = TokenActionsServiceKey(tokenObject: token)
-                case .erc20Token(let token, _, _):
-                    tokenObject = TokenActionsServiceKey(tokenObject: token)
-                case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                    tokenObject = .none
-                }
+            case .bridge(let service):
+                guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
-                guard let token = tokenObject, let url = service.url(token: token) else { return }
+                delegate?.shouldOpen(url: url, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
+            case .buy(let service):
+                guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
                 logStartOnRamp(name: "Ramp")
                 delegate?.shouldOpen(url: url, shouldSwitchServer: false, forTransactionType: transactionType, inViewController: self)
