@@ -895,6 +895,8 @@
 		87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EC24AF1565002130D2 /* KeyboardChecker.swift */; };
 		87D457F526677CBF00BA1442 /* ERC20BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */; };
 		87D457F726677CD300BA1442 /* NativecryptoBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */; };
+		87D949BB2710553000A96A85 /* DASLookupRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D949BA2710553000A96A85 /* DASLookupRequest.swift */; };
+		87D949BD2710559700A96A85 /* DASNameLookupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D949BC2710559700A96A85 /* DASNameLookupCoordinator.swift */; };
 		87DB61C1264A94CD009FBDDE /* ABI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DB61C0264A94CD009FBDDE /* ABI.swift */; };
 		87DB61C3264A9611009FBDDE /* ERC20.json in Resources */ = {isa = PBXBuildFile; fileRef = 87DB61C2264A9611009FBDDE /* ERC20.json */; };
 		87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DCCB50266F655D003E8EA0 /* WalletSummaryViewModel.swift */; };
@@ -1897,6 +1899,8 @@
 		87D175EC24AF1565002130D2 /* KeyboardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardChecker.swift; sourceTree = "<group>"; };
 		87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20BalanceViewModel.swift; sourceTree = "<group>"; };
 		87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativecryptoBalanceViewModel.swift; sourceTree = "<group>"; };
+		87D949BA2710553000A96A85 /* DASLookupRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASLookupRequest.swift; sourceTree = "<group>"; };
+		87D949BC2710559700A96A85 /* DASNameLookupCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASNameLookupCoordinator.swift; sourceTree = "<group>"; };
 		87DB61C0264A94CD009FBDDE /* ABI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABI.swift; sourceTree = "<group>"; };
 		87DB61C2264A9611009FBDDE /* ERC20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ERC20.json; sourceTree = "<group>"; };
 		87DCCB50266F655D003E8EA0 /* WalletSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryViewModel.swift; sourceTree = "<group>"; };
@@ -2280,6 +2284,7 @@
 				664D11A02007D59F0041A0B0 /* EstimateGasRequest.swift */,
 				5E7C7ADC229B4038964F417C /* EthCalllRequest.swift */,
 				5E7C7DA5F3C065F96CCB34B4 /* EthChainIdRequest.swift */,
+				87D949BA2710553000A96A85 /* DASLookupRequest.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -3117,6 +3122,7 @@
 				5E7C769E7A78811BDF9463A3 /* GetWalletNameCoordinator.swift */,
 				5E7C777C420B7E1C1E6FCF00 /* GetIsERC1155ContractCoordinator.swift */,
 				87A97D7626FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift */,
+				87D949BC2710559700A96A85 /* DASNameLookupCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -5427,6 +5433,7 @@
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
 				29C70C712016C7780072E454 /* SentTransaction.swift in Sources */,
 				87ED8F99248541380005C69B /* AdvancedSettingsViewModel.swift in Sources */,
+				87D949BB2710553000A96A85 /* DASLookupRequest.swift in Sources */,
 				AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */,
 				29E9CFD21FE737FE00017744 /* TrustRealmConfiguration.swift in Sources */,
 				2959961C1FAE3EDF00DB66A8 /* AlphaWalletService.swift in Sources */,
@@ -5783,6 +5790,7 @@
 				5E7C749615D227B91E40B274 /* TokenViewControllerHeaderView.swift in Sources */,
 				5E7C72EECA8154CEB7D9F46C /* ContainerViewWithShadow.swift in Sources */,
 				5E7C7A9628548EB8AB8B7A26 /* TokenCollection.swift in Sources */,
+				87D949BD2710559700A96A85 /* DASNameLookupCoordinator.swift in Sources */,
 				878EE951255BEC20000210DE /* ItemType.swift in Sources */,
 				5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */,
 				5E7C70F550D982833859D8B4 /* MigrationInitializer.swift in Sources */,
