@@ -24,12 +24,16 @@ class ConfigureTransactionViewController: UIViewController {
     weak var delegate: ConfigureTransactionViewControllerDelegate?
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(GasSpeedTableViewCell.self)
         tableView.registerHeaderFooterView(GasSpeedTableViewHeaderView.self)
         tableView.tableFooterView = createTableFooter()
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = R.color.mercury()
+        tableView.separatorInset = .zero
         tableView.allowsSelection = true
+        tableView.rowHeight = UITableView.automaticDimension
+
         return tableView
     }()
 
@@ -71,10 +75,9 @@ class ConfigureTransactionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         tableView.delegate = self
         tableView.dataSource = self
-
+        
         recalculateTotalFeeForCustomGas()
     }
 
@@ -453,7 +456,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
 extension ConfigureTransactionViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+        return GasSpeedTableViewCell.height
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -476,14 +479,14 @@ extension ConfigureTransactionViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch viewModel.sections[section] {
         case .configurationTypes:
-            return 0.01
+            return .leastNormalMagnitude
         case .gasLimit, .gasPrice:
             return GasSpeedTableViewHeaderView.height
         }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.01
+        return .leastNormalMagnitude
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
