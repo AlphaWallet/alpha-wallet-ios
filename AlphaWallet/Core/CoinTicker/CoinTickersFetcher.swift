@@ -118,7 +118,15 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }.map { _ in }
     }
 
-    func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+    func fetchChartHistories(addressToRPCServerKey addressAndPRCServer: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        let addressToRPCServerKey: AddressAndRPCServer
+        //NOTE: If it doesn't include the price for the native token, hardwire it to use Ethereum's mainnet's native token price.
+        if addressAndPRCServer.server == .arbitrum && addressAndPRCServer.address.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            addressToRPCServerKey = .init(address: Constants.nativeCryptoAddressInDatabase, server: .main)
+        } else {
+            addressToRPCServerKey = addressAndPRCServer
+        }
+
         let promises: [Promise<ChartHistory>] = periods.map {
             fetchChartHistory(force: force, period: $0, for: addressToRPCServerKey)
         }
