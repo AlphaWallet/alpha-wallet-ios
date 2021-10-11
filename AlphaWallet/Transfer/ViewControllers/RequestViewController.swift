@@ -142,6 +142,8 @@ class RequestViewController: UIViewController {
 			scrollView.topAnchor.constraint(equalTo: view.topAnchor),
 			scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
+            copyAddressButton.widthAnchor.constraint(equalToConstant: 30),
+
             ensContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			ensContainerView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 40),
 
@@ -165,7 +167,6 @@ class RequestViewController: UIViewController {
 
 	private func configure() {
 		copyEnsButton.setImage(R.image.copy(), for: .normal)
-
 		copyAddressButton.setImage(R.image.copy(), for: .normal)
 
 		resolveEns()
