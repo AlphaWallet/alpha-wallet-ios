@@ -88,9 +88,6 @@ struct AccountsViewModel {
         if keystoreWallets.isEmpty && watchedWallets.isEmpty {
             return true
         }
-        if hdWallets.isEmpty && keystoreWallets.isEmpty {
-            return true
-        }
         if hdWallets.isEmpty && watchedWallets.isEmpty {
             return true
         }
