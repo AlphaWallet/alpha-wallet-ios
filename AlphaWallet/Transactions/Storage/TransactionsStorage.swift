@@ -322,7 +322,7 @@ class TransactionsStorage: Hashable {
     }
 
     static func deleteAllTransactions(realm: Realm) {
-        for each in RPCServer.allCases {
+        for each in RPCServer.availableServers {
             let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             transactionsStorage.deleteAll()
         }

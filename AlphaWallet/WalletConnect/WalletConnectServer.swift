@@ -25,7 +25,6 @@ protocol WalletConnectServerDelegate: AnyObject {
 }
 
 typealias WalletConnectRequest = WalletConnectSwift.Request
-
 typealias WalletConnectRequestID = WalletConnectSwift.RequestID
 
 extension WalletConnectSession {

@@ -711,12 +711,12 @@ enum RPCServer: Hashable, CaseIterable {
 
     init(name: String) {
         //TODO defaulting to .main is bad
-        self = Self.allCases.first { $0.name == name } ?? .main
+        self = Self.availableServers.first { $0.name == name } ?? .main
     }
 
     init(chainID: Int) {
         //TODO defaulting to .main is bad
-        self = Self.allCases.first { $0.chainID == chainID } ?? .main
+        self = Self.availableServers.first { $0.chainID == chainID } ?? .main
     }
 
     init?(withMagicLinkHost magicLinkHost: String) {
@@ -725,7 +725,7 @@ enum RPCServer: Hashable, CaseIterable {
         if magicLinkHost == Constants.legacyMagicLinkHost {
             server = .main
         } else {
-            server = Self.allCases.first { $0.magicLinkHost == magicLinkHost }
+            server = Self.availableServers.first { $0.magicLinkHost == magicLinkHost }
         }
         guard let createdServer = server else { return nil }
         self = createdServer
@@ -738,7 +738,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     //We'll have to manually new cases here
     //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
-    static var allCases: [RPCServer] {
+    static internal var allCases: [RPCServer] {
         return [
             .main,
             .kovan,
@@ -765,7 +765,11 @@ enum RPCServer: Hashable, CaseIterable {
             .optimistic,
             .optimisticKovan,
             .cronosTestnet,
-        ] + RPCServer.customServers
+        ]
+    }
+
+    static var availableServers: [RPCServer] {
+        allCases + RPCServer.customServers
     }
 
     private static func convertJsonToCustomRpcs(_ json: String?) -> [CustomRPC] {
@@ -826,4 +830,18 @@ extension URL {
             return URL(string: "\(urlString)?\(queryString)")
         }
 	}
+}
+
+extension RPCServer {
+    var conflictedServer: RPCServer? {
+        for each in RPCServer.availableServers {
+            if let index = RPCServer.allCases.index(where: { each == $0 }), each.isCustom {
+                return RPCServer.allCases[index]
+            } else {
+                continue
+            }
+        }
+
+        return nil
+    }
 }

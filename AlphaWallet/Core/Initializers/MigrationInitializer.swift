@@ -66,7 +66,7 @@ class MigrationInitializer: Initializer {
             if oldSchemaVersion < 7 {
                 //Fix bug where we marked all transactions as completed successfully without checking `isError` from Etherscan
                 migration.deleteData(forType: Transaction.className())
-                for each in RPCServer.allCases {
+                for each in RPCServer.availableServers {
                     Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
                 }
                 migration.deleteData(forType: EventActivity.className())
@@ -75,7 +75,7 @@ class MigrationInitializer: Initializer {
                 //Clear all transactions data so we can fetch them again and capture `LocalizedOperationObject` children correctly
                 migration.deleteData(forType: Transaction.className())
                 migration.deleteData(forType: LocalizedOperationObject.className())
-                for each in RPCServer.allCases {
+                for each in RPCServer.availableServers {
                     Config.setLastFetchedErc20InteractionBlockNumber(0, server: each, wallet: strongSelf.account.address)
                 }
                 migration.deleteData(forType: EventActivity.className())
@@ -136,7 +136,7 @@ extension MigrationInitializer {
 
         do {
             try realm.write {
-                for each in RPCServer.allCases {
+                for each in RPCServer.availableServers {
                     let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
@@ -163,7 +163,7 @@ extension MigrationInitializer {
                     }
                 }
             }
-            for each in RPCServer.allCases {
+            for each in RPCServer.availableServers {
                 let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
                 let realmUrl = migration.config.fileURL!
                 let realmUrls = [

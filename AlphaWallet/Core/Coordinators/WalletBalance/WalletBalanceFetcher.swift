@@ -65,13 +65,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         super.init()
 
         for each in servers {
-            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-            let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: each)
-            let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
-            balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
-            balanceFetcher.delegate = self
-
-            self.services[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
+            services[each] = createServices(wallet: wallet, server: each)
         }
 
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
@@ -85,11 +79,35 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func transactionsStorage(server: RPCServer) -> TransactionsStorage {
-        services[server].transactionsStorage
+        if let services = services[safe: server] {
+            return services.transactionsStorage
+        } else {
+            let subServices = createServices(wallet: wallet, server: server)
+            services[server] = subServices
+
+            return subServices.transactionsStorage
+        }
     }
 
     func tokensDatastore(server: RPCServer) -> TokensDataStore {
-        services[server].tokensDataStore
+        if let services = services[safe: server] {
+            return services.tokensDataStore
+        } else {
+            let subServices = createServices(wallet: wallet, server: server)
+            services[server] = subServices
+
+            return subServices.tokensDataStore
+        }
+    }
+
+    private func createServices(wallet: Wallet, server: RPCServer) -> WalletBalanceFetcherSubServices {
+        let transactionsStorage = TransactionsStorage(realm: realm, server: server, delegate: nil)
+        let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: server)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
+        balanceFetcher.delegate = self
+
+        return (tokensDatastore, balanceFetcher, transactionsStorage)
     }
 
     func update(servers: [RPCServer]) {
@@ -97,13 +115,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             if services[safe: each] != nil {
                 //no-op
             } else {
-                let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-                let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: each)
-                let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: each, assetDefinitionStore: assetDefinitionStore, queue: queue)
-                balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
-                balanceFetcher.delegate = self
-
-                services[each] = (tokensDatastore, balanceFetcher, transactionsStorage)
+                services[each] = createServices(wallet: wallet, server: each)
             }
         }
 
