@@ -159,8 +159,8 @@ class AddressOrEnsNameLabel: UILabel {
             } else if value.contains(".") {
                 inResolvingState = true
 
-                DomainResolver(server: .forResolvingEns).resolveAddress(value).recover { _ -> Promise<AlphaWallet.Address> in
-                    GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value)
+                GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value).recover { _ -> Promise<AlphaWallet.Address> in
+                    DomainResolver(server: .forResolvingEns).resolveAddress(value)
                 }.then { addr -> Promise<BlockieAndAddressOrEnsResolution> in
                     return BlockiesGenerator().promise(address: addr).map { image -> BlockieAndAddressOrEnsResolution in
                         return (image, .resolved(.address(addr)))
