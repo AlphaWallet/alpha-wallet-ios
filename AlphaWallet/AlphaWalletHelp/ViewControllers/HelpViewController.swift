@@ -24,7 +24,7 @@ class HelpViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(HelpViewCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -86,6 +86,22 @@ extension HelpViewController: UITableViewDataSource {
         let cell: HelpViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(text: rows[indexPath.row].title)
         return cell
+    }
+
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

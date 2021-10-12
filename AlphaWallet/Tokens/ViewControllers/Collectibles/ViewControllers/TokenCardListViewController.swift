@@ -65,7 +65,7 @@ class TokenCardListViewController: UIViewController {
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(TokenCardContainerTableViewCell.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100

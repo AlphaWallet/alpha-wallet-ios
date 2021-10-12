@@ -15,7 +15,7 @@ protocol MyDappsViewControllerDelegate: AnyObject {
 }
 
 class MyDappsViewController: UIViewController {
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     lazy private var headerView = MyDappsViewControllerHeaderView()
     private var viewModel: MyDappsViewControllerViewModel
     private var browserNavBar: DappBrowserNavigationBar? {
@@ -101,6 +101,21 @@ extension MyDappsViewController: StatefulViewController {
 }
 
 extension MyDappsViewController: UITableViewDataSource {
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MyDappCell = tableView.dequeueReusableCell(for: indexPath)
         let dapp = viewModel.dapp(atIndex: indexPath.row)

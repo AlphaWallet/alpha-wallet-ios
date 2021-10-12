@@ -33,7 +33,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let account: Wallet
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
     //TODO this wouldn't scale if there are many cells
     //Cache the cells used by position so we aren't dequeuing the standard UITableView way. This is so the webviews load the correct values, especially when scrolling
@@ -368,6 +368,21 @@ extension TokensCardViewController: VerifiableStatusViewController {
 }
 
 extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
     public func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfItems()
     }

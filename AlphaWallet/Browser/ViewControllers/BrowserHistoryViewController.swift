@@ -14,7 +14,7 @@ protocol BrowserHistoryViewControllerDelegate: AnyObject {
 
 final class BrowserHistoryViewController: UIViewController {
     private let store: HistoryStore
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private var viewModel: HistoriesViewModel
     lazy private var headerView = BrowserHistoryViewControllerHeaderView()
 
@@ -100,6 +100,21 @@ extension BrowserHistoryViewController: StatefulViewController {
 }
 
 extension BrowserHistoryViewController: UITableViewDataSource {
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows
     }
