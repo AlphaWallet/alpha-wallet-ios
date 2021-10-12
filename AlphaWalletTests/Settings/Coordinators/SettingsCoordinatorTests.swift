@@ -32,7 +32,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func restartToRemoveServer(in coordinator: SettingsCoordinator) {}
         }
 
-        let storage = FakeTransactionsStorage()
+        let storage = FakeTransactionsStorage(server: .main)
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make(), analyticsCoordinator: FakeAnalyticsService())
         let sessons = ServerDictionary<Any>.make(server: .main)
 
@@ -76,6 +76,17 @@ import PromiseKit
 
 final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
+    typealias Services = (TokensDataStore, TransactionsStorage)
+    private var services: ServerDictionary<Services> = ServerDictionary<Services>.init()
+
+    init(config: Config = .make(), account: Wallet = .make()) {
+        for each in config.enabledServers {
+            services[each] = (
+                FakeTokensDataStore(account: account, server: each),
+                FakeTransactionsStorage(server: each)
+            )
+        }
+    }
 
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance> {
         return .init(nil)
@@ -102,10 +113,10 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     }
     
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
-        FakeTransactionsStorage()
+        services[server].1
     }
 
     func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore {
-        FakeTokensDataStore()
+        services[server].0
     }
 }
