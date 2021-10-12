@@ -392,7 +392,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func addCustomWallet(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
+    private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
         let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -500,7 +500,7 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
             ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
         case .walletAddEthereumChain(let customChain):
-            addCustomWallet(callbackID: callbackID, customChain: customChain, inViewController: viewController)
+            addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
         case .walletSwitchEthereumChain(let targetChain):
             switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
         case .unknown, .sendRawTransaction:
