@@ -43,7 +43,7 @@ class TokenCardSelectionViewController: UIViewController {
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(SelectableTokenCardContainerTableViewCell.self)
         tableView.registerHeaderFooterView(TokenCardSelectionSectionHeaderView.self)
         tableView.dataSource = self

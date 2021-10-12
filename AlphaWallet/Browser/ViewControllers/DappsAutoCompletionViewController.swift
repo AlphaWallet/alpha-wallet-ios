@@ -10,7 +10,7 @@ protocol DappsAutoCompletionViewControllerDelegate: AnyObject {
 
 class DappsAutoCompletionViewController: UIViewController {
     private var viewModel: DappsAutoCompletionViewControllerViewModel
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     weak var delegate: DappsAutoCompletionViewControllerDelegate?
     var text: String {
         return viewModel.keyword
@@ -59,6 +59,21 @@ class DappsAutoCompletionViewController: UIViewController {
 }
 
 extension DappsAutoCompletionViewController: UITableViewDataSource {
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: DappsAutoCompletionCell = tableView.dequeueReusableCell(for: indexPath)
         let dapp = viewModel.dappSuggestions[indexPath.row]

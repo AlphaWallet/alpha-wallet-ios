@@ -137,6 +137,14 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         50
     }
 
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let server = viewModel.server(for: indexPath)
