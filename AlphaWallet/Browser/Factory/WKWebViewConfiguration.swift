@@ -61,7 +61,8 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTypedMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.ethCall.rawValue)
-        webViewConfig.userContentController.add(messageHandler, name: WalletCommand.Method.walletAddEthereumChain.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: AddCustomChainCommand.Method.walletAddEthereumChain.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: SwitchChainCommand.Method.walletSwitchEthereumChain.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: BrowserViewController.locationChangedEventName)
         //TODO extract like `Method.signTypedMessage.rawValue` when we have more than 1
         webViewConfig.userContentController.add(messageHandler, name: TokenInstanceWebView.SetProperties.setActionProps)
@@ -122,6 +123,13 @@ extension WKWebViewConfiguration {
                        console.log("walletAddEthereumChain", msgParams)
                        AlphaWallet.addCallback(id, cb)
                        webkit.messageHandlers.walletAddEthereumChain.postMessage({"name": "walletAddEthereumChain", "object": data, id: id})
+                   },
+                   walletSwitchEthereumChain: function (msgParams, cb) {
+                       const data = msgParams
+                       const { id = Math.floor((Math.random() * 100000) + 1) } = msgParams
+                       console.log("walletSwitchEthereumChain", msgParams)
+                       AlphaWallet.addCallback(id, cb)
+                       webkit.messageHandlers.walletSwitchEthereumChain.postMessage({"name": "walletSwitchEthereumChain", "object": data, id: id})
                    },
                    enable: function() {
                       return new Promise(function(resolve, reject) {
