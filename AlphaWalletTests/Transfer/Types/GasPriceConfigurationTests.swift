@@ -5,10 +5,10 @@ import XCTest
 import BigInt
 
 class GasPriceConfigurationTests: XCTestCase {
-    
+
     func testDefault() {
         XCTAssertEqual(BigInt(9000000000), GasPriceConfiguration.defaultPrice)
         XCTAssertEqual(BigInt(1000000000), GasPriceConfiguration.minPrice)
-        XCTAssertEqual(BigInt(500000000000), GasPriceConfiguration.maxPrice)
+        XCTAssertEqual(BigInt(700000000000), GasPriceConfiguration.maxPrice)
     }
 }
