@@ -15,7 +15,7 @@ class SupportViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private lazy var viewModel: SupportViewModel = SupportViewModel()
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine

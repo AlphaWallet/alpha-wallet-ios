@@ -77,6 +77,14 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
         delegate?.didSelectServer(server: server, in: self)
     }
 
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         .leastNonzeroMagnitude
     }
