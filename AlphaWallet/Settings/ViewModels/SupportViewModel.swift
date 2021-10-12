@@ -13,7 +13,7 @@ class SupportViewModel: NSObject {
         R.string.localizable.settingsSupportTitle()
     }
     
-    var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, /*.reddit, .facebook,*/ .faq]
+    var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, .github,/*.reddit, .facebook,*/ .faq]
     
     func cellViewModel(indexPath: IndexPath) -> SettingTableViewCellViewModel {
         let row = rows[indexPath.row]
@@ -29,6 +29,7 @@ enum SupportRow {
     case facebook
     case blog
     case faq
+    case github
     case email
     
     var urlProvider: URLServiceProvider? {
@@ -45,6 +46,8 @@ enum SupportRow {
             return URLServiceProvider.facebook
         case .faq:
             return URLServiceProvider.faq
+        case .github:
+            return URLServiceProvider.github
         case .blog, .email:
             return nil
         }
@@ -68,6 +71,8 @@ enum SupportRow {
             return "Blog"
         case .email:
             return "Email"
+        case .github:
+            return URLServiceProvider.github.title
         }
     }
     
@@ -89,6 +94,8 @@ enum SupportRow {
             return R.image.settings_faq()
         case .blog:
             return R.image.settings_faq()
+        case .github:
+            return URLServiceProvider.github.image
         }
     }
 } 

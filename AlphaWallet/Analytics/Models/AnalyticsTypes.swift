@@ -34,6 +34,7 @@ enum Analytics {
         case twitter = "Screen: Twitter"
         case reddit = "Screen: Reddit"
         case facebook = "Screen: Facebook"
+        case github = "Screen: Github"
         case explorer = "Screen: Explorer"
     }
 
