@@ -14,6 +14,7 @@ enum DappAction {
     case sendRawTransaction(String)
     case ethCall(from: String, to: String, data: String)
     case walletAddEthereumChain(WalletAddEthereumChainObject)
+    case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
     case unknown
 }
 
@@ -52,6 +53,8 @@ extension DappAction {
             }
         case .walletAddEthereumChain(let command):
             return .walletAddEthereumChain(command.object)
+        case .walletSwitchEthereumChain(let command):
+            return .walletSwitchEthereumChain(command.object)
         }
     }
 
@@ -95,9 +98,15 @@ extension DappAction {
         let data = jsonString.data(using: .utf8)!
         if let command = try? decoder.decode(DappCommand.self, from: data) {
             return .eth(command)
-        } else if let command = try? decoder.decode(WalletCommand.self, from: data) {
+        } else if let command = try? decoder.decode(AddCustomChainCommand.self, from: data) {
             if Features.isEip3085AddEthereumChainEnabled {
                 return .walletAddEthereumChain(command)
+            } else {
+                return nil
+            }
+        } else if let command = try? decoder.decode(SwitchChainCommand.self, from: data) {
+            if Features.isEip3326SwitchEthereumChainEnabled {
+                return .walletSwitchEthereumChain(command)
             } else {
                 return nil
             }
