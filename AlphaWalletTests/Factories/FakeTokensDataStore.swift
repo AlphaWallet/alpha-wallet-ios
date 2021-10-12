@@ -5,11 +5,8 @@ import Foundation
 import RealmSwift
 
 class FakeTokensDataStore: TokensDataStore {
-    convenience init() {
+    convenience init(account: Wallet = .make(), server: RPCServer = .main) {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest"))
-        let account: Wallet = .make()
-        let config: Config = .make()
-
-        self.init(realm: realm, account: account, server: .main)
+        self.init(realm: realm, account: account, server: server)
     }
 }
