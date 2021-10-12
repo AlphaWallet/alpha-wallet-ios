@@ -8,7 +8,7 @@ protocol LocalesViewControllerDelegate: AnyObject {
 
 class LocalesViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private var viewModel: LocalesViewModel?
 
     weak var delegate: LocalesViewControllerDelegate?
@@ -49,6 +49,21 @@ class LocalesViewController: UIViewController {
 }
 
 extension LocalesViewController: UITableViewDelegate, UITableViewDataSource {
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let viewModel = viewModel else { return 0 }
         return viewModel.locales.count

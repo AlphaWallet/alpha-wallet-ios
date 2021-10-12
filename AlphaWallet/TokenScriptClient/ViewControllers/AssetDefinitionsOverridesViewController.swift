@@ -8,7 +8,7 @@ protocol AssetDefinitionsOverridesViewControllerDelegate: AnyObject {
 }
 
 class AssetDefinitionsOverridesViewController: UIViewController {
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let fileExtension: String
     private var overriddenURLs: [URL] = []
     weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
@@ -65,5 +65,21 @@ extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return overriddenURLs.count
+    }
+
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 }

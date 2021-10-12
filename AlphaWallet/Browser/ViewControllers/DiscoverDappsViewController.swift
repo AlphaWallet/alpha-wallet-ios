@@ -15,7 +15,7 @@ protocol DiscoverDappsViewControllerDelegate: AnyObject {
 class DiscoverDappsViewController: UIViewController {
 
     lazy private var headerBoxView = BoxView(view: DappsHomeHeaderView())
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private var viewModel = DiscoverDappsViewControllerViewModel()
     private var bookmarksStore: BookmarksStore
     weak var delegate: DiscoverDappsViewControllerDelegate?
