@@ -296,7 +296,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
             alertController.addAction(each.action)
         }
-        
+
         return alertController
     }
 
@@ -392,8 +392,15 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func addCustomWallet(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
+    private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
         let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
+
+    private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject, inViewController viewController: UIViewController) {
+        let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -493,7 +500,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
             let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
             ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
         case .walletAddEthereumChain(let customChain):
-            addCustomWallet(callbackID: callbackID, customChain: customChain, inViewController: viewController)
+            addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
+        case .walletSwitchEthereumChain(let targetChain):
+            switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
         case .unknown, .sendRawTransaction:
             break
         }
@@ -912,6 +921,34 @@ extension DappBrowserCoordinator: DappRequestSwitchCustomChainCoordinatorDelegat
     }
 
     func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension DappBrowserCoordinator: DappRequestSwitchExistingChainCoordinatorDelegate {
+    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
+        let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
+        browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
+        removeCoordinator(coordinator)
+    }
+
+    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
+        `switch`(toServer: server, url: url)
+        removeCoordinator(coordinator)
+    }
+
+    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
+        delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
+        removeCoordinator(coordinator)
+    }
+    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
+        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
+        removeCoordinator(coordinator)
+    }
+
+    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
+        let error = DAppError.nodeError(errorMessage)
+        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
         removeCoordinator(coordinator)
     }
 }

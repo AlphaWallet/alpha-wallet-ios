@@ -44,6 +44,8 @@ class TokenInstanceWebView: UIView {
                     return .dappAction(command)
                 case .walletAddEthereumChain:
                     return nil
+                case .walletSwitchEthereumChain:
+                    return nil
                 }
             }
             return nil
@@ -449,7 +451,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
                 signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain:
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 return
             }
         case .watch:
@@ -535,7 +537,7 @@ extension TokenInstanceWebView {
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
-} 
+}
 
 private func generateContainerCssId(forTokenId tokenId: TokenId) -> String {
     return "token-card-\(tokenId)"

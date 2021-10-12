@@ -636,6 +636,8 @@ You can check the latest gas price on gasnow.org";
 "addCustomChain.error.unknown" = "Unknown Error";
 "addCustomChain.error.chainIdNotMatch" = "Chain IDs returned by the RPC server do not match: %@ vs. %@";
 "addCustomChain.warning.noBlockchainExplorerUrl" = "Blockchain explorer URL can't be resolved. Would you like to continue without it? Transaction history will not be fetched";
+"switchChain.error.invalidChainId" = "Invalid chain ID provided: %@";
+"switchChain.error.notSupportedChainId" = "Chain ID is not supported: %@";
 "addrpcServer.navigation.title" = "Add Custom RPC Network";
 "addrpcServer.saveButton.title" = "Add Network";
 "addrpcServer.networkName.title" = "Network Name";

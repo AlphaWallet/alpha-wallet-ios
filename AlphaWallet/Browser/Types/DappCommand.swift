@@ -8,8 +8,8 @@ struct DappCommand: Decodable {
     let object: [String: DappCommandObjectValue]
 }
 
-//TODO may not be the best name (contrast with the counterpart DappCommand), but let's see what happens after we add a few more cases to the `Method` enum
-struct WalletCommand: Decodable {
+struct AddCustomChainCommand: Decodable {
+    //Single case enum just useful for validation
     enum Method: String, Decodable {
         case walletAddEthereumChain
 
@@ -27,16 +27,37 @@ struct WalletCommand: Decodable {
     let object: WalletAddEthereumChainObject
 }
 
+struct SwitchChainCommand: Decodable {
+    //Single case enum just useful for validation
+    enum Method: String, Decodable {
+        case walletSwitchEthereumChain
+
+        init?(string: String) {
+            if let s = Method(rawValue: string) {
+                self = s
+            } else {
+                return nil
+            }
+        }
+    }
+
+    let name: Method
+    let id: Int
+    let object: WalletSwitchEthereumChainObject
+}
+
 enum DappOrWalletCommand {
     case eth(DappCommand)
-    //TODO we'll have to see how to expand this, do we add more cases when there are more walletXXX object types, or do we generalize them?
-    case walletAddEthereumChain(WalletCommand)
+    case walletAddEthereumChain(AddCustomChainCommand)
+    case walletSwitchEthereumChain(SwitchChainCommand)
 
     var id: Int {
         switch self {
         case .eth(let command):
             return command.id
         case .walletAddEthereumChain(let command):
+            return command.id
+        case .walletSwitchEthereumChain(let command):
             return command.id
         }
     }
@@ -56,6 +77,7 @@ enum DappCallbackValue {
     case signTypedMessageV3(Data)
     case ethCall(String)
     case walletAddEthereumChain
+    case walletSwitchEthereumChain
 
     var object: String {
         switch self {
@@ -74,6 +96,8 @@ enum DappCallbackValue {
         case .ethCall(let value):
             return value
         case .walletAddEthereumChain:
+            return ""
+        case .walletSwitchEthereumChain:
             return ""
         }
     }
@@ -129,4 +153,8 @@ extension CustomRPC {
     init(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType, isTestnet: Bool) {
         self.init(chainID: chainId, nativeCryptoTokenName: customChain.nativeCurrency?.name, chainName: customChain.chainName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customChain.nativeCurrency?.symbol, rpcEndpoint: rpcUrl, explorerEndpoint: customChain.blockExplorerUrls?.first, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet)
     }
+}
+
+struct WalletSwitchEthereumChainObject: Decodable {
+    let chainId: String
 }
