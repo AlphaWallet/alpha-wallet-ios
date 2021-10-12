@@ -46,7 +46,7 @@ struct SwitchChainRequestViewModel {
             return R.string.localizable.switchChainRequestActionEnableSwitchReload()
         }
     }
-    
+
     var additionalButtonTitle: String {
         R.string.localizable.switchChainRequestActionAddSwitchReload(R.string.localizable.settingsEnabledNetworksTestnet())
     }
