@@ -10,21 +10,24 @@ enum URLServiceProvider {
     case reddit
     case facebook
     case faq
+    case github
 
     var title: String {
         switch self {
         case .discord:
-            return "Discord"
+            return R.string.localizable.urlDiscord()
         case .telegramCustomer:
-            return "Telegram (Customer Support)"
+            return R.string.localizable.urlTelegramCustomer()
         case .twitter:
-            return "Twitter"
+            return R.string.localizable.urlTwitter()
         case .reddit:
-            return "Reddit"
+            return R.string.localizable.urlReddit()
         case .facebook:
-            return "Facebook"
+            return R.string.localizable.urlFacebook()
         case .faq:
-            return "faq".uppercased()
+            return R.string.localizable.urlFaq().uppercased()
+        case .github:
+            return R.string.localizable.urlGithub()
         }
     }
 
@@ -41,7 +44,7 @@ enum URLServiceProvider {
             return URL(string: "reddit.com\(Constants.redditGroupName)")
         case .facebook:
             return URL(string: "fb://profile?id=\(Constants.facebookUsername)")
-        case .faq:
+        case .faq, .github:
             return nil
         }
     }
@@ -60,6 +63,8 @@ enum URLServiceProvider {
             return URL(string: "https://www.facebook.com/\(Constants.facebookUsername)")!
         case .faq:
             return URL(string: "https://alphawallet.com/faq/")!
+        case .github:
+            return URL(string: "https://github.com/AlphaWallet/alpha-wallet-ios/issues/new")!
         }
     }
 
@@ -77,6 +82,8 @@ enum URLServiceProvider {
             return R.image.settings_facebook()
         case .faq:
             return R.image.settings_faq()
+        case .github:
+            return R.image.iconsSettingsGithub()
         }
     }
 }
