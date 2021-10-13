@@ -31,7 +31,7 @@ class EtherscanGasPriceEstimator {
 
         return Alamofire.request(url, method: .get).responseDecodable(EtherscanPriceEstimatesResponse.self).compactMap { response in
             EtherscanPriceEstimates.bridgeToGasNowPriceEstimates(for: response.result)
-        } 
+        }
     }
 }
 
@@ -44,9 +44,9 @@ fileprivate extension RPCServer {
             apiKeyParameter = ""
         }
         switch self {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli, .binance_smart_chain, .heco, .polygon, .optimistic, .optimisticKovan:
+        case .main, .binance_smart_chain, .heco, .polygon:
             return etherscanApiRoot?.appendingQueryString("\("module=gastracker&action=gasoracle")\(apiKeyParameter)")
-        case .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .callisto, .poa, .sokol, .classic, .xDai, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .cronosTestnet, .custom, .arbitrum:
+        case .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .callisto, .poa, .sokol, .classic, .xDai, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .cronosTestnet, .custom, .arbitrum, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan:
             return nil
         }
     }
