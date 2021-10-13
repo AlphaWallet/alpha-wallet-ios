@@ -44,9 +44,9 @@ fileprivate extension RPCServer {
             apiKeyParameter = ""
         }
         switch self {
-        case .main, .binance_smart_chain, .heco, .polygon, .optimistic, .optimisticKovan:
+        case .main, .binance_smart_chain, .heco, .polygon:
             return etherscanApiRoot?.appendingQueryString("\("module=gastracker&action=gasoracle")\(apiKeyParameter)")
-        case .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .callisto, .poa, .sokol, .classic, .xDai, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .cronosTestnet, .custom, .arbitrum, .kovan, .ropsten, .rinkeby, .goerli:
+        case .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .callisto, .poa, .sokol, .classic, .xDai, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .cronosTestnet, .custom, .arbitrum, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan:
             return nil
         }
     }
