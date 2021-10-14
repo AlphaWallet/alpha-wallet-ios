@@ -24,6 +24,15 @@ func applyStyle() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = Colors.appBackground
+        appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
+        appearance.titleTextAttributes = [
+            .foregroundColor: Colors.navigationTitleColor,
+            .font: Fonts.semibold(size: 17) as Any
+        ]
+        appearance.largeTitleTextAttributes = [
+            .foregroundColor: Colors.navigationTitleColor,
+            .font: Fonts.bold(size: 36) as Any,
+        ]
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
     } else {
