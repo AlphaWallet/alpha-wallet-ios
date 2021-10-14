@@ -22,9 +22,14 @@ class AddressTextField: UIControl {
         return label
     }()
 
-    var ensAddressView: UIStackView {
-        return [ensAddressLabel.defaultLayout(), statusLabel].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
-    }
+    lazy var ensAddressView: UIStackView = {
+        return [
+            ensAddressLabel.loadingIndicator,
+            ensAddressLabel.blockieImageView,
+            ensAddressLabel,
+            statusLabel
+        ].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+    }()
 
     private var textFieldText: String {
         get {
@@ -50,6 +55,7 @@ class AddressTextField: UIControl {
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
         button.titleEdgeInsets = .zero
+        button.contentEdgeInsets = .zero
 
         return button
     }()
@@ -66,6 +72,7 @@ class AddressTextField: UIControl {
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.setContentCompressionResistancePriority(.required, for: .horizontal)
         button.titleEdgeInsets = .zero
+        button.contentEdgeInsets = .zero
 
         return button
     }()
