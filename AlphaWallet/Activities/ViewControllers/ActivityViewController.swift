@@ -91,7 +91,7 @@ class ActivityViewController: UIViewController {
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
         roundedBackground.addSubview(footerBar)
 
-        NSLayoutConstraint.activate([
+        var constraints: [LayoutConstraintsWrapper] = [
             //Setting height for labels to get their heights to be correct. If we want to remove them, make sure to test with both the native Activity view and TokenScript (HTML) Activity views
             timestampLabel.heightAnchor.constraint(equalToConstant: 20),
             titleLabel.heightAnchor.constraint(equalToConstant: 26),
@@ -109,7 +109,9 @@ class ActivityViewController: UIViewController {
 
         ] + roundedBackground.createConstraintsWithContainer(view: view)
         + stateView.anchorConstraints(to: tokenImageView, size: .init(width: 24, height: 24), bottomOffset: .zero)
-        + footerBar.anchorsConstraint(to: view))
+        let footerConstraints: [NSLayoutConstraint] = footerBar.anchorsConstraint(to: view)
+        constraints += footerConstraints
+        NSLayoutConstraint.activate(constraints)
 
         configure(viewModel: viewModel)
 
