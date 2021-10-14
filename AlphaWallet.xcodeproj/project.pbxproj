@@ -746,7 +746,6 @@
 		87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4225DFAF7800267160 /* HoneySwap.swift */; };
 		87374A4525DFB17600267160 /* HoneySwapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */; };
 		8738DDDC2652B98200064CCA /* ActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDB2652B98200064CCA /* ActivitiesService.swift */; };
-		8738DDDE2652CD1300064CCA /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDD2652CD1300064CCA /* MulticastDelegate.swift */; };
 		8739BB5526CCECD10045CFED /* TokenAssetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5426CCECD10045CFED /* TokenAssetTableViewCell.swift */; };
 		8739BB6026CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5F26CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift */; };
 		8739BB6626CCED4B0045CFED /* AssetsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB6526CCED4B0045CFED /* AssetsPageView.swift */; };
@@ -1753,7 +1752,6 @@
 		87374A4225DFAF7800267160 /* HoneySwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwap.swift; sourceTree = "<group>"; };
 		87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwapERC20Token.swift; sourceTree = "<group>"; };
 		8738DDDB2652B98200064CCA /* ActivitiesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesService.swift; sourceTree = "<group>"; };
-		8738DDDD2652CD1300064CCA /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
 		8739BB5426CCECD10045CFED /* TokenAssetTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenAssetTableViewCell.swift; sourceTree = "<group>"; };
 		8739BB5F26CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTokenCardContainerTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		8739BB6526CCED4B0045CFED /* AssetsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsPageView.swift; sourceTree = "<group>"; };
@@ -3167,7 +3165,6 @@
 				5E7C7A71851FA227231270BD /* DecodedFunctionCall.swift */,
 				5E7C77BAC05F2F2417098707 /* ViewControllers */,
 				5E7C7B097096FC37B68A399B /* EmailList.swift */,
-				8738DDDD2652CD1300064CCA /* MulticastDelegate.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -5717,7 +5714,6 @@
 				5E7C773E3E3BBEB65C51DF2A /* UIStackView.swift in Sources */,
 				5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */,
 				873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */,
-				8738DDDE2652CD1300064CCA /* MulticastDelegate.swift in Sources */,
 				5E7C729FA0EC60113B031391 /* ImageCache.swift in Sources */,
 				5E7C74438E1FBF28ADFAFAD1 /* BaseTokenCardTableViewCellViewModel.swift in Sources */,
 				5E7C72B3D5F75999937FCFA1 /* TokenListFormatRowViewModel.swift in Sources */,
