@@ -40,7 +40,7 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    private let loadingIndicator: UIActivityIndicatorView = {
+    let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .gray)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
@@ -122,11 +122,7 @@ class AddressOrEnsNameLabel: UILabel {
             blockieImageView.image = blockieImage
             blockieImageView.isHidden = blockieImage == nil
         }
-    }
-
-    func defaultLayout() -> UIView {
-        [loadingIndicator, blockieImageView, self].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
-    }
+    } 
 
     typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
     // NOTE: caching ids for call `func resolve(_ value: String)` function, for verifying activity state
