@@ -51,12 +51,11 @@ class AddHideTokensViewController: UIViewController {
         hidesBottomBarWhenPushed = true
         searchController.delegate = self
 
-        let t = R.string.localizable.seachTokenNoresultsTitle()
-        emptyView = EmptyFilteringResultView(title: t, onRetry: { [weak self] in
+        emptyView = EmptyView.filterTokensEmptyView(completion: { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
 
             delegate.didPressAddToken(in: strongSelf)
-        })
+        }) 
 
         view.addSubview(tableView)
 

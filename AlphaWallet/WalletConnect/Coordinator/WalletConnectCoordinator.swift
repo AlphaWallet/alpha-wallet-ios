@@ -18,7 +18,7 @@ enum SessionsToDisconnect {
     case all
 }
 
-typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServer: [WCURL: RPCServer])
+typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServer: [WalletConnectURL: RPCServer])
 
 protocol WalletConnectCoordinatorDelegate: class, CanOpenURL {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
@@ -121,6 +121,11 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     func showSessions() {
         navigationController.setNavigationBarHidden(false, animated: false)
         showSessions(state: .sessions, navigationController: navigationController)
+
+        let sessions = server.sessions.value ?? []
+        if sessions.isEmpty {
+            startUniversalScanner()
+        }
     }
 
     private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping (() -> Void) = {}) {
@@ -373,9 +378,12 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 }
 
 extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate {
+    func startUniversalScanner() {
+        delegate?.universalScannerSelected(in: self)
+    }
 
     func qrCodeSelected(in viewController: WalletConnectSessionsViewController) {
-        delegate?.universalScannerSelected(in: self)
+        startUniversalScanner()
     }
 
     func didClose(in viewController: WalletConnectSessionsViewController) {

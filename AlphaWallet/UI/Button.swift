@@ -82,7 +82,7 @@ enum ButtonStyle {
         case .solid, .squared: return UIColor(white: 1, alpha: 0.8)
         case .border: return Colors.appWhite
         case .borderless, .system, .special: return Colors.appTint
-        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
+        case .green: return Colors.appWhite.withAlphaComponent(0.8)
         }
     }
 

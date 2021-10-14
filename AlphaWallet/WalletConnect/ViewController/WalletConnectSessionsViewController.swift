@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import StatefulViewController
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
     func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
@@ -33,11 +34,14 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = GroupedTable.Color.background
+        
         return tableView
     }()
 
     weak var delegate: WalletConnectSessionsViewControllerDelegate?
-
+    private let roundedBackground = RoundedBackground()
+    
     private lazy var spinner: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView(style: .gray)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -45,25 +49,40 @@ class WalletConnectSessionsViewController: UIViewController {
         view.tintColor = .red
         return view
     }()
+    private var state: State = .sessions
 
     init(sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>) {
         self.sessionsToURLServersMap = sessionsToURLServersMap
         super.init(nibName: nil, bundle: nil)
 
-        view.addSubview(tableView)
-        view.addSubview(spinner)
+        roundedBackground.backgroundColor = GroupedTable.Color.background
+
+        view.addSubview(roundedBackground)
+        roundedBackground.addSubview(tableView)
+        roundedBackground.addSubview(spinner)
 
         sessionsToURLServersMap.subscribe { [weak self] _ in
             self?.tableView.reloadData()
+            self?.endLoading()
         }
 
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+
             spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
         navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(closeButtonSelected))
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(qrCodeButtonSelected))
+
+        emptyView = EmptyView.walletSessionEmptyView(completion: { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.qrCodeSelected(in: strongSelf)
+        })
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -75,6 +94,10 @@ class WalletConnectSessionsViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
         hidesBottomBarWhenPushed = true
+
+        if let host = emptyView {
+            spinner.bringSubviewToFront(host)
+        }
     }
 
     func configure(state: State) {
@@ -83,24 +106,34 @@ class WalletConnectSessionsViewController: UIViewController {
     }
 
     func set(state: State) {
+        self.state = state
         switch state {
         case .loading:
             spinner.startAnimating()
         case .sessions:
             spinner.stopAnimating()
         }
+        
+        self.endLoading()
     }
 
     @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
-        guard let delegate = self.delegate else { return }
-
-        delegate.qrCodeSelected(in: self)
+        delegate?.qrCodeSelected(in: self)
     }
 
     @objc private func closeButtonSelected(_ sender: UIBarButtonItem) {
-        guard let delegate = self.delegate else { return }
+        delegate?.didClose(in: self)
+    }
+}
 
-        delegate.didClose(in: self)
+extension WalletConnectSessionsViewController: StatefulViewController {
+    func hasContent() -> Bool {
+        switch state {
+        case .sessions:
+            return !sessionsValue.isEmpty
+        case .loading:
+            return true
+        }
     }
 }
 

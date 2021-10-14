@@ -79,7 +79,7 @@ class WalletConnectServer {
         }
     }
 
-    var urlToServer: [WCURL: RPCServer] {
+    var urlToServer: [WalletConnectURL: RPCServer] {
         UserDefaults.standard.urlToServer
     }
     var sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
@@ -342,12 +342,12 @@ extension WalletConnectServer: ServerDelegate {
 }
 
 struct WalletConnectConnection {
-    let url: WCURL
+    let url: WalletConnectURL
     let name: String
     let icon: URL?
     let server: RPCServer?
 
-    init(dAppInfo info: Session.DAppInfo, url: WCURL) {
+    init(dAppInfo info: Session.DAppInfo, url: WalletConnectURL) {
         self.url = url
         name = info.peerMeta.name
         icon = info.peerMeta.icons.first
