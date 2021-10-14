@@ -263,8 +263,13 @@ struct AssetFunctionCall: Equatable, Hashable {
     //To avoid handling Equatable and Hashable, we'll just store the arguments' description
     private let argumentsDescription: String
 
-    var hashValue: Int {
-        return contract.eip55String.hashValue ^ functionName.hashValue ^ inputs.count ^ output.type.rawValue.hashValue ^ argumentsDescription.hashValue ^ server.chainID
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(contract)
+        hasher.combine(functionName)
+        hasher.combine(inputs.count)
+        hasher.combine(output.type)
+        hasher.combine(argumentsDescription)
+        hasher.combine(server)
     }
 
     static func == (lhs: AssetFunctionCall, rhs: AssetFunctionCall) -> Bool {
