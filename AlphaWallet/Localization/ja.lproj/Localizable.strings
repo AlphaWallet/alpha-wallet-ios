@@ -696,3 +696,8 @@
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
 "url.github" = "Github (File an issue)";
+"walletConnect.sessions.empty" = "No active WalletConnect sessions";
+"walletConnect.sessions.scanQrCode" = "Scan QR Code";
+"priceAlert.emptyList" = "Alerts will appear here";
+"priceAlert.navigationTitle" = "Alerts";
+"priceAlert.newAlert" = "Add New Price Alert";

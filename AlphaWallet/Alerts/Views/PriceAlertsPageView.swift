@@ -66,7 +66,7 @@ class PriceAlertsPageView: UIView, PageViewType {
             addNotificationView.heightAnchor.constraint(equalToConstant: TokensViewController.addHideTokensViewHeight)
         ])
         
-        statefulView.emptyView = TransactionsEmptyView(title: viewModel.emptyAlertListTitle, image: R.image.iconsIllustrationsAlert2(), spacing: 0)
+        statefulView.emptyView = EmptyView.activitiesEmptyView() 
     }
 
     required init?(coder: NSCoder) {
