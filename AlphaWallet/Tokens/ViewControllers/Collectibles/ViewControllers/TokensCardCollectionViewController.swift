@@ -154,7 +154,7 @@ class TokensCardCollectionViewController: UIViewController {
 
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
-        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
+        for (_, button) in zip(actions, buttonsBar.buttons) where button == sender {
             //TODO ?!
         }
     }

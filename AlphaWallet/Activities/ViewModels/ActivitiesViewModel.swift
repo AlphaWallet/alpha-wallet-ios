@@ -41,7 +41,6 @@ struct ActivitiesViewModel {
         items = activities
     }
 
-// swiftlint:disable function_body_length
     static func sorted(activities: [ActivityRowModel]) -> [MappedToDateActivityOrTransaction] {
         //Uses NSMutableArray instead of Swift array for performance. Really slow when dealing with 10k events, which is hardly a big wallet
         var newItems: [ActivityDateKey: NSMutableArray] = [:]
@@ -141,7 +140,6 @@ struct ActivitiesViewModel {
             return object1.date.date.timeIntervalSince1970 > object2.date.date.timeIntervalSince1970
         }
     }
-// swiftlint:enable function_body_length
 
     mutating func filter(_ filter: ActivityOrTransactionFilter) {
         var newFilteredItems = items

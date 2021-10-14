@@ -6,7 +6,6 @@ import BigInt
 import PromiseKit
 import Result
 import SwiftyJSON
-import PromiseKit
 
 class OpenSea {
     private class WeakRef<T: AnyObject> {

@@ -237,7 +237,7 @@ struct TransactionInstance: Equatable {
         return .init(chainID: chainId)
     }
 
-    static func ==(lhs: TransactionInstance, rhs: TransactionInstance) -> Bool {
+    static func == (lhs: TransactionInstance, rhs: TransactionInstance) -> Bool {
         return lhs.primaryKey == rhs.primaryKey &&
             lhs.chainId == rhs.chainId &&
             lhs.id == rhs.id &&

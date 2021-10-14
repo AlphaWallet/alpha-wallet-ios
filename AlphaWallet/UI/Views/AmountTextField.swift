@@ -8,6 +8,7 @@ protocol AmountTextFieldDelegate: AnyObject {
     func shouldReturn(in textField: AmountTextField) -> Bool
 }
 
+// swiftlint:disable type_body_length
 class AmountTextField: UIControl {
 
     enum AccessoryButtonTitle {
@@ -498,6 +499,7 @@ class AmountTextField: UIControl {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension AmountTextField: UITextFieldDelegate {
 

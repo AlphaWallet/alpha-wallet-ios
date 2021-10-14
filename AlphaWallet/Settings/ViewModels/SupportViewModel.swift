@@ -12,9 +12,9 @@ class SupportViewModel: NSObject {
     var title: String {
         R.string.localizable.settingsSupportTitle()
     }
-    
-    var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, .github,/*.reddit, .facebook,*/ .faq]
-    
+
+    var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, .github, .faq]
+
     func cellViewModel(indexPath: IndexPath) -> SettingTableViewCellViewModel {
         let row = rows[indexPath.row]
         return .init(titleText: row.title, subTitleText: nil, icon: row.image)
@@ -31,7 +31,7 @@ enum SupportRow {
     case faq
     case github
     case email
-    
+
     var urlProvider: URLServiceProvider? {
         switch self {
         case .discord:
@@ -52,7 +52,7 @@ enum SupportRow {
             return nil
         }
     }
-    
+
     var title: String {
         switch self {
         case .discord:
@@ -75,7 +75,7 @@ enum SupportRow {
             return URLServiceProvider.github.title
         }
     }
-    
+
     var image: UIImage? {
         switch self {
         case .email:
@@ -98,4 +98,4 @@ enum SupportRow {
             return URLServiceProvider.github.image
         }
     }
-} 
+}

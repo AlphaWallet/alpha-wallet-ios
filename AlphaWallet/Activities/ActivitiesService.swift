@@ -124,6 +124,7 @@ fileprivate class TokenObjectsCache: CachedTokenObjectResolverType {
     }
 }
 
+// swiftlint:disable type_body_length
 class ActivitiesService: NSObject, ActivitiesServiceType {
     private let config: Config
     let sessions: ServerDictionary<WalletSession>
@@ -603,8 +604,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             return ($0.id, (arrayIndex, $0))
         })
     }
-
 }
+// swiftlint:enable type_body_length
 
 fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
     func isSameFrom() -> Bool {

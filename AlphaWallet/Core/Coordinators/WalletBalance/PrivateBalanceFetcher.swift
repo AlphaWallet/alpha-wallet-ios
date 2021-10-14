@@ -24,7 +24,6 @@ protocol PrivateBalanceFetcherType: AnyObject {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
-// swiftlint:disable type_body_length
 class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, json: String)
 
@@ -112,10 +111,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func refreshBalanceForNonErc721Or1155Tokens(tokens: [Activity.AssignedToken]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
         assert(!tokens.contains { $0.isERC721Or1155AndNotForTickets })
         guard !tokens.isEmpty else { return .value([]) }
-
         let promises = tokens.map { getBalanceForNonErc721Or1155Tokens(forToken: $0) }
-        let id = UUID().uuidString
-
         return when(resolved: promises).map { values -> [PrivateBalanceFetcher.TokenBatchOperation] in
             return values.compactMap { $0.optionalValue }.compactMap { $0 }
         }
@@ -577,4 +573,3 @@ fileprivate extension PrivateBalanceFetcher.functional {
         return contractToNonFungiblesWithUpdatedBalances
     }
 }
-// swiftlint:enable type_body_length

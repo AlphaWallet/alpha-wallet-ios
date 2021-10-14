@@ -25,7 +25,7 @@ class Erc1155BalanceFetcher {
         //tokenIds must be unique (hence arg is a Set) so `Dictionary(uniqueKeysWithValues:)` wouldn't crash
         let tokenIds = Array(tokenIds)
         let address = EthereumAddress(self.address.eip55String)!
-        let addresses: [EthereumAddress] = Array<EthereumAddress>(repeating: address, count: tokenIds.count)
+        let addresses: [EthereumAddress] = [EthereumAddress](repeating: address, count: tokenIds.count)
         return firstly {
             callSmartContract(withServer: server, contract: contract, functionName: "balanceOfBatch", abiString: AlphaWallet.Ethereum.ABI.erc1155String, parameters: [addresses, tokenIds] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout)
         }.map { result in

@@ -32,7 +32,7 @@ func applyStyle() {
 
     if #available(iOS 13.0, *) {
         //NOTE: Hides back button text
-        let titleTextAttributes: [NSAttributedString.Key : Any] = [
+        let titleTextAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.clear
         ]
         UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
@@ -195,7 +195,7 @@ enum DataEntry {
             static let iconSide: CGFloat = 40
             static let insets = UIEdgeInsets(top: isNarrowScreen ? 20 : 40, left: 0, bottom: 0, right: 0)
             static let topSpacerHeight: CGFloat = isNarrowScreen ? 10 : 20
-            
+
             enum RecentTransactionsLabel {
                 static let height: CGFloat = isNarrowScreen ? 40 : 50
                 static let edgeInsets: UIEdgeInsets = .init(top: 0, left: isNarrowScreen ? 15 : 30, bottom: 0, right: 0)
@@ -313,7 +313,7 @@ enum Screen {
             static let blockChainTagHeight = CGFloat(20)
         }
     }
-    
+
     enum TransactionConfirmation {
         static var transactionRowInfoInsets: UIEdgeInsets {
             let leftRightInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 24

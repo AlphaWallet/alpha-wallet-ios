@@ -104,7 +104,7 @@ class WalletConnectServer {
     }
 
     func connect(url: WalletConnectURL) throws {
-        let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { timer in
+        let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { _ in
             let isStillWatching = self.connectionTimeoutTimers[url] != nil
             debug("WalletConnect app-enforced connection timer is up for: \(url.absoluteString) isStillWatching: \(isStillWatching)")
             if isStillWatching {
