@@ -76,7 +76,6 @@ class BlockieImageView: UIView {
     }
 }
 
-
 extension BlockieImageView {
     static var defaultBlockieImageView: BlockieImageView {
         let imageView = BlockieImageView()

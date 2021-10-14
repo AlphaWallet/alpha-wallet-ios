@@ -36,7 +36,7 @@ class ContractDataDetector {
         tokenTypePromise = tokenProvider.getTokenType(for: address)
     }
 
-    /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
+    //Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
     //Have to use strong self in promises below, otherwise `self` will be destroyed before fetching completes
     func fetch(completion: @escaping (ContractData) -> Void) {
         self.completion = completion
@@ -47,7 +47,7 @@ class ContractDataDetector {
             namePromise
         }.done { name in
             self.completionOfPartialData(.name(name))
-        }.catch { error in
+        }.catch { _ in
             self.callCompletionFailed()
             //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
             self.completionOfPartialData(.name(""))
@@ -57,7 +57,7 @@ class ContractDataDetector {
             symbolPromise
         }.done { symbol in
             self.completionOfPartialData(.symbol(symbol))
-        }.catch { error in
+        }.catch { _ in
             self.callCompletionFailed()
             //We consider name and symbol and empty string because NFTs (ERC721 and ERC1155) don't have to implement `name` and `symbol`. Eg. ENS/721 (0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85) and Enjin/1155 (0xfaafdc07907ff5120a76b34b731b278c38d6043c)
             self.completionOfPartialData(.symbol(""))
@@ -121,7 +121,7 @@ class ContractDataDetector {
         }.cauterize()
     }
 
-    private func completionOfPartialData(_ data: ContractData) -> Void {
+    private func completionOfPartialData(_ data: ContractData) {
         completion?(data)
         callCompletionOnAllData()
     }

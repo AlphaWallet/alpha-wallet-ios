@@ -124,7 +124,7 @@ struct LocalizedOperationObjectInstance: Equatable {
         return to.sameContract(as: self.to)
     }
 
-    static func ==(lhs: LocalizedOperationObjectInstance, rhs: LocalizedOperationObjectInstance) -> Bool {
+    static func == (lhs: LocalizedOperationObjectInstance, rhs: LocalizedOperationObjectInstance) -> Bool {
         return lhs.from == rhs.from &&
             lhs.to == rhs.to &&
             lhs.contract == rhs.contract &&

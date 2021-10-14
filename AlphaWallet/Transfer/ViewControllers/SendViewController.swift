@@ -14,7 +14,6 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
     func openQRCode(in controller: SendViewController)
 }
 
-// swiftlint:disable type_body_length
 class SendViewController: UIViewController {
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
@@ -377,7 +376,6 @@ class SendViewController: UIViewController {
         configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
-// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 
