@@ -25,6 +25,6 @@ class FakeEventsDataStore: EventsDataStoreProtocol {
     }
 
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?> {
-        Promise { _ in}
+        Promise { _ in }
     }
 }

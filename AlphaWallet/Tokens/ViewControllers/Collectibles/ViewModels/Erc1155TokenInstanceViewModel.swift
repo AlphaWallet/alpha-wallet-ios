@@ -90,5 +90,3 @@ struct Erc1155TokenInstanceViewModel {
         }
     }
 }
-
-

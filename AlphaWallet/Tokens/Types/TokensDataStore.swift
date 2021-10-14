@@ -7,7 +7,6 @@ import Result
 import RealmSwift
 import SwiftyJSON
 
-// swiftlint:disable file_length
 enum TokenError: Error {
     case failedToFetch
 }
@@ -16,7 +15,6 @@ protocol TokensDataStoreDelegate: AnyObject {
     func didUpdate(in tokensDataStore: TokensDataStore, refreshImmediately: Bool)
 }
 
-// swiftlint:disable type_body_length
 class TokensDataStore: NSObject {
     static let fetchContractDataTimeout = TimeInterval(4)
 
@@ -471,7 +469,6 @@ class TokensDataStore: NSObject {
         return result
     }
 }
-// swiftlint:enable type_body_length
 
 extension TokenObject {
     var addressAndRPCServer: AddressAndRPCServer {
@@ -495,4 +492,3 @@ extension TokensDataStore.functional {
         }
     }
 }
-// swiftlint:enable file_length

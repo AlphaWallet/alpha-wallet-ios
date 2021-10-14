@@ -76,7 +76,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return view
     }()
 
-    // swiftlint:disable function_body_length
     init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, paymentFlow: PaymentFlow, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.token = token
@@ -103,7 +102,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
         generateSubviews(viewModel: viewModel)
     }
-    // swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         return nil

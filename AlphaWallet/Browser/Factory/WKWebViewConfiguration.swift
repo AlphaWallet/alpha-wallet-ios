@@ -69,6 +69,7 @@ extension WKWebViewConfiguration {
         return webViewConfig
     }
 
+// swiftlint:disable function_body_length
     fileprivate static func javaScriptForDappBrowser(server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
                //Space is needed here because it is sometimes cut off by websites. 
@@ -182,6 +183,7 @@ extension WKWebViewConfiguration {
              })
              """
     }
+// swiftlint:enable function_body_length
 
     fileprivate static func javaScriptForTokenScriptRenderer(address: AlphaWallet.Address) -> String {
         return """

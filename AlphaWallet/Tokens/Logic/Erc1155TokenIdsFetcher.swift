@@ -89,7 +89,7 @@ class Erc1155TokenIdsFetcher {
         return Set(contractsAndTokenIds.tokens.keys)
     }
 
-    //MARK: Serialization
+    // MARK: Serialization
 
     static private func fileUrl(forWallet address: AlphaWallet.Address, server: RPCServer) -> URL {
         return documentDirectory.appendingPathComponent("\(address.eip55String)-\(server.chainID).json")

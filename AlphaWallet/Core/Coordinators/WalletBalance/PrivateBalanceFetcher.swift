@@ -24,7 +24,6 @@ protocol PrivateBalanceFetcherType: AnyObject {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
-// swiftlint:disable type_body_length
 class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, json: String)
 
@@ -574,4 +573,3 @@ fileprivate extension PrivateBalanceFetcher.functional {
         return contractToNonFungiblesWithUpdatedBalances
     }
 }
-// swiftlint:enable type_body_length
