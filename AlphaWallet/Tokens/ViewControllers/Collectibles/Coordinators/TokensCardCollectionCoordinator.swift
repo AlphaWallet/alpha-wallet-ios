@@ -127,10 +127,10 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
                     let viewModel: Erc1155TokenInstanceViewModel = .init(tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
                 }
-            case let vc as TokenInstanceActionViewController:
+            //case let vc as TokenInstanceActionViewController:
                 //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
 //                vc.configure()
-                break
+//                break
             default:
                 break
             }

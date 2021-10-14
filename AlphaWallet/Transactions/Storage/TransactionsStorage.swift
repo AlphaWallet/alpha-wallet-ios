@@ -188,11 +188,8 @@ class TransactionsStorage: Hashable {
 
     func add(transactions: [TransactionInstance], transactionsToPullContractsFrom: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         guard !transactions.isEmpty else { return }
-
         let newTransactions = transactions.map { Transaction(object: $0) }
         let newTransactionsToPullContractsFrom = transactionsToPullContractsFrom.map { Transaction(object: $0) }
-
-
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
         realm.beginWrite()
         realm.add(transactionsToCommit, update: .all)

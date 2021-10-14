@@ -11,6 +11,7 @@ import Result
 import UserNotifications
 import Mixpanel
 
+// swiftlint:disable type_body_length
 class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionDataCoordinator {
     private let storage: TransactionsStorage
     let session: WalletSession
@@ -484,6 +485,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension SingleChainTransactionEtherscanDataCoordinator {
     class functional {}

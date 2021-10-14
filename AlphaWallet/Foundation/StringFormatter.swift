@@ -25,7 +25,7 @@ final class StringFormatter {
 
         return formatter
     }()
-    
+
     /// Converts a Double to a `currency String`.
     ///
     /// - Parameters:
@@ -78,7 +78,7 @@ final class StringFormatter {
             return value.trimmingCharacters(in: .whitespacesAndNewlines).droppedTrailingZeros
         } else {
             return value.stringValue.droppedTrailingZeros
-        } 
+        }
     }
 
     func largeNumberFormatter(for double: Double, currency: String) -> String {
@@ -87,13 +87,13 @@ final class StringFormatter {
         func formatNumber(_ number: Double) -> (value: Double, suffix: String) {
             var index = 0
             var value = number
-            while ((value / 1000) >= 1) {
+            while (value / 1000) >= 1 {
                value /= 1000
                index += 1
             }
             return (value, suffix[index])
         }
-        
+
         let result = formatNumber(double)
         return String(format: "%.1f%@ %@", result.value, result.suffix, currency)
     }

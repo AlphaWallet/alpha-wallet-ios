@@ -316,6 +316,7 @@ class TokenProvider: TokenProviderType {
         }
     }
 
+// swiftlint:disable function_body_length
     private func getTokenType(for address: AlphaWallet.Address, completion: @escaping (TokenType) -> Void) {
         let isErc875Promise = Promise<Bool> { seal in
             withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
@@ -448,5 +449,6 @@ class TokenProvider: TokenProviderType {
             error(value: e, pref: "isErc20Promise", address: address)
         })
     }
+// swiftlint:enable function_body_length
 }
 

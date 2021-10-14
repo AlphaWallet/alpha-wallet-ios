@@ -82,7 +82,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
 
                 buttonsBar.configure(.custom(types: toolbarElements))
 
-                for (index, _) in toolbarElements.enumerated() {
+                for index in toolbarElements.indices {
                     let button = buttonsBar.buttons[index]
 
                     if index == moreButtonIndex {
