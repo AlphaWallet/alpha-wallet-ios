@@ -33,8 +33,10 @@ class ModalViewController: UINavigationController {
 
     weak var presentationDelegate: ModalViewControllerDelegate?
 
-    init() {
-        super.init(rootViewController: viewController)
+    //Implementing this instead of `init()`. The latter works with Xcode 13 + iOS 15, but crashes with Xcode 14 + iOS 12.4
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        viewControllers = [viewController]
 
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
