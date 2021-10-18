@@ -4,17 +4,7 @@ import Foundation
 import PromiseKit
 import Alamofire
 
-class GasNowGasPriceEstimator {
-    func fetch() -> Promise<GasNowPriceEstimates> {
-        let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
-        return alphaWalletProvider.request(.gasPriceEstimate).map { response -> GasNowPriceEstimates in
-            try response.map(GasNowPriceEstimates.self)
-        }
-    }
-}
-
 class EtherscanGasPriceEstimator {
-
     struct EtherscanPriceEstimatesResponse: Decodable {
         let result: EtherscanPriceEstimates
     }
@@ -23,14 +13,14 @@ class EtherscanGasPriceEstimator {
         return server.etherscanGasPriceEstimatesURL != nil
     }
 
-    func fetch(server: RPCServer) -> Promise<GasNowPriceEstimates> {
+    func fetch(server: RPCServer) -> Promise<GasPriceEstimates> {
         struct AnyError: Error {}
         guard let url = server.etherscanGasPriceEstimatesURL else {
             return .init(error: AnyError())
         }
 
         return Alamofire.request(url, method: .get).responseDecodable(EtherscanPriceEstimatesResponse.self).compactMap { response in
-            EtherscanPriceEstimates.bridgeToGasNowPriceEstimates(for: response.result)
+            EtherscanPriceEstimates.bridgeToGasPriceEstimates(for: response.result)
         }
     }
 }
