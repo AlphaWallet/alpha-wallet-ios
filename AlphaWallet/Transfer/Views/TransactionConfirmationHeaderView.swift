@@ -87,20 +87,20 @@ class TransactionConfirmationHeaderView: UIView {
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         separatorLine.backgroundColor = R.color.mercury()
 
-        titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         let titleRow = [titleIconImageView, titleLabel].asStackView(axis: .horizontal, spacing: 6)
 
         let col0 = nameLabel
         let col1 = [
             titleRow,
             detailsLabel
-        ].asStackView(axis: .vertical, alignment: .leading)
+        ].asStackView(axis: .vertical)
         col1.translatesAutoresizingMaskIntoConstraints = false
 
         let contents = UIView()
         contents.translatesAutoresizingMaskIntoConstraints = false
         contents.addSubview(col0)
         contents.addSubview(col1)
+        trailingStackView.isHidden = true
 
         let row0 = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), contents, trailingStackView, chevronView, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal, alignment: .top)
 
@@ -230,6 +230,7 @@ extension TransactionConfirmationHeaderView {
         wrapper.addSubview(label)
 
         trailingStackView.addArrangedSubview(wrapper)
+        trailingStackView.isHidden = false
 
         NSLayoutConstraint.activate([
             label.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor),
