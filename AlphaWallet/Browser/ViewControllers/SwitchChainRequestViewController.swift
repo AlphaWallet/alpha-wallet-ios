@@ -47,12 +47,12 @@ class SwitchChainRequestViewController: ModalViewController {
         let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
         return buttonsBar
     }()
-    
+
     private var viewModel: SwitchChainRequestViewModel
 
     init(viewModel: SwitchChainRequestViewModel) {
         self.viewModel = viewModel
-        super.init()
+        super.init(nibName: nil, bundle: nil)
         let footerView = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
 
         footerStackView.addArrangedSubview(footerView)

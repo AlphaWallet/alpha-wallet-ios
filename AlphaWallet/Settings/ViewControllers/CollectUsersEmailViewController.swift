@@ -57,8 +57,8 @@ class CollectUsersEmailViewController: ModalViewController {
         return buttonsBar
     }()
 
-    override init() {
-        super.init()
+    init() {
+        super.init(nibName: nil, bundle: nil)
         let footerView = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
 
         footerStackView.addArrangedSubview(footerView)
@@ -136,7 +136,7 @@ extension CollectUsersEmailViewController: ModalViewControllerDelegate {
         view.endEditing(true)
 
         dismissViewAnimated(with: {
-            self._delegate?.didClose(in: self) 
+            self._delegate?.didClose(in: self)
             self.dismiss(animated: false)
         })
     }
