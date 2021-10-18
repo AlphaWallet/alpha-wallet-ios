@@ -42,6 +42,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
+    private weak var connectionTimeoutViewController: WalletConnectConnectionTimeoutViewController?
     private weak var notificationAlertController: UIViewController?
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
@@ -148,6 +149,32 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
+    }
+
+    private func displayConnectionTimeout(_ errorMessage: String) {
+        func displayConnectionTimeoutViewPopup(message: String) {
+            let pair = WalletConnectConnectionTimeoutViewController.promise(presentationViewController, errorMessage: errorMessage)
+            notificationAlertController = pair.viewController
+
+            pair.promise.done({ response in
+                switch response {
+                case .action:
+                    self.delegate?.universalScannerSelected(in: self)
+                case .canceled:
+                    break
+                }
+            }).cauterize()
+        }
+
+        if let viewController = connectionTimeoutViewController {
+            viewController.dismissAnimated(completion: {
+                displayConnectionTimeoutViewPopup(message: errorMessage)
+            })
+        } else {
+            displayConnectionTimeoutViewPopup(message: errorMessage)
+        }
+
+        resetSessionsToRemoveLoadingIfNeeded()
     }
 
     private func displayErrorMessage(_ errorMessage: String) {
@@ -299,9 +326,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         if Features.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections {
             info("WalletConnect app-enforced timeout for waiting for new connection")
             analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [Analytics.WalletConnectAction.bridgeUrl.rawValue: url.bridgeURL.absoluteString])
-            //TODO replace with proper error message, localized
-            let errorMessage = "Too long"
-            displayErrorMessage(errorMessage)
+            let errorMessage = R.string.localizable.walletConnectErrorConnectionTimeoutErrorMessage()
+            displayConnectionTimeout(errorMessage)
         } else {
             info("WalletConnect app-enforced timeout for waiting for new connection. Disabled")
         }
