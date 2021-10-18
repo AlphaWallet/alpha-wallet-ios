@@ -169,23 +169,6 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         //Even if no servers is selected, we don't attempt to disable the back button here since calling code will take care of ignore the change server "request" when there are no servers selected. We don't want to disable the back button because users can't cancel the operation
     }
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let server = viewModel.server(for: indexPath)
-        guard server.isCustom else { return nil }
-        guard !viewModel.isServerSelected(server) else { return nil }
-        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.delete()) { _, _, complete in
-            self.confirmDelete(server: server)
-            complete(true)
-        }
-
-        deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
-        deleteAction.backgroundColor = R.color.danger()
-
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
-        configuration.performsFirstActionWithFullSwipe = true
-
-        return configuration
-    }
 }
 
 extension EnabledServersViewController: EnableServersHeaderViewDelegate {
@@ -204,10 +187,8 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
         case (.mainnet, false), (.testnet, true):
             let prompt = PromptViewController()
             prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
-            prompt.modalPresentationStyle = .overFullScreen
-            prompt.modalTransitionStyle = .crossDissolve
-            prompt.view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            prompt.delegate = self
+
+            prompt._delegate = self
             present(prompt, animated: true)
         }
     }
@@ -215,23 +196,19 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
 
 extension EnabledServersViewController: PromptViewControllerDelegate {
     func actionButtonTapped(inController controller: PromptViewController) {
-        controller.dismiss(animated: true) {
-            if let serversSelectedInPreviousMode = self.serversSelectedInPreviousMode {
-                self.serversSelectedInPreviousMode = self.viewModel.selectedServers
-                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .testnet))
-            } else {
-                self.serversSelectedInPreviousMode = self.viewModel.selectedServers
-                self.configure(viewModel: .init(servers: self.viewModel.servers, selectedServers: Constants.defaultEnabledTestnetServers, mode: .testnet))
-            }
-            //Animation breaks section headers. No idea why. So don't animate
-            self.tableView.reloadData()
+        if let serversSelectedInPreviousMode = serversSelectedInPreviousMode {
+            self.serversSelectedInPreviousMode = viewModel.selectedServers
+            configure(viewModel: .init(servers: viewModel.servers, selectedServers: serversSelectedInPreviousMode, mode: .testnet))
+        } else {
+            serversSelectedInPreviousMode = viewModel.selectedServers
+            configure(viewModel: .init(servers: viewModel.servers, selectedServers: Constants.defaultEnabledTestnetServers, mode: .testnet))
         }
+        //Animation breaks section headers. No idea why. So don't animate
+        tableView.reloadData()
     }
 
     func controllerDismiss(_ controller: PromptViewController) {
-        controller.dismiss(animated: true) {
-            self.headers.mainnet.configure(mode: .mainnet, isEnabled: true)
-            self.headers.testnet.configure(mode: .testnet, isEnabled: false)
-        }
+        headers.mainnet.configure(mode: .mainnet, isEnabled: true)
+        headers.testnet.configure(mode: .testnet, isEnabled: false)
     }
 }
