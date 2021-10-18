@@ -438,6 +438,7 @@ extension TransactionConfirmationViewController {
                     }
                 }
                 header.childrenStackView.addArrangedSubviews(children)
+                header.childrenStackView.isHidden = children.isEmpty
                 views.append(header)
             }
         case .tokenScriptTransaction(let viewModel):
@@ -467,6 +468,7 @@ extension TransactionConfirmationViewController {
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
+                header.childrenStackView.isHidden = children.isEmpty
                 views.append(header)
             }
         case .sendFungiblesTransaction(let viewModel):
@@ -498,6 +500,7 @@ extension TransactionConfirmationViewController {
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
+                header.childrenStackView.isHidden = children.isEmpty
                 views.append(header)
             }
         case .sendNftTransaction(let viewModel):
@@ -529,6 +532,7 @@ extension TransactionConfirmationViewController {
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)
+                header.childrenStackView.isHidden = children.isEmpty
                 views.append(header)
             }
         case .claimPaidErc875MagicLink(let viewModel):
