@@ -247,10 +247,12 @@ extension BrowserViewController: WKScriptMessageHandler {
             }
             return
         }
+        info("[Browser] dapp command: \(command)")
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
         let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
 
+        info("[Browser] dapp action: \(action)")
         delegate?.didCall(action: action, callbackID: command.id, inBrowserViewController: self)
     }
 }

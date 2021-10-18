@@ -88,13 +88,19 @@ extension DappAction {
 
     static func fromMessage(_ message: WKScriptMessage) -> DappOrWalletCommand? {
         let decoder = JSONDecoder()
-        guard var body = message.body as? [String: AnyObject] else { return nil }
+        guard var body = message.body as? [String: AnyObject] else {
+            debug("[Browser] Invalid body in message")
+            return nil
+        }
         if var object = body["object"] as? [String: AnyObject], object["gasLimit"] is [String: AnyObject] {
             //Some dapps might wrongly have a gasLimit dictionary which breaks our decoder. MetaMask seems happy with this, so we support it too
             object["gasLimit"] = nil
             body["object"] = object as AnyObject
         }
-        guard let jsonString = body.jsonString else { return nil }
+        guard let jsonString = body.jsonString else {
+            debug("[Browser] Invalid jsonString. body: \(body)")
+            return nil
+        }
         let data = jsonString.data(using: .utf8)!
         if let command = try? decoder.decode(DappCommand.self, from: data) {
             return .eth(command)
