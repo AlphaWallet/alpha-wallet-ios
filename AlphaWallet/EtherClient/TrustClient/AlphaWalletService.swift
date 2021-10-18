@@ -10,7 +10,6 @@ enum AlphaWalletService {
     case register(config: Config, device: PushDevice)
     case unregister(config: Config, device: PushDevice)
     case marketplace(config: Config, server: RPCServer)
-    case gasPriceEstimate
     case oneInchTokens(config: Config)
     case honeySwapTokens(config: Config)
     case rampAssets(config: Config)
@@ -40,8 +39,6 @@ extension AlphaWalletService: TargetType {
             return config.priceInfoEndpoints
         case .marketplace(let config, _):
             return config.priceInfoEndpoints
-        case .gasPriceEstimate:
-            return URL(string: Constants.gasNowEndpointBaseUrl)!
         case .oneInchTokens(let config):
             return config.oneInch
         case .honeySwapTokens(let config):
@@ -66,8 +63,6 @@ extension AlphaWalletService: TargetType {
             return "/push/unregister"
         case .marketplace:
             return "/marketplace"
-        case .gasPriceEstimate:
-            return "/api/v3/gas/price"
         case .oneInchTokens:
             return "/v3.0/1/tokens"
         case .honeySwapTokens:
@@ -90,7 +85,6 @@ extension AlphaWalletService: TargetType {
         case .unregister: return .delete
         case .pricesOfTokens: return .get
         case .marketplace: return .get
-        case .gasPriceEstimate: return .get
         case .oneInchTokens: return .get
         case .honeySwapTokens: return .get
         case .rampAssets: return .get
@@ -131,8 +125,6 @@ extension AlphaWalletService: TargetType {
             ], encoding: URLEncoding())
         case .marketplace(_, let server):
             return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
-        case .gasPriceEstimate:
-            return .requestPlain
         case .oneInchTokens, .honeySwapTokens, .rampAssets:
             return .requestPlain
         case .tokensThatHasPrices:
@@ -160,7 +152,7 @@ extension AlphaWalletService: TargetType {
                     "client-build": Bundle.main.buildNumber ?? "",
                 ]
             }
-        case .priceHistoryOfToken, .tokensThatHasPrices, .pricesOfTokens, .register, .unregister, .marketplace, .gasPriceEstimate:
+        case .priceHistoryOfToken, .tokensThatHasPrices, .pricesOfTokens, .register, .unregister, .marketplace:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",
