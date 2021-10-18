@@ -9,7 +9,7 @@ import UIKit
 
 class ThreadSafeDictionary<Key: Hashable, Value> {
     fileprivate var cache = [Key: Value]()
-    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", qos: .background)
 
     subscript(server: Key) -> Value? {
         get {
