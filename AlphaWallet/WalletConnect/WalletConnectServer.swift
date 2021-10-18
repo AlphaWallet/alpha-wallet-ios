@@ -100,6 +100,7 @@ class WalletConnectServer {
     }
 
     deinit {
+        debug("[WalletConnect] WalletConnectServer.deinit")
         server.unregister(handler: requestHandler)
     }
 
