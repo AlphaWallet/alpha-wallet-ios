@@ -153,7 +153,9 @@ class AppCoordinator: NSObject, Coordinator {
             return true
         }
 
-        if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator {
+        let shouldBeHandledByCustomUrlSchemeCoordinator = CustomUrlSchemeCoordinator.canHandleOpen(url: url) && inCoordinator != nil
+        //NOTE: avoid displaying error from `assetDefinitionStoreCoordinator.handleOpen(url` while handling eip681 url
+        if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator, !shouldBeHandledByCustomUrlSchemeCoordinator {
             let handled = assetDefinitionStoreCoordinator.handleOpen(url: url)
             if handled {
                 return true
@@ -161,6 +163,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         guard let inCoordinator = inCoordinator else { return false }
+
         let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages, assetDefinitionStore: assetDefinitionStore)
         urlSchemeHandler.delegate = self
         return urlSchemeHandler.handleOpen(url: url)
@@ -391,6 +394,10 @@ extension AppCoordinator: InCoordinatorDelegate {
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+    func handle(eip681Url url: URL) {
+        handleOpen(url: url)
+    }
+
     func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
         if var top = window.rootViewController {
             while let vc = top.presentedViewController {
