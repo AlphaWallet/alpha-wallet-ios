@@ -238,7 +238,7 @@ class TokensViewController: UIViewController {
             self?.tokenCollection.fetch()
         })
         loadingView = LoadingView()
-        emptyView = EmptyView(title: R.string.localizable.emptyViewNoTokensLabelTitle(), onRetry: { [weak self] in
+        emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
             self?.startLoading()
             self?.tokenCollection.fetch()
         })

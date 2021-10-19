@@ -45,7 +45,7 @@ class ActivitiesView: UIView {
             tableView.anchorsConstraint(to: self)
         ])
 
-        emptyView = TransactionsEmptyView(title: R.string.localizable.activityEmpty(), image: R.image.activities_empty_list())
+        emptyView = EmptyView.activitiesEmptyView()
     }
 
     func resetStatefulStateToReleaseObjectToAvoidMemoryLeak() {

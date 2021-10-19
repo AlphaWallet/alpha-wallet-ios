@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 02.07.2020.
 //
 
-import UIKit
-import WalletConnectSwift
+import UIKit 
 import Kingfisher
 
 protocol WalletConnectSessionViewControllerDelegate: AnyObject {

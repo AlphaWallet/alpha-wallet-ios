@@ -64,10 +64,7 @@ class TransactionsViewController: UIViewController {
             loadingView.loadingIndicator.color = Colors.appWhite
             loadingView.label.font = Fonts.regular(size: 18)
         }
-        emptyView = {
-            let view = TransactionsEmptyView()
-            return view
-        }()
+        emptyView = EmptyView.transactionsEmptyView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
