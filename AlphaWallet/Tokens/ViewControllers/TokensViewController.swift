@@ -260,10 +260,10 @@ class TokensViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
 
         walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
-            guard let strongSelf = self, let sessionsToURLServersMap = value else { return }
+            guard let strongSelf = self, let sessions = value else { return }
 
             let viewModel = strongSelf.viewModel
-            viewModel.walletConnectSessions = sessionsToURLServersMap.sessions.count
+            viewModel.walletConnectSessions = sessions.count
             strongSelf.viewModel = viewModel
 
             strongSelf.tableView.reloadData()
