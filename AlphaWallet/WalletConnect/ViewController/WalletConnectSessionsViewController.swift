@@ -17,14 +17,11 @@ extension WalletConnectSessionsViewController {
 }
 
 class WalletConnectSessionsViewController: UIViewController {
-    private var sessionsValue: [WalletConnectSession] {
-        return sessionsToURLServersMap.value?.sessions ?? []
-    }
-    private var urlToServer: [WalletConnectURL: RPCServer] {
-        return sessionsToURLServersMap.value?.urlToServer ?? [:]
+    private var sessionsValue: [WalletConnectSessionMappedToServer] {
+        return sessionsToURLServersMap.value ?? []
     }
 
-    private let sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>
+    private let sessionsToURLServersMap: Subscribable<[WalletConnectSessionMappedToServer]>
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletConnectSessionCell.self)
@@ -35,7 +32,7 @@ class WalletConnectSessionsViewController: UIViewController {
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = GroupedTable.Color.background
-        
+
         return tableView
     }()
 
@@ -47,11 +44,12 @@ class WalletConnectSessionsViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.hidesWhenStopped = true
         view.tintColor = .red
+
         return view
     }()
     private var state: State = .sessions
 
-    init(sessionsToURLServersMap: Subscribable<SessionsToURLServersMap>) {
+    init(sessionsToURLServersMap: Subscribable<[WalletConnectSessionMappedToServer]>) {
         self.sessionsToURLServersMap = sessionsToURLServersMap
         super.init(nibName: nil, bundle: nil)
 
@@ -141,7 +139,7 @@ extension WalletConnectSessionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        delegate?.didSelect(session: sessionsValue[indexPath.row], in: self)
+        delegate?.didSelect(session: sessionsValue[indexPath.row].session, in: self)
     }
 }
 
@@ -149,13 +147,10 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
 
-        let session = sessionsValue[indexPath.row]
-        if let server = urlToServer[session.url] {
-            let viewModel = WalletConnectSessionCellViewModel(session: session, server: server)
-            cell.configure(viewModel: viewModel)
-        } else {
-            //Should be impossible
-        }
+        let mappedSession = sessionsValue[indexPath.row]
+        let viewModel = WalletConnectSessionCellViewModel(session: mappedSession.session, server: mappedSession.server)
+        cell.configure(viewModel: viewModel)
+
         return cell
     }
 
