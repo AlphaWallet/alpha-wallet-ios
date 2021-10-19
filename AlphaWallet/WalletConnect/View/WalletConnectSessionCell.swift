@@ -13,8 +13,8 @@ class WalletConnectSessionCell: UITableViewCell {
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: StyleLayout.sideMargin, bottom: 7, right: StyleLayout.sideMargin)),
-            stackView.heightAnchor.constraint(equalToConstant: 44),
+            //NOTE: using edge insets to avoid braking constraints
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: StyleLayout.sideMargin, bottom: 20, right: StyleLayout.sideMargin))
         ])
     }
 

@@ -63,12 +63,10 @@ class SelectTokenViewController: UIViewController {
         })
 
         loadingView = LoadingView()
-        emptyView = EmptyView(
-            title: R.string.localizable.emptyViewNoTokensLabelTitle(),
-            onRetry: { [weak self] in
-                self?.startLoading()
-                self?.tokenCollection.fetch()
-            })
+        emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
+            self?.startLoading()
+            self?.tokenCollection.fetch()
+        }) 
 
         configure(viewModel: viewModel)
     }
