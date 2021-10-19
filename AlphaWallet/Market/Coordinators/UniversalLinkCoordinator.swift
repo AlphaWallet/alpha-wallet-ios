@@ -13,6 +13,7 @@ protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
     func handle(walletConnectUrl url: WalletConnectURL)
+    func handle(eip681Url url: URL)
 }
 
 // swiftlint:disable type_body_length
@@ -23,6 +24,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     static let walletConnectPath = "/wc"
+    static let eip681Path = "/ethereum:"
 
     private let analyticsCoordinator: AnalyticsCoordinator
     private let wallet: Wallet
@@ -324,10 +326,27 @@ class UniversalLinkCoordinator: Coordinator {
     //Returns true if handled
     func handleUniversalLink() -> Bool {
         //E.g. https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202
+
         if url.path == Self.walletConnectPath {
             return handleWalletConnect()
+        } else if let eip681Url = hasEip681Path(in: url) {
+            delegate?.handle(eip681Url: eip681Url)
+            return true
         } else {
             return handleMagicLink()
+        }
+    }
+    //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
+    private func hasEip681Path(in url: URL) -> URL? {
+        guard let magicLink = RPCServer(withMagicLink: url), url.path.starts(with: Self.eip681Path) else { return nil }
+        let eip681Url = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
+        switch QRCodeValueParser.from(string: eip681Url) {
+        case .address:
+            return nil
+        case .eip681:
+            return URL(string: eip681Url)
+        case .none:
+            return nil
         }
     }
 
