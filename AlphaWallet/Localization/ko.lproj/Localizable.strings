@@ -629,9 +629,9 @@
 "addCustomChain.error.noRpcNodeUrl" = "No RPC node URL provided";
 "addCustomChain.error.noBlockchainExplorerUrl" = "No blockchain explorer URL provided";
 "addCustomChain.error.invalidBlockchainExplorerUrl" = "Invalid blockchain explorer URL";
-"addCustomChain.switchToExisting" = "This site is requesting you to switch to the %@ chain with chain ID: %d. This will reload the page.";
-"addCustomChain.enableExisting" = "This site is requesting you to enable and switch to the %@ chain with chain ID: %d. This will reload the page.";
-"addCustomChain.addAndSwitch" = "This site is requesting you to add and switch to the %@ chain with chain ID: %d. This will reload the page.";
+"addCustomChain.switchToExisting" = "This site is requesting you to switch to the %@ chain with chain ID: %ld. This will reload the page.";
+"addCustomChain.enableExisting" = "This site is requesting you to enable and switch to the %@ chain with chain ID: %ld. This will reload the page.";
+"addCustomChain.addAndSwitch" = "This site is requesting you to add and switch to the %@ chain with chain ID: %ld. This will reload the page.";
 "addCustomChain.error.unknown" = "Unknown Error";
 "addCustomChain.error.chainIdNotMatch" = "Chain IDs returned by the RPC server do not match: %@ vs. %@";
 "addCustomChain.warning.noBlockchainExplorerUrl" = "Blockchain explorer URL can't be resolved. Would you like to continue without it? Transaction history will not be fetched";
