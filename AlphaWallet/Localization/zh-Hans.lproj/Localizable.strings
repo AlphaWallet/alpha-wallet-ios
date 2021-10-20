@@ -445,6 +445,8 @@
 "blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "blockchain.Cronos.Testnet" = "Cronos Testnet";
 "blockchain.arbitrum" = "Arbitrum";
+"blockchain.palm" = "Palm";
+"blockchain.palm.Testnet" = "Palm (Testnet)";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";
