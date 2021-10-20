@@ -445,6 +445,8 @@
 "blockchain.Optimistic.Kovan" = "Optimistic Kovan Testnet";
 "blockchain.Cronos.Testnet" = "Cronos Testnet";
 "blockchain.arbitrum" = "Arbitrum";
+"blockchain.palm" = "Palm";
+"blockchain.palm.Testnet" = "Palm (Testnet)";
 "photos" = "Explorar";
 "light" = "Luz";
 "qrCode.title" = "Apunta la cámara al código QR";
