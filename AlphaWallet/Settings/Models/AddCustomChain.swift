@@ -208,7 +208,7 @@ extension AddCustomChain.functional {
         return firstly {
             isValidBlockchainExplorerApiRoot(url)
         }.map {
-            url.absoluteString
+            urlString
         }.recover { error -> Promise<String> in
             //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
             guard let url = URL(string: "\(originalUrlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
@@ -217,7 +217,7 @@ extension AddCustomChain.functional {
             return firstly {
                 isValidBlockchainExplorerApiRoot(url)
             }.map {
-                url.absoluteString
+                originalUrlString
             }
         }
     }
