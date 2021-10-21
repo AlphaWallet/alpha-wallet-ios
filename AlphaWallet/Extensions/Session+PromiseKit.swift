@@ -74,6 +74,9 @@ extension Session {
                         return SendTransactionNotRetryableError.gasLimitTooHigh(message: message)
                     } else if message.lowercased().hasPrefix("invalid sender") {
                         return SendTransactionNotRetryableError.possibleChainIdMismatch(message: message)
+                    } else if message == "Upfront cost exceeds account balance" {
+                        //Spotted for Palm chain (mainnet)
+                        return SendTransactionNotRetryableError.insufficientFunds(message: message)
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
                     }
