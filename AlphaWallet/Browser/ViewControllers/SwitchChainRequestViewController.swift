@@ -81,12 +81,14 @@ class SwitchChainRequestViewController: ModalViewController {
     @objc private func actionButtonSelected(_ sender: UIButton) {
         dismissViewAnimated(with: {
             self._delegate?.didSelectActionButton(in: self)
+            self.dismiss(animated: false)
         })
     }
 
     @objc private func enableTestnetButtonSelected(_ sender: UIButton) {
         dismissViewAnimated(with: {
             self._delegate?.didSelectAdditionalButton(in: self)
+            self.dismiss(animated: false)
         })
     }
 }
