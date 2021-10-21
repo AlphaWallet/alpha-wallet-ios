@@ -6,7 +6,7 @@ class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
     let apprecation24hourLabel = UILabel()
     let balanceLabel = UILabel()
-    private let blockieImageView = BlockieImageView()
+    private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
 
     var viewModel: AccountViewModel?
     var account: Wallet?
@@ -30,9 +30,6 @@ class AccountViewCell: UITableViewCell {
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            blockieImageView.heightAnchor.constraint(equalToConstant: 40),
-            blockieImageView.widthAnchor.constraint(equalToConstant: 40),
-
             stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
