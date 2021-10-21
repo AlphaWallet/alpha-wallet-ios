@@ -210,10 +210,12 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        info("[Browser] navigation with error: \(error)")
         handleError(error: error)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        info("[Browser] provisional navigation with error: \(error)")
         handleError(error: error)
     }
 
