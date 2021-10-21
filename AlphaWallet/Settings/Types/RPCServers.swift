@@ -783,7 +783,7 @@ enum RPCServer: Hashable, CaseIterable {
     //We'll have to manually new cases here
     //Cannot be `let` as the chains can change dynamically without the app being restarted (i.e. killed). The UI can be restarted though (when switching changes)
     static internal var allCases: [RPCServer] {
-        return [
+        let all: [RPCServer] = [
             .main,
             .kovan,
             .ropsten,
@@ -810,9 +810,12 @@ enum RPCServer: Hashable, CaseIterable {
             .optimisticKovan,
             .cronosTestnet,
             .arbitrum,
-            .palm,
-            .palmTestnet,
         ]
+        if Features.isPalmEnabled {
+            return all + [.palm, .palmTestnet]
+        } else {
+            return all
+        }
     }
 
     static var availableServers: [RPCServer] {
