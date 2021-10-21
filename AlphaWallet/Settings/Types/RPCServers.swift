@@ -747,7 +747,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .arbitrum:
             return R.image.arbitrum()
         case .palm:
-            return nil
+            return R.image.iconsTokensPalm()
         case .palmTestnet:
             return nil
         }
