@@ -50,13 +50,8 @@ class AddressOrEnsNameLabel: UILabel {
         return indicator
     }()
 
-    let blockieImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-
-        return imageView
+    let blockieImageView: BlockieImageView = {
+        return BlockieImageView(size: .init(width: 20, height: 20))
     }()
 
     var addressString: String? {
@@ -117,7 +112,7 @@ class AddressOrEnsNameLabel: UILabel {
         inResolvingState = false
     }
 
-    var blockieImage: UIImage? {
+    var blockieImage: BlockiesImage? {
         didSet {
             blockieImageView.image = blockieImage
             blockieImageView.isHidden = blockieImage == nil
@@ -132,10 +127,9 @@ class AddressOrEnsNameLabel: UILabel {
     func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
         let id = UUID().uuidString
         requestsIdsStore.insert(id)
+        clear()
 
         return Promise<BlockieAndAddressOrEnsResolution> { seal in
-            clear()
-
             if let address = AlphaWallet.Address(string: value) {
                 inResolvingState = true
 
@@ -148,6 +142,8 @@ class AddressOrEnsNameLabel: UILabel {
                         return .value((nil, .resolved(.ensName(ens))))
                     }
                 }.done { value in
+                    // NOTE: improve loading indicator hidding
+                    self.requestsIdsStore.removeAll()
                     seal.fulfill(value)
                 }.catch { _ in
                     seal.fulfill((nil, .resolved(.none)))
@@ -164,6 +160,7 @@ class AddressOrEnsNameLabel: UILabel {
                         return .value((nil, .resolved(.address(addr))))
                     }
                 }.done { value in
+                    self.requestsIdsStore.removeAll()
                     seal.fulfill(value)
                 }.catch { _ in
                     seal.fulfill((nil, .resolved(.none)))

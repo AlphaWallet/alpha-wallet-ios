@@ -9,12 +9,7 @@ import UIKit
 
 class BlockieImageView: UIView {
     private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
-
-    private var button: UIButton = {
-        let imageView = UIButton()
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
+    private lazy var imageView = WebImageView(type: .thumbnail, size: size)
 
     var subscribable: Subscribable<BlockiesImage>? {
         didSet {
@@ -23,42 +18,45 @@ class BlockieImageView: UIView {
             }
 
             if let subscribable = subscribable {
-                subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
-                    guard let strongSelf = self else { return }
-
-                    strongSelf.button.setImage(imageAndSymbol, for: .normal)
+                subscriptionKey = subscribable.subscribe { [weak self] image in
+                    self?.setBlockieImage(image: image)
                 }
             } else {
                 subscriptionKey = nil
-                button.setImage(nil, for: .normal)
+                self.imageView.url = nil
             }
         }
     }
 
     var image: BlockiesImage? {
         get {
-            return button.image(for: .normal)
+            return nil
         }
         set {
-            button.setImage(newValue, for: .normal)
+            setBlockieImage(image: newValue)
         }
     }
+    private let size: CGSize
+    
+    ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
+    init(size: CGSize) {
+        self.size = size
+        super.init(frame: .zero)
 
-    convenience init() {
-        self.init(frame: .zero)
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
         clipsToBounds = true
+        translatesAutoresizingMaskIntoConstraints = false
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(imageView)
 
-        button.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(button)
+        NSLayoutConstraint.activate([imageView.anchorsConstraint(to: self)])
+
+        imageView.isUserInteractionEnabled = true
+        isUserInteractionEnabled = true
 
         NSLayoutConstraint.activate([
-            button.anchorsConstraint(to: self),
+            imageView.widthAnchor.constraint(equalToConstant: size.width),
+            imageView.heightAnchor.constraint(equalToConstant: size.height)
         ])
-        isUserInteractionEnabled = true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -71,21 +69,25 @@ class BlockieImageView: UIView {
         layer.cornerRadius = frame.width / 2.0
     }
 
+    func setBlockieImage(image: BlockiesImage?) {
+        switch image {
+        case .image(let image):
+            imageView.image = image
+        case .url(let url):
+            imageView.url = url
+        case .none:
+            imageView.url = nil
+        }
+    }
+
     func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
-        button.addTarget(target, action: action, for: controlEvents)
+        let gesture = UITapGestureRecognizer(target: target, action: action)
+        imageView.addGestureRecognizer(gesture)
     }
 }
 
 extension BlockieImageView {
     static var defaultBlockieImageView: BlockieImageView {
-        let imageView = BlockieImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.clipsToBounds = true
-
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 24),
-            imageView.heightAnchor.constraint(equalToConstant: 24),
-        ])
-        return imageView
+        return BlockieImageView(size: .init(width: 24, height: 24))
     }
 }

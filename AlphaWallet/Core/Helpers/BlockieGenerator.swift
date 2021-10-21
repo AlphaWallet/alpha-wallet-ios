@@ -10,7 +10,10 @@ import BlockiesSwift
 import PromiseKit
 import UIKit.UIImage
 
-typealias BlockiesImage = UIImage
+enum BlockiesImage {
+    case image(UIImage)
+    case url(URL)
+}
 
 class BlockiesGenerator {
     private enum BlockieSize {
@@ -118,21 +121,25 @@ class BlockiesGenerator {
         return .value(result)
     }
 
-    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
+    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<BlockiesImage> {
         Promise { seal in
             queue.async {
-                let task = URLSession.shared.dataTask(with: request) { data, _, _ in
-                    if let data = data {
-                        let image = UIImage(data: data)
-                        if let img = image {
-                            seal.fulfill(img)
-                        } else {
-                            seal.reject(TokenImageFetcher.ImageAvailabilityError.notAvailable)
-                        }
-                    } else {
-                        seal.reject(TokenImageFetcher.ImageAvailabilityError.notAvailable)
-                    }
+                guard let url = request.url else {
+                    return seal.reject(TokenImageFetcher.ImageAvailabilityError.notAvailable)
                 }
+
+                if url.pathExtension == "svg" {
+                    return seal.fulfill(.url(url))
+                }
+
+                let task = URLSession.shared.dataTask(with: request) { data, _, _ in
+                    guard let image = data.flatMap({ UIImage(data: $0) }) else {
+                        return seal.reject(TokenImageFetcher.ImageAvailabilityError.notAvailable)
+                    }
+
+                    seal.fulfill(.image(image))
+                }
+
                 task.resume()
             }
         }
@@ -185,7 +192,7 @@ class BlockiesGenerator {
                 let blockies = Blockies(seed: address.eip55String, size: size, scale: scale)
                 DispatchQueue.main.async {
                     if let image = blockies.createImage() {
-                        seal.fulfill(image)
+                        seal.fulfill(.image(image))
                     } else {
                         seal.reject(AnyError.blockieCreateFailure)
                     }
