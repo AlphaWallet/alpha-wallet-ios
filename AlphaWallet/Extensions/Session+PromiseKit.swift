@@ -37,6 +37,7 @@ extension Session {
     }
 
     private static func convertToUSerFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
+        info("convertToUSerFriendlyError error: \(error)")
         switch error {
         case .connectionError(let e):
             let message = e.localizedDescription
@@ -74,6 +75,9 @@ extension Session {
                         return SendTransactionNotRetryableError.gasLimitTooHigh(message: message)
                     } else if message.lowercased().hasPrefix("invalid sender") {
                         return SendTransactionNotRetryableError.possibleChainIdMismatch(message: message)
+                    } else if message == "Upfront cost exceeds account balance" {
+                        //Spotted for Palm chain (mainnet)
+                        return SendTransactionNotRetryableError.insufficientFunds(message: message)
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("JSONRPCError.responseError | code: \(code) | message: \(message)", url: baseUrl.absoluteString)
                     }
