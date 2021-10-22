@@ -152,6 +152,11 @@ class AppCoordinator: NSObject, Coordinator {
         if handled {
             return true
         }
+        //TODO clean up handling of custom URL schemes:
+        if url.scheme == "wc", let wcUrl = WalletConnectURL(url.absoluteString), let inCoordinator = inCoordinator {
+            inCoordinator.openWalletConnectSession(url: wcUrl)
+            return true
+        }
 
         let shouldBeHandledByCustomUrlSchemeCoordinator = CustomUrlSchemeCoordinator.canHandleOpen(url: url) && inCoordinator != nil
         //NOTE: avoid displaying error from `assetDefinitionStoreCoordinator.handleOpen(url` while handling eip681 url
