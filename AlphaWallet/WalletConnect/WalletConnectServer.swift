@@ -82,7 +82,19 @@ class WalletConnectServer {
     var urlToServer: [WalletConnectURL: RPCServer] {
         UserDefaults.standard.urlToServer
     }
-    var sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
+    private var _sessions: Subscribable<[WalletConnectSession]> = Subscribable([])
+
+    lazy var sessions: Subscribable<[WalletConnectSessionMappedToServer]> = {
+        return _sessions.map { sessions -> [WalletConnectSessionMappedToServer] in
+            return sessions.compactMap { session -> WalletConnectSessionMappedToServer? in
+                if let server = self.urlToServer[session.url] {
+                    return (session, server)
+                } else {
+                    return nil
+                }
+            }
+        }
+    }()
 
     weak var delegate: WalletConnectServerDelegate?
     private lazy var requestHandler: RequestHandlerToAvoidMemoryLeak = { [weak self] in
@@ -94,7 +106,7 @@ class WalletConnectServer {
 
     init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
-        sessions.value = server.openSessions()
+        _sessions.value = server.openSessions()
 
         server.register(handler: requestHandler)
     }
@@ -213,7 +225,7 @@ extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
 
     private func convert(request: WalletConnectSwift.Request) -> Promise<Action.ActionType> {
         debug("WalletConnect convert request: \(request.method) url: \(request.url.absoluteString)")
-        guard let sessions = sessions.value else { return .init(error: WalletConnectError.connectionInvalid) }
+        guard let sessions = _sessions.value else { return .init(error: WalletConnectError.connectionInvalid) }
         guard let session = sessions.first(where: { $0.url == request.url }) else { return .init(error: WalletConnectError.connectionInvalid) }
         guard let rpcServer = urlToServer[request.url] else { return .init(error: WalletConnectError.connectionInvalid) }
         let token = TokensDataStore.token(forServer: rpcServer)
@@ -257,7 +269,7 @@ extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
 
 extension WalletConnectServer: ServerDelegate {
     private func removeSession(for url: WalletConnectURL) {
-        guard var sessions = sessions.value else { return }
+        guard var sessions = _sessions.value else { return }
 
         if let index = sessions.firstIndex(where: { $0.url.absoluteString == url.absoluteString }) {
             set(server: nil, for: sessions[index].url)
@@ -279,10 +291,10 @@ extension WalletConnectServer: ServerDelegate {
     }
 
     private func refresh(sessions value: [Session]) {
-        sessions.value = value
+        _sessions.value = value
     }
 
-    func set(server: RPCServer?, for url: WalletConnectURL) {
+    private func set(server: RPCServer?, for url: WalletConnectURL) {
         var urlToServer = UserDefaults.standard.urlToServer
 
         if let server = server {
@@ -319,7 +331,7 @@ extension WalletConnectServer: ServerDelegate {
     func server(_ server: Server, didConnect session: Session) {
         debug("WalletConnect didConnect: \(session.url.absoluteString)")
         DispatchQueue.main.async {
-            guard var sessions = self.sessions.value else { return }
+            guard var sessions = self._sessions.value else { return }
             if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
                 sessions[index] = session
             } else {
