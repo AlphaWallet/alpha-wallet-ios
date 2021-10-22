@@ -931,15 +931,23 @@ extension InCoordinator: UITabBarControllerDelegate {
 
     private func loadHomePageIfNeeded() {
         // NOTE: open home web page if tap on browser tab bar icon, should we only when browser opened
-        guard let coordinator = dappBrowserCoordinator, let url = config.homePageURL else { return }
+        guard let coordinator = dappBrowserCoordinator else { return }
 
-        coordinator.open(url: url, animated: false)
+        if let url = config.homePageURL {
+            coordinator.open(url: url, animated: false)
+        } else {
+            coordinator.showDappsHome()
+        }
     }
 
     private func loadHomePageIfEmpty() {
-        guard let coordinator = dappBrowserCoordinator, let url = config.homePageURL, !coordinator.hasWebPageLoaded else { return }
+        guard let coordinator = dappBrowserCoordinator, !coordinator.hasWebPageLoaded else { return }
 
-        coordinator.open(url: url, animated: false)
+        if let url = config.homePageURL {
+            coordinator.open(url: url, animated: false)
+        } else {
+            coordinator.showDappsHome()
+        }
     }
 }
 

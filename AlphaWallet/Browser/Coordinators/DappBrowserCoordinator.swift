@@ -129,6 +129,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.viewControllers = [rootViewController]
     }
 
+    func showDappsHome() {
+        browserNavBar?.clearDisplay()
+        navigationController.popToRootViewController(animated: true)
+    }
+
     @objc func dismiss() {
         removeAllCoordinators()
         navigationController.dismiss(animated: true)
@@ -740,9 +745,12 @@ extension DappBrowserCoordinator: DappsAutoCompletionViewControllerDelegate {
 extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
 
     func didTapHome(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar) {
-        guard let url = config.homePageURL else { return }
-
-        open(url: url, animated: true, forceReload: true)
+        if let url = config.homePageURL {
+            open(url: url, animated: true, forceReload: true)
+        } else {
+            browserNavBar?.clearDisplay()
+            navigationController.popToRootViewController(animated: true)
+        }
     }
 
     func didTapBack(inNavigationBar navigationBar: DappBrowserNavigationBar) {
