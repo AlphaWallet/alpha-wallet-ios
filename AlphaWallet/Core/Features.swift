@@ -22,7 +22,7 @@ enum Features {
     static let isAlertsEnabled = false
     static let isErc1155Enabled = true
     static let isUsingPrivateNetwork = false
-    static let isUsingAppEnforcedTimeoutForMakingWalletConnectConnections = false
+    static let isUsingAppEnforcedTimeoutForMakingWalletConnectConnections = true
     static let isAttachingLogFilesToSupportEmailEnabled = false
     static let isPalmEnabled = false
 }
