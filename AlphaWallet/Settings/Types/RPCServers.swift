@@ -579,8 +579,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .optimisticKovan: return "https://kovan.optimism.io"
             case .cronosTestnet: return "https://cronos-testnet.crypto.org:8545"
             case .arbitrum: return "https://arbitrum-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .palm: return "https://palm-mainnet.infura.io/v3/3a961d6501e54add9a41aa53f15de99b"
-            case .palmTestnet: return "https://palm-testnet.infura.io/v3/e504875614714d3aac7061d4a197b190"
+            case .palm: return "https://palm-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
+            case .palmTestnet: return "https://palm-testnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             }
         }()
         return URL(string: urlString)!
