@@ -54,7 +54,7 @@
 			<string>Ethereum Links</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>ethereum1</string>
+				<string>ethereum</string>
 			</array>
 		</dict>
 		<dict>
