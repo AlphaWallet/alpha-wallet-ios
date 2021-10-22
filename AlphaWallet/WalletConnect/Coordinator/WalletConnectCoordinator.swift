@@ -18,7 +18,7 @@ enum SessionsToDisconnect {
     case all
 }
 
-typealias SessionsToURLServersMap = (sessions: [WalletConnectSession], urlToServer: [WalletConnectURL: RPCServer])
+typealias WalletConnectSessionMappedToServer = (session: WalletConnectSession, server: RPCServer)
 
 protocol WalletConnectCoordinatorDelegate: class, CanOpenURL {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
@@ -35,7 +35,9 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     private let navigationController: UINavigationController
 
     var coordinators: [Coordinator] = []
-    var sessionsToURLServersMap: Subscribable<SessionsToURLServersMap> = .init((sessions: [], urlToServer: [:]))
+    var sessionsToURLServersMap: Subscribable<[WalletConnectSessionMappedToServer]> {
+        server.sessions
+    }
 
     private let keystore: Keystore
     private let sessions: ServerDictionary<WalletSession>
@@ -58,12 +60,6 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         super.init()
         start()
-
-        server.sessions.subscribe { [weak self, weak server] sessions in
-            guard let strongSelf = self, let strongServer = server else { return }
-
-            strongSelf.sessionsToURLServersMap.value = (sessions ?? [], strongServer.urlToServer)
-        }
     }
 
     //NOTE: we are using disconnection to notify dapp that we get disconnect, in other case dapp still stay connected
@@ -108,11 +104,11 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
 
     func showSessionDetails(in navigationController: UINavigationController) {
-        guard let sessions = server.sessions.value else { return }
+        let sessions = server.sessions.value ?? []
 
         if sessions.count == 1 {
-            let session = sessions[0]
-            display(session: session, in: navigationController)
+            let mappedSession = sessions[0]
+            display(session: mappedSession.session, in: navigationController)
         } else {
             showSessions(state: .sessions, navigationController: navigationController)
         }
