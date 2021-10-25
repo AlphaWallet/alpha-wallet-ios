@@ -40,6 +40,7 @@ struct DASLookupResponse: Decodable {
     let errno: Int
     let errmsg: String
     let records: [Record]
+    let ownerAddress: AlphaWallet.Address?
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -47,8 +48,14 @@ struct DASLookupResponse: Decodable {
         errmsg = try container.decode(String.self, forKey: .errmsg)
         if let value = try? container.decodeIfPresent(DataClass.self, forKey: .data) {
             records = value?.accountData.records ?? []
+            if value?.accountData.ownerAddressChain == "ETH", let address = value?.accountData.ownerAddress {
+                ownerAddress = AlphaWallet.Address(string: address)
+            } else {
+                ownerAddress = nil
+            }
         } else {
             records = []
+            ownerAddress = nil
         }
     }
 
@@ -62,8 +69,12 @@ struct DASLookupResponse: Decodable {
     struct AccountData: Decodable {
         enum CodingKeys: String, CodingKey {
             case records
+            case ownerAddressChain = "owner_address_chain"
+            case ownerAddress = "owner_address"
         }
         let records: [Record]
+        let ownerAddressChain: String?
+        let ownerAddress: String?
     }
 
     struct Record: Decodable {
