@@ -13,7 +13,7 @@ extension Session {
                 case .success(let result):
                     seal.fulfill(result)
                 case .failure(let error):
-                    if let e = convertToUSerFriendlyError(error: error, baseUrl: request.baseURL) {
+                    if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
                         seal.reject(e)
                     } else {
                         seal.reject(error)
@@ -36,8 +36,8 @@ extension Session {
         }
     }
 
-    private static func convertToUSerFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
-        info("convertToUSerFriendlyError error: \(error)")
+    private static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
+        info("convertToUserFriendlyError error: \(error)")
         switch error {
         case .connectionError(let e):
             let message = e.localizedDescription
