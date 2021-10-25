@@ -40,4 +40,9 @@ class RPCServerTests: XCTestCase {
         let orders = Set(all.map(\.displayOrderPriority))
         XCTAssertEqual(orders.count, all.count)
     }
+
+    func testDefaultMainnetServers() {
+        let all = Constants.defaultEnabledServers
+        XCTAssertTrue(all.contains(.main))
+    }
 }
