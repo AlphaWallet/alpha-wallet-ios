@@ -57,7 +57,7 @@ We want to give businesses the whitelabel tools they need to develop their ether
 
 # Getting Started
 
-1.  [Download](https://developer.apple.com/download/more/) Xcode 11.7
+1. [Download  Xcode 13](https://developer.apple.com/download/more/)
 2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
 
