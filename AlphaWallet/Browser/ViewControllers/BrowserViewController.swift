@@ -228,7 +228,7 @@ extension BrowserViewController: WKNavigationDelegate {
             app.open(url)
             return decisionHandler(.cancel)
         }
-        if url.host == "aw.app" && url.path == UniversalLinkCoordinator.walletConnectPath {
+        if MagicLinkURL(url: url) != nil {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             return decisionHandler(.cancel)
         }

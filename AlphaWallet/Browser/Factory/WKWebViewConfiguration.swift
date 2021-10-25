@@ -56,6 +56,8 @@ extension WKWebViewConfiguration {
             webViewConfig.setURLSchemeHandler(webViewConfig, forURLScheme: "tokenscript-resource")
         }
 
+        HackToAllowUsingSafaryExtensionCodeInDappBrowser.injectJs(to: webViewConfig)
+
         webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
@@ -283,5 +285,63 @@ extension WKWebViewConfiguration: WKURLSchemeHandler {
 
     public func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {
         //Do nothing
+    }
+}
+
+private struct HackToAllowUsingSafaryExtensionCodeInDappBrowser {
+    private static func javaScriptForSafaryExtension() -> String {
+        var js = String()
+
+        if let filepath = Bundle.main.path(forResource: "config", ofType: "js"), let content = try? String(contentsOfFile: filepath) {
+            js += content
+        }
+        if let filepath = Bundle.main.path(forResource: "helpers", ofType: "js"), let content = try? String(contentsOfFile: filepath) {
+            js += content
+        }
+        return js
+    }
+
+    static func injectJs(to webViewConfig: WKWebViewConfiguration) {
+        func encodeStringTo64(fromString: String) -> String? {
+            let plainData = fromString.data(using: .utf8)
+            return plainData?.base64EncodedString(options: [])
+        }
+        var js = javaScriptForSafaryExtension()
+        js += """
+                const overridenElementsForAlphaWalletExtension = new Map();
+                function runOnStart() {
+                    function applyURLsOverriding(options, url) {
+                        let elements = overridenElementsForAlphaWalletExtension.get(url);
+                        if (typeof elements != 'undefined') {
+                            overridenElementsForAlphaWalletExtension(elements)
+                        }
+
+                        overridenElementsForAlphaWalletExtension.set(url, retrieveAllURLs(document, options));
+                    }
+
+                    const url = document.URL;
+                    applyURLsOverriding(optionsByDefault, url);
+                }
+
+                if(document.readyState !== 'loading') {
+                    runOnStart();
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        runOnStart()
+                    });
+                }
+        """
+
+        let jsStyle = """
+            javascript:(function() {
+            var parent = document.getElementsByTagName('body').item(0);
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.innerHTML = window.atob('\(encodeStringTo64(fromString: js)!)');
+            parent.appendChild(script)})()
+        """
+
+        let userScript = WKUserScript(source: jsStyle, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
+        webViewConfig.userContentController.addUserScript(userScript)
     }
 }

@@ -15,8 +15,8 @@
     },
 
     "content_scripts": [{
-        "js": [ "config.js", "content.js"],
-        "matches": ["<all_urls>" ]
+        "js": [ "config.js", "BrowserStorageSubscription.js", "helpers.js", "content.js"],
+        "matches": ["<all_urls>"]
     }],
 
     "browser_action": {
