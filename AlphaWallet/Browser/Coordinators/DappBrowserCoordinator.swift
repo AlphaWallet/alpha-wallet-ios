@@ -474,37 +474,51 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
 }
 
 extension DappBrowserCoordinator: BrowserViewControllerDelegate {
+
     func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController) {
-        guard case .real(let account) = session.account.type else {
+        func rejectDappAction() {
             browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
             navigationController.topViewController?.displayError(error: InCoordinatorError.onlyWatchAccount)
-            return
         }
 
-        switch action {
-        case .signTransaction(let unconfirmedTransaction):
-            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
-        case .sendTransaction(let unconfirmedTransaction):
-            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
-        case .signMessage(let hexMessage):
-            signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: callbackID)
-        case .signPersonalMessage(let hexMessage):
-            signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: callbackID)
-        case .signTypedMessage(let typedData):
-            signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
-        case .signTypedMessageV3(let typedData):
-            signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
-        case .ethCall(from: let from, to: let to, data: let data):
-            //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
-            let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
-            let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
-            ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
-        case .walletAddEthereumChain(let customChain):
-            addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
-        case .walletSwitchEthereumChain(let targetChain):
-            switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
-        case .unknown, .sendRawTransaction:
-            break
+        func performDappAction(account: AlphaWallet.Address) {
+            switch action {
+            case .signTransaction(let unconfirmedTransaction):
+                executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+            case .sendTransaction(let unconfirmedTransaction):
+                executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
+            case .signMessage(let hexMessage):
+                signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: callbackID)
+            case .signPersonalMessage(let hexMessage):
+                signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: callbackID)
+            case .signTypedMessage(let typedData):
+                signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
+            case .signTypedMessageV3(let typedData):
+                signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
+            case .ethCall(from: let from, to: let to, data: let data):
+                //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
+                let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
+                let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
+                ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
+            case .walletAddEthereumChain(let customChain):
+                addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
+            case .walletSwitchEthereumChain(let targetChain):
+                switchChain(callbackID: callbackID, targetChain: targetChain, inViewController: viewController)
+            case .unknown, .sendRawTransaction:
+                break
+            }
+        }
+
+        switch session.account.type {
+        case .real(let account):
+            return performDappAction(account: account)
+        case .watch(let account):
+            switch action {
+            case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signTypedMessageV3, .ethCall, .unknown, .sendRawTransaction:
+                return rejectDappAction()
+            case .walletAddEthereumChain, .walletSwitchEthereumChain:
+                return performDappAction(account: account)
+            }
         }
     }
 
