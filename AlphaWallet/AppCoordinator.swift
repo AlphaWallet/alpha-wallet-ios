@@ -399,7 +399,13 @@ extension AppCoordinator: InCoordinatorDelegate {
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
-    func handle(eip681Url url: URL) {
+    func handle(walletConnectUrl url: WalletConnectURL, in coordinator: UniversalLinkCoordinator) {
+        removeCoordinator(coordinator)
+        inCoordinator?.openWalletConnectSession(url: url)
+    }
+
+    func handle(eip681Url url: URL, in coordinator: UniversalLinkCoordinator) {
+        removeCoordinator(coordinator)
         handleOpen(url: url)
     }
 
@@ -424,10 +430,6 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
 
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator) {
         inCoordinator?.addImported(contract: contract, forServer: coordinator.server)
-    }
-
-    func handle(walletConnectUrl url: WalletConnectURL) {
-        inCoordinator?.openWalletConnectSession(url: url)
     }
 }
 

@@ -12,8 +12,47 @@ protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
 	func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, inViewController viewController: ImportMagicTokenViewController, completion: @escaping (Bool) -> Void)
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
-    func handle(walletConnectUrl url: WalletConnectURL)
-    func handle(eip681Url url: URL)
+    func handle(walletConnectUrl url: WalletConnectURL, in coordinator: UniversalLinkCoordinator)
+    func handle(eip681Url url: URL, in coordinator: UniversalLinkCoordinator)
+}
+
+enum MagicLinkURL {
+    static let walletConnectPath = "/wc"
+    static let eip681Path = "/ethereum:"
+
+    case eip681(URL)
+    case walletConnect(WalletConnectURL)
+
+    init?(url: URL) {
+        if let eip681Url = Self.hasEip681Path(in: url) {
+            self  = .eip681(eip681Url)
+        } else if let wcUrl = Self.hasWalletConnectPath(in: url) {
+            self = .walletConnect(wcUrl)
+        } else {
+            return nil
+        }
+    }
+
+    //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
+    private static func hasEip681Path(in url: URL) -> URL? {
+        guard let magicLink = RPCServer(withMagicLink: url), url.path.starts(with: Self.eip681Path) else { return nil }
+        let eip681Url = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
+        switch QRCodeValueParser.from(string: eip681Url) {
+        case .address:
+            return nil
+        case .eip681:
+            return URL(string: eip681Url)
+        case .none:
+            return nil
+        }
+    }
+
+    //E.g. https://aw.app/wc:f607884e-63a5-4fa3-8e7d-af6f6fa9b51f@1?bridge=https%3A%2F%2Fn.bridge.walletconnect.org&key=cff9abba23cb9f843e9d623b891a5f8948b41f7d4afc7f7155aa252504cd8264
+    private static func hasWalletConnectPath(in url: URL) -> WalletConnectURL? {
+        guard let magicLink = RPCServer(withMagicLink: url), url.path.starts(with: Self.walletConnectPath) else { return nil }
+        let wcUrl = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
+        return WalletConnectURL(wcUrl)
+    }
 }
 
 // swiftlint:disable type_body_length
@@ -22,9 +61,6 @@ class UniversalLinkCoordinator: Coordinator {
         case freeTransfer(query: String, parameters: Parameters)
         case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
     }
-
-    static let walletConnectPath = "/wc"
-    static let eip681Path = "/ethereum:"
 
     private let analyticsCoordinator: AnalyticsCoordinator
     private let wallet: Wallet
@@ -46,8 +82,7 @@ class UniversalLinkCoordinator: Coordinator {
     private let url: URL
 
     private var isNotProcessingYet: Bool {
-        guard let importTokenViewController = importTokenViewController else { return false }
-        switch importTokenViewController.state {
+        switch importTokenViewController?.state {
         case .ready(let viewModel):
             switch viewModel.state {
             case .validating, .promptImport:
@@ -55,7 +90,7 @@ class UniversalLinkCoordinator: Coordinator {
             case .processing, .succeeded, .failed:
                 return false
             }
-        case .notReady:
+        case .notReady, .none:
             return false
         }
     }
@@ -109,6 +144,10 @@ class UniversalLinkCoordinator: Coordinator {
 
 	func start() {
 	}
+
+    deinit {
+        debug("\(self).deinit")
+    }
 
     private func createHTTPParametersForCurrencyLinksToPaymentServer(
             signedOrder: SignedOrder,
@@ -329,41 +368,18 @@ class UniversalLinkCoordinator: Coordinator {
 
     //Returns true if handled
     func handleUniversalLink() -> Bool {
-        //E.g. https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202
-
-        if url.path == Self.walletConnectPath {
-            return handleWalletConnect()
-        } else if let eip681Url = hasEip681Path(in: url) {
-            delegate?.handle(eip681Url: eip681Url)
-            return true
+        if let value = MagicLinkURL(url: url) {
+            switch value {
+            case .eip681(let eip681Url):
+                delegate?.handle(eip681Url: eip681Url, in: self)
+            case .walletConnect(let wcUrl):
+                delegate?.handle(walletConnectUrl: wcUrl, in: self)
+            }
+            //NOTE: returns false to make sure coordinator wasn't added to list. delegate cases only
+            return false
         } else {
             return handleMagicLink()
         }
-    }
-    //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
-    private func hasEip681Path(in url: URL) -> URL? {
-        guard let magicLink = RPCServer(withMagicLink: url), url.path.starts(with: Self.eip681Path) else { return nil }
-        let eip681Url = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
-        switch QRCodeValueParser.from(string: eip681Url) {
-        case .address:
-            return nil
-        case .eip681:
-            return URL(string: eip681Url)
-        case .none:
-            return nil
-        }
-    }
-
-    private func handleWalletConnect() -> Bool {
-        assert(url.path == Self.walletConnectPath)
-        guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems else { return false }
-        guard let string = queryItems.first(where: { $0.name == "uri" })?.value else { return false }
-        if let walletConnectUrl = WalletConnectURL(string) {
-            delegate?.handle(walletConnectUrl: walletConnectUrl)
-        } else {
-            //no-op. According to WalletConnect docs, this is just to get iOS to switch over to the app for signing, etc. e.g. https://aw.app/wc?uri=wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1
-        }
-        return true
     }
 
     private func handleMagicLink() -> Bool {

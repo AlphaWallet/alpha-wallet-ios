@@ -74,7 +74,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
         appCoordinator.handleUniversalLinkInPasteboard()
     }
