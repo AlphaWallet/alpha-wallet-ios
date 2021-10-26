@@ -105,6 +105,7 @@ extension Session {
                     RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.nonHTTPURLResponse", url: baseUrl.absoluteString)
                 case .unacceptableStatusCode(let statusCode):
                     if statusCode == 429 {
+                        warn("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
                         return SendTransactionRetryableError.rateLimited
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: baseUrl.absoluteString)
