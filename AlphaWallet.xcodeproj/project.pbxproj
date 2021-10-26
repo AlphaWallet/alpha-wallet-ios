@@ -864,6 +864,12 @@
 		87AA56DF270F1B6E00A9EE3F /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B6526A256FBF36000EF927 /* SwapTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B65269256FBF36000EF927 /* SwapTokenService.swift */; };
+		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
+		87B93B0F2726C59D00F6EA73 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8703FC0A270366DA0062C416 /* content.js */; };
+		87B93B102726C59D00F6EA73 /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
+		87B93B112726C59D00F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
+		87B93B132726C75900F6EA73 /* helpers.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B122726C75900F6EA73 /* helpers.js */; };
+		87B93B142726C79400F6EA73 /* helpers.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B122726C75900F6EA73 /* helpers.js */; };
 		87BB63DC265CFF2700FF702A /* WalletBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */; };
 		87BB63DE265E21C900FF702A /* WalletSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DD265E21C900FF702A /* WalletSummary.swift */; };
 		87BB63E0265E21E400FF702A /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DF265E21E400FF702A /* WalletBalance.swift */; };
@@ -1889,6 +1895,8 @@
 		87AA56DE270F1B6E00A9EE3F /* config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B65269256FBF36000EF927 /* SwapTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenService.swift; sourceTree = "<group>"; };
+		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
+		87B93B122726C75900F6EA73 /* helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = helpers.js; sourceTree = "<group>"; };
 		87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceCoordinator.swift; sourceTree = "<group>"; };
 		87BB63DD265E21C900FF702A /* WalletSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummary.swift; sourceTree = "<group>"; };
 		87BB63DF265E21E400FF702A /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
@@ -4302,6 +4310,8 @@
 				8703FC0E270366DA0062C416 /* popup.css */,
 				8703FC10270366DA0062C416 /* popup.js */,
 				87AA56DE270F1B6E00A9EE3F /* config.js */,
+				87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */,
+				87B93B122726C75900F6EA73 /* helpers.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -5003,6 +5013,7 @@
 			files = (
 				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
+				87B93B142726C79400F6EA73 /* helpers.js in Resources */,
 				C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */,
 				87620024266E00F70059B05A /* known_contract.json in Resources */,
 				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
@@ -5013,10 +5024,13 @@
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
+				87B93B112726C59D00F6EA73 /* BrowserStorageSubscription.js in Resources */,
+				87B93B102726C59D00F6EA73 /* config.js in Resources */,
 				C88033122055034E00D73D6F /* sellInfo.html in Resources */,
 				C868C536205409160059672B /* redeemInfo.html in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
 				C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */,
+				87B93B0F2726C59D00F6EA73 /* content.js in Resources */,
 				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */,
 				C887C5392057B703005ACF81 /* privacyPolicy.html in Resources */,
@@ -5054,7 +5068,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */,
 				8703FC0F270366DA0062C416 /* popup.css in Resources */,
+				87B93B132726C75900F6EA73 /* helpers.js in Resources */,
 				8703FC0D270366DA0062C416 /* popup.html in Resources */,
 				8703FC05270366DA0062C416 /* images in Resources */,
 				8703FC07270366DA0062C416 /* manifest.json in Resources */,
