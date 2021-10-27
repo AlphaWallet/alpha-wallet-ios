@@ -6,14 +6,15 @@ extension URL {
     var rewrittenIfIpfs: URL {
         if scheme == "ipfs" {
             //We can't use `URLComponents` or `pathComponents` here
-            let components = absoluteString.replacingOccurrences(of: "ipfs://", with: "").split(separator: "/")
-            if components.count == 1 {
-                //Matches doge NFT
-                return URL(string: absoluteString.replacingOccurrences(of: "ipfs://", with: "https://ipfs.io/ipfs/")) ?? self
-            } else {
-                //Matches Alchemy NFT
-                return URL(string: absoluteString.replacingOccurrences(of: "ipfs://", with: "https://ipfs.io/")) ?? self
-            }
+            let path = absoluteString.replacingOccurrences(of: "ipfs://", with: "")
+            let urlString: String = {
+                if path.hasPrefix("ipfs/") {
+                    return "https://ipfs.io/\(path)"
+                } else {
+                    return "https://ipfs.io/ipfs/\(path)"
+                }
+            }()
+            return URL(string: urlString) ?? self
         } else {
             return self
         }
