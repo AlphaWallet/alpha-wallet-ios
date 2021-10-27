@@ -375,7 +375,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
         let uri = originalUri.rewrittenIfIpfs
         //TODO check this doesn't print duplicates, including unnecessary fetches
-        verbose("Fetching token URI: \(originalUri.absoluteString)…")
+        verbose("Fetching token URI: \(originalUri.absoluteString)… with: \(uri.absoluteString)")
         return firstly {
             //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
             sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
