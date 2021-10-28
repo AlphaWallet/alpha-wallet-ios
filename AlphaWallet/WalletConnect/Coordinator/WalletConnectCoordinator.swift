@@ -419,7 +419,17 @@ extension WalletConnectCoordinator: WalletConnectSessionsViewControllerDelegate 
         navigationController.popViewController(animated: true)
     }
 
-    func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController) {
+    func didDisconnectSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController) {
+        info("WalletConnect didDisconnect session: \(session)")
+        analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
+        do {
+            try server.disconnect(session: session)
+        } catch {
+            //no-op
+        }
+    }
+
+    func didSessionSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController) {
         info("WalletConnect didSelect session: \(session)")
         guard let navigationController = viewController.navigationController else { return }
 
