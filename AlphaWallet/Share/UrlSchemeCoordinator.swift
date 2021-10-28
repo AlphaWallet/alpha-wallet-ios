@@ -60,11 +60,6 @@ class UrlSchemeCoordinator: UrlSchemeCoordinatorType {
     }
 
     private func canHandle(url: URL) -> Bool {
-        switch ShareContentAction(url) {
-        case .some:
-            return true
-        case .none:
-            return false
-        }
+        return ShareContentAction(url) != nil
     }
 }

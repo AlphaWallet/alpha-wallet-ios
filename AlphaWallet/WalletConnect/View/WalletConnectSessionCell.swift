@@ -2,13 +2,51 @@
 
 import UIKit
 
+class RoundedImageView: UIImageView {
+
+    init(size: CGSize) {
+        super.init(frame: .zero)
+        clipsToBounds = true
+        translatesAutoresizingMaskIntoConstraints = false
+        contentMode = .scaleAspectFit
+
+        NSLayoutConstraint.activate([
+            widthAnchor.constraint(equalToConstant: size.width),
+            heightAnchor.constraint(equalToConstant: size.height)
+        ])
+    }
+
+    required init?(coder: NSCoder) {
+        return nil
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = bounds.height / 2
+    }
+}
+
 class WalletConnectSessionCell: UITableViewCell {
     private let nameLabel = UILabel()
+    private let urlLabel = UILabel()
+    private let iconImageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 40, height: 40))
+        return imageView
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        let stackView = [.spacerWidth(Table.Metric.plainLeftMargin), nameLabel].asStackView(axis: .horizontal)
+        let cell0 = [
+            nameLabel,
+            urlLabel
+        ].asStackView(axis: .vertical)
+        let stackView = [
+            .spacerWidth(Table.Metric.plainLeftMargin),
+            iconImageView,
+            .spacerWidth(12),
+            cell0
+        ].asStackView(axis: .horizontal, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
 
@@ -25,7 +63,8 @@ class WalletConnectSessionCell: UITableViewCell {
     func configure(viewModel: WalletConnectSessionCellViewModel) {
         selectionStyle = .default
         backgroundColor = viewModel.backgroundColor
-        nameLabel.font = viewModel.nameFont
-        nameLabel.text = viewModel.name
+        nameLabel.attributedText = viewModel.sessionNameAttributedString
+        urlLabel.attributedText = viewModel.sessionURLAttributedString
+        iconImageView.setImage(url: viewModel.sessionIconURL, placeholder: R.image.walletConnectIcon())
     }
 }
