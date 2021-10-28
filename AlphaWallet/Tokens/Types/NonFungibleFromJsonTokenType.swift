@@ -12,7 +12,7 @@ enum NonFungibleFromJsonTokenType: String, Codable {
         } else {
             return nil
         }
-    }
+    } 
 
     var asTokenType: TokenType {
         switch self {

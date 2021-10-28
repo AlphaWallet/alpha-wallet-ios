@@ -8,21 +8,17 @@
 import UIKit
 
 protocol Erc1155TokenInstanceViewControllerDelegate: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: Erc1155TokenInstanceViewController)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController)
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController)
-    func didPressViewRedemptionInfo(in viewController: Erc1155TokenInstanceViewController)
     func didTapURL(url: URL, in viewController: Erc1155TokenInstanceViewController)
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: Erc1155TokenInstanceViewController)
 }
 
-class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
+class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController, IsReadOnlyViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private var viewModel: Erc1155TokenInstanceViewModel
     private let account: Wallet
     private let bigImageView = WebImageView()
-
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
 
     var tokenHolder: TokenHolder {
@@ -89,6 +85,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
         title = viewModel.navigationTitle
         super.viewWillAppear(animated)
     }
+
     override func viewWillDisappear(_ animated: Bool) {
         title = ""
         super.viewWillDisappear(animated)
@@ -100,7 +97,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
 
         var subviews: [UIView] = [bigImageView]
 
-        for each in viewModel.configurations {
+        for (index, each) in viewModel.configurations.enumerated() {
             switch each {
             case .header(let viewModel):
                 let header = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
@@ -108,8 +105,9 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
 
                 subviews.append(header)
             case .field(let viewModel):
-                let view = TokenInstanceAttributeView()
+                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
                 view.configure(viewModel: viewModel)
+                view.delegate = self
 
                 subviews.append(view)
             }
@@ -139,6 +137,16 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
                 let action = viewModel.actions[index]
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+                switch account.type {
+                case .real:
+                    if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                        if selection.denial == nil {
+                            button.displayButton = false
+                        }
+                    }
+                case .watch:
+                    button.isEnabled = false
+                }
             }
         }
 
@@ -152,30 +160,20 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == viewModel.tokenId }) }).flatMap { ($0, viewModel.tokenId) }
     }
 
-    private func redeem() {
-        delegate?.didPressRedeem(token: tokenObject, tokenHolder: tokenHolder, in: self)
-    }
-
-    private func sell() {
-        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject)), in: self)
-    }
-
     private func transfer() {
         let transactionType = TransactionType(token: tokenObject)
-        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transactionType), in: self)
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+
+        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
-            case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
+            case .nftRedeem, .nftSell, .erc20Send, .erc20Receive, .swap, .buy, .bridge:
                 //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                 break
-            case .nftRedeem:
-                redeem()
-            case .nftSell:
-                sell()
             case .nonFungibleTransfer:
                 transfer()
             case .tokenScript:
@@ -203,7 +201,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
 
 extension Erc1155TokenInstanceViewController: VerifiableStatusViewController {
     func showInfo() {
-        delegate?.didPressViewRedemptionInfo(in: self)
+        //no-op, remove it later
     }
 
     func showContractWebPage() {
@@ -227,9 +225,20 @@ extension Erc1155TokenInstanceViewController: TokenCardsViewControllerHeaderDele
     }
 }
 
+// Implemented as part of implementing BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate
 extension Erc1155TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegate {
-    //Implemented as part of implementing BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate
-//    func didTapURL(url: URL) {
-//        delegate?.didPressOpenWebPage(url, in: self)
-//    }
+
+}
+
+extension Erc1155TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
+    func didSelect(in view: TokenInstanceAttributeView) {
+        switch viewModel.configurations[view.indexPath.row] {
+        case .field(let viewModel) where self.viewModel.tokenIdViewModel == viewModel:
+            UIPasteboard.general.string = viewModel.value
+
+            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        case .header, .field:
+            break
+        }
+    }
 }

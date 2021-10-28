@@ -34,7 +34,6 @@ class TokensCardCollectionViewController: UIViewController {
     private let tokensCardCollectionInfoPageView: TokensCardCollectionInfoPageView
     private var activitiesPageView: ActivitiesPageView
     private var assetsPageView: AssetsPageView
-    var isReadOnly: Bool = false
 
     private let activitiesService: ActivitiesServiceType
     private let containerView: PagesContainerView
@@ -83,8 +82,15 @@ class TokensCardCollectionViewController: UIViewController {
 
             strongSelf.activitiesPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
         }
+
         //TODO disabled until we support batch transfers. Selection doesn't work correctly too
-        //assetsPageView.rightBarButtonItem = UIBarButtonItem(title: "Select", style: .plain, target: self, action: #selector(assetSelectionSelected))
+        assetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
+        switch session.account.type {
+        case .real:
+            assetsPageView.rightBarButtonItem?.isEnabled = true
+        case .watch:
+            assetsPageView.rightBarButtonItem?.isEnabled = false
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -111,7 +117,6 @@ class TokensCardCollectionViewController: UIViewController {
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
 
-        //FIXME: replace it
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -196,39 +201,4 @@ extension TokensCardCollectionViewController: AssetsPageViewDelegate {
     func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder) {
         delegate?.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder)
     }
-}
-
-struct TokensCardCollectionViewControllerViewModel {
-
-    var fungibleBalance: BigInt? {
-        return nil
-    }
-
-    private let assetDefinitionStore: AssetDefinitionStore
-    let token: TokenObject
-    let tokenHolders: [TokenHolder]
-    let actions: [TokenInstanceAction] = []
-
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var navigationTitle: String {
-        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
-    }
-
-    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
-        self.token = token
-        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account)
-        self.assetDefinitionStore = assetDefinitionStore
-    }
-
-    func tokenHolder(at indexPath: IndexPath) -> TokenHolder {
-        return tokenHolders[indexPath.section]
-    }
-
-    func numberOfItems() -> Int {
-        return tokenHolders.count
-    }
-
 }

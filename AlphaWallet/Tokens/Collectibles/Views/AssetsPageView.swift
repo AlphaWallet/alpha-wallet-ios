@@ -11,33 +11,6 @@ protocol AssetsPageViewDelegate: class {
     func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder)
 }
 
-class TokenCardTableViewCellFactory {
-    private let tokenObject: TokenObject
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let server: RPCServer
-
-    init(tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
-        self.tokenObject = tokenObject
-        self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.server = server
-    }
-
-    func create(for tokenHolder: TokenHolder, edgeInsets: UIEdgeInsets = .init(top: 16, left: 20, bottom: 16, right: 16)) -> UIView & TokenCardRowViewProtocol & SelectionPositioningView {
-        var rowView: TokenCardRowViewProtocol & UIView & SelectionPositioningView
-        switch tokenHolder.tokenType {
-        case .erc875:
-            rowView = Erc875NonFungibleRowView(tokenView: .view, edgeInsets: edgeInsets)
-        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
-            rowView = NonFungibleRowView(tokenView: .viewIconified, edgeInsets: edgeInsets)
-        }
-        rowView.shouldOnlyRenderIfHeightIsCached = false
-        return rowView
-    }
-
-}
-
 class AssetsPageView: UIView, PageViewType {
     var title: String {
         viewModel.navigationTitle
@@ -79,7 +52,7 @@ class AssetsPageView: UIView, PageViewType {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .green
+        backgroundColor = Colors.appBackground
 
         addSubview(tableView)
 
@@ -108,7 +81,7 @@ class AssetsPageView: UIView, PageViewType {
     }
 
     private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory(tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        TokenCardTableViewCellFactory()
     }()
 
     private var cachedTokenCardRowViews: [IndexPath: TokenCardRowViewProtocol & UIView] = [:]
@@ -183,8 +156,4 @@ extension AssetsPageView: UITableViewDelegate {
 
         delegate?.assetsPageView(self, didSelectTokenHolder: tokenHolder)
     }
-}
-
-protocol BaseTokenCardTableViewCell2Delegate: AnyObject {
-    func didTapURL(url: URL)
-}
+} 

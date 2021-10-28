@@ -215,6 +215,20 @@ class TokenAdaptor {
         values.setValue(int: nonFungible.value)
         values.setDecimals(int: nonFungible.decimals)
         values.setTokenType(string: nonFungible.tokenType.rawValue)
+        values.setMeltStringValue(string: nonFungible.meltStringValue)
+        values.setMeltFeeRatio(int: nonFungible.meltFeeRatio)
+        values.setMeltFeeMaxRatio(int: nonFungible.meltFeeMaxRatio)
+        values.setTotalSupplyStringValue(string: nonFungible.totalSupplyStringValue)
+        values.setCirculatingSupply(string: nonFungible.circulatingSupplyStringValue)
+        values.setReserveStringValue(string: nonFungible.reserveStringValue)
+        values.setNonFungible(bool: nonFungible.nonFungible)
+        values.setBlockHeight(int: nonFungible.blockHeight)
+        values.setMintableSupply(bigInt: nonFungible.mintableSupply)
+        values.setTransferable(string: nonFungible.transferable)
+        values.setSupplyModel(string: nonFungible.supplyModel)
+        values.setIssuer(string: nonFungible.issuer)
+        values.setCreated(string: nonFungible.created)
+        values.setTransferFee(string: nonFungible.transferFee)
 
         let status: Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"

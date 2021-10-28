@@ -16,7 +16,7 @@ struct NewTokenViewModel {
                 balance += 1
             }
         }
-        return balance
+        return balance 
     }
     
     var backgroundColor: UIColor {

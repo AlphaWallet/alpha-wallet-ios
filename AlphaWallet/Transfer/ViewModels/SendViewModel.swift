@@ -38,15 +38,15 @@ struct SendViewModel {
             return nil
         case .erc20Token(let token, _, _):
             return token
-        case .erc875Token(let token):
+        case .erc875Token(let token, _):
             return token
-        case .erc875TokenOrder(let token):
+        case .erc875TokenOrder(let token, _):
             return token
-        case .erc721Token(let token):
+        case .erc721Token(let token, _):
             return token
-        case .erc721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token, _):
             return token
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token
         case .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
@@ -127,15 +127,15 @@ struct SendViewModel {
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .erc20Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc875Token(let token):
+            case .erc875Token(let token, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc875TokenOrder(let token):
+            case .erc875TokenOrder(let token, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc721Token(let token):
+            case .erc721Token(let token, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc721ForTicketToken(let token):
+            case .erc721ForTicketToken(let token, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc1155Token(let token):
+            case .erc1155Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
@@ -158,6 +158,5 @@ struct SendViewModel {
         }
 
         return value
-
     }
 }

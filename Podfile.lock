@@ -7,6 +7,9 @@ PODS:
     - TrustWalletCore
   - AlphaWalletWeb3Provider (0.3.0)
   - APIKit (5.1.0)
+  - Apollo (0.50.0):
+    - Apollo/Core (= 0.50.0)
+  - Apollo/Core (0.50.0)
   - AssistantKit (0.7.1)
   - AWSCore (2.18.0)
   - AWSSNS (2.18.0):
@@ -123,6 +126,7 @@ DEPENDENCIES:
   - AlphaWalletAddress (from `modules/AlphaWalletAddress`)
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870`)
   - APIKit (= 5.1.0)
+  - Apollo
   - AssistantKit
   - AWSSNS (= 2.18.0)
   - BigInt (~> 3.1)
@@ -162,6 +166,7 @@ SPEC REPOS:
     - Alamofire
     - Alamofire-Synchronous
     - APIKit
+    - Apollo
     - AssistantKit
     - AWSCore
     - AWSSNS
@@ -265,6 +270,7 @@ SPEC CHECKSUMS:
   AlphaWalletAddress: a3049b4c79f4d1cc4c336772401a6143c25d417c
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e
+  Apollo: 5e4476a3236bd576686085b7cd99655c788e4d74
   AssistantKit: 245d28aefcf3aeae240c8ecbe3c62714e3f1c6d4
   AWSCore: e8cc7fd06efa211328942cc7c9f6dddbe889a115
   AWSSNS: d3ed65985986d5393de2793259e457e466997b55
@@ -311,6 +317,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: eed0b6581ff81af0f01f5be1e1134299396facb9
+PODFILE CHECKSUM: 72f2302e77abc5d59a96eff57825e918889327a1
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.10.1

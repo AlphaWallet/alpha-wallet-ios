@@ -14,9 +14,9 @@ class AssetsPageViewModel {
     private enum AssetsSection: Int, CaseIterable {
         case assets
     }
-
+    
     var navigationTitle: String {
-        return "Assets"
+        return R.string.localizable.semifungiblesAssetsTitle()
     }
 
     var backgroundColor: UIColor {
@@ -41,7 +41,6 @@ class AssetsPageViewModel {
         case .none:
             return 0
         }
-
     }
 
     func item(atIndexPath indexPath: IndexPath) -> TokenHolder? {

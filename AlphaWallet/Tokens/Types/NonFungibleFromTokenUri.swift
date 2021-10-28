@@ -32,6 +32,20 @@ struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
     }
     let collectionCreatedDate: Date?
     let collectionDescription: String?
+    var meltStringValue: String?
+    var meltFeeRatio: Int?
+    var meltFeeMaxRatio: Int?
+    var totalSupplyStringValue: String?
+    var circulatingSupplyStringValue: String?
+    var reserveStringValue: String?
+    var nonFungible: Bool?
+    var blockHeight: Int?
+    var mintableSupply: BigInt?
+    var transferable: String?
+    var supplyModel: String?
+    var issuer: String?
+    var created: String?
+    var transferFee: String?
 }
 
 struct NonFungibleFromTokenUriBeforeErc1155Support: Codable {
@@ -58,8 +72,23 @@ struct NonFungibleFromTokenUriBeforeErc1155Support: Codable {
         nil
     }
 
+    let collectionCreatedDate: Date?
+    let collectionDescription: String?
+    var meltStringValue: String?
+    var meltFeeRatio: Int?
+    var meltFeeMaxRatio: Int?
+    var totalSupplyStringValue: String?
+    var circulatingSupplyStringValue: String?
+    var reserveStringValue: String?
+    var nonFungible: Bool?
+    var blockHeight: Int?
+    var mintableSupply: BigInt?
+    var issuer: String?
+    var created: String?
+    var transferFee: String?
+
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, collectionCreatedDate: nil, collectionDescription: nil)
+        let result = NonFungibleFromTokenUri(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, collectionCreatedDate: collectionCreatedDate, collectionDescription: collectionDescription, meltStringValue: meltStringValue, meltFeeRatio: meltFeeRatio, meltFeeMaxRatio: meltFeeMaxRatio, totalSupplyStringValue: totalSupplyStringValue, circulatingSupplyStringValue: circulatingSupplyStringValue, reserveStringValue: reserveStringValue, nonFungible: nonFungible, blockHeight: blockHeight, mintableSupply: mintableSupply, issuer: issuer, created: created, transferFee: transferFee)
         return result
     }
 }

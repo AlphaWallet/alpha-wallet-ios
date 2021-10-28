@@ -142,7 +142,7 @@ extension Transaction {
                 return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .erc20Transfer(let recipient, let value):
                 return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
-            case .nativeCryptoTransfer, .others:
+            case .nativeCryptoTransfer, .others, .erc1155SafeBatchTransfer, .erc1155SafeTransfer:
                 break
             }
         }

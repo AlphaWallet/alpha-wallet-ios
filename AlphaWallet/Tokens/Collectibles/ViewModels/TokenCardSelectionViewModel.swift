@@ -35,12 +35,11 @@ class TokenCardSelectionViewModel {
         }
     }
     var headerBackgroundColor: UIColor = Colors.appWhite
-    let actions: [TokenCardSelectionViewController.ToolbarAction] = TokenCardSelectionViewController.ToolbarAction.allCases
+    let actions: [TokenCardSelectionViewController.ToolbarAction] = [.clear, .selectAll, .send]
 
     var navigationTitle: String {
-        let value = tokenSelectionCount
-        if value > 0 {
-            return "\(value) Selected"
+        if tokenSelectionCount > 0 {
+            return R.string.localizable.semifungiblesSelectedTokens2(String(tokenSelectionCount))
         } else {
             return R.string.localizable.assetsSelectAssetTitle()
         }
@@ -54,7 +53,7 @@ class TokenCardSelectionViewModel {
         switch action {
         case .clear, .selectAll:
             return true
-        case .deal, .sell:
+        case .deal, .sell, .send:
             return tokenHolders.contains(where: { $0.totalSelectedCount > 0 })
         }
     }

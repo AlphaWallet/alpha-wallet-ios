@@ -9,13 +9,14 @@ class PaymentCoordinatorTests: XCTestCase {
         let address: AlphaWallet.Address = .make()
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
-            flow: .send(type: .nativeCryptocurrency(TokenObject(), destination: .init(address: address), amount: nil)),
+            flow: .send(type: .transaction(.nativeCryptocurrency(TokenObject(), destination: .init(address: address), amount: nil))),
             session: .make(),
             keystore: FakeKeystore(),
-            storage: FakeTokensDataStore(),
+            tokensStorage: FakeTokensDataStore(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            eventsDataStore: FakeEventsDataStore()
         )
         coordinator.start()
 
@@ -29,10 +30,11 @@ class PaymentCoordinatorTests: XCTestCase {
             flow: .request,
             session: .make(),
             keystore: FakeKeystore(),
-            storage: FakeTokensDataStore(),
+            tokensStorage: FakeTokensDataStore(),
             ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore(),
-            analyticsCoordinator: FakeAnalyticsService()
+            analyticsCoordinator: FakeAnalyticsService(),
+            eventsDataStore: FakeEventsDataStore()
         )
 
         coordinator.start()

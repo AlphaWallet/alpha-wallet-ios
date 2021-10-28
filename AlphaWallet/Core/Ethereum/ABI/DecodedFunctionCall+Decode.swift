@@ -89,6 +89,10 @@ extension DecodedFunctionCall.FunctionType {
             self = .erc20Transfer(recipient: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
         } else if name == DecodedFunctionCall.erc20Approve.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
             self = .erc20Approve(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
+        } else if name == DecodedFunctionCall.erc1155SafeTransfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0) {
+            self = .erc1155SafeTransfer(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address))
+        } else if name == DecodedFunctionCall.erc1155SafeBatchTransfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0) {
+            self = .erc1155SafeBatchTransfer(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address))
         } else {
             self = .others
         }

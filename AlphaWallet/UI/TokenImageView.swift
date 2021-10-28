@@ -50,7 +50,7 @@ class TokenImageView: UIView {
 
             if let subscribable = subscribable {
                 if subscribable.value == nil {
-                    imageView.setImage(url: nil)
+                    imageView.setImage(url: nil, placeholder: tokenImagePlaceholder)
                 }
 
                 subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
@@ -59,15 +59,15 @@ class TokenImageView: UIView {
                     case .image(let v):
                         strongSelf.imageView.setImage(image: v)
                     case .url(let v):
-                        strongSelf.imageView.setImage(url: v)
+                        strongSelf.imageView.setImage(url: v, placeholder: strongSelf.tokenImagePlaceholder)
                     case .none:
-                        strongSelf.imageView.setImage(url: nil)
+                        strongSelf.imageView.setImage(url: nil, placeholder: strongSelf.tokenImagePlaceholder)
                     }
                     strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                 }
             } else {
                 subscriptionKey = nil
-                imageView.setImage(url: nil)
+                imageView.setImage(url: nil, placeholder: tokenImagePlaceholder)
                 symbolLabel.text = ""
             }
         }
