@@ -34,7 +34,9 @@
 "transaction.blockNumber.label.title" = "区块 #";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "确认";
+"confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
+"confirmPayment.connect.button.title" = "Connect";
 "confirmPayment.from.label.title" = "来源地址";
 "confirmPayment.gasFee.label.title" = "估计网络费用";
 "confirmPayment.gasLimit.label.title" = "燃料限制";

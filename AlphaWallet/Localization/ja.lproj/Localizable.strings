@@ -34,7 +34,9 @@
 "transaction.blockNumber.label.title" = "ブロック番号";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "確認";
+"confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
+"confirmPayment.connect.button.title" = "Connect";
 "confirmPayment.from.label.title" = "送信元";
 "confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "ガスの制限";

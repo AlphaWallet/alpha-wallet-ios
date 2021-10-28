@@ -31,6 +31,26 @@ extension WalletConnectSession {
     var requester: DAppRequester {
         return .init(title: dAppInfo.peerMeta.name, url: dAppInfo.peerMeta.url)
     }
+
+    var dappName: String {
+        return dAppInfo.peerMeta.name
+    }
+    
+    var dappNameShort: String {
+        guard let approxDapName = dAppInfo.peerMeta.name.components(separatedBy: " ").first, approxDapName.nonEmpty else {
+            return dAppInfo.peerMeta.name
+        }
+
+        return approxDapName
+    }
+
+    var dappIconUrl: URL? {
+        dAppInfo.peerMeta.icons.first
+    }
+
+    var dappUrl: URL {
+        dAppInfo.peerMeta.url
+    }
 }
 
 class WalletConnectServer {
@@ -364,13 +384,15 @@ extension WalletConnectServer: ServerDelegate {
 struct WalletConnectConnection {
     let url: WalletConnectURL
     let name: String
-    let icon: URL?
+    let iconUrl: URL?
     let server: RPCServer?
+    let dappUrl: URL
 
     init(dAppInfo info: Session.DAppInfo, url: WalletConnectURL) {
         self.url = url
         name = info.peerMeta.name
-        icon = info.peerMeta.icons.first
+        dappUrl = info.peerMeta.url
+        iconUrl = info.peerMeta.icons.first
         server = info.chainId.flatMap { .init(chainID: $0) }
     }
 }

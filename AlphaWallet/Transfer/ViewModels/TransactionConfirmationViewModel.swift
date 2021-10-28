@@ -16,8 +16,10 @@ enum TransactionConfirmationViewModel {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice))
-        case .dappTransaction(_, _, let ethPrice), .walletConnect(_, _, let ethPrice):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice))
+        case .dappTransaction(_, _, let ethPrice):
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, walletConnectSession: nil))
+        case .walletConnect(_, _, let ethPrice, let walletConnectSession):
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, walletConnectSession: walletConnectSession))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
@@ -347,11 +349,20 @@ extension TransactionConfirmationViewModel {
             }
         }
 
-        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>) {
+        var placeholderIcon: UIImage? {
+            return walletConnectSession == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
+        }
+
+        var dappIconUrl: URL? { walletConnectSession?.session.dappIconUrl }
+
+        private var walletConnectSession: WalletConnectSessionMappedToServer?
+
+        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, walletConnectSession: WalletConnectSessionMappedToServer?) {
             self.configurator = configurator
             self.ethPrice = ethPrice
             self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
             self.session = configurator.session
+            self.walletConnectSession = walletConnectSession
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {
@@ -840,7 +851,7 @@ extension TransactionConfirmationViewModel {
     }
 
     var footerBackgroundColor: UIColor {
-        return R.color.white()!
+        return Colors.appWhite
     }
 
     var hasSeparatorAboveConfirmButton: Bool {

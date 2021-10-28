@@ -23,7 +23,7 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var sessionIconURL: URL? {
-        session.dAppInfo.peerMeta.icons.last
+        session.dappIconUrl
     }
 
     var statusRowViewModel: WallerConnectRawViewModel {
@@ -36,23 +36,18 @@ struct WalletConnectSessionDetailsViewModel {
         )
     }
 
-    var nameRowViewModel: WallerConnectRawViewModel {
-        return .init(
-            text: R.string.localizable.walletConnectSessionName(),
-            details: session.dAppInfo.peerMeta.name,
-            hideSeparatorOptions: .top
-        )
+    var dappNameRowViewModel: WallerConnectRawViewModel {
+        return .init(text: R.string.localizable.walletConnectSessionName(), details: session.dappName, hideSeparatorOptions: .top)
     }
 
-    var nameAttributedString: NSAttributedString {
-        let approxServiceName = session.dAppInfo.peerMeta.name.components(separatedBy: " ").first ?? session.dAppInfo.peerMeta.name
-        return .init(string: approxServiceName, attributes: [
+    var dappNameAttributedString: NSAttributedString {
+        return .init(string: session.dappNameShort, attributes: [
             .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
             .foregroundColor: Colors.black
         ])
     }
 
-    var connectedToRowViewModel: WallerConnectRawViewModel {
+    var dappUrlRowViewModel: WallerConnectRawViewModel {
         return .init(
             text: R.string.localizable.walletConnectSessionConnectedURL(),
             details: session.dAppInfo.peerMeta.url.absoluteString,

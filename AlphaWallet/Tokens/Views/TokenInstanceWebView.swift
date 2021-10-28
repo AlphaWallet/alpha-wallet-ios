@@ -492,7 +492,7 @@ extension TokenInstanceWebView {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
         let keystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, signType: type, account: account, source: .tokenScript)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, signType: type, account: account, source: .tokenScript, walletConnectSession: nil)
         }.done { data in
             let callback: DappCallback
             switch type {

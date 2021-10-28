@@ -12,6 +12,10 @@ struct WalletConnectToSessionViewModel {
     private let connection: WalletConnectConnection
     private var serverToConnect: RPCServer
 
+    var connectionIconUrl: URL? {
+        connection.iconUrl
+    }
+
     init(connection: WalletConnectConnection, serverToConnect: RPCServer) {
         self.connection = connection
         self.serverToConnect = serverToConnect
@@ -29,8 +33,8 @@ struct WalletConnectToSessionViewModel {
         return R.string.localizable.confirmPaymentConfirmButtonTitle()
     }
 
-    var confirmationButtonTitle: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
+    var connectionButtonTitle: String {
+        return R.string.localizable.confirmPaymentConnectButtonTitle()
     }
 
     var rejectionButtonTitle: String {
@@ -42,7 +46,7 @@ struct WalletConnectToSessionViewModel {
     }
 
     var footerBackgroundColor: UIColor {
-        return R.color.white()!
+        return Colors.appWhite
     }
 
     var sections: [Section] {
@@ -77,7 +81,7 @@ struct WalletConnectToSessionViewModel {
         case .network:
             return .init(title: .normal(serverToConnect.displayName), headerName: sections[section].title, configuration: .init(section: section))
         case .url:
-            return .init(title: .normal(connection.url.absoluteString), headerName: sections[section].title, configuration: .init(section: section))
+            return .init(title: .normal(connection.dappUrl.absoluteString), headerName: sections[section].title, configuration: .init(section: section))
         }
     }
 }
