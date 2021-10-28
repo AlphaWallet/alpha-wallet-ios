@@ -43,7 +43,7 @@ class TokenInfoPageView: UIView, PageViewType {
     private let token: TokenObject
     private let transactionType: TransactionType
     var rightBarButtonItem: UIBarButtonItem?
-    
+
     init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
         self.server = server
         self.token = token
@@ -84,7 +84,7 @@ class TokenInfoPageView: UIView, PageViewType {
         stackView.addArrangedSubview(UIView.spacer(height: 10))
 
         let perfomanceHeader = TokenInfoHeaderView()
-        perfomanceHeader.configure(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerfomance()))
+        perfomanceHeader.configure(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance()))
 
         stackView.addArrangedSubview(perfomanceHeader)
 
