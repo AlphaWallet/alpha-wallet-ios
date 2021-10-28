@@ -66,7 +66,7 @@ enum AdvancedSettingsRow: CaseIterable {
         case .analytics:
             return R.image.settings_analytics()!
         case .usePrivateNetwork:
-            return R.image.iconsSettingsTaiChi()!
+            return R.image.iconsSettingsEthermine()!
         }
     }
 }
