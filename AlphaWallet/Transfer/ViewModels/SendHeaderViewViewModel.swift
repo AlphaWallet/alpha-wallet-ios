@@ -100,7 +100,7 @@ struct TokenInfoPageViewModel {
             .font: Screen.TokenCard.Font.valueChangeValue,
             .foregroundColor: Colors.black
         ])
-        return .init(title: R.string.localizable.tokenInfoFieldPerfomanceYearLow(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearLow(), attributedValue: attributedValue)
     }
 
     var yearHighViewModel: TickerFieldValueViewModel {
@@ -117,7 +117,7 @@ struct TokenInfoPageViewModel {
             .font: Screen.TokenCard.Font.valueChangeValue,
             .foregroundColor: Colors.black
         ])
-        return .init(title: R.string.localizable.tokenInfoFieldPerfomanceYearHigh(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearHigh(), attributedValue: attributedValue)
     }
 
     var yearViewModel: TickerFieldValueViewModel {
