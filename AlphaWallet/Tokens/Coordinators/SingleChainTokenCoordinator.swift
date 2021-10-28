@@ -13,7 +13,7 @@ struct NoTokenError: LocalizedError {
     }
 }
 
-protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
+protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
@@ -250,16 +250,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         }.recover { _ -> Guarantee<BatchObject> in
                             return .value(.none)
                         }
-                    case .erc721:
+                    case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
                         //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                        return .value(.none)
-                    case .erc721ForTickets:
-                        //Handled in PrivateBalanceFetcher.refreshBalanceForNonErc721Or1155Tokens()
-                        return .value(.none)
-                    case .erc1155:
-                        //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                        return .value(.none)
-                    case .nativeCryptocurrency:
                         return .value(.none)
                     }
                 }
@@ -422,9 +414,6 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func showTokensCardCollection(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
-        let activitiesFilterStrategy: ActivitiesFilterStrategy = .contract(contract: token.contractAddress)
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
-
         let tokensCardCoordinator = TokensCardCollectionCoordinator(
                 session: session,
                 navigationController: navigationController,
@@ -435,13 +424,13 @@ class SingleChainTokenCoordinator: Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
                 analyticsCoordinator: analyticsCoordinator,
-                activitiesService: activitiesService
+                activitiesService: activitiesService,
+                transactionsStorage: transactionsStorage
         )
 
         addCoordinator(tokensCardCoordinator)
-        //tokensCardCoordinator.delegate = self
+        tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
-        tokensCardCoordinator.makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: type)
     }
 
     private func showTokenCard(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
@@ -714,7 +703,7 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
-        //no-op
+        delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
@@ -764,5 +753,23 @@ extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate 
 
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension SingleChainTokenCoordinator: TokensCardCollectionCoordinatorDelegate {
+    func didTapSend(forTransactionType transactionType: TransactionType, in coordinator: TokensCardCollectionCoordinator, viewController: UIViewController) {
+        delegate?.didPress(for: .send(type: transactionType), inViewController: viewController, in: self)
+    }
+
+    func didClose(in coordinator: TokensCardCollectionCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCollectionCoordinator) {
+        delegate?.didTap(transaction: transaction, inViewController: coordinator.rootViewController, in: self)
+    }
+
+    func didTap(activity: Activity, in coordinator: TokensCardCollectionCoordinator) {
+        delegate?.didTap(activity: activity, inViewController: coordinator.rootViewController, in: self)
     }
 }

@@ -91,13 +91,20 @@ extension UIView {
         return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
     }
 
-    static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear) -> UIView {
+    static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear, flexible: Bool = false) -> UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = backgroundColor
-        NSLayoutConstraint.activate([
-            view.heightAnchor.constraint(equalToConstant: height),
-        ])
+
+        if flexible {
+            NSLayoutConstraint.activate([
+                view.heightAnchor.constraint(greaterThanOrEqualToConstant: height),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                view.heightAnchor.constraint(equalToConstant: height),
+            ])
+        }
         return view
     }
 

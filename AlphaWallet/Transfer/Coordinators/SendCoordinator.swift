@@ -19,7 +19,7 @@ class SendCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
-    private var transactionConfirmationResult: TransactionConfirmationResult = .noData
+    private var transactionConfirmationResult: ConfirmResult? = .none
 
     lazy var sendViewController: SendViewController = {
         return makeSendViewController()
@@ -153,7 +153,7 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
 
             strongSelf.removeCoordinator(coordinator)
 
-            strongSelf.transactionConfirmationResult = .confirmationResult(result)
+            strongSelf.transactionConfirmationResult = result
 
             let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
             coordinator.delegate = strongSelf
@@ -176,9 +176,9 @@ extension SendCoordinator: TransactionInProgressCoordinatorDelegate {
 
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         switch transactionConfirmationResult {
-        case .confirmationResult(let result):
+        case .some(let result):
             delegate?.didFinish(result, in: self)
-        case .noData:
+        case .none:
             break
         }
     }

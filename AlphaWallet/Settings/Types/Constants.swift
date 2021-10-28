@@ -185,6 +185,8 @@ public struct Constants {
 
     static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
 
+    static let enjinApiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 

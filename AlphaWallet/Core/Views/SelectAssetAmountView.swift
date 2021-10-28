@@ -30,6 +30,10 @@ struct SelectTokenCardAmountViewModel {
         counter -= 1
     }
 
+    mutating func set(counter: Int) {
+        self.counter = counter
+    }
+
     mutating func set(counter: String) {
         if counter.isEmpty {
             self.counter = 0
@@ -195,9 +199,9 @@ struct SingleTokenCardAmountSelectionToolbarViewModel {
 
     var selectionViewModel: SelectTokenCardAmountViewModel
 
-    init(availableAmount: Int, selectedAmount: Int) {
+    init(availableAmount: Int = 0, selectedAmount: Int = 0) {
         self.availableAmount = availableAmount
-        selectionViewModel = .init(availableAmount: availableAmount, selectedAmount: availableAmount)
+        selectionViewModel = .init(availableAmount: availableAmount, selectedAmount: selectedAmount)
     }
 
     var attributedTitleString: NSAttributedString {
@@ -217,6 +221,7 @@ class SingleTokenCardAmountSelectionToolbarView: UIView {
 
     private lazy var selectionView: SelectTokenCardAmountView = {
         let view = SelectTokenCardAmountView(viewModel: viewModel.selectionViewModel)
+        view.delegate = self
         return view
     }()
 
@@ -256,7 +261,6 @@ class SingleTokenCardAmountSelectionToolbarView: UIView {
         selectionView.configure(viewModel: viewModel.selectionViewModel)
         headerView.titleLabel.attributedText = viewModel.attributedTitleString
         backgroundColor = viewModel.backgroundColor
-
     }
 
     required init?(coder: NSCoder) {
@@ -268,11 +272,24 @@ class SingleTokenCardAmountSelectionToolbarView: UIView {
     }
 }
 
+extension SingleTokenCardAmountSelectionToolbarView: SelectTokenCardAmountViewDelegate {
+    func valueDidChange(in view: SelectTokenCardAmountView) {
+        viewModel.selectionViewModel.set(counter: view.viewModel.counter)
+        configure(viewModel: viewModel)
+    }
+}
+
 extension SingleTokenCardAmountSelectionToolbarView: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let newValue = ((textField.text ?? "") as NSString).replacingCharacters(in: range, with: string)
         viewModel.selectionViewModel.set(counter: newValue)
         configure(viewModel: viewModel)
+
+        return true
+    }
+
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        delegate?.closeSelected(in: self)
 
         return true
     }

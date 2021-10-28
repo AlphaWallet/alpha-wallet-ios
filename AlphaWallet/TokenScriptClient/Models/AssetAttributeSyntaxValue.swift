@@ -23,6 +23,10 @@ struct AssetAttributeSyntaxValue {
         self.init(syntax: .directoryString, value: .string(directoryString))
     }
 
+    init(bool: Bool) {
+        self.init(syntax: .boolean, value: .bool(bool))
+    }
+
     init(int: BigInt) {
         self.init(syntax: .integer, value: .int(int))
     }
@@ -258,6 +262,62 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["traits"]?.value
     }
 
+    var meltStringValue: String? {
+        self["meltStringValue"]?.stringValue
+    }
+
+    var meltFeeRatio: BigInt? {
+        self["meltFeeRatio"]?.intValue
+    }
+
+    var meltFeeMaxRatio: BigInt? {
+        self["meltFeeMaxRatio"]?.intValue
+    }
+
+    var totalSupplyStringValue: String? {
+        self["totalSupplyStringValue"]?.stringValue
+    }
+
+    var circulatingSupplyStringValue: String? {
+        self["circulatingSupplyStringValue"]?.stringValue
+    }
+
+    var reserve: String? {
+        self["reserve"]?.stringValue
+    }
+
+    var nonFungible: Bool? {
+        self["nonFungible"]?.boolValue
+    }
+
+    var blockHeight: BigInt? {
+        self["blockHeight"]?.intValue
+    }
+
+    var mintableSupply: BigInt? {
+        self["mintableSupply"]?.intValue
+    }
+
+    var transferable: String? {
+        self["transferable"]?.stringValue
+    }
+
+    var supplyModel: String? {
+        self["supplyModel"]?.stringValue
+    }
+
+    var issuer: String? {
+        return self["issuer"]?.stringValue
+    }
+
+    var created: String? {
+        return self["created"]?.stringValue
+    }
+
+    var transferFee: String? {
+        return self["transferFee"]?.stringValue
+    }
+
     mutating func setTraits(value: [OpenSeaNonFungibleTrait]) {
         self["traits"] = .init(openSeaTraits: value)
     }
@@ -272,5 +332,61 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
 
     mutating func setTokenType(string: String) {
         self["tokenType"] = .init(directoryString: string)
+    }
+
+    mutating func setMeltStringValue(string: String?) {
+        self["meltStringValue"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setMeltFeeRatio(int: Int?) {
+        self["meltFeeRatio"] = int.flatMap { .init(int: BigInt($0)) }
+    }
+
+    mutating func setMeltFeeMaxRatio(int: Int?) {
+        self["meltFeeMaxRatio"] = int.flatMap { .init(int: BigInt($0)) }
+    }
+
+    mutating func setTotalSupplyStringValue(string: String?) {
+        self["totalSupplyStringValue"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setCirculatingSupply(string: String?) {
+        self["circulatingSupply"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setReserveStringValue(string: String?) {
+        self["reserveStringValue"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setNonFungible(bool: Bool?) {
+        self["nonFungible"] = bool.flatMap { .init(bool: $0) }
+    }
+
+    mutating func setBlockHeight(int: Int?) {
+        self["blockHeight"] = int.flatMap { .init(int: BigInt($0)) }
+    }
+
+    mutating func setMintableSupply(bigInt: BigInt?) {
+        self["mintableSupply"] = bigInt.flatMap { .init(int: $0) }
+    }
+
+    mutating func setTransferable(string: String?) {
+        self["transferable"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setSupplyModel(string: String?) {
+        self["supplyModel"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setIssuer(string: String?) {
+        self["issuer"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setCreated(string: String?) {
+        self["created"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setTransferFee(string: String?) {
+        self["transferFee"] = string.flatMap { .init(directoryString: $0) }
     }
 }

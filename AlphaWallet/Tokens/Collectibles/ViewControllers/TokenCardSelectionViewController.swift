@@ -18,22 +18,26 @@ extension TokenCardSelectionViewController {
         case selectAll
         case sell
         case deal
-
+        case send
+        
         var title: String {
             switch self {
             case .clear:
-                return "Clear"
+                return R.string.localizable.semifungiblesToolbarClear()
             case .selectAll:
-                return "Select All"
+                return R.string.localizable.semifungiblesToolbarSelectAll()
             case .sell:
-                return "Sell"
+                return R.string.localizable.semifungiblesToolbarSell()
             case .deal:
-                return "Deal"
+                return R.string.localizable.semifungiblesToolbarDeal()
+            case .send:
+                return R.string.localizable.semifungiblesToolbarSend()
             }
         }
     }
 }
 protocol TokenCardSelectionViewControllerDelegate: class {
+    func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
     func didTapSell(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
     func didTapDeal(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
@@ -59,12 +63,15 @@ class TokenCardSelectionViewController: UIViewController {
         return tableView
     }()
     private var bottomConstraint: NSLayoutConstraint!
-    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
+    private var specialKeyboardBottomInset: CGFloat {
+        return footerBar.height
+    }
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, buttonsBarHeight: specialKeyboardBottomInset)
     private let toolbar = ToolButtonsBarView()
     private let roundedBackground = RoundedBackground()
-
+    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar, edgeInsets: .init(top: 0, left: 0, bottom: 40, right: 0))
     private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory(tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        TokenCardTableViewCellFactory()
     }()
 
     private var cachedCellsCardRowViews: [IndexPath: UIView & TokenCardRowViewProtocol & SelectionPositioningView] = [:]
@@ -89,8 +96,6 @@ class TokenCardSelectionViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         roundedBackground.addSubview(tableView)
-
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: toolbar, edgeInsets: .init(top: 0, left: 0, bottom: 40, right: 0))
         roundedBackground.addSubview(footerBar)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor)
@@ -99,9 +104,9 @@ class TokenCardSelectionViewController: UIViewController {
         NSLayoutConstraint.activate([
             footerBar.anchorsConstraint(to: view),
 
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.safeAreaLayoutGuide.trailingAnchor),
             bottomConstraint
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -137,6 +142,7 @@ class TokenCardSelectionViewController: UIViewController {
     }
 
     private func configure(viewModel: TokenCardSelectionViewModel) {
+        self.viewModel = viewModel
         title = viewModel.navigationTitle
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
@@ -152,7 +158,7 @@ class TokenCardSelectionViewController: UIViewController {
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
-        for (action, button) in zip(ToolbarAction.allCases, toolbar.buttons) where button == sender {
+        for (action, button) in zip(viewModel.actions, toolbar.buttons) where button == sender {
             switch action {
             case .selectAll:
                 selectAllTokens()
@@ -162,6 +168,8 @@ class TokenCardSelectionViewController: UIViewController {
                 delegate?.didTapSell(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
             case .deal:
                 delegate?.didTapDeal(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
+            case .send:
+                delegate?.didTapSend(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
             }
         }
     }
@@ -358,14 +366,6 @@ extension TokenCardSelectionViewController {
     }
 }
 
-extension TokenCardSelectionViewController {
-    class functional {}
-}
-
-extension TokenCardSelectionViewController.functional {
-
-}
-
 protocol SelectAllAssetsViewDelegate: class {
     func selectAllSelected(in view: TokenCardSelectionViewController.SelectAllAssetsView)
 }
@@ -391,10 +391,10 @@ extension TokenCardSelectionViewController {
 
             return label
         }()
-
+        
         lazy var selectAllButton: Button = {
             let button: Button = .init(size: .normal, style: .system)
-            button.setTitle("Select All", for: .normal)
+            button.setTitle(R.string.localizable.semifungiblesSelectionSelectAll(), for: .normal)
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setContentCompressionResistancePriority(.required, for: .horizontal)
             button.setContentHuggingPriority(.required, for: .horizontal)
@@ -436,85 +436,3 @@ extension TokenCardSelectionViewController {
         }
     }
 }
-
-protocol TokenCardSelectionSectionHeaderViewDelegate: class {
-    func didSelectAll(in view: TokenCardSelectionViewController.TokenCardSelectionSectionHeaderView)
-}
-
-protocol SelectableTokenCardContainerTableViewCellDelegate: class {
-    func didCloseSelection(in sender: SelectableTokenCardContainerTableViewCell, with selectedAmount: Int)
-}
-
-protocol SelectionPositioningView: class {
-    var positioningView: UIView { get }
-}
-
-extension TokenCardSelectionViewController {
-    
-    class TokenCardSelectionSectionHeaderView: UITableViewHeaderFooterView, SelectAllAssetsViewDelegate {
-
-        private lazy var selectAllAssetsView: SelectAllAssetsView = {
-            let view = SelectAllAssetsView()
-            view.delegate = self
-
-            return view
-        }()
-
-        private var topSeparatorView: UIView = {
-            let view = UIView()
-            view.translatesAutoresizingMaskIntoConstraints = false
-
-            return view
-        }()
-
-        var section: Int?
-        weak var delegate: TokenCardSelectionSectionHeaderViewDelegate?
-
-        override init(reuseIdentifier: String?) {
-            super.init(reuseIdentifier: reuseIdentifier)
-
-            addSubview(selectAllAssetsView)
-            addSubview(topSeparatorView)
-
-            NSLayoutConstraint.activate([
-                selectAllAssetsView.anchorsConstraint(to: self, edgeInsets: .init(top: GroupedTable.Metric.cellSeparatorHeight, left: 0, bottom: GroupedTable.Metric.cellSeparatorHeight, right: 0)),
-
-                topSeparatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
-                topSeparatorView.widthAnchor.constraint(equalTo: widthAnchor),
-                topSeparatorView.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
-                topSeparatorView.bottomAnchor.constraint(equalTo: bottomAnchor)
-            ])
-        }
-
-        required init?(coder: NSCoder) {
-            return nil
-        }
-
-        func configure(viewModel: TokenCardSelectionSectionHeaderViewModel) {
-            topSeparatorView.backgroundColor = viewModel.separatorColor
-            selectAllAssetsView.configure(viewModel: viewModel.selectAllAssetsViewModel)
-        }
-
-        func selectAllSelected(in view: TokenCardSelectionViewController.SelectAllAssetsView) {
-            delegate?.didSelectAll(in: self)
-        }
-
-    }
-
-    struct TokenCardSelectionSectionHeaderViewModel {
-        let text: String
-        var selectAllAssetsViewModel: SelectAllAssetsViewModel
-        var separatorColor: UIColor = GroupedTable.Color.cellSeparator
-        var backgroundColor: UIColor = Colors.appWhite
-        let tokenHolder: TokenHolder
-        var isSelectAllHidden: Bool = false
-
-        init(tokenHolder: TokenHolder, backgroundColor: UIColor = Colors.appWhite) {
-            self.tokenHolder = tokenHolder
-            self.text = tokenHolder.name
-            self.backgroundColor = backgroundColor
-            self.selectAllAssetsViewModel = .init(text: text, backgroundColor: backgroundColor, isSelectAllHidden: isSelectAllHidden)
-        }
-    }
-}
-

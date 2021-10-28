@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import PromiseKit
 
-protocol TokensCoordinatorDelegate: class, CanOpenURL {
+protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator)
@@ -321,7 +321,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .erc875, .erc721ForTickets:
             coordinator.showTokenList(for: .send(type: .erc875Token(token)), token: token, navigationController: navigationController)
         case .erc1155:
-            coordinator.showTokenList(for: .send(type: .erc1155Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])), token: token, navigationController: navigationController)
         }
     }
 
@@ -502,6 +502,10 @@ extension TokensCoordinator: EditPriceAlertCoordinatorDelegate {
 }
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
+
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
+    }
 
     func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator) {
         let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: cordinator.session, alertService: alertService)

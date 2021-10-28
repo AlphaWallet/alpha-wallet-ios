@@ -11,7 +11,14 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     let token: TokenObject
     let tokenHolders: [TokenHolder]
     let assetDefinitionStore: AssetDefinitionStore
-
+    var availableAmountInt: Int {
+        Int(tokenHolders[0].values.valueIntValue ?? 0)
+    }
+    var selectedAmount: Int {
+        tokenHolders[0].selectedCount(tokenId: tokenHolders[0].tokenId) ?? 0
+    }
+    lazy var selectionViewModel: SelectTokenCardAmountViewModel = .init(availableAmount: availableAmountInt, selectedAmount: selectedAmount)
+    
     var navigationTitle: String {
         R.string.localizable.send()
     }
@@ -28,12 +35,12 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     }
 
     var isAmountSelectionHidden: Bool {
-        //NOTE: replace with more fittable implementation
         tokenHolders.count > 1
     }
 
     func updateSelectedAmount(_ value: Int) {
-        //NOTE: replace later
+        //NOTE: safety check
+        guard tokenHolders.count == 1 else { return }
         tokenHolders[0].select(with: .token(tokenId: tokenHolders[0].tokenId, amount: value))
     }
 }

@@ -25,7 +25,7 @@ class TokenCardListViewControllerViewModel {
     var backgroundColor: UIColor = GroupedTable.Color.background
 
     var isSearchActive: Bool = false
-
+    
     var numberOfSections: Int {
         filteredTokenHolders.count
     }
@@ -85,7 +85,7 @@ class TokenCardListViewController: UIViewController {
     weak var delegate: TokenCardListViewControllerDelegate?
 
     private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory(tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        TokenCardTableViewCellFactory()
     }()
 
     private var cachedCellsCardRowViews: [IndexPath: UIView & TokenCardRowViewProtocol] = [:]

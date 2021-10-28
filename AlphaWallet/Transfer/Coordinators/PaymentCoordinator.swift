@@ -49,26 +49,42 @@ class PaymentCoordinator: Coordinator {
         latestNavigationStackViewController = navigationController.viewControllers.last
     }
 
+    private func startWithSendCoordinator(transactionType: TransactionType) {
+        let coordinator = SendCoordinator(
+            transactionType: transactionType,
+            navigationController: navigationController,
+            session: session,
+            keystore: keystore,
+            storage: storage,
+            ethPrice: ethPrice,
+            assetDefinitionStore: assetDefinitionStore,
+            analyticsCoordinator: analyticsCoordinator
+        )
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
+    private func startWithSendCollectiblesCoordinator(tokenObject: TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
+        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, tokensStorage: storage, ethPrice: ethPrice, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
     func start() {
         if shouldRestoreNavigationBarIsHiddenState {
             self.navigationController.setNavigationBarHidden(false, animated: true)
         }
 
         switch (flow, session.account.type) {
-        case (.send(let type), .real):
-            let coordinator = SendCoordinator(
-                transactionType: type,
-                navigationController: navigationController,
-                session: session,
-                keystore: keystore,
-                storage: storage,
-                ethPrice: ethPrice,
-                assetDefinitionStore: assetDefinitionStore,
-                analyticsCoordinator: analyticsCoordinator
-            )
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
+        case (.send(let transactionType), .real):
+            switch transactionType {
+            case .erc1155Token(let tokenObject, let transferType, let tokenHolders):
+                startWithSendCollectiblesCoordinator(tokenObject: tokenObject, transferType: transferType, tokenHolders: tokenHolders)
+            case .nativeCryptocurrency, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .dapp, .claimPaidErc875MagicLink, .tokenScript:
+                startWithSendCoordinator(transactionType: transactionType)
+            }
         case (.request, _):
             let coordinator = RequestCoordinator(navigationController: navigationController, account: session.account)
             coordinator.delegate = self
@@ -98,6 +114,29 @@ class PaymentCoordinator: Coordinator {
         } else {
             navigationController.popToRootViewController(animated: animated)
         }
+    }
+}
+
+extension PaymentCoordinator: TransferCollectiblesCoordinatorDelegate {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: self)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferCollectiblesCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+    }
+
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: TransferCollectiblesCoordinator) {
+        //FIXME:
+    }
+
+    func didCancel(in coordinator: TransferCollectiblesCoordinator) {
+        removeCoordinator(coordinator)
+        cancel()
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator) {
+        delegate?.didFinish(result, in: self)
     }
 }
 

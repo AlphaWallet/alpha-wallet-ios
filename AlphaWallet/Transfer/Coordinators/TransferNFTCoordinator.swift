@@ -6,7 +6,7 @@ import Result
 
 protocol TransferNFTCoordinatorDelegate: class, CanOpenURL {
     func didClose(in coordinator: TransferNFTCoordinator)
-    func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: TransactionConfirmationResult, inCoordinator coordinator: TransferNFTCoordinator)
+    func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: ConfirmResult, inCoordinator coordinator: TransferNFTCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferNFTCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
@@ -43,8 +43,9 @@ class TransferNFTCoordinator: Coordinator {
                 tokenId: tokenHolder.tokens[0].id,
                 indices: tokenHolder.indices
         )
-        let tokenInstanceName = tokenHolder.values.nameStringValue
-        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName)
+
+        let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
+        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, ethPrice: ethPrice, tokenInstanceNames: tokenInstanceNames)
         let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self
@@ -63,7 +64,7 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
         delegate?.didClose(in: self)
     }
 
-    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: ConfirmResult) {
         delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: result, inCoordinator: self)
     }
 
@@ -72,7 +73,7 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
-        delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: .confirmationResult(result), inCoordinator: self)
+        delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: result, inCoordinator: self)
     }
 
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {

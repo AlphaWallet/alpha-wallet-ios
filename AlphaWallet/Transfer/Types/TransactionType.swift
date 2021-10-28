@@ -1,6 +1,11 @@
 import Foundation
 import BigInt
 
+enum Erc1155TokenTransactionType {
+    case batchTransfer
+    case singleTransfer
+}
+
 enum TransactionType {
     init(token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
         self = {
@@ -17,7 +22,7 @@ enum TransactionType {
             case .erc721ForTickets:
                 return .erc721ForTicketToken(token)
             case .erc1155:
-                return .erc1155Token(token)
+                return .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])
             }
         }()
     }
@@ -28,7 +33,7 @@ enum TransactionType {
     case erc875TokenOrder(TokenObject)
     case erc721Token(TokenObject)
     case erc721ForTicketToken(TokenObject)
-    case erc1155Token(TokenObject)
+    case erc1155Token(TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
     case dapp(TokenObject, DAppRequester)
     case claimPaidErc875MagicLink(TokenObject)
     case tokenScript(TokenObject)
@@ -67,7 +72,7 @@ extension TransactionType {
             return token.symbol
         case .erc721ForTicketToken(let token):
             return token.symbol
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token.symbol
         case .claimPaidErc875MagicLink(let token):
             return token.symbol
@@ -90,7 +95,7 @@ extension TransactionType {
             return token
         case .erc721ForTicketToken(let token):
             return token
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token
         case .claimPaidErc875MagicLink(let token):
             return token
@@ -113,7 +118,7 @@ extension TransactionType {
             return token.server
         case .erc721ForTicketToken(let token):
             return token.server
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token.server
         case .claimPaidErc875MagicLink(let token):
             return token.server
@@ -134,7 +139,7 @@ extension TransactionType {
             return token.contractAddress
         case .erc721ForTicketToken(let token):
             return token.contractAddress
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token.contractAddress
         case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress

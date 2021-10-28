@@ -1,0 +1,7 @@
+query EnjinOauth($email: String!, $password: String!) {
+ EnjinOauth(email: $email, password: $password) {
+   id
+   name
+   accessTokens 
+ }
+}

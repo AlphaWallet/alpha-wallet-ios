@@ -9,13 +9,11 @@ import UIKit
 
 protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, CanOpenURL {
     func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
-    func didPressViewInfo(in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController)
-
-    func some(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
 }
 
-//TODO support ERC1155 fungibles (where decimals is provided and > 0)
+//TODO: support ERC1155 fungibles (where decimals is provided and > 0)
 class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let token: TokenObject
@@ -44,7 +42,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private lazy var selectedTokenCardsHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens().uppercased()))
+        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens()))
         return view
     }()
 
@@ -57,9 +55,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel
-    var tokenHolders: [TokenHolder] {
-        viewModel.tokenHolders
-    }
     private(set) var paymentFlow: PaymentFlow
 
     var contract: AlphaWallet.Address {
@@ -109,6 +104,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private func generateSubviews(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) {
         containerView.stackView.removeAllArrangedSubviews()
+
         let subViews: [UIView] = [
             recipientHeaderView,
             targetAddressTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
@@ -121,7 +117,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     }
 
     private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory(tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        TokenCardTableViewCellFactory()
     }()
     private var cachedCellsCardRowViews: [Int: UIView & TokenCardRowViewProtocol] = [:]
 
@@ -158,12 +154,18 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         UITapGestureRecognizer(addToView: subview) { [weak self] in
             guard let strongSelf = self else { return }
 
-            strongSelf.delegate?.some(tokenHolder: tokenHolder, in: strongSelf)
+            strongSelf.delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: strongSelf)
         }
     }
 
     private func configure(subview: UIView & TokenCardRowViewProtocol, tokenId: TokenId, tokenHolder: TokenHolder) {
         subview.configure(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, areDetailsVisible: false, width: containerView.stackView.frame.size.width, assetDefinitionStore: assetDefinitionStore)
+        //NOTE: Update with more appropriatable way, type case isn't a good approach
+        if let typeSubView = subview as? NonFungibleRowView {
+            typeSubView.configure(viewModel: NonFungibleRowViewModel2(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: false, width: containerView.stackView.frame.size.width))
+        } else {
+            //no-op
+        }
     }
 
     @objc func nextButtonTapped() {
@@ -189,7 +191,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         targetAddressTextField.label.attributedText = viewModel.targetAddressAttributedString
         targetAddressTextField.configureOnce()
 
-        selectTokenCardAmountView.configure(viewModel: .init(availableAmount: Int(viewModel.tokenHolders[0].values.valueIntValue ?? 0), selectedAmount: 0))
+        selectTokenCardAmountView.configure(viewModel: viewModel.selectionViewModel)
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
@@ -203,7 +205,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
 extension TransferTokenBatchCardsViaWalletAddressViewController: VerifiableStatusViewController {
     func showInfo() {
-        delegate?.didPressViewInfo(in: self)
+        //no-op
     }
 
     func showContractWebPage() {
@@ -216,6 +218,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: VerifiableStatu
 }
 
 extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFieldDelegate {
+
     func didScanQRCode(_ result: String) {
         switch QRCodeValueParser.from(string: result) {
         case .address(let address):
@@ -234,7 +237,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFiel
     }
 
     func didPaste(in textField: AddressTextField) {
-        //Do nothing
+        textField.errorState = .none
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
@@ -243,7 +246,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFiel
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
-
+        //no-op
     }
 }
 

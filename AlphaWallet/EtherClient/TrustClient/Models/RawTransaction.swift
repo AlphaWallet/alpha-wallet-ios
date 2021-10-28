@@ -132,6 +132,8 @@ extension TransactionInstance {
                 return generateLocalizedOperation(value: value, contract: contract, to: spender, functionCall: functionCall)
             case .nativeCryptoTransfer, .others:
                 break
+            case .erc1155SafeTransfer, .erc1155SafeBatchTransfer:
+                break
             }
         }
 
@@ -155,6 +157,10 @@ extension TransactionInstance {
         case (.erc1155, _):
             return .erc1155TokenTransfer
         case (.erc20, .nativeCryptoTransfer), (.erc20, .others):
+            return .unknown
+        case (.erc1155, .erc1155SafeTransfer), (.erc1155, .erc1155SafeBatchTransfer):
+            return .erc1155TokenTransfer
+        case (_, _):
             return .unknown
         }
     }

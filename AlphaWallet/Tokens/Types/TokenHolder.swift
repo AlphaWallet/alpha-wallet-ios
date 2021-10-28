@@ -52,8 +52,8 @@ extension TokenHolder {
         case .all:
             selections = tokens.compactMap {
                 //TODO need to make sure the available `amount` is set previously  so we can use it here
-                if let amount = $0.amount {
-                    return TokenSelection(tokenId: $0.id, value: amount)
+                if let value = $0.value {
+                    return TokenSelection(tokenId: $0.id, value: value)
                 } else {
                     return nil
                 }
@@ -123,7 +123,7 @@ class TokenHolder {
         return tokens[0].id
     }
 
-    var tokenIds: [BigUInt] {
+    var tokenIds: [TokenId] {
         return tokens.map({ $0.id })
     }
 
@@ -141,6 +141,15 @@ class TokenHolder {
 
     var values: [AttributeId: AssetAttributeSyntaxValue] {
         return tokens[0].values
+    }
+
+    var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] {
+        var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] = [:]
+        for each in tokens {
+            valuesAll[each.id] = each.values
+        }
+
+        return valuesAll
     }
 
     var openSeaNonFungibleTraits: [OpenSeaNonFungibleTrait]? {

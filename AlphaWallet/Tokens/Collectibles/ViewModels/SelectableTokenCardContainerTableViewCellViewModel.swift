@@ -10,28 +10,28 @@ import UIKit
 struct SelectableTokenCardContainerTableViewCellViewModel {
     private let token: Token?
     private let tokenHolder: TokenHolder
-    private var title: String {
-        return token?.name ?? "-"
-    }
 
     var availableAmount: Int {
-        //TODO check correct?
-        return token?.amount ?? 1
+        return token?.value ?? 1
     }
 
-    var contentsBackgroundColor: UIColor {
-        return selectionViewModel.isSelected ? R.color.solitude()! : Screen.TokenCard.Color.background
+    var contentsBackgroundColor: UIColor? {
+        return selectionViewModel.isSelected ? R.color.solitude() : Screen.TokenCard.Color.background
+    }
+
+    var cardAmountSelectionToolbarViewModel: SingleTokenCardAmountSelectionToolbarViewModel {
+        .init(availableAmount: availableAmount, selectedAmount: selectionViewModel.selectedAmount ?? 0)
     }
 
     var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: title, attributes: [
+        return NSAttributedString(string: token?.name ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.title
         ])
     }
-
+    
     var descriptionAttributedString: NSAttributedString {
-        return NSAttributedString(string: "Infinite Fungible Token", attributes: [
+        return NSAttributedString(string: R.string.localizable.semifungiblesInfiniteFungibleToken(), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])

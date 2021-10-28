@@ -11,7 +11,7 @@ import TrustKeystore
 protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
-    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult)
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: ConfirmResult)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ClaimPaidOrderCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
@@ -221,7 +221,7 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         coordinator.close { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: .confirmationResult(result))
+            strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: result)
         }
         removeCoordinator(coordinator)
     }

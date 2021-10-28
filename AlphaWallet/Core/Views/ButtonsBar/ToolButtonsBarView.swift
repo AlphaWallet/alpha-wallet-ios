@@ -12,6 +12,8 @@ enum ToolbarConfiguration {
 }
 
 class ToolButtonsBarView: UIView, ButtonsBarViewType {
+    var height: CGFloat { ButtonsBar.buttonsHeight }
+
     private let moreButtonIndex: Int = 2
     private var moreButtons: [UIButton] = []
     private let buttonsBar = ButtonsBar(configuration: .empty)

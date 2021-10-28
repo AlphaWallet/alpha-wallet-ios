@@ -577,7 +577,7 @@ extension TokensCardCoordinator: TransferNFTCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: TransactionConfirmationResult, inCoordinator coordinator: TransferNFTCoordinator) {
+    func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: ConfirmResult, inCoordinator coordinator: TransferNFTCoordinator) {
         transactionConfirmationCoordinator.close { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
@@ -667,20 +667,14 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
     }
 
     func didEnterWalletAddress(tokenHolder: TokenHolder, to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
-        switch session.account.type {
-        case .real:
-            switch paymentFlow {
-            case .send:
-                if case .send(let transactionType) = paymentFlow {
-                    let coordinator = TransferNFTCoordinator(navigationController: navigationController, transactionType: transactionType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session, ethPrice: ethPrice, analyticsCoordinator: analyticsCoordinator)
-                    addCoordinator(coordinator)
-                    coordinator.delegate = self
-                    coordinator.start()
-                }
-            case .request:
-                return
-            }
-        case .watch:
+
+        switch (session.account.type, paymentFlow) {
+        case (.real, .send(let transactionType)):
+            let coordinator = TransferNFTCoordinator(navigationController: navigationController, transactionType: transactionType, tokenHolder: tokenHolder, recipient: recipient, keystore: keystore, session: session, ethPrice: ethPrice, analyticsCoordinator: analyticsCoordinator)
+            addCoordinator(coordinator)
+            coordinator.delegate = self
+            coordinator.start()
+        case (_, _):
             break
         }
     }

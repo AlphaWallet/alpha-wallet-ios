@@ -15,7 +15,7 @@ enum TransactionConfirmationConfiguration {
     case dappTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
     case walletConnect(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, walletConnectSession: WalletConnectSessionMappedToServer)
     case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount, ethPrice: Subscribable<Double>)
-    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceName: String?)
+    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceNames: [TokenId: String])
     case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
     case speedupTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
     case cancelTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
@@ -42,11 +42,6 @@ enum TransactionConfirmationConfiguration {
             return ethPrice
         }
     }
-}
-
-enum TransactionConfirmationResult {
-    case confirmationResult(ConfirmResult)
-    case noData
 }
 
 enum ConfirmType {
@@ -302,6 +297,10 @@ extension TransactionConfirmationCoordinator {
         let transactionType: Analytics.TransactionType
         if let functionCallMetaData = DecodedFunctionCall(data: configurator.currentConfiguration.data) {
             switch functionCallMetaData.type {
+            case .erc1155SafeTransfer:
+                transactionType = .unknown
+            case .erc1155SafeBatchTransfer:
+                transactionType = .unknown
             case .erc20Approve:
                 transactionType = .erc20Approve
             case .erc20Transfer:

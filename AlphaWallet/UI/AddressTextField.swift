@@ -162,8 +162,8 @@ class AddressTextField: UIControl {
         ])
 
         notifications.addObserver(self,
-                                  selector: #selector(textDidChangeNotification),
-                                  name: UITextField.textDidChangeNotification, object: nil)
+            selector: #selector(textDidChangeNotification),
+            name: UITextField.textDidChangeNotification, object: nil)
     }
     //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
     func defaultLayout() -> UIView {

@@ -46,7 +46,7 @@ struct SendViewModel {
             return token
         case .erc721ForTicketToken(let token):
             return token
-        case .erc1155Token(let token):
+        case .erc1155Token(let token, _, _):
             return token
         case .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
@@ -135,7 +135,7 @@ struct SendViewModel {
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .erc721ForTicketToken(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .erc1155Token(let token):
+            case .erc1155Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()

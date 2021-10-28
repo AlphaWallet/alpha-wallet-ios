@@ -9,6 +9,7 @@ import UIKit
 
 protocol TokenCardSelectionCoordinatorDelegate: AnyObject {
     func didFinish(in coordinator: TokenCardSelectionCoordinator)
+    func didTapSend(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
     func didTapSell(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
     func didTapDeal(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
@@ -24,7 +25,7 @@ class TokenCardSelectionCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let server: RPCServer
 
-    //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
+    //NOTE: `filter: WalletFilter` parameter allow us to filter tokens we needed
     init(navigationController: UINavigationController, tokenObject: TokenObject, tokenHolders: [TokenHolder], assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
         self.tokenObject = tokenObject
         self.tokenHolders = tokenHolders
@@ -53,6 +54,13 @@ class TokenCardSelectionCoordinator: Coordinator {
 }
 
 extension TokenCardSelectionCoordinator: TokenCardSelectionViewControllerDelegate {
+
+    func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
+        parentsNavigationController.dismiss(animated: true) {
+            self.delegate?.didTapSend(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
+        }
+    }
+
     func didTapSell(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
             self.delegate?.didTapSell(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
