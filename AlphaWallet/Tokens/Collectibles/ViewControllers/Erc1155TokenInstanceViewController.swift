@@ -145,7 +145,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
                         }
                     }
                 case .watch:
-                    button.isEnabled = false
+                    button.isEnabled = false 
                 }
             }
         }

@@ -414,6 +414,11 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func showTokensCardCollection(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
+        guard let transactionType = type.transactionType else { return }
+
+        let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+
         let tokensCardCoordinator = TokensCardCollectionCoordinator(
                 session: session,
                 navigationController: navigationController,
@@ -435,6 +440,11 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func showTokenCard(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
+        guard let transactionType = type.transactionType else { return }
+
+        let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+
         let tokensCardCoordinator = TokensCardCoordinator(
                 session: session,
                 navigationController: navigationController,
@@ -444,7 +454,8 @@ class SingleChainTokenCoordinator: Coordinator {
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                analyticsCoordinator: analyticsCoordinator
+                analyticsCoordinator: analyticsCoordinator,
+                activitiesService: activitiesService
         )
 
         addCoordinator(tokensCardCoordinator)
@@ -480,7 +491,7 @@ class SingleChainTokenCoordinator: Coordinator {
             //no-op
         }
 
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: {
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(selectionClosure: { _ in
             navigationController.popToRootViewController(animated: true)
         })
 

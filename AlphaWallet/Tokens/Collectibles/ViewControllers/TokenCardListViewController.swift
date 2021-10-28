@@ -163,7 +163,7 @@ extension TokenCardListViewController: UITableViewDataSource {
         if let value = cachedCellsCardRowViews[indexPath] {
             subview = value
         } else {
-            subview = factory.create(for: selection.tokenHolder)
+            subview = factory.create(for: selection.tokenHolder, layout: .list)
 
             cachedCellsCardRowViews[indexPath] = subview
         }

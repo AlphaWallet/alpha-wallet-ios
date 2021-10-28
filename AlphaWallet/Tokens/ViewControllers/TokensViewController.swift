@@ -126,7 +126,7 @@ class TokensViewController: UIViewController {
         let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.delegate = self
-        configure(searchBar: searchBar)
+        UISearchBar.configure(searchBar: searchBar)
 
         return searchBar
     }()
@@ -263,7 +263,7 @@ class TokensViewController: UIViewController {
         view.addSubview(tableView)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        keyboardChecker.constraint = bottomConstraint
+        keyboardChecker.constraints = [bottomConstraint]
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -770,10 +770,25 @@ extension TokensViewController {
     private func configureSearchBarOnce() {
         guard !isSearchBarConfigured else { return }
         isSearchBarConfigured = true
-        configure(searchBar: searchController.searchBar)
+        UISearchBar.configure(searchBar: searchController.searchBar)
     }
+}
 
-    private func configure(searchBar: UISearchBar) {
+extension TokensViewController {
+    class functional {}
+}
+
+extension TokensViewController.functional {
+    static func fixTableViewBackgroundColor(tableView: UITableView, backgroundColor: UIColor) {
+        let v = UIView()
+        v.backgroundColor = backgroundColor
+        tableView.backgroundView?.backgroundColor = backgroundColor
+        tableView.backgroundView = v
+    }
+}
+
+extension UISearchBar {
+    static func configure(searchBar: UISearchBar, backgroundColor: UIColor = Colors.appBackground) {
         if let placeholderLabel = searchBar.firstSubview(ofType: UILabel.self) {
             placeholderLabel.textColor = Colors.lightGray
         }
@@ -791,18 +806,6 @@ extension TokensViewController {
         searchBar.layer.borderColor = UIColor.clear.cgColor
         searchBar.backgroundImage = UIImage()
         searchBar.placeholder = R.string.localizable.tokensSearchbarPlaceholder()
-    }
-}
-
-extension TokensViewController {
-    class functional {}
-}
-
-extension TokensViewController.functional {
-    static func fixTableViewBackgroundColor(tableView: UITableView, backgroundColor: UIColor) {
-        let v = UIView()
-        v.backgroundColor = backgroundColor
-        tableView.backgroundView?.backgroundColor = backgroundColor
-        tableView.backgroundView = v
+        searchBar.backgroundColor = backgroundColor
     }
 }

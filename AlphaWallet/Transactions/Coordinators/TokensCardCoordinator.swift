@@ -27,22 +27,16 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }()
 
     private let session: WalletSession
-    private let tokensStorage: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
     private let analyticsCoordinator: AnalyticsCoordinator
-
+    private let activitiesService: ActivitiesServiceType
     weak var delegate: TokensCardCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-
-    var isReadOnly = false {
-        didSet {
-            rootViewController.isReadOnly = isReadOnly
-        }
-    }
 
     init(
             session: WalletSession,
@@ -53,12 +47,14 @@ class TokensCardCoordinator: NSObject, Coordinator {
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
-            analyticsCoordinator: AnalyticsCoordinator
+            analyticsCoordinator: AnalyticsCoordinator,
+            activitiesService: ActivitiesServiceType
     ) {
+        self.activitiesService = activitiesService
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
-        self.tokensStorage = tokensStorage
+        self.tokensDataStore = tokensStorage
         self.ethPrice = ethPrice
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
@@ -86,11 +82,11 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 case .backedByOpenSea:
                     break
                 case .notBackedByOpenSea:
-                    isReadOnly = true
+                    rootViewController.isReadOnly = true
                 }
             }
         case (.send, .watch):
-            isReadOnly = true
+            rootViewController.isReadOnly = true
         }
     }
 
@@ -123,7 +119,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 let updatedTokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: session.account)
                 let tokenHolder = vc.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
                 if let tokenHolder = tokenHolder {
-                    let viewModel: TokenInstanceViewModel = .init(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                    let viewModel = TokenInstanceViewModel(tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
                 }
             case let vc as TokenInstanceActionViewController:
@@ -136,9 +132,10 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, account: account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
+        let controller = TokensCardViewController(session: session, tokensDataStore: tokensDataStore, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
+
         return controller
     }
 
@@ -212,7 +209,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let vc = makeEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
-
     }
 
     private func showEnterQuantityViewControllerForRedeem(token: TokenObject, for tokenHolder: TokenHolder, in viewController: UIViewController) {
@@ -253,7 +249,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -269,7 +265,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
         let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -412,7 +408,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func showTokenInstanceViewController(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
-        let vc = TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, account: session.account, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TokenInstanceViewModel(tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let vc = TokenInstanceViewController(session: session, tokensDataStore: tokensDataStore, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService)
+
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -426,6 +424,19 @@ class TokensCardCoordinator: NSObject, Coordinator {
 }
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
+    
+    func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
+
+    }
+
+    func didTap(activity: Activity, in viewController: TokensCardViewController) {
+
+    }
+
+    func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
+        showTokenInstanceViewController(tokenHolder: tokenHolder, in: viewController)
+    }
+
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
         showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
     }
@@ -476,6 +487,15 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
+    
+    func didTap(activity: Activity, in viewController: TokenInstanceViewController) {
+
+    }
+
+    func didTap(transaction: TransactionInstance, in viewController: TokenInstanceViewController) {
+
+    }
+
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {
         showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
     }

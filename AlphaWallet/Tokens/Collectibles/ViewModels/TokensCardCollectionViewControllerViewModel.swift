@@ -16,8 +16,31 @@ struct TokensCardCollectionViewControllerViewModel {
 
     private let assetDefinitionStore: AssetDefinitionStore
     let token: TokenObject
-    let tokenHolders: [TokenHolder]
-    let actions: [TokenInstanceAction] = []
+    var tokenHolders: [TokenHolder]
+    var actions: [TokenInstanceAction] {
+        //NOTE: Show actions only in case when there is only one token id in list, othervise user is able to select each toke to perform an action
+        guard numberOfItems() == 1 else { return [] }
+
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        let actionsFromTokenScript = xmlHandler.actions
+        if actionsFromTokenScript.isEmpty {
+            switch token.type {
+            case .erc875, .erc721ForTickets:
+                return [
+                    .init(type: .nftSell),
+                    .init(type: .nonFungibleTransfer)
+                ]
+            case .erc721, .erc1155:
+                return [
+                    .init(type: .nonFungibleTransfer)
+                ]
+            case .nativeCryptocurrency, .erc20:
+                return []
+            }
+        } else {
+            return actionsFromTokenScript
+        }
+    }
 
     var backgroundColor: UIColor {
         return Colors.appBackground
@@ -26,9 +49,13 @@ struct TokensCardCollectionViewControllerViewModel {
     var navigationTitle: String {
         return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
+    private let account: Wallet
+    private let eventsDataStore: EventsDataStoreProtocol
 
     init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.token = token
+        self.account = account
+        self.eventsDataStore = eventsDataStore
         self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account)
         self.assetDefinitionStore = assetDefinitionStore
     }
@@ -39,6 +66,11 @@ struct TokensCardCollectionViewControllerViewModel {
 
     func numberOfItems() -> Int {
         return tokenHolders.count
+    }
+
+    mutating func invalidateTokenHolders() {
+        tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+            .getTokenHolders(forWallet: account)
     }
 
 }

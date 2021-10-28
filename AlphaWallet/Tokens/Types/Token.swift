@@ -9,7 +9,22 @@
 import Foundation
 import BigInt
 
-struct Token {
+struct Token: Hashable {
+    static func == (lhs: Token, rhs: Token) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(tokenIdOrEvent.tokenId)
+        hasher.combine(tokenType)
+        hasher.combine(index)
+        hasher.combine(name)
+        hasher.combine(symbol)
+        hasher.combine(status)
+        hasher.combine(values)
+    }
+
     enum Status {
         case available, sold, redeemed, forSale, transferred, pending, availableButDataUnavailable
     }

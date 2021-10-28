@@ -19,4 +19,18 @@ enum PaymentFlowType {
 enum PaymentFlow {
     case send(type: PaymentFlowType)
     case request
+
+    var transactionType: TransactionType? {
+        switch self {
+        case .send(let type):
+            switch type {
+            case .transaction(let value):
+                return value
+            case .tokenScript:
+                return nil
+            }
+        case .request:
+            return nil
+        }
+    }
 }

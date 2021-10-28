@@ -50,6 +50,7 @@ class PagesContainerView: RoundedBackground {
     var selection: SegmentedControl.Selection {
         return tabBar.selection
     }
+    private (set) var bottomAnchorConstraints: [NSLayoutConstraint] = []
 
     init(pages: [PageViewType]) {
         self.pages = pages
@@ -69,6 +70,10 @@ class PagesContainerView: RoundedBackground {
                 view.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
             ]
         }
+        bottomAnchorConstraints = [
+            scrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            stackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+        ]
 
         NSLayoutConstraint.activate([
             tabBar.heightAnchor.constraint(equalToConstant: 50),
@@ -79,13 +84,11 @@ class PagesContainerView: RoundedBackground {
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: tabBar.bottomAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: tabBar.bottomAnchor),
-            stackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-        ] + viewsHeights)
+        ] + viewsHeights + bottomAnchorConstraints)
     }
 
     required init?(coder aDecoder: NSCoder) {

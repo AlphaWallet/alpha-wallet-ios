@@ -11,6 +11,9 @@ import UIKit
 import Result
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
+    func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController)
+    func didTap(activity: Activity, in viewController: TokensCardViewController)
+    func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder)
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController)
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, in viewController: TokensCardViewController)
@@ -21,45 +24,107 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardViewController)
 }
 
-//TODO rename to be appropriate for TokenScript
-class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
+class TokensCardViewController: UIViewController {
     static let anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
-    private var sizingCell: TokenCardTableViewCellWithCheckbox?
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private (set) var viewModel: TokensCardViewModel
     private let tokenObject: TokenObject
-    private var viewModel: TokensCardViewModel
-    private let tokensStorage: TokensDataStore
-    private let account: Wallet
-    private let header = TokenCardsViewControllerHeader()
-    private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .grouped)
-    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
-    //TODO this wouldn't scale if there are many cells
-    //Cache the cells used by position so we aren't dequeuing the standard UITableView way. This is so the webviews load the correct values, especially when scrolling
-    private var cells = [Int: TokenCardTableViewCellWithCheckbox]()
-    private var isMultipleSelectionMode = false {
-        didSet {
-            if isMultipleSelectionMode {
-                tableView.reloadData()
-            } else {
-                //We don't handle setting it to false
-            }
-        }
-    }
+    private let session: WalletSession
+    private let tokensDataStore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: EventsDataStoreProtocol
+    private let analyticsCoordinator: AnalyticsCoordinator
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
+    private let tokenScriptFileStatusHandler: XMLHandler
+    weak var delegate: TokensCardViewControllerDelegate?
+
+    private let tokensCardCollectionInfoPageView: TokensCardCollectionInfoPageView
+    private var activitiesPageView: ActivitiesPageView
+    private var assetsPageView: AssetsPageView
+
+    private let activitiesService: ActivitiesServiceType
+    private let containerView: PagesContainerView
+
     private var selectedTokenHolder: TokenHolder? {
         let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
         return selectedTokenHolders.first
     }
 
-    var server: RPCServer {
-        return tokenObject.server
+    private let account: Wallet
+    private let refreshControl = UIRefreshControl()
+    private lazy var keyboardChecker: KeyboardChecker = {
+        let buttonsBarHeight: CGFloat = UIApplication.shared.bottomSafeAreaHeight > 0 ? -UIApplication.shared.bottomSafeAreaHeight : 0
+        return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true, buttonsBarHeight: buttonsBarHeight)
+    }()
+
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
+        self.tokenObject = token
+        self.viewModel = viewModel
+        self.session = session
+        self.account = session.account
+        self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
+        self.tokensDataStore = tokensDataStore
+        self.assetDefinitionStore = assetDefinition
+        self.eventsDataStore = eventsDataStore
+        self.analyticsCoordinator = analyticsCoordinator
+        self.activitiesService = activitiesService
+        self.activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
+        self.assetsPageView = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: .list))
+
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
+        tokensCardCollectionInfoPageView = TokensCardCollectionInfoPageView(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
+        let pageWithFooter = PageViewWithFooter(pageView: tokensCardCollectionInfoPageView, footerBar: footerBar)
+        containerView = PagesContainerView(pages: [pageWithFooter, assetsPageView, activitiesPageView])
+
+        super.init(nibName: nil, bundle: nil)
+
+        hidesBottomBarWhenPushed = true
+
+        activitiesPageView.delegate = self
+        assetsPageView.delegate = self
+        containerView.delegate = self
+
+        view.addSubview(containerView)
+
+        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
+
+        navigationItem.largeTitleDisplayMode = .never
+
+        activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
+            guard let strongSelf = self, let viewModel = viewModel else { return }
+
+            strongSelf.activitiesPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
+        }
+        assetsPageView.rightBarButtonItem = UIBarButtonItem.switchGridToListViewBarButton(
+            selection: assetsPageView.viewModel.selection.inverted,
+            self,
+            selector: #selector(assetSelectionSelected)
+        )
+        assetsPageView.searchBar.delegate = self
+        assetsPageView.collectionView.refreshControl = refreshControl
+        keyboardChecker.constraints = containerView.bottomAnchorConstraints
     }
-    var contract: AlphaWallet.Address {
-        return tokenObject.contractAddress
+
+    required init?(coder aDecoder: NSCoder) {
+        return nil
     }
-    let assetDefinitionStore: AssetDefinitionStore
-    weak var delegate: TokensCardViewControllerDelegate?
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        keyboardChecker.viewWillAppear()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        keyboardChecker.viewWillDisappear()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        configure(viewModel: viewModel)
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
+    }
 
     var isReadOnly = false {
         didSet {
@@ -67,155 +132,81 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         }
     }
 
-    var canPeekToken: Bool {
-        let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: tokenObject)
-        switch tokenType {
-        case .supported:
-            return true
-        case .notSupported:
-            return false
+    @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
+        viewModel.invalidateTokenHolders()
+        configure()
+        sender.endRefreshing()
+    }
+
+    func configure(viewModel value: TokensCardViewModel? = .none) {
+        if let viewModel = value {
+            self.viewModel = viewModel
         }
-    }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, viewModel: TokensCardViewModel) {
-        self.analyticsCoordinator = analyticsCoordinator
-        self.tokenObject = tokenObject
-        self.account = account
-        self.tokensStorage = tokensStorage
-        self.viewModel = viewModel
-        self.assetDefinitionStore = assetDefinitionStore
-        super.init(nibName: nil, bundle: nil)
+        view.backgroundColor = viewModel.backgroundColor
+        title = viewModel.navigationTitle
+        updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
+        tokensCardCollectionInfoPageView.configure(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
+        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: assetsPageView.viewModel.selection))
 
-        view.backgroundColor = Colors.appBackground
+        let actions = viewModel.actions
+        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+        buttonsBar.viewController = self
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        header.delegate = self
-
-        tableView.register(TokenCardTableViewCellWithCheckbox.self)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = GroupedTable.Color.background
-        tableView.tableHeaderView = header
-        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
-        roundedBackground.addSubview(tableView)
-
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
-        roundedBackground.addSubview(footerBar)
-
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            footerBar.anchorsConstraint(to: view),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
-
-        registerForPreviewing(with: self, sourceView: tableView)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func configure(viewModel newViewModel: TokensCardViewModel? = nil) {
-        if let newViewModel = newViewModel {
-            viewModel = newViewModel
-        }
-        tableView.dataSource = self
-        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
-
-        header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
-
-        tableView.tableHeaderView = header
-        NSLayoutConstraint.activate([
-            header.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: tableView.trailingAnchor),
-        ])
-        header.setNeedsLayout()
-        header.layoutIfNeeded()
-        tableView.tableHeaderView = header
-
-        if let selectedTokenHolder = selectedTokenHolder {
-            buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-            buttonsBar.viewController = self
-
-            for (action, button) in zip(viewModel.actions, buttonsBar.buttons) {
-                button.setTitle(action.name, for: .normal)
-                button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-                switch account.type {
-                case .real:
-                    if let selection = action.activeExcludingSelection(selectedTokenHolders: [selectedTokenHolder], forWalletAddress: account.address) {
-                        if selection.denial == nil {
-                            button.displayButton = false
-                        }
+        for (action, button) in zip(actions, buttonsBar.buttons) {
+            button.setTitle(action.name, for: .normal)
+            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+            switch session.account.type {
+            case .real:
+                if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolders[0], tokenId: viewModel.tokenHolders[0].tokenId, forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                    if selection.denial == nil {
+                        button.displayButton = false
                     }
-                case .watch:
-                    button.isEnabled = false
                 }
+            case .watch:
+                button.isEnabled = false
+            }
+        }
+    }
+
+    private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
+        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+        if tokenScriptStatusPromise.isPending {
+            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+            tokensCardCollectionInfoPageView.rightBarButtonItem = label
+
+            tokenScriptStatusPromise.done { [weak self] _ in
+                self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+            }.cauterize()
+        }
+
+        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
+            switch status {
+            case .type0NoTokenScript:
+                tokensCardCollectionInfoPageView.rightBarButtonItem = nil
+            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
+                let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
+                tokensCardCollectionInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
             }
         } else {
-            buttonsBar.configuration = .empty
-        }
-
-        sizingCell = nil
-        tableView.reloadData()
-    }
-
-    override
-    func viewDidLoad() {
-        super.viewDidLoad()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(didTapCancelButton))
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = false
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        guard let buttonsBarHolder = buttonsBar.superview else {
-            tableView.contentInset = .zero
-            return
-        }
-        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
-        if buttonsBar.isEmpty {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
-        } else {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
+            tokensCardCollectionInfoPageView.rightBarButtonItem = nil
         }
     }
 
-    @IBAction
-    func didTapCancelButton(_ sender: UIBarButtonItem) {
-        delegate?.didCancel(in: self)
-    }
-
-    func redeem() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: selectedTokenHolder, in: self)
-    }
-
-    func sell() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [selectedTokenHolder])
-        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
-    }
-
-    func transfer() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType(token: viewModel.token, tokenHolders: [selectedTokenHolder])
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
+    @objc private func actionButtonTapped(sender: UIButton) {
+        let actions = viewModel.actions
+        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
+            handle(action: action)
+            break
+        }
     }
 
     private func handle(action: TokenInstanceAction) {
+        viewModel.markHolderSelected()
+
         guard let tokenHolder = selectedTokenHolder else { return }
+        
         switch action.type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             break
@@ -240,249 +231,76 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
                 }
             } else {
+
                 delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
             }
         }
     }
 
-    //TODO multi-selection. Only supports selecting one tokenHolder for now
-    @objc private func actionButtonTapped(sender: UIButton) {
-        let actions = viewModel.actions
-        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            handle(action: action)
-            break
-        }
+    func redeem() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
+        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: selectedTokenHolder, in: self)
     }
 
-    private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
-        guard !indexPaths.isEmpty else { return }
-        //TODO reloading only the affect cells show expanded cell with wrong height the first time, so we reload all instead and scroll the cell to the top instead
-//        tableview.reloadRows(at: indexPaths, with: .automatic)
-        tableview.reloadData()
-        let anyIndexPath = indexPaths[0]
-        let _ = viewModel.item(for: anyIndexPath).tokens[0]
-        //We only auto scroll to reveal for OpenSea-supported tokens which are usually taller and have a picture. Because
-        //    (A) other tokens like ERC875 tickets are usually too short and all text, making it difficult for user to capture where it has scrolled to
-        //    (B) OpenSea-supported tokens are tall, so after expanding, chances are user need to scroll quite a lot if we don't auto-scroll
-        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-        case .backedByOpenSea:
-            if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
-                tableview.scrollToRow(at: indexPath, at: .top, animated: false)
-            }
-        case .notBackedByOpenSea:
-            break
-        }
+    func sell() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
+        let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [selectedTokenHolder])
+        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 
-    private func toggleDetailsVisibility(forIndexPath indexPath: IndexPath) {
-        let changedIndexPaths = viewModel.toggleDetailsVisible(for: indexPath)
-        animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+    func transfer() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
+        let transactionType = TransactionType(token: viewModel.token, tokenHolders: [selectedTokenHolder])
+        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 
-    private func canPeek(at indexPath: IndexPath) -> Bool {
-        guard canPeekToken else { return false }
-        let tokenHolder = viewModel.item(for: indexPath)
-        return tokenHolder.values.imageUrlUrlValue != nil
-    }
+}
 
-    @objc private func longPressedTokenInstanceIconified(sender: UILongPressGestureRecognizer) {
-       switch sender.state {
-       case .began:
-           isMultipleSelectionMode = true
-           guard let indexPaths = tableView.indexPathsForVisibleRows else { return }
-           for each in indexPaths {
-               guard let cell = tableView.cellForRow(at: each) else { continue }
-               if let hasGestureRecognizer = cell.gestureRecognizers?.contains(sender), hasGestureRecognizer {
-                   let _ = viewModel.toggleSelection(for: each)
-                   configure()
-                   break
-               }
-           }
-       case .possible, .changed, .ended, .cancelled, .failed:
-           break
-       }
-    }
+extension TokensCardViewController: UISearchBarDelegate {
 
-    ///TokenScript views might take some time to finish rendering and be performance intensive, so we render the first row in a sizing cell to figure out the height. This assumes that every row has the same height.
-    ///Have to be careful that it works correctly with tokens that don't have TokenScript and also those backed by OpenSea
-    private func createSizingCell() {
-        guard sizingCell == nil else { return }
-        guard viewModel.numberOfItems() > 0 else { return }
-        let indexPath = IndexPath(row: 0, section: 0)
-        let tokenHolder = viewModel.item(for: indexPath)
-
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
-        let cell = TokenCardTableViewCellWithCheckbox()
-        sizingCell = cell
-        var rowView: TokenCardRowViewProtocol & UIView
-        switch tokenType {
-        case .backedByOpenSea:
-            rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
-        case .notBackedByOpenSea:
-            rowView = {
-                if let rowView = cell.rowView {
-                    //Reuse for performance (because webviews are created)
-                    return rowView
-                } else {
-                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
-                    rowView.delegate = self
-                    return rowView
-                }
-            }()
-        }
-        rowView.bounds = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10)
-        rowView.setNeedsLayout()
-        rowView.layoutIfNeeded()
-        rowView.shouldOnlyRenderIfHeightIsCached = false
-        cell.delegate = self
-        cell.rowView = rowView
-
-        cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
-        cell.isCheckboxVisible = isMultipleSelectionMode
-        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer } ?? false
-        if !hasAddedGestureRecognizer {
-            cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
-        }
-    }
-
-    private func reusableCell(forRowAt row: Int) -> TokenCardTableViewCellWithCheckbox {
-        cells[row, default: TokenCardTableViewCellWithCheckbox(frame: .zero)]
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        assetsPageView.viewModel.searchFilter = .keyword(searchText)
+        assetsPageView.reload(animatingDifferences: true)
     }
 }
 
-extension TokensCardViewController: VerifiableStatusViewController {
-    func showInfo() {
-        delegate?.didPressViewRedemptionInfo(in: self)
+extension TokensCardViewController: PagesContainerViewDelegate {
+    func containerView(_ containerView: PagesContainerView, didSelectPage index: Int) {
+        navigationItem.rightBarButtonItem = containerView.pages[index].rightBarButtonItem
     }
 
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
+    @objc private func assetSelectionSelected(_ sender: UIBarButtonItem) {
+        let selection = assetsPageView.viewModel.selection
+        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: sender.selection ?? selection))
+        sender.toggleSelection()
     }
+}
 
+extension TokensCardViewController: CanOpenURL2 {
     func open(url: URL) {
-        delegate?.didPressViewContractWebPage(url, in: self)
-    }
-}
-
-extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
-    //Hide the header
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        .leastNormalMagnitude
-    }
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        nil
-    }
-
-    //Hide the footer
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        .leastNormalMagnitude
-    }
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        nil
-    }
-    public func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfItems()
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tokenHolder = viewModel.item(for: indexPath)
-
-        if indexPath.section == 0 {
-            createSizingCell()
-        }
-
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
-        let cell = reusableCell(forRowAt: indexPath.row)
-        var rowView: TokenCardRowViewProtocol & UIView
-        switch tokenType {
-        case .backedByOpenSea:
-            rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
-        case .notBackedByOpenSea:
-            rowView = {
-                if let rowView = cell.rowView {
-                    //Reuse for performance (because webviews are created)
-                    return rowView
-                } else {
-                    let rowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
-                    //Important not to assign a delegate because we don't use actual cells to figure out the height. We use a sizing cell instead
-                    return rowView
-                }
-            }()
-        }
-        //For performance, we use a sizing cell to figure out the height of a cell first and don't render actual cells until we know (cache) the height
-        rowView.shouldOnlyRenderIfHeightIsCached = true
-        cell.delegate = self
-        cell.rowView = rowView
-        cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
-        cell.isCheckboxVisible  = isMultipleSelectionMode
-        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer } ?? false
-        if !hasAddedGestureRecognizer {
-            cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
-        }
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if isMultipleSelectionMode {
-            let _ = viewModel.toggleSelection(for: indexPath)
-            //TODO maybe still needed for ERC721
-//            animateRowHeightChanges(for: changedIndexPaths, in: tableView)
-            configure()
-        } else {
-            let tokenHolder = viewModel.item(for: indexPath)
-            delegate?.didTapTokenInstanceIconified(tokenHolder: tokenHolder, in: self)
-        }
-    }
-}
-
-extension TokensCardViewController: BaseTokenCardTableViewCellDelegate {
-    func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
 
-extension TokensCardViewController: UIViewControllerPreviewingDelegate {
-    public func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
-        guard let indexPath = tableView.indexPathForRow(at: location) else { return nil }
-        guard canPeek(at: indexPath) else { return nil }
-        guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
-        let tokenHolder = viewModel.item(for: indexPath)
-        guard !tokenHolder.areDetailsVisible else { return nil }
-
-        let viewController = PeekOpenSeaNonFungibleTokenViewController(forIndexPath: indexPath)
-        viewController.configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: true, width: tableView.frame.size.width, convertHtmlInDescription: false))
-
-        let viewRectInTableView = view.convert(cell.frame, from: tableView)
-        previewingContext.sourceRect = viewRectInTableView
-        //Don't need to set `preferredContentSize`. In fact, if we set the height, it seems to be rendered wrongly
-        return viewController
-    }
-
-    public func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        guard let viewController = viewControllerToCommit as? PeekOpenSeaNonFungibleTokenViewController else { return }
-        toggleDetailsVisibility(forIndexPath: viewController.indexPath)
+extension TokensCardViewController: TokensCardCollectionInfoPageViewDelegate {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
 }
 
-extension TokensCardViewController: TokenCardsViewControllerHeaderDelegate {
-    func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
-        showContractWebPage()
+extension TokensCardViewController: ActivitiesPageViewDelegate {
+    func didTap(activity: Activity, in view: ActivitiesPageView) {
+        delegate?.didTap(activity: activity, in: self)
+    }
+
+    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
+        delegate?.didTap(transaction: transaction, in: self)
     }
 }
 
-extension TokensCardViewController: TokenCardRowViewDelegate {
-    func heightChangedFor(tokenCardRowView: TokenCardRowView) {
-        guard let visibleRows = tableView.indexPathsForVisibleRows else { return }
-        //Important to not reload the entire table due to poor performance
-        UIView.setAnimationsEnabled(false)
-        tableView.beginUpdates()
-        tableView.reloadRows(at: visibleRows, with: .none)
-        tableView.endUpdates()
-        UIView.setAnimationsEnabled(true)
+extension TokensCardViewController: AssetsPageViewDelegate {
+    func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder) {
+        delegate?.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder)
     }
 }
 

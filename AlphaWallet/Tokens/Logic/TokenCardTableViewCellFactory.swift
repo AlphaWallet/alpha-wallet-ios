@@ -7,19 +7,26 @@
 
 import UIKit
 
-typealias TokenCardViewType = UIView & TokenCardRowViewProtocol & SelectionPositioningView
+protocol TokenCardRowViewLayoutConfigurableProtocol {
+    func configureLayout(layout: GridOrListSelectionState)
+}
+
+typealias TokenCardViewType = UIView & TokenCardRowViewProtocol & SelectionPositioningView & TokenCardRowViewLayoutConfigurableProtocol
 
 class TokenCardTableViewCellFactory {
 
-    func create(for tokenHolder: TokenHolder, edgeInsets: UIEdgeInsets = .init(top: 16, left: 20, bottom: 16, right: 16)) -> TokenCardViewType {
+    func create(for tokenHolder: TokenHolder, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) -> TokenCardViewType {
         var rowView: TokenCardViewType
         switch tokenHolder.tokenType {
         case .erc875:
-            rowView = Erc875NonFungibleRowView(tokenView: .view, edgeInsets: edgeInsets)
+            rowView = Erc875NonFungibleRowView(tokenView: .view, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
-            rowView = NonFungibleRowView(tokenView: .viewIconified, edgeInsets: edgeInsets)
+            rowView = NonFungibleRowView(tokenView: .viewIconified, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         }
+
+        rowView.configureLayout(layout: layout)
         rowView.shouldOnlyRenderIfHeightIsCached = false
+        
         return rowView
     }
 

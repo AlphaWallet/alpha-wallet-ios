@@ -8,7 +8,7 @@ struct BaseTokenCardTableViewCellViewModel {
     let tokenView: TokenView
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return GroupedTable.Color.background
     }
 
     var stateBackgroundColor: UIColor? {

@@ -68,7 +68,11 @@ extension TransactionType {
             return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
         case .erc20Token(let tokenObject, _, _):
             return .contract(contract: tokenObject.contractAddress)
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .claimPaidErc875MagicLink, .tokenScript:
+        case .erc875Token(let tokenObject, _), .erc875TokenOrder(let tokenObject, _):
+            return .contract(contract: tokenObject.contractAddress)
+        case .erc721Token(let tokenObject, _), .erc721ForTicketToken(let tokenObject, _), .erc1155Token(let tokenObject, _, _):
+            return .contract(contract: tokenObject.contractAddress)
+        case .dapp, .claimPaidErc875MagicLink, .tokenScript:
             return .none
         }
     }

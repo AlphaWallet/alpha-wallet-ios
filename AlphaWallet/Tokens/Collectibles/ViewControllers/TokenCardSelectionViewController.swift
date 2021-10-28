@@ -97,7 +97,7 @@ class TokenCardSelectionViewController: UIViewController {
         roundedBackground.addSubview(footerBar)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor)
-        keyboardChecker.constraint = bottomConstraint
+        keyboardChecker.constraints = [bottomConstraint]
 
         NSLayoutConstraint.activate([
             footerBar.anchorsConstraint(to: view),
@@ -212,7 +212,7 @@ extension TokenCardSelectionViewController: UITableViewDataSource {
         if let view = cachedCellsCardRowViews[indexPath] {
             subview = view
         } else {
-            let view = factory.create(for: selection.tokenHolder, edgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
+            let view = factory.create(for: selection.tokenHolder, layout: .list, listEdgeInsets: .init(top: 5, left: 0, bottom: 5, right: 0))
             subview = view
             cachedCellsCardRowViews[indexPath] = subview
         }
@@ -221,6 +221,8 @@ extension TokenCardSelectionViewController: UITableViewDataSource {
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
 
         subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId, tokenView: .viewIconified, areDetailsVisible: false, width: tableView.frame.size.width, assetDefinitionStore: assetDefinitionStore)
+        //NOTE: tweak views background color
+        subview.backgroundColor = .clear
 
         cell.delegate = self
 

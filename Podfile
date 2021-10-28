@@ -41,8 +41,8 @@ target 'AlphaWallet' do
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
-  pod 'Apollo'
-
+  pod 'Apollo' 
+  
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing

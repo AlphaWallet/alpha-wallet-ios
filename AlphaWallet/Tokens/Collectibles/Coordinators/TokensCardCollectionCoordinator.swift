@@ -176,6 +176,18 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
 }
 
 extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDelegate {
+
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokensCardCollectionViewController) {
+        delegate?.didTap(for: paymentFlow, in: self, viewController: viewController)
+    }
+
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardCollectionViewController) {
+        showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
+    }
+
+    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
+        delegate?.didTap(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), in: self, viewController: viewController)
+    }
     
     func didSelectTokenHolder(in viewController: TokensCardCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
         switch tokenHolder.type {
@@ -263,10 +275,6 @@ extension TokensCardCollectionCoordinator: Erc1155TokenInstanceViewControllerDel
 
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: Erc1155TokenInstanceViewController) {
         showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
-    }
-
-    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
-        delegate?.didTap(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), in: self, viewController: viewController)
     }
 }
 

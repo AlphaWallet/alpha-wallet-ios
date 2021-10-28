@@ -16,6 +16,8 @@ protocol TokensCardCollectionViewControllerDelegate: class, CanOpenURL {
     func didTap(activity: Activity, in viewController: TokensCardCollectionViewController)
     func didSelectAssetSelection(in viewController: TokensCardCollectionViewController)
     func didSelectTokenHolder(in viewController: TokensCardCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokensCardCollectionViewController)
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardCollectionViewController)
 }
 
 class TokensCardCollectionViewController: UIViewController {
@@ -33,14 +35,24 @@ class TokensCardCollectionViewController: UIViewController {
     private let tokensCardCollectionInfoPageView: TokensCardCollectionInfoPageView
     private var activitiesPageView: ActivitiesPageView
     private var assetsPageView: AssetsPageView
-
+    private var selectedTokenHolder: TokenHolder? {
+        let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
+        return selectedTokenHolders.first
+    }
     private let activitiesService: ActivitiesServiceType
     private let containerView: PagesContainerView
-
+    private lazy var keyboardChecker: KeyboardChecker = {
+        let buttonsBarHeight: CGFloat = UIApplication.shared.bottomSafeAreaHeight > 0 ? -UIApplication.shared.bottomSafeAreaHeight : 0
+        return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true, buttonsBarHeight: buttonsBarHeight)
+    }()
+    private let refreshControl = UIRefreshControl()
+    private let account: Wallet
+    
     init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardCollectionViewControllerViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
+        self.account = session.account
         self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
@@ -48,7 +60,7 @@ class TokensCardCollectionViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
         self.activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
-        self.assetsPageView = AssetsPageView(tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server, viewModel: .init(tokenHolders: viewModel.tokenHolders))
+        self.assetsPageView = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: .list))
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         tokensCardCollectionInfoPageView = TokensCardCollectionInfoPageView(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
@@ -77,6 +89,10 @@ class TokensCardCollectionViewController: UIViewController {
 
         //TODO disabled until we support batch transfers. Selection doesn't work correctly too
         assetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
+        assetsPageView.searchBar.delegate = self
+        assetsPageView.collectionView.refreshControl = refreshControl
+        keyboardChecker.constraints = containerView.bottomAnchorConstraints
+
         switch session.account.type {
         case .real:
             assetsPageView.rightBarButtonItem?.isEnabled = true
@@ -93,17 +109,36 @@ class TokensCardCollectionViewController: UIViewController {
         super.viewDidLoad()
 
         configure(viewModel: viewModel)
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
     }
 
-    func configure(viewModel: TokensCardCollectionViewControllerViewModel) {
-        self.viewModel = viewModel
+    @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
+        viewModel.invalidateTokenHolders()
+        configure()
+        sender.endRefreshing()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        keyboardChecker.viewWillAppear()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        keyboardChecker.viewWillDisappear()
+    }
+
+    func configure(viewModel value: TokensCardCollectionViewControllerViewModel? = .none) {
+        if let viewModel = value {
+            self.viewModel = viewModel
+        }
 
         view.backgroundColor = viewModel.backgroundColor
         title = viewModel.navigationTitle
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
         tokensCardCollectionInfoPageView.configure(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
-        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders))
+        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: .list))
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
@@ -120,7 +155,7 @@ class TokensCardCollectionViewController: UIViewController {
                     }
                 }
             case .watch:
-                button.isEnabled = false
+                button.isEnabled = false 
             }
         }
     }
@@ -151,9 +186,55 @@ class TokensCardCollectionViewController: UIViewController {
 
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
-        for (_, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            //TODO ?!
+        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
+            handle(action: action)
+            break
         }
+    }
+
+    private func handle(action: TokenInstanceAction) {
+        guard viewModel.tokenHolders.count == 1 else { return }
+        let tokenHolder = viewModel.tokenHolders[0]
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+
+        switch action.type {
+        case .nftRedeem, .nftSell, .erc20Send, .erc20Receive, .swap, .buy, .bridge:
+            break
+        case .nonFungibleTransfer:
+            transfer(tokenHolder: tokenHolder)
+        case .tokenScript:
+            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                if let denialMessage = selection.denial {
+                    UIAlertController.alert(
+                            title: nil,
+                            message: denialMessage,
+                            alertButtonTitles: [R.string.localizable.oK()],
+                            alertButtonStyles: [.default],
+                            viewController: self,
+                            completion: nil
+                    )
+                } else {
+                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                }
+            } else {
+                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+            }
+        }
+    } 
+
+    private func transfer(tokenHolder: TokenHolder) {
+        let transactionType = TransactionType(token: tokenObject, tokenHolders: [tokenHolder])
+        let paymentFlow: PaymentFlow = .send(type: .transaction(transactionType))
+        
+        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: self)
+    }
+}
+
+extension TokensCardCollectionViewController: UISearchBarDelegate {
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        assetsPageView.viewModel.searchFilter = .keyword(searchText)
+        assetsPageView.reload(animatingDifferences: true)
     }
 }
 
