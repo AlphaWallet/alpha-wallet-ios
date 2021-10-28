@@ -49,7 +49,7 @@ class SwitchTableViewCell: UITableViewCell {
 
         let stackView = [
             iconImageView, titleLabel, .spacerWidth(flexible: true), switchView
-        ].asStackView(axis: .horizontal, spacing: 16)
+        ].asStackView(axis: .horizontal, spacing: 16, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
 
