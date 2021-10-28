@@ -20,7 +20,13 @@ class WalletConnectSessionViewController: UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
         return imageView
+    }()
+    private let iconTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     private let statusRow = WalletConnectRowView()
     private let nameRow = WalletConnectRowView()
@@ -34,8 +40,28 @@ class WalletConnectSessionViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
+        let imageContainerView: UIView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+
+            let stackView = [imageView, iconTitleLabel].asStackView(axis: .vertical, alignment: .center)
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(stackView)
+
+            NSLayoutConstraint.activate([
+                imageView.heightAnchor.constraint(equalToConstant: 40),
+                imageView.widthAnchor.constraint(equalToConstant: 40),
+                stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+                stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            ])
+
+            return view
+        }()
+
         let stackView = [
-            [.spacerWidth(50), imageView, .spacerWidth(50)].asStackView(),
+            imageContainerView,
             statusRow,
             nameRow,
             connectedToRow,
@@ -50,7 +76,7 @@ class WalletConnectSessionViewController: UIViewController {
         view.addSubview(footerBar)
 
         NSLayoutConstraint.activate([
-            imageView.heightAnchor.constraint(equalToConstant: 250),
+            imageContainerView.heightAnchor.constraint(equalToConstant: 200),
             stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -81,6 +107,11 @@ class WalletConnectSessionViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = .never
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        imageView.layer.cornerRadius = imageView.bounds.height / 2
+    }
+
     func reload() {
         configure(viewModel: viewModel)
     }
@@ -97,6 +128,7 @@ class WalletConnectSessionViewController: UIViewController {
         connectedToRow.configure(viewModel: viewModel.connectedToRowViewModel)
         chainRow.configure(viewModel: viewModel.chainRowViewModel)
         imageView.setImage(url: viewModel.sessionIconURL, placeholder: viewModel.walletImageIcon)
+        iconTitleLabel.attributedText = viewModel.nameAttributedString
 
         let button0 = buttonsBar.buttons[0]
         button0.setTitle(viewModel.dissconnectButtonText, for: .normal)

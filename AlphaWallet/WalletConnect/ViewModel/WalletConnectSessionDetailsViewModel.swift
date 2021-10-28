@@ -19,11 +19,11 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var walletImageIcon: UIImage? {
-        return R.image.walletconnect()
+        return R.image.walletConnectIcon()
     }
 
     var sessionIconURL: URL? {
-        session.dAppInfo.peerMeta.icons.first
+        session.dAppInfo.peerMeta.icons.last
     }
 
     var statusRowViewModel: WallerConnectRawViewModel {
@@ -42,6 +42,14 @@ struct WalletConnectSessionDetailsViewModel {
             details: session.dAppInfo.peerMeta.name,
             hideSeparatorOptions: .top
         )
+    }
+
+    var nameAttributedString: NSAttributedString {
+        let approxServiceName = session.dAppInfo.peerMeta.name.components(separatedBy: " ").first ?? session.dAppInfo.peerMeta.name
+        return .init(string: approxServiceName, attributes: [
+            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
+            .foregroundColor: Colors.black
+        ])
     }
 
     var connectedToRowViewModel: WallerConnectRawViewModel {
