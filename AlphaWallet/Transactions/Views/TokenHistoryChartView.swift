@@ -28,12 +28,7 @@ struct TokenHistoryChartViewModel {
     }
 
     var setGradientFill: Fill? {
-        let gradientColors = [gradientColor.withAlphaComponent(0.1).cgColor, Colors.appWhite.cgColor] as CFArray
-        if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: gradientColors, locations: [1.0, 0.0]) {
-            return Fill.fillWithLinearGradient(gradient, angle: 90.0)
-        } else {
-            return nil
-        }
+        return Fill.fillWithCGColor(Colors.appBackground.cgColor)
     }
 }
 
