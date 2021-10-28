@@ -34,7 +34,9 @@
 "transaction.blockNumber.label.title" = "Block #";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "Confirm";
+"confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
+"confirmPayment.connect.button.title" = "Connect";
 "confirmPayment.from.label.title" = "From";
 "confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "Gas Limit";

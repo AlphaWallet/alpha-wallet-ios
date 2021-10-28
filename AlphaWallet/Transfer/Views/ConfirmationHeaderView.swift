@@ -23,10 +23,8 @@ class ConfirmationHeaderView: UIView {
         return titleLabel
     }()
 
-    private let iconImageView: UIImageView = {
-        let imageView = UIImageView(frame: .zero)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
+    let iconImageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 30, height: 30))
 
         return imageView
     }()
@@ -79,8 +77,6 @@ class ConfirmationHeaderView: UIView {
 
             iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 30),
-            iconImageView.heightAnchor.constraint(equalToConstant: 30),
 
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -103,5 +99,5 @@ class ConfirmationHeaderView: UIView {
 
     required init?(coder: NSCoder) {
         return nil
-    }
+    } 
 }
