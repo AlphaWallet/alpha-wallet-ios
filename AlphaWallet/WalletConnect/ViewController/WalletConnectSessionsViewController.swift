@@ -4,7 +4,8 @@ import UIKit
 import StatefulViewController
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
-    func didSelect(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
+    func didDisconnectSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
+    func didSessionSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
     func qrCodeSelected(in viewController: WalletConnectSessionsViewController)
     func didClose(in viewController: WalletConnectSessionsViewController)
 }
@@ -139,11 +140,29 @@ extension WalletConnectSessionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        delegate?.didSelect(session: sessionsValue[indexPath.row].session, in: self)
+        delegate?.didSessionSelected(session: sessionsValue[indexPath.row].session, in: self)
     }
 }
 
 extension WalletConnectSessionsViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let title = R.string.localizable.walletConnectSessionDisconnect()
+        let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
+            guard let strongSelf = self else { return }
+            let session = strongSelf.sessionsValue[indexPath.row].session
+            strongSelf.delegate?.didDisconnectSelected(session: session, in: strongSelf)
+
+            completionHandler(true)
+        }
+
+        hideAction.backgroundColor = R.color.danger()
+        hideAction.image = R.image.hideToken()
+        let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
 
