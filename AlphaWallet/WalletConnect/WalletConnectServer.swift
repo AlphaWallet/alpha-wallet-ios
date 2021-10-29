@@ -132,6 +132,13 @@ class WalletConnectServer {
         try server.connect(to: url)
     }
 
+    func updateSession(session: Session, server: RPCServer) throws {
+        let walletInfo = walletInfo(wallet, choice: .connect(server))
+        try self.server.updateSession(session, with: walletInfo)
+        set(server: server, for: session.url)
+        refresh(sessions: _sessions.value ?? [])
+    }
+
     func reconnect(session: Session) throws {
         try server.reconnect(to: session)
     }

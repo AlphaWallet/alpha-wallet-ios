@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import PromiseKit
 
 protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: WalletConnectSessionCoordinator)
@@ -21,7 +22,8 @@ class WalletConnectSessionCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
-
+    private let config = Config()
+    
     init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, server: WalletConnectServer, session: WalletConnectSession) {
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
@@ -32,8 +34,7 @@ class WalletConnectSessionCoordinator: Coordinator {
         viewController.delegate = self
 
         server.sessions.subscribe { [weak self] _ in
-            guard let strongSelf = self else { return }
-            strongSelf.viewController.reload()
+            self?.viewController.reload()
         }
     }
 
@@ -45,21 +46,39 @@ class WalletConnectSessionCoordinator: Coordinator {
 extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
 
     func didDismiss(in controller: WalletConnectSessionViewController) {
-        guard let delegate = delegate else { return }
         navigationController.popViewController(animated: true)
-        delegate.didDismiss(in: self)
+        delegate?.didDismiss(in: self)
+    }
+
+    private var serverChoices: [RPCServer] {
+        ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+    }
+
+    func controller(_ controller: WalletConnectSessionViewController, switchNetworkSelected sender: UIButton) {
+        analyticsCoordinator.log(action: Analytics.Action.walletConnectSwitchNetwork)
+
+        let rpcServer = controller.rpcServer ?? .main
+        let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
+        let viewModel = ServersViewModel(servers: servers, selectedServer: .server(rpcServer), displayWarningFooter: false)
+
+        firstly {
+            ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self)
+        }.done { server in
+            if let server = server {
+                self.analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
+
+                try? self.server.updateSession(session: self.session, server: server)
+            } else {
+                self.analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
+            }
+        }.cauterize()
     }
 
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
-        guard let delegate = delegate else { return }
-
         analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
-        do {
-            try server.disconnect(session: session)
-        } catch {
-            //no-op
-        }
+
+        try? server.disconnect(session: session)
         navigationController.popViewController(animated: true)
-        delegate.didDismiss(in: self)
+        delegate?.didDismiss(in: self)
     }
 }
