@@ -97,7 +97,9 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }
 
     func openSession(url: WalletConnectURL) {
-        navigationController.setNavigationBarHidden(false, animated: true)
+        if sessionsViewController == nil {
+            navigationController.setNavigationBarHidden(false, animated: true)
+        }
 
         showSessions(state: .loading, navigationController: navigationController) {
             try? self.server.connect(url: url)
