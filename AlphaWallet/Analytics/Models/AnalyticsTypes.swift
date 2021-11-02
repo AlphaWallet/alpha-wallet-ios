@@ -55,6 +55,7 @@ enum Analytics {
         case walletConnectDisconnect = "WalletConnect Disconnect"
         case walletConnectSwitchNetwork = "WalletConnect Switch Network"
         case walletConnectConnectionTimeout = "WalletConnect Connection Timeout"
+        case walletConnectConnectionFailed = "WalletConnect Connection Failed"
         case clearBrowserCache = "Clear Browser Cache"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
         case nameWallet = "Name Wallet"
@@ -80,6 +81,7 @@ enum Analytics {
         case isAllFunds
         case addCustomChainType
         case isAccepted
+        case reason
     }
 
     enum UserProperties: String, AnalyticsUserProperty {
@@ -168,4 +170,5 @@ enum Analytics {
    enum WalletConnectAction: String {
        case bridgeUrl
    }
+
 }
