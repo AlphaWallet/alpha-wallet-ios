@@ -24,18 +24,18 @@ class WebImageView: UIView {
         didSet {
             imageView.image = nil
             setIsLoadingImageFromURL(true)
-            
+
             if let url = url?.rewrittenIfIpfs {
                 if url.pathExtension == "svg" {
                     switch type {
                     case .original:
-                        webView.load(.init(url: url.rewrittenIfIpfs))
+                        webView.load(.init(url: url))
                     case .thumbnail:
                         let html = generateHtmlForThumbnailSvg(url: url)
                         webView.loadHTMLString(html, baseURL: nil)
                     }
                 } else {
-                    webView.load(.init(url: url.rewrittenIfIpfs))
+                    webView.load(.init(url: url))
                 }
             } else {
                 webView.loadHTMLString("", baseURL: nil)
