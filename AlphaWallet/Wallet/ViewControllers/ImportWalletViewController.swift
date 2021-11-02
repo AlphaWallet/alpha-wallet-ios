@@ -120,12 +120,9 @@ class ImportWalletViewController: UIViewController {
 
     private lazy var privateKeyControlsStackView: UIView = privateKeyTextView.defaultLayout()
 
-    private lazy var watchControlsStackView: UIStackView = [
-        watchAddressTextField.label,
-        .spacer(height: 4),
-        watchAddressTextField.defaultLayout(edgeInsets: .zero),
-        .spacer(height: 4),
-    ].asStackView(axis: .vertical)
+    private lazy var watchControlsStackView: UIView = {
+        watchAddressTextField.defaultLayout(edgeInsets: .zero)
+    }()
 
     private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private lazy var importSeedDescriptionLabel: UILabel = {
