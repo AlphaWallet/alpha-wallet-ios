@@ -99,22 +99,22 @@ final class DDLogger: Logger {
     }
 
     func debug(_ message: Any) {
-        DDLogDebug("xxx \(message)", ddlog: logger)
+        DDLogDebug(message, ddlog: logger)
     }
 
     func info(_ message: Any) {
-        DDLogInfo("xxx \(message)", ddlog: logger)
+        DDLogInfo(message, ddlog: logger)
     }
 
     func warn(_ message: Any) {
-        DDLogWarn("xxx \(message)", ddlog: logger)
+        DDLogWarn(message, ddlog: logger)
     }
 
     func verbose(_ message: Any) {
-        DDLogVerbose("xxx \(message)", ddlog: logger)
+        DDLogVerbose(message, ddlog: logger)
     }
 
     func error(_ message: Any) {
-        DDLogError("xxx \(message)", ddlog: logger)
+        DDLogError(message, ddlog: logger)
     }
 }
