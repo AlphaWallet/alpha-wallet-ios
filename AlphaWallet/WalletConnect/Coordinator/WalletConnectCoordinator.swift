@@ -18,6 +18,22 @@ enum SessionsToDisconnect {
     case all
 }
 
+struct WalletConnectSessionViewModel {
+    let dappShortName: String
+    let dappName: String
+    let server: RPCServer
+    let dappUrl: URL
+    let dappIconUrl: URL?
+
+    init(walletConnectSession session: WalletConnectSessionMappedToServer) {
+        dappName = session.session.dappName
+        dappShortName = session.session.dappNameShort
+        dappUrl = session.session.dappUrl
+        server = session.server
+        dappIconUrl = session.session.dappIconUrl
+    }
+}
+
 typealias WalletConnectSessionMappedToServer = (session: WalletConnectSession, server: RPCServer)
 
 protocol WalletConnectCoordinatorDelegate: class, CanOpenURL {
@@ -202,8 +218,8 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    func server(_ server: WalletConnectServer, didConnect session: WalletConnectSession) {
-        info("WalletConnect didConnect session: \(session.url.absoluteString)")
+    func server(_ server: WalletConnectServer, didConnect walletConnectSession: WalletConnectSession) {
+        info("WalletConnect didConnect session: \(walletConnectSession.url.absoluteString)")
         resetSessionsToRemoveLoadingIfNeeded()
     }
 
@@ -211,6 +227,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         info("WalletConnect action: \(action)")
         if let rpcServer = server.urlToServer[request.url] {
             let session = sessions[rpcServer]
+            let walletConnectSession = sessionsToURLServersMap.value?.first(where: { $0.server == rpcServer && $0.session.url == request.url })
 
             firstly {
                 Promise<Void> { seal in
@@ -229,13 +246,13 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
                 case .sendTransaction(let transaction):
                     return self.executeTransaction(session: session, callbackID: action.id, url: action.url, transaction: transaction, type: .signThenSend)
                 case .signMessage(let hexMessage):
-                    return self.signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
+                    return self.signMessage(with: .message(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url, walletConnectSession: walletConnectSession)
                 case .signPersonalMessage(let hexMessage):
-                    return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url)
+                    return self.signMessage(with: .personalMessage(hexMessage.toHexData), account: account, callbackID: action.id, url: action.url, walletConnectSession: walletConnectSession)
                 case .signTypedMessageV3(let typedData):
-                    return self.signMessage(with: .eip712v3And4(typedData), account: account, callbackID: action.id, url: action.url)
+                    return self.signMessage(with: .eip712v3And4(typedData), account: account, callbackID: action.id, url: action.url, walletConnectSession: walletConnectSession)
                 case .typedMessage(let typedData):
-                    return self.signMessage(with: .typedMessage(typedData), account: account, callbackID: action.id, url: action.url)
+                    return self.signMessage(with: .typedMessage(typedData), account: account, callbackID: action.id, url: action.url, walletConnectSession: walletConnectSession)
                 case .sendRawTransaction(let raw):
                     return self.sendRawTransaction(session: session, rawTransaction: raw, callbackID: action.id, url: action.url)
                 case .getTransactionCount:
@@ -253,10 +270,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
+    private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID id: WalletConnectRequestID, url: WalletConnectURL, walletConnectSession: WalletConnectSessionMappedToServer?) -> Promise<WalletConnectServer.Callback> {
         info("WalletConnect signMessage: \(type)")
+        let sessionInfo = walletConnectSession.flatMap { WalletConnectSessionViewModel.init(walletConnectSession: $0) }
         return firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .walletConnect, walletConnectSession: sessionInfo)
         }.map { data -> WalletConnectServer.Callback in
             return .init(id: id, url: url, value: data)
         }
@@ -265,7 +283,10 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     private func executeTransaction(session: WalletSession, callbackID id: WalletConnectRequestID, url: WalletConnectURL, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<WalletConnectServer.Callback> {
         guard let rpcServer = server.urlToServer[url] else { return Promise(error: WalletConnectError.connectionInvalid) }
         let ethPrice = nativeCryptoCurrencyPrices[rpcServer]
-        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, ethPrice: ethPrice)
+        guard let walletConnectSession = sessionsToURLServersMap.value?.first(where: { $0.session.url == url }) else {
+            return Promise(error: WalletConnectError.connectionInvalid)
+        }
+        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, ethPrice: ethPrice, walletConnectSession: walletConnectSession)
         info("WalletConnect executeTransaction: \(transaction) type: \(type)")
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect, didSendTransactionClosure: { [weak self] tx in

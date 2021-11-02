@@ -12,6 +12,6 @@ struct PromptViewModel {
     }
 
     var footerBackgroundColor: UIColor {
-        R.color.white()!
+        Colors.appWhite
     }
 }

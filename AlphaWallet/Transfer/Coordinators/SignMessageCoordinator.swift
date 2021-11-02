@@ -29,7 +29,7 @@ class SignMessageCoordinator: Coordinator {
     weak var delegate: SignMessageCoordinatorDelegate?
 
     private lazy var confirmationViewController: SignatureConfirmationViewController = {
-        let controller = SignatureConfirmationViewController(viewModel: .init(message: message))
+        let controller = SignatureConfirmationViewController(viewModel: .init(message: message, walletConnectSession: walletConnectSession))
         controller.delegate = self
         return controller
     }()
@@ -42,10 +42,12 @@ class SignMessageCoordinator: Coordinator {
 
         return controller
     }()
-
-    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource) {
+    private let walletConnectSession: WalletConnectSessionViewModel?
+    
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource, walletConnectSession: WalletConnectSessionViewModel?) {
         self.analyticsCoordinator = analyticsCoordinator
         self.presentationNavigationController = navigationController
+        self.walletConnectSession = walletConnectSession
         self.keystore = keystore
         self.account = account
         self.message = message
@@ -133,8 +135,7 @@ extension SignMessageCoordinator: SignatureConfirmationViewControllerDelegate {
     func didClose(in controller: SignatureConfirmationViewController) {
         analyticsCoordinator.log(action: Analytics.Action.cancelSignMessageRequest)
         navigationController.dismiss(animated: false) {
-            guard let delegate = self.delegate else { return }
-            delegate.didCancel(in: self)
+            self.delegate?.didCancel(in: self)
         }
     }
 }
