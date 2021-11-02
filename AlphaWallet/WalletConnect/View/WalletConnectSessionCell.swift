@@ -2,7 +2,7 @@
 
 import UIKit
 
-class RoundedImageView: UIImageView {
+class RoundedImageView: ImageView {
 
     init(size: CGSize) {
         super.init(frame: .zero)
@@ -34,6 +34,11 @@ class WalletConnectSessionCell: UITableViewCell {
         return imageView
     }()
 
+    private let serverIconImageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 16, height: 16))
+        return imageView
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -49,8 +54,11 @@ class WalletConnectSessionCell: UITableViewCell {
         ].asStackView(axis: .horizontal, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(stackView)
+        contentView.addSubview(serverIconImageView)
 
         NSLayoutConstraint.activate([
+            serverIconImageView.centerXAnchor.constraint(equalTo: iconImageView.leadingAnchor, constant: 8),
+            serverIconImageView.centerYAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: -8),
             //NOTE: using edge insets to avoid braking constraints
             stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: StyleLayout.sideMargin, bottom: 20, right: StyleLayout.sideMargin))
         ])
@@ -66,5 +74,6 @@ class WalletConnectSessionCell: UITableViewCell {
         nameLabel.attributedText = viewModel.sessionNameAttributedString
         urlLabel.attributedText = viewModel.sessionURLAttributedString
         iconImageView.setImage(url: viewModel.sessionIconURL, placeholder: R.image.walletConnectIcon())
+        serverIconImageView.subscribable = viewModel.serverIconImage
     }
 }
