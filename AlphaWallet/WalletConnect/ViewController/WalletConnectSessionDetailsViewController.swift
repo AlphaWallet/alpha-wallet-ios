@@ -27,8 +27,8 @@ class WalletConnectSessionViewController: UIViewController {
         return label
     }()
     private let statusRow = WalletConnectRowView()
-    private let nameRow = WalletConnectRowView()
-    private let connectedToRow = WalletConnectRowView()
+    private let dappNameRow = WalletConnectRowView()
+    private let dappUrlRow = WalletConnectRowView()
     private let chainRow = WalletConnectRowView()
     private let buttonsBar = ButtonsBar(configuration: .empty)
 
@@ -63,8 +63,8 @@ class WalletConnectSessionViewController: UIViewController {
         let stackView = [
             imageContainerView,
             statusRow,
-            nameRow,
-            connectedToRow,
+            dappNameRow,
+            dappUrlRow,
             chainRow,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -118,11 +118,11 @@ class WalletConnectSessionViewController: UIViewController {
         title = viewModel.navigationTitle
 
         statusRow.configure(viewModel: viewModel.statusRowViewModel)
-        nameRow.configure(viewModel: viewModel.nameRowViewModel)
-        connectedToRow.configure(viewModel: viewModel.connectedToRowViewModel)
+        dappNameRow.configure(viewModel: viewModel.dappNameRowViewModel)
+        dappUrlRow.configure(viewModel: viewModel.dappUrlRowViewModel)
         chainRow.configure(viewModel: viewModel.chainRowViewModel)
         imageView.setImage(url: viewModel.sessionIconURL, placeholder: viewModel.walletImageIcon)
-        iconTitleLabel.attributedText = viewModel.nameAttributedString
+        iconTitleLabel.attributedText = viewModel.dappNameAttributedString
 
         buttonsBar.configure(.custom(types: [.green, .white]))
 

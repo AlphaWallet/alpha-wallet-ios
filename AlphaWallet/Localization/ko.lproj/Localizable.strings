@@ -34,7 +34,9 @@
 "transaction.blockNumber.label.title" = "블록 번호";
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "확인";
+"confirmPayment.sign.button.title" = "Sign";
 "confirmPayment.reject.button.title" = "Reject";
+"confirmPayment.connect.button.title" = "Connect";
 "confirmPayment.from.label.title" = "발신인";
 "confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "가스 한도";

@@ -21,9 +21,9 @@ struct ConfirmationHeaderViewModel {
         style.alignment = .center
 
         return .init(string: title, attributes: [
-            .font: DataEntry.Font.text as Any,
+            .font: Fonts.semibold(size: 17) as Any,
             .paragraphStyle: style,
-            .foregroundColor: Colors.darkGray
+            .foregroundColor: Colors.black
         ])
     }
     var swipeIndicationHidden: Bool
