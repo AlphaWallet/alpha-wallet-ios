@@ -101,6 +101,7 @@ extension WalletConnectToSessionCoordinator: WalletConnectToSessionViewControlle
                 delegate.coordinator(self, didCompleteWithConnection: .connect(self.serverToConnect))
             })
         } else {
+            analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionFailed, properties: [Analytics.Properties.chain.rawValue: serverToConnect.chainID, Analytics.Properties.reason.rawValue: "Chain Disabled"])
             let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, server: serverToConnect, coordinator: self)
             coordinator.start().done { _ in
                 //no-op
