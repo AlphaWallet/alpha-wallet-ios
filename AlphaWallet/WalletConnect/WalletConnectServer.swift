@@ -107,6 +107,9 @@ class WalletConnectServer {
     lazy var sessions: Subscribable<[WalletConnectSessionMappedToServer]> = {
         return _sessions.map { sessions -> [WalletConnectSessionMappedToServer] in
             return sessions.compactMap { session -> WalletConnectSessionMappedToServer? in
+                //NOTE: Guard check to avoid empty sessions in the session list.
+                guard session.dAppInfo.peerMeta.name.nonEmpty else { return nil }
+
                 if let server = self.urlToServer[session.url] {
                     return (session, server)
                 } else {
