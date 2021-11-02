@@ -28,7 +28,7 @@ class AddressTextField: UIControl {
             ensAddressLabel.blockieImageView,
             ensAddressLabel,
             statusLabel
-        ].asStackView(axis: .horizontal, spacing: 5, alignment: .leading)
+        ].asStackView(axis: .horizontal, spacing: 5, alignment: .center)
     }()
 
     private var textFieldText: String {
@@ -184,7 +184,7 @@ class AddressTextField: UIControl {
                 ensAddressView,
                 .spacerWidth(4, flexible: true),
                 addressControlsContainer
-            ].asStackView(axis: .horizontal),
+            ].asStackView(axis: .horizontal, alignment: .center),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
