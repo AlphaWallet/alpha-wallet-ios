@@ -64,7 +64,7 @@ struct WalletConnectSessionDetailsViewModel {
         if let server = server.urlToServer[session.url] {
             return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: server.name, hideSeparatorOptions: .top)
         } else {
-            //Should be impossible
+            // Displays for disconnected session
             return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: "-", hideSeparatorOptions: .top)
         }
     }
@@ -73,11 +73,18 @@ struct WalletConnectSessionDetailsViewModel {
         return R.string.localizable.walletConnectSessionDisconnect()
     }
 
+    var switchNetworkButtonText: String {
+        return  R.string.localizable.walletConnectSessionSwitchNetwork()
+    }
+
     var isDisconnectAvailable: Bool {
         return isOnline
     }
 
     private let session: WalletConnectSession
+    var rpcServer: RPCServer? {
+        server.urlToServer[session.url]
+    }
 
     init(server: WalletConnectServer, session: WalletConnectSession) {
         self.server = server

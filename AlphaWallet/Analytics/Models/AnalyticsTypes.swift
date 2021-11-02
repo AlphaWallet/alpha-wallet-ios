@@ -53,6 +53,7 @@ enum Analytics {
         case walletConnectConnect = "WalletConnect Connect"
         case walletConnectCancel = "WalletConnect Cancel"
         case walletConnectDisconnect = "WalletConnect Disconnect"
+        case walletConnectSwitchNetwork = "WalletConnect Switch Network"
         case walletConnectConnectionTimeout = "WalletConnect Connection Timeout"
         case clearBrowserCache = "Clear Browser Cache"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"

@@ -9,18 +9,16 @@ import UIKit
 import Kingfisher
 
 protocol WalletConnectSessionViewControllerDelegate: AnyObject {
+    func controller(_ controller: WalletConnectSessionViewController, switchNetworkSelected sender: UIButton)
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton)
     func didDismiss(in controller: WalletConnectSessionViewController)
 }
 
 class WalletConnectSessionViewController: UIViewController {
 
-    private let viewModel: WalletConnectSessionDetailsViewModel
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
+    private var viewModel: WalletConnectSessionDetailsViewModel
+    private let imageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 40, height: 40))
         return imageView
     }()
     private let iconTitleLabel: UILabel = {
@@ -32,7 +30,11 @@ class WalletConnectSessionViewController: UIViewController {
     private let nameRow = WalletConnectRowView()
     private let connectedToRow = WalletConnectRowView()
     private let chainRow = WalletConnectRowView()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .empty)
+
+    var rpcServer: RPCServer? {
+        viewModel.rpcServer
+    }
 
     weak var delegate: WalletConnectSessionViewControllerDelegate?
 
@@ -49,8 +51,6 @@ class WalletConnectSessionViewController: UIViewController {
             view.addSubview(stackView)
 
             NSLayoutConstraint.activate([
-                imageView.heightAnchor.constraint(equalToConstant: 40),
-                imageView.widthAnchor.constraint(equalToConstant: 40),
                 stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
                 stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                 stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -83,7 +83,6 @@ class WalletConnectSessionViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view),
         ])
-
     }
 
     required init?(coder: NSCoder) {
@@ -107,11 +106,6 @@ class WalletConnectSessionViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = .never
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        imageView.layer.cornerRadius = imageView.bounds.height / 2
-    }
-
     func reload() {
         configure(viewModel: viewModel)
     }
@@ -120,7 +114,7 @@ class WalletConnectSessionViewController: UIViewController {
         delegate?.didDismiss(in: self)
     }
 
-    private func configure(viewModel: WalletConnectSessionDetailsViewModel) {
+    func configure(viewModel: WalletConnectSessionDetailsViewModel) {
         title = viewModel.navigationTitle
 
         statusRow.configure(viewModel: viewModel.statusRowViewModel)
@@ -130,14 +124,24 @@ class WalletConnectSessionViewController: UIViewController {
         imageView.setImage(url: viewModel.sessionIconURL, placeholder: viewModel.walletImageIcon)
         iconTitleLabel.attributedText = viewModel.nameAttributedString
 
+        buttonsBar.configure(.custom(types: [.green, .white]))
+
         let button0 = buttonsBar.buttons[0]
         button0.setTitle(viewModel.dissconnectButtonText, for: .normal)
         button0.addTarget(self, action: #selector(disconnectButtonSelected), for: .touchUpInside)
         button0.isEnabled = viewModel.isDisconnectAvailable
+
+        let button1 = buttonsBar.buttons[1]
+        button1.setTitle(viewModel.switchNetworkButtonText, for: .normal)
+        button1.addTarget(self, action: #selector(switchNetworkButtonSelected), for: .touchUpInside)
     }
 
     @objc private func disconnectButtonSelected(_ sender: UIButton) {
         delegate?.controller(self, disconnectSelected: sender)
+    }
+
+    @objc private func switchNetworkButtonSelected(_ sender: UIButton) {
+        delegate?.controller(self, switchNetworkSelected: sender)
     }
 }
 

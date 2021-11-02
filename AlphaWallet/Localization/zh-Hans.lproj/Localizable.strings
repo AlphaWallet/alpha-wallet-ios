@@ -606,6 +606,7 @@
 "walletConnect.session.connect" = "Connect on %@";
 "walletConnect.session.connectedURL" = "Connected to";
 "walletConnect.session.disconnect" = "Disconnect";
+"walletConnect.session.switchNetwork" = "Switch Network";
 "walletConnect.session.signedTransactions" = "Signed Transactions"; 
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
 "walletConnect.failure.title" = "WalletConnect Error";
