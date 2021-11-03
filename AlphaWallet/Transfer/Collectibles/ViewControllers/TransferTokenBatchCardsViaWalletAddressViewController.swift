@@ -189,7 +189,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         targetAddressTextField.label.attributedText = viewModel.targetAddressAttributedString
         targetAddressTextField.configureOnce()
 
-        selectTokenCardAmountView.configure(viewModel: .init(availableAmount: Int(viewModel.tokenHolders[0].values["value"]?.intValue ?? 0), selectedAmount: 0))
+        selectTokenCardAmountView.configure(viewModel: .init(availableAmount: Int(viewModel.tokenHolders[0].values.valueIntValue ?? 0), selectedAmount: 0))
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]

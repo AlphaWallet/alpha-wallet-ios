@@ -180,3 +180,58 @@ extension Array where Element == Subscribable<AssetInternalValue> {
         }
     }
 }
+
+//We can reduce some duplicated code below by implementing a protocol with a default implementation to code share with the (very similar) extension for AssetAttributeSyntaxValue, but there's some more abstraction needed to support it. Not worth it
+extension Dictionary where Key == AttributeId, Value == AssetInternalValue {
+    var tokenIdUIntValue: BigUInt? {
+        self["tokenId"]?.uintValue
+    }
+
+    var fromAddressValue: AlphaWallet.Address? {
+        self["from"]?.addressValue
+    }
+
+    mutating func setFrom(address: AlphaWallet.Address) {
+        self["from"] = .address(address)
+    }
+
+    var toAddressValue: AlphaWallet.Address? {
+        self["to"]?.addressValue
+    }
+
+    mutating func setTo(address: AlphaWallet.Address) {
+        self["to"] = .address(address)
+    }
+
+    var senderAddressValue: AlphaWallet.Address? {
+        self["sender"]?.addressValue
+    }
+
+    var ownerAddressValue: AlphaWallet.Address? {
+        self["owner"]?.addressValue
+    }
+
+    var spenderAddressValue: AlphaWallet.Address? {
+        self["spender"]?.addressValue
+    }
+
+    var timestampGeneralisedTimeValue: GeneralisedTime? {
+        self["timestamp"]?.generalisedTimeValue
+    }
+
+    mutating func setTimestamp(generalisedTime: GeneralisedTime) {
+        self["timestamp"] = .generalisedTime(generalisedTime)
+    }
+
+    var amountUIntValue: BigUInt? {
+        self["amount"]?.uintValue
+    }
+
+    mutating func setAmount(uint: BigUInt) {
+        self["amount"] = .uint(uint)
+    }
+
+    mutating func setSymbol(string: String) {
+        self["symbol"] = .string(string)
+    }
+}

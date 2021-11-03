@@ -55,16 +55,16 @@ struct Erc1155TokenInstanceViewModel {
     var configurations: [TokenInstanceViewConfiguration] {
         guard let values = tokenHolder.values(tokenId: tokenId), !values.isEmpty else { return [] }
         var previewViewModels: [TokenInstanceViewConfiguration] = []
-        if let tokenId = values["tokenId"]?.stringValue {
+        if let tokenId = values.tokenIdStringValue {
             previewViewModels += [
                 .field(viewModel: .init(title: R.string.localizable.semifungiblesTokenId(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId)))
             ]
         }
-        let value: BigInt = values["value"]?.intValue ?? 0
+        let value: BigInt = values.valueIntValue ?? 0
         previewViewModels += [
             .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
         ]
-        if let description = values["description"]?.value.resolvedValue?.stringValue.nilIfEmpty {
+        if let description = values.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
             previewViewModels += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
                 .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left), isSeparatorHidden: true))
@@ -77,7 +77,7 @@ struct Erc1155TokenInstanceViewModel {
     }
 
     var navigationTitle: String? {
-        tokenHolder.values["name"]?.stringValue
+        tokenHolder.values.nameStringValue
     }
 
     func toggleSelection(for indexPath: IndexPath) {
