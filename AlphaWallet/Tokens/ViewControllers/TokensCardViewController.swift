@@ -281,11 +281,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private func canPeek(at indexPath: IndexPath) -> Bool {
         guard canPeekToken else { return false }
         let tokenHolder = viewModel.item(for: indexPath)
-        if let url = tokenHolder.values["imageUrl"]?.stringValue, !url.isEmpty {
-            return true
-        } else {
-            return false
-        }
+        return tokenHolder.values.imageUrlUrlValue != nil
     }
 
     @objc private func longPressedTokenInstanceIconified(sender: UILongPressGestureRecognizer) {

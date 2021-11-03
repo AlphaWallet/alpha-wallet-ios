@@ -68,25 +68,25 @@ struct ActivityViewModel {
     var subTitle: String {
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            if let address = cardAttributes["to"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.toAddressValue?.truncateMiddle {
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            if let address = cardAttributes["from"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.fromAddressValue?.truncateMiddle {
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""
             }
         case .erc20OwnerApproved, .erc721OwnerApproved:
-            if let address = cardAttributes["spender"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.senderAddressValue?.truncateMiddle {
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
-            if let address = cardAttributes["owner"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.ownerAddressValue?.truncateMiddle {
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""
@@ -113,7 +113,7 @@ struct ActivityViewModel {
     }
 
     var timestamp: String {
-        if let date = cardAttributes["timestamp"]?.generalisedTimeValue?.date {
+        if let date = cardAttributes.timestampGeneralisedTimeValue?.date {
             let value = Date.formatter(with: "h:mm:ss | dd MMM yyyy").string(from: date)
             return "\(value)"
         } else {

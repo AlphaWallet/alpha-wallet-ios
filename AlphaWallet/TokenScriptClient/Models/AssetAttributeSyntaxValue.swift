@@ -89,3 +89,188 @@ extension Array where Element == AssetAttributeSyntaxValue {
         }
     }
 }
+
+extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValue {
+    var tokenIdStringValue: String? {
+        self["tokenId"]?.stringValue
+    }
+
+    //"setter" functions are intentionally grouped with their complementary "getter" functions
+    mutating func setTokenId(string: String) {
+        self["tokenId"] = .init(directoryString: string)
+    }
+
+    var tokenIdUIntValue: BigUInt? {
+        self["tokenId"]?.uintValue
+    }
+
+    var nameStringValue: String? {
+        self["name"]?.stringValue
+    }
+
+    mutating func setName(string: String) {
+        self["name"] = .init(directoryString: string)
+    }
+
+    var descriptionStringValue: String? {
+        self["description"]?.stringValue
+    }
+
+    mutating func setDescription(string: String) {
+        self["description"] = .init(directoryString: string)
+    }
+
+    var imageUrlUrlValue: URL? {
+        self["imageUrl"]?.stringValue.flatMap { URL(string: $0) }
+    }
+
+    mutating func setImageUrl(string: String) {
+        self["imageUrl"] = .init(directoryString: string)
+    }
+
+    var thumbnailUrlUrlValue: URL? {
+        self["thumbnailUrl"]?.stringValue.flatMap { URL(string: $0) }
+    }
+
+    mutating func setThumbnailUrl(string: String) {
+        self["thumbnailUrl"] = .init(directoryString: string)
+    }
+
+    var externalLinkUrlValue: URL? {
+        self["externalLink"]?.stringValue.flatMap { URL(string: $0) }
+    }
+
+    mutating func setExternalLink(string: String) {
+        self["externalLink"] = .init(directoryString: string)
+    }
+
+    var localityStringValue: String? {
+        self["locality"]?.stringValue
+    }
+
+    var venueStringValue: String? {
+        self["venue"]?.stringValue
+    }
+
+    var countryAStringValue: String? {
+        self["countryA"]?.stringValue
+    }
+
+    var countryBStringValue: String? {
+        self["countryB"]?.stringValue
+    }
+
+    var countryStringValue: String? {
+        self["country"]?.stringValue
+    }
+
+    var categoryStringValue: String? {
+        self["category"]?.stringValue
+    }
+
+    var sectionStringValue: String? {
+        self["section"]?.stringValue
+    }
+
+    var matchIntValue: BigInt? {
+        self["match"]?.intValue
+    }
+
+    var numeroIntValue: BigInt? {
+        self["numero"]?.intValue
+    }
+
+    var backgroundColorStringValue: String? {
+        get {
+            self["backgroundColor"]?.stringValue
+        }
+        set {
+            self["backgroundColor"] = newValue.flatMap { .init(directoryString: $0) }
+        }
+    }
+
+    var contractImageUrlStringValue: String? {
+        self["contractImageUrl"]?.stringValue
+    }
+
+    mutating func setContractImageUrl(string: String) {
+        self["contractImageUrl"] = .init(directoryString: string)
+    }
+
+    var collectionDescriptionStringValue: String? {
+        get {
+            self["collectionDescription"]?.stringValue
+        }
+        set {
+            self["collectionDescription"] = newValue.flatMap { .init(directoryString: $0) }
+        }
+    }
+
+    var valueIntValue: BigInt? {
+        self["value"]?.intValue
+    }
+
+    mutating func setValue(int: BigInt) {
+        self["value"] = .init(int: int)
+    }
+
+    var timeGeneralisedTimeValue: GeneralisedTime? {
+        self["time"]?.generalisedTimeValue
+    }
+
+    var collectionCreatedDateGeneralisedTimeValue: GeneralisedTime? {
+        self["collectionCreatedDate"]?.generalisedTimeValue
+    }
+
+    mutating func setCollectionCreatedDate(generalisedTime: GeneralisedTime) {
+        self["collectionCreatedDate"] = .init(generalisedTime: generalisedTime)
+    }
+
+    var buildingSubscribableValue: Subscribable<AssetInternalValue>? {
+        self["building"]?.subscribableValue
+    }
+
+    var streetSubscribableValue: Subscribable<AssetInternalValue>? {
+        self["street"]?.subscribableValue
+    }
+
+    var stateSubscribableValue: Subscribable<AssetInternalValue>? {
+        self["state"]?.subscribableValue
+    }
+
+    var localitySubscribableValue: Subscribable<AssetInternalValue>? {
+        self["locality"]?.subscribableValue
+    }
+
+    var localitySubscribableStringValue: String? {
+        self["locality"]?.subscribableStringValue
+    }
+
+    var stateSubscribableStringValue: String? {
+        self["state"]?.subscribableStringValue
+    }
+
+    var streetSubscribableStringValue: String? {
+        self["street"]?.subscribableStringValue
+    }
+
+    var traitsAssetInternalValueValue: AssetInternalValue? {
+        self["traits"]?.value
+    }
+
+    mutating func setTraits(value: [OpenSeaNonFungibleTrait]) {
+        self["traits"] = .init(openSeaTraits: value)
+    }
+
+    var descriptionAssetInternalValue: AssetInternalValue? {
+        self["description"]?.value
+    }
+
+    mutating func setDecimals(int: Int) {
+        self["decimals"] = .init(int: BigInt(int))
+    }
+
+    mutating func setTokenType(string: String) {
+        self["tokenType"] = .init(directoryString: string)
+    }
+}

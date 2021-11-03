@@ -155,8 +155,8 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"]?.stringValue ?? ""
-        if let name = tokenHolder.values["name"]?.stringValue.nilIfEmpty {
+        let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
+        if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
             return name
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
@@ -171,7 +171,8 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var _tokenCount: Int {
-        Int(tokenHolder.values["value"]?.intValue ?? 0)
+
+        Int(tokenHolder.values.valueIntValue ?? 0)
     }
 
     var tokenCount: String {
@@ -179,13 +180,13 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var city: String {
-        let value = tokenHolder.values["locality"]?.stringValue ?? "N/A"
+        let value = tokenHolder.values.localityStringValue ?? "N/A"
         return ", \(value)"
     }
 
     var category: String {
         if tokenHolder.hasAssetDefinition {
-            return tokenHolder.values["category"]?.stringValue ?? "N/A"
+            return tokenHolder.values.categoryStringValue ?? "N/A"
         } else {
             //For ERC75 tokens, display the contract's name as the "title". https://github.com/alpha-wallet/alpha-wallet-ios/issues/664
             return tokenHolder.name
@@ -200,36 +201,36 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
         if isMeetupContract && tokenHolder.values["expired"] != nil {
             return ""
         } else {
-            let countryA = tokenHolder.values["countryA"]?.stringValue ?? ""
-            let countryB = tokenHolder.values["countryB"]?.stringValue ?? ""
+            let countryA = tokenHolder.values.countryAStringValue ?? ""
+            let countryB = tokenHolder.values.countryBStringValue ?? ""
             return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
         }
     }
 
     var match: String {
         if tokenHolder.values["section"] != nil {
-            if let section = tokenHolder.values["section"]?.stringValue {
+            if let section = tokenHolder.values.sectionStringValue {
                 return "S\(section)"
             } else {
                 return "S0"
             }
         } else {
-            let value = tokenHolder.values["match"]?.intValue ?? 0
+            let value = tokenHolder.values.matchIntValue ?? 0
             return "M\(value)"
         }
     }
 
     var venue: String {
-        return tokenHolder.values["venue"]?.stringValue ?? "N/A"
+        return tokenHolder.values.venueStringValue ?? "N/A"
     }
 
     var date: String {
-        let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+        let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
         return value.formatAsShortDateString()
     }
 
     var numero: String {
-        if let num = tokenHolder.values["numero"]?.intValue {
+        if let num = tokenHolder.values.numeroIntValue {
             return String(num)
         } else {
             return "N/A"
@@ -237,7 +238,7 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     func subscribeBuilding(withBlock block: @escaping (String) -> Void) {
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["building"]?.value {
+        if let subscribable = tokenHolder.values.buildingSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     block(value)
@@ -252,56 +253,56 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
             let string = values.joined(separator: ", ")
             block(string)
         }
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["street"]?.value {
+        if let subscribable = tokenHolder.values.streetSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
                             street: value,
-                            locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
-                            state: self.tokenHolder.values["state"]?.subscribableStringValue,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            locality: self.tokenHolder.values.localitySubscribableStringValue,
+                            state: self.tokenHolder.values.stateSubscribableStringValue,
+                            country: self.tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["state"]?.value {
+        if let subscribable = tokenHolder.values.stateSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
-                            street: self.tokenHolder.values["street"]?.subscribableStringValue,
-                            locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
+                            street: self.tokenHolder.values.streetSubscribableStringValue,
+                            locality: self.tokenHolder.values.localitySubscribableStringValue,
                             state: value,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            country: self.tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
 
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["locality"]?.value {
+        if let subscribable = tokenHolder.values.localitySubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
-                            street: self.tokenHolder.values["street"]?.subscribableStringValue,
+                            street: self.tokenHolder.values.streetSubscribableStringValue,
                             locality: value,
-                            state: self.tokenHolder.values["state"]?.subscribableStringValue,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            state: self.tokenHolder.values.stateSubscribableStringValue,
+                            country: self.tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
 
-        if let country = tokenHolder.values["country"]?.stringValue {
+        if let country = tokenHolder.values.countryStringValue {
             updateStreetLocalityStateCountry(
-                    street: self.tokenHolder.values["street"]?.subscribableStringValue,
-                    locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
-                    state: self.tokenHolder.values["state"]?.subscribableStringValue,
+                    street: self.tokenHolder.values.streetSubscribableStringValue,
+                    locality: self.tokenHolder.values.localitySubscribableStringValue,
+                    state: self.tokenHolder.values.stateSubscribableStringValue,
                     country: country
             )
         }
     }
 
     var time: String {
-        let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+        let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
         return value.format("h:mm a")
     }
 
@@ -362,7 +363,7 @@ struct NonFungibleRowViewModel {
     }
 
     var attributedDescriptionText: NSAttributedString {
-        return .init(string: R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values["value"]?.intValue ?? 0)), attributes: [
+        return .init(string: R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values.valueIntValue ?? 0)), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])
@@ -373,7 +374,7 @@ struct NonFungibleRowViewModel {
         if displayHelper.imageHasBackgroundColor {
             return .clear
         } else {
-            if let color = tokenHolder.values["backgroundColor"]?.stringValue.nilIfEmpty {
+            if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
                 return UIColor(hex: color)
             } else {
                 return UIColor(red: 247, green: 197, blue: 196)
@@ -414,8 +415,8 @@ struct NonFungibleRowViewModel {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"]?.stringValue ?? ""
-        if let name = tokenHolder.values["name"]?.stringValue.nilIfEmpty {
+        let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
+        if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
             return name
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
@@ -483,7 +484,7 @@ struct NonFungibleRowViewModel {
     }
 
     var tokenId: String {
-        return tokenHolder.values["tokenId"]?.stringValue ?? ""
+        return tokenHolder.values.tokenIdStringValue ?? ""
     }
 
     var subtitle1: String? {
@@ -520,18 +521,15 @@ struct NonFungibleRowViewModel {
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = tokenHolder.values["thumbnailUrl"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.thumbnailUrlUrlValue
     }
 
     var imageUrl: URL? {
-        guard let url = tokenHolder.values["imageUrl"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.imageUrlUrlValue
     }
 
     var externalLink: URL? {
-        guard let url = tokenHolder.values["externalLink"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.externalLinkUrlValue
     }
 
     var externalLinkButtonHidden: Bool {
@@ -577,7 +575,7 @@ struct NonFungibleRowViewModel {
     }
 
     private func convertDescriptionToAttributedString(asHTML: Bool) -> NSAttributedString {
-        let string = tokenHolder.values["description"]?.stringValue ?? ""
+        let string = tokenHolder.values.descriptionStringValue ?? ""
         //.unicode, not .utf8, otherwise Chinese will turn garbage
         let htmlData = string.data(using: .unicode)
         let options: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType]

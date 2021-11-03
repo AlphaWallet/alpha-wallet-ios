@@ -35,13 +35,13 @@ struct TokensCardCollectionInfoPageViewModel {
     }
 
     var createdDateViewModel: TokenInstanceAttributeViewModel {
-        let string: String? = tokenHolders.first?.values["collectionCreatedDate"]?.generalisedTimeValue?.formatAsShortDateString()
+        let string: String? = tokenHolders.first?.values.collectionCreatedDateGeneralisedTimeValue?.formatAsShortDateString()
         let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
         return .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: attributedString)
     }
 
     var descriptionViewModel: TokenInstanceAttributeViewModel {
-        let string: String? = tokenHolders.first?.values["collectionDescription"]?.stringValue
+        let string: String? = tokenHolders.first?.values.collectionDescriptionStringValue
         let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .left) }
         return .init(title: nil, attributedValue: attributedString, isSeparatorHidden: true)
     }

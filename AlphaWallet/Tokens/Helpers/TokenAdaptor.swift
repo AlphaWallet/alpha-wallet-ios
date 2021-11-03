@@ -103,8 +103,8 @@ class TokenAdaptor {
 
     private func sortBundlesUpcomingFirst(bundles: [TokenHolder]) -> [TokenHolder] {
         return bundles.sorted {
-            let d0 = $0.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
-            let d1 = $1.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+            let d0 = $0.values.timeGeneralisedTimeValue ?? GeneralisedTime()
+            let d1 = $1.values.timeGeneralisedTimeValue ?? GeneralisedTime()
             return d0 < d1
         }
     }
@@ -114,8 +114,8 @@ class TokenAdaptor {
     ///e.g 21, 21, 22, 25 is broken up into 2 bundles: (21,21-22) and 25.
     private func breakBundlesFurtherToHaveContinuousSeatRange(tokens: [Token]) -> [[Token]] {
         let tokens = tokens.sorted {
-            let s0 = $0.values["numero"]?.intValue ?? 0
-            let s1 = $1.values["numero"]?.intValue ?? 0
+            let s0 = $0.values.numeroIntValue ?? 0
+            let s1 = $1.values.numeroIntValue ?? 0
             return s0 <= s1
         }
         return tokens.reduce([[Token]]()) { results, token in
@@ -135,13 +135,13 @@ class TokenAdaptor {
     private func groupTokensByFields(tokens: [Token]) -> Dictionary<String, [Token]>.Values {
         var dictionary = [String: [Token]]()
         for each in tokens {
-            let city = each.values["locality"]?.stringValue ?? "N/A"
-            let venue = each.values["venue"]?.stringValue ?? "N/A"
-            let date = each.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
-            let countryA = each.values["countryA"]?.stringValue ?? ""
-            let countryB = each.values["countryB"]?.stringValue ?? ""
-            let match = each.values["match"]?.intValue ?? 0
-            let category = each.values["category"]?.stringValue ?? "N/A"
+            let city = each.values.localityStringValue ?? "N/A"
+            let venue = each.values.venueStringValue ?? "N/A"
+            let date = each.values.timeGeneralisedTimeValue ?? GeneralisedTime()
+            let countryA = each.values.countryAStringValue ?? ""
+            let countryB = each.values.countryBStringValue ?? ""
+            let match = each.values.matchIntValue ?? 0
+            let category = each.values.categoryStringValue ?? "N/A"
 
             let hash = "\(city),\(venue),\(date),\(countryA),\(countryB),\(match),\(category)"
             var group = dictionary[hash] ?? []
@@ -195,26 +195,26 @@ class TokenAdaptor {
             tokenIdOrEvent = .tokenId(tokenId: tokenId)
         }
         var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
-        values["tokenId"] = .init(directoryString: nonFungible.tokenId)
+        values.setTokenId(string: nonFungible.tokenId)
         if let date = nonFungible.collectionCreatedDate {
             //Storing as GeneralisedTime because we only support that for date/time formats in TokenScript. We are using the same `values` infrastructure
             var generalisedTime = GeneralisedTime()
             generalisedTime.timeZone = TimeZone.current
             generalisedTime.date = date
-            values["collectionCreatedDate"] = .init(generalisedTime: generalisedTime)
+            values.setCollectionCreatedDate(generalisedTime: generalisedTime)
         }
-        values["collectionDescription"] = nonFungible.collectionDescription.flatMap { .init(directoryString: $0) }
-        values["name"] = .init(directoryString: nonFungible.name)
-        values["description"] = .init(directoryString: nonFungible.description)
-        values["imageUrl"] = .init(directoryString: nonFungible.imageUrl)
-        values["contractImageUrl"] = .init(directoryString: nonFungible.contractImageUrl)
-        values["thumbnailUrl"] = .init(directoryString: nonFungible.thumbnailUrl)
-        values["externalLink"] = .init(directoryString: nonFungible.externalLink)
-        values["backgroundColor"] = nonFungible.backgroundColor.flatMap { .init(directoryString: $0) }
-        values["traits"] = .init(openSeaTraits: nonFungible.traits)
-        values["value"] = .init(int: nonFungible.value)
-        values["decimals"] = .init(int: BigInt(nonFungible.decimals))
-        values["tokenType"] = .init(directoryString: nonFungible.tokenType.rawValue)
+        values.collectionDescriptionStringValue = nonFungible.collectionDescription
+        values.setName(string: nonFungible.name)
+        values.setDescription(string: nonFungible.description)
+        values.setImageUrl(string: nonFungible.imageUrl)
+        values.setContractImageUrl(string: nonFungible.contractImageUrl)
+        values.setThumbnailUrl(string: nonFungible.thumbnailUrl)
+        values.setExternalLink(string: nonFungible.externalLink)
+        values.backgroundColorStringValue = nonFungible.backgroundColor
+        values.setTraits(value: nonFungible.traits)
+        values.setValue(int: nonFungible.value)
+        values.setDecimals(int: nonFungible.decimals)
+        values.setTokenType(string: nonFungible.tokenType.rawValue)
 
         let status: Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"
@@ -247,6 +247,6 @@ class TokenAdaptor {
 extension Token {
     //TODO Convenience-only. (Look for references). Should remove once we generalize things further and not hardcode the use of seatId
     var seatId: Int {
-        return values["numero"]?.intValue.flatMap { Int($0) }  ?? 0
+        return values.numeroIntValue.flatMap { Int($0) }  ?? 0
     }
 }

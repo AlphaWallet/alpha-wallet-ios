@@ -18,13 +18,13 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var city: String {
-        let value = tokenHolder.values["locality"]?.stringValue ?? "N/A"
+        let value = tokenHolder.values.localityStringValue ?? "N/A"
         return ", \(value)"
     }
 
     var category: String {
         if tokenHolder.hasAssetDefinition {
-            return tokenHolder.values["category"]?.stringValue ?? "N/A"
+            return tokenHolder.values.categoryStringValue ?? "N/A"
         } else {
             //For ERC75 tokens, display the contract's name as the "title". https://github.com/alpha-wallet/alpha-wallet-ios/issues/664
             return tokenHolder.name
@@ -39,36 +39,36 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         if isMeetupContract && tokenHolder.values["expired"] != nil {
             return ""
         } else {
-            let countryA = tokenHolder.values["countryA"]?.stringValue ?? ""
-            let countryB = tokenHolder.values["countryB"]?.stringValue ?? ""
+            let countryA = tokenHolder.values.countryAStringValue ?? ""
+            let countryB = tokenHolder.values.countryBStringValue ?? ""
             return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
         }
     }
 
     var match: String {
         if tokenHolder.values["section"] != nil {
-            if let section = tokenHolder.values["section"]?.stringValue {
+            if let section = tokenHolder.values.sectionStringValue {
                 return "S\(section)"
             } else {
                 return "S0"
             }
         } else {
-            let value = tokenHolder.values["match"]?.intValue ?? 0
+            let value = tokenHolder.values.matchIntValue ?? 0
             return "M\(value)"
         }
     }
 
     var venue: String {
-        return tokenHolder.values["venue"]?.stringValue ?? "N/A"
+        return tokenHolder.values.venueStringValue ?? "N/A"
     }
 
     var date: String {
-        let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+        let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
         return value.formatAsShortDateString()
     }
 
     var numero: String {
-        if let num = tokenHolder.values["numero"]?.intValue {
+        if let num = tokenHolder.values.numeroIntValue {
             return String(num)
         } else {
             return "N/A"
@@ -76,7 +76,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     func subscribeBuilding(withBlock block: @escaping (String) -> Void) {
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["building"]?.value {
+        if let subscribable = tokenHolder.values.buildingSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     block(value)
@@ -91,56 +91,56 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
             let string = values.joined(separator: ", ")
             block(string)
         }
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["street"]?.value {
+        if let subscribable = tokenHolder.values.streetSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
                             street: value,
-                            locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
-                            state: self.tokenHolder.values["state"]?.subscribableStringValue,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            locality: tokenHolder.values.localitySubscribableStringValue,
+                            state: tokenHolder.values.stateSubscribableStringValue,
+                            country: tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["state"]?.value {
+        if let subscribable = tokenHolder.values.stateSubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
-                            street: self.tokenHolder.values["street"]?.subscribableStringValue,
-                            locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
+                            street: tokenHolder.values.streetSubscribableStringValue,
+                            locality: tokenHolder.values.localitySubscribableStringValue,
                             state: value,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            country: tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
 
-        if case .some(.subscribable(let subscribable)) = tokenHolder.values["locality"]?.value {
+        if let subscribable = tokenHolder.values.localitySubscribableValue {
             subscribable.subscribe { value in
                 if let value = value?.stringValue {
                     updateStreetLocalityStateCountry(
-                            street: self.tokenHolder.values["street"]?.subscribableStringValue,
+                            street: tokenHolder.values.streetSubscribableStringValue,
                             locality: value,
-                            state: self.tokenHolder.values["state"]?.subscribableStringValue,
-                            country: self.tokenHolder.values["country"]?.stringValue
+                            state: tokenHolder.values.stateSubscribableStringValue,
+                            country: tokenHolder.values.countryStringValue
                     )
                 }
             }
         }
 
-        if let country = tokenHolder.values["country"]?.stringValue {
+        if let country = tokenHolder.values.countryStringValue {
             updateStreetLocalityStateCountry(
-                    street: self.tokenHolder.values["street"]?.subscribableStringValue,
-                    locality: self.tokenHolder.values["locality"]?.subscribableStringValue,
-                    state: self.tokenHolder.values["state"]?.subscribableStringValue,
+                    street: tokenHolder.values.streetSubscribableStringValue,
+                    locality: tokenHolder.values.localitySubscribableStringValue,
+                    state: tokenHolder.values.stateSubscribableStringValue,
                     country: country
             )
         }
     }
 
     var time: String {
-        let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+        let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
         return value.format("h:mm a")
     }
 

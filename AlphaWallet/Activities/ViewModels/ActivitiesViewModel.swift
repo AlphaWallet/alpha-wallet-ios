@@ -297,31 +297,31 @@ extension ActivitiesViewModel.functional {
         guard let (token, activityName) = extractTokenAndActivityName(fromTransactionRow: transactionRow, cache: cache, wallet: wallet) else { return nil }
 
         var cardAttributes = [AttributeId: AssetInternalValue]()
-        cardAttributes["symbol"] = .string(transactionRow.server.symbol)
+        cardAttributes.setSymbol(string: transactionRow.server.symbol)
 
         if let operation = transactionRow.operation, operation.symbol != nil, let value = BigUInt(operation.value) {
-            cardAttributes["amount"] = .uint(value)
+            cardAttributes.setAmount(uint: value)
         } else {
             if let value = BigUInt(transactionRow.value) {
-                cardAttributes["amount"] = .uint(value)
+                cardAttributes.setAmount(uint: value)
             }
         }
 
         if let value = AlphaWallet.Address(string: transactionRow.from) {
-            cardAttributes["from"] = .address(value)
+            cardAttributes.setFrom(address: value)
         }
 
         if let toString = transactionRow.operation?.to, let to = AlphaWallet.Address(string: toString) {
-            cardAttributes["to"] = .address(to)
+            cardAttributes.setTo(address: to)
         } else {
             if let value = AlphaWallet.Address(string: transactionRow.to) {
-                cardAttributes["to"] = .address(value)
+                cardAttributes.setTo(address: value)
             }
         }
 
         var timestamp: GeneralisedTime = .init()
         timestamp.date = transactionRow.date
-        cardAttributes["timestamp"] = .generalisedTime(timestamp)
+        cardAttributes.setTimestamp(generalisedTime: timestamp)
         let state: Activity.State
         switch transactionRow.state {
         case .pending:
