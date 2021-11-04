@@ -14,11 +14,12 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
         self.token = token
         //We use the contract's image and fallback to the first token ID's image if the former is not available
         if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account).first {
-            var url = tokenHolder.values["contractImageUrl"]?.stringValue ?? ""
+            let url = tokenHolder.values.contractImageUrlStringValue ?? ""
             if url.isEmpty {
-                url = tokenHolder.values["imageUrl"]?.stringValue ?? ""
+                self.imageUrl = tokenHolder.values.imageUrlUrlValue
+            } else {
+                self.imageUrl = URL(string: url)
             }
-            self.imageUrl = URL(string: url)
         } else {
             self.imageUrl = nil
         }

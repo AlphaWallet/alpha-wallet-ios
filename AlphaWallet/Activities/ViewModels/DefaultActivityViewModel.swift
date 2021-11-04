@@ -38,13 +38,13 @@ struct DefaultActivityViewModel {
         let string: String
         switch activity.nativeViewType {
         case .erc20Sent, .erc20Received, .nativeCryptoSent, .nativeCryptoReceived:
-            if let value = cardAttributes["amount"]?.uintValue {
+            if let value = cardAttributes.amountUIntValue {
                 string = stringFromFungibleAmount(sign: sign, amount: value)
             } else {
                 string = ""
             }
         case .erc20OwnerApproved, .erc20ApprovalObtained:
-            if let value = cardAttributes["amount"]?.uintValue {
+            if let value = cardAttributes.amountUIntValue {
                 if doesApprovedAmountLookReallyBig(value, decimals: activity.tokenObject.decimals) {
                     string = R.string.localizable.activityApproveAmountAll(activity.tokenObject.symbol)
                 } else {
@@ -54,7 +54,7 @@ struct DefaultActivityViewModel {
                 string = ""
             }
         case .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained:
-            if let value = cardAttributes["tokenId"]?.uintValue {
+            if let value = cardAttributes.tokenIdUIntValue {
                 string = "\(value)"
             } else {
                 string = ""

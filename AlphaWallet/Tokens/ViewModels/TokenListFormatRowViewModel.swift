@@ -66,7 +66,7 @@ struct TokenListFormatRowViewModel {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"]?.stringValue  ?? ""
+        let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         return "\(tokenHolder.name) #\(tokenId)"
     }
 
@@ -94,17 +94,15 @@ struct TokenListFormatRowViewModel {
     }
 
     var description: String {
-        return tokenHolder.values["description"]?.stringValue ?? ""
+        tokenHolder.values.descriptionStringValue ?? ""
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = tokenHolder.values["thumbnailUrl"]?.stringValue else { return nil }
-        return URL(string: url)
+        tokenHolder.values.thumbnailUrlUrlValue
     }
 
     var externalLink: URL? {
-        guard let url = tokenHolder.values["externalLink"]?.stringValue else { return nil }
-        return URL(string: url)
+        tokenHolder.values.externalLinkUrlValue
     }
 
     //TODO using CryptoKitty struct here, not good
