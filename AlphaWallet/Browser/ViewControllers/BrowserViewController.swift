@@ -30,7 +30,7 @@ final class BrowserViewController: UIViewController {
     }
 
     private lazy var userClient: String = {
-        return Keys.ClientName + "/" + (Bundle.main.versionNumber ?? "")
+        Keys.ClientName + "/" + (Bundle.main.versionNumber ?? "") + " 1inchWallet"
     }()
 
     private lazy var errorView: BrowserErrorView = {
