@@ -29,7 +29,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         if displayHelper.imageHasBackgroundColor {
             return .clear
         } else {
-            if let color = tokenHolder.values["backgroundColor"]?.stringValue.nilIfEmpty {
+            if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
                 return UIColor(hex: color)
             } else {
                 return UIColor(red: 247, green: 197, blue: 196)
@@ -70,8 +70,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"]?.stringValue ?? ""
-        if let name = tokenHolder.values["name"]?.stringValue.nilIfEmpty {
+        let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
+        if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
             return name
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
@@ -139,7 +139,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var tokenId: String {
-        return tokenHolder.values["tokenId"]?.stringValue ?? ""
+        return tokenHolder.values.tokenIdStringValue ?? ""
     }
 
     var subtitle1: String? {
@@ -176,18 +176,15 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = tokenHolder.values["thumbnailUrl"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.thumbnailUrlUrlValue
     }
 
     var imageUrl: URL? {
-        guard let url = tokenHolder.values["imageUrl"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.imageUrlUrlValue
     }
 
     var externalLink: URL? {
-        guard let url = tokenHolder.values["externalLink"]?.stringValue else { return nil }
-        return URL(string: url)
+        return tokenHolder.values.externalLinkUrlValue
     }
 
     var externalLinkButtonHidden: Bool {
@@ -233,7 +230,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     private func convertDescriptionToAttributedString(asHTML: Bool) -> NSAttributedString {
-        let string = tokenHolder.values["description"]?.stringValue ?? ""
+        let string = tokenHolder.values.descriptionStringValue ?? ""
         //.unicode, not .utf8, otherwise Chinese will turn garbage
         let htmlData = string.data(using: .unicode)
         let options: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType]

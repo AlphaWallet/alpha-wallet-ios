@@ -146,10 +146,10 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
             }
         }
 
-        if let url = tokenHolder.values["imageUrl"]?.stringValue.flatMap({ URL(string: $0) }) {
+        if let url = tokenHolder.values.imageUrlUrlValue {
             bigImageView.url = url
             bigImageHolderHeightConstraint.constant = 300
-        } else if let url = tokenHolder.values["thumbnailUrl"]?.stringValue.flatMap({ URL(string: $0) }) {
+        } else if let url = tokenHolder.values.thumbnailUrlUrlValue {
             bigImageView.url = url
             bigImageHolderHeightConstraint.constant = 300
         } else {

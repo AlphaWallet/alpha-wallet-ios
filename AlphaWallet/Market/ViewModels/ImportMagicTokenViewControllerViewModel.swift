@@ -87,7 +87,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return tokenHolder.values["locality"]?.stringValue ?? emptyCity
+            return tokenHolder.values.localityStringValue ?? emptyCity
         }
     }
 
@@ -97,7 +97,7 @@ struct ImportMagicTokenViewControllerViewModel {
             return ""
         } else {
             if tokenHolder.hasAssetDefinition {
-                return tokenHolder.values["category"]?.stringValue ?? "N/A"
+                return tokenHolder.values.categoryStringValue ?? "N/A"
             } else {
                 //For ERC75 tokens, display the contract's name as the "title". https://github.com/alpha-wallet/alpha-wallet-ios/issues/664
                 return tokenHolder.name
@@ -115,7 +115,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+            let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
             return value.format("hh:mm")
         }
     }
@@ -128,8 +128,8 @@ struct ImportMagicTokenViewControllerViewModel {
             if isMeetupContract && tokenHolder.values["expired"] != nil {
                 return ""
             } else {
-                let countryA = tokenHolder.values["countryA"]?.stringValue ?? ""
-                let countryB = tokenHolder.values["countryB"]?.stringValue ?? ""
+                let countryA = tokenHolder.values.countryAStringValue ?? ""
+                let countryB = tokenHolder.values.countryBStringValue ?? ""
                 //While both will return emptyTeams, we want to be explicit about using `emptyTeams`
                 if countryA.isEmpty && countryB.isEmpty {
                     return emptyTeams
@@ -143,13 +143,13 @@ struct ImportMagicTokenViewControllerViewModel {
     var match: String {
         guard let tokenHolder = tokenHolder else { return "" }
         if tokenHolder.values["section"] != nil {
-            if let section = tokenHolder.values["section"]?.stringValue {
+            if let section = tokenHolder.values.sectionStringValue {
                 return "S\(section)"
             } else {
                 return "S0"
             }
         } else {
-            let value = tokenHolder.values["match"]?.intValue ?? 0
+            let value = tokenHolder.values.matchIntValue ?? 0
             return "M\(value)"
         }
     }
@@ -159,7 +159,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return tokenHolder.values["venue"]?.stringValue ?? ""
+            return tokenHolder.values.venueStringValue ?? ""
         }
     }
 
@@ -168,14 +168,14 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
+            let value = tokenHolder.values.timeGeneralisedTimeValue ?? GeneralisedTime()
             return value.formatAsShortDateString()
         }
     }
 
     var numero: String {
         guard let tokenHolder = tokenHolder else { return "" }
-        if let num = tokenHolder.values["numero"]?.intValue {
+        if let num = tokenHolder.values.numeroIntValue {
             return String(num)
         } else {
             return "N/A"
@@ -338,7 +338,7 @@ struct ImportMagicTokenViewControllerViewModel {
             if let tokenHolder = tokenHolder, tokenHolder.isSpawnableMeetupContract {
                 //Not the best check, but we assume that even if the data is just partially available, we can show something
                 //TODO get rid of this. Do we even use "building" as spawnable check anymore? Testing `is String` is wrong anyway. But probably harmless for now
-                if case .some(.subscribable(let subscribable)) = tokenHolder.values["building"]?.value, subscribable.value?.stringValue != nil {
+                if tokenHolder.values.buildingSubscribableValue?.value?.stringValue != nil {
                     return false
                 } else {
                     return true

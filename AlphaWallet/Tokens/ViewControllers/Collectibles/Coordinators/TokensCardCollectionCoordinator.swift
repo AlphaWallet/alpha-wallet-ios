@@ -411,7 +411,7 @@ extension TokensCardCollectionCoordinator: TransferTokenBatchCardsViaWalletAddre
                 data: nil,
                 tokenIdsAndValues: [.init(tokenId: selection.tokenId, value: BigUInt(selection.value))]
         )
-        let tokenInstanceName = tokenHolder.values["name"]?.stringValue
+        let tokenInstanceName = tokenHolder.values.nameStringValue
         let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName)
         let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)

@@ -77,25 +77,25 @@ struct DefaultActivityCellViewModel {
     var subTitle: String {
         switch activity.nativeViewType {
         case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            if let address = cardAttributes["to"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.toAddressValue?.truncateMiddle {
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            if let address = cardAttributes["from"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.fromAddressValue?.truncateMiddle {
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""
             }
         case .erc20OwnerApproved, .erc721OwnerApproved:
-            if let address = cardAttributes["spender"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.spenderAddressValue?.truncateMiddle {
                 return R.string.localizable.activityTo(address)
             } else {
                 return ""
             }
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
-            if let address = cardAttributes["owner"]?.addressValue?.truncateMiddle {
+            if let address = cardAttributes.ownerAddressValue?.truncateMiddle {
                 return R.string.localizable.activityFrom(address)
             } else {
                 return ""
@@ -131,13 +131,13 @@ struct DefaultActivityCellViewModel {
         let string: String
         switch activity.nativeViewType {
         case .erc20Sent, .erc20Received, .nativeCryptoSent, .nativeCryptoReceived:
-            if let value = cardAttributes["amount"]?.uintValue {
+            if let value = cardAttributes.amountUIntValue {
                 string = stringFromFungibleAmount(sign: sign, amount: value)
             } else {
                 string = ""
             }
         case .erc20OwnerApproved, .erc20ApprovalObtained:
-            if let value = cardAttributes["amount"]?.uintValue {
+            if let value = cardAttributes.amountUIntValue {
                 if doesApprovedAmountLookReallyBig(value, decimals: activity.tokenObject.decimals) {
                     string = R.string.localizable.activityApproveAmountAll(activity.tokenObject.symbol)
                 } else {
@@ -147,7 +147,7 @@ struct DefaultActivityCellViewModel {
                 string = ""
             }
         case .erc721Sent, .erc721Received, .erc721OwnerApproved, .erc721ApprovalObtained:
-            if let value = cardAttributes["tokenId"]?.uintValue {
+            if let value = cardAttributes.tokenIdUIntValue {
                 string = "\(value)"
             } else {
                 string = ""
@@ -175,7 +175,7 @@ struct DefaultActivityCellViewModel {
     }
     private static let formatter: DateFormatter = Date.formatter(with: "dd MMM yyyy h:mm:ss a")
     var timestamp: String {
-        if let date = cardAttributes["timestamp"]?.generalisedTimeValue?.date {
+        if let date = cardAttributes.timestampGeneralisedTimeValue?.date {
             let value = Self.formatter.string(from: date)
             return "\(value)"
         } else {

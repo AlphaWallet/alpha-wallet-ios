@@ -144,7 +144,7 @@ class TokenHolder {
     }
 
     var openSeaNonFungibleTraits: [OpenSeaNonFungibleTrait]? {
-        guard let traitsValue = values["traits"]?.value else { return nil }
+        guard let traitsValue = values.traitsAssetInternalValueValue else { return nil }
         switch traitsValue {
         case .openSeaNonFungibleTraits(let traits):
             return traits
@@ -194,7 +194,7 @@ class TokenHolder {
     }
 
     func openSeaNonFungibleTraits(tokenId: TokenId) -> [OpenSeaNonFungibleTrait]? {
-        switch token(tokenId: tokenId).flatMap({ $0.values["traits"]?.value }) {
+        switch token(tokenId: tokenId).flatMap({ $0.values.traitsAssetInternalValueValue }) {
         case .openSeaNonFungibleTraits(let traits):
             return traits
         case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
