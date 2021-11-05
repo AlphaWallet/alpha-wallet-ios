@@ -2,6 +2,27 @@
 
 import UIKit
 
+class ImageView: UIImageView {
+    private var subscriptionKey: Subscribable<Image>.SubscribableKey?
+    var subscribable: Subscribable<Image>? {
+        didSet {
+            if let previousSubscribable = oldValue, let subscriptionKey = subscriptionKey {
+                previousSubscribable.unsubscribe(subscriptionKey)
+            }
+
+            if let subscribable = subscribable {
+                image = nil
+                subscriptionKey = subscribable.subscribe { [weak self] image in
+                    self?.image = image
+                }
+            } else {
+                subscriptionKey = nil
+                image = nil
+            }
+        }
+    }
+}
+
 class TokenImageView: UIView {
     private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {

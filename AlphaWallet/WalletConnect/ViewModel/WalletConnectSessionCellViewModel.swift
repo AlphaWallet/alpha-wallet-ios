@@ -8,7 +8,11 @@ struct WalletConnectSessionCellViewModel {
 
     var backgroundColor: UIColor {
         Colors.appBackground
-    } 
+    }
+
+    var serverIconImage: Subscribable<Image> {
+        server.walletConnectIconImage
+    }
 
     var sessionNameAttributedString: NSAttributedString {
         return .init(string: "\(session.dAppInfo.peerMeta.name) (\(server.name))", attributes: [
