@@ -4,6 +4,7 @@ import UIKit
 import PromiseKit
 
 typealias TokenImage = (image: UIImage, symbol: String, isFinal: Bool)
+typealias Image = UIImage
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
     let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server)
@@ -23,6 +24,78 @@ private func symbolBackgroundColor(for contractAddress: AlphaWallet.Address, ser
             index = 0
         }
         return colors[index]
+    }
+}
+
+extension RPCServer {
+    var walletConnectIconImage: Subscribable<Image> {
+        return RPCServerImageFetcher.instance.image(server: self)
+    }
+
+    fileprivate var _walletConnectIconImage: UIImage? {
+        switch self {
+        case .main:
+            return R.image.iconsNetworkEth()
+        case .xDai:
+            return R.image.iconsNetworkXdai()
+        case .poa:
+            return R.image.iconsNetworkPoa()
+        case .classic:
+            return nil
+        case .callisto:
+            return R.image.iconsNetworkCallisto()
+        case .artis_sigma1:
+            return nil
+        case .binance_smart_chain:
+            return R.image.iconsNetworkBsc()
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .cronosTestnet, .custom:
+            return nil
+        case .heco, .heco_testnet:
+            return R.image.iconsNetworkHeco()
+        case .fantom, .fantom_testnet:
+            return R.image.iconsNetworkFantom()
+        case .avalanche, .avalanche_testnet:
+            return R.image.iconsNetworkAvalanche()
+        case .polygon:
+            return R.image.iconsNetworkPolygon()
+        case .mumbai_testnet:
+            return nil
+        case .optimistic:
+            return R.image.iconsNetworkOptimism()
+        case .optimisticKovan:
+            return nil
+        case .arbitrum:
+            return R.image.iconsNetworkArbitrum()
+        case .palm, .palmTestnet:
+            return R.image.iconsTokensPalm()
+        }
+    }
+}
+
+class RPCServerImageFetcher {
+    static var instance = RPCServerImageFetcher()
+
+    private static var subscribables: ThreadSafeDictionary<Int, Subscribable<Image>> = .init()
+
+    private static func programmaticallyGenerateIcon(for server: RPCServer) -> Image {
+        return UIView.tokenSymbolBackgroundImage(backgroundColor: server.blockChainNameColor)
+    }
+
+    func image(server: RPCServer) -> Subscribable<Image> {
+        if let sub = Self.subscribables[server.chainID] {
+            return sub
+        } else {
+            let sub = Subscribable<Image>(nil)
+            Self.subscribables[server.chainID] = sub
+
+            if let value = server._walletConnectIconImage {
+                sub.value = value
+            } else {
+                sub.value = Self.programmaticallyGenerateIcon(for: server)
+            }
+
+            return sub
+        }
     }
 }
 
