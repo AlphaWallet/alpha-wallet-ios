@@ -4,24 +4,24 @@ import Foundation
 import PaperTrailLumberjack
 import CocoaLumberjack
 
-func debug(_ message: Any, _ loggger: Logger = DDLogger.instance) {
-    loggger.debug(message)
+func debug(_ message: Any, _ loggger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+    loggger.debug("\(message) from: \(callerFunctionName)")
 }
 
-func info(_ message: Any, _ loggger: Logger = DDLogger.instance) {
-    loggger.info(message)
+func info(_ message: Any, _ loggger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+    loggger.info("\(message) from: \(callerFunctionName)")
 }
 
-func warn(_ message: Any, _ loggger: Logger = DDLogger.instance) {
-    loggger.warn(message)
+func warn(_ message: Any, _ loggger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+    loggger.warn("\(message) from: \(callerFunctionName)")
 }
 
-func verbose(_ message: Any, _ loggger: Logger = DDLogger.instance) {
-    loggger.verbose(message)
+func verbose(_ message: Any, _ loggger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+    loggger.verbose("\(message) from: \(callerFunctionName)")
 }
 
-func error(_ message: Any, _ loggger: Logger = DDLogger.instance) {
-    loggger.error(message)
+func error(_ message: Any, _ loggger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+    loggger.error("\(message) from: \(callerFunctionName)")
 }
 
 protocol Logger {
