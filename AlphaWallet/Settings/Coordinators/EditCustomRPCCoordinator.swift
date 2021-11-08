@@ -10,7 +10,7 @@ import PromiseKit
 
 protocol EditCustomRPCSCoordinatorDelegate: AnyObject {
     func didDismiss(in coordinator: EditCustomRPCCoordinator)
-    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: EditCustomRPCCoordinator)
+    func restartToEdit(in coordinator: EditCustomRPCCoordinator)
 }
 
 class EditCustomRPCCoordinator: NSObject, Coordinator {
@@ -40,5 +40,33 @@ class EditCustomRPCCoordinator: NSObject, Coordinator {
 extension EditCustomRPCCoordinator: EditCustomRPCViewControllerDelegate {
     // TODO: Validate the CustomRPC
     func didFinish(in viewController: EditCustomRPCViewController, customRPC: CustomRPC) {
+        let explorerEndpoints: [String]?
+        if let endpoint = customRPC.explorerEndpoint {
+            explorerEndpoints = [endpoint]
+        } else {
+            explorerEndpoints = nil
+        }
+        let defaultDecimals = 18
+        let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRPC.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRPC.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRPC.chainName, chainId: String(customRPC.chainID), rpcUrls: [customRPC.rpcEndpoint])
+        let editCustomChain = EditCustomChain(customChain, isTestnet: customRPC.isTestnet, restartQueue: restartQueue, url: nil)
+        editCustomChain.delegate = self
+        editCustomChain.originalCustomRPC = customRPC
+        editCustomChain.run()
+    }
+}
+
+extension EditCustomRPCCoordinator: AddCustomChainDelegate {
+    func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
+        UIAlertController.promptToUseUnresolvedExplorerURL(customChain: customChain, chainId: chainId, viewController: navigationController)
+    }
+    
+    func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
+        delegate?.restartToEdit(in: self)
+    }
+    
+    func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
+        let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.message, style: .alert, in: navigationController)
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
+        navigationController.present(alertController, animated: true, completion: nil)
     }
 }

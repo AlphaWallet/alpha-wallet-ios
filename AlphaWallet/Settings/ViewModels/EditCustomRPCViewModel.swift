@@ -84,7 +84,7 @@ struct EditCustomRPCViewModel {
         }
         
         if let chainIdInt = Int(chainId0xString: chainID.trimmed), chainIdInt > 0 {
-            if validateChainIDExists(chainID: chainIdInt) {
+            if validateChainIDExist(chainIdInt) {
                 errors.append(.chainIDDuplicateField)
             }
         } else {
@@ -114,7 +114,7 @@ struct EditCustomRPCViewModel {
         )
     }
     
-    private func validateChainIDExists(chainID: Int) -> Bool {
+    private func validateChainIDExist(_ chainID: Int) -> Bool {
         if chainID == self.customRPC.chainID {
             return false
         }
@@ -126,4 +126,5 @@ struct EditCustomRPCViewModel {
         }
         return false
     }
+    
 }

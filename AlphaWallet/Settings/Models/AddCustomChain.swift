@@ -30,12 +30,14 @@ protocol AddCustomChainDelegate: AnyObject {
     func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool>
 }
 
+// This class should be refactored to take a completion block or delegate. One that does the verification and another call back that handles the after verification code. Right now, this is tied to add the customRPC and enable the checkmark. Also everything set to private makes it impossible to subclass this.
+
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
 class AddCustomChain {
-    private var customChain: WalletAddEthereumChainObject
-    private let isTestnet: Bool
-    private let restartQueue: RestartTaskQueue
-    private let url: URL?
+    internal var customChain: WalletAddEthereumChainObject
+    internal let isTestnet: Bool
+    internal let restartQueue: RestartTaskQueue
+    internal let url: URL?
 
     weak var delegate: AddCustomChainDelegate?
 
@@ -47,6 +49,7 @@ class AddCustomChain {
     }
 
     typealias CustomChainWithChainIdAndRPC = (customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)
+    
     func run() {
         firstly {
             functional.checkChainId(customChain)
@@ -62,8 +65,10 @@ class AddCustomChain {
             self.customChain = customChain
             return functional.checkExplorerType(customChain).map { (chainId: chainId, rpcUrl: rpcUrl, explorerType: $0) }
         }.then { chainId, rpcUrl, explorerType in
-            self.queueAddCustomChain(self.customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: explorerType)
+            self.performCompletion(chainId: chainId, rpcUrl: rpcUrl, explorerType: explorerType)
+//            self.queueAddCustomChain(self.customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: explorerType)
         }.done {
+            //
             self.delegate?.notifyAddCustomChainQueuedSuccessfully(in: self)
         }.catch {
             if let error = $0 as? AddCustomChainError {
@@ -74,6 +79,11 @@ class AddCustomChain {
         }
     }
 
+    func performCompletion(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType) -> Promise<Void> {
+        return self.queueAddCustomChain(self.customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: explorerType)
+
+    }
+    
     private func requestToUseFailedExplorerHostname(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<CustomChainWithChainIdAndRPC> {
         guard let delegate = self.delegate else {
             return .init(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
@@ -235,6 +245,31 @@ extension AddCustomChain.functional {
             } else {
                 throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
             }
+        }
+    }
+}
+
+class EditCustomChain: AddCustomChain {
+    
+    var originalCustomRPC: CustomRPC?
+    
+    override func performCompletion(chainId: Int, rpcUrl: String, explorerType: RPCServer.EtherscanCompatibleType) -> Promise<Void> {
+        return self.queueEditCustomChain(self.customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: explorerType)
+
+    }
+    
+    func queueEditCustomChain(_ customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String, etherscanCompatibleType: RPCServer.EtherscanCompatibleType) -> Promise<Void> {
+        Promise { seal in
+            if let oldCustomRPC = originalCustomRPC {
+                let newCustomRpc = CustomRPC(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl, etherscanCompatibleType: etherscanCompatibleType, isTestnet: isTestnet)
+                let server = RPCServer.custom(newCustomRpc)
+                restartQueue.add(.editServer(original: oldCustomRPC, edited: newCustomRpc))
+                restartQueue.add(.switchDappServer(server: server))
+                if let url = url {
+                    restartQueue.add(.loadUrlInDappBrowser(url))
+                }
+            }
+            seal.fulfill(())
         }
     }
 }
