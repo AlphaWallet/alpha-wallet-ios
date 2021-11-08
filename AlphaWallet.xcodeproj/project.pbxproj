@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02D0F18E27379E1300774DDA /* EditCustomRPCCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D0F18D27379E1300774DDA /* EditCustomRPCCoordinator.swift */; };
+		02D0F1902737A14900774DDA /* EditCustomRPCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D0F18F2737A14900774DDA /* EditCustomRPCViewModel.swift */; };
+		02D0F1B42737F0AF00774DDA /* EditCustomRPCViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D0F1B32737F0AF00774DDA /* EditCustomRPCViewController.swift */; };
+		02D0F1B62737F45A00774DDA /* EditCustomRPCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D0F1B52737F45A00774DDA /* EditCustomRPCView.swift */; };
 		0DF46B4002E13613F768E7AE /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
@@ -1030,6 +1034,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02D0F18D27379E1300774DDA /* EditCustomRPCCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRPCCoordinator.swift; sourceTree = "<group>"; };
+		02D0F18F2737A14900774DDA /* EditCustomRPCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRPCViewModel.swift; sourceTree = "<group>"; };
+		02D0F1B32737F0AF00774DDA /* EditCustomRPCViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRPCViewController.swift; sourceTree = "<group>"; };
+		02D0F1B52737F45A00774DDA /* EditCustomRPCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRPCView.swift; sourceTree = "<group>"; };
 		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.release.xcconfig"; sourceTree = "<group>"; };
 		290B2B551F8F50030053C83E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2493,6 +2501,7 @@
 				5E7C7C51CEC4AAFDFBD75482 /* ConsoleCoordinator.swift */,
 				5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */,
 				876C80CA267386E300B16595 /* AddRPCServerCoordinator.swift */,
+				02D0F18D27379E1300774DDA /* EditCustomRPCCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2763,6 +2772,7 @@
 				87ED8F9C248647C80005C69B /* SettingViewHeaderViewModel.swift */,
 				87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */,
 				876C80D02673992300B16595 /* AddRPCServerViewModel.swift */,
+				02D0F18F2737A14900774DDA /* EditCustomRPCViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3242,6 +3252,7 @@
 				87ED8FAC2488EA610005C69B /* SupportViewController.swift */,
 				876C80CE267398F900B16595 /* AddRPCServerViewController.swift */,
 				87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */,
+				02D0F1B32737F0AF00774DDA /* EditCustomRPCViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3895,6 +3906,7 @@
 				87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */,
 				5E7C7DC3AEBE4049927B7625 /* EnableServersHeaderView.swift */,
 				876C80CC2673940B00B16595 /* SwitchView.swift */,
+				02D0F1B52737F45A00774DDA /* EditCustomRPCView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5376,6 +5388,7 @@
 				8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */,
 				291ED08F1F6F613200E7E93A /* GetTransactionRequest.swift in Sources */,
 				872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */,
+				02D0F1902737A14900774DDA /* EditCustomRPCViewModel.swift in Sources */,
 				79CC74432382922B00157C8F /* GetIsERC721ForTicketsContractCoordinator.swift in Sources */,
 				87BC890E26B7EDC6005482F4 /* WalletSummaryView.swift in Sources */,
 				294EC1DA1FD8E4E60065EB20 /* GasPriceRequest.swift in Sources */,
@@ -5625,6 +5638,7 @@
 				8703F66B26136A500082EE25 /* RenameWalletViewController.swift in Sources */,
 				87BBF9912563DD7600FF4846 /* WalletConnectActionType.swift in Sources */,
 				76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */,
+				02D0F1B42737F0AF00774DDA /* EditCustomRPCViewController.swift in Sources */,
 				879E1E42264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift in Sources */,
 				87BBF9942563DD7600FF4846 /* WalletConnectRowView.swift in Sources */,
 				879F185726E74077000602F2 /* TokensCardCollectionInfoPageViewModel.swift in Sources */,
@@ -5668,6 +5682,7 @@
 				5E7C7FE10C2FEA7316401F04 /* WelcomeViewModel.swift in Sources */,
 				879F184F26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift in Sources */,
 				87BB63DE265E21C900FF702A /* WalletSummary.swift in Sources */,
+				02D0F1B62737F45A00774DDA /* EditCustomRPCView.swift in Sources */,
 				5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */,
 				5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */,
 				87ED8FA92488E4430005C69B /* SendViewSectionHeader.swift in Sources */,
@@ -6049,6 +6064,7 @@
 				87D163A3242CD811002662D2 /* AddHideTokensViewController.swift in Sources */,
 				5E7C70F407FBA1BD69901861 /* SecureEnclave.swift in Sources */,
 				5E7C7CF6B5C96376B7BF382B /* ElevateWalletSecurityCoordinator.swift in Sources */,
+				02D0F18E27379E1300774DDA /* EditCustomRPCCoordinator.swift in Sources */,
 				5E7C7F53A21D1D0FE576DD8F /* ElevateWalletSecurityViewController.swift in Sources */,
 				5E7C743467F5D428AF4E4F0F /* ElevateWalletSecurityViewModel.swift in Sources */,
 				5E7C7751F57FE1B8A563A79B /* WalletSecurityLevelIndicator.swift in Sources */,
@@ -6543,7 +6559,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 408;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6562,7 +6578,7 @@
 				);
 				MARKETING_VERSION = 3.29;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" -D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6588,7 +6604,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 408;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6606,7 +6622,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.29;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6726,7 +6742,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlphaWalletSafariExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AlphaWalletSafariExtension;
@@ -6744,7 +6760,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet.AlphaWalletSafariExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet.AlphaWalletSafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -6764,7 +6780,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AlphaWalletSafariExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AlphaWalletSafariExtension;
@@ -6781,7 +6797,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet.AlphaWalletSafariExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet.AlphaWalletSafariExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -6799,7 +6815,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 368;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				INFOPLIST_FILE = AlphaWalletShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6810,7 +6826,7 @@
 				MARKETING_VERSION = 3.12;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet.AlphaWalletShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet.AlphaWalletShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -6828,7 +6844,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 368;
-				DEVELOPMENT_TEAM = LRAW5PL536;
+				DEVELOPMENT_TEAM = FML74CZEMW;
 				INFOPLIST_FILE = AlphaWalletShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6838,7 +6854,7 @@
 				);
 				MARKETING_VERSION = 3.12;
 				MTL_FAST_MATH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet.AlphaWalletShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.westerlygoose.alphawallet.AlphaWalletShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
