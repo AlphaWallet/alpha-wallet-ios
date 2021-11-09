@@ -5,6 +5,7 @@ import UIKit
 protocol EnabledServersViewControllerDelegate: AnyObject {
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
     func notifyRemoveCustomChainQueued(in viewController: EnabledServersViewController)
+    func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
@@ -95,6 +96,11 @@ class EnabledServersViewController: UIViewController {
         }
     }
 
+    private func edit(server: RPCServer) {
+        guard let customRpc = server.customRpc else { return }
+        delegate?.didEditSelectedServer(customRpc: customRpc, in: self)
+    }
+    
     private func markForDeletion(server: RPCServer) {
         guard let customRpc = server.customRpc else { return }
         restartQueue.add(.removeServer(customRpc))
@@ -169,7 +175,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let server = viewModel.server(for: indexPath)
         guard server.isCustom else { return nil }
-        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.delete()) { _, _, complete in
+        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.delete()) { _, _, complete in
             self.confirmDelete(server: server)
             complete(true)
         }
@@ -177,8 +183,13 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
         deleteAction.backgroundColor = R.color.danger()
 
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
-        configuration.performsFirstActionWithFullSwipe = true
+        let editAction = UIContextualAction(style: .normal, title: R.string.localizable.editButtonTitle()) { _, _, complete
+            in
+            self.edit(server: server)
+            complete(true)
+        }
+
+         let configuration = UISwipeActionsConfiguration(actions: [editAction, deleteAction])
 
         return configuration
     }

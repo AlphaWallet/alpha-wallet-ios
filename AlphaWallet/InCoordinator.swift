@@ -702,6 +702,9 @@ class InCoordinator: NSObject, Coordinator {
             case .addServer(let server):
                 restartQueue.remove(each)
                 RPCServer.customRpcs.append(server)
+            case .editServer(original: let original, edited: let edited):
+                restartQueue.remove(each)
+                replaceServer(original: original, edited: edited)
             case .removeServer(let server):
                 restartQueue.remove(each)
                 removeServer(server)
@@ -722,6 +725,15 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    private func replaceServer(original: CustomRPC, edited: CustomRPC) {
+        RPCServer.customRpcs = RPCServer.customRpcs.map { (item: CustomRPC) -> CustomRPC in
+            if item.chainID == original.chainID {
+                return edited
+            }
+            return item
+        }
+    }
+    
     private func removeServer(_ server: CustomRPC) {
         //Must disable server first because we (might) not have done that if the user had disabled and then remove the server in the UI at the same time. And if we fallback to mainnet when an enabled server's chain ID is not found, this can lead to mainnet appearing twice in the Wallet tab
         let servers = config.enabledServers.filter { $0.chainID != server.chainID }
@@ -745,7 +757,7 @@ class InCoordinator: NSObject, Coordinator {
     private func processRestartQueueAfterRestart(config: Config, coordinator: InCoordinator, restartQueue: RestartTaskQueue) {
         for each in restartQueue.queue {
             switch each {
-            case .addServer, .removeServer, .enableServer, .switchDappServer:
+            case .addServer, .editServer, .removeServer, .enableServer, .switchDappServer:
                 break
             case .loadUrlInDappBrowser(let url):
                 restartQueue.remove(each)
