@@ -62,7 +62,7 @@ class EditCustomRPCView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        configureView()
+        configure()
     }
     
     required init?(coder: NSCoder) {
@@ -83,10 +83,9 @@ class EditCustomRPCView: UIView {
         button.addTarget(target, action: action, for: .touchUpInside)
     }
     
-    private func configureView() {
+    private func configure() {
         scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         scrollViewBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
-        // keyboardChecker.constraint = scrollViewBottomConstraint
         
         let stackView = (
             TextField.layoutSubviews(for: chainNameTextField) +
@@ -128,7 +127,7 @@ class EditCustomRPCView: UIView {
         ] + roundedBackground.createConstraintsWithContainer(view: self))
     }
     
-    func postViewConfiguration() {
+    func configureView() {
         buttonsBar.configure()
         chainNameTextField.configureOnce()
         rpcEndPointTextField.configureOnce()

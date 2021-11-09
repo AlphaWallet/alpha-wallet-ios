@@ -9,52 +9,51 @@ import Foundation
 
 enum EditCustomRPCErrors: Error {
     case unknown
-    case list([EditCustomRPCErrors])
+    case list([EditCustomRPCErrors]) // This is just used to hold the errors in a Result<>.
     case chainNameInvalidField, rpcEndPointInvalidField, chainIDInvalidField, symbolInvalidField, explorerEndpointInvalidField, chainIDDuplicateField
 }
 
 struct EditCustomRPCViewModel {
     
-    private let customRPC: CustomRPC
+    private let model: CustomRPC
     
-    init(customRPC: CustomRPC) {
-        self.customRPC = customRPC
+    init(model: CustomRPC) {
+        self.model = model
     }
     
     var chainID: String {
-        // TODO: Is there a validation routine for ids?
-        if customRPC.chainID == 0 {
+        if model.chainID == 0 {
             return R.string.localizable.chainID()
         }
-        return String(customRPC.chainID)
+        return String(model.chainID)
     }
     
     var nativeCryptoTokenName: String {
-        return customRPC.nativeCryptoTokenName ?? ""
+        return model.nativeCryptoTokenName ?? ""
     }
     
     var chainName: String {
-        if customRPC.chainName.isEmpty {
+        if model.chainName.isEmpty {
             return R.string.localizable.addrpcServerNetworkNameTitle()
         }
-        return customRPC.chainName
+        return model.chainName
     }
     
     var symbol: String {
-        return customRPC.symbol ?? R.string.localizable.symbol()
+        return model.symbol ?? R.string.localizable.symbol()
     }
     
     var rpcEndPoint: String {
-        if !customRPC.rpcEndpoint.isEmpty,
-           let _ = URL(string: customRPC.rpcEndpoint) {
-            return customRPC.rpcEndpoint
+        if !model.rpcEndpoint.isEmpty,
+           let _ = URL(string: model.rpcEndpoint) {
+            return model.rpcEndpoint
         } else {
             return R.string.localizable.addrpcServerRpcUrlTitle()
         }
     }
     
     var explorerEndpoint: String {
-        if let eep = customRPC.explorerEndpoint,
+        if let eep = model.explorerEndpoint,
            !eep.isEmpty,
            let _ = URL(string: eep) {
             return eep
@@ -64,14 +63,17 @@ struct EditCustomRPCViewModel {
     }
     
     var etherscanCompatibleType: String {
-        return customRPC.etherscanCompatibleType.rawValue
+        return model.etherscanCompatibleType.rawValue
     }
     
     var isTestnet: Bool {
-        return customRPC.isTestnet
+        return model.isTestnet
     }
     
-    // TODO: Validation
+}
+
+extension EditCustomRPCViewModel {
+
     func validate(chainName: String, rpcEndpoint: String, chainID: String, symbol: String, explorerEndpoint: String, isTestNet: Bool) -> Result<CustomRPC, EditCustomRPCErrors> {
         var errors: [EditCustomRPCErrors] = []
         
@@ -102,6 +104,7 @@ struct EditCustomRPCViewModel {
         if !errors.isEmpty {
             return .failure(.list(errors))
         }
+        
         return .success(CustomRPC(
             chainID: Int(chainId0xString: chainID.trimmed)!,
             nativeCryptoTokenName: nil,
@@ -115,7 +118,7 @@ struct EditCustomRPCViewModel {
     }
     
     private func validateChainIDExist(_ chainID: Int) -> Bool {
-        if chainID == self.customRPC.chainID {
+        if chainID == self.model.chainID {
             return false
         }
         for network in RPCServer.allCases where network.chainID == chainID {

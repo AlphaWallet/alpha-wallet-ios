@@ -12,7 +12,6 @@ protocol EditCustomRPCViewControllerDelegate: AnyObject {
 }
 
 class EditCustomRPCViewController: UIViewController {
-    
     let viewModel: EditCustomRPCViewModel
     var editView: EditCustomRPCView!
     private lazy var keyboardChecker: KeyboardChecker = KeyboardChecker(self)
@@ -48,8 +47,8 @@ class EditCustomRPCViewController: UIViewController {
         super.viewWillDisappear(animated)
         keyboardChecker.viewWillDisappear()
     }
+    
     private func configure() {
-        
         editView.chainNameTextField.value = viewModel.chainName
         editView.chainNameTextField.delegate = self
         
@@ -65,7 +64,8 @@ class EditCustomRPCViewController: UIViewController {
         editView.explorerEndpointTextField.value = viewModel.explorerEndpoint
         editView.explorerEndpointTextField.delegate = self
         
-        editView.postViewConfiguration()
+        editView.configureView()
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapSelected))
         editView.addBackgroundGestureRecognizer(tap)
         editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
@@ -87,6 +87,7 @@ class EditCustomRPCViewController: UIViewController {
             symbol: editView.symbolTextField.value,
             explorerEndpoint: editView.explorerEndpointTextField.value,
             isTestNet: editView.isTestNetworkView.isOn)
+        
         switch result {
         case .failure(.list(let errors)):
             handleValidationFailure(errors: errors)
@@ -125,8 +126,7 @@ class EditCustomRPCViewController: UIViewController {
     }
 }
 
-extension EditCustomRPCViewController: TextFieldDelegate {
-    
+extension EditCustomRPCViewController: TextFieldDelegate {    
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
         case editView.chainNameTextField:

@@ -29,8 +29,9 @@ class EditCustomRPCCoordinator: NSObject, Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.selectedCustomRPC = customRPC
     }
+    
     func start() {
-        let viewModel = EditCustomRPCViewModel(customRPC: selectedCustomRPC)
+        let viewModel = EditCustomRPCViewModel(model: selectedCustomRPC)
         let viewController = EditCustomRPCViewController(viewModel: viewModel)
         viewController.delegate = self
         navigationController.pushViewController(viewController, animated: true)
@@ -38,15 +39,17 @@ class EditCustomRPCCoordinator: NSObject, Coordinator {
 }
 
 extension EditCustomRPCCoordinator: EditCustomRPCViewControllerDelegate {
-    // TODO: Validate the CustomRPC
+
     func didFinish(in viewController: EditCustomRPCViewController, customRPC: CustomRPC) {
         let explorerEndpoints: [String]?
+        let defaultDecimals = 18
+
         if let endpoint = customRPC.explorerEndpoint {
             explorerEndpoints = [endpoint]
         } else {
             explorerEndpoints = nil
         }
-        let defaultDecimals = 18
+        
         let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRPC.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRPC.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRPC.chainName, chainId: String(customRPC.chainID), rpcUrls: [customRPC.rpcEndpoint])
         let editCustomChain = EditCustomChain(customChain, isTestnet: customRPC.isTestnet, restartQueue: restartQueue, url: nil)
         editCustomChain.delegate = self
