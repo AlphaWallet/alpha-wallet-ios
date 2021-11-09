@@ -656,6 +656,9 @@
 "addrpcServer.chainIdAlreadySupported" = "Already supported. Enable this server instead";
 "addrpcServer.rpcUrl.placeholder" = "New RPC Network";
 "addrpcServer.blockExplorerUrl.placeholder" = "Block Explorer";
+"editCustomRPC.navigation.title" = "Edit Custom RPC Network";
+"editCustomRPC.saveButton.title" = "Save Network";
+"editCustomRPC.chainID.error.duplicate" = "Chain ID already exists";
 "emailList.prompt.title" = "Stay Updated";
 "emailList.prompt.message" = "We send an email announcing major features. Would you like to receive such emails?\n\n(max 1 email per week)";
 "emailList.prompt.subscribeButtonTitle" = "I want to receive such emails";
