@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import AlphaWalletAddress
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -153,7 +154,7 @@ class AppCoordinator: NSObject, Coordinator {
             return true
         }
         //TODO clean up handling of custom URL schemes:
-        if url.scheme == "wc", let wcUrl = WalletConnectURL(url.absoluteString), let inCoordinator = inCoordinator {
+        if url.scheme == "wc", let wcUrl = AlphaWallet.WalletConnect.ConnectionUrl(url.absoluteString), let inCoordinator = inCoordinator {
             inCoordinator.openWalletConnectSession(url: wcUrl)
             return true
         }
@@ -296,7 +297,7 @@ class AppCoordinator: NSObject, Coordinator {
             }
             return handled
         } else {
-            let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, server: server, coordinator: self)
+            let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server], coordinator: self)
             coordinator.start().done { _ in
                 //no-op
             }.cauterize()
@@ -357,7 +358,10 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 
 extension AppCoordinator: InCoordinatorDelegate {
 
-    func didRestart(in coordinator: InCoordinator, wallet: Wallet) {
+    func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet) {
+        OpenSea.resetInstances()
+        disconnectWalletConnectSessionsSelectively(for: reason, walletConnectCoordinator: coordinator.walletConnectCoordinator)
+
         keystore.recentlyUsedWallet = wallet
 
         coordinator.navigationController.dismiss(animated: true)
@@ -410,7 +414,7 @@ extension AppCoordinator: InCoordinatorDelegate {
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
-    func handle(walletConnectUrl url: WalletConnectURL, in coordinator: UniversalLinkCoordinator) {
+    func handle(walletConnectUrl url: AlphaWallet.WalletConnect.ConnectionUrl, in coordinator: UniversalLinkCoordinator) {
         removeCoordinator(coordinator)
         inCoordinator?.openWalletConnectSession(url: url)
     }
@@ -485,6 +489,17 @@ extension AppCoordinator: UrlSchemeCoordinatorDelegate {
 }
 
 extension AppCoordinator: AccountsCoordinatorDelegate {
+    
+    private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
+        switch reason {
+        case .changeLocalization:
+            break //no op
+        case .serverChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
+        case .walletChange:
+            walletConnectCoordinator.disconnect(sessionsToDisconnect: .all)
+        }
+    }
 
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
@@ -507,6 +522,11 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
             pendingCoordinator.showTabBar(animated: true)
         } else {
             showTransactions(for: account, animated: true)
+        }
+
+        if let coordinator = pendingInCoordinator, keystore.currentWallet != account {
+            OpenSea.resetInstances()
+            disconnectWalletConnectSessionsSelectively(for: .walletChange, walletConnectCoordinator: coordinator.walletConnectCoordinator)
         }
 
         pendingInCoordinator = .none

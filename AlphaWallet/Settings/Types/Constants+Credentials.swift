@@ -13,5 +13,6 @@ extension Constants {
         static let mailChimpListSpecificKey = ""
         static let openseaKey = "11ba1b4f0c4246aeb07b1f8e5a20525f"
         static let rampApiKey = "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
+        static let walletConnectApiKey = "6eb1175ea3e57209d8f8f39bd4213691"
     }
 }

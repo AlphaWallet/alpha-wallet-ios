@@ -117,7 +117,6 @@ class ActiveWalletSessionView: UITableViewHeaderFooterView {
         ])
 
         separators.top.add(to: background, .top)
-        separators.bottom.add(to: background, .bottom)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
         contentView.isUserInteractionEnabled = true

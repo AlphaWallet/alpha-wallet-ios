@@ -185,6 +185,8 @@ public struct Constants {
 
     static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
 
+    static let walletConnectRelayURL = URL(string: "wss://relay.walletconnect.org")!
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 

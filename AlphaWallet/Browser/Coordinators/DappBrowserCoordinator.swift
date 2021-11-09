@@ -216,7 +216,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser, walletConnectSession: nil)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .dappBrowser, walletConnectDappRequesterViewModel: nil)
         }.done { data in
             let callback: DappCallback
             switch type {
@@ -836,18 +836,23 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 }
 
 extension DappBrowserCoordinator: ServersCoordinatorDelegate {
-    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+    func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
         browserNavBar?.setBrowserBar(hidden: false)
 
-        switch server {
-        case .auto:
-            break
+        switch selection {
         case .server(let server):
-            coordinator.navigationController.popViewController(animated: true) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.removeCoordinator(coordinator)
-                strongSelf.`switch`(toServer: server)
+            switch server {
+            case .auto:
+                break
+            case .server(let server):
+                coordinator.navigationController.popViewController(animated: true) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.removeCoordinator(coordinator)
+                    strongSelf.`switch`(toServer: server)
+                }
             }
+        case .multipleServers:
+            break
         }
     }
 

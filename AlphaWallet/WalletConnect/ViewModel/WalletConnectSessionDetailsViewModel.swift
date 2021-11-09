@@ -9,9 +9,9 @@ import UIKit
 
 struct WalletConnectSessionDetailsViewModel {
 
-    private let server: WalletConnectServer
+    private let provider: WalletConnectServerProviderType
     private var isOnline: Bool {
-        server.hasConnected(session: session)
+        provider.hasConnectedSession(session: session)
     }
 
     var navigationTitle: String {
@@ -37,7 +37,7 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var dappNameRowViewModel: WallerConnectRawViewModel {
-        return .init(text: R.string.localizable.walletConnectSessionName(), details: session.dappName, hideSeparatorOptions: .top)
+        return .init(text: R.string.localizable.walletConnectDappName(), details: session.dappName, hideSeparatorOptions: .top)
     }
 
     var dappNameAttributedString: NSAttributedString {
@@ -50,18 +50,19 @@ struct WalletConnectSessionDetailsViewModel {
     var dappUrlRowViewModel: WallerConnectRawViewModel {
         return .init(
             text: R.string.localizable.walletConnectSessionConnectedURL(),
-            details: session.dAppInfo.peerMeta.url.absoluteString,
+            details: session.dappUrl.absoluteString,
             hideSeparatorOptions: .top
         )
     }
 
     var chainRowViewModel: WallerConnectRawViewModel {
-        if let server = server.urlToServer[session.url] {
-            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: server.name, hideSeparatorOptions: .top)
-        } else {
-            // Displays for disconnected session
-            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: "-", hideSeparatorOptions: .top)
-        }
+        let servers = rpcServers.map { $0.name }.joined(separator: ", ")
+        return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: servers, hideSeparatorOptions: .top)
+    }
+
+    var methodsRowViewModel: WallerConnectRawViewModel {
+        let servers = methods.joined(separator: ", ")
+        return .init(text: R.string.localizable.walletConnectConnectionMethodsTitle(), details: servers, hideSeparatorOptions: .top)
     }
 
     var dissconnectButtonText: String {
@@ -69,21 +70,29 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var switchNetworkButtonText: String {
-        return  R.string.localizable.walletConnectSessionSwitchNetwork()
+        return R.string.localizable.walletConnectSessionSwitchNetwork()
     }
 
     var isDisconnectAvailable: Bool {
         return isOnline
     }
 
-    private let session: WalletConnectSession
-    var rpcServer: RPCServer? {
-        server.urlToServer[session.url]
+    var isSwitchServerEnabled: Bool {
+        isDisconnectAvailable
     }
 
-    init(server: WalletConnectServer, session: WalletConnectSession) {
-        self.server = server
+    private let session: AlphaWallet.WalletConnect.Session
+    var sessionIdentifier: AlphaWallet.WalletConnect.SessionIdentifier {
+        session.identifier
+    }
+    let rpcServers: [RPCServer]
+    let methods: [String]
+
+    init(provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
+        self.provider = provider
         self.session = session
+        self.rpcServers = session.servers
+        self.methods = session.methods
     }
 }
 

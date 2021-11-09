@@ -14,11 +14,11 @@ class ServerUnavailableCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private var retainCycle: ServerUnavailableCoordinator?
     private let (promiseToReturn, seal) = Promise<Void>.pending()
-    private let server: RPCServer
+    private let servers: [RPCServer]
 
-    init(navigationController: UINavigationController, server: RPCServer, coordinator: Coordinator) {
+    init(navigationController: UINavigationController, servers: [RPCServer], coordinator: Coordinator) {
         self.navigationController = navigationController
-        self.server = server
+        self.servers = servers
 
         retainCycle = self
 
@@ -32,10 +32,16 @@ class ServerUnavailableCoordinator: Coordinator {
     }
 
     func start() -> Promise<Void> {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return promiseToReturn }
+        guard let keyWindow = UIApplication.shared.keyWindow, !servers.isEmpty else { return promiseToReturn }
 
-        let message = R.string.localizable.serverWarningServerIsDisabled(server.name)
-        
+        let message: String
+        if servers.count == 1 {
+            message = R.string.localizable.serverWarningServerIsDisabled(servers[0].name)
+        } else {
+            let value = servers.map { $0.name }.joined(separator: ", ")
+            message = R.string.localizable.serverWarningServersAreDisabled(value)
+        }
+
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.displayError(message: message) {
                 self.seal.fulfill(())

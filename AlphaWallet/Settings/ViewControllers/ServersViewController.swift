@@ -2,8 +2,35 @@
 
 import UIKit
 
+enum ServerSelection {
+    case server(server: RPCServerOrAuto)
+    case multipleServers(servers: [RPCServerOrAuto])
+
+    var asServersArray: [RPCServer] {
+        switch self {
+        case .server(let server):
+            return [server.server]
+        case .multipleServers(let servers):
+            //NOTE: is shouldn't happend, but for case when there several .auto casess
+            return Array(Set(servers.map { $0.server }))
+        }
+    }
+}
+
+extension RPCServerOrAuto {
+    var server: RPCServer {
+        switch self {
+        case .server(let value):
+            return value
+        case .auto:
+            return Config().anyEnabledServer()
+        }
+    }
+}
+
 protocol ServersViewControllerDelegate: AnyObject {
-    func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController)
+    func didClose(in viewController: ServersViewController)
+    func didSelectServer(selection: ServerSelection, in viewController: ServersViewController)
 }
 
 class ServersViewController: UIViewController {
@@ -15,8 +42,8 @@ class ServersViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(ServerTableViewCell.self)
-        
+        tableView.register(ServerTableViewCell.self) 
+
         return tableView
     }()
     private var viewModel: ServersViewModel
@@ -43,11 +70,20 @@ class ServersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure(viewModel: viewModel)
+        navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismissViewControler))
     }
 
     func configure(viewModel: ServersViewModel) {
         self.viewModel = viewModel
         navigationItem.title = viewModel.title
+    }
+
+    @objc private func dismissViewControler() {
+        if viewModel.multipleSessionSelectionEnabled && viewModel.serversHaveChanged {
+            delegate?.didSelectServer(selection: .multipleServers(servers: viewModel.selectedServers), in: self)
+        } else {
+            delegate?.didClose(in: self)
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -63,6 +99,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        cell.selectionStyle = .none
         let server = viewModel.server(for: indexPath)
         let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
         cell.configure(viewModel: cellViewModel)
@@ -72,9 +109,22 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
+        
         let server = viewModel.server(for: indexPath)
-        delegate?.didSelectServer(server: server, in: self)
+
+        if viewModel.multipleSessionSelectionEnabled {
+            if viewModel.isServerSelected(server) {
+                viewModel.unselectServer(server: server)
+            } else {
+                viewModel.selectServer(server: server)
+            }
+
+            tableView.reloadRows(at: [indexPath], with: .none)
+        } else {
+            viewModel.selectServer(server: server)
+
+            delegate?.didSelectServer(selection: .server(server: server), in: self)
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

@@ -256,7 +256,7 @@ class TokensViewController: UIViewController {
 
         setupFilteringWithKeyword()
 
-        walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
+        walletConnectCoordinator.sessionsSubscribable.subscribe { [weak self] value in
             guard let strongSelf = self, let sessions = value else { return }
 
             let viewModel = strongSelf.viewModel

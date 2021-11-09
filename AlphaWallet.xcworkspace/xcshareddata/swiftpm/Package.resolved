@@ -2,12 +2,30 @@
   "object": {
     "pins": [
       {
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "4b0565384d3c4c588af09e660535b2c7c9bf5b39",
+          "version": "1.4.2"
+        }
+      },
+      {
         "package": "MailchimpSDK",
         "repositoryURL": "https://github.com/mailchimp/Mailchimp-SDK-iOS",
         "state": {
           "branch": null,
           "revision": "08efbae235367c1349b76bc6053cdc7964d6fa93",
           "version": "2.0.3"
+        }
+      },
+      {
+        "package": "WalletConnect",
+        "repositoryURL": "https://github.com/WalletConnect-Labs/WalletConnectSwiftV2.git",
+        "state": {
+          "branch": null,
+          "revision": "b7c9fecde35ee56c42deeecee12e7d9160a0ee4d",
+          "version": null
         }
       }
     ]

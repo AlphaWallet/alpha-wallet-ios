@@ -621,7 +621,8 @@
 "walletConnect.statusPlaceholder" = "Status";
 "walletConnect.status.online" = "Online";
 "walletConnect.status.offline" = "Offline";
-"walletConnect.session.name" = "Name";
+"walletConnect.dapp.name" = "Name";
+"walletConnect.dapp.website" = "Website";
 "walletConnect.session.connect" = "Connect on %@";
 "walletConnect.session.connectedURL" = "Connected to";
 "walletConnect.session.disconnect" = "Disconnect";
@@ -635,6 +636,8 @@
 "walletConnect.connection.title" = "Connect To Site?";
 "walletConnect.connection.name.title" = "Name";
 "walletConnect.connection.network.title" = "Network";
+"walletConnect.connection.networks.title" = "Networks";
+"walletConnect.connection.methods.title" = "Methods";
 "walletConnect.connection.url.title" = "Connected To";
 "send.allFunds" = "All Funds";
 "copiedToClipboard" = "Copied to clipboard";
@@ -642,6 +645,7 @@
 "signature.confirmation.personalmessage.title" = "Personal message";
 "signature.confirmation.title" = "Signature Request";
 "server.warning.serverIsDisabled" = "%@ is disabled. Please enable it in Settings > Select Active Networks";
+"server.warning.serversAreDisabled" = "%@ are disabled. Please enable them in Settings > Select Active Networks";
 "settings.wallet.rename" = "Name this Wallet";
 "wallet.rename.save" = "Save Name"; 
 "wallet.rename.enterNameTitle" = "Enter Name (min. 5 characters)";
