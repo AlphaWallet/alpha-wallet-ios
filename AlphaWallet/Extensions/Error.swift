@@ -8,6 +8,8 @@ import Result
 extension Error {
     var prettyError: String {
         switch self {
+        case let error as WalletConnectCoordinator.RequestCanceledDueToWatchWalletError:
+            return error.localizedDescription
         case let error as AnyError:
             switch error.error {
             case let error as APIKit.SessionTaskError:

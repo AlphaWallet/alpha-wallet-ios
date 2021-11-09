@@ -15,5 +15,6 @@ extension Constants {
         static let rampApiKey = "j5wr7oqktym7z69yyf84bb8a6cqb7qfu5ynmeyvn"
         static let enjinUserName = "vlad_shepitko@outlook.com"
         static let enjinUserPassword: String = "wf@qJPz75CL9Tw$"
+        static let walletConnectApiKey = "6eb1175ea3e57209d8f8f39bd4213691"
     }
 }

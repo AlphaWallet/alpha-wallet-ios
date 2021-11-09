@@ -259,13 +259,34 @@ class WalletConnectToSessionViewController: UIViewController {
         for (sectionIndex, section) in viewModel.sections.enumerated() {
             let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
             header.delegate = self
+            var children: [UIView] = []
 
             switch section {
-            case .network where viewModel.allowChangeConnectionServer:
-                header.enableTapAction(title: R.string.localizable.editButtonTitle())
-            case .name, .url, .network:
+            case .networks:
+                if viewModel.allowChangeConnectionServer {
+                    header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                }
+
+                for (rowIndex, server) in viewModel.serversToConnect.enumerated() {
+                    let view = TransactionConfirmationRPCServerInfoView(viewModel: .init(server: server))
+                    view.isHidden = !viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+
+                    children.append(view)
+                }
+            case .name, .url:
                 break
+            case .methods:
+                for (rowIndex, method) in viewModel.methods.enumerated() {
+                    let view = TransactionConfirmationRowInfoView(viewModel: .init(title: method, subtitle: nil))
+                    view.isHidden = !viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
+
+                    children.append(view)
+                }
             }
+
+            header.childrenStackView.addArrangedSubviews(children)
+            header.childrenStackView.isHidden = children.isEmpty
+
             views.append(header)
         }
 
@@ -280,11 +301,20 @@ extension WalletConnectToSessionViewController: TransactionConfirmationHeaderVie
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, shouldShowChildren section: Int, index: Int) -> Bool {
-        return false
+        return viewModel.isSubviewsHidden(section: section, row: index)
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, openStateChanged section: Int) {
-        //no-op
+        switch viewModel.showHideSection(section) {
+        case .show:
+            header.expand()
+        case .hide:
+            header.collapse()
+        }
+
+        UIView.animate(withDuration: 0.35) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     func headerView(_ header: TransactionConfirmationHeaderView, tappedSection section: Int) {

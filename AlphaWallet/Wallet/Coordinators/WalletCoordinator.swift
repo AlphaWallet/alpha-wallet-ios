@@ -159,7 +159,7 @@ extension WalletCoordinator: QRCodeResolutionCoordinatorDelegate {
         //no op
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl) {
         removeCoordinator(coordinator)
         //no op
     }

@@ -50,6 +50,7 @@ PODS:
     - Kingfisher/Core (= 5.15.7)
   - Kingfisher/Core (5.15.7)
   - libsodium (1.0.12)
+  - MailchimpSDK (2.0.4)
   - MBProgressHUD (1.2.0)
   - Mixpanel-swift (2.8.0):
     - Mixpanel-swift/Complete (= 2.8.0)
@@ -141,6 +142,7 @@ DEPENDENCIES:
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, commit `b797d40a9d08ec509db4335140cf2259b226e6a2`)
   - Kingfisher (= 5.15.7)
+  - MailchimpSDK
   - MBProgressHUD
   - Mixpanel-swift (= 2.8.0)
   - Moya (~> 10.0.1)
@@ -184,6 +186,7 @@ SPEC REPOS:
     - JSONRPCKit
     - Kingfisher
     - libsodium
+    - MailchimpSDK
     - MBProgressHUD
     - Mixpanel-swift
     - Moya
@@ -291,6 +294,7 @@ SPEC CHECKSUMS:
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
   Kingfisher: 6e1a13523fcb1c86924ce53affe4ac957e544d59
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
+  MailchimpSDK: 794fd7cb1095e55c764d8a699eb11fb61849ed76
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
   Mixpanel-swift: c16e5d3f7862b4a2f9b6b69b7e19ccacc3b12007
   Moya: 2b0531a9fef318e0bc484030c3db1e6f279ccb66
@@ -317,6 +321,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 200bfc540116cc4640e20f02bdc64814cd4c4873
+PODFILE CHECKSUM: 8f7dd4b310b869945b5fe400102f7f945783c8cf
 
 COCOAPODS: 1.11.2

@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension WalletConnectServer {
+extension AlphaWallet.WalletConnect {
 
     struct Action {
 
@@ -23,14 +23,10 @@ extension WalletConnectServer {
             case unknown
         }
 
-        let id: WalletConnectRequestID
-        let url: WalletConnectURL
         let type: ActionType
     }
 
     struct Callback {
-        let id: WalletConnectRequestID
-        let url: WalletConnectURL
         let value: Data
     }
 }
