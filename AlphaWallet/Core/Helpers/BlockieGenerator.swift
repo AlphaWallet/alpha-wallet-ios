@@ -124,7 +124,7 @@ class BlockiesGenerator {
             case e_1
         }
 
-        guard let result = eip155URLDecoder.decode(from: url) else {
+        guard let result = eip155URLCoder.decode(from: url) else {
             return .init(error: AnyError.e_1)
         }
         return .value(result)
@@ -208,21 +208,5 @@ class BlockiesGenerator {
                 }
             }
         }
-    }
-}
-
-typealias Eip155URL = (tokenType: TokenInterfaceType?, server: RPCServer?, path: String)
-struct eip155URLDecoder {
-    static let key = "eip155"
-
-    /// Decoding function for urls like `eip155:1/erc721:0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6/2430`
-    static func decode(from string: String) -> Eip155URL? {
-        let components = string.components(separatedBy: ":")
-        guard components.count >= 3, components[0].contains(eip155URLDecoder.key) else { return .none }
-        let chainAndTokenTypeComponents = components[1].components(separatedBy: "/")
-        guard chainAndTokenTypeComponents.count == 2 else { return .none }
-        let server = chainAndTokenTypeComponents[0].optionalDecimalValue.flatMap({ RPCServer(chainID: $0.intValue) })
-
-        return (tokenType: TokenInterfaceType(rawValue: chainAndTokenTypeComponents[1]), server: server, path: components[2])
     }
 }

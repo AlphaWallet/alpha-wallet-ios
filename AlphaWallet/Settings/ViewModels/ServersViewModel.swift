@@ -4,10 +4,11 @@ import Foundation
 import UIKit
 
 struct ServersViewModel {
-    private let selectedServer: RPCServerOrAuto
+    private var initiallySelectedServers: [RPCServerOrAuto]
+    private (set) var selectedServers: [RPCServerOrAuto]
 
     let servers: [RPCServerOrAuto]
-
+    var multipleSessionSelectionEnabled: Bool = false
     var title: String {
         return R.string.localizable.settingsNetworkButtonTitle()
     }
@@ -29,9 +30,14 @@ struct ServersViewModel {
     }
     private var allowWarningFooter: Bool?
 
-    init(servers: [RPCServerOrAuto], selectedServer: RPCServerOrAuto, displayWarningFooter: Bool? = .none) {
+    var serversHaveChanged: Bool {
+        return Set(selectedServers) != Set(initiallySelectedServers)
+    }
+
+    init(servers: [RPCServerOrAuto], selectedServers: [RPCServerOrAuto], displayWarningFooter: Bool? = .none) {
         self.servers = servers
-        self.selectedServer = selectedServer
+        self.selectedServers = selectedServers
+        self.initiallySelectedServers = selectedServers
         self.allowWarningFooter = displayWarningFooter
     }
 
@@ -39,7 +45,17 @@ struct ServersViewModel {
         return servers[indexPath.row]
     }
 
+    mutating func selectServer(server: RPCServerOrAuto) {
+        guard !selectedServers.contains(server) else { return }
+        selectedServers.append(server)
+    }
+
+    mutating func unselectServer(server: RPCServerOrAuto) {
+        guard selectedServers.contains(server) else { return }
+        selectedServers.removeAll(where: { $0 == server })
+    }
+
     func isServerSelected(_ server: RPCServerOrAuto) -> Bool {
-        return server == selectedServer
+        return selectedServers.contains(where: { $0 == server })
     }
 }

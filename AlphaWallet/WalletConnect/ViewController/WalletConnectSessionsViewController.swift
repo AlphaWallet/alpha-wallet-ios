@@ -2,10 +2,11 @@
 
 import UIKit
 import StatefulViewController
+import AlphaWalletAddress
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
-    func didDisconnectSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
-    func didSessionSelected(session: WalletConnectSession, in viewController: WalletConnectSessionsViewController)
+    func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController)
+    func didSessionSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController)
     func qrCodeSelected(in viewController: WalletConnectSessionsViewController)
     func didClose(in viewController: WalletConnectSessionsViewController)
 }
@@ -18,11 +19,11 @@ extension WalletConnectSessionsViewController {
 }
 
 class WalletConnectSessionsViewController: UIViewController {
-    private var sessionsValue: [WalletConnectSessionMappedToServer] {
-        return sessionsToURLServersMap.value ?? []
+    private var sessions: [AlphaWallet.WalletConnect.Session] {
+        return sessionsSubscribable.value ?? []
     }
 
-    private let sessionsToURLServersMap: Subscribable<[WalletConnectSessionMappedToServer]>
+    private let sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]>
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletConnectSessionCell.self)
@@ -50,8 +51,8 @@ class WalletConnectSessionsViewController: UIViewController {
     }()
     private var state: State = .sessions
 
-    init(sessionsToURLServersMap: Subscribable<[WalletConnectSessionMappedToServer]>) {
-        self.sessionsToURLServersMap = sessionsToURLServersMap
+    init(sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]>) {
+        self.sessionsSubscribable = sessionsSubscribable
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
@@ -60,7 +61,7 @@ class WalletConnectSessionsViewController: UIViewController {
         roundedBackground.addSubview(tableView)
         roundedBackground.addSubview(spinner)
 
-        sessionsToURLServersMap.subscribe { [weak self] _ in
+        sessionsSubscribable.subscribe { [weak self] _ in
             self?.tableView.reloadData()
             self?.endLoading()
         }
@@ -129,7 +130,7 @@ extension WalletConnectSessionsViewController: StatefulViewController {
     func hasContent() -> Bool {
         switch state {
         case .sessions:
-            return !sessionsValue.isEmpty
+            return !sessions.isEmpty
         case .loading:
             return true
         }
@@ -140,7 +141,7 @@ extension WalletConnectSessionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        delegate?.didSessionSelected(session: sessionsValue[indexPath.row].session, in: self)
+        delegate?.didSessionSelected(session: sessions[indexPath.row], in: self)
     }
 }
 
@@ -149,7 +150,7 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
         let title = R.string.localizable.walletConnectSessionDisconnect()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
-            let session = strongSelf.sessionsValue[indexPath.row].session
+            let session = strongSelf.sessions[indexPath.row]
             strongSelf.delegate?.didDisconnectSelected(session: session, in: strongSelf)
 
             completionHandler(true)
@@ -166,15 +167,14 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
 
-        let mappedSession = sessionsValue[indexPath.row]
-        let viewModel = WalletConnectSessionCellViewModel(session: mappedSession.session, server: mappedSession.server)
+        let viewModel = WalletConnectSessionCellViewModel(session: sessions[indexPath.row])
         cell.configure(viewModel: viewModel)
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sessionsValue.count
+        return sessions.count
     }
 
     //Hide the header

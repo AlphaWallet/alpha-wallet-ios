@@ -87,6 +87,7 @@ enum Analytics {
         case resultType
         case speedType
         case chain
+        case chains
         case transactionType
         case name
         case messageType
@@ -183,9 +184,10 @@ enum Analytics {
         case watch
     }
 
-    enum WalletConnectAction: String {
-        case bridgeUrl
-    }
+   enum WalletConnectAction: String {
+       case bridgeUrl
+       case connectionUrl
+   }
 
     enum ShortcutType: String {
         case walletQrCode

@@ -17,9 +17,9 @@ enum TransactionConfirmationViewModel {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice))
         case .dappTransaction(_, _, let ethPrice):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, walletConnectSession: nil))
-        case .walletConnect(_, _, let ethPrice, let walletConnectSession):
-            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, walletConnectSession: walletConnectSession))
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, dappRequesterViewModel: nil))
+        case .walletConnect(_, _, let ethPrice, let dappRequesterViewModel):
+            self = .dappOrWalletConnectTransaction(.init(configurator: configurator, ethPrice: ethPrice, dappRequesterViewModel: dappRequesterViewModel))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
@@ -350,19 +350,19 @@ extension TransactionConfirmationViewModel {
         }
 
         var placeholderIcon: UIImage? {
-            return walletConnectSession == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
+            return dappRequesterViewModel == nil ? R.image.awLogoSmall() : R.image.walletConnectIcon()
         }
 
-        var dappIconUrl: URL? { walletConnectSession?.session.dappIconUrl }
+        var dappIconUrl: URL? { dappRequesterViewModel?.dappIconUrl }
 
-        private var walletConnectSession: WalletConnectSessionMappedToServer?
+        private var dappRequesterViewModel: WalletConnectDappRequesterViewModel?
 
-        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, walletConnectSession: WalletConnectSessionMappedToServer?) {
+        init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, dappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
             self.configurator = configurator
             self.ethPrice = ethPrice
             self.functionCallMetaData = configurator.transaction.data.flatMap { DecodedFunctionCall(data: $0) }
             self.session = configurator.session
-            self.walletConnectSession = walletConnectSession
+            self.dappRequesterViewModel = dappRequesterViewModel
         }
 
         func headerViewModel(section: Int) -> TransactionConfirmationHeaderViewModel {

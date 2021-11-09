@@ -35,7 +35,7 @@ class SignMessageCoordinator: Coordinator {
     weak var delegate: SignMessageCoordinatorDelegate?
 
     private lazy var confirmationViewController: SignatureConfirmationViewController = {
-        let controller = SignatureConfirmationViewController(viewModel: .init(message: message, walletConnectSession: walletConnectSession))
+        let controller = SignatureConfirmationViewController(viewModel: .init(message: message, walletConnectDappRequesterViewModel: walletConnectDappRequesterViewModel))
         controller.delegate = self
         return controller
     }()
@@ -48,12 +48,12 @@ class SignMessageCoordinator: Coordinator {
 
         return controller
     }()
-    private let walletConnectSession: WalletConnectSessionViewModel?
+    private let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
     
-    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource, walletConnectSession: WalletConnectSessionViewModel?) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
         self.analyticsCoordinator = analyticsCoordinator
         self.presentationNavigationController = navigationController
-        self.walletConnectSession = walletConnectSession
+        self.walletConnectDappRequesterViewModel = walletConnectDappRequesterViewModel
         self.keystore = keystore
         self.account = account
         self.message = message

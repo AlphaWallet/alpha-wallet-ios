@@ -4,7 +4,7 @@ import UIKit
 import PromiseKit
 
 protocol ServersCoordinatorDelegate: AnyObject {
-    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator)
+    func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator)
     func didSelectDismiss(in coordinator: ServersCoordinator)
 }
 
@@ -46,11 +46,11 @@ class ServersCoordinator: Coordinator {
         }
     }
 
-    private let viewModel: ServersViewModel
+    let viewModel: ServersViewModel
     private lazy var serversViewController: ServersViewController = {
         let controller = ServersViewController(viewModel: viewModel)
         controller.delegate = self
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
+
         controller.hidesBottomBarWhenPushed = true
 
         return controller
@@ -64,13 +64,13 @@ class ServersCoordinator: Coordinator {
         self.navigationController = navigationController
         let serverChoices = ServersCoordinator.serverChoices(includeAny: true, config: config)
 
-        self.viewModel = ServersViewModel(servers: serverChoices, selectedServer: defaultServer)
+        self.viewModel = ServersViewModel(servers: serverChoices, selectedServers: [defaultServer])
     }
 
     init(defaultServer: RPCServer, config: Config, navigationController: UINavigationController) {
         self.navigationController = navigationController
         let serverChoices = ServersCoordinator.serverChoices(includeAny: false, config: config)
-        self.viewModel = ServersViewModel(servers: serverChoices, selectedServer: .server(defaultServer))
+        self.viewModel = ServersViewModel(servers: serverChoices, selectedServers: [.server(defaultServer)])
     }
 
     init(viewModel: ServersViewModel, navigationController: UINavigationController) {
@@ -91,15 +91,12 @@ class ServersCoordinator: Coordinator {
     func start() {
         navigationController.pushViewController(serversViewController, animated: true)
     }
-
-    @objc private func dismiss() {
-        delegate?.didSelectDismiss(in: self)
-    }
 }
 
 extension ServersCoordinator: ServersViewControllerDelegate {
-    func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController) {
-        delegate?.didSelectServer(server: server, in: self)
+
+    func didSelectServer(selection: ServerSelection, in viewController: ServersViewController) {
+        delegate?.didSelectServer(selection: selection, in: self)
     }
 
     func didClose(in viewController: ServersViewController) {
@@ -110,7 +107,7 @@ extension ServersCoordinator: ServersViewControllerDelegate {
 private class ServersCoordinatorBridgeToPromise {
 
     private let navigationController: UINavigationController
-    private let (promiseToReturn, seal) = Promise<RPCServer?>.pending()
+    private let (promiseToReturn, seal) = Promise<ServerSelection>.pending()
     private var retainCycle: ServersCoordinatorBridgeToPromise?
 
     init(_ navigationController: UINavigationController, coordinator: Coordinator, viewModel: ServersViewModel) {
@@ -131,34 +128,28 @@ private class ServersCoordinatorBridgeToPromise {
         newCoordinator.start()
     }
 
-    var promise: Promise<RPCServer?> {
+    var promise: Promise<ServerSelection> {
         return promiseToReturn
     }
 }
 
 extension ServersCoordinatorBridgeToPromise: ServersCoordinatorDelegate {
 
-    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+    func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
         navigationController.popViewController(animated: true) {
-            switch server {
-            case .server(let value):
-                self.seal.fulfill(value)
-            case .auto:
-                //TODO pass in `Config `instance instead
-                self.seal.fulfill(Config().anyEnabledServer())
-            }
+            self.seal.fulfill(selection)
         }
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         navigationController.popViewController(animated: true) {
-            self.seal.fulfill(.none)
+            self.seal.reject(PMKError.cancelled)
         }
     }
 }
 
 extension ServersCoordinator {
-    static func promise(_ navigationController: UINavigationController, viewModel: ServersViewModel, coordinator: Coordinator) -> Promise<RPCServer?> {
+    static func promise(_ navigationController: UINavigationController, viewModel: ServersViewModel, coordinator: Coordinator) -> Promise<ServerSelection> {
         let bridge = ServersCoordinatorBridgeToPromise(navigationController, coordinator: coordinator, viewModel: viewModel)
         return bridge.promise
     }

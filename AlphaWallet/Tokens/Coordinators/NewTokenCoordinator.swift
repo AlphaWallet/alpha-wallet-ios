@@ -74,13 +74,18 @@ class NewTokenCoordinator: Coordinator {
 
 extension NewTokenCoordinator: ServersCoordinatorDelegate {
 
-    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
-        serverToAddCustomTokenOn = server
-        coordinator.navigationController.popViewController(animated: true) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.viewController.server = strongSelf.serverToAddCustomTokenOn
-            strongSelf.viewController.configure()
-            strongSelf.viewController.redetectToken()
+    func didSelectServer(selection: ServerSelection, in coordinator: ServersCoordinator) {
+        switch selection {
+        case .server(let server):
+            serverToAddCustomTokenOn = server
+            coordinator.navigationController.popViewController(animated: true) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.viewController.server = strongSelf.serverToAddCustomTokenOn
+                strongSelf.viewController.configure()
+                strongSelf.viewController.redetectToken()
+            }
+        case .multipleServers:
+            break
         }
 
         removeCoordinator(coordinator)

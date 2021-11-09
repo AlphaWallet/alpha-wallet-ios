@@ -21,6 +21,8 @@ extension Error {
             return error.localizedDescription
         case let error as APIKit.SessionTaskError:
             return generatePrettyError(forSessionTaskError: error)
+        case let error as WalletConnectCoordinator.RequestCanceledDueToWatchWalletError:
+            return error.localizedDescription
         default:
             return R.string.localizable.undefinedError()
         }
