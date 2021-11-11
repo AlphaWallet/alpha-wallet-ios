@@ -1,3 +1,29 @@
+Work-in-progress.
+
+How to create a PR
+---
+Keep commits atomic
+
+1 commit or very few in each PR. Each PR should be doing only 1 thing
+
+Don't introduce unnecessary, unintentional changes, especially whitespace
+
+Write a clear 1-sentence commit message explaining what the commit is for. If there are important details such as the rationale for doing things in a certain way, add additional lines. `git log --pretty=oneline` should make sense
+
+Draw attention to anything that the reviewer should look out for
+
+If it's a simple UI change, include screenshots like this https://github.com/AlphaWallet/alpha-wallet-ios/pull/3399
+
+If the PR closes an issue, use [GitHub keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (eg. Closes #123) so GitHub will automatically close the issue when the PR is merged.
+
+Commits introduced by PR should be based on the current `master`. Sometimes reviewers will request author to rebase master (`git rebase master`) if `master` has moved significantly since
+
+If changes are needed after review, commit changes, rebase into a single (or a few) commits and force push
+
+Code Style
+---
+CamelCase, including abbreviations (some older code might not observe this)
+
 How to Add a New Chain
 ---
 1. Open RPCServers.swift
