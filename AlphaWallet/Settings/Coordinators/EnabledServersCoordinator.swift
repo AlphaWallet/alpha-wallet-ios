@@ -57,9 +57,21 @@ class EnabledServersCoordinator: Coordinator {
 
         coordinator.start()
     }
+    
+    private func edit(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
+        let coordinator = EditCustomRpcCoordinator(navigationController: navigationController, config: Config(), restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, customRpc: customRpc)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+
+        coordinator.start()
+    }
 }
 
 extension EnabledServersCoordinator: EnabledServersViewControllerDelegate {
+    func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController) {
+        self.edit(customRpc: customRpc, in: viewController)
+    }
+
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController) {
         delegate?.didSelectServers(servers: servers, in: self)
     }
@@ -79,6 +91,16 @@ extension EnabledServersCoordinator: AddRPCServerCoordinatorDelegate {
     }
 
     func restartToAddEnableAndSwitchBrowserToServer(in coordinator: AddRPCServerCoordinator) {
+        delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
+    }
+}
+
+extension EnabledServersCoordinator: EditCustomRpcCoordinatorDelegate {
+    func didDismiss(in coordinator: EditCustomRpcCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func restartToEdit(in coordinator: EditCustomRpcCoordinator) {
         delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
     }
 }
