@@ -230,8 +230,9 @@ class CoinTickersFetcher: CoinTickersFetcherType {
             let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
             var resultTickers: [AddressAndRPCServer: CoinTicker] = [:]
             for ticker in tickers {
-                if let value = mappedCoinTickerIds.first(where: { $0.tickerId == ticker.id }) {
-                    let key = AddressAndRPCServer(address: value.contractAddress, server: value.server)
+                let matches = mappedCoinTickerIds.filter({ $0.tickerId == ticker.id })
+                for each in matches {
+                    let key = AddressAndRPCServer(address: each.contractAddress, server: each.server)
                     resultTickers[key] = ticker
                 }
             }
