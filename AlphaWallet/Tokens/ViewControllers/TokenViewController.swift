@@ -209,13 +209,13 @@ class TokenViewController: UIViewController {
             session.refresh(.ethBalance)
         case .erc20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
-            //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
-
             tokenInfoPageView.viewModel.ticker = session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
-            tokenInfoPageView.viewModel.currencyAmount = session.balanceCoordinator.ethBalanceViewModel.currencyAmount
-
-            configure(viewModel: viewModel)
+            session.balanceCoordinator.subscribableTokenBalance(token.addressAndRPCServer).subscribe { [weak self] viewModel in
+                guard let strongSelf = self, let viewModel = viewModel else { return }
+                strongSelf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
+                strongSelf.configure(viewModel: strongSelf.viewModel)
+            }
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }
