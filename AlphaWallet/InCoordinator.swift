@@ -702,7 +702,7 @@ class InCoordinator: NSObject, Coordinator {
             case .addServer(let server):
                 restartQueue.remove(each)
                 RPCServer.customRpcs.append(server)
-            case .editServer(original: let original, edited: let edited):
+            case .editServer(let original, let edited):
                 restartQueue.remove(each)
                 replaceServer(original: original, edited: edited)
             case .removeServer(let server):
@@ -721,6 +721,10 @@ class InCoordinator: NSObject, Coordinator {
                 Config.setChainId(server.chainID)
             case .loadUrlInDappBrowser:
                 break
+            case .reloadServers(let servers):
+                restartQueue.remove(each)
+                var c = config
+                c.enabledServers = servers
             }
         }
     }
@@ -757,7 +761,7 @@ class InCoordinator: NSObject, Coordinator {
     private func processRestartQueueAfterRestart(config: Config, coordinator: InCoordinator, restartQueue: RestartTaskQueue) {
         for each in restartQueue.queue {
             switch each {
-            case .addServer, .editServer, .removeServer, .enableServer, .switchDappServer:
+            case .addServer, .reloadServers, .editServer, .removeServer, .enableServer, .switchDappServer:
                 break
             case .loadUrlInDappBrowser(let url):
                 restartQueue.remove(each)
@@ -862,11 +866,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         TransactionsStorage.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account))
     }
 
-    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {
-        processRestartQueueAndRestartUI()
-    }
-
-    func restartToRemoveServer(in coordinator: SettingsCoordinator) {
+    func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
         processRestartQueueAndRestartUI()
     }
 }

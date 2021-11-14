@@ -3,9 +3,8 @@
 import UIKit
 
 protocol EnabledServersViewControllerDelegate: AnyObject {
-    func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
-    func notifyRemoveCustomChainQueued(in viewController: EnabledServersViewController)
     func didEditSelectedServer(customRpc: CustomRPC, in viewController: EnabledServersViewController)
+    func notifyReloadServersQueued(in viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
@@ -35,6 +34,7 @@ class EnabledServersViewController: UIViewController {
     private var sectionIndices: IndexSet {
         IndexSet(integersIn: Range(uncheckedBounds: (lower: 0, sections.count)))
     }
+    private let config: Config = Config()
 
     var viewModel: EnabledServersViewModel
     weak var delegate: EnabledServersViewControllerDelegate?
@@ -82,7 +82,21 @@ class EnabledServersViewController: UIViewController {
     }
 
     @objc private func done() {
-        delegate?.didSelectServers(servers: viewModel.selectedServers, in: self)
+        pushReloadServersIfNeeded()
+        delegate?.notifyReloadServersQueued(in: self)
+    }
+
+    func pushReloadServersIfNeeded() {
+        let servers = viewModel.selectedServers
+        //Defensive. Shouldn't allow no server to be selected
+        guard !servers.isEmpty else { return }
+
+        let isUnchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
+        if isUnchanged {
+            //no-op
+        } else {
+            restartQueue.add(.reloadServers(servers))
+        }
     }
 
     private func confirmDelete(server: RPCServer) {
@@ -103,12 +117,15 @@ class EnabledServersViewController: UIViewController {
     
     private func markForDeletion(server: RPCServer) {
         guard let customRpc = server.customRpc else { return }
+        pushReloadServersIfNeeded()
         restartQueue.add(.removeServer(customRpc))
-        delegate?.notifyRemoveCustomChainQueued(in: self)
+
+        delegate?.notifyReloadServersQueued(in: self)
     }
 }
 
 extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSource {
+
     func numberOfSections(in tableView: UITableView) -> Int {
         sections.count
     }

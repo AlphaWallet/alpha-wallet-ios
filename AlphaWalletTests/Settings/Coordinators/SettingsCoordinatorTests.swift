@@ -28,8 +28,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {}
             func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {}
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}
-            func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator) {}
-            func restartToRemoveServer(in coordinator: SettingsCoordinator) {}
+            func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {}
         }
 
         let storage = FakeTransactionsStorage(server: .main)
