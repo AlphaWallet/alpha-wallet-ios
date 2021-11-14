@@ -72,6 +72,8 @@ class AddCustomChain {
         }.catch {
             if let error = $0 as? AddCustomChainError {
                 self.delegate?.notifyAddCustomChainFailed(error: error, in: self)
+            } else if case PMKError.cancelled = $0 {
+                //no-op
             } else {
                 self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown()) — \($0)"), in: self)
             }
@@ -83,7 +85,10 @@ class AddCustomChain {
             return .init(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
         }
         return delegate.notifyAddExplorerApiHostnameFailure(customChain: customChain, chainId: chainId).map { continueWithoutExplorerURL -> CustomChainWithChainIdAndRPC in
-            if let rpcUrl = customChain.rpcUrls?.first, continueWithoutExplorerURL {
+            guard continueWithoutExplorerURL else {
+                throw PMKError.cancelled
+            }
+            if let rpcUrl = customChain.rpcUrls?.first {
                 return (customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
             } else {
                 throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl())
