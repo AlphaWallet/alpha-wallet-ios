@@ -143,7 +143,8 @@ class TransactionConfirmationHeaderView: UIView {
             chevronImageView.bottomAnchor.constraint(equalTo: chevronView.bottomAnchor),
             chevronImageView.trailingAnchor.constraint(equalTo: chevronView.trailingAnchor),
             chevronImageView.leadingAnchor.constraint(equalTo: chevronView.leadingAnchor),
-
+            chevronView.widthAnchor.constraint(equalToConstant: 20),
+            
             stackView.anchorsConstraint(to: self)
         ])
 
