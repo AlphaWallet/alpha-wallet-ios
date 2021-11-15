@@ -29,6 +29,7 @@ class RequestCoordinator: Coordinator {
     }
 
     func start() {
+        requestViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(requestViewController, animated: true)
     }
 
