@@ -95,6 +95,7 @@ class AddressOrEnsNameLabel: UILabel {
         textColor = DataEntry.Color.ensText
         font = DataEntry.Font.label
         textAlignment = .center
+        clear()
     }
 
     required init?(coder: NSCoder) {
