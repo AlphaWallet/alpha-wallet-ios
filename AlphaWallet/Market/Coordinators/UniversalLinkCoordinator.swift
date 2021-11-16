@@ -406,6 +406,7 @@ class UniversalLinkCoordinator: Coordinator {
         if let value = MagicLinkURL(url: url) {
             switch value {
             case .eip681(let eip681Url):
+                analyticsCoordinator.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [Analytics.Properties.type.rawValue: "eip681"])
                 delegate?.handle(eip681Url: eip681Url, in: self)
             case .walletConnect(let wcUrl, let source):
                 switch source {
