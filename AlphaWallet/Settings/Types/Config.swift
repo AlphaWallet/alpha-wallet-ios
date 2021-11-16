@@ -181,7 +181,16 @@ struct Config {
                     //TODO remote log. Why is this possible? Note it's not nil (which is possible for new installs)
                     return Constants.defaultEnabledServers
                 } else {
-                    return chainIds.map { .init(chainID: $0) }.filter { $0.conflictedServer == nil }
+                    let servers: [RPCServer] = chainIds.map { .init(chainID: $0) }.filter { $0.conflictedServer == nil }
+                    //TODO remove filter after some time as every user should have upgraded and no longer has a mix of mainnet and testnet enabled at the same time. We could have done this filtering one-time per wallet outside of here, but doing it here is more localized
+                    if servers.contains(where: { $0.isTestnet }) && servers.contains(where: { !$0.isTestnet }) {
+                        let filteredServers = servers.filter { !$0.isTestnet }
+                        var configForEditing = self
+                        configForEditing.enabledServers = filteredServers
+                        return filteredServers
+                    } else {
+                        return servers
+                    }
                 }
             } else {
                 return Constants.defaultEnabledServers
