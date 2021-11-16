@@ -259,6 +259,7 @@
 		5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */; };
 		5E7C71570B651B3B56CAA1CC /* StringExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76D132F4BEA5CE4FFD0A /* StringExtensionTests.swift */; };
 		5E7C715B5921162B65A9A706 /* PromptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */; };
+		5E7C71628CC710DE80590FF0 /* WalletQrCodeDonation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F4F9F57A4B1834EB723 /* WalletQrCodeDonation.swift */; };
 		5E7C716AB8079EA1283B2317 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ED293E477AD7C13056C /* Bookmark.swift */; };
 		5E7C716F9A06085DF5F903E8 /* UserEntryOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72655E6DC767D497D580 /* UserEntryOrigin.swift */; };
 		5E7C71769464FDBDE6803A91 /* PromptBackupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70B3651BDFE549C28466 /* PromptBackupCoordinator.swift */; };
@@ -1653,6 +1654,7 @@
 		5E7C7F21FA7A02F6341FB58D /* AssetDefinitionsOverridesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionsOverridesViewController.swift; sourceTree = "<group>"; };
 		5E7C7F3DD81D44A996789FC4 /* UniversalLinkInPasteboardCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkInPasteboardCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntExtensionsTests.swift; sourceTree = "<group>"; };
+		5E7C7F4F9F57A4B1834EB723 /* WalletQrCodeDonation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletQrCodeDonation.swift; sourceTree = "<group>"; };
 		5E7C7F54FD247553A7427881 /* TokensViewControllerCollectiblesCollectionViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewControllerCollectiblesCollectionViewHeader.swift; sourceTree = "<group>"; };
 		5E7C7F55495A6095B3E86248 /* EditMyDappViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditMyDappViewController.swift; sourceTree = "<group>"; };
 		5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
@@ -2172,6 +2174,7 @@
 				5E7C7493B40E287B7FDF9317 /* Analytics */,
 				5E7C7EF382294C8C3357E9EC /* Activities */,
 				5E7C72373620D0B5825AA69C /* Gas */,
+				5E7C7651253551EB14A26F7C /* Donations */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -3627,6 +3630,14 @@
 				5E7C78444756CB850DAA1476 /* Models */,
 			);
 			path = TokenScriptClient;
+			sourceTree = "<group>";
+		};
+		5E7C7651253551EB14A26F7C /* Donations */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7F4F9F57A4B1834EB723 /* WalletQrCodeDonation.swift */,
+			);
+			path = Donations;
 			sourceTree = "<group>";
 		};
 		5E7C76A2DAB62A6824F37749 /* Sell */ = {
@@ -6201,6 +6212,7 @@
 				5E7C72EA10F863FCD7EED282 /* Erc1155BalanceFetcher.swift in Sources */,
 				5E7C72647EAE29158D103377 /* Erc1155TokenIdsFetcher.swift in Sources */,
 				5E7C78B576BC9A187445B002 /* DappRequestSwitchExistingChainCoordinator.swift in Sources */,
+				5E7C71628CC710DE80590FF0 /* WalletQrCodeDonation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
