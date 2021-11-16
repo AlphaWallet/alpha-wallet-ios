@@ -58,6 +58,8 @@
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleURLName</key>
+			<string></string>
 			<key>CFBundleTypeRole</key>
 			<string>WalletConnect Links</string>
 			<key>CFBundleURLSchemes</key>
@@ -180,5 +182,9 @@
 	</array>
 	<key>com.apple.security.get-task-allow</key>
 	<true/>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>com.alphawallet.ethereum-wallet-qr-code</string>
+	</array>
 </dict>
 </plist>

@@ -712,3 +712,4 @@
 "walletConnect.error.connectionTimeout.title" = "Try WalletConnect again";
 "walletConnect.error.connectionTimeout.errorMessage" = "You tried to connect with WalletConnect.\nWell.. It takes too long. Please generate\na fresh QR code and try again.";
 "walletConnect.scanQRCodeAgain" = "Scan QR Code again";
+"donate.shortcuts.walletQrCode" = "Show Wallet QR Code";
