@@ -98,10 +98,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return appCoordinator.handleOpen(url: url)
     }
 
-    // Respond to Universal Links
     func application(_ application: UIApplication,
                      continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        let hasHandledIntent = appCoordinator.handleIntent(userActivity: userActivity)
+        if hasHandledIntent {
+            return true
+        }
+
         var handled = false
         if let url = userActivity.webpageURL {
             handled = handleUniversalLink(url: url)

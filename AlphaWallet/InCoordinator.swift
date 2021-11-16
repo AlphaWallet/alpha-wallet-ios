@@ -184,6 +184,8 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func start(animated: Bool) {
+        donateWalletShortcut()
+
         showTabBar(for: wallet, animated: animated)
         checkDevice()
 
@@ -198,6 +200,10 @@ class InCoordinator: NSObject, Coordinator {
         rampBuyService.fetchSupportedTokens()
 
         processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
+    }
+
+    private func donateWalletShortcut() {
+        WalletQrCodeDonation(address: wallet.address).donate()
     }
 
     func launchUniversalScanner() {
@@ -733,7 +739,7 @@ class InCoordinator: NSObject, Coordinator {
             return item
         }
     }
-    
+
     private func removeServer(_ server: CustomRPC) {
         //Must disable server first because we (might) not have done that if the user had disabled and then remove the server in the UI at the same time. And if we fallback to mainnet when an enabled server's chain ID is not found, this can lead to mainnet appearing twice in the Wallet tab
         let servers = config.enabledServers.filter { $0.chainID != server.chainID }
@@ -764,6 +770,17 @@ class InCoordinator: NSObject, Coordinator {
                 coordinator.showTab(.browser)
                 coordinator.dappBrowserCoordinator?.open(url: url, animated: false)
             }
+        }
+    }
+
+    func showWalletQrCode() {
+        showTab(.wallet)
+        if let nc = tabBarController.viewControllers?.first as? UINavigationController, nc.visibleViewController is RequestViewController {
+            //no-op
+        } else if navigationController.visibleViewController is RequestViewController {
+            //no-op
+        } else {
+            showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: navigationController)
         }
     }
 }
