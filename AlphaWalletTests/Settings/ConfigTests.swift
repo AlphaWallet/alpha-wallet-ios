@@ -34,10 +34,10 @@ class ConfigTests: XCTestCase {
         let vc1 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
                 config: .make(),
                 walletConnectCoordinator: .fake(),
                 walletBalanceCoordinator: FakeWalletBalanceCoordinator()
@@ -50,10 +50,10 @@ class ConfigTests: XCTestCase {
         let vc2 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService), tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService),
+                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
                 config: .make(),
                 walletConnectCoordinator: .fake(),
                 walletBalanceCoordinator: FakeWalletBalanceCoordinator()
