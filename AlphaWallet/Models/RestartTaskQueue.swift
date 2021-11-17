@@ -13,6 +13,7 @@ class RestartTaskQueue {
         case enableServer(RPCServer)
         case switchDappServer(server: RPCServer)
         case loadUrlInDappBrowser(URL)
+        case reloadServers([RPCServer])
     }
 
     init() {
