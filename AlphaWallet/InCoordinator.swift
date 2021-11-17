@@ -90,7 +90,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
-        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService)
+        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
     }()
 
     private lazy var activitiesService: ActivitiesServiceType = createActivitiesService()
