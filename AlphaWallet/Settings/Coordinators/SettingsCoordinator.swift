@@ -18,8 +18,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
-    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: SettingsCoordinator)
-    func restartToRemoveServer(in coordinator: SettingsCoordinator)
+    func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
@@ -239,34 +238,12 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
-	func didSelectServers(servers: [RPCServer], in coordinator: EnabledServersCoordinator) {
-		//Defensive. Shouldn't allow no server to be selected
-		guard !servers.isEmpty else { return }
-
-		let isUnchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
-        if isUnchanged {
-			coordinator.stop()
-			removeCoordinator(coordinator)
-		} else {
-			config.enabledServers = servers
-            restart(for: account, reason: .serverChange)
-		}
-	}
-
-	func didSelectDismiss(in coordinator: EnabledServersCoordinator) {
-		coordinator.stop()
-		removeCoordinator(coordinator)
-	}
-
-    func restartToAddEnableAndSwitchBrowserToServer(in coordinator: EnabledServersCoordinator) {
-        delegate?.restartToAddEnableAndSwitchBrowserToServer(in: self)
+    
+    func restartToReloadServersQueued(in coordinator: EnabledServersCoordinator) {
+        delegate?.restartToReloadServersQueued(in: self)
         removeCoordinator(coordinator)
     }
 
-    func restartToRemoveServer(in coordinator: EnabledServersCoordinator) {
-        delegate?.restartToRemoveServer(in: self)
-        removeCoordinator(coordinator)
-    }
 }
 
 extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
