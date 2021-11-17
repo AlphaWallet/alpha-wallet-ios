@@ -91,7 +91,7 @@ class EnabledServersViewController: UIViewController {
         //Defensive. Shouldn't allow no server to be selected
         guard !servers.isEmpty else { return }
 
-        let isUnchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
+        let isUnchanged = Set(config.enabledServers) == Set(servers)
         if isUnchanged {
             //no-op
         } else {
