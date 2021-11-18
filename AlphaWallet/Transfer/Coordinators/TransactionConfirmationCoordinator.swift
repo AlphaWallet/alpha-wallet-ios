@@ -324,12 +324,27 @@ extension TransactionConfirmationCoordinator {
             transactionType = .unknown
         }
 
+        let overridingRpcUrl: URL? = configurator.session.config.sendPrivateTransactionsProvider?.rpcUrl(forServer: configurator.session.server)
+        let privateNetworkProvider: SendPrivateTransactionsProvider?
+        if overridingRpcUrl == nil {
+            privateNetworkProvider = nil
+        } else {
+            privateNetworkProvider = configurator.session.config.sendPrivateTransactionsProvider
+        }
         var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
             Analytics.Properties.speedType.rawValue: speedType.rawValue,
             Analytics.Properties.chain.rawValue: server.chainID,
             Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
-            Analytics.Properties.isPrivateNetworkEnabled.rawValue: configurator.session.config.usePrivateNetwork,
+            //This is around for legacy reasons as we already send the provider if it's used
+            Analytics.Properties.isPrivateNetworkEnabled.rawValue: privateNetworkProvider != nil,
         ]
+        if let provider = privateNetworkProvider {
+            analyticsProperties[Analytics.Properties.sendPrivateTransactionsProvider.rawValue] = provider.rawValue
+            info("Sent transaction with send private transactions provider: \(provider.rawValue)")
+        } else {
+            //no-op
+            info("Sent transaction publicly")
+        }
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
