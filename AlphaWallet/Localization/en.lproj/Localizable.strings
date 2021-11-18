@@ -91,7 +91,9 @@
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.showSeedPhrase.button.title" = "Show Seed Phrase";
 "settings.walletConnect.button.title" = "WalletConnect";
-"settings.useEthermineNetwork.button.title" = "Private ETH transactions";
+"settings.chooseSendPrivateTransactionsProvider.button.title" = "Private ETH transactions";
+"sendPrivateTransactionsProvider.etheremine" = "Ethermine";
+"sendPrivateTransactionsProvider.eden" = "Eden";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
 "settings.tokenScriptStandard.title" = "TokenScript Compatibility";

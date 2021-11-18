@@ -14,6 +14,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func advancedSettingsViewControllerChangeLanguageSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController)
+    func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
 }
 
 class AdvancedSettingsViewController: UIViewController {
@@ -23,13 +24,12 @@ class AdvancedSettingsViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self)
-        tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.dataSource = self
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         return tableView
     }()
     private let roundedBackground = RoundedBackground()
@@ -41,7 +41,7 @@ class AdvancedSettingsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
-        
+
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)
 
@@ -63,10 +63,14 @@ class AdvancedSettingsViewController: UIViewController {
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
+
+    func configure() {
+        tableView.reloadData()
+    }
 }
 
 extension AdvancedSettingsViewController: UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows()
     }
@@ -80,25 +84,13 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
 
             return cell
         case .usePrivateNetwork:
-            let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(titleText: row.title, icon: row.icon, value: config.usePrivateNetwork))
-            cell.delegate = self
-
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+            let subtitle: String? = {
+                let provider = config.sendPrivateTransactionsProvider
+                return provider?.title
+            }()
+            cell.configure(viewModel: .init(titleText: row.title, subTitleText: subtitle, icon: row.icon))
             return cell
-        }
-    }
-}
-
-extension AdvancedSettingsViewController: SwitchTableViewCellDelegate {
-
-    func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
-        guard let indexPath = cell.indexPath else { return }
-
-        switch viewModel.rows[indexPath.row] {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
-            break
-        case .usePrivateNetwork:
-            config.usePrivateNetwork = isOn
         }
     }
 }
@@ -140,7 +132,7 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
         case .analytics:
             delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
         case .usePrivateNetwork:
-            break
+            delegate?.advancedSettingsViewControllerUsePrivateNetworkSelected(in: self)
         }
     }
 }
