@@ -47,7 +47,7 @@ enum AdvancedSettingsRow: CaseIterable {
         case .analytics:
             return R.string.localizable.settingsAnalitycsTitle()
         case .usePrivateNetwork:
-            return R.string.localizable.settingsUseEthermineNetworkButtonTitle()
+            return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         }
     }
 

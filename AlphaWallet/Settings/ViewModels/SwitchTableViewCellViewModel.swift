@@ -11,11 +11,11 @@ struct SwitchTableViewCellViewModel {
     let titleText: String
     let icon: UIImage
     let value: Bool
-    
+
     var titleFont: UIFont {
         return Fonts.regular(size: 17)
     }
-    
+
     var titleTextColor: UIColor {
         return Colors.black
     }
