@@ -33,6 +33,7 @@ class SettingsCoordinator: Coordinator {
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
+    weak private var advancedSettingsViewController: AdvancedSettingsViewController?
 
 	let navigationController: UINavigationController
 	weak var delegate: SettingsCoordinatorDelegate?
@@ -174,8 +175,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         let controller = AdvancedSettingsViewController(config: config)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
-
         navigationController.pushViewController(controller, animated: true)
+        advancedSettingsViewController = controller
     }
 }
 
@@ -238,7 +239,7 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
-    
+
     func restartToReloadServersQueued(in coordinator: EnabledServersCoordinator) {
         delegate?.restartToReloadServersQueued(in: self)
         removeCoordinator(coordinator)
@@ -302,5 +303,17 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
 
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController) {
 
+    }
+
+    func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController) {
+        let controller = ChooseSendPrivateTransactionsProviderViewController(config: config)
+        controller.delegate = self
+        navigationController.pushViewController(controller, animated: true)
+    }
+}
+
+extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
+    func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, inController viewController: ChooseSendPrivateTransactionsProviderViewController) {
+        advancedSettingsViewController?.configure()
     }
 }
