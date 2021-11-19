@@ -28,40 +28,59 @@ class ConfigTests: XCTestCase {
         let assetDefinitionStore = AssetDefinitionStore()
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
+        let config: Config = .make()
         Config.setLocale(AppLocale.english)
         let tokenActionsService = FakeSwapTokenService()
 
-        let vc1 = TokensViewController(
-                sessions: sessions,
-                account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: [FakeTokensDataStore()]),
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
-                config: .make(),
-                walletConnectCoordinator: .fake(),
-                walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-                analyticsCoordinator: FakeAnalyticsService()
+        let coordinator_1 = TokensCoordinator(
+            navigationController: FakeNavigationController(),
+            sessions: sessions,
+            keystore: FakeKeystore(),
+            config: config,
+            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: []),
+            nativeCryptoCurrencyPrices: .init(),
+            assetDefinitionStore: AssetDefinitionStore(),
+            eventsDataStore: FakeEventsDataStore(),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
+            analyticsCoordinator: FakeAnalyticsService(),
+            tokenActionsService: tokenActionsService,
+            walletConnectCoordinator: .fake(),
+            transactionsStorages: .init(),
+            coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
+            activitiesService: FakeActivitiesService(),
+            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
-        vc1.viewWillAppear(false)
-        XCTAssertEqual(vc1.title, "Wallet")
+
+        coordinator_1.start()
+        coordinator_1.tokensViewController.viewWillAppear(false)
+        XCTAssertEqual(coordinator_1.tokensViewController.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
 
-        let vc2 = TokensViewController(
-                sessions: sessions,
-                account: .make(),
-                tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: [FakeTokensDataStore()]),
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: FakeEventsDataStore(),
-                filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
-                config: .make(),
-                walletConnectCoordinator: .fake(),
-                walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-                analyticsCoordinator: FakeAnalyticsService()
+        let coordinator_2 = TokensCoordinator(
+            navigationController: FakeNavigationController(),
+            sessions: sessions,
+            keystore: FakeKeystore(),
+            config: config,
+            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: []),
+            nativeCryptoCurrencyPrices: .init(),
+            assetDefinitionStore: AssetDefinitionStore(),
+            eventsDataStore: FakeEventsDataStore(),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
+            analyticsCoordinator: FakeAnalyticsService(),
+            tokenActionsService: tokenActionsService,
+            walletConnectCoordinator: .fake(),
+            transactionsStorages: .init(),
+            coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
+            activitiesService: FakeActivitiesService(),
+            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
-        vc2.viewWillAppear(false)
-        XCTAssertEqual(vc2.title, "我的钱包")
+
+        coordinator_2.start()
+        coordinator_2.tokensViewController.viewWillAppear(false)
+        XCTAssertEqual(coordinator_2.tokensViewController.title, "我的钱包")
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         Config.setLocale(AppLocale.system)

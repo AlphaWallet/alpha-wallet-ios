@@ -33,6 +33,10 @@ extension UIBarButtonItem {
         return .init(image: R.image.qrRounded(), style: .plain, target: target, action: selector)
     }
 
+    static func moreBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(image: R.image.toolbarMenu(), style: .plain, target: target, action: selector)
+    }
+
     static func addBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(image: R.image.add_hide_tokens(), style: .plain, target: target, action: selector)
     }
