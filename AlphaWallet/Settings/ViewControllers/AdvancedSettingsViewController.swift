@@ -85,11 +85,10 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
             return cell
         case .usePrivateNetwork:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            let subtitle: String? = {
-                let provider = config.sendPrivateTransactionsProvider
-                return provider?.title
-            }()
-            cell.configure(viewModel: .init(titleText: row.title, subTitleText: subtitle, icon: row.icon))
+            let provider = config.sendPrivateTransactionsProvider
+            let subtitle: String? = provider?.title
+            let icon: UIImage? = provider?.icon ?? row.icon
+            cell.configure(viewModel: .init(titleText: row.title, subTitleText: subtitle, icon: icon))
             return cell
         }
     }
