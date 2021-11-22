@@ -20,7 +20,7 @@ enum SendPrivateTransactionsProvider: String {
         case .ethermine:
             return R.image.iconsSettingsEthermine()!
         case .eden:
-            return R.image.iconsSettingsEthermine()!
+            return R.image.iconsSettingsEden()!
         }
     }
 
