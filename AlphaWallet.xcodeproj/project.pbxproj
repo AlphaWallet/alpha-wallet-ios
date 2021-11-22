@@ -4861,13 +4861,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWallet" */;
 			buildPhases = (
+				29282B511F7629DB0067F88D /* Run SwiftLint */,
 				7C3903F7FBE1023CAA5AED0C /* [CP] Check Pods Manifest.lock */,
 				C83F787024A1C1DB00783B67 /* Check correct credentials used for API keys */,
 				29336FE81F6B24FF005E3BFC /* R.Swift */,
 				2912CCF11F6A830700C6CBE3 /* Sources */,
 				2912CCF21F6A830700C6CBE3 /* Frameworks */,
 				2912CCF31F6A830700C6CBE3 /* Resources */,
-				29282B511F7629DB0067F88D /* Run SwiftLint */,
 				8A3C752ACC5CACBD729A8F25 /* [CP] Embed Pods Frameworks */,
 				F6006D07F1DCADBC1150AD02 /* [CP] Copy Pods Resources */,
 				878EE8F6255ADA49000210DE /* Embed App Extensions */,
