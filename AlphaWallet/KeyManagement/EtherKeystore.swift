@@ -107,10 +107,19 @@ open class EtherKeystore: NSObject, Keystore {
 
     private var analyticsCoordinator: AnalyticsCoordinator
 
+    private var isSimulator: Bool {
+        TARGET_OS_SIMULATOR != 0
+    }
+
     //i.e if passcode is enabled. Face ID/Touch ID wouldn't work without passcode being enabled and we can't write to the keychain or generate a key in secure enclave when passcode is disabled
+    //This original returns true for simulators (due to how simulators work), but on iOS 15 simulator (not on device and not on iOS 12.x and iOS 14 simulators), but writing the seed with user-presence enabled will fail silently and it breaks the app
     var isUserPresenceCheckPossible: Bool {
-        let authContext = LAContext()
-        return authContext.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
+        if isSimulator {
+            return false
+        } else {
+            let authContext = LAContext()
+            return authContext.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
+        }
     }
 
     var hasWallets: Bool {
