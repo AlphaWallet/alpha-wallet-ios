@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		02220CFC273A9A02006A09BF /* EditCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* EditCustomRpcCoordinator.swift */; };
-		02220CFE273A9CDB006A09BF /* EditCustomRpcViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFD273A9CDA006A09BF /* EditCustomRpcViewController.swift */; };
-		02220D00273A9DD6006A09BF /* EditCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFF273A9DD6006A09BF /* EditCustomRpcViewModel.swift */; };
-		02220D02273A9E24006A09BF /* EditCustomRpcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220D01273A9E23006A09BF /* EditCustomRpcView.swift */; };
+		02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */; };
+		02220CFE273A9CDB006A09BF /* SaveCustomRpcViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */; };
+		02220D00273A9DD6006A09BF /* SaveCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */; };
+		02220D02273A9E24006A09BF /* SaveCustomRpcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */; };
 		0DF46B4002E13613F768E7AE /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
@@ -816,10 +816,7 @@
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
-		876C80CB267386E300B16595 /* AddRPCServerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CA267386E300B16595 /* AddRPCServerCoordinator.swift */; };
 		876C80CD2673940B00B16595 /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CC2673940B00B16595 /* SwitchView.swift */; };
-		876C80CF267398F900B16595 /* AddRPCServerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CE267398F900B16595 /* AddRPCServerViewController.swift */; };
-		876C80D12673992300B16595 /* AddRPCServerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80D02673992300B16595 /* AddRPCServerViewModel.swift */; };
 		87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */; };
 		87713EB0264BAB2500B1B9CB /* TokenPagesContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */; };
 		87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */; };
@@ -1039,10 +1036,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		02220CFB273A9A02006A09BF /* EditCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditCustomRpcCoordinator.swift; sourceTree = "<group>"; };
-		02220CFD273A9CDA006A09BF /* EditCustomRpcViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRpcViewController.swift; sourceTree = "<group>"; };
-		02220CFF273A9DD6006A09BF /* EditCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomRpcViewModel.swift; sourceTree = "<group>"; };
-		02220D01273A9E23006A09BF /* EditCustomRpcView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditCustomRpcView.swift; sourceTree = "<group>"; };
+		02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcCoordinator.swift; sourceTree = "<group>"; };
+		02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcViewController.swift; sourceTree = "<group>"; };
+		02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcViewModel.swift; sourceTree = "<group>"; };
+		02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcView.swift; sourceTree = "<group>"; };
 		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.release.xcconfig"; sourceTree = "<group>"; };
 		290B2B551F8F50030053C83E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1857,10 +1854,7 @@
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
-		876C80CA267386E300B16595 /* AddRPCServerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRPCServerCoordinator.swift; sourceTree = "<group>"; };
 		876C80CC2673940B00B16595 /* SwitchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchView.swift; sourceTree = "<group>"; };
-		876C80CE267398F900B16595 /* AddRPCServerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRPCServerViewController.swift; sourceTree = "<group>"; };
-		876C80D02673992300B16595 /* AddRPCServerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRPCServerViewModel.swift; sourceTree = "<group>"; };
 		87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodedFunctionCall+Decode.swift"; sourceTree = "<group>"; };
 		87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPagesContainerView.swift; sourceTree = "<group>"; };
 		87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoPageView.swift; sourceTree = "<group>"; };
@@ -2511,8 +2505,7 @@
 				5E7C7C7CB95B7EE4B2547585 /* EnabledServersCoordinator.swift */,
 				5E7C7C51CEC4AAFDFBD75482 /* ConsoleCoordinator.swift */,
 				5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */,
-				876C80CA267386E300B16595 /* AddRPCServerCoordinator.swift */,
-				02220CFB273A9A02006A09BF /* EditCustomRpcCoordinator.swift */,
+				02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2782,8 +2775,7 @@
 				87ED8F98248541380005C69B /* AdvancedSettingsViewModel.swift */,
 				87ED8F9C248647C80005C69B /* SettingViewHeaderViewModel.swift */,
 				87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */,
-				876C80D02673992300B16595 /* AddRPCServerViewModel.swift */,
-				02220CFF273A9DD6006A09BF /* EditCustomRpcViewModel.swift */,
+				02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */,
 				5E7C73BF5CE15E6D7AFC3F0C /* ChooseSendPrivateTransactionsProviderViewModel.swift */,
 			);
 			path = ViewModels;
@@ -3262,9 +3254,8 @@
 				5E7C7C468EC03C073E0EEA03 /* SettingsViewController.swift */,
 				87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */,
 				87ED8FAC2488EA610005C69B /* SupportViewController.swift */,
-				876C80CE267398F900B16595 /* AddRPCServerViewController.swift */,
 				87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */,
-				02220CFD273A9CDA006A09BF /* EditCustomRpcViewController.swift */,
+				02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */,
 				5E7C7177F1DDDDDDE020CB4D /* ChooseSendPrivateTransactionsProviderViewController.swift */,
 			);
 			path = ViewControllers;
@@ -3928,7 +3919,7 @@
 				87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */,
 				5E7C7DC3AEBE4049927B7625 /* EnableServersHeaderView.swift */,
 				876C80CC2673940B00B16595 /* SwitchView.swift */,
-				02220D01273A9E23006A09BF /* EditCustomRpcView.swift */,
+				02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */,
 				5E7C73BFE30E0D43E97806EF /* SelectionTableViewCell.swift */,
 			);
 			path = Views;
@@ -5576,7 +5567,6 @@
 				296AF9A71F736EC70058AF78 /* RPCServers.swift in Sources */,
 				87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */,
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
-				876C80D12673992300B16595 /* AddRPCServerViewModel.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
 				874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */,
@@ -5593,7 +5583,7 @@
 				29DF400A1FD3E80A000077CA /* TabBarController.swift in Sources */,
 				73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */,
 				29B6AED61F7CA4A700EC6DE3 /* TransactionConfiguration.swift in Sources */,
-				02220CFC273A9A02006A09BF /* EditCustomRpcCoordinator.swift in Sources */,
+				02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */,
 				29F114F41FA8117C00114A29 /* SendCoordinator.swift in Sources */,
 				87ED8FAF2488EA9C0005C69B /* SupportViewModel.swift in Sources */,
 				293B8B411F707F4600356286 /* TransactionViewModel.swift in Sources */,
@@ -5639,7 +5629,6 @@
 				2996F1431F6C96FF005C33AE /* ImportWalletViewModel.swift in Sources */,
 				291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
-				876C80CB267386E300B16595 /* AddRPCServerCoordinator.swift in Sources */,
 				442FCBBFCC5926B4D416E6D3 /* GetNameCoordinator.swift in Sources */,
 				8738DDDC2652B98200064CCA /* ActivitiesService.swift in Sources */,
 				87C237DC26DE5303003CA387 /* UIToolbar+Custom.swift in Sources */,
@@ -5705,7 +5694,7 @@
 				879F184F26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift in Sources */,
 				87BB63DE265E21C900FF702A /* WalletSummary.swift in Sources */,
 				5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */,
-				02220D02273A9E24006A09BF /* EditCustomRpcView.swift in Sources */,
+				02220D02273A9E24006A09BF /* SaveCustomRpcView.swift in Sources */,
 				5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */,
 				87ED8FA92488E4430005C69B /* SendViewSectionHeader.swift in Sources */,
 				5E7C76F8CB67466725C590CE /* FungibleTokenViewCellViewModel.swift in Sources */,
@@ -5878,7 +5867,7 @@
 				5E7C74438E1FBF28ADFAFAD1 /* BaseTokenCardTableViewCellViewModel.swift in Sources */,
 				5E7C72B3D5F75999937FCFA1 /* TokenListFormatRowViewModel.swift in Sources */,
 				87CA8495253DDFF200BF8443 /* TransitionButton.swift in Sources */,
-				02220CFE273A9CDB006A09BF /* EditCustomRpcViewController.swift in Sources */,
+				02220CFE273A9CDB006A09BF /* SaveCustomRpcViewController.swift in Sources */,
 				5E7C7582387C12CE25D7FE78 /* TokenListFormatTableViewCellWithCheckbox.swift in Sources */,
 				5E7C7D5D3FBA199DB0449776 /* TokenListFormatRowView.swift in Sources */,
 				8762002C266E150B0059B05A /* WalletTokenViewCellViewModel.swift in Sources */,
@@ -5981,7 +5970,6 @@
 				879F184C26E73D58000602F2 /* ContainerTableViewCell.swift in Sources */,
 				87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */,
 				874D099425EE339700A58EF2 /* TypedDataView.swift in Sources */,
-				876C80CF267398F900B16595 /* AddRPCServerViewController.swift in Sources */,
 				5E7C76AE768F82036ED2B2D8 /* TokenInstanceAction.swift in Sources */,
 				5E7C77E30FA9E84DA58C937E /* Optional.swift in Sources */,
 				5E7C784B592A446BE35D3DE9 /* AlphaWalletAddress.swift in Sources */,
@@ -6164,7 +6152,7 @@
 				5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */,
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,
-				02220D00273A9DD6006A09BF /* EditCustomRpcViewModel.swift in Sources */,
+				02220D00273A9DD6006A09BF /* SaveCustomRpcViewModel.swift in Sources */,
 				876C80CD2673940B00B16595 /* SwitchView.swift in Sources */,
 				5E7C7E2109BCEB05899A4F9A /* DefaultActivityItemViewCell.swift in Sources */,
 				5E7C78F7C4848D484AD4183A /* DefaultActivityView.swift in Sources */,

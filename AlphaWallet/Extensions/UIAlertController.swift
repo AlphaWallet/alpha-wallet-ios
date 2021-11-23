@@ -4,6 +4,7 @@
 import Foundation
 import UIKit
 import Result
+import class PromiseKit.Promise
 
 enum PopoverPresentationControllerSource {
     case barButtonItem(UIBarButtonItem)
@@ -110,5 +111,27 @@ extension UIAlertController {
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
 
         target.present(alertController, animated: true)
+    }
+}
+
+extension UIAlertController {
+    static func promptToUseUnresolvedExplorerURL(customChain: WalletAddEthereumChainObject, chainId: Int, viewController: UIViewController) -> Promise<Bool> {
+        let (promise, seal) = Promise<Bool>.pending()
+        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl()
+        let alertController = UIAlertController.alertController(title: R.string.localizable.warning(), message: message, style: .alert, in: viewController)
+        let continueAction = UIAlertAction(title: R.string.localizable.continue(), style: .destructive, handler: { _ in
+            seal.fulfill(true)
+        })
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+            seal.fulfill(false)
+        })
+
+        alertController.addAction(continueAction)
+        alertController.addAction(cancelAction)
+
+        viewController.present(alertController, animated: true)
+
+        return promise
     }
 }

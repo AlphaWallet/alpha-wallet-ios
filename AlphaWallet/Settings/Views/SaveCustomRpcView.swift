@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EditCustomRpcView: UIView {
+class SaveCustomRpcView: UIView {
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var scrollViewBottomConstraint: NSLayoutConstraint!
     private let roundedBackground = RoundedBackground()

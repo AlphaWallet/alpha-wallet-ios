@@ -19,11 +19,6 @@ enum AddCustomChainError: Error {
     }
 }
 
-enum CustomChainOperationType {
-    case add
-    case edit(original: CustomRPC)
-}
-
 private enum ResolveExplorerApiHostnameError: Error {
     case resolveExplorerApiHostnameFailure
 }
@@ -40,9 +35,9 @@ class AddCustomChain {
     private let isTestnet: Bool
     private let restartQueue: RestartTaskQueue
     private let url: URL?
-    private let operation: CustomChainOperationType
+    private let operation: SaveOperationType
     weak var delegate: AddCustomChainDelegate?
-    init(_ customChain: WalletAddEthereumChainObject, isTestnet: Bool, restartQueue: RestartTaskQueue, url: URL?, operation: CustomChainOperationType) {
+    init(_ customChain: WalletAddEthereumChainObject, isTestnet: Bool, restartQueue: RestartTaskQueue, url: URL?, operation: SaveOperationType) {
         self.customChain = customChain
         self.isTestnet = isTestnet
         self.restartQueue = restartQueue
