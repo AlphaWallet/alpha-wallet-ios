@@ -62,6 +62,7 @@ enum Analytics {
         case nameWallet = "Name Wallet"
         case firstWalletAction = "First Wallet Action"
         case addCustomChain = "Add Custom Chain"
+        case editCustomChain = "Edit Custom Chain"
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
     }
