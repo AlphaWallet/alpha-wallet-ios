@@ -64,6 +64,7 @@ extension EditCustomRpcCoordinator: AddCustomChainDelegate {
     }
 
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain) {
+        analyticsCoordinator.log(action: Analytics.Action.editCustomChain, properties: [Analytics.Properties.addCustomChainType.rawValue: "user"])
         delegate?.restartToEdit(in: self)
     }
 
