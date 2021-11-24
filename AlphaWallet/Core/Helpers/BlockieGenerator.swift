@@ -106,11 +106,11 @@ class BlockiesGenerator {
         }.then { url -> Promise<BlockiesImage> in
             return Self.decodeEip155URL(url: url).then { value -> Promise<BlockiesImage> in
                 Self.fetchOpenSeaAssetAssetURL(from: value).then { url -> Promise<BlockiesImage> in
-                    return Self.fetch(request: URLRequest(url: url), queue: .main)
+                    return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
                 }
             }.recover { _ -> Promise<BlockiesImage> in
                 guard let url = URL(string: url) else { return .init(error: AnyError.blockieCreateFailure) }
-                return Self.fetch(request: URLRequest(url: url), queue: .main)
+                return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
             }
         }
     }
@@ -130,7 +130,7 @@ class BlockiesGenerator {
         return .value(result)
     }
 
-    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<BlockiesImage> {
+    private static func fetchEnsAvatar(request: URLRequest, queue: DispatchQueue) -> Promise<BlockiesImage> {
         Promise { seal in
             queue.async {
                 guard let url = request.url else {
