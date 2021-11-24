@@ -11,8 +11,17 @@ import PromiseKit
 import UIKit.UIImage
 
 enum BlockiesImage {
-    case image(UIImage)
-    case url(URL)
+    case image(image: UIImage, isEnsAvatar: Bool)
+    case url(url: URL, isEnsAvatar: Bool)
+
+    var isEnsAvatar: Bool {
+        switch self {
+        case .image(_, let isEnsAvatar):
+            return isEnsAvatar
+        case .url(_, let isEnsAvatar):
+            return isEnsAvatar
+        }
+    }
 }
 
 class BlockiesGenerator {
@@ -32,7 +41,7 @@ class BlockiesGenerator {
             hasher.combine(scale)
         }
     }
-    
+
     /// Address related icons cache with image size and scale
     private static var cache: [BlockieKey: BlockiesImage] = [:]
 
@@ -95,13 +104,13 @@ class BlockiesGenerator {
         return firstly {
             promise
         }.then { url -> Promise<BlockiesImage> in
-            Self.decodeEip155URL(url: url).then { value -> Promise<BlockiesImage> in
+            return Self.decodeEip155URL(url: url).then { value -> Promise<BlockiesImage> in
                 Self.fetchOpenSeaAssetAssetURL(from: value).then { url -> Promise<BlockiesImage> in
-                    return Self.fetch(request: URLRequest(url: url), queue: .main)
+                    return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
                 }
             }.recover { _ -> Promise<BlockiesImage> in
                 guard let url = URL(string: url) else { return .init(error: AnyError.blockieCreateFailure) }
-                return Self.fetch(request: URLRequest(url: url), queue: .main)
+                return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
             }
         }
     }
@@ -121,7 +130,7 @@ class BlockiesGenerator {
         return .value(result)
     }
 
-    private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<BlockiesImage> {
+    private static func fetchEnsAvatar(request: URLRequest, queue: DispatchQueue) -> Promise<BlockiesImage> {
         Promise { seal in
             queue.async {
                 guard let url = request.url else {
@@ -129,7 +138,7 @@ class BlockiesGenerator {
                 }
 
                 if url.pathExtension == "svg" {
-                    return seal.fulfill(.url(url))
+                    return seal.fulfill(.url(url: url, isEnsAvatar: true))
                 }
 
                 let task = URLSession.shared.dataTask(with: request) { data, _, _ in
@@ -137,7 +146,7 @@ class BlockiesGenerator {
                         return seal.reject(TokenImageFetcher.ImageAvailabilityError.notAvailable)
                     }
 
-                    seal.fulfill(.image(image))
+                    seal.fulfill(.image(image: image, isEnsAvatar: true))
                 }
 
                 task.resume()
@@ -192,7 +201,7 @@ class BlockiesGenerator {
                 let blockies = Blockies(seed: address.eip55String, size: size, scale: scale)
                 DispatchQueue.main.async {
                     if let image = blockies.createImage() {
-                        seal.fulfill(.image(image))
+                        seal.fulfill(.image(image: image, isEnsAvatar: false))
                     } else {
                         seal.reject(AnyError.blockieCreateFailure)
                     }

@@ -31,6 +31,7 @@ class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -192,7 +193,8 @@ class TokensViewController: UIViewController {
          filterTokensCoordinator: FilterTokensCoordinator,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
-         walletBalanceCoordinator: WalletBalanceCoordinatorType
+         walletBalanceCoordinator: WalletBalanceCoordinatorType,
+         analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.sessions = sessions
         self.account = account
@@ -201,6 +203,7 @@ class TokensViewController: UIViewController {
         self.eventsDataStore = eventsDataStore
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
+        self.analyticsCoordinator = analyticsCoordinator
         walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
 
         viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [])
@@ -328,7 +331,15 @@ class TokensViewController: UIViewController {
     private func getWalletBlockie() {
         let generator = BlockiesGenerator()
         generator.promise(address: account.address).done { [weak self] value in
+            guard let account = self?.account else { return }
             self?.blockieImageView.image = value
+            switch account.type {
+            case .real:
+                guard value.isEnsAvatar else { return }
+                self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+            case .watch:
+                break
+            }
         }.catch { [weak self] _ in
             self?.blockieImageView.image = nil
         }

@@ -37,7 +37,7 @@ class BlockieImageView: UIView {
         }
     }
     private let size: CGSize
-    
+
     ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
     init(size: CGSize) {
         self.size = size
@@ -71,9 +71,9 @@ class BlockieImageView: UIView {
 
     func setBlockieImage(image: BlockiesImage?) {
         switch image {
-        case .image(let image):
+        case .image(let image, _):
             imageView.image = image
-        case .url(let url):
+        case .url(let url, _):
             imageView.url = url
         case .none:
             imageView.url = nil

@@ -97,6 +97,7 @@ enum Analytics {
         case keystoreWalletsCount
         case watchedWalletsCount
         case dynamicTypeSetting
+        case hasEnsAvatar
     }
 
     enum ScanQRCodeSource: String {
