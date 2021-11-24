@@ -118,7 +118,7 @@ class AddressOrEnsNameLabel: UILabel {
             blockieImageView.image = blockieImage
             blockieImageView.isHidden = blockieImage == nil
         }
-    } 
+    }
 
     typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
     // NOTE: caching ids for call `func resolve(_ value: String)` function, for verifying activity state
@@ -175,4 +175,4 @@ class AddressOrEnsNameLabel: UILabel {
             self.inResolvingState = false
         }
     }
-} 
+}

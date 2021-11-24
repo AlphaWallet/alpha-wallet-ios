@@ -63,7 +63,8 @@ class TokensCoordinator: Coordinator {
             filterTokensCoordinator: filterTokensCoordinator,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceCoordinator: walletBalanceCoordinator
+            walletBalanceCoordinator: walletBalanceCoordinator,
+            analyticsCoordinator: analyticsCoordinator
         )
         controller.delegate = self
         return controller
