@@ -162,7 +162,7 @@ struct Config {
 
     let defaults: UserDefaults
 
-    var sendPrivateTransactionsProvider: SendPrivateTransactionsProvider?  {
+    var sendPrivateTransactionsProvider: SendPrivateTransactionsProvider? {
         get {
             guard Features.isUsingPrivateNetwork else { return nil }
             if defaults.bool(forKey: Keys.usePrivateNetwork) {

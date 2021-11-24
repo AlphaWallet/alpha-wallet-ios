@@ -149,7 +149,9 @@ extension EventSourceCoordinatorForActivities.functional {
                     }
                 }).done { _ in
                     seal.fulfill(())
+// swiftlint:disable closure_end_indentation
                 }.catch { e in
+// swiftlint:enable closure_end_indentation
                     error(value: e, rpcServer: server, address: tokenContract)
                     seal.reject(e)
                 }
