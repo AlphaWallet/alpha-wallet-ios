@@ -28,6 +28,8 @@ CamelCase, including abbreviations (some older code might not observe this)
 
 Leave empty lines empty, without whitespace/indentation
 
+Group private let/var before others in a type
+
 How to Add a New Chain
 ---
 1. Open RPCServers.swift
