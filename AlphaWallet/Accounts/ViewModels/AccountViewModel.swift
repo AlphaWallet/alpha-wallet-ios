@@ -4,17 +4,31 @@ import Foundation
 import UIKit
 
 struct AccountViewModel {
+    private let analyticsCoordinator: AnalyticsCoordinator
+
     let wallet: Wallet
     let current: Wallet?
     let walletName: String?
     var ensName: String?
     let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
-    
-    init(wallet: Wallet, current: Wallet?, walletName: String?) {
+
+    init(wallet: Wallet, current: Wallet?, walletName: String?, analyticsCoordinator: AnalyticsCoordinator) {
         self.wallet = wallet
         self.current = current
         self.ensName = nil
         self.walletName = walletName
+        self.analyticsCoordinator = analyticsCoordinator
+
+        switch wallet.type {
+        case .real:
+            icon.subscribe { value in
+                guard let value = value else { return }
+                guard value.isEnsAvatar else { return }
+                analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+            }
+        case .watch:
+            break
+        }
 
         AccountViewModel.resolveBlockie(for: self, size: 8, scale: 5)
     }
