@@ -53,8 +53,8 @@ class AccountsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration)
-        let controller = AccountsViewController(config: config, keystore: keystore, viewModel: viewModel, walletBalanceCoordinator: walletBalanceCoordinator)
+        let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analyticsCoordinator: analyticsCoordinator)
+        let controller = AccountsViewController(config: config, keystore: keystore, viewModel: viewModel, walletBalanceCoordinator: walletBalanceCoordinator, analyticsCoordinator: analyticsCoordinator)
         switch self.viewModel.configuration.hidesBackButton {
         case true:
             controller.navigationItem.hidesBackButton = true
@@ -216,7 +216,7 @@ class AccountsCoordinator: Coordinator {
                 strongSelf.config.saveWalletName(name, forAddress: account)
             }
 
-            strongSelf.accountsViewController.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration))
+            strongSelf.accountsViewController.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration, analyticsCoordinator: strongSelf.analyticsCoordinator))
         }))
 
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
@@ -267,7 +267,7 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
             removeCoordinator(coordinator)
             delegate.didSelectAccount(account: account, in: self)
         } else {
-            accountsViewController.configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration))
+            accountsViewController.configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration, analyticsCoordinator: analyticsCoordinator))
 
             coordinator.navigationController.dismiss(animated: true)
             removeCoordinator(coordinator)
