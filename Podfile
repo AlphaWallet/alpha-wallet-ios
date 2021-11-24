@@ -48,11 +48,6 @@ target 'AlphaWallet' do
       pod 'iOSSnapshotTestCase', '6.2.0'
   end
 
-  target 'AlphaWalletUITests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
 end
 
 post_install do |installer|
