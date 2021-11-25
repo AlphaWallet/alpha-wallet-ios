@@ -203,8 +203,13 @@ struct TokenInfoPageViewModel {
     }
 
     private var tokenValueAttributedString: NSAttributedString? {
-        let string = R.string.localizable.aWalletTokenValue(currencyAmount ?? "-")
-
+        let string: String = {
+            if let currencyAmount = currencyAmount {
+                return R.string.localizable.aWalletTokenValue(currencyAmount)
+            } else {
+                return UiTweaks.noPriceMarker
+            }
+        }()
         return NSAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
             .foregroundColor: R.color.dove()!
