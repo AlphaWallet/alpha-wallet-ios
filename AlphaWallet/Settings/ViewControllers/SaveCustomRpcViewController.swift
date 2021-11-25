@@ -1,5 +1,5 @@
 //
-//  EditCustomRpcViewController.swift
+//  SaveCustomRpcViewController.swift
 //  AlphaWallet
 //
 //  Created by Jerome Chan on 7/11/21.
@@ -7,19 +7,19 @@
 
 import UIKit
 
-protocol EditCustomRpcViewControllerDelegate: AnyObject {
-    func didFinish(in viewController: EditCustomRpcViewController, customRpc: CustomRPC)
+protocol SaveCustomRpcViewControllerDelegate: AnyObject {
+    func didFinish(in viewController: SaveCustomRpcViewController, customRpc: CustomRPC)
 }
 
-class EditCustomRpcViewController: UIViewController {
-    private let viewModel: EditCustomRpcViewModel
-    private var editView: EditCustomRpcView {
-        return view as! EditCustomRpcView
+class SaveCustomRpcViewController: UIViewController {
+    private let viewModel: SaveCustomRpcViewModel
+    private var editView: SaveCustomRpcView {
+        return view as! SaveCustomRpcView
     }
     private lazy var keyboardChecker: KeyboardChecker = KeyboardChecker(self)
-    weak var delegate: EditCustomRpcViewControllerDelegate?
+    weak var delegate: SaveCustomRpcViewControllerDelegate?
 
-    init(viewModel: EditCustomRpcViewModel) {
+    init(viewModel: SaveCustomRpcViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -30,7 +30,7 @@ class EditCustomRpcViewController: UIViewController {
     }
 
     override func loadView() {
-        let rootView = EditCustomRpcView(frame: .zero)
+        let rootView = SaveCustomRpcView(frame: .zero)
         view = rootView
     }
 
@@ -72,8 +72,6 @@ class EditCustomRpcViewController: UIViewController {
         editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
         editView.configureKeyboard(keyboardChecker: keyboardChecker)
         editView.addSaveButtonTarget(self, action: #selector(saveCustomRPC))
-
-        navigationItem.title = R.string.localizable.editCustomRPCNavigationTitle(preferredLanguages: nil)
     }
 
     @objc private func tapSelected(_ sender: UITapGestureRecognizer) {
@@ -89,6 +87,7 @@ class EditCustomRpcViewController: UIViewController {
             explorerEndpoint: editView.explorerEndpointTextField.value,
             isTestNet: editView.isTestNetworkView.isOn)
 
+        view.endEditing(true)
         switch result {
         case .failure(.list(let errors)):
             handleValidationFailure(errors: errors)
@@ -97,7 +96,7 @@ class EditCustomRpcViewController: UIViewController {
         }
     }
 
-    private func handleValidationFailure(errors: [EditCustomRpcError]) {
+    private func handleValidationFailure(errors: [SaveCustomRpcError]) {
         editView.resetAllTextFieldStatus()
         for error in errors {
             switch error {
@@ -122,7 +121,7 @@ class EditCustomRpcViewController: UIViewController {
     }
 }
 
-extension EditCustomRpcViewController: TextFieldDelegate {
+extension SaveCustomRpcViewController: TextFieldDelegate {
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
         case editView.chainNameTextField:

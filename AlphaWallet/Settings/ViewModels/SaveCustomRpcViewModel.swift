@@ -1,5 +1,5 @@
 //
-//  EditCustomRpcViewModel.swift
+//  SaveCustomRpcViewModel.swift
 //  AlphaWallet
 //
 //  Created by Jerome Chan on 7/11/21.
@@ -7,24 +7,20 @@
 
 import Foundation
 
-enum EditCustomRpcErrors: Error {
-    case list([EditCustomRpcError])
+enum SaveCustomRpcErrors: Error {
+    case list([SaveCustomRpcError])
 }
-enum EditCustomRpcError: Error {
+
+enum SaveCustomRpcError: Error {
     case chainNameInvalidField, rpcEndPointInvalidField, chainIDInvalidField, symbolInvalidField, explorerEndpointInvalidField, chainIDDuplicateField
 }
 
-struct EditCustomRpcViewModel {
-
+struct SaveCustomRpcViewModel {
     private let model: CustomRPC
-
-    init(model: CustomRPC) {
-        self.model = model
-    }
 
     var chainID: String {
         if model.chainID == 0 {
-            return R.string.localizable.chainID()
+            return ""
         }
         return String(model.chainID)
     }
@@ -35,13 +31,13 @@ struct EditCustomRpcViewModel {
 
     var chainName: String {
         if model.chainName.isEmpty {
-            return R.string.localizable.addrpcServerNetworkNameTitle()
+            return ""
         }
         return model.chainName
     }
 
     var symbol: String {
-        return model.symbol ?? R.string.localizable.symbol()
+        return model.symbol ?? ""
     }
 
     var rpcEndPoint: String {
@@ -49,7 +45,7 @@ struct EditCustomRpcViewModel {
            let _ = URL(string: model.rpcEndpoint) {
             return model.rpcEndpoint
         } else {
-            return R.string.localizable.addrpcServerRpcUrlTitle()
+            return ""
         }
     }
 
@@ -59,7 +55,7 @@ struct EditCustomRpcViewModel {
            let _ = URL(string: eep) {
             return eep
         } else {
-            return R.string.localizable.addrpcServerBlockExplorerUrlTitle()
+            return ""
         }
     }
 
@@ -67,12 +63,14 @@ struct EditCustomRpcViewModel {
         return model.isTestnet
     }
 
+    init(model: CustomRPC) {
+        self.model = model
+    }
 }
 
-extension EditCustomRpcViewModel {
-
-    func validate(chainName: String, rpcEndpoint: String, chainID: String, symbol: String, explorerEndpoint: String, isTestNet: Bool) -> Result<CustomRPC, EditCustomRpcErrors> {
-        var errors: [EditCustomRpcError] = []
+extension SaveCustomRpcViewModel {
+    func validate(chainName: String, rpcEndpoint: String, chainID: String, symbol: String, explorerEndpoint: String, isTestNet: Bool) -> Result<CustomRPC, SaveCustomRpcErrors> {
+        var errors: [SaveCustomRpcError] = []
 
         if chainName.trimmed.isEmpty {
             errors.append(.chainNameInvalidField)
