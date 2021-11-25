@@ -57,7 +57,14 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var apprecationViewModel: ApprecationViewModel {
-        .init(icon: apprecation24hoursImage, valueAttributedString: apprecation24hoursAttributedString, backgroundColor: apprecation24hoursBackgroundColor)
+        let backgroundColor: UIColor = {
+            if apprecation24hoursAttributedString.string.isEmpty {
+                return .clear
+            } else {
+                return apprecation24hoursBackgroundColor
+            }
+        }()
+        return .init(icon: apprecation24hoursImage, valueAttributedString: apprecation24hoursAttributedString, backgroundColor: backgroundColor)
     }
 
     private var apprecation24hoursAttributedString: NSAttributedString {
@@ -68,7 +75,11 @@ struct FungibleTokenViewCellViewModel {
             case .depreciate(let percentageChange24h):
                 return "\(percentageChange24h)%"
             case .none:
-                return "-"
+                if priceChangeUSDValue == UiTweaks.noPriceMarker {
+                    return UiTweaks.noPriceMarker
+                } else {
+                    return "-"
+                }
             }
         }()
 
@@ -91,9 +102,9 @@ struct FungibleTokenViewCellViewModel {
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? "-"
+            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? UiTweaks.noPriceMarker
         } else {
-            return "-"
+            return UiTweaks.noPriceMarker
         }
     }
 
@@ -106,9 +117,9 @@ struct FungibleTokenViewCellViewModel {
 
     private var fiatValue: String {
         if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .fiatFormat).string(from: fiatValue) ?? "-"
+            return NumberFormatter.usd(format: .fiatFormat).string(from: fiatValue) ?? UiTweaks.noPriceMarker
         } else {
-            return "-"
+            return UiTweaks.noPriceMarker
         }
     }
 

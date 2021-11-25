@@ -91,4 +91,4 @@ class FungibleTokenViewCell: UITableViewCell {
 
         priceChangeLabel.layer.cornerRadius = 2.0
     }
-} 
+}
