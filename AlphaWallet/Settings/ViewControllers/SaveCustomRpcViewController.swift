@@ -140,6 +140,12 @@ extension SaveCustomRpcViewController: TextFieldDelegate {
         return true
     }
 
+    func didBeginEditing(in textField: TextField) {
+        DispatchQueue.main.async {
+            self.editView.unobscure(textField: textField)
+        }
+    }
+
     func doneButtonTapped(for textField: TextField) {
         //no-op
     }
