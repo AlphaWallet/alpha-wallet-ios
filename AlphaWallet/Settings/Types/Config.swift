@@ -249,6 +249,8 @@ struct Config {
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
 
+    let shouldReadClipboardForWalletConnectUrl = false
+
     func addToWalletAddressesAlreadyPromptedForBackup(address: AlphaWallet.Address) {
         var addresses: [String]
         if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
