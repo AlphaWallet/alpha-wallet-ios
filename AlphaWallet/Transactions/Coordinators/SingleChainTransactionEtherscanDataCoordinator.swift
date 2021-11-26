@@ -540,12 +540,9 @@ extension SingleChainTransactionEtherscanDataCoordinator.functional {
 }
 
 func error(value e: Error, pref: String = "", function f: String = #function, rpcServer: RPCServer? = nil, address: AlphaWallet.Address? = nil) {
-
-    var description = "\(f)"
-    description += pref.isEmpty ? "" : " \(pref)"
+    var description = pref
     description += rpcServer.flatMap { " server: \($0)" } ?? ""
     description += address.flatMap { " address: \($0.eip55String)" } ?? ""
     description += " \(e)"
-
-    error(description)
+    error(description, callerFunctionName: f)
 }
