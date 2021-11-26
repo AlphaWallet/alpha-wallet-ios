@@ -226,7 +226,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .classic: return "https://blockscout.com/etc/mainnet/api"
             case .callisto: return "https://explorer.callisto.network/api"
             case .poa: return "https://blockscout.com/poa/core/api"
-            case .xDai: return "https://blockscout.com/xdai/mainnet/api"
+            case .xDai: return "https://blockscout.com/poa/xdai/api"
             case .sokol: return "https://blockscout.com/poa/sokol/api"
             case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
