@@ -7,6 +7,12 @@
 
 import UIKit
 
+@objc protocol KeyboardNavigationDelegateProtocol {
+    func gotoNextResponder()
+    func gotoPrevResponder()
+    func addHttpsText()
+}
+
 class SaveCustomRpcView: UIView {
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var scrollViewBottomConstraint: NSLayoutConstraint!
@@ -50,8 +56,13 @@ class SaveCustomRpcView: UIView {
             .URL,
             placeHolder: R.string.localizable.addrpcServerBlockExplorerUrlPlaceholder(),
             label: R.string.localizable.addrpcServerBlockExplorerUrlTitle())
+        textField.returnKeyType = .done
         return textField
     }()
+
+    var allTextFields: [TextField] {
+        return [chainNameTextField, rpcEndPointTextField, chainIDTextField, symbolTextField, explorerEndpointTextField]
+    }
 
     var isTestNetworkView: SwitchView = {
         let view = SwitchView()
@@ -134,13 +145,56 @@ class SaveCustomRpcView: UIView {
         symbolTextField.configureOnce()
         explorerEndpointTextField.configureOnce()
         buttonsBar.buttons[0].setTitle(R.string.localizable.editCustomRPCSaveButtonTitle(preferredLanguages: nil), for: .normal)
+        configureInputAccessoryView()
     }
 
     func resetAllTextFieldStatus() {
-        let fields: [TextField] = [chainNameTextField, rpcEndPointTextField, chainIDTextField, symbolTextField, explorerEndpointTextField]
-        for field in fields {
+        for field in allTextFields {
             field.status = .none
         }
+    }
+
+    private func configureInputAccessoryView() {
+        let navToolbar = navToolbar(for: self)
+        let urlToolbar = urlToolbar(for: self)
+        chainNameTextField.textField.inputAccessoryView = navToolbar
+        rpcEndPointTextField.textField.inputAccessoryView = urlToolbar
+        chainIDTextField.textField.inputAccessoryView = navToolbar
+        symbolTextField.textField.inputAccessoryView = navToolbar
+        explorerEndpointTextField.textField.inputAccessoryView = urlToolbar
+    }
+
+    private func prevTextField() -> TextField? {
+        guard let index = allTextFields.firstIndex(where: { $0.textField.isFirstResponder
+        }) else { return nil }
+        let prevIndex = (index - 1) < 0 ? allTextFields.count - 1 : index - 1
+        return allTextFields[prevIndex]
+    }
+
+    private func nextTextField() -> TextField? {
+        guard let index = allTextFields.firstIndex(where: { $0.textField.isFirstResponder
+        }) else { return nil }
+        let nextIndex = (index + 1) % allTextFields.count
+        return allTextFields[nextIndex]
+    }
+
+    private func currentTextField() -> TextField? {
+        return allTextFields.first { $0.textField.isFirstResponder }
+    }
+}
+
+extension SaveCustomRpcView: KeyboardNavigationDelegateProtocol {
+    func gotoNextResponder() {
+        nextTextField()?.becomeFirstResponder()
+    }
+
+    func gotoPrevResponder() {
+        prevTextField()?.becomeFirstResponder()
+    }
+
+    func addHttpsText() {
+        guard let currentTextField = currentTextField(), let inputString = currentTextField.textField.text, !inputString.lowercased().starts(with: "https://") else { return }
+        currentTextField.textField.text = "https://" + inputString
     }
 }
 
@@ -155,4 +209,25 @@ fileprivate func defaultTextField(_ type: UIKeyboardType, placeHolder: String, l
     textField.placeholder = placeHolder
     textField.label.text = label
     return textField
+}
+
+fileprivate func navToolbar(for delegate: KeyboardNavigationDelegateProtocol) -> UIToolbar {
+    let toolbar = UIToolbar(frame: .zero)
+    let prev = UIBarButtonItem(title: "<", style: .plain, target: delegate, action: #selector(delegate.gotoPrevResponder))
+    let next = UIBarButtonItem(title: ">", style: .plain, target: delegate, action: #selector(delegate.gotoNextResponder))
+    let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+    toolbar.items = [prev, next, flexSpace]
+    toolbar.sizeToFit()
+    return toolbar
+}
+
+fileprivate func urlToolbar(for delegate: KeyboardNavigationDelegateProtocol) -> UIToolbar {
+    let toolbar = UIToolbar(frame: .zero)
+    let prev = UIBarButtonItem(title: "<", style: .plain, target: delegate, action: #selector(delegate.gotoPrevResponder))
+    let next = UIBarButtonItem(title: ">", style: .plain, target: delegate, action: #selector(delegate.gotoNextResponder))
+    let https = UIBarButtonItem(title: "https://", style: .plain, target: delegate, action: #selector(delegate.addHttpsText))
+    let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+    toolbar.items = [prev, next, https, flexSpace]
+    toolbar.sizeToFit()
+    return toolbar
 }
