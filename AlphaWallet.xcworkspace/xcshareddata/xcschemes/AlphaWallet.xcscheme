@@ -50,9 +50,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2912CD151F6A830700C6CBE3"
-               BuildableName = "AlphaWalletUITests.xctest"
-               BlueprintName = "AlphaWalletUITests"
+               BlueprintIdentifier = "2912CD0A1F6A830700C6CBE3"
+               BuildableName = "AlphaWalletTests.xctest"
+               BlueprintName = "AlphaWalletTests"
                ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
          </TestableReference>
