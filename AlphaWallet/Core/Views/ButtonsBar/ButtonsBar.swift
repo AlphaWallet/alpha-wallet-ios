@@ -103,6 +103,8 @@ protocol ButtonsBarViewType: UIView, ButtonObservationProtocol {
 
 class ButtonsBar: UIView, ButtonsBarViewType {
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
+    static let buttonWithLabelHeight = CGFloat(ScreenChecker().isNarrowScreen ? 88 : 98)
+
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
@@ -111,7 +113,9 @@ class ButtonsBar: UIView, ButtonsBarViewType {
     //NOTE: we need to handle button changes, for this we will use buttonsStackView, to make sure that number of button has changed
     private var buttonsStackView: UIStackView
     private var innerStackView: UIStackView
+    private var containerStackView: UIStackView
     private var observations: [NSKeyValueObservation] = []
+    private let haveWalletLabel = UILabel()
 
     private var visibleButtons: [BarButton] {
         buttons.filter { $0.displayButton }.enumerated().filter { configuration.shouldHideButton(at: $0.offset) }.map { $0.element }
@@ -137,10 +141,15 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
     weak var viewController: UIViewController?
 
-    init(configuration: ButtonsBarConfiguration = .green(buttons: 1)) {
+    init(configuration: ButtonsBarConfiguration = .green(buttons: 1), showHaveWalletLabel: Bool = false) {
+        haveWalletLabel.textAlignment = .center
+        haveWalletLabel.textColor = Colors.headerThemeColor
+        haveWalletLabel.font = Fonts.regular(size: 18)
+        haveWalletLabel.text = R.string.localizable.gettingStartedAlreadyHaveWallet()
         buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 7)
-        innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
-
+        innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 10)
+        containerStackView = [UIView]().asStackView(axis: .vertical, distribution: .fill, spacing: 7)
+    
         self.configuration = configuration
         super.init(frame: .zero)
 
@@ -148,15 +157,22 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         innerStackView.translatesAutoresizingMaskIntoConstraints = false
-
+        containerStackView.translatesAutoresizingMaskIntoConstraints = false
         innerStackView.addArrangedSubview(buttonsStackView)
+        innerStackView.addArrangedSubview(buttonsStackView)
+        if showHaveWalletLabel {
+            containerStackView.addArrangedSubview(haveWalletLabel)
 
-        addSubview(innerStackView)
+        }
+        containerStackView.addArrangedSubview(innerStackView)
+        addSubview(containerStackView)
 
         let margin = CGFloat(20)
+        let height = showHaveWalletLabel ? ButtonsBar.buttonWithLabelHeight : ButtonsBar.buttonsHeight
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-            innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
+            innerStackView.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            heightAnchor.constraint(equalToConstant: height),
+            containerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
 
         didUpdateView(with: configuration)

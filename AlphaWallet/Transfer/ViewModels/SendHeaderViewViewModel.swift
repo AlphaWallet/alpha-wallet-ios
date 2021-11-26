@@ -47,8 +47,8 @@ struct TokenInfoPageViewModel {
         }()
 
         let attributedValue: NSAttributedString = .init(string: value, attributes: [
-            .font: Screen.TokenCard.Font.valueChangeValue,
-            .foregroundColor: Colors.black
+            .font: Screen.TokenCard.Font.WalletHeaderValue,
+            .foregroundColor: Colors.headerThemeColor
         ])
 
         return .init(title: R.string.localizable.tokenInfoFieldStatsMarket_cap(), attributedValue: attributedValue)

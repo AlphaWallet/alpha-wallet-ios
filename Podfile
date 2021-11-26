@@ -29,7 +29,7 @@ target 'AlphaWallet' do
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/Alamofire'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
-  pod 'TrustWalletCore', '2.3.3'
+  pod 'TrustWalletCore'
   pod 'AWSSNS', '2.18.0'
   pod 'Mixpanel-swift', '2.8.0'
   pod 'UnstoppableDomainsResolution', '0.1.6'

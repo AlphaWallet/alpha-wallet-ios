@@ -25,7 +25,7 @@ protocol PromptBackupWalletViewModel {
 
 extension PromptBackupWalletViewModel {
     var cornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
+        return Metrics.CornerRadius.backUp
     }
 
     var titleFont: UIFont {
@@ -69,7 +69,6 @@ extension PromptBackupWalletViewModel {
     }
 
     var backupButtonTitle: String {
-        let firstFewCharactersOfWalletAddress = walletAddress.eip55String.substring(with: Range(uncheckedBounds: (0, 4)))
-        return "\(R.string.localizable.backupPromptBackupButtonTitle().uppercased()) \(firstFewCharactersOfWalletAddress)  "
+        return "\(R.string.localizable.backupPromptBackupButtonTitle().uppercased()) "
     }
 }

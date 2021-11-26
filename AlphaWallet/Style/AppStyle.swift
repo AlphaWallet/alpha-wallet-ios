@@ -6,38 +6,50 @@ import UIKit
 func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
     UIWindow.appearance().tintColor = Colors.appTint
-    UITabBar.appearance().tintColor = Colors.appTint
-    UINavigationBar.appearance().barTintColor = Colors.appBackground
-    UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
-    UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
-    UINavigationBar.appearance().titleTextAttributes = [
-        .foregroundColor: Colors.navigationTitleColor,
-        .font: Fonts.semibold(size: 17) as Any
-    ]
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-        .foregroundColor: Colors.navigationTitleColor,
-        .font: Fonts.bold(size: 36) as Any,
-    ]
-
     // NOTE: Fixes iOS 15 navigation bar black background
     if #available(iOS 15.0, *) {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = Colors.appBackground
+        appearance.backgroundColor = Colors.headerThemeColor
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
+        appearance.shadowImage = UIImage()
         appearance.titleTextAttributes = [
-            .foregroundColor: Colors.navigationTitleColor,
+            .foregroundColor: Colors.appWhite,
             .font: Fonts.semibold(size: 17) as Any
         ]
         appearance.largeTitleTextAttributes = [
-            .foregroundColor: Colors.navigationTitleColor,
+            .foregroundColor: Colors.appWhite,
             .font: Fonts.bold(size: 36) as Any,
         ]
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        let tabAppearance = UITabBarAppearance()
+        updateTabBarItemAppearance(appearance: tabAppearance.compactInlineLayoutAppearance)
+        updateTabBarItemAppearance(appearance: tabAppearance.inlineLayoutAppearance)
+        updateTabBarItemAppearance(appearance: tabAppearance.stackedLayoutAppearance)
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = Colors.appWhite
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     } else {
+        UITabBar.appearance().tintColor = Colors.appTint
+        UINavigationBar.appearance().barTintColor = Colors.headerThemeColor
+        UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
+        UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
+        UINavigationBar.appearance().titleTextAttributes = [
+            .foregroundColor: Colors.appWhite,
+            .font: Fonts.semibold(size: 17) as Any
+        ]
+        UINavigationBar.appearance().largeTitleTextAttributes = [
+            .foregroundColor: Colors.appWhite,
+            .font: Fonts.bold(size: 36) as Any,
+        ]
+        UINavigationBar.appearance().shadowImage = UIImage()
+        UITabBarItem.appearance().setTitleTextAttributes([.foregroundColor: Colors.tabBarTextColorNormal], for: .normal)
+        UITabBarItem.appearance().setTitleTextAttributes([.foregroundColor: Colors.tabBarTextColorSelected], for: .selected)
         // Fallback on earlier versions
     }
+   
 
     if #available(iOS 13.0, *) {
         //NOTE: Hides back button text
@@ -53,7 +65,7 @@ func applyStyle() {
 
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
-    UIBarButtonItem.appearance().tintColor = Colors.navigationButtonTintColor
+    UIBarButtonItem.appearance().tintColor = Colors.appWhite
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.navigationButtonTintColor
 
     UIToolbar.appearance().tintColor = Colors.appTint
@@ -70,6 +82,14 @@ func applyStyle() {
     UISwitch.appearance().onTintColor = Colors.appTint
 }
 
+@available(iOS 13.0, *)
+private func updateTabBarItemAppearance(appearance: UITabBarItemAppearance) {
+    let tintColor: UIColor = Colors.tabBarTextColorSelected
+    let unselectedItemTintColor: UIColor = Colors.tabBarTextColorNormal
+    appearance.normal.titleTextAttributes = [.foregroundColor: unselectedItemTintColor]
+    appearance.selected.titleTextAttributes = [.foregroundColor: tintColor]
+}
+
 func applyStyle(viewController: UIViewController) {
 // See use of setBackButtonTitlePositionAdjustment(:for:) above
 //    viewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
@@ -84,7 +104,10 @@ struct Colors {
     static let darkGray = UIColor(hex: "2f2f2f")
     static let black = UIColor(hex: "313849")
     static let lightBlack = UIColor(hex: "313849")
-    static let appBackground = UIColor.white
+    static let headerThemeColor = UIColor(hex: "152172")
+    static let tabBarTextColorNormal = UIColor(hex: "898DB4")
+    static let tabBarTextColorSelected = UIColor(hex: "152172")
+    static let appBackground = UIColor(hex: "F5F5F5")
     static let appTint = R.color.azure()!
     static let navigationTitleColor = UIColor.black
     static let navigationButtonTintColor = R.color.mine()!
@@ -105,6 +128,13 @@ struct Colors {
     static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
     static let loadingIndicatorBorder = UIColor(red: 237, green: 237, blue: 237)
     static let sortByTextColor = UIColor(red: 51, green: 51, blue: 51)
+    static let segmentIndicatorColor = UIColor(hex: "E7A634")
+    static let borderGrayColor = UIColor(hex: "c4cad1")
+    static let settingsBackGroundColor = UIColor(hex: "E9ECEF")
+    static let clear = UIColor.clear
+    static let priceColor = UIColor(hex: "808392")
+    static let newBorder = UIColor(hex: "C4CAD1")
+
 }
 
 struct StyleLayout {
@@ -138,6 +168,7 @@ enum Metrics {
     enum CornerRadius {
         static let popups = CGFloat(20)
         static let box = CGFloat(2)
+        static let backUp = CGFloat(10)
         static let textbox = CGFloat(5)
         static let button = CGFloat(4)
     }
@@ -179,6 +210,7 @@ enum DataEntry {
     }
 
     enum Color {
+        static let newBorder = Colors.newBorder
         static let border = UIColor(red: 194, green: 194, blue: 194)
         static let text = Colors.appText
         static let label = Colors.appGrayLabel
@@ -189,6 +221,7 @@ enum DataEntry {
         static let textFieldShadowWhileEditing = Colors.appTint
         static let textFieldBackground = UIColor(hex: "FBFBFB")
         static let placeholder = UIColor(hex: "919191")
+        static let pasteColor = UIColor(hex: "4c79cb")
         static let ensText = UIColor(red: 117, green: 185, blue: 67)
         static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
     }
@@ -219,7 +252,7 @@ enum DataEntry {
 
         enum AddHideToken {
             enum Header {
-                static let height: CGFloat = isNarrowScreen ? 50 : 60
+                static let height: CGFloat = 70
             }
         }
 
@@ -252,6 +285,7 @@ enum DataEntry {
         static let textFieldStatus = Fonts.bold(size: 13)
         static let textField = Fonts.regular(size: isNarrowScreen ? 14: 17)
         static let accessory = Fonts.bold(size: isNarrowScreen ? 14: 17)
+        static let regularButton = Fonts.regular(size: isNarrowScreen ? 14: 17)
         static let amountTextField = Fonts.regular(size: isNarrowScreen ? 18: 36)
     }
 }
@@ -270,10 +304,14 @@ enum Screen {
 
     enum Backup {
         static let subtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 22) : Fonts.regular(size: 28)
+        static let newSubtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 16) : Fonts.regular(size: 18)
         static let subtitleColor = Colors.darkGray
         static let descriptionFont = Fonts.regular(size: ScreenChecker.size(big: 17, medium: 15, small: 15))
         static let descriptionBoldFont = Fonts.bold(size: ScreenChecker.size(big: 17, medium: 15, small: 15))
+        static let descriptionFontSmall = Fonts.regular(size: ScreenChecker.size(big: 13, medium: 13, small: 9))
         static let descriptionColor = Colors.darkGray
+        static let WalletHeaderValue = Fonts.regular(size: 20)
+        static let WalletDescValue = Fonts.regular(size: 10)
     }
 
     enum Setting {
@@ -292,11 +330,13 @@ enum Screen {
     enum TokenCard {
         enum Font {
             static let title: UIFont = Fonts.regular(size: 20)
+            static let titleBold: UIFont = Fonts.regular(size: 16)
             static let subtitle = Fonts.regular(size: 15)
             static let blockChainName = Fonts.semibold(size: 12)
             static let valueChangeLabel = Fonts.regular(size: 15)
             static let placeholderLabel = Fonts.regular(size: 17)
             static let valueChangeValue = Fonts.semibold(size: 17)
+            static let WalletHeaderValue = Fonts.semibold(size: 12)
         }
 
         enum Color {

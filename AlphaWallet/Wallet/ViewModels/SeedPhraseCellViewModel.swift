@@ -17,18 +17,18 @@ struct SeedPhraseCellViewModel {
     }
 
     var textColor: UIColor {
-        return UIColor(red: 42, green: 42, blue: 42)
+        return Colors.headerThemeColor
     }
 
     var selectedTextColor: UIColor {
-        return UIColor(red: 255, green: 255, blue: 255)
+        return Colors.headerThemeColor
     }
 
     var font: UIFont {
         if ScreenChecker().isNarrowScreen {
-            return Fonts.regular(size: 15)
+            return Fonts.semibold(size: 9)
         } else {
-            return Fonts.regular(size: 18)
+            return Fonts.semibold(size: 9)
         }
     }
 

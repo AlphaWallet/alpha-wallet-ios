@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "changeWallet.pdf",
+      "filename" : "Group 62.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Group 62@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Group 62@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

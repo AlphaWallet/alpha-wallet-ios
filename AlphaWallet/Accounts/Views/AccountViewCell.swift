@@ -23,17 +23,37 @@ class AccountViewCell: UITableViewCell {
             [balanceLabel, apprecation24hourLabel].asStackView(spacing: 10),
             addressLabel
         ].asStackView(axis: .vertical)
+        
+        let menuButton = UIButton(type: .custom)
+        menuButton.setImage(R.image.toolbarMenu(), for: .normal)
+        menuButton.tintColor = Colors.headerThemeColor
+        
+        let vwImgStatus = UIImageView()
+        vwImgStatus.image = R.image.blueTick()
 
-        let stackView = [blockieImageView, leftStackView, .spacerWidth(10)].asStackView(spacing: 12, alignment: .top)
+        let stackView = [menuButton, blockieImageView, leftStackView, vwImgStatus, .spacerWidth(0)].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        contentView.addSubview(stackView)
+        
+        let vwContainer = UIView()
+        vwContainer.cornerRadius = 8
+        vwContainer.clipsToBounds = true
+        vwContainer.backgroundColor = Colors.appWhite
+        contentView.addSubview(vwContainer)
+        vwContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        vwContainer.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
-            stackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -25)
+            vwContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
+            vwContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            vwContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            vwContainer.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20),
+            
+            stackView.topAnchor.constraint(equalTo: vwContainer.topAnchor, constant: 10),
+            stackView.bottomAnchor.constraint(equalTo: vwContainer.bottomAnchor, constant: -10),
+            stackView.leadingAnchor.constraint(equalTo: vwContainer.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: vwContainer.trailingAnchor, constant: -10),
+
         ])
     }
 
@@ -44,11 +64,11 @@ class AccountViewCell: UITableViewCell {
     func configure(viewModel: AccountViewModel) {
         self.viewModel = viewModel
 
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = Colors.appBackground
 
         addressLabel.attributedText = viewModel.addressesAttrinutedString
 
-        accessoryType = viewModel.accessoryType
+        accessoryType = .none
 
         blockieImageView.subscribable = viewModel.icon
     }

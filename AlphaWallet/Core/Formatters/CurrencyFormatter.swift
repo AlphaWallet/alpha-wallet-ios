@@ -31,7 +31,7 @@ enum USDFormat {
     case withLeadingCurrencySymbol(positiveSymbol: String)
 
     static var priceChangeFormat: USDFormat {
-        .withLeadingCurrencySymbol(positiveSymbol: "+")
+        .withLeadingCurrencySymbol(positiveSymbol: "")
     }
 
     static var fiatFormat: USDFormat {
@@ -60,7 +60,7 @@ private enum NumberFormatterConfiguration {
             switch format {
             case .withTrailingCurrency:
                 formatter.positiveFormat = "0.00" + " " + Constants.Currency.usd
-                formatter.negativeFormat = "-0.00" + " " + Constants.Currency.usd
+                formatter.negativeFormat = "0.00" + " " + Constants.Currency.usd
             case .withLeadingCurrencySymbol(let positiveSymbol):
                 formatter.positiveFormat = positiveSymbol + "$0.00"
                 formatter.negativeFormat = "-$0.00"

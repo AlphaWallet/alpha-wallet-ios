@@ -38,7 +38,10 @@ class NonFungibleTokenViewCell: UITableViewCell {
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
-            background.anchorsConstraint(to: contentView)
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
         ])
     }
 
@@ -51,7 +54,12 @@ class NonFungibleTokenViewCell: UITableViewCell {
         backgroundColor = viewModel.backgroundColor
 
         background.backgroundColor = viewModel.contentsBackgroundColor
-
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
+        
         contentView.backgroundColor = GroupedTable.Color.background
 
         titleLabel.attributedText = viewModel.titleAttributedString

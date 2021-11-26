@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+<<<<<<< Updated upstream
       "idiom" : "universal",
       "filename" : "launch_icon.png",
       "scale" : "1x"
@@ -21,3 +22,124 @@
     "author" : "xcode"
   }
 }
+=======
+      "filename" : "Frame 1-6.png",
+      "idiom" : "iphone",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Frame 1-5.png",
+      "idiom" : "iphone",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "Frame 1-4.png",
+      "idiom" : "iphone",
+      "scale" : "3x"
+    },
+    {
+      "filename" : "Icon-App-20x20@1x.png",
+      "idiom" : "ipad",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Icon-App-20x20@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "ItunesArtwork@2x.png",
+      "idiom" : "ios-marketing",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Icon-App-29x29@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-40x40@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-60x60@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-76x76@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-29x29@3x.png",
+      "idiom" : "iphone",
+      "scale" : "3x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-40x40@3x.png",
+      "idiom" : "iphone",
+      "scale" : "3x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-60x60@3x.png",
+      "idiom" : "iphone",
+      "scale" : "3x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-29x29@1x.png",
+      "idiom" : "ipad",
+      "scale" : "1x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-40x40@1x.png",
+      "idiom" : "ipad",
+      "scale" : "1x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-76x76@1x.png",
+      "idiom" : "ipad",
+      "scale" : "1x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-29x29@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-40x40@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-76x76@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x",
+      "unassigned" : true
+    },
+    {
+      "filename" : "Icon-App-83.5x83.5@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x",
+      "unassigned" : true
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+>>>>>>> Stashed changes

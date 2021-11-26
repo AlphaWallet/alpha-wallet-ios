@@ -61,8 +61,8 @@ class ApprecationView: UIView {
     func configure(viewModel: ApprecationViewModel) {
         valueLabel.attributedText = viewModel.valueAttributedString
         iconView.image = viewModel.icon
-        iconView.isHidden = viewModel.icon == nil
-        backgroundColor = viewModel.backgroundColor
+        iconView.isHidden = true
+        backgroundColor = Colors.clear
     }
 
     override func layoutSubviews() {
@@ -118,7 +118,12 @@ class EthTokenViewCell: UITableViewCell {
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 20, bottom: 16, right: 12)),
-            background.anchorsConstraint(to: contentView)
+            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
+
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
         ])
     }
 
@@ -129,10 +134,14 @@ class EthTokenViewCell: UITableViewCell {
     func configure(viewModel: EthTokenViewCellViewModel) {
         selectionStyle = .none
 
-        backgroundColor = viewModel.backgroundColor
-        background.backgroundColor = viewModel.contentsBackgroundColor
-        contentView.backgroundColor = GroupedTable.Color.background
-
+        backgroundColor = Colors.appBackground
+        background.backgroundColor = Colors.appWhite
+        contentView.backgroundColor = Colors.appBackground
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.baselineAdjustment = .alignCenters
 

@@ -9,9 +9,9 @@ import UIKit
 
 struct AddHideTokenSectionHeaderViewModel {
     let titleText: String
-    var separatorColor: UIColor = GroupedTable.Color.cellSeparator
-    var titleTextFont: UIFont = Fonts.bold(size: 24)
-    var titleTextColor: UIColor = .black
+    var separatorColor: UIColor = Colors.clear
+    var titleTextFont: UIFont = Fonts.bold(size: 14)
+    var titleTextColor: UIColor = Colors.headerThemeColor
 
     var backgroundColor: UIColor = Colors.appBackground
     var showTopSeparator: Bool = false

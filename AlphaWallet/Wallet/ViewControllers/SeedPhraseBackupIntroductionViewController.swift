@@ -18,7 +18,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
-        return ScreenChecker.size(big: 250, medium: 250, small: 220)
+        return ScreenChecker.size(big: 113, medium: 113, small: 100)
     }
 
     weak var delegate: SeedPhraseBackupIntroductionViewControllerDelegate?
@@ -42,9 +42,19 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
             descriptionLabel1,
             ].asStackView(axis: .vertical)
+        
+        let stackView2 = [
+            imageView,
+            UIView.spacer(height: ScreenChecker.size(big: 17, medium: 15, small: 10)),
+            descriptionLabel1,
+        ].asStackView(axis: .vertical)
+        
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
+        stackView2.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(stackView2)
+        
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
         roundedBackground.addSubview(footerBar)
 
@@ -55,6 +65,10 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
+            
+            stackView2.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView2.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -30),
+            stackView2.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
 
             footerBar.anchorsConstraint(to: view)
         ] + roundedBackground.anchorsConstraint(to: view))

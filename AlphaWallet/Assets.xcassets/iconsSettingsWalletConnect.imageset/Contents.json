@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "iconsSettingsWalletConnect.pdf",
+      "filename" : "Group 66.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Group 66@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Group 66@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

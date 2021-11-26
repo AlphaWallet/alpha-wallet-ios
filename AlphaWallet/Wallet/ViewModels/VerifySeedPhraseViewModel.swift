@@ -59,10 +59,10 @@ struct VerifySeedPhraseViewModel {
     }
 
     var subtitleColor: UIColor {
-        return Screen.Backup.subtitleColor
+        return Colors.headerThemeColor
     }
 
     var subtitleFont: UIFont {
-        return Screen.Backup.subtitleFont
+        return Screen.Backup.newSubtitleFont
     }
 }

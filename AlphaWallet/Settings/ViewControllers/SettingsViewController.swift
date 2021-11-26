@@ -30,6 +30,8 @@ class SettingsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.separatorInset = .zero
+        tableView.layoutMargins = .zero
         tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
 
@@ -77,8 +79,8 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
 
         title = R.string.localizable.aSettingsNavigationTitle()
-        view.backgroundColor = GroupedTable.Color.background
-        navigationItem.largeTitleDisplayMode = .automatic
+        view.backgroundColor = Colors.settingsBackGroundColor
+        navigationItem.largeTitleDisplayMode = .never
         tableView.backgroundColor = GroupedTable.Color.background
 
         if promptBackupWalletView == nil {

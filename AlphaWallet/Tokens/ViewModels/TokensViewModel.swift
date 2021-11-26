@@ -44,9 +44,9 @@ class TokensViewModel {
             sections = [.tokens]
         } else {
             if count == .zero {
-                sections = [.walletSummary, .filters, .addHideToken, .tokens]
+                sections = [.filters, .addHideToken, .tokens]
             } else {
-                sections = [.walletSummary, .filters, .addHideToken, .activeWalletSession(count: count), .tokens]
+                sections = [.filters, .addHideToken, .activeWalletSession(count: count), .tokens]
             }
         }
     }
@@ -64,7 +64,7 @@ class TokensViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Colors.appBackground
     }
 
     var shouldShowBackupPromptViewHolder: Bool {
@@ -195,8 +195,6 @@ extension TokensViewModel.functional {
         for each in servers {
             let tokens = tokens.filter { $0.server == each }.map { TokenObjectOrRpcServerPair.tokenObject($0) }
             guard !tokens.isEmpty else { continue }
-
-            results.append(.rpcServer(each))
             results.append(contentsOf: tokens)
         }
 

@@ -21,28 +21,28 @@ struct SeedPhraseBackupIntroductionViewModel {
         let attributeString = NSMutableAttributedString(string: subtitle)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-        style.lineSpacing = ScreenChecker.size(big: 18, medium: 14, small: 7)
+        style.lineSpacing = 0
 
         attributeString.addAttributes([
             .paragraphStyle: style,
             .font: Screen.Backup.subtitleFont,
-            .foregroundColor: R.color.black()!
+            .foregroundColor: Colors.headerThemeColor
         ], range: NSRange(location: 0, length: subtitle.count))
         
         return attributeString
     }
     
     var attributedDescription: NSAttributedString {
-        let description = R.string.localizable.walletsShowSeedPhraseSubtitle()
+        let description = R.string.localizable.walletsShowSeedPhraseDesc()
         let attributeString = NSMutableAttributedString(string: description)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-        style.lineSpacing = ScreenChecker.size(big: 18, medium: 14, small: 7)
+        style.lineSpacing = 0
         
         attributeString.addAttributes([
             .paragraphStyle: style,
-            .font: Screen.Backup.descriptionFont,
-            .foregroundColor: Colors.appText
+            .font: Screen.Backup.WalletDescValue,
+            .foregroundColor: Colors.headerThemeColor
         ], range: NSRange(location: 0, length: description.count))
         
         return attributeString

@@ -23,14 +23,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow(frame: UIScreen.main.bounds)
         //Necessary to make UIAlertController have the correct tint colors, despite already doing: `UIWindow.appearance().tintColor = Colors.appTint`
-        window?.tintColor = Colors.appTint
-
         do {
             //NOTE: we move AnalyticsService creation from AppCoordinator.init method to allow easily replace
             let analyticsService = AnalyticsService()
             let keystore = try EtherKeystore(analyticsCoordinator: analyticsService)
             let navigationController = UINavigationController()
-            navigationController.view.backgroundColor = Colors.appWhite
+
 
             appCoordinator = try AppCoordinator(window: window!, analyticsService: analyticsService, keystore: keystore, navigationController: navigationController)
             appCoordinator.start()
@@ -177,6 +175,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     @discardableResult private func handleUniversalLink(url: URL) -> Bool {
         let handled = appCoordinator.handleUniversalLink(url: url)
         return handled
+    }
+    
+    class func sharedInstance() -> AppDelegate {
+        return UIApplication.shared.delegate as! AppDelegate
     }
 }
 

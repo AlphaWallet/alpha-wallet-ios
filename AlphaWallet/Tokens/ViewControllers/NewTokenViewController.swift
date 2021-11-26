@@ -112,8 +112,7 @@ class NewTokenViewController: UIViewController {
 
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
-        addressTextField.value = initialState.addressStringValue
-
+        addressTextField.value = "0x63cCEF733a093E5Bd773b41C96D3eCE361464942" //initialState.addressStringValue
         symbolTextField.delegate = self
         symbolTextField.returnKeyType = .next
 
@@ -219,20 +218,24 @@ class NewTokenViewController: UIViewController {
 
         symbolTextField.label.textAlignment = .left
         symbolTextField.label.text = viewModel.symbolLabel
-
+        symbolTextField.placeholder = viewModel.symbolLabel
+        
         decimalsTextField.label.textAlignment = .left
         decimalsTextField.label.text = viewModel.decimalsLabel
+        decimalsTextField.placeholder = viewModel.decimalsLabel
 
         balanceTextField.label.textAlignment = .left
         balanceTextField.label.text = viewModel.balanceLabel
+        balanceTextField.placeholder = viewModel.balanceLabel
 
         nameTextField.label.textAlignment = .left
         nameTextField.label.text = viewModel.nameLabel
+        nameTextField.placeholder = viewModel.nameLabel
 
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
-        saveButton.setTitle(R.string.localizable.done(), for: .normal)
+        saveButton.setTitle(R.string.localizable.save(), for: .normal)
     }
 
     private func updateSaveButtonBasedOnTokenTypeDetected() {
@@ -242,7 +245,7 @@ class NewTokenViewController: UIViewController {
             saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(), for: .normal)
         } else {
             saveButton.isEnabled = true
-            saveButton.setTitle(R.string.localizable.done(), for: .normal)
+            saveButton.setTitle(R.string.localizable.save(), for: .normal)
         }
     }
 

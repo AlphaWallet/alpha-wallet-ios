@@ -14,11 +14,11 @@ struct SettingViewHeaderViewModel {
     var showTopSeparator: Bool = true
 
     var titleTextColor: UIColor {
-        return R.color.dove()!
+        return Colors.headerThemeColor
     }
 
     var detailsTextColor: UIColor {
-        return R.color.dove()!
+        return Colors.headerThemeColor
     }
     var detailsTextFont: UIFont {
         return Fonts.regular(size: 13)

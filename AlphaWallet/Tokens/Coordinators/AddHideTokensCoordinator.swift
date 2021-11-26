@@ -49,6 +49,7 @@ class AddHideTokensCoordinator: Coordinator {
 
     func start() {
         viewController.delegate = self
+        viewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(viewController, animated: true)
 
         popularTokensCollection.fetchTokens().done { [weak self] tokens in

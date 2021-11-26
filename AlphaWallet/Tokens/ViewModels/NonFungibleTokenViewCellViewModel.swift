@@ -51,11 +51,11 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.clear
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.appWhite
     }
 
     var contentsCornerRadius: CGFloat {

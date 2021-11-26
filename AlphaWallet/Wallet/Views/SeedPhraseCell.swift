@@ -4,14 +4,10 @@ import Foundation
 import UIKit
 
 class SeedPhraseCell: UICollectionViewCell {
-    private let sequenceLabel = UILabel()
     private let label = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        sequenceLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(sequenceLabel)
 
         label.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(label)
@@ -19,9 +15,6 @@ class SeedPhraseCell: UICollectionViewCell {
         let horizontalMargin = CGFloat(20)
         let verticalMargin = CGFloat(10)
         NSLayoutConstraint.activate([
-            sequenceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
-            sequenceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
-
             label.anchorsConstraint(to: contentView, edgeInsets: .init(top: verticalMargin, left: horizontalMargin, bottom: verticalMargin, right: horizontalMargin)),
         ])
     }
@@ -31,20 +24,11 @@ class SeedPhraseCell: UICollectionViewCell {
     }
 
     func configure(viewModel: SeedPhraseCellViewModel) {
-        cornerRadius = 7
-
-        if viewModel.sequence != nil {
-            sequenceLabel.font = viewModel.sequenceFont
-            sequenceLabel.textColor = viewModel.sequenceColor
-            sequenceLabel.text = viewModel.sequence
-        } else {
-            sequenceLabel.text = ""
-        }
+//        cornerRadius = 7
 
         label.textAlignment = .center
         label.font = viewModel.font
         label.text = viewModel.word
-
         if viewModel.isSelected {
             contentView.backgroundColor = viewModel.selectedBackgroundColor
             backgroundColor = viewModel.selectedBackgroundColor
@@ -54,5 +38,10 @@ class SeedPhraseCell: UICollectionViewCell {
             backgroundColor = viewModel.backgroundColor
             label.textColor = viewModel.textColor
         }
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
+        contentView.layer.cornerRadius = 4
+        contentView.layer.borderColor = Colors.borderGrayColor.cgColor
+        contentView.layer.borderWidth = 1
     }
 }

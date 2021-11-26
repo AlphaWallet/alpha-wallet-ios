@@ -25,7 +25,7 @@ class ButtonsBarBackgroundView: UIView {
         addSubview(separatorLine)
         addSubview(buttonsBar)
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Colors.appWhite
+        backgroundColor = Colors.appBackground
 
         NSLayoutConstraint.activate([
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),

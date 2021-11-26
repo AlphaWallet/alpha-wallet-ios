@@ -47,9 +47,10 @@ class AddressTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = DataEntry.Font.regularButton
+        button.setTitleColor(DataEntry.Color.pasteColor, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
+        button.backgroundColor = .clear
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -64,9 +65,10 @@ class AddressTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Clear", for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = DataEntry.Font.regularButton
+        button.setTitleColor(DataEntry.Color.pasteColor, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)
+        button.backgroundColor = .clear
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -130,7 +132,7 @@ class AddressTextField: UIControl {
             let borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder)
             let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: isFirstResponder)
 
-            textField.layer.borderColor = borderColor.cgColor
+            textField.layer.borderColor = Colors.newBorder.cgColor
             textField.dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
         }
     }
@@ -241,7 +243,7 @@ class AddressTextField: UIControl {
         cornerRadius = DataEntry.Metric.cornerRadius
 
         label.font = DataEntry.Font.textFieldTitle
-        label.textColor = DataEntry.Color.label
+        label.textColor = Colors.headerThemeColor
         label.textAlignment = .left
 
         textField.layer.cornerRadius = DataEntry.Metric.cornerRadius
@@ -249,7 +251,7 @@ class AddressTextField: UIControl {
         textField.rightView = makeTargetAddressRightView()
         textField.layer.borderColor = DataEntry.Color.border.cgColor
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.placeholder = R.string.localizable.addressEnsLabelMessage()
+        textField.placeholder = R.string.localizable.contractAddress()
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
 
@@ -261,7 +263,7 @@ class AddressTextField: UIControl {
         textField.font = DataEntry.Font.textField
 
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
-        textField.backgroundColor = DataEntry.Color.textFieldBackground
+        textField.backgroundColor = .clear
         textField.layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         errorState = .none
     }
@@ -327,7 +329,7 @@ extension AddressTextField: UITextFieldDelegate {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
         textField.layer.borderColor = borderColor.cgColor
-        textField.backgroundColor = DataEntry.Color.textFieldBackground
+        textField.backgroundColor = .clear
 
         textField.dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
@@ -335,7 +337,7 @@ extension AddressTextField: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         textField.layer.borderColor = borderColor.cgColor
-        textField.backgroundColor = Colors.appWhite
+        textField.backgroundColor = .clear
 
         textField.dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }

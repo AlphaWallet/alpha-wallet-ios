@@ -10,7 +10,7 @@ struct SegmentedControlViewModel {
 	}
 
 	var backgroundColor: UIColor {
-		return Colors.appBackground
+		return Colors.headerThemeColor
 	}
 
 	func titleFont(forSelection selection: SegmentedControl.Selection) -> UIFont {
@@ -30,15 +30,15 @@ struct SegmentedControlViewModel {
 	}
 
 	private var unselectedTitleFont: UIFont {
-		return Fonts.regular(size: 15)
+		return Fonts.bold(size: 15)
 	}
 
 	private var selectedTitleFont: UIFont {
-		return Fonts.semibold(size: 15)
+		return Fonts.bold(size: 15)
 	}
 
 	private var unselectedTitleColor: UIColor {
-		return R.color.dove()!
+		return Colors.appWhite
 	}
 
 	private var selectedTitleColor: UIColor {
@@ -46,10 +46,10 @@ struct SegmentedControlViewModel {
 	}
 
 	var unselectedBarColor: UIColor {
-		return R.color.alto()!
+        return Colors.appWhite
 	}
 
 	var selectedBarColor: UIColor {
-		return Colors.appTint
+		return Colors.segmentIndicatorColor
 	}
 }

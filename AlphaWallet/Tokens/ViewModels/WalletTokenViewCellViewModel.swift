@@ -35,7 +35,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.appWhite
     }
 
     var contentsBackgroundColor: UIColor {
@@ -44,15 +44,19 @@ struct WalletTokenViewCellViewModel {
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .foregroundColor: Colors.headerThemeColor,
+            .font: Screen.TokenCard.Font.titleBold
         ])
     }
 
     var alpha: CGFloat {
-        return isVisible ? 1.0 : 0.4
+        return 1.0
     }
 
+    var visible: Bool {
+        return isVisible
+    }
+    
     var iconImage: Subscribable<TokenImage> {
         token.icon
     }

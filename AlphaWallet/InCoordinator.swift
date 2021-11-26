@@ -137,7 +137,7 @@ class InCoordinator: NSObject, Coordinator {
 
     lazy var tabBarController: UITabBarController = {
         let tabBarController = TabBarController()
-        tabBarController.tabBar.isTranslucent = false
+        tabBarController.tabBar.isTranslucent = true
         tabBarController.delegate = self
 
         return tabBarController
@@ -356,11 +356,11 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func showTabBar(animated: Bool) {
-        navigationController.setViewControllers([accountsCoordinator.accountsViewController], animated: false)
-        navigationController.pushViewController(tabBarController, animated: animated)
+        //navigationController.setViewControllers([accountsCoordinator.accountsViewController], animated: false)
+        //navigationController.pushViewController(tabBarController, animated: animated)
 
-        navigationController.setNavigationBarHidden(true, animated: true)
-
+        //navigationController.setNavigationBarHidden(false, animated: true)
+        AppDelegate.sharedInstance().window?.rootViewController = tabBarController
         let inCoordinatorViewModel = InCoordinatorViewModel()
         showTab(inCoordinatorViewModel.initialTab)
 
@@ -399,7 +399,7 @@ class InCoordinator: NSObject, Coordinator {
                 walletBalanceCoordinator: walletBalanceCoordinator
         )
 
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: R.image.tab_wallet_active())
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -431,7 +431,7 @@ class InCoordinator: NSObject, Coordinator {
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
         let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, activitiesService: activitiesService)
         coordinator.delegate = self
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: R.image.tab_transactions_active())
         coordinator.start()
         addCoordinator(coordinator)
         return coordinator
@@ -441,7 +441,7 @@ class InCoordinator: NSObject, Coordinator {
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: R.image.tab_browser_active())
         addCoordinator(coordinator)
         return coordinator
     }
@@ -457,7 +457,7 @@ class InCoordinator: NSObject, Coordinator {
             walletConnectCoordinator: walletConnectCoordinator,
             walletBalanceCoordinator: walletBalanceCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: R.image.tab_settings_active())
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

@@ -32,7 +32,7 @@ enum AddHideTokenSections: Int {
 
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
 class AddHideTokensViewModel {
-    var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
+    var sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens, .popularTokens]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [TokenObject]
     private var allPopularTokens: [PopularToken] = []
@@ -71,7 +71,7 @@ class AddHideTokensViewModel {
     }
 
     var backgroundColor: UIColor {
-        GroupedTable.Color.background
+        Colors.appBackground
     }
 
     var numberOfSections: Int {

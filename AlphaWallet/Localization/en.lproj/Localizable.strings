@@ -111,10 +111,10 @@
 "settings.show.my.wallet.title" = "Show My Wallet Address";
 "suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
-"wallet.navigation.title" = "Change Wallet";
+"wallet.navigation.title" = "Change / Add Wallet";
 "wallets.navigation.title" = "Wallets";
 "wallet.types.summary" = "Summary";
-"wallet.types.hdWallets" = "Connected Wallets";
+"wallet.types.hdWallets" = "Your Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watch-only Wallets";
 "wallet.create.button.title" = "Create Wallet";
@@ -134,10 +134,11 @@
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Your Seed Phrase";
-"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and\n keep them in a secret place, offline.";
-"wallets.showSeedPhrase.testSeedPhrase" = "OK, I wrote this down";
+"wallets.showSeedPhrase.desc" = "Making backup is very simple and safe:\n just write down 12 words and keep them in a secret place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Your 12-word Backup Phrase\ngive a direct access to\nyour account. Do not this\ninformation to anyone";"wallets.showSeedPhrase.testSeedPhrase" = "OK, I wrote this down";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
-"wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
+"wallets.verifySeedPhrase.title" = "Please write down your 12-word Backup Phrase and keep a copy in secure location so you can restore your wallet at anytime.";
+"wallets.verifySeedPhrase.verify" = "Verify";
 "wallets.verifySeedPhrase.wrong" = "Invalid seed phrase. Please check and try again.";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "wallets.name.rename" = "Rename Wallet";
@@ -344,7 +345,7 @@
 "a.help.contents.howDoITransferETHIntoMyWallet" = "How do I transfer ETH into my wallet?";
 "a.help.contents.privacyPolicy" = "Privacy Policy";
 "a.help.contents.termsOfService" = "Terms of Service";
-"a.wallet.address.scan.instructions" = "Scan the QR Code or copy the text below:";
+"a.wallet.address.scan.instructions" = "Scan the QR Code or Copy the text below:";
 "a.wallet.address.title" = "My %@ Wallet Address";
 "a.settings.navigation.title" = "Settings";
 "a.advanced.settings.navigation.title" = "Advanced";
@@ -461,8 +462,13 @@
 "TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
 "TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
 "TokenScript.type2.invalidSignature" = "Invalid Signature";
+<<<<<<< Updated upstream
 "gettingStarted.subtitle" = "Welcome to AlphaWallet";
 "gettingStarted.newWallet" = "Create a New Wallet";
+=======
+"gettingStarted.subtitle" = "Welcome to Jax.Money Wallet";
+"gettingStarted.newWallet" = "CREATE A NEW WALLET";
+>>>>>>> Stashed changes
 "gettingStarted.alreadyHaveWallet" = "I already have a wallet:";
 "backup.prompt.title" = "Your Wallet is not backed up!";
 "backup.prompt.description.withAmount" = "You have not backed up your wallet yet. You have %@ USD net. Act now.";

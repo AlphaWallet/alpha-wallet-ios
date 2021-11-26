@@ -21,7 +21,7 @@ struct PopularTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.appWhite
     }
 
     var contentsBackgroundColor: UIColor {
@@ -36,7 +36,11 @@ struct PopularTokenViewCellViewModel {
     }
 
     var alpha: CGFloat {
-        return isVisible ? 1.0 : 0.4
+        return 1.0
+    }
+    
+    var visible: Bool {
+        return isVisible
     }
 
     var iconImage: Subscribable<TokenImage> {

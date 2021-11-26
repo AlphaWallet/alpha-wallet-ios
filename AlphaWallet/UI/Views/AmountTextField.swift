@@ -135,7 +135,7 @@ class AmountTextField: UIControl {
         button.setTitle(R.string.localizable.sendAllFunds(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(Colors.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.heightAnchor.constraint(equalToConstant: 25).isActive = true
@@ -396,11 +396,9 @@ class AmountTextField: UIControl {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
-
         let stackView = [selectCurrencyButton, .spacerWidth(4), textField].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
-
         errorState = .none
         updateAlternateAmountLabel(alternativeAmount)
 
@@ -423,7 +421,10 @@ class AmountTextField: UIControl {
             alternativeAmountLabelContainer,
             .spacer(height: edgeInsets.bottom)
         ].asStackView(axis: .vertical)
-
+        stackView.cornerRadius = 8
+        stackView.borderColor = Colors.headerThemeColor
+        stackView.borderWidth = 2
+        stackView.backgroundColor = Colors.appWhite
         return [.spacerWidth(edgeInsets.left), stackView, .spacerWidth(edgeInsets.right)].asStackView()
     }
 

@@ -49,10 +49,10 @@ class AccountViewTableSectionHeader: UIView {
     }
 
     func configure(type: AccountsSectionType, shouldHide: Bool) {
-        backgroundColor = GroupedTable.Color.background
+        backgroundColor = Colors.clear
 
-        label.backgroundColor = GroupedTable.Color.background
-        label.textColor = GroupedTable.Color.title
+        label.backgroundColor = Colors.clear
+        label.textColor = Colors.headerThemeColor
         label.font = Fonts.tableHeader
         label.text = type.title
         label.isHidden = shouldHide
@@ -71,7 +71,7 @@ extension UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
-        view.backgroundColor = DataEntry.Color.border
+        view.backgroundColor = Colors.appBackground
 
         return view
     }

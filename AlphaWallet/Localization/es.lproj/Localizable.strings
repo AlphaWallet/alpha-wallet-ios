@@ -134,10 +134,11 @@
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Tu frase semilla";
-"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and\n keep them in a secret place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and keep them in a secret place, offline.";
 "wallets.showSeedPhrase.testSeedPhrase" = "Vale, he escrito esto";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "No es una buena idea hacer una captura de pantalla de la frase semilla";
-"wallets.verifySeedPhrase.title" = "Verificar la frase semilla";
+"wallets.verifySeedPhrase.title" = "Please write down your 12-word Backup Phrase and keep a copy in secure location so you can restore your wallet at anytime.";
+"wallets.verifySeedPhrase.verify" = "Verify";
 "wallets.verifySeedPhrase.wrong" = "Frase semilla no válida. Revísala e inténtalo de nuevo.";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "No es una buena idea hacer una captura de pantalla de la frase semilla";
 "wallets.name.rename" = "Rename Wallet";

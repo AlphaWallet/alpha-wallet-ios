@@ -169,6 +169,9 @@ class RequestViewController: UIViewController {
 		copyEnsButton.setImage(R.image.copy(), for: .normal)
 		copyAddressButton.setImage(R.image.copy(), for: .normal)
 
+        copyEnsButton.tintColor = Colors.headerThemeColor
+        copyAddressButton.tintColor = Colors.headerThemeColor
+        
 		resolveEns()
 	}
 

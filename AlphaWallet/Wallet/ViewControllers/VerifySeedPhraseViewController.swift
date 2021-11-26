@@ -36,7 +36,6 @@ class VerifySeedPhraseViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
-    private let seedPhraseTextView = UITextView()
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
     private let clearChooseSeedPhraseButton = UIButton(type: .system)
@@ -51,27 +50,22 @@ class VerifySeedPhraseViewController: UIViewController {
                 seedPhraseCollectionView.viewModel = .init(words: words, isSelectable: true)
                 errorLabel.text = viewModel.noErrorText
                 errorLabel.textColor = viewModel.noErrorColor
-                seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
                 delegate?.didVerifySeedPhraseSuccessfully(for: account, in: self)
             case .seedPhraseNotMatched:
                 errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong()
                 errorLabel.textColor = viewModel.errorColor
-                seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
             case .keystoreError(let error):
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
                 errorLabel.text = error.errorDescription
                 errorLabel.textColor = viewModel.errorColor
-                seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
             case .notDisplayedSeedPhrase:
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
-                seedPhraseTextView.text = ""
                 clearChooseSeedPhraseButton.isHidden = true
                 continueButton.isEnabled = false
             case .errorDisplaySeedPhrase(let error):
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
                 errorLabel.text = error.errorDescription
                 errorLabel.textColor = viewModel.errorColor
-                seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
             }
         }
     }
@@ -112,27 +106,21 @@ class VerifySeedPhraseViewController: UIViewController {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        seedPhraseTextView.isEditable = false
-        //Disable copying
-        seedPhraseTextView.isUserInteractionEnabled = false
-        seedPhraseTextView.delegate = self
-
         let stackView = [
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20: 30),
             subtitleLabel,
-            UIView.spacer(height: 10),
-            seedPhraseTextView,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 0: 7),
-            errorLabel,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 5: 24),
-            seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
+        
+        seedPhraseCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(seedPhraseCollectionView)
+        
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
         clearChooseSeedPhraseButton.isHidden = true
         clearChooseSeedPhraseButton.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(clearChooseSeedPhraseButton)
+        roundedBackground.backgroundColor = Colors.appBackground
 
         continueButton.isEnabled = false
 
@@ -143,16 +131,18 @@ class VerifySeedPhraseViewController: UIViewController {
 
         footerBar.addSubview(buttonsBar)
 
-        seedPhraseTextView.becomeFirstResponder()
-
         NSLayoutConstraint.activate([
-            seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
 
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: clearChooseSeedPhraseButton.topAnchor, constant: -7),
-
+            
+            seedPhraseCollectionView.centerXAnchor.constraint(equalTo: roundedBackground.centerXAnchor),
+            seedPhraseCollectionView.centerYAnchor.constraint(equalTo: roundedBackground.centerYAnchor),
+            seedPhraseCollectionView.widthAnchor.constraint(equalTo: roundedBackground.widthAnchor, multiplier: 320/375),
+            seedPhraseCollectionView.heightAnchor.constraint(equalToConstant: 125),
+            
             clearChooseSeedPhraseButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
             clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
             clearChooseSeedPhraseButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -10),
@@ -224,55 +214,31 @@ class VerifySeedPhraseViewController: UIViewController {
         subtitleLabel.numberOfLines = 0
         subtitleLabel.text = viewModel.title
 
-        seedPhraseTextView.keyboardType = .alphabet
-        seedPhraseTextView.returnKeyType = .done
-        seedPhraseTextView.autocapitalizationType = .none
-        seedPhraseTextView.autocorrectionType = .no
-        seedPhraseTextView.enablesReturnKeyAutomatically = true
-        seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
-        seedPhraseTextView.borderWidth = viewModel.seedPhraseTextViewBorderWidth
-        seedPhraseTextView.cornerRadius = viewModel.seedPhraseTextViewBorderCornerRadius
-        seedPhraseTextView.font = viewModel.seedPhraseTextViewFont
-        seedPhraseTextView.contentInset = viewModel.seedPhraseTextViewContentInset
-
         errorLabel.textColor = viewModel.noErrorColor
         errorLabel.text = viewModel.noErrorText
         errorLabel.font = viewModel.errorFont
         errorLabel.numberOfLines = 0
-
+        
+        seedPhraseCollectionView.viewModel = .init(words: Array(repeating: "element", count: 10), isSelectable: false)
         seedPhraseCollectionView.configure()
-
+        seedPhraseCollectionView.backgroundColor = Colors.appWhite
+        seedPhraseCollectionView.contentInset = .init(top: 12, left: 12, bottom: 12, right: 12)
+        seedPhraseCollectionView.cornerRadius = 8
+        
         clearChooseSeedPhraseButton.addTarget(self, action: #selector(clearChosenSeedPhrases), for: .touchUpInside)
         clearChooseSeedPhraseButton.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
         clearChooseSeedPhraseButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
         clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         buttonsBar.configure()
-        continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(), for: .normal)
-        continueButton.addTarget(self, action: #selector(verify), for: .touchUpInside)
+        continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseVerify(), for: .normal)
     }
 
     @objc func clearChosenSeedPhrases() {
-        seedPhraseTextView.text = ""
         seedPhraseCollectionView.viewModel.clearSelectedWords()
         clearChooseSeedPhraseButton.isHidden = true
         continueButton.isEnabled = false
         state = .editingSeedPhrase(words: state.words)
-    }
-
-    @objc func verify() {
-        guard let context = delegate?.contextToVerifySeedPhrase else { return }
-        keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account, context: context) { result in
-            switch result {
-            case .success(let isMatched):
-                //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from
-                self.clearChosenSeedPhrases()
-                self.updateStateWithVerificationResult(isMatched)
-            case .failure(let error):
-                self.reflectError(error)
-                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
-            }
-        }
     }
 
     private func updateStateWithVerificationResult(_ isMatched: Bool) {
@@ -294,15 +260,12 @@ class VerifySeedPhraseViewController: UIViewController {
     private func clearError() {
         errorLabel.text = viewModel.noErrorText
         errorLabel.textColor = viewModel.noErrorColor
-        seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
     }
 }
 
 extension VerifySeedPhraseViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
-            verify()
-            seedPhraseTextView.resignFirstResponder()
             return false
         } else {
             state = .editingSeedPhrase(words: state.words)
@@ -314,11 +277,6 @@ extension VerifySeedPhraseViewController: UITextViewDelegate {
 
 extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
     func didTap(word: String, atIndex index: Int, inCollectionView collectionView: SeedPhraseCollectionView) {
-        if seedPhraseTextView.text.isEmpty {
-            seedPhraseTextView.text += word
-        } else {
-            seedPhraseTextView.text += " \(word)"
-        }
         clearError()
         if collectionView.viewModel.isEveryWordSelected {
             //Deliberately hide the Clear button after user has chosen all the words, as they are likely to want to verify now and we don't want them to accidentally hit the Clear button

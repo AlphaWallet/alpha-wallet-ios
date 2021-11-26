@@ -7,6 +7,10 @@ extension UINavigationController {
     func applyTintAdjustment() {
         navigationBar.tintAdjustmentMode = .normal
         navigationBar.tintAdjustmentMode = .automatic
+        //cryptobit
+        navigationBar.backgroundColor = Colors.headerThemeColor
+        navigationBar.barTintColor = Colors.headerThemeColor
+        navigationBar.barStyle = .black
     }
 
     public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {

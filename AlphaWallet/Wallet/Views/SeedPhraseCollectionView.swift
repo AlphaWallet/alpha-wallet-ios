@@ -38,7 +38,7 @@ class SeedPhraseCollectionView: UICollectionView {
     }
 
     func configure() {
-        backgroundColor = viewModel.backgroundColor
+        backgroundColor = .clear
         reloadData()
     }
 }

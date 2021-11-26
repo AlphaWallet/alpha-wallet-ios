@@ -11,10 +11,11 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
     private lazy var addTokenButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.semanticContentAttribute = .forceRightToLeft
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -addTokenTitleLeftInset, bottom: 0, right: addTokenTitleLeftInset)
         button.addTarget(self, action: #selector(addHideTokensSelected), for: .touchUpInside)
-
+        button.layer.cornerRadius = 5
+        button.layer.borderWidth = 2
+        button.layer.borderColor = Colors.headerThemeColor.cgColor
+        button.setTitleColor(Colors.headerThemeColor, for: .normal)
         return button
     }()
 
@@ -57,8 +58,10 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
         badgeIndicatorView.addSubview(badgeLabel)
 
         NSLayoutConstraint.activate([
+            addTokenButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             addTokenButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            addTokenButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            addTokenButton.heightAnchor.constraint(equalToConstant: 36),
+            addTokenButton.widthAnchor.constraint(equalToConstant: 150),
             badgeIndicatorView.widthAnchor.constraint(greaterThanOrEqualTo: badgeIndicatorView.heightAnchor),
             badgeIndicatorView.centerXAnchor.constraint(equalTo: addTokenButton.trailingAnchor, constant: -2),
             badgeIndicatorView.centerYAnchor.constraint(equalTo: addTokenButton.topAnchor),

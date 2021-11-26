@@ -26,15 +26,17 @@ class SwitchTableViewCell: UITableViewCell {
         return label
     }()
 
-    private let switchView: UISwitch = {
-        let switchView = UISwitch()
+    private let switchView: UIButton = {
+        let switchView = UIButton(type: .custom)
+        switchView.setImage(R.image.switchOff(), for: .normal)
+        switchView.setImage(R.image.switchOn(), for: .selected)
         switchView.translatesAutoresizingMaskIntoConstraints = false
         return switchView
     }()
 
     var isOn: Bool {
-        get { return switchView.isOn }
-        set { switchView.isOn = newValue }
+        get { return switchView.isSelected }
+        set { switchView.isSelected = newValue }
     }
 
     weak var delegate: SwitchTableViewCellDelegate?
@@ -42,7 +44,7 @@ class SwitchTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        switchView.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
+        switchView.addTarget(self, action: #selector(switchChanged), for: .touchUpInside)
 
         selectionStyle = .none
         accessoryType = .none
@@ -61,8 +63,9 @@ class SwitchTableViewCell: UITableViewCell {
         ])
     }
 
-    @objc private func switchChanged(_ sender: UISwitch) {
-        delegate?.cell(self, switchStateChanged: sender.isOn)
+    @objc private func switchChanged(_ sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        delegate?.cell(self, switchStateChanged: sender.isSelected)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -74,6 +77,6 @@ class SwitchTableViewCell: UITableViewCell {
         titleLabel.font = viewModel.titleFont
         titleLabel.textColor = viewModel.titleTextColor
         iconImageView.image = viewModel.icon
-        switchView.isOn = viewModel.value
+        switchView.isSelected = viewModel.value
     }
 }

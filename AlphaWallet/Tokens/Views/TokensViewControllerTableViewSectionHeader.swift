@@ -20,8 +20,9 @@ extension TokensViewController {
                     return
                 }
 
-                subview.backgroundColor = Colors.appWhite
+                subview.backgroundColor = Colors.clear
                 subview.translatesAutoresizingMaskIntoConstraints = false
+                contentView.backgroundColor = .clear
                 contentView.addSubview(subview)
                 contentView.addSubview(bottomSeparator)
                 contentView.addSubview(topSeparator)

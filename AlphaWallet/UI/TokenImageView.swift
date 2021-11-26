@@ -68,7 +68,8 @@ class TokenImageView: UIView {
 
         symbolLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(symbolLabel)
-
+        imageView.layer.cornerRadius = imageView.frame.size.height / 2
+        imageView.clipsToBounds = true
         NSLayoutConstraint.activate([
             symbolLabel.anchorsConstraint(to: imageView),
 

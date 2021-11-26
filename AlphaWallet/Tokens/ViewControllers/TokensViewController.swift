@@ -4,6 +4,7 @@ import UIKit
 import Result
 import StatefulViewController
 import PromiseKit
+import SwiftUI
 
 protocol TokensViewControllerDelegate: AnyObject {
     func didPressAddHideTokens(viewModel: TokensViewModel)
@@ -60,7 +61,7 @@ class TokensViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.separatorInset = .zero
+        tableView.separatorStyle = .none
 
         tableView.addSubview(tableViewRefreshControl)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -258,7 +259,7 @@ class TokensViewController: UIViewController {
             qrCodeBarButton
         ]
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: blockieImageView)
-
+    
         walletConnectCoordinator.sessionsToURLServersMap.subscribe { [weak self] value in
             guard let strongSelf = self, let sessions = value else { return }
 
@@ -269,12 +270,11 @@ class TokensViewController: UIViewController {
             strongSelf.tableView.reloadData()
         }
         blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
-
-        TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value)
-        subscriptionKey = walletSummarySubscription.subscribe { [weak walletSummaryView] balance in
+        self.reloadWalletSummaryView(with: walletSummarySubscription.value)
+        subscriptionKey = walletSummarySubscription.subscribe { [weak self] balance in
             DispatchQueue.main.async {
-                guard let view = walletSummaryView else { return }
-                TokensViewController.reloadWalletSummaryView(view, with: balance)
+                guard let self = self else { return }
+                self.reloadWalletSummaryView(with: balance)
             }
         }
         navigationItem.largeTitleDisplayMode = .never
@@ -289,11 +289,11 @@ class TokensViewController: UIViewController {
 
         navigationController?.applyTintAdjustment()
         hidesBottomBarWhenPushed = false
-
+        hideNavigationBarTopSeparatorLine()
         fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
-        getWalletName()
+        //getWalletName()
         getWalletBlockie()
     }
 
@@ -351,7 +351,7 @@ class TokensViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         //viewDidLayoutSubviews() is called many times
-        configureSearchBarOnce()
+        //configureSearchBarOnce()
     }
 
     private func reloadTableData() {
@@ -430,6 +430,12 @@ class TokensViewController: UIViewController {
         let summary = balance.map { WalletSummary(balances: [$0]) }
         walletSummaryView.configure(viewModel: .init(summary: summary, alignment: .center))
     }
+    
+    private func reloadWalletSummaryView(with balance: WalletBalance?) {
+        let summary = balance.map { WalletSummary(balances: [$0]) }
+        title = WalletSummaryViewModel(summary: summary).balanceAttributedString.string
+    }
+    
 }
 
 extension TokensViewController: StatefulViewController {
@@ -479,19 +485,18 @@ extension TokensViewController: UITableViewDelegate {
         case .walletSummary:
             let header: TokensViewController.GeneralTableViewSectionHeader<WalletSummaryView> = tableView.dequeueReusableHeaderFooterView()
             header.subview = walletSummaryView
-
             return header
         case .filters:
             let header: TokensViewController.GeneralTableViewSectionHeader<SegmentedControl> = tableView.dequeueReusableHeaderFooterView()
             header.subview = tableViewFilterView
             header.useSeparatorLine = false
-
+            header.subview?.backgroundColor = Colors.headerThemeColor
             return header
         case .addHideToken:
             let header: TokensViewController.GeneralTableViewSectionHeader<AddHideTokensView> = tableView.dequeueReusableHeaderFooterView()
             header.subview = addHideTokens
+            header.subview?.backgroundColor = Colors.clear
             header.useSeparatorLine = false
-
             return header
         case .activeWalletSession(let count):
             let header: ActiveWalletSessionView = tableView.dequeueReusableHeaderFooterView()
@@ -520,12 +525,8 @@ extension TokensViewController: UITableViewDataSource {
             return UITableViewCell()
         case .tokens:
             switch viewModel.item(for: indexPath.row, section: indexPath.section) {
-            case .rpcServer(let server):
-                let isTopSeparatorHidden = indexPath.row != 0 && indexPath.section != 0
-                let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: isTopSeparatorHidden))
-
-                return cell
+            case .rpcServer(_):
+                return UITableViewCell()
             case .tokenObject(let token):
                 let server = token.server
                 let session = sessions[server]
@@ -753,12 +754,12 @@ extension TokensViewController {
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
-        view.superview?.backgroundColor = viewModel.backgroundColor
+        view.superview?.backgroundColor = Colors.headerThemeColor
     }
 
     private func setupFilteringWithKeyword() {
-        wireUpSearchController()
-        TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: viewModel.backgroundColor)
+        //wireUpSearchController()
+        TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: UIColor.clear)
         doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
@@ -780,6 +781,7 @@ extension TokensViewController {
         }
         //Hack to hide the horizontal separator below the search bar
         searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
+        searchController.searchBar.backgroundColor = Colors.headerThemeColor
     }
 }
 

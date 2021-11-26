@@ -29,6 +29,7 @@ class ShowSeedPhraseViewController: UIViewController {
     private let account: AlphaWallet.Address
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
+    private var viewWhiteCenter = UIView()
     private let errorLabel = UILabel()
     private var state: State = .notDisplayedSeedPhrase {
         didSet {
@@ -85,15 +86,19 @@ class ShowSeedPhraseViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
-
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.backgroundColor = Colors.appBackground
         view.addSubview(roundedBackground)
-
+        view.backgroundColor = Colors.appBackground
+        viewWhiteCenter = UIView.spacer(height: 125, backgroundColor: .white)
+        viewWhiteCenter.layer.cornerRadius = 5
         let stackView = [
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
             subtitleLabel,
             UIView.spacer(height: 10),
-            errorLabel,
+            UIView.spacer(height: 100, backgroundColor: .clear),
+            viewWhiteCenter,
+//            errorLabel,
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 50),
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
@@ -187,7 +192,6 @@ class ShowSeedPhraseViewController: UIViewController {
         errorLabel.font = viewModel.errorFont
         errorLabel.text = viewModel.errorMessage
         errorLabel.numberOfLines = 0
-
         seedPhraseCollectionView.configure()
 
         buttonsBar.configure()

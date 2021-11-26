@@ -27,11 +27,11 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.clear
     }
 
     var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.appWhite
     }
 
     var titleAttributedString: NSAttributedString {

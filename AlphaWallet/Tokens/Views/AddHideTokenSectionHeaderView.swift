@@ -44,10 +44,8 @@ private class AddHideTokenSectionHeaderView: UIView {
 
         let stackView = [
             topSeparator,
-            .spacer(height: 20, backgroundColor: .clear),
             [.spacerWidth(16), titleLabel, .spacerWidth(16)].asStackView(axis: .horizontal),
             .spacer(height: 20, backgroundColor: .clear),
-            bottomSperator
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
@@ -73,6 +71,6 @@ private class AddHideTokenSectionHeaderView: UIView {
         topSeparator.backgroundColor = viewModel.separatorColor
         bottomSperator.backgroundColor = viewModel.separatorColor
         backgroundColor = viewModel.backgroundColor
-        topSeparatorHeight.constant = viewModel.showTopSeparator ? 1 : 0
+        topSeparatorHeight.constant = 0
     }
 }

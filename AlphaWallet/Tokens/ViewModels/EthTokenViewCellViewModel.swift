@@ -34,7 +34,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+        return Colors.appBackground
     }
 
     var contentsBackgroundColor: UIColor {
@@ -43,8 +43,8 @@ struct EthTokenViewCellViewModel {
 
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .foregroundColor: Colors.headerThemeColor,
+            .font: Fonts.semibold(size: 18)
         ])
     }
 
@@ -78,9 +78,9 @@ struct EthTokenViewCellViewModel {
         let valuePercentageChangeValue: String = {
             switch EthCurrencyHelper(ticker: ticker).change24h {
             case .appreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
+                return "(+\(percentageChange24h)%)"
             case .depreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
+                return "(\(percentageChange24h)%)"
             case .none:
                 return "-"
             }
@@ -94,7 +94,11 @@ struct EthTokenViewCellViewModel {
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+<<<<<<< Updated upstream
             return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? "-"
+=======
+            return NumberFormatter.usd(format: .withTrailingCurrency).string(from: result) ?? "-"
+>>>>>>> Stashed changes
         } else {
             return "-"
         }
@@ -102,7 +106,7 @@ struct EthTokenViewCellViewModel {
 
     var priceChangeUSDValueAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChangeUSDValue, attributes: [
-            .foregroundColor: valuePercentageChangeColor,
+            .foregroundColor: Colors.priceColor,
             .font: Screen.TokenCard.Font.valueChangeLabel
         ])
     }
@@ -116,8 +120,13 @@ struct EthTokenViewCellViewModel {
     }
 
     var fiatValueAttributedString: NSAttributedString {
+<<<<<<< Updated upstream
         return NSAttributedString(string: amountAccordingRPCServer ?? "-", attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
+=======
+        return NSAttributedString(string: amountAccordingRPCServer ?? "0.000", attributes: [
+            .foregroundColor: Colors.headerThemeColor,
+>>>>>>> Stashed changes
             .font: Screen.TokenCard.Font.valueChangeValue
         ])
     }

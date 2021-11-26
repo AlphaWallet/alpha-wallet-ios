@@ -16,8 +16,8 @@ class AccountsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = Colors.appBackground
         tableView.tableFooterView = UIView()
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(AccountViewCell.self)
@@ -42,7 +42,7 @@ class AccountsViewController: UIViewController {
         self.walletBalanceCoordinator = walletBalanceCoordinator
         super.init(nibName: nil, bundle: nil)
 
-        roundedBackground.backgroundColor = GroupedTable.Color.background
+        roundedBackground.backgroundColor = Colors.appBackground
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
         roundedBackground.addSubview(tableView)

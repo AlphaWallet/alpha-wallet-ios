@@ -12,33 +12,49 @@ protocol AddHideTokensViewControllerDelegate: AnyObject {
 }
 
 class AddHideTokensViewController: UIViewController {
+     
+    enum AddHideToken {
+        case insert
+        case delete
+    }
+    
     private let assetDefinitionStore: AssetDefinitionStore
     private var viewModel: AddHideTokensViewModel
-    private let searchController: UISearchController
-    private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletTokenViewCell.self)
         tableView.register(PopularTokenViewCell.self)
-        tableView.registerHeaderFooterView(TokensViewController.GeneralTableViewSectionHeader<DropDownView<SortTokensParam>>.self)
-        //NOTE: Facing strange behavoir, while using isEditing for table view it brakes constraints while `isEditing = false` its not.
-        tableView.isEditing = true
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.separatorStyle = .singleLine
+        tableView.separatorStyle = .none
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.translatesAutoresizingMaskIntoConstraints = false
-
         return tableView
     }()
+    
+    private lazy var searchField: UITextField = {
+        let tf = UITextField(frame: .zero)
+        tf.cornerRadius = 5
+        tf.borderWidth = 2
+        tf.borderColor = Colors.borderGrayColor
+        
+        let img = UIImageView(image: R.image.search())
+        let vw = UIView(frame: .init(origin: .zero, size: .init(width: 50, height: 40)))
+        vw.addSubview(img)
+        img.center = vw.center
+        tf.leftView = vw
+        tf.leftViewMode = .always
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.attributedPlaceholder = NSAttributedString(
+            string: "Search for Tokens...",
+            attributes: [NSAttributedString.Key.foregroundColor: Colors.borderGrayColor]
+        )
+        tf.delegate = self
+        return tf
+    }()
+    
     private let refreshControl = UIRefreshControl()
 
-    private lazy var tokenFilterView: DropDownView<SortTokensParam> = {
-        let view = DropDownView(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
-        view.delegate = self
-        
-        return view
-    }()
     private var bottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     weak var delegate: AddHideTokensViewControllerDelegate?
@@ -46,10 +62,7 @@ class AddHideTokensViewController: UIViewController {
     init(viewModel: AddHideTokensViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
-        searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
-        hidesBottomBarWhenPushed = true
-        searchController.delegate = self
 
         emptyView = EmptyView.filterTokensEmptyView(completion: { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
@@ -57,13 +70,20 @@ class AddHideTokensViewController: UIViewController {
             delegate.didPressAddToken(in: strongSelf)
         }) 
 
+        view.addSubview(searchField)
         view.addSubview(tableView)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         keyboardChecker.constraint = bottomConstraint
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            searchField.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            searchField.heightAnchor.constraint(equalToConstant: 40),
+            searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            searchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 20),
+            
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomConstraint
@@ -102,7 +122,6 @@ class AddHideTokensViewController: UIViewController {
     }
 
     override func viewDidLayoutSubviews() {
-        configureSearchBarOnce()
     }
 
     @objc private func addToken() {
@@ -113,8 +132,6 @@ class AddHideTokensViewController: UIViewController {
         title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
-
-        tokenFilterView.configure(viewModel: .init(selectionItems: SortTokensParam.allCases, selected: viewModel.sortTokensParam))
     }
 
     private func reload() {
@@ -161,12 +178,12 @@ extension AddHideTokensViewController: UITableViewDataSource {
         case .walletToken(let tokenObject):
             let cell: WalletTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: tokenObject, assetDefinitionStore: assetDefinitionStore, isVisible: isVisible))
-
+            cell.delegate = self
             return cell
         case .popularToken(let value):
             let cell: PopularTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: value, isVisible: isVisible))
-
+            cell.delegate = self
             return cell
         }
     }
@@ -286,13 +303,11 @@ extension AddHideTokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch viewModel.sections[section] {
-        case .sortingFilters:
-            let header = TokensViewController.ContainerView(subview: tokenFilterView)
-            header.useSeparatorLine = true
-            return header
         case .availableNewTokens, .popularTokens, .hiddenTokens, .displayedTokens:
             let viewModel: AddHideTokenSectionHeaderViewModel = .init(titleText: self.viewModel.titleForSection(section))
             return AddHideTokensViewController.functional.headerView(for: section, viewModel: viewModel)
+        case .sortingFilters:
+            return nil
         }
     }
 
@@ -310,55 +325,17 @@ extension AddHideTokensViewController: UITableViewDelegate {
     }
 }
 
-extension AddHideTokensViewController: DropDownViewDelegate {
-    func filterDropDownViewDidChange(selection: SegmentedControl.Selection) {
-        guard let filterParam = tokenFilterView.value(from: selection) else { return }
-
-        viewModel.sortTokensParam = filterParam
-        reload()
-    }
-}
-
-extension AddHideTokensViewController: UISearchControllerDelegate {
-    func willPresentSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = true
-    }
-
-    func willDismissSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = false
-    }
-}
-
-extension AddHideTokensViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.viewModel.searchText = searchController.searchBar.text ?? ""
-            strongSelf.reload()
-        }
-    }
-}
-
 ///Support searching/filtering tokens with keywords. This extension is set up so it's easier to copy and paste this functionality elsewhere
 extension AddHideTokensViewController {
     private func makeSwitchToAnotherTabWorkWhileFiltering() {
         definesPresentationContext = true
     }
 
-    private func doNotDimTableViewToReuseTableForFilteringResult() {
-        searchController.dimsBackgroundDuringPresentation = false
-    }
-
-    private func wireUpSearchController() {
-        searchController.searchResultsUpdater = self
-        navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = false
-    }
-
     private func fixTableViewBackgroundColor() {
         let v = UIView()
         v.backgroundColor = viewModel.backgroundColor
         tableView.backgroundView = v
+        view.backgroundColor = viewModel.backgroundColor
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
@@ -366,28 +343,82 @@ extension AddHideTokensViewController {
     }
 
     private func setupFilteringWithKeyword() {
-        wireUpSearchController()
         fixTableViewBackgroundColor()
-        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
+}
 
-    //Makes a difference where this is called from. Can't be too early
-    private func configureSearchBarOnce() {
-        guard !isSearchBarConfigured else { return }
-        isSearchBarConfigured = true
+extension AddHideTokensViewController: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let textFieldText: NSString = (textField.text ?? "") as NSString
+        let txtAfterUpdate = textFieldText.replacingCharacters(in: range, with: string)
+        
+        self.viewModel.searchText = txtAfterUpdate
+        self.reload()
+        return true
+    }
+}
 
-        if let placeholderLabel = searchController.searchBar.firstSubview(ofType: UILabel.self) {
-            placeholderLabel.textColor = Colors.lightGray
+extension AddHideTokensViewController: PopularTokenViewCellDelegate {
+    func cell(_ cell: PopularTokenViewCell, switchStateChanged isOn: Bool) {
+        guard let indexPath = cell.indexPath else { return }
+        if isOn {
+            self.addHideToken(editingStyle: .insert, indexPath: indexPath)
+        } else {
+            self.addHideToken(editingStyle: .delete, indexPath: indexPath)
         }
-        if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
-            textField.textColor = Colors.appText
-            if let imageView = textField.leftView as? UIImageView {
-                imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-                imageView.tintColor = Colors.appText
+    }
+}
+
+extension AddHideTokensViewController: WalletTokenViewCellDelegate {
+    func cell(_ cell: WalletTokenViewCell, switchStateChanged isOn: Bool) {
+        guard let indexPath = cell.indexPath else { return }
+        if isOn {
+            self.addHideToken(editingStyle: .insert, indexPath: indexPath)
+        } else {
+            self.addHideToken(editingStyle: .delete, indexPath: indexPath)
+        }
+    }
+    
+    func addHideToken(editingStyle: AddHideToken, indexPath: IndexPath) {
+        let result: AddHideTokensViewModel.ShowHideOperationResult
+        let isTokenHidden: Bool
+        switch editingStyle {
+        case .insert:
+            result = viewModel.addDisplayed(indexPath: indexPath)
+            isTokenHidden = false
+        case .delete:
+            result = viewModel.deleteToken(indexPath: indexPath)
+            isTokenHidden = true
+        }
+
+        switch result {
+        case .value(let result):
+            if let result = result, let delegate = delegate {
+                delegate.didMark(token: result.token, in: self, isHidden: isTokenHidden)
+                tableView.performBatchUpdates({
+                    tableView.insertRows(at: [result.indexPathToInsert], with: .automatic)
+                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                }, completion: nil)
+            } else {
+                tableView.reloadData()
+            }
+        case .promise(let promise):
+            self.displayLoading()
+            promise.done(on: .none, flags: .barrier) { [weak self] result in
+                guard let strongSelf = self else { return }
+
+                if let result = result, let delegate = strongSelf.delegate {
+                    delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
+                }
+            }.catch { _ in
+                self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
+            }.finally {
+                self.tableView.reloadData()
+                self.hideLoading()
             }
         }
-        //Hack to hide the horizontal separator below the search bar
-        searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
     }
+    
 }

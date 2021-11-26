@@ -13,7 +13,7 @@ extension SegmentedControl {
         let spacing: CGFloat = isNarrowScreen ? 30 : 40
         let inset: CGFloat = isNarrowScreen ? 7 : 20
 
-        return .init(titles: titles, segmentConfiguration: .init(spacing: spacing, selectionIndicatorInsets: .init(top: 0, left: inset, bottom: 0, right: inset), selectionBarHeight: 3, barHeight: 1))
+        return .init(titles: titles, alignment: .center, distribution: .fillEqually, segmentConfiguration: .init(spacing: spacing, selectionIndicatorInsets: .init(top: 0, left: inset, bottom: 0, right: inset), selectionBarHeight: 3, barHeight: 1))
     }
 }
 
@@ -64,6 +64,7 @@ class SegmentedControl: UIView, ReusableTableHeaderViewType {
             each.addTarget(self, action: #selector(segmentTapped), for: .touchUpInside)
         }
         let buttonsStackView = buttons.map { $0 as UIView }.asStackView(distribution: distribution, spacing: segmentConfiguration.spacing)
+        buttonsStackView.backgroundColor = .clear
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonsStackView)
 

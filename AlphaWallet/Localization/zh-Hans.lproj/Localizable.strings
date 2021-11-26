@@ -134,10 +134,11 @@
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "您的助记词";
-"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and\n keep them in a secret place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and keep them in a secret place, offline.";
 "wallets.showSeedPhrase.testSeedPhrase" = "好的，我记下来了";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "切勿将助记词保存为屏幕截图";
 "wallets.verifySeedPhrase.title" = "验证助记词";
+"wallets.verifySeedPhrase.verify" = "Verify";
 "wallets.verifySeedPhrase.wrong" = "无效助记词。请检查并重试。";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "切勿将助记词保存为屏幕截图";
 "wallets.name.rename" = "Rename Wallet";

@@ -6,17 +6,17 @@ import UIKit
 struct ShowSeedPhraseViewModel {
     private let error: KeystoreError?
 
-    let words: [String]
+    var words: [String]
 
     var subtitle: String = R.string.localizable.walletsShowSeedPhraseSubtitle()
     var buttonTitle: String = R.string.localizable.walletsShowSeedPhraseTestSeedPhrase()
     
     var subtitleColor: UIColor {
-        return Screen.Backup.subtitleColor
+        return Colors.headerThemeColor
     }
 
     var subtitleFont: UIFont {
-        return Screen.Backup.subtitleFont
+        return Screen.Backup.WalletHeaderValue
     }
 
     var errorColor: UIColor {

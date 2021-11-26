@@ -79,11 +79,8 @@ class SendViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             amountHeader,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
-            amountTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16)),
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
+            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 0, right: 16)),
             recipientHeader,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
             targetAddressTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16))
         ])
 

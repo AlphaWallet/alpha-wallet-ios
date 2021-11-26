@@ -1,8 +1,18 @@
 {
   "images" : [
     {
-      "filename" : "hd-introduction.pdf",
-      "idiom" : "universal"
+      "idiom" : "iphone",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Frame@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "Frame@3x.png",
+      "idiom" : "iphone",
+      "scale" : "3x"
     }
   ],
   "info" : {

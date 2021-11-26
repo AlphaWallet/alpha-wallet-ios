@@ -27,7 +27,7 @@ extension HDWallet {
 
     convenience init(seed: String, passphrase: String) {
         //The seed has to be specified with a fixed number of characters (33)
-        self.init(data: Data(_hex: HDWallet.leftPadStringWithZero(seed, to: 33)), passphrase: passphrase)
+        self.init(entropy: Data(_hex: HDWallet.leftPadStringWithZero(seed, to: 33)), passphrase: passphrase)!
     }
 }
 

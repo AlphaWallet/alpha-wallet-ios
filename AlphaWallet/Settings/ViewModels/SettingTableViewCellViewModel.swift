@@ -17,7 +17,7 @@ struct SettingTableViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.regular(size: 17)
+        return Fonts.semibold(size: 17)
     }
 
     var titleTextColor: UIColor {

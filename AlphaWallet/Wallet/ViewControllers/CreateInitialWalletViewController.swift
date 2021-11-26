@@ -18,13 +18,13 @@ class CreateInitialWalletViewController: UIViewController {
     private let createWalletButtonBar = ButtonsBar(configuration: .green(buttons: 1))
     private let separator = UIView.spacer(height: 1)
     private let haveWalletLabel = UILabel()
-    private let buttonsBar = ButtonsBar(configuration: .white(buttons: 2))
+    private let buttonsBar = ButtonsBar(configuration: .white(buttons: 2), showHaveWalletLabel: true)
 
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {
-            return 60
+            return 49
         } else {
-            return 90
+            return 49
         }
     }
     private var topMarginOfImageView: CGFloat {
@@ -54,27 +54,28 @@ class CreateInitialWalletViewController: UIViewController {
             subtitleLabel,
             UIView.spacerWidth(flexible: true),
             createWalletButtonBar,
-            UIView.spacer(height: 25),
-            separator,
-            UIView.spacer(height: 25),
-            haveWalletLabel,
-            UIView.spacer(height: 15),
+            UIView.spacer(height: 40),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         footerBar.addSubview(buttonsBar)
-
+        footerBar.backgroundColor = Colors.appWhite
+        footerBar.layer.cornerRadius = 5
+        footerBar.layer.shadowColor = UIColor.lightGray.cgColor
+        footerBar.layer.shadowRadius = 2
+        footerBar.layer.shadowOffset = .zero
+        footerBar.layer.shadowOpacity = 0.6
+        
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
@@ -83,13 +84,12 @@ class CreateInitialWalletViewController: UIViewController {
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonWithLabelHeight),
 
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -(ButtonsBar.buttonWithLabelHeight + 20)),
+            footerBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonWithLabelHeight + 20),
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
     }
@@ -98,6 +98,16 @@ class CreateInitialWalletViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
     func configure() {
         view.backgroundColor = Colors.appBackground
 
@@ -109,12 +119,6 @@ class CreateInitialWalletViewController: UIViewController {
         imageView.image = viewModel.imageViewImage
 
         separator.backgroundColor = viewModel.separatorColor
-
-        haveWalletLabel.textAlignment = .center
-        haveWalletLabel.textColor = viewModel.alreadyHaveWalletTextColor
-        haveWalletLabel.font = viewModel.alreadyHaveWalletTextFont
-        haveWalletLabel.text = viewModel.alreadyHaveWalletText
-
         createWalletButtonBar.configure()
         let createWalletButton = createWalletButtonBar.buttons[0]
         createWalletButton.setTitle(viewModel.createButtonTitle, for: .normal)

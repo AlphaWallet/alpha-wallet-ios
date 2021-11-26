@@ -50,9 +50,10 @@ class ActivitiesViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        navigationController?.applyTintAdjustment()
         keyboardChecker.viewWillAppear()
-        navigationItem.largeTitleDisplayMode = .always
+        navigationItem.largeTitleDisplayMode = .never
+        fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -125,11 +126,11 @@ extension ActivitiesViewController {
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
-        view.superview?.backgroundColor = viewModel.backgroundColor
+        view.superview?.backgroundColor = Colors.headerThemeColor
     }
 
     private func setupFilteringWithKeyword() {
-        wireUpSearchController()
+        //wireUpSearchController()
         doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
@@ -151,6 +152,7 @@ extension ActivitiesViewController {
         }
         //Hack to hide the horizontal separator below the search bar
         searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
+        searchController.searchBar.backgroundColor = Colors.headerThemeColor
     }
 }
 
