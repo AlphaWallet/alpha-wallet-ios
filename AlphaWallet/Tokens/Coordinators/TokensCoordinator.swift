@@ -249,7 +249,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func scanQRCodeSelected(in viewController: UIViewController) {
-        launchUniversalScanner(fromSource: .walletScreen)
+        if config.shouldReadClipboardForWalletConnectUrl {
+            if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = WalletConnectURL(s) {
+                walletConnectCoordinator.openSession(url: url)
+            }
+        } else {
+            launchUniversalScanner(fromSource: .walletScreen)
+        }
     }
 }
 
