@@ -71,14 +71,19 @@ class SaveCustomRpcViewController: UIViewController {
         editView.addBackgroundGestureRecognizer(tap)
         editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
         editView.configureKeyboard(keyboardChecker: keyboardChecker)
-        editView.addSaveButtonTarget(self, action: #selector(saveCustomRPC))
+        editView.addSaveButtonTarget(self, action: #selector(handleSaveCustomRPC))
+        editView.chainNameTextField.becomeFirstResponder()
     }
 
     @objc private func tapSelected(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
 
-    @objc private func saveCustomRPC(_ sender: UIButton) {
+    @objc private func handleSaveCustomRPC(_ sender: UIButton) {
+        saveCustomRPC()
+    }
+
+    private func saveCustomRPC() {
         let result = viewModel.validate(
             chainName: editView.chainNameTextField.value,
             rpcEndpoint: editView.rpcEndPointTextField.value,
@@ -114,9 +119,11 @@ class SaveCustomRpcViewController: UIViewController {
                 editView.chainIDTextField.status = .error(R.string.localizable.editCustomRPCChainIDErrorDuplicate(preferredLanguages: nil))
             }
         }
+        editView.allTextFields.first(where: { !$0.statusLabel.text.isEmpty })?.becomeFirstResponder()
     }
 
     private func handleValidationSuccess(customRPC: CustomRPC) {
+        editView.resetAllTextFieldStatus()
         delegate?.didFinish(in: self, customRpc: customRPC)
     }
 }
@@ -124,18 +131,11 @@ class SaveCustomRpcViewController: UIViewController {
 extension SaveCustomRpcViewController: TextFieldDelegate {
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
-        case editView.chainNameTextField:
-            editView.rpcEndPointTextField.becomeFirstResponder()
-        case editView.rpcEndPointTextField:
-            editView.chainIDTextField.becomeFirstResponder()
-        case editView.chainIDTextField:
-            editView.symbolTextField.becomeFirstResponder()
-        case editView.symbolTextField:
-            editView.explorerEndpointTextField.becomeFirstResponder()
         case editView.explorerEndpointTextField:
             view.endEditing(true)
+            saveCustomRPC()
         default:
-            view.endEditing(true)
+            editView.gotoNextResponder()
         }
         return true
     }
