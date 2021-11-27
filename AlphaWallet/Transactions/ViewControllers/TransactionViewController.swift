@@ -47,22 +47,20 @@ class TransactionViewController: UIViewController {
         let items: [UIView] = [
             .spacer(),
             header,
-            .spacer(),
+            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
             item(title: viewModel.fromLabelTitle, value: viewModel.from, icon: R.image.copy()),
             item(title: viewModel.toLabelTitle, value: viewModel.to, icon: R.image.copy()),
-            item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee),
-            item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
-            .spacer(),
-            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
-            item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
-            item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
+            [item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
+             item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee)].asStackView(axis: .horizontal, distribution: .fillEqually, alignment: .leading),
+            [item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
+            item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt)].asStackView(axis: .horizontal, distribution: .fillEqually, alignment: .leading),
             item(title: viewModel.nonceLabelTitle, value: viewModel.nonce),
         ]
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        let stackView = items.asStackView(axis: .vertical, spacing: 10)
+        let stackView = items.asStackView(axis: .vertical, spacing: 13)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 

@@ -11,7 +11,7 @@ struct ConfirmationHeaderViewModel {
     let title: String
     let isMinimalMode: Bool
     var backgroundColor: UIColor {
-        Colors.appBackground
+        Colors.appWhite
     }
     var icon: UIImage? {
         return isMinimalMode ? nil : R.image.awLogoSmall()

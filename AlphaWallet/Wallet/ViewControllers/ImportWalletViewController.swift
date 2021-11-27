@@ -25,7 +25,7 @@ class ImportWalletViewController: UIViewController {
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let tabBar = SegmentedControl(titles: ImportWalletViewModel.segmentedControlTitles)
+    private let tabBar = SegmentedControl.importSegmentControl(titles: ImportWalletViewModel.segmentedControlTitles)
     private let mnemonicCountLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -181,7 +181,7 @@ class ImportWalletViewController: UIViewController {
         view.addSubview(tabBar)
 
         let stackView = [
-            tabBar,
+            // tabBar,
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
             mnemonicControlsStackView,
             keystoreJSONControlsStackView,

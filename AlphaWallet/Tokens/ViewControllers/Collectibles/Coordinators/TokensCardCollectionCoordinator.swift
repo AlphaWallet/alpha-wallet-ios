@@ -352,7 +352,7 @@ extension TokensCardCollectionCoordinator: TransferNFTCoordinatorDelegate {
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
 
-            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController, account: strongSelf.session.account)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 
@@ -493,7 +493,7 @@ extension TokensCardCollectionCoordinator: TransactionConfirmationCoordinatorDel
             guard let strongSelf = self else { return }
             strongSelf.removeCoordinator(coordinator)
 
-            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController)
+            let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.navigationController, account: strongSelf.session.account)
             coordinator.delegate = strongSelf
             strongSelf.addCoordinator(coordinator)
 

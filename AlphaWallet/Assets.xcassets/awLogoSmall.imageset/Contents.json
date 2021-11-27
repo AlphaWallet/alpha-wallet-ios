@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "awLogoSmall.pdf",
+      "filename" : "Icon-App-76x76@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Icon-App-76x76@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Icon-App-76x76@2x-1.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

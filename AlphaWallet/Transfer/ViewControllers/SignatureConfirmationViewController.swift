@@ -230,7 +230,6 @@ class SignatureConfirmationViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
 
-        headerView.iconImageView.setImage(url: viewModel.dappIconUrl, placeholder: viewModel.placeholderIcon)
         buttonsBar.configure(.custom(types: [.white, .green]))
 
         let button1 = buttonsBar.buttons[1]

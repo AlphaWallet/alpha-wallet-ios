@@ -24,9 +24,10 @@ class GroupActivityViewCell: UITableViewCell {
             titleLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             titleLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 7),
             titleLabel.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -7),
-
-            background.anchorsConstraint(to: contentView),
-
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             contentView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
@@ -42,10 +43,14 @@ class GroupActivityViewCell: UITableViewCell {
         separatorInset = .init(top: 0, left: viewModel.leftMargin, bottom: 0, right: 0)
 
         selectionStyle = .none
+        contentView.backgroundColor = Colors.clear
+        backgroundColor = Colors.clear
         background.backgroundColor = viewModel.contentsBackgroundColor
-
-        backgroundColor = viewModel.backgroundColor
-
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
         titleLabel.textColor = viewModel.titleTextColor
         titleLabel.attributedText = viewModel.title
     }

@@ -68,17 +68,13 @@ class ActivityViewController: UIViewController {
         tokenImageView.addGestureRecognizer(tap)
 
         let stackView = [
-            .spacer(height: 8),
+            .spacer(height: 26),
             timestampLabel,
-            .spacer(height: 20),
+            .spacer(height: 13),
             tokenImageView,
             .spacer(height: 17),
             titleLabel,
-            .spacer(height: 0),
-            subTitleLabel,
-            .spacer(height: 27),
-            separator,
-            .spacer(height: 27),
+            .spacer(height: 25),
             defaultErc20ActivityView,
             tokenScriptRendererView,
             bottomFiller,
@@ -97,12 +93,9 @@ class ActivityViewController: UIViewController {
             titleLabel.heightAnchor.constraint(equalToConstant: 26),
             subTitleLabel.heightAnchor.constraint(equalToConstant: 20),
 
-            tokenImageView.heightAnchor.constraint(equalToConstant: 60),
-            tokenImageView.widthAnchor.constraint(equalToConstant: 60),
+            tokenImageView.heightAnchor.constraint(equalToConstant: 105),
+            tokenImageView.widthAnchor.constraint(equalToConstant: 105),
 
-            separator.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20),
-            separator.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20),
-            separator.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
             stackView.anchorsConstraint(to: roundedBackground),
 
             tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),

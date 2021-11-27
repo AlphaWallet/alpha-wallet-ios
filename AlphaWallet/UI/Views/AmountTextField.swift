@@ -61,7 +61,7 @@ class AmountTextField: UIControl {
             case .error:
                 return DataEntry.Color.textFieldStatus!
             case .none:
-                return R.color.black()!
+                return Colors.headerThemeColor
             }
         }
 
@@ -114,7 +114,7 @@ class AmountTextField: UIControl {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
-            .font: DataEntry.Font.amountTextField, .foregroundColor: DataEntry.Color.placeholder
+            .font: DataEntry.Font.amountTextField, .foregroundColor: Colors.headerThemeColor
         ])
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.adjustsFontSizeToFitWidth = true
@@ -122,7 +122,7 @@ class AmountTextField: UIControl {
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
         textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
-        textField.textColor = R.color.black()!
+        textField.textColor = Colors.headerThemeColor
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
 
@@ -133,8 +133,8 @@ class AmountTextField: UIControl {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.sendAllFunds(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.titleLabel?.font = DataEntry.Font.regularButton
+        button.setTitleColor(DataEntry.Color.pasteColor, for: .normal)
         button.setBackgroundColor(Colors.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
@@ -147,7 +147,7 @@ class AmountTextField: UIControl {
     private lazy var inputAccessoryButton: UIButton = {
         let button = UIButton()
         button.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
-        button.setTitleColor(R.color.black(), for: .normal)
+        button.setTitleColor(Colors.headerThemeColor, for: .normal)
 
         return button
     }()
@@ -399,6 +399,7 @@ class AmountTextField: UIControl {
         let stackView = [selectCurrencyButton, .spacerWidth(4), textField].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
+
         errorState = .none
         updateAlternateAmountLabel(alternativeAmount)
 
@@ -410,22 +411,23 @@ class AmountTextField: UIControl {
     }
 
     func defaultLayout(edgeInsets: UIEdgeInsets = .zero) -> UIView {
-        let stackView = [
+        let innerStackView = [
             .spacer(height: edgeInsets.top),
             //NOTE: remove spacers when refactor send token screen, there is to many lines related to constraints
             //remove spacers for inner containers like: statusLabelContainer, alternativeAmountLabelContainer
             //left it for now, too many changes for 1 pr.
             self,
             .spacer(height: 4),
-            [statusLabelContainer, allFundsContainer].asStackView(axis: .horizontal, alignment: .fill),
-            alternativeAmountLabelContainer,
+            [statusLabelContainer, allFundsContainer].asStackView(axis: .horizontal, alignment: .fill), alternativeAmountLabelContainer,
             .spacer(height: edgeInsets.bottom)
         ].asStackView(axis: .vertical)
-        stackView.cornerRadius = 8
-        stackView.borderColor = Colors.headerThemeColor
-        stackView.borderWidth = 2
-        stackView.backgroundColor = Colors.appWhite
-        return [.spacerWidth(edgeInsets.left), stackView, .spacerWidth(edgeInsets.right)].asStackView()
+        
+        let outerStackView = [.spacerWidth(edgeInsets.left), innerStackView, .spacerWidth(edgeInsets.right)].asStackView()
+        outerStackView.cornerRadius = 8
+        outerStackView.borderWidth = 1
+        outerStackView.borderColor = Colors.headerThemeColor
+        outerStackView.backgroundColor = Colors.appWhite
+        return [.spacerWidth(edgeInsets.left), outerStackView, .spacerWidth(edgeInsets.right)].asStackView()
     }
 
     private func updateAlternateAmountLabel(_ value: NSDecimalNumber?) {

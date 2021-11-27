@@ -24,24 +24,22 @@ class SeedPhraseCell: UICollectionViewCell {
     }
 
     func configure(viewModel: SeedPhraseCellViewModel) {
-//        cornerRadius = 7
-
         label.textAlignment = .center
         label.font = viewModel.font
         label.text = viewModel.word
+        contentView.cornerRadius = 4
+        contentView.borderColor = Colors.borderGrayColor
+        contentView.clipsToBounds = true
         if viewModel.isSelected {
             contentView.backgroundColor = viewModel.selectedBackgroundColor
             backgroundColor = viewModel.selectedBackgroundColor
             label.textColor = viewModel.selectedTextColor
+            contentView.layer.borderWidth = 0
         } else {
             contentView.backgroundColor = viewModel.backgroundColor
             backgroundColor = viewModel.backgroundColor
             label.textColor = viewModel.textColor
+            contentView.layer.borderWidth = 1
         }
-        backgroundColor = .clear
-        contentView.backgroundColor = .clear
-        contentView.layer.cornerRadius = 4
-        contentView.layer.borderColor = Colors.borderGrayColor.cgColor
-        contentView.layer.borderWidth = 1
     }
 }

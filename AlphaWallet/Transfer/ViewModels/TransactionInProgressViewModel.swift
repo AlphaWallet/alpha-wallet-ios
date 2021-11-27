@@ -8,15 +8,20 @@
 import UIKit
 
 struct TransactionInProgressViewModel {
-
+    
+    private let account: Wallet
+    
+    init(account: Wallet) {
+        self.account = account
+    }
     var titleAttributedText: NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
 
         return NSAttributedString(string: R.string.localizable.aWalletTokenTransactionInProgressTitle(), attributes: [
             .paragraphStyle: style,
-            .font: Fonts.regular(size: 28),
-            .foregroundColor: Colors.black
+            .font: Fonts.bold(size: 18),
+            .foregroundColor: Colors.headerThemeColor
         ])
     }
 
@@ -25,11 +30,10 @@ struct TransactionInProgressViewModel {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
         style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 14
-
         return NSMutableAttributedString(string: x, attributes: [
             .paragraphStyle: style,
-            .font: Fonts.regular(size: 17),
-            .foregroundColor: R.color.mine()!
+            .font: Fonts.regular(size: 10),
+            .foregroundColor: Colors.headerThemeColor
         ])
     }
 
@@ -37,6 +41,10 @@ struct TransactionInProgressViewModel {
         return R.string.localizable.aWalletTokenTransactionInProgressConfirm()
     }
 
+    var okButtonTitleColor: UIColor {
+        Colors.headerThemeColor
+    }
+    
     var image: UIImage? {
         return R.image.conversionDaiSai()
     }
@@ -44,5 +52,38 @@ struct TransactionInProgressViewModel {
     var backgroundColor: UIColor {
         return Colors.appBackground
     }
+    
+    var addressFont: UIFont {
+        return Fonts.semibold(size: 10)
+    }
+    
+    var addressBackgroundColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var myAddressText: String {
+        return account.address.eip55String
+    }
+
+    var myAddress: AlphaWallet.Address {
+        return account.address
+    }
+
+    var copyWalletText: String {
+        return R.string.localizable.requestCopyWalletButtonTitle()
+    }
+
+    var addressCopiedText: String {
+        return R.string.localizable.requestAddressCopiedTitle()
+    }
+    
+    var addressLabelColor: UIColor {
+        return Colors.headerThemeColor
+    }
+
+    var copyButtonsFont: UIFont {
+        return Fonts.semibold(size: 17)
+    }
+    
 }
 

@@ -361,8 +361,9 @@ struct ButtonsBarViewModel {
     static let whiteButton = ButtonsBarViewModel(
         buttonBackgroundColor: Colors.appWhite,
         disabledButtonBackgroundColor: Colors.appWhite,
-        disabledButtonBorderColor: R.color.azure()!.withAlphaComponent(0.3),
-        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3)
+        disabledButtonBorderColor: Colors.appActionButtonGreen,
+        disabledButtonTitleColor: Colors.appActionButtonGreen,
+        buttonBorderColor: Colors.appActionButtonGreen
     )
 
     static let systemButton = ButtonsBarViewModel(
@@ -370,8 +371,8 @@ struct ButtonsBarViewModel {
         highlightedButtonBackgroundColor: Colors.appWhite,
         disabledButtonBackgroundColor: Colors.appWhite,
         disabledButtonBorderColor: Colors.appWhite,
-        highlightedButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
-        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3),
+        highlightedButtonTitleColor: Colors.appActionButtonGreen,
+        disabledButtonTitleColor: Colors.appActionButtonGreen,
         buttonFont: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20),
         buttonBorderWidth: 0.0
     )
@@ -383,12 +384,13 @@ struct ButtonsBarViewModel {
     var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
     var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
 
-    var buttonTitleColor: UIColor = R.color.azure()!
+    var buttonTitleColor: UIColor = Colors.appActionButtonGreen
     var highlightedButtonTitleColor: UIColor?
     var disabledButtonTitleColor: UIColor = Colors.appWhite
 
     var buttonCornerRadius: CGFloat {
-        return ButtonsBar.buttonsHeight / 2.0
+        // return ButtonsBar.buttonsHeight / 2.0
+        return 5
     }
 
     var buttonShadowColor: UIColor {
@@ -409,7 +411,8 @@ struct ButtonsBarViewModel {
 
     var buttonFont: UIFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
 
-    var buttonBorderColor: UIColor = R.color.azure()!
+    var buttonBorderColor: UIColor = Colors.appActionButtonGreen
 
-    var buttonBorderWidth: CGFloat = 1.0
+    var buttonBorderWidth: CGFloat = 2.0
 }
+

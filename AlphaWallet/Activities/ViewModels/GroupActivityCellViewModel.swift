@@ -11,7 +11,7 @@ struct GroupActivityCellViewModel {
     let groupType: GroupType
 
     var contentsBackgroundColor: UIColor {
-        GroupedTable.Color.background
+        Colors.appWhite
     }
 
     var backgroundColor: UIColor {

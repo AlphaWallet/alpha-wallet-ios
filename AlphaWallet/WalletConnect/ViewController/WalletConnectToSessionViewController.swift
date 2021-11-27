@@ -231,7 +231,7 @@ class WalletConnectToSessionViewController: UIViewController {
         navigationItem.title = viewModel.title
 
         buttonsBar.configure(.custom(types: [.white, .green]))
-        headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
+        //headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
 
         let button1 = buttonsBar.buttons[1]
         button1.shrinkBorderColor = Colors.loadingIndicatorBorder

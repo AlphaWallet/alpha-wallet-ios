@@ -63,7 +63,7 @@ struct TransactionConfirmationHeaderViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return Colors.appWhite
     }
 
     init(title: Title, headerName: String?, details: String? = nil, titleIcon: UIImage? = nil, configuration: TransactionConfirmationHeaderView.Configuration) {

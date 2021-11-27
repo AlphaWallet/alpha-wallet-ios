@@ -18,16 +18,16 @@ struct DefaultActivityCellViewModel {
         if activityStateViewViewModel.isInPendingState {
             return R.color.azure_sending()!
         } else {
-            return .white
+            return Colors.appWhite
         }
     }
 
     var backgroundColor: UIColor {
-        Colors.appBackground
+        Colors.clear
     }
 
     var titleTextColor: UIColor {
-        R.color.black()!
+        Colors.headerThemeColor
     }
 
     var title: NSAttributedString {
@@ -43,13 +43,15 @@ struct DefaultActivityCellViewModel {
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
             }
-            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.foregroundColor, value: Colors.headerThemeColor, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.regular(size: 14), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.bold(size: 14), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
             let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
-            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.foregroundColor, value: Colors.headerThemeColor, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.regular(size: 14), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.bold(size: 14), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20OwnerApproved, .erc721OwnerApproved:
             let string: NSMutableAttributedString
@@ -61,13 +63,15 @@ struct DefaultActivityCellViewModel {
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activityOwnerApprovedFailed(symbol))")
             }
-            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.foregroundColor, value: Colors.headerThemeColor, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.regular(size: 14), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.bold(size: 14), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20ApprovalObtained, .erc721ApprovalObtained:
             let string = NSMutableAttributedString(string: R.string.localizable.activityApprovalObtained(symbol))
-            string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
-            string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
+            string.addAttribute(.foregroundColor, value: Colors.headerThemeColor, range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.regular(size: 14), range: NSRange(location: 0, length: string.length))
+            string.addAttribute(.font, value: Fonts.bold(size: 14), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .none:
             return .init()
@@ -158,11 +162,11 @@ struct DefaultActivityCellViewModel {
 
         switch activity.state {
         case .pending:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.bold(size: 14), .foregroundColor: Colors.headerThemeColor])
         case .completed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.black()!])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 14), .foregroundColor: Colors.headerThemeColor])
         case .failed:
-            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 17), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
+            return NSAttributedString(string: string, attributes: [.font: Fonts.semibold(size: 14), .foregroundColor: R.color.silver()!, .strikethroughStyle: NSUnderlineStyle.single.rawValue])
         }
     }
 

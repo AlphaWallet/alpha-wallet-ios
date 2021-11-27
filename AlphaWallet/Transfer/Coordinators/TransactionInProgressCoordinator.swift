@@ -13,20 +13,21 @@ protocol TransactionInProgressCoordinatorDelegate: AnyObject {
 
 class TransactionInProgressCoordinator: Coordinator {
 
+    private let account: Wallet
     private lazy var viewControllerToPresent: UINavigationController = {
-        let controller = TransactionInProgressViewController(viewModel: .init())
+        let controller = TransactionInProgressViewController(viewModel: .init(account: account))
         controller.delegate = self
         let navigationController = UINavigationController(rootViewController: controller)
         navigationController.makePresentationFullScreenForiOS13Migration()
         return navigationController
     }()
     private let presentingViewController: UIViewController
-
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionInProgressCoordinatorDelegate?
 
-    init(presentingViewController: UIViewController) {
+    init(presentingViewController: UIViewController, account: Wallet) {
         self.presentingViewController = presentingViewController
+        self.account = account
     }
 
     func start() {

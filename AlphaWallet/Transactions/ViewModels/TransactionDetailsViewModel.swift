@@ -64,11 +64,12 @@ struct TransactionDetailsViewModel {
     }
 
     var detailsButtonText: String {
-        if let name = ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.name {
-            return R.string.localizable.viewIn(name)
-        } else {
-            return R.string.localizable.moreDetails()
-        }
+        return R.string.localizable.moreDetails()
+//        if let name = ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.name {
+//            return R.string.localizable.viewIn(name)
+//        } else {
+//
+//        }
     }
 
     var transactionID: String {

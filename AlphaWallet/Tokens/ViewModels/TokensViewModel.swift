@@ -148,8 +148,8 @@ fileprivate extension WalletFilter {
         return [
             .all,
             .currencyOnly,
-            .assetsOnly,
-            .collectiblesOnly,
+            // .assetsOnly,
+            // .collectiblesOnly,
         ]
     }
 

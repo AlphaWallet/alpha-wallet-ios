@@ -53,18 +53,21 @@ struct TransactionViewModel {
     }
 
     func amountAttributedString(for value: TransactionValue) -> NSAttributedString {
+        
+        //let status = direction == .incoming ? R.string.localizable.receive : R.string.localizable.send
         let amount = NSAttributedString(
             string: amountWithSign(for: value.amount),
             attributes: [
-                .font: Fonts.regular(size: 24) as Any,
-                .foregroundColor: amountTextColor,
+                .font: Fonts.bold(size: 10) as Any,
+                .foregroundColor: Colors.headerThemeColor,
             ]
         )
 
         let currency = NSAttributedString(
             string: " " + value.symbol,
             attributes: [
-                .font: Fonts.regular(size: 16) as Any
+                .font: Fonts.bold(size: 10) as Any,
+                .foregroundColor: Colors.headerThemeColor,
             ]
         )
 

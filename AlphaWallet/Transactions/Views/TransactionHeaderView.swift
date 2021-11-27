@@ -5,31 +5,59 @@ import UIKit
 
 class TransactionHeaderView: UIView {
     private let server: RPCServer
-    private let amountLabel = UILabel()
-    private let blockchainLabel = UILabel()
-
+    
+    private let titleLabel = UILabel(frame: .zero)
+    private let subTitleLabel = UILabel(frame: .zero)
+    
     init(server: RPCServer) {
         self.server = server
         super.init(frame: .zero)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = Fonts.regular(size: 10)
+        titleLabel.textAlignment = .left
+        titleLabel.textColor = Colors.headerThemeColor
 
-        amountLabel.translatesAutoresizingMaskIntoConstraints = false
-        amountLabel.textAlignment = .center
+        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subTitleLabel.textAlignment = .left
+        subTitleLabel.textColor = Colors.headerThemeColor
+        subTitleLabel.font = Fonts.bold(size: 10)
+        subTitleLabel.numberOfLines = 0
+        
+        let textLabelsStackView = [
+            titleLabel,
+        ].asStackView(axis: .vertical)
+        
+        let subTitleContainer = UIView(frame: .zero)
+        subTitleContainer.translatesAutoresizingMaskIntoConstraints = false
+        subTitleContainer.addSubview(subTitleLabel)
+        
+        let horizontalStack = [.spacerWidth(20), subTitleContainer, .spacerWidth(20)].asStackView(axis: .horizontal)
+        horizontalStack.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = [
-            blockchainLabel,
-            amountLabel,
-        ].asStackView(axis: .vertical, alignment: .center)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(stackView)
+        let verticalStackOuter = [.spacerWidth(9), horizontalStack, .spacerWidth(9)].asStackView(axis: .vertical)
+        verticalStackOuter.translatesAutoresizingMaskIntoConstraints = false
+        verticalStackOuter.cornerRadius = 8
+        verticalStackOuter.borderWidth = 1
+        verticalStackOuter.borderColor = Colors.appWhite
+        
+        let horizontalOuterView =  [.spacerWidth(20), verticalStackOuter, .spacerWidth(20)].asStackView(axis: .horizontal)
+        horizontalOuterView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let textLabelsHorizontalStack = [.spacerWidth(20), textLabelsStackView, .spacerWidth(20)].asStackView(axis: .horizontal)
 
-        let margin = CGFloat(15)
+        let viewsToReturn = [textLabelsHorizontalStack, horizontalOuterView].asStackView(axis: .vertical, spacing: 8)
+        viewsToReturn.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(viewsToReturn)
+
         NSLayoutConstraint.activate([
-            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
-
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: margin),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -margin),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margin),
+            subTitleContainer.heightAnchor.constraint(equalToConstant: 44),
+            subTitleLabel.leadingAnchor.constraint(equalTo: subTitleContainer.leadingAnchor),
+            subTitleLabel.trailingAnchor.constraint(equalTo: subTitleContainer.trailingAnchor),
+            subTitleLabel.centerYAnchor.constraint(equalTo: subTitleContainer.centerYAnchor),
+            viewsToReturn.topAnchor.constraint(equalTo: topAnchor),
+            viewsToReturn.trailingAnchor.constraint(equalTo: trailingAnchor),
+            viewsToReturn.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
+            viewsToReturn.leadingAnchor.constraint(equalTo: leadingAnchor)
         ])
     }
 
@@ -38,13 +66,7 @@ class TransactionHeaderView: UIView {
     }
 
     func configure(amount: NSAttributedString) {
-        amountLabel.attributedText = amount
-
-        blockchainLabel.textAlignment = .center
-        blockchainLabel.cornerRadius = 7
-        blockchainLabel.backgroundColor = server.blockChainNameColor
-        blockchainLabel.textColor = Screen.TokenCard.Color.blockChainName
-        blockchainLabel.font = Screen.TokenCard.Font.blockChainName
-        blockchainLabel.text = " \(server.name)     "
+        subTitleLabel.attributedText = amount
+        titleLabel.text = "Value"
     }
 }

@@ -13,7 +13,7 @@ struct SendViewSectionHeaderViewModel {
     var showTopSeparatorLine: Bool = true
     
     var font: UIFont {
-        return Fonts.semibold(size: 15)
+        return Fonts.bold(size: 15)
     }
     var textColor: UIColor {
         return Colors.headerThemeColor

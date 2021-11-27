@@ -68,7 +68,10 @@ class DefaultActivityItemViewCell: UITableViewCell {
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 20),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -20),
-            background.anchorsConstraint(to: contentView),
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
             
             ] + stateView.anchorConstraints(to: tokenImageView))
     }
@@ -84,9 +87,13 @@ class DefaultActivityItemViewCell: UITableViewCell {
         separatorInset = .init(top: 0, left: viewModel.leftMargin, bottom: 0, right: 0)
 
         selectionStyle = .none
-        background.backgroundColor = viewModel.contentsBackgroundColor
-
         backgroundColor = viewModel.backgroundColor
+        background.backgroundColor = viewModel.contentsBackgroundColor
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
 
         titleLabel.textColor = viewModel.titleTextColor
         titleLabel.attributedText = viewModel.title

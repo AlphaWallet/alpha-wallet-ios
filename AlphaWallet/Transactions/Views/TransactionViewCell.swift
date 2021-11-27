@@ -65,8 +65,10 @@ class TransactionViewCell: UITableViewCell {
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 14),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -14),
-
-            background.anchorsConstraint(to: contentView),
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
         ])
     }
 
@@ -77,9 +79,15 @@ class TransactionViewCell: UITableViewCell {
     func configure(viewModel: TransactionRowCellViewModel) {
         selectionStyle = .none
         leftEdgeConstraint.constant = viewModel.leftMargin
+        contentView.backgroundColor = Colors.clear
+        backgroundColor = Colors.clear
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = viewModel.contentsCornerRadius
-
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
+        
         statusImageView.image = viewModel.statusImage
 
         titleLabel.textColor = viewModel.titleTextColor

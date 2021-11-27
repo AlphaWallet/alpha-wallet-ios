@@ -23,12 +23,6 @@ class ConfirmationHeaderView: UIView {
         return titleLabel
     }()
 
-    let iconImageView: RoundedImageView = {
-        let imageView = RoundedImageView(size: .init(width: 30, height: 30))
-
-        return imageView
-    }()
-
     let closeButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -57,9 +51,8 @@ class ConfirmationHeaderView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(separatorLine)
-        addSubview(titleLabel)
-        addSubview(iconImageView)
         addSubview(closeButton)
+        addSubview(titleLabel)
         addSubview(swipeIndicatorView)
 
         NSLayoutConstraint.activate([
@@ -71,18 +64,13 @@ class ConfirmationHeaderView: UIView {
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: closeButton.trailingAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
-
-            iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -50),
+            closeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 30),
             closeButton.heightAnchor.constraint(equalToConstant: 30),
-
             heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.headerHeight)
         ])
 
@@ -91,7 +79,6 @@ class ConfirmationHeaderView: UIView {
 
     func configure(viewModel: ConfirmationHeaderViewModel) {
         titleLabel.attributedText = viewModel.attributedTitle
-        iconImageView.image = viewModel.icon
         backgroundColor = viewModel.backgroundColor
         separatorLine.isHidden = viewModel.isMinimalMode
         swipeIndicatorView.isHidden = viewModel.swipeIndicationHidden

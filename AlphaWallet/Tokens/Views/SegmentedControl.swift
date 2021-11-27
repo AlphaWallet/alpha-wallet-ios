@@ -15,6 +15,15 @@ extension SegmentedControl {
 
         return .init(titles: titles, alignment: .center, distribution: .fillEqually, segmentConfiguration: .init(spacing: spacing, selectionIndicatorInsets: .init(top: 0, left: inset, bottom: 0, right: inset), selectionBarHeight: 3, barHeight: 1))
     }
+    
+    static func importSegmentControl(titles: [String]) -> SegmentedControl {
+        let isNarrowScreen = ScreenChecker().isNarrowScreen
+        let spacing: CGFloat = isNarrowScreen ? 30 : 40
+        let inset: CGFloat = isNarrowScreen ? 7 : 20
+
+        return .init(titles: titles, alignment: .center, distribution: .fillEqually, segmentConfiguration: .init(spacing: spacing, selectionIndicatorInsets: .init(top: 0, left: inset, bottom: 0, right: inset), selectionBarHeight: 3, barHeight: 1))
+    }
+    
 }
 
 class SegmentedControl: UIView, ReusableTableHeaderViewType {

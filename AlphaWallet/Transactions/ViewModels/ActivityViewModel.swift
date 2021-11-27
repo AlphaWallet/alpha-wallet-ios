@@ -19,11 +19,11 @@ struct ActivityViewModel {
     }
 
     var titleTextColor: UIColor {
-        R.color.black()!
+        Colors.headerThemeColor
     }
 
     var titleFont: UIFont {
-        Fonts.regular(size: 20)
+        Fonts.spaceMedium(size: 10)
     }
 
     var title: NSAttributedString {
@@ -97,7 +97,7 @@ struct ActivityViewModel {
     }
 
     var subTitleTextColor: UIColor {
-        R.color.dove()!
+        Colors.headerThemeColor
     }
 
     var subTitleFont: UIFont {

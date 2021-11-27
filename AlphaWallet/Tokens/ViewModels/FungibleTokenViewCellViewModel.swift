@@ -37,14 +37,14 @@ struct FungibleTokenViewCellViewModel {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .font: Fonts.bold(size: 14)
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: amount + " " + token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Fonts.regular(size: 9)
         ])
     }
 
@@ -64,9 +64,9 @@ struct FungibleTokenViewCellViewModel {
         let apprecation24hours: String = {
             switch EthCurrencyHelper(ticker: ticker).change24h {
             case .appreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
+                return "(\(percentageChange24h)%)"
             case .depreciate(let percentageChange24h):
-                return "\(percentageChange24h)%"
+                return "(\(percentageChange24h)%)"
             case .none:
                 return "-"
             }
@@ -74,7 +74,7 @@ struct FungibleTokenViewCellViewModel {
 
         return NSAttributedString(string: apprecation24hours, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Fonts.regular(size: 9)
         ])
     }
 
@@ -91,7 +91,7 @@ struct FungibleTokenViewCellViewModel {
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? "-"
+            return NumberFormatter.usd(format: .withTrailingCurrency).string(from: result) ?? " 0.0000"
         } else {
             return "-"
         }
@@ -100,7 +100,7 @@ struct FungibleTokenViewCellViewModel {
     var priceChangeUSDValueAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChangeUSDValue, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Fonts.regular(size: 9)
         ])
     }
 
@@ -115,7 +115,7 @@ struct FungibleTokenViewCellViewModel {
     var fiatValueAttributedString: NSAttributedString {
         return NSAttributedString(string: fiatValue, attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.valueChangeValue
+            .font: Fonts.bold(size: 14)
         ])
     }
 

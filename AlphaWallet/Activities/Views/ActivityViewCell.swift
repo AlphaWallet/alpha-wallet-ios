@@ -49,9 +49,10 @@ class ActivityViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             tokenScriptRendererView.anchorsConstraint(to: background),
-
-            background.anchorsConstraint(to: contentView),
-
+            background.topAnchor.constraint(equalTo: contentView.topAnchor),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             contentView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
@@ -64,10 +65,13 @@ class ActivityViewCell: UITableViewCell {
         self.viewModel = viewModel
 
         selectionStyle = .none
+        backgroundColor = Colors.clear
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = viewModel.contentsCornerRadius
-
-        backgroundColor = viewModel.backgroundColor
+        background.cornerRadius = 8
+        background.layer.shadowColor = Colors.lightGray.cgColor
+        background.layer.shadowRadius = 2
+        background.layer.shadowOffset = .zero
+        background.layer.shadowOpacity = 0.6
 
         let (html: html, hash: hash) = viewModel.activity.itemViewHtml
         tokenScriptRendererView.loadHtml(html, hash: hash)

@@ -79,8 +79,11 @@ class SendViewController: UIViewController {
 
         containerView.stackView.addArrangedSubviews([
             amountHeader,
-            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 0, right: 16)),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
+            amountTextField.defaultLayout(edgeInsets: .init(top: 16, left: 16, bottom: 16, right: 16)),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
             targetAddressTextField.defaultLayout(edgeInsets: .init(top: 0, left: 16, bottom: 0, right: 16))
         ])
 
@@ -135,6 +138,7 @@ class SendViewController: UIViewController {
 
         amountTextField.statusLabel.text = viewModel.availableLabelText
         amountTextField.availableTextHidden = viewModel.availableTextHidden
+        //targetAddressTextField.value = "0x63cCEF733a093E5Bd773b41C96D3eCE361464942"
 
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):

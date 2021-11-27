@@ -9,11 +9,11 @@ struct SeedPhraseCellViewModel {
     let index: Int?
 
     var backgroundColor: UIColor {
-        return UIColor(red: 234, green: 234, blue: 234)
+        return Colors.clear
     }
 
     var selectedBackgroundColor: UIColor {
-        return UIColor(red: 249, green: 249, blue: 249)
+        return Colors.headerThemeColor
     }
 
     var textColor: UIColor {
@@ -21,14 +21,14 @@ struct SeedPhraseCellViewModel {
     }
 
     var selectedTextColor: UIColor {
-        return Colors.headerThemeColor
+        return Colors.appWhite
     }
 
     var font: UIFont {
         if ScreenChecker().isNarrowScreen {
-            return Fonts.semibold(size: 9)
+            return Fonts.semibold(size: 10)
         } else {
-            return Fonts.semibold(size: 9)
+            return Fonts.semibold(size: 12)
         }
     }
 

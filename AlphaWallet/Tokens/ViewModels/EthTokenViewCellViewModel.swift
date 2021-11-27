@@ -44,14 +44,14 @@ struct EthTokenViewCellViewModel {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Colors.headerThemeColor,
-            .font: Fonts.semibold(size: 18)
+            .font: Fonts.bold(size: 14)
         ])
     }
 
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: amount + " " + token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
+            .font: Fonts.regular(size: 9)
         ])
     }
 
@@ -88,17 +88,13 @@ struct EthTokenViewCellViewModel {
 
         return NSAttributedString(string: valuePercentageChangeValue, attributes: [
             .foregroundColor: valuePercentageChangeColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Fonts.regular(size: 9)
         ])
     }
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-<<<<<<< Updated upstream
-            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? "-"
-=======
             return NumberFormatter.usd(format: .withTrailingCurrency).string(from: result) ?? "-"
->>>>>>> Stashed changes
         } else {
             return "-"
         }
@@ -107,7 +103,7 @@ struct EthTokenViewCellViewModel {
     var priceChangeUSDValueAttributedString: NSAttributedString {
         return NSAttributedString(string: priceChangeUSDValue, attributes: [
             .foregroundColor: Colors.priceColor,
-            .font: Screen.TokenCard.Font.valueChangeLabel
+            .font: Fonts.regular(size: 9)
         ])
     }
 
@@ -120,14 +116,9 @@ struct EthTokenViewCellViewModel {
     }
 
     var fiatValueAttributedString: NSAttributedString {
-<<<<<<< Updated upstream
-        return NSAttributedString(string: amountAccordingRPCServer ?? "-", attributes: [
-            .foregroundColor: Screen.TokenCard.Color.title,
-=======
         return NSAttributedString(string: amountAccordingRPCServer ?? "0.000", attributes: [
             .foregroundColor: Colors.headerThemeColor,
->>>>>>> Stashed changes
-            .font: Screen.TokenCard.Font.valueChangeValue
+            .font: Fonts.bold(size: 14)
         ])
     }
 

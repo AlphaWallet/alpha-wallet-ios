@@ -52,14 +52,14 @@ struct AccountViewModel {
 
     func balanceAttributedString(for value: String?) -> NSAttributedString {
         return .init(string: value ?? "--", attributes: [
-            .font: Fonts.bold(size: 20),
+            .font: Fonts.bold(size: 15),
             .foregroundColor: Colors.black,
         ])
     }
 
     var addressesAttrinutedString: NSAttributedString {
         return .init(string: addresses, attributes: [
-            .font: Fonts.regular(size: 12),
+            .font: Fonts.spaceMedium(size: 10),
             .foregroundColor: R.color.dove()!
         ])
     }

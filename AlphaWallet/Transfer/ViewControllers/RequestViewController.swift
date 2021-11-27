@@ -34,7 +34,6 @@ class RequestViewController: UIViewController {
 		let v = UIView()
 		v.backgroundColor = viewModel.addressBackgroundColor
         v.isUserInteractionEnabled = true
-
 		return v
 	}()
 
@@ -244,7 +243,7 @@ class RequestViewController: UIViewController {
 	}
 }
 
-fileprivate extension UIStackView {
+extension UIStackView {
 	func addSubview(forBackgroundColor backgroundColor: UIColor) {
 		let v = UIView(frame: bounds)
 		v.backgroundColor = backgroundColor

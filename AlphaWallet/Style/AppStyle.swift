@@ -15,7 +15,7 @@ func applyStyle() {
         appearance.shadowImage = UIImage()
         appearance.titleTextAttributes = [
             .foregroundColor: Colors.appWhite,
-            .font: Fonts.semibold(size: 17) as Any
+            .font: Fonts.bold(size: 18) as Any
         ]
         appearance.largeTitleTextAttributes = [
             .foregroundColor: Colors.appWhite,
@@ -30,7 +30,7 @@ func applyStyle() {
         tabAppearance.configureWithOpaqueBackground()
         tabAppearance.backgroundColor = Colors.appWhite
         UITabBar.appearance().standardAppearance = tabAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+       // UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     } else {
         UITabBar.appearance().tintColor = Colors.appTint
         UINavigationBar.appearance().barTintColor = Colors.headerThemeColor
@@ -38,7 +38,7 @@ func applyStyle() {
         UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
         UINavigationBar.appearance().titleTextAttributes = [
             .foregroundColor: Colors.appWhite,
-            .font: Fonts.semibold(size: 17) as Any
+            .font: Fonts.bold(size: 18) as Any
         ]
         UINavigationBar.appearance().largeTitleTextAttributes = [
             .foregroundColor: Colors.appWhite,
@@ -50,7 +50,6 @@ func applyStyle() {
         // Fallback on earlier versions
     }
    
-
     if #available(iOS 13.0, *) {
         //NOTE: Hides back button text
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
@@ -112,10 +111,10 @@ struct Colors {
     static let navigationTitleColor = UIColor.black
     static let navigationButtonTintColor = R.color.mine()!
     static let appWhite = UIColor.white
-    static let appText = UIColor(red: 47, green: 47, blue: 47)
+    static let appText = UIColor(red: 21, green: 33, blue: 114)
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
-    static let appActionButtonGreen = UIColor(red: 105, green: 200, blue: 0)
+    static let appActionButtonGreen = UIColor(red: 21, green: 33, blue: 114)
     static let disabledActionButton = UIColor(hex: "d7ebc8")
     static let appActionButtonShadow = UIColor.clear
     static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
@@ -142,18 +141,27 @@ struct StyleLayout {
 }
 
 struct Fonts {
+    
     static func light(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProLight, size: size)!
+        return UIFont(resource: R.font.spaceTextLight, size: size)!
     }
+    
     static func regular(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProRegular, size: size)!
+        return UIFont(resource: R.font.spaceTextRegular, size: size)!
     }
+    
     static func semibold(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProSemibold, size: size)!
+        return UIFont(resource: R.font.spaceTextSemiBold, size: size)!
     }
+    
     static func bold(size: CGFloat) -> UIFont {
-        return UIFont(resource: R.font.sourceSansProBold, size: size)!
+        return UIFont(resource: R.font.spaceTextBold, size: size)!
     }
+    
+    static func spaceMedium(size: CGFloat) -> UIFont {
+        return UIFont(resource: R.font.spaceTextMedium, size: size)!
+    }
+    
     static let tableHeader = Fonts.semibold(size: 15)
 }
 
@@ -299,7 +307,7 @@ enum Label {
 enum Screen {
 
     enum Tokens {
-        static let addHideTokenFont = Fonts.semibold(size: 17)
+        static let addHideTokenFont = Fonts.bold(size: 14)
     }
 
     enum Backup {
@@ -329,7 +337,7 @@ enum Screen {
 
     enum TokenCard {
         enum Font {
-            static let title: UIFont = Fonts.regular(size: 20)
+            static let title: UIFont = Fonts.bold(size: 14)
             static let titleBold: UIFont = Fonts.regular(size: 16)
             static let subtitle = Fonts.regular(size: 15)
             static let blockChainName = Fonts.semibold(size: 12)

@@ -17,7 +17,7 @@ struct SettingTableViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.semibold(size: 17)
+        return Fonts.spaceMedium(size: 14)
     }
 
     var titleTextColor: UIColor {
@@ -25,7 +25,7 @@ struct SettingTableViewCellViewModel {
     }
 
     var subTitleFont: UIFont {
-        return Fonts.regular(size: 12)
+        return Fonts.spaceMedium(size: 9)
     }
 
     var subTitleTextColor: UIColor {

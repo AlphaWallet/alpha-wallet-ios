@@ -18,9 +18,9 @@ struct CreateInitialViewModel {
 
     var subtitleFont: UIFont {
         if ScreenChecker().isNarrowScreen {
-            return Fonts.regular(size: 20)
+            return Fonts.regular(size: 16)
         } else {
-            return Fonts.regular(size: 30)
+            return Fonts.regular(size: 24)
         }
     }
 

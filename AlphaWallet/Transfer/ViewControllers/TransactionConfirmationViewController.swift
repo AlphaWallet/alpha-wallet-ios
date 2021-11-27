@@ -170,7 +170,7 @@ class TransactionConfirmationViewController: UIViewController {
 
         switch viewModel {
         case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
-            headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
+//            headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
 
             dappTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
                 guard let strongSelf = self else { return }

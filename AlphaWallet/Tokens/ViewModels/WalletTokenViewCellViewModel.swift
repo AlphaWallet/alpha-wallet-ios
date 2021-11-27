@@ -30,7 +30,7 @@ struct WalletTokenViewCellViewModel {
     var cryptoValueAttributedString: NSAttributedString {
         return NSAttributedString(string: isVisible ? amount : String(), attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
-            .font: Screen.TokenCard.Font.title
+            .font: Fonts.bold(size: 14)
         ])
     }
 
@@ -45,7 +45,7 @@ struct WalletTokenViewCellViewModel {
     var titleAttributedString: NSAttributedString {
         return NSAttributedString(string: title, attributes: [
             .foregroundColor: Colors.headerThemeColor,
-            .font: Screen.TokenCard.Font.titleBold
+            .font: Fonts.bold(size: 14)
         ])
     }
 

@@ -112,7 +112,7 @@ class NewTokenViewController: UIViewController {
 
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
-        addressTextField.value = "0x63cCEF733a093E5Bd773b41C96D3eCE361464942" //initialState.addressStringValue
+        addressTextField.value = initialState.addressStringValue
         symbolTextField.delegate = self
         symbolTextField.returnKeyType = .next
 

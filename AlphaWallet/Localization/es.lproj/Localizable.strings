@@ -4,6 +4,7 @@
 "Done" = "Hecho";
 "Cancel" = "Cancelar";
 "Continue" = "Continuar";
+"Close" = "Close";
 "Skip" = "Omitir";
 "Save" = "Guardar";
 "Delete" = "Eliminar";
@@ -177,8 +178,8 @@
 "importWallet.import.invalidMnemonic" = "La frase semilla no es válida";
 "importWallet.import.fromCloud.title" = "Importar desde iCloud/Dropbox/Google Drive";
 "importWallet.import.seedPhrase.description" = "Si tu frase semilla no está en inglés, pásala primero a inglés";
-"Keystore JSON" = "JSON del almacén de claves";
-"More Details" = "Más detalles";
+"Keystore JSON" = "del almacén de claves";
+"More Details" = "Ver en el Explorador de bloques";
 "view in" = "Ver en %@";
 "Keystore" = "JSON del almacén de claves";
 "Keystore.shorter" = "Almacén de claves";
@@ -502,7 +503,7 @@
 "token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
 "token.transactionConfirmation.network" = "Network";
-"token.transactionTransferConfirmation.title" = "Confirm Transfer?";
+"token.transactionTransferConfirmation.title" = "Confirm Transaction";
 "token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
 "token.transactionSpeedupConfirmation.title" = "Confirm Transaction?";
 "token.transactionCancelConfirmation.title" = "Attempt to Cancel";
@@ -530,8 +531,8 @@
 "token.transactionConfirmation.error.linkTitle.gasLimitTooLow" = "Learn more about Gas Limit";
 "token.transactionConfirmation.error.linkTitle.gasLimitTooHigh" = "Learn more about Gas Limit";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
-"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
-"a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
+"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum blockchain.\nIt might take few minutes to be confirmed by miners.";
+"a.wallet.token.transaction.inProgress.confirm" = "Show Transaction Details";
 "a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Swap";
 "a.wallet.token.erc20ExchangeOnQuickSwap.button.title" = "Swap";
 "a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";

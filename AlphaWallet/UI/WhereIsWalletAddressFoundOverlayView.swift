@@ -1,3 +1,4 @@
+
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
@@ -84,6 +85,7 @@ private class Dialog: UIView {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let closeButtonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     weak var delegate: DialogDelegate?
 
@@ -130,7 +132,7 @@ private class Dialog: UIView {
 
         buttonsBar.configure()
         let continueButton = buttonsBar.buttons[0]
-        continueButton.setTitle(R.string.localizable.continue().localizedUppercase, for: .normal)
+        continueButton.setTitle(R.string.localizable.close().localizedUppercase, for: .normal)
         continueButton.addTarget(self, action: #selector(hide), for: .touchUpInside)
     }
 

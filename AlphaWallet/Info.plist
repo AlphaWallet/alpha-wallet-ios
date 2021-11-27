@@ -4,8 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-    <key>UIUserInterfaceStyle</key>
-    <string>Light</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -114,6 +114,11 @@
 		<string>SourceSansPro-Regular.otf</string>
 		<string>SourceSansPro-Semibold.otf</string>
 		<string>SourceSansPro-SemiboldIt.otf</string>
+		<string>SpaceText-Medium.otf</string>
+		<string>SpaceText-SemiBold.otf</string>
+		<string>SpaceText-Bold.otf</string>
+		<string>SpaceText-Regular.otf</string>
+		<string>SpaceText-Light.otf</string>
 	</array>
 	<key>UIApplicationShortcutItems</key>
 	<array>

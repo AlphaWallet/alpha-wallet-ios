@@ -29,11 +29,8 @@ class DefaultActivityView: UIView {
 
     func configure(viewModel: DefaultActivityViewModel) {
         self.viewModel = viewModel
-
-        background.backgroundColor = viewModel.contentsBackgroundColor
-
-        backgroundColor = viewModel.backgroundColor
-
+        background.backgroundColor = Colors.clear
+        backgroundColor = Colors.clear
         amountLabel.attributedText = viewModel.amount
         amountLabel.textAlignment = .center
     }

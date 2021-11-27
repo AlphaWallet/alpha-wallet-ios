@@ -38,7 +38,17 @@ class VerifySeedPhraseViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
-    private let clearChooseSeedPhraseButton = UIButton(type: .system)
+    private lazy var clearChooseSeedPhraseButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(clearChosenSeedPhrases), for: .touchUpInside)
+        button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
+        button.setTitleColor(Colors.headerThemeColor, for: .normal)
+        button.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
+        button.contentHorizontalAlignment = .right
+        return button
+    }()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var state: State {
         didSet {
@@ -118,7 +128,7 @@ class VerifySeedPhraseViewController: UIViewController {
         roundedBackground.addSubview(stackView)
 
         clearChooseSeedPhraseButton.isHidden = true
-        clearChooseSeedPhraseButton.translatesAutoresizingMaskIntoConstraints = false
+
         roundedBackground.addSubview(clearChooseSeedPhraseButton)
         roundedBackground.backgroundColor = Colors.appBackground
 
@@ -136,16 +146,14 @@ class VerifySeedPhraseViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: clearChooseSeedPhraseButton.topAnchor, constant: -7),
-            
-            seedPhraseCollectionView.centerXAnchor.constraint(equalTo: roundedBackground.centerXAnchor),
-            seedPhraseCollectionView.centerYAnchor.constraint(equalTo: roundedBackground.centerYAnchor),
-            seedPhraseCollectionView.widthAnchor.constraint(equalTo: roundedBackground.widthAnchor, multiplier: 320/375),
-            seedPhraseCollectionView.heightAnchor.constraint(equalToConstant: 125),
-            
-            clearChooseSeedPhraseButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
-            clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
-            clearChooseSeedPhraseButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -10),
+
+            seedPhraseCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            seedPhraseCollectionView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            seedPhraseCollectionView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            seedPhraseCollectionView.heightAnchor.constraint(equalToConstant: 160),
+
+            clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            clearChooseSeedPhraseButton.topAnchor.constraint(equalTo: seedPhraseCollectionView.bottomAnchor, constant: 10),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -223,12 +231,7 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseCollectionView.configure()
         seedPhraseCollectionView.backgroundColor = Colors.appWhite
         seedPhraseCollectionView.contentInset = .init(top: 12, left: 12, bottom: 12, right: 12)
-        seedPhraseCollectionView.cornerRadius = 8
-        
-        clearChooseSeedPhraseButton.addTarget(self, action: #selector(clearChosenSeedPhrases), for: .touchUpInside)
-        clearChooseSeedPhraseButton.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
-        clearChooseSeedPhraseButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
-        clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
+        seedPhraseCollectionView.cornerRadius = 0
 
         buttonsBar.configure()
         continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseVerify(), for: .normal)
