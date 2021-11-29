@@ -133,6 +133,8 @@ class SaveCustomRpcView: UIView {
 
             footerBar.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            footerBar.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             footerBar.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: self))
     }
@@ -152,6 +154,15 @@ class SaveCustomRpcView: UIView {
         for field in allTextFields {
             field.status = .none
         }
+    }
+
+    func unobscure(textField: TextField) {
+        guard textField != allTextFields.first else {
+            self.scrollView.setContentOffset(.zero, animated: true)
+            return
+        }
+        let rect = self.scrollView.convert(textField.bounds, from: textField)
+        self.scrollView.scrollRectToVisible(rect, animated: true)
     }
 
     private func configureInputAccessoryView() {
@@ -205,6 +216,7 @@ fileprivate func defaultTextField(_ type: UIKeyboardType, placeHolder: String, l
     textField.keyboardType = type
     textField.textField.autocorrectionType = .no
     textField.textField.autocapitalizationType = .none
+    textField.textField.spellCheckingType = .no
     textField.returnKeyType = .next
     textField.placeholder = placeHolder
     textField.label.text = label
