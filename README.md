@@ -60,6 +60,17 @@ We want to give businesses the whitelabel tools they need to develop their ether
 1. [Download  Xcode 13](https://developer.apple.com/download/more/)
 2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
+4. Open the AlphaWallet.xcworkspace file to begin.
+
+If you get a "Bundle does not exist. Please install bundle." error, please consult with your macOS guru because a vital part of your system is missing.
+
+This makefile has been tested to run on "Monterey"-12.0.1. It will not work on "Catalina" or "Big Sur".
+
+### Updating GemFile or Podfile
+
+After the Gemfile is updated, run `make install_gems` to update the gems in the vendor/bundle directory.
+
+After the Podfile is updated, run `make install_pods` or `make update_pods` to update the pods in the Pods directory.
 
 ### Add your token to AlphaWallet
 
