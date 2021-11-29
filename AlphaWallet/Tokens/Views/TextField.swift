@@ -7,11 +7,15 @@ protocol TextFieldDelegate: AnyObject {
     func doneButtonTapped(for textField: TextField)
     func nextButtonTapped(for textField: TextField)
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool
+    func didBeginEditing(in textField: TextField)
 }
 
 extension TextFieldDelegate {
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
         return true
+    }
+    func didBeginEditing(in textField: TextField) {
+        return
     }
 }
 
@@ -235,6 +239,7 @@ extension TextField: UITextFieldDelegate {
         backgroundColor = Colors.appWhite
 
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
+        delegate?.didBeginEditing(in: self)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
