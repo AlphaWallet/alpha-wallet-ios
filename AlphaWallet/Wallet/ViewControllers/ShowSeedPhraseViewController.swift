@@ -29,7 +29,13 @@ class ShowSeedPhraseViewController: UIViewController {
     private let account: AlphaWallet.Address
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
-    private var viewWhiteCenter = UIView()
+    private var viewWhiteCenter: UIView = {
+       let view = UIView()
+        view.backgroundColor = Colors.appWhite
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.cornerRadius = 5
+        return view
+    }()
     private let errorLabel = UILabel()
     private var state: State = .notDisplayedSeedPhrase {
         didSet {
@@ -51,7 +57,13 @@ class ShowSeedPhraseViewController: UIViewController {
             configure()
         }
     }
-    private let seedPhraseCollectionView = SeedPhraseCollectionView()
+    
+    private let seedPhraseCollectionView: SeedPhraseCollectionView = {
+        let collectionView = SeedPhraseCollectionView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var notDisplayingSeedPhrase: Bool {
         switch state {
@@ -89,22 +101,18 @@ class ShowSeedPhraseViewController: UIViewController {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.backgroundColor = Colors.appBackground
         view.addSubview(roundedBackground)
+       
         view.backgroundColor = Colors.appBackground
-        viewWhiteCenter = UIView.spacer(height: 125, backgroundColor: .white)
-        viewWhiteCenter.layer.cornerRadius = 5
+        viewWhiteCenter.addSubview(seedPhraseCollectionView)
         let stackView = [
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
-            subtitleLabel,
-            UIView.spacer(height: 10),
-            UIView.spacer(height: 100, backgroundColor: .clear),
-            viewWhiteCenter,
-//            errorLabel,
-            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 50),
-            seedPhraseCollectionView,
+            subtitleLabel
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
-
+        roundedBackground.addSubview(viewWhiteCenter)
+        roundedBackground.addSubview(errorLabel)
+        
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
@@ -116,17 +124,29 @@ class ShowSeedPhraseViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -7),
+            viewWhiteCenter.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            viewWhiteCenter.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            viewWhiteCenter.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
+            errorLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            errorLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            errorLabel.topAnchor.constraint(equalTo: viewWhiteCenter.bottomAnchor, constant: 10),
+            
+            seedPhraseCollectionView.leadingAnchor.constraint(equalTo: viewWhiteCenter.leadingAnchor, constant: 16),
+            seedPhraseCollectionView.trailingAnchor.constraint(equalTo: viewWhiteCenter.trailingAnchor, constant: -16),
+            seedPhraseCollectionView.topAnchor.constraint(equalTo: viewWhiteCenter.topAnchor, constant: 16),
+            seedPhraseCollectionView.bottomAnchor.constraint(equalTo: viewWhiteCenter.bottomAnchor, constant: -16),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
+            
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            seedPhraseCollectionView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 135 : 125),
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])

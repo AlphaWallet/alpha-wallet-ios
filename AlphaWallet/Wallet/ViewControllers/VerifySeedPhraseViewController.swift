@@ -36,7 +36,11 @@ class VerifySeedPhraseViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
-    private let seedPhraseCollectionView = SeedPhraseCollectionView()
+    private let seedPhraseCollectionView: SeedPhraseCollectionView = {
+        let collectionView = SeedPhraseCollectionView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
     private let errorLabel = UILabel()
     private lazy var clearChooseSeedPhraseButton: UIButton = {
         let button = UIButton(type: .system)
@@ -49,6 +53,15 @@ class VerifySeedPhraseViewController: UIViewController {
         button.contentHorizontalAlignment = .right
         return button
     }()
+    
+    private var viewWhiteCenter: UIView = {
+       let view = UIView()
+        view.backgroundColor = Colors.appWhite
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.cornerRadius = 5
+        return view
+    }()
+    
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var state: State {
         didSet {
@@ -99,6 +112,13 @@ class VerifySeedPhraseViewController: UIViewController {
     private var continueButton: UIButton {
         return buttonsBar.buttons[0]
     }
+    
+    private let selectedSeedPhraseCollectionView: SeedPhraseCollectionView = {
+        let collectionView = SeedPhraseCollectionView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = Colors.clear
+        return collectionView
+    }()
 
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
@@ -113,19 +133,19 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseCollectionView.bounces = true
         seedPhraseCollectionView.seedPhraseDelegate = self
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
         let stackView = [
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20: 30),
             subtitleLabel,
         ].asStackView(axis: .vertical)
         
-        seedPhraseCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(seedPhraseCollectionView)
-        
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(roundedBackground)
         roundedBackground.addSubview(stackView)
+        roundedBackground.addSubview(viewWhiteCenter)
+        viewWhiteCenter.addSubview(selectedSeedPhraseCollectionView)
+        roundedBackground.addSubview(seedPhraseCollectionView)
+
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
         clearChooseSeedPhraseButton.isHidden = true
 
@@ -147,13 +167,23 @@ class VerifySeedPhraseViewController: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
 
-            seedPhraseCollectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            viewWhiteCenter.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            viewWhiteCenter.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            viewWhiteCenter.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            
+            selectedSeedPhraseCollectionView.leadingAnchor.constraint(equalTo: viewWhiteCenter.leadingAnchor, constant: 16),
+            selectedSeedPhraseCollectionView.trailingAnchor.constraint(equalTo: viewWhiteCenter.trailingAnchor, constant: -16),
+            selectedSeedPhraseCollectionView.topAnchor.constraint(equalTo: viewWhiteCenter.topAnchor, constant: 16),
+            selectedSeedPhraseCollectionView.bottomAnchor.constraint(equalTo: viewWhiteCenter.bottomAnchor, constant: -16),
+            selectedSeedPhraseCollectionView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 135 : 125),
+
+            seedPhraseCollectionView.topAnchor.constraint(equalTo: viewWhiteCenter.bottomAnchor, constant: 37),
             seedPhraseCollectionView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             seedPhraseCollectionView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             seedPhraseCollectionView.heightAnchor.constraint(equalToConstant: 160),
 
             clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            clearChooseSeedPhraseButton.topAnchor.constraint(equalTo: seedPhraseCollectionView.bottomAnchor, constant: 10),
+            clearChooseSeedPhraseButton.topAnchor.constraint(equalTo: viewWhiteCenter.topAnchor, constant: -40),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -227,11 +257,7 @@ class VerifySeedPhraseViewController: UIViewController {
         errorLabel.font = viewModel.errorFont
         errorLabel.numberOfLines = 0
         
-        seedPhraseCollectionView.viewModel = .init(words: Array(repeating: "element", count: 10), isSelectable: false)
         seedPhraseCollectionView.configure()
-        seedPhraseCollectionView.backgroundColor = Colors.appWhite
-        seedPhraseCollectionView.contentInset = .init(top: 12, left: 12, bottom: 12, right: 12)
-        seedPhraseCollectionView.cornerRadius = 0
 
         buttonsBar.configure()
         continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseVerify(), for: .normal)
@@ -242,6 +268,8 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.isHidden = true
         continueButton.isEnabled = false
         state = .editingSeedPhrase(words: state.words)
+        selectedSeedPhraseCollectionView.viewModel = .init(words: [], isSelectable: false)
+        selectedSeedPhraseCollectionView.configure()
     }
 
     private func updateStateWithVerificationResult(_ isMatched: Bool) {
@@ -289,5 +317,8 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
             clearChooseSeedPhraseButton.isHidden = false
             continueButton.isEnabled = false
         }
+        
+        selectedSeedPhraseCollectionView.viewModel = .init(words: collectionView.viewModel.getSelectedSeedPhraseWord(), isSelectable: false)
+        selectedSeedPhraseCollectionView.configure()
     }
 }

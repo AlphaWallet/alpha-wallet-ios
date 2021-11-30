@@ -29,7 +29,6 @@ class SeedPhraseCell: UICollectionViewCell {
         label.text = viewModel.word
         contentView.cornerRadius = 4
         contentView.borderColor = Colors.borderGrayColor
-        contentView.clipsToBounds = true
         if viewModel.isSelected {
             contentView.backgroundColor = viewModel.selectedBackgroundColor
             backgroundColor = viewModel.selectedBackgroundColor
@@ -41,5 +40,6 @@ class SeedPhraseCell: UICollectionViewCell {
             label.textColor = viewModel.textColor
             contentView.layer.borderWidth = 1
         }
+        contentView.clipsToBounds = true
     }
 }

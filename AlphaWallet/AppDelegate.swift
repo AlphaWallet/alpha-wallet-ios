@@ -29,7 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let keystore = try EtherKeystore(analyticsCoordinator: analyticsService)
             let navigationController = UINavigationController()
 
-
             appCoordinator = try AppCoordinator(window: window!, analyticsService: analyticsService, keystore: keystore, navigationController: navigationController)
             appCoordinator.start()
 

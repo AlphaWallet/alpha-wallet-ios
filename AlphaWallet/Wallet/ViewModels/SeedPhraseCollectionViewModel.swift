@@ -44,4 +44,14 @@ struct SeedPhraseCollectionViewModel {
     mutating func clearSelectedWords() {
         selectedIndices = []
     }
+
+    func getSelectedSeedPhraseWord() -> [String] {
+        var selectedWords = [String]()
+        for (index, value) in words.enumerated() {
+            if isWordSelected(atIndex: index) {
+                selectedWords.append(value)
+            }
+        }
+        return selectedWords
+    }
 }

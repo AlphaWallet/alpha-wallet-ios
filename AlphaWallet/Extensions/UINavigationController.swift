@@ -5,12 +5,12 @@ import UIKit
 extension UINavigationController {
     //Remove after iOS 11.2 will patch this bug.
     func applyTintAdjustment() {
-        navigationBar.tintAdjustmentMode = .normal
-        navigationBar.tintAdjustmentMode = .automatic
+//        navigationBar.tintAdjustmentMode = .normal
+//        navigationBar.tintAdjustmentMode = .automatic
         //cryptobit
         navigationBar.backgroundColor = Colors.headerThemeColor
         navigationBar.barTintColor = Colors.headerThemeColor
-        navigationBar.barStyle = .black
+        navigationBar.tintColor = .white
     }
 
     public func pushViewController(_ viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {

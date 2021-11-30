@@ -184,7 +184,7 @@ class TokensViewController: UIViewController {
 
         return view
     }()
-
+    
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
          tokenCollection: TokenCollection,

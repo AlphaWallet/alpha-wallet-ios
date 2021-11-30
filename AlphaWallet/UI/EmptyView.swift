@@ -35,7 +35,7 @@ class EmptyView: UIView {
         let attributedTitle = title.flatMap { value in
             return NSAttributedString.init(string: value, attributes: [
                 .foregroundColor: Colors.appText,
-                .font: Fonts.regular(size: 16)
+                .font: Fonts.regular(size: 12)
             ])
         }
         return configure(attributedTitle: attributedTitle)
@@ -46,7 +46,7 @@ class EmptyView: UIView {
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
             label.attributedText = attributedTitle
-
+            label.numberOfLines = 0
             return label
         }
         return build()
