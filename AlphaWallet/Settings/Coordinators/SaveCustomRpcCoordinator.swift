@@ -33,6 +33,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     private let restartQueue: RestartTaskQueue
     private let analyticsCoordinator: AnalyticsCoordinator
     private let operation: SaveOperationType
+    private var viewController: SaveCustomRpcViewController?
     var coordinators: [Coordinator] = []
     weak var delegate: SaveCustomRpcCoordinatorDelegate?
 
@@ -47,6 +48,7 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     func start() {
         let viewModel = SaveCustomRpcViewModel(model: operation.customRpc)
         let viewController = SaveCustomRpcViewController(viewModel: viewModel)
+        self.viewController = viewController
         viewController.delegate = self
         setNaviationTitle(viewController: viewController)
         navigationController.pushViewController(viewController, animated: true)
@@ -99,6 +101,12 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
         let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.message, style: .alert, in: navigationController)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
+    }
+
+    func notifyRpcURlHostnameFailure() {
+        DispatchQueue.main.async {
+            self.viewController?.handleRpcUrlFailure()
+        }
     }
 }
 

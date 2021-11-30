@@ -27,6 +27,13 @@ protocol AddCustomChainDelegate: AnyObject {
     func notifyAddCustomChainQueuedSuccessfully(in addCustomChain: AddCustomChain)
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain)
     func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool>
+    func notifyRpcURlHostnameFailure()
+}
+
+// TODO: Remove when other classes which implement AddCustomChainDelegate protocol add this function.
+extension AddCustomChainDelegate {
+    func notifyRpcURlHostnameFailure() {
+    }
 }
 
 //TODO The detection and tests for various URLs are async so the UI might appear to do nothing to user as it is happening
@@ -65,11 +72,14 @@ class AddCustomChain {
         }.done {
             self.delegate?.notifyAddCustomChainQueuedSuccessfully(in: self)
         }.catch {
-            if let error = $0 as? AddCustomChainError {
-                self.delegate?.notifyAddCustomChainFailed(error: error, in: self)
-            } else if case PMKError.cancelled = $0 {
-                //no-op
-            } else {
+            switch $0 {
+            case SessionTaskError.connectionError:
+                self.delegate?.notifyRpcURlHostnameFailure()
+            case is AddCustomChainError:
+                self.delegate?.notifyAddCustomChainFailed(error: ($0 as! AddCustomChainError), in: self)
+            case PMKError.cancelled:
+                return
+            default:
                 self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown()) — \($0)"), in: self)
             }
         }
