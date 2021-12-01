@@ -30,6 +30,10 @@ Leave empty lines empty, without whitespace/indentation
 
 Group private let/var before others in a type
 
+Don't include unnecessary `self.` references. It suggests that `self` is strongly held in a closure.
+
+Avoid using `switch-default`
+
 How to Add a New Chain
 ---
 1. Open RPCServers.swift
