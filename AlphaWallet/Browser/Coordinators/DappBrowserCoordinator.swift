@@ -16,6 +16,7 @@ protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -475,6 +476,10 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
             strongSelf.removeCoordinator(coordinator)
             strongSelf.navigationController.dismiss(animated: true)
         }
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

@@ -7,6 +7,7 @@ import Result
 protocol ReplaceTransactionCoordinatorDelegate: class, CanOpenURL {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ReplaceTransactionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class ReplaceTransactionCoordinator: Coordinator {
@@ -145,6 +146,17 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
         removeCoordinator(coordinator)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        let source: Analytics.FiatOnRampSource
+        switch mode {
+        case .speedup:
+            source = .speedupTransactionInsufficientFunds
+        case .cancel:
+            source = .cancelTransactionInsufficientFunds
+        }
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
     }
 }
 

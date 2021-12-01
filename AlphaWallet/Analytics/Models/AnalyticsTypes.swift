@@ -185,4 +185,11 @@ enum Analytics {
     enum HelpUrl: String {
         case insufficientFunds
     }
+
+    enum FiatOnRampSource: String {
+        case token
+        case transactionActionSheetInsufficientFunds
+        case speedupTransactionInsufficientFunds
+        case cancelTransactionInsufficientFunds
+    }
 }

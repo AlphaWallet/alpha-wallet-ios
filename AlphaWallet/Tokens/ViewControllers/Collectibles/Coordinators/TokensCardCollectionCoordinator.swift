@@ -15,6 +15,7 @@ import BigInt
 protocol TokensCardCollectionCoordinatorDelegate: class, CanOpenURL {
     func didCancel(in coordinator: TokensCardCollectionCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCardCollectionCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCardCollectionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class TokensCardCollectionCoordinator: NSObject, Coordinator {
@@ -359,6 +360,10 @@ extension TokensCardCollectionCoordinator: TransferNFTCoordinatorDelegate {
             coordinator.start()
         }
     }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferNFTCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+    }
 }
 
 extension TokensCardCollectionCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
@@ -499,6 +504,10 @@ extension TokensCardCollectionCoordinator: TransactionConfirmationCoordinatorDel
 
             coordinator.start()
         }
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

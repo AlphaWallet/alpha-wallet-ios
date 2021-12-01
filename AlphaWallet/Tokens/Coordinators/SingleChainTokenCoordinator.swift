@@ -23,6 +23,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
     func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator)
     func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in cordinator: SingleChainTokenCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SingleChainTokenCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 // swiftlint:disable type_body_length
@@ -624,6 +625,10 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCardCoordinator) {
         delegate?.didPostTokenScriptTransaction(transaction, in: self)
     }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCardCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+    }
 }
 
 extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
@@ -723,6 +728,10 @@ extension SingleChainTokenCoordinator: TransactionConfirmationCoordinatorDelegat
 
             coordinator.start()
         }
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

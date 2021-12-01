@@ -9,6 +9,16 @@ import UIKit
 import PromiseKit
 import Result
 
+protocol SendTransactionDelegate: class {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
+}
+
+protocol FiatOnRampDelegate: class {
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController)
+}
+
+typealias SendTransactionAndFiatOnRampDelegate = SendTransactionDelegate & FiatOnRampDelegate
+
 private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
@@ -17,15 +27,16 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
     private let (promise, seal) = Promise<ConfirmResult>.pending()
     private var retainCycle: TransactionConfirmationCoordinatorBridgeToPromise?
     private weak var confirmationCoordinator: TransactionConfirmationCoordinator?
-    private var didSendTransactionClosure: ((SentTransaction) -> Void)?
+    private weak var delegate: SendTransactionAndFiatOnRampDelegate?
 
-    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, analyticsCoordinator: AnalyticsCoordinator, didSendTransactionClosure: @escaping (SentTransaction) -> Void) {
+    init(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, analyticsCoordinator: AnalyticsCoordinator, delegate: SendTransactionAndFiatOnRampDelegate?) {
         self.navigationController = navigationController
         self.session = session
         self.coordinator = coordinator
         self.analyticsCoordinator = analyticsCoordinator
         retainCycle = self
-        self.didSendTransactionClosure = didSendTransactionClosure
+        self.delegate = delegate
+
         promise.ensure {
             //NOTE: Ensure we break the retain cycle, and remove coordinator from list
             self.retainCycle = nil
@@ -50,8 +61,7 @@ private class TransactionConfirmationCoordinatorBridgeToPromise {
 
 extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirmationCoordinatorDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
-        didSendTransactionClosure?(transaction)
-        didSendTransactionClosure = .none
+        delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
@@ -70,6 +80,10 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
         seal.reject(DAppError.cancelled)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: coordinator, viewController: viewController)
     }
 }
 
@@ -107,10 +121,8 @@ extension UIViewController {
 }
 
 extension TransactionConfirmationCoordinator {
-    // NOTE: Hack usage of closure `didSendTransactionClosure`, its not good to do like that,
-    // made to easily get called `didSendTransaction` method as promise can't be called twice
-    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource, didSendTransactionClosure: @escaping (SentTransaction) -> Void) -> Promise<ConfirmResult> {
-        let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator, didSendTransactionClosure: didSendTransactionClosure)
+    static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?) -> Promise<ConfirmResult> {
+        let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator, delegate: delegate)
         return bridge.promise(transaction: transaction, configuration: configuration, source: source)
     }
 }

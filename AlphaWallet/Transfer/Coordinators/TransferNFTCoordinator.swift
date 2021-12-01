@@ -7,6 +7,7 @@ import Result
 protocol TransferNFTCoordinatorDelegate: class, CanOpenURL {
     func didClose(in coordinator: TransferNFTCoordinator)
     func didCompleteTransfer(withTransactionConfirmationCoordinator transactionConfirmationCoordinator: TransactionConfirmationCoordinator, result: TransactionConfirmationResult, inCoordinator coordinator: TransferNFTCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferNFTCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class TransferNFTCoordinator: Coordinator {
@@ -72,6 +73,10 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
         delegate?.didCompleteTransfer(withTransactionConfirmationCoordinator: coordinator, result: .confirmationResult(result), inCoordinator: self)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 
