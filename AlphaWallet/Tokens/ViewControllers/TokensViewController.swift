@@ -14,6 +14,29 @@ protocol TokensViewControllerDelegate: AnyObject {
 }
 
 extension UISearchBar: ReusableTableHeaderViewType {}
+extension UICollectionViewFlowLayout {
+    static var heightForLabel: CGFloat {
+        return CGFloat(25) * 2 + (8 + 8)
+    }
+
+    static var itemsInOneLine: CGFloat {
+        return 2
+    }
+
+    static var itemSpacing: CGFloat {
+        return 0
+    }
+
+    static var collectiblesItemSize: CGSize = {
+        let width = UIScreen.main.bounds.size.width - itemSpacing * CGFloat(itemsInOneLine - 1)
+        let dimension = width / itemsInOneLine
+        return CGSize(width: floor(dimension), height: dimension + heightForLabel)
+    }()
+
+    static var collectiblesItemImageSize: CGSize {
+        return CGSize(width: collectiblesItemSize.width, height: collectiblesItemSize.height - heightForLabel)
+    }
+}
 
 class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
@@ -24,6 +47,7 @@ class TokensViewController: UIViewController {
         case filters
         case search
         case tokens
+        case collectiblePairs
         case activeWalletSession(count: Int)
     }
 
@@ -44,13 +68,13 @@ class TokensViewController: UIViewController {
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
     lazy private var tableViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
-    lazy private var collectiblesCollectionViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.register(ServerTableViewCell.self)
+        tableView.register(OpenSeaNonFungibleTokenPairTableCell.self)
 
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<UISearchBar>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<SegmentedControl>.self)
@@ -73,37 +97,7 @@ class TokensViewController: UIViewController {
         control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         return control
     }()
-    private lazy var collectiblesCollectionViewRefreshControl: UIRefreshControl = {
-        let control = UIRefreshControl()
-        control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-
-        return control
-    }()
-    private lazy var collectiblesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        let numberOfColumns = CGFloat(3)
-        let dimension = (UIScreen.main.bounds.size.width / numberOfColumns).rounded(.down)
-        let heightForLabel = CGFloat(18)
-        layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
-        layout.minimumInteritemSpacing = 0
-        layout.headerReferenceSize = .init(width: DataEntry.Metric.TableView.headerReferenceSizeWidth, height: TokensViewController.filterViewHeight)
-        layout.sectionHeadersPinToVisibleBounds = true
-
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = viewModel.backgroundColor
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.alwaysBounceVertical = true
-        collectionView.register(OpenSeaNonFungibleTokenViewCell.self)
-        collectionView.registerSupplementaryView(CollectiblesCollectionViewHeader.self, of: UICollectionView.elementKindSectionHeader)
-        collectionView.dataSource = self
-        collectionView.isHidden = true
-        collectionView.delegate = self
-        collectionView.refreshControl = collectiblesCollectionViewRefreshControl
-
-        return collectionView
-    }()
     private (set) lazy var blockieImageView: BlockieImageView = .defaultBlockieImageView
-    private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private lazy var searchBar: UISearchBar = {
         let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))
@@ -223,7 +217,7 @@ class TokensViewController: UIViewController {
 
         viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [])
 
-        searchController = UISearchController.init(searchResultsController: nil)
+        searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
@@ -233,13 +227,9 @@ class TokensViewController: UIViewController {
         tableViewFilterView.delegate = self
         tableViewFilterView.translatesAutoresizingMaskIntoConstraints = false
 
-        collectiblesCollectionViewFilterView.delegate = self
-        collectiblesCollectionViewFilterView.translatesAutoresizingMaskIntoConstraints = false
-
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
         view.addSubview(tableView)
-        view.addSubview(collectiblesCollectionView)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         keyboardChecker.constraint = bottomConstraint
@@ -248,8 +238,7 @@ class TokensViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            bottomConstraint,
-            collectiblesCollectionView.anchorsConstraint(to: tableView)
+            bottomConstraint
         ])
 
         errorView = ErrorView(onRetry: { [weak self] in
@@ -309,7 +298,6 @@ class TokensViewController: UIViewController {
 
     @objc func pullToRefresh() {
         tableViewRefreshControl.beginRefreshing()
-        collectiblesCollectionViewRefreshControl.beginRefreshing()
         fetch()
     }
 
@@ -333,20 +321,7 @@ class TokensViewController: UIViewController {
 
     private func reload() {
         isPromptBackupWalletViewHolderHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
-        collectiblesCollectionView.isHidden = !viewModel.shouldShowCollectiblesCollectionView
         reloadTableData()
-        if viewModel.hasContent {
-            if viewModel.shouldShowCollectiblesCollectionView {
-                let contractsForCollectibles = contractsForCollectiblesFromViewModel()
-                if contractsForCollectibles != currentCollectiblesContractsDisplayed {
-                    currentCollectiblesContractsDisplayed = contractsForCollectibles
-                    collectiblesCollectionView.reloadData()
-                }
-                tableView.dataSource = nil
-            } else {
-                tableView.dataSource = self
-            }
-        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -387,9 +362,6 @@ class TokensViewController: UIViewController {
             if strongSelf.tableViewRefreshControl.isRefreshing {
                 strongSelf.tableViewRefreshControl.endRefreshing()
             }
-            if strongSelf.collectiblesCollectionViewRefreshControl.isRefreshing {
-                strongSelf.collectiblesCollectionViewRefreshControl.endRefreshing()
-            }
         }
     }
 
@@ -416,12 +388,7 @@ extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
-        case .rpcServer:
-            break
-        case .tokenObject(let token):
-            delegate?.didSelect(token: token, in: self)
-        }
+        didSelectToken(indexPath: indexPath)
     }
 
     //Hide the footer
@@ -442,7 +409,7 @@ extension TokensViewController: UITableViewDelegate {
             return 80
         case .search:
             return TokensViewController.addHideTokensViewHeight
-        case .tokens:
+        case .tokens, .collectiblePairs:
             return 0.01
         }
     }
@@ -468,7 +435,7 @@ extension TokensViewController: UITableViewDelegate {
             return header
         case .search:
             return searchBarHeader
-        case .tokens:
+        case .tokens, .collectiblePairs:
             return nil
         }
     }
@@ -528,6 +495,28 @@ extension TokensViewController: UITableViewDataSource {
                     return cell
                 }
             }
+        case .collectiblePairs:
+            let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.delegate = self
+
+            let pair = viewModel.collectiblePairs[indexPath.row]
+            let server = pair.left.server
+            let session = sessions[server]
+            let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(config: session.config, token: pair.left, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+
+            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in
+                let server = token.server
+                let session = sessions[server]
+                return OpenSeaNonFungibleTokenViewCellViewModel(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+            }
+
+            let viewModel: OpenSeaNonFungibleTokenPairTableCellViewModel = .init(leftViewModel: left, rightViewModel: right)
+            if let viewModel2 = cell.viewModel, viewModel == viewModel2 {
+                return cell
+            }
+            cell.configure(viewModel: .init(leftViewModel: left, rightViewModel: right))
+
+            return cell
         }
     }
 
@@ -535,7 +524,7 @@ extension TokensViewController: UITableViewDataSource {
         switch viewModel.sections[section] {
         case .search, .walletSummary, .filters, .activeWalletSession:
             return 0
-        case .tokens:
+        case .tokens, .collectiblePairs:
             return viewModel.numberOfItems()
         }
     }
@@ -546,7 +535,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch viewModel.sections[indexPath.section] {
-        case .search, .walletSummary, .filters, .activeWalletSession:
+        case .collectiblePairs, .search, .walletSummary, .filters, .activeWalletSession:
             return nil
         case .tokens:
             return trailingSwipeActionsConfiguration(forRowAt: indexPath)
@@ -597,7 +586,6 @@ extension TokensViewController: SegmentedControlDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
             if let selection = selection {
-                self.collectiblesCollectionViewFilterView.selection = selection
                 self.tableViewFilterView.selection = selection
             }
         }
@@ -612,38 +600,6 @@ extension TokensViewController: SegmentedControlDelegate {
                 break
             }
         }
-    }
-}
-
-extension TokensViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //Defensive check to make sure we don't return the wrong count. iOS might decide to load (the first time especially) the collection view at some point even if we don't switch to it, thus getting the wrong count and then at some point asking for a cell for those non-existent rows/items. E.g 10 tokens total, only 3 are collectibles and asked for the 6th cell
-        switch viewModel.filter {
-        case .collectiblesOnly:
-            return viewModel.numberOfItems()
-        case .all, .currencyOnly, .assetsOnly, .keyword, .type:
-            return 0
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
-        case .rpcServer:
-            return UICollectionViewCell()
-        case .tokenObject(let token):
-            let server = token.server
-            let session = sessions[server]
-            let cell: OpenSeaNonFungibleTokenViewCell = collectionView.dequeueReusableCell(for: indexPath)
-
-            cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore))
-            return cell
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header: CollectiblesCollectionViewHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
-        header.filterView = collectiblesCollectionViewFilterView
-        return header
     }
 }
 
@@ -665,19 +621,6 @@ extension TokensViewController: UISearchControllerDelegate {
         }, completion: { _ in
             //no-op
         })
-    }
-}
-
-extension TokensViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
-
-        switch viewModel.item(for: indexPath.item, section: indexPath.section) {
-        case .rpcServer:
-            break
-        case .tokenObject(let token):
-            delegate?.didSelect(token: token, in: self)
-        }
     }
 }
 
@@ -735,6 +678,31 @@ extension TokensViewController: UISearchBarDelegate {
         }
 
         return false
+    }
+}
+
+extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
+
+    private func didSelectToken(indexPath: IndexPath) {
+        let selection = viewModel.item(for: indexPath.row, section: indexPath.section)
+
+        switch (viewModel.sections[indexPath.section], selection) {
+        case (.tokens, .tokenObject(let token)):
+            delegate?.didSelect(token: token, in: self)
+        case (_, _):
+            break
+        }
+    }
+
+    func didSelect(cell: OpenSeaNonFungibleTokenPairTableCell, indexPath: IndexPath, isLeftCardSelected: Bool) {
+        switch viewModel.sections[indexPath.section] {
+        case .collectiblePairs:
+            let pair = viewModel.collectiblePairs[indexPath.row]
+            guard let token: TokenObject = isLeftCardSelected ? pair.left : pair.right else { return }
+            delegate?.didSelect(token: token, in: self)
+        case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
+            break
+        }
     }
 }
 

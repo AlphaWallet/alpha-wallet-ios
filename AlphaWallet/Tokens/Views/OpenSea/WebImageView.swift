@@ -31,7 +31,7 @@ class WebImageView: UIView {
         return v
     }()
     private let type: ImageType
-    
+
     var url: URL? {
         didSet {
             setWebViewURL(url: url)
@@ -51,9 +51,10 @@ class WebImageView: UIView {
         webView.isHidden = !imageView.isHidden
     }
     ///svg thumbnail image size
-    private let size: CGSize
+    private var size: CGSize
+    private var frameObservation: NSKeyValueObservation?
 
-    init(type: ImageType, size: CGSize = .init(width: 600, height: 600)) {
+    init(type: ImageType, size: CGSize) {
 
         self.type = type
         self.size = size
@@ -68,24 +69,42 @@ class WebImageView: UIView {
             imageView.anchorsConstraint(to: self)
         ])
 
+        subscribeForFrameChange()
         setWebViewURL(url: nil)
+    }
+
+    private func subscribeForFrameChange() {
+        frameObservation.flatMap { $0.invalidate() }
+
+        frameObservation = observe(\.bounds, options: [.new]) { observer, _ in
+            self.size = observer.frame.size
+        }
     }
 
     private func setWebViewURL(url: URL?) {
         imageView.image = nil
         setIsLoadingImageFromURL(true)
 
+        func loadHtmlIFrameFor(url: URL) {
+            let html = generateHtmlForThumbnailSvg(url: url, size: size)
+            webView.loadHTMLString(html, baseURL: nil)
+        }
+
+        func loadHtmlForSvg(url: URL) {
+            let html = generateHtmlForThumbnailSvg(url: url, size: size)
+            webView.loadHTMLString(html, baseURL: nil)
+        }
+
         if let url = url?.rewrittenIfIpfs {
             if url.pathExtension == "svg" {
                 switch type {
                 case .original:
-                    webView.load(.init(url: url))
+                    loadHtmlIFrameFor(url: url)
                 case .thumbnail:
-                    let html = generateHtmlForThumbnailSvg(url: url, size: size)
-                    webView.loadHTMLString(html, baseURL: nil)
+                    loadHtmlForSvg(url: url)
                 }
             } else {
-                webView.load(.init(url: url))
+                loadHtmlIFrameFor(url: url)
             }
         } else {
             webView.loadHTMLString("", baseURL: nil)

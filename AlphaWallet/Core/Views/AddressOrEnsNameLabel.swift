@@ -122,7 +122,7 @@ class AddressOrEnsNameLabel: UILabel {
 
     typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
     // NOTE: caching ids for call `func resolve(_ value: String)` function, for verifying activity state
-    // addsa new id once function get called, and removes once resolve a value.
+    // adds a new id once function get called, and removes once resolve a value.
     private var requestsIdsStore: Set<String> = .init()
 
     func resolve(_ value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
