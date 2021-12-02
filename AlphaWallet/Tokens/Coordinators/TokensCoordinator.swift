@@ -53,7 +53,8 @@ class TokensCoordinator: Coordinator {
         return queue
     }()
     private let activitiesService: ActivitiesServiceType
-    private lazy var tokensViewController: TokensViewController = {
+    //NOTE: private (set) - `For test purposes only`
+    private (set) lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
             sessions: sessions,
             account: sessions.anyValue.account,
@@ -128,6 +129,38 @@ class TokensCoordinator: Coordinator {
         self.walletBalanceCoordinator = walletBalanceCoordinator
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
+
+        //NOTE: https://github.com/AlphaWallet/alpha-wallet-ios/issues/3255
+        let myqrCodeBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
+        let qrCodeBarButton = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
+        myqrCodeBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
+        qrCodeBarButton.imageInsets = .init(top: 0, left: 15, bottom: 0, right: -15)
+
+        tokensViewController.navigationItem.rightBarButtonItems = [
+            myqrCodeBarButton,
+            qrCodeBarButton
+        ]
+        tokensViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: tokensViewController.blockieImageView)
+        tokensViewController.blockieImageView.addTarget(self, action: #selector(blockieButtonSelected), for: .touchUpInside)
+    }
+
+    @objc private func blockieButtonSelected(_ sender: UIButton) {
+        delegate?.blockieSelected(in: self)
+    }
+
+    @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
+        if config.shouldReadClipboardForWalletConnectUrl {
+            if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = WalletConnectURL(s) {
+                walletConnectCoordinator.openSession(url: url)
+            }
+        } else {
+            launchUniversalScanner(fromSource: .walletScreen)
+        }
+    }
+
+    @objc private func moreButtonSelected(_ sender: UIBarButtonItem) {
+        let alertViewController = makeMoreAlertSheet(sender: sender)
+        tokensViewController.present(alertViewController, animated: true)
     }
 
     func start() {
@@ -188,13 +221,60 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
+    
+    private func getWalletName() {
+        let viewModel = tokensViewController.viewModel
 
-    func myQRCodeButtonSelected(in viewController: UIViewController) {
-        delegate?.didPress(for: .request, server: config.anyEnabledServer(), inViewController: .none, in: self)
+        tokensViewController.title = viewModel.walletDefaultTitle
+
+        firstly {
+            GetWalletNameCoordinator(config: config).getName(forAddress: sessions.anyValue.account.address)
+        }.done { [weak self] name in
+            self?.tokensViewController.navigationItem.title = name ?? viewModel.walletDefaultTitle
+        }.cauterize()
     }
 
-    func blockieSelected(in viewController: UIViewController) {
-        delegate?.blockieSelected(in: self)
+    private func getWalletBlockie() {
+        let generator = BlockiesGenerator()
+        generator.promise(address: sessions.anyValue.account.address).done { [weak self] value in
+            self?.tokensViewController.blockieImageView.image = value
+        }.catch { [weak self] _ in
+            self?.tokensViewController.blockieImageView.image = nil
+        }
+    }
+
+    func viewWillAppear(in viewController: UIViewController) {
+        getWalletName()
+        getWalletBlockie()
+    }
+
+    private func makeMoreAlertSheet(sender: UIBarButtonItem) -> UIAlertController {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alertController.popoverPresentationController?.barButtonItem = sender
+
+        let copyAddressAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            UIPasteboard.general.string = strongSelf.sessions.anyValue.account.address.eip55String
+            strongSelf.tokensViewController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        }
+        alertController.addAction(copyAddressAction)
+
+        let showMyWalletAddressAction = UIAlertAction(title: R.string.localizable.settingsShowMyWalletTitle(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), inViewController: .none, in: strongSelf)
+        }
+        alertController.addAction(showMyWalletAddressAction)
+
+        let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.didPressAddHideTokens(viewModel: strongSelf.rootViewController.viewModel)
+        }
+        alertController.addAction(addHideTokensAction)
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        alertController.addAction(cancelAction)
+
+        return alertController
     }
 
     func walletConnectSelected(in viewController: UIViewController) {
@@ -246,16 +326,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     func didTapOpenConsole(in viewController: UIViewController) {
         delegate?.openConsole(inCoordinator: self)
-    }
-
-    func scanQRCodeSelected(in viewController: UIViewController) {
-        if config.shouldReadClipboardForWalletConnectUrl {
-            if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = WalletConnectURL(s) {
-                walletConnectCoordinator.openSession(url: url)
-            }
-        } else {
-            launchUniversalScanner(fromSource: .walletScreen)
-        }
     }
 }
 
