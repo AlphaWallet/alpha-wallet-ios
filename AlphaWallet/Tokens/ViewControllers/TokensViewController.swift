@@ -199,7 +199,7 @@ class TokensViewController: UIViewController {
 
         return header
     }()
-    
+
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
          tokenCollection: TokenCollection,
