@@ -89,6 +89,12 @@ class InCoordinator: NSObject, Coordinator {
         HelpUsCoordinator(navigationController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
     }()
 
+    private lazy var whatsNewExperimentCoordinator: WhatsNewExperimentCoordinator = {
+        let coordinator = WhatsNewExperimentCoordinator(navigationController: navigationController, userDefaults: UserDefaults.standard, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        return coordinator
+    }()
+
     lazy var filterTokensCoordinator: FilterTokensCoordinator = {
         return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
     }()
@@ -200,6 +206,13 @@ class InCoordinator: NSObject, Coordinator {
         rampBuyService.fetchSupportedTokens()
 
         processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
+
+        showWhatsNew()
+    }
+
+    private func showWhatsNew() {
+        whatsNewExperimentCoordinator.start()
+        addCoordinator(whatsNewExperimentCoordinator)
     }
 
     private func donateWalletShortcut() {
@@ -1213,6 +1226,12 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
         case .sentRawTransaction, .signedTransaction:
             break
         }
+    }
+}
+
+extension InCoordinator: WhatsNewExperimentCoordinatorDelegate {
+    func didEnd(in coordinator: WhatsNewExperimentCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 // swiftlint:enable file_length

@@ -221,7 +221,7 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
-    
+
     private func getWalletName() {
         let viewModel = tokensViewController.viewModel
 
