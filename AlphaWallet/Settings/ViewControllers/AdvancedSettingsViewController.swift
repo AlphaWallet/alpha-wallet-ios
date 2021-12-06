@@ -15,6 +15,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
+    func advancedSettingsViewControllerPingInfuraSelected(in controller: AdvancedSettingsViewController)
 }
 
 class AdvancedSettingsViewController: UIViewController {
@@ -78,10 +79,9 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = viewModel.rows[indexPath.row]
         switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript:
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript, .pingInfura:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
-
             return cell
         case .usePrivateNetwork:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -132,6 +132,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
         case .usePrivateNetwork:
             delegate?.advancedSettingsViewControllerUsePrivateNetworkSelected(in: self)
+        case .pingInfura:
+            delegate?.advancedSettingsViewControllerPingInfuraSelected(in: self)
         }
     }
 }

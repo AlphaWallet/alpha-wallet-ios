@@ -102,6 +102,9 @@
 "settings.contactUs.title" = "Contacta con nosotros";
 "settings.changeCurrency.title" = "Cambiar moneda";
 "settings.analitycs.title" = "Análisis";
+"settings.pingInfura.title" = "Ping Infura";
+"settings.pingInfura.successful" = "Infura looks OK";
+"settings.pingInfura.fail" = "Infura Error";
 "settings.support.title" = "Asistencia";
 "settings.notifications.title" = "Notificaciones";
 "settings.passcode.title" = "Código / Touch ID";

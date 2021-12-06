@@ -220,6 +220,7 @@
 		5E7C70397E7E3A9C88E995B1 /* WKWebViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BEDC786FB048A1DD9A8 /* WKWebViewExtension.swift */; };
 		5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71DB4EDD10EA665101C2 /* ActivityViewCell.swift */; };
 		5E7C705166218753CAA19A6D /* TokenIdOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7587F30FF1896039B8C8 /* TokenIdOrigin.swift */; };
+		5E7C7062A44AF416B110008A /* PingInfuraCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */; };
 		5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C7B211FF0FE5BE98BB7D0 /* aETH.tsml */; };
 		5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71AFE747055742986023 /* withRetry.swift */; };
 		5E7C7067E8FEA5055BF83553 /* HDWallet+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C6759CA1C223DABA462 /* HDWallet+Extension.swift */; };
@@ -1377,6 +1378,7 @@
 		5E7C7553BB089397B7E74BE0 /* WalletSecurityLevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSecurityLevelIndicator.swift; sourceTree = "<group>"; };
 		5E7C7558286761EF1ADD2988 /* ABIError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIError.swift; sourceTree = "<group>"; };
 		5E7C7570889AD33EA942D9A6 /* AlphaWalletAddressTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletAddressTests.swift; sourceTree = "<group>"; };
+		5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingInfuraCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7587F30FF1896039B8C8 /* TokenIdOrigin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenIdOrigin.swift; sourceTree = "<group>"; };
 		5E7C758EB5C7B77A0EE6BC9E /* MixpanelCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinator.swift; sourceTree = "<group>"; };
 		5E7C758EEBD945A3451C96C8 /* OpenSeaNonFungibleTokenHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenHandling.swift; sourceTree = "<group>"; };
@@ -2483,6 +2485,7 @@
 				5E7C7C51CEC4AAFDFBD75482 /* ConsoleCoordinator.swift */,
 				5E7C72571AB0FECB26FEB1B1 /* ClearDappBrowserCacheCoordinator.swift */,
 				02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */,
+				5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -6204,6 +6207,7 @@
 				5E7C7FF312AB61DBEBD86C94 /* WhatsNewViewModels.swift in Sources */,
 				5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */,
 				5E7C71967C34DD3F207F8126 /* WhatsNewExperimentCoordinator.swift in Sources */,
+				5E7C7062A44AF416B110008A /* PingInfuraCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

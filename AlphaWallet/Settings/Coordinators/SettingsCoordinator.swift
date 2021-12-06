@@ -310,10 +310,27 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
     }
+
+    func advancedSettingsViewControllerPingInfuraSelected(in controller: AdvancedSettingsViewController) {
+        let coordinator = PingInfuraCoordinator(inViewController: rootViewController, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
 }
 
 extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
     func privateTransactionProviderSelected(provider: SendPrivateTransactionsProvider?, inController viewController: ChooseSendPrivateTransactionsProviderViewController) {
         advancedSettingsViewController?.configure()
+    }
+}
+
+extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
+    func didPing(in coordinator: PingInfuraCoordinator) {
+        removeCoordinator(self)
+    }
+
+    func didCancel(in coordinator: PingInfuraCoordinator) {
+        removeCoordinator(self)
     }
 }
