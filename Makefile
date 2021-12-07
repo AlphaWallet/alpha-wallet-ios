@@ -10,7 +10,6 @@ target:
 	@echo "install_all  : install gems then pods."
 	@echo "check_gems   : check to see if all the gems in the Gemfile are installed in the vendor directory."
 	@echo "bootstrap    : same as make install_all"
-	@echo "update_pods  : update all the cocoapods."
 
 check_bundle:
 	@$(bundle_cmd) --version 1>/dev/null 2>/dev/null; \
@@ -38,20 +37,11 @@ install_gems: check_bundle
 	fi
 
 install_pods: check_gems
-	@$(bundle_cmd) exec pod install --repo-update; \
+	@$(bundle_cmd) exec pod install; \
 	if [ $$? -eq 0 ]; then \
 		echo "All pods installed."; \
 	else \
 		echo "Error installing."; \
-		exit 1; \
-	fi
-
-update_pods: check_gems
-	@$(bundle_cmd) exec pod update; \
-	if [ $$? -eq 0 ]; then \
-		echo "All pods updated."; \
-	else \
-		echo "Error updating."; \
 		exit 1; \
 	fi
 

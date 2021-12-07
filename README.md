@@ -70,7 +70,11 @@ This makefile has been tested to run on "Monterey"-12.0.1. It will not work on "
 
 After the Gemfile is updated, run `make install_gems` to update the gems in the vendor/bundle directory.
 
-After the Podfile is updated, run `make install_pods` or `make update_pods` to update the pods in the Pods directory.
+After the Podfile is updated, run `make install_pods` to update the pods in the Pods directory.
+
+### M1 Macs
+
+Currently, the project cannot run under simulators on M1 Macs. You can however run the code on your device.
 
 ### Add your token to AlphaWallet
 
