@@ -12,6 +12,7 @@ protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: ClaimPaidOrderCoordinator)
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ClaimPaidOrderCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class ClaimPaidOrderCoordinator: Coordinator {
@@ -223,6 +224,10 @@ extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate 
             strongSelf.delegate?.coordinator(strongSelf, didCompleteTransaction: .confirmationResult(result))
         }
         removeCoordinator(coordinator)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

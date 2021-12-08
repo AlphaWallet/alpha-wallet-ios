@@ -8,6 +8,7 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: SendCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
     func didCancel(in coordinator: SendCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SendCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class SendCoordinator: Coordinator {
@@ -164,6 +165,10 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
         removeCoordinator(coordinator)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
     }
 }
 

@@ -60,8 +60,7 @@ enum ConfirmResult {
     case sentRawTransaction(id: String, original: String)
 }
 
-protocol TransactionConfirmationCoordinatorDelegate: class, CanOpenURL {
-    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator)
+protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransactionDelegate, FiatOnRampDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator)
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError)
     func didClose(in coordinator: TransactionConfirmationCoordinator)
@@ -141,13 +140,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         analyticsCoordinator.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
-            let ramp = Ramp(account: configurator.session.account)
-            if let url = ramp.url(token: TokenActionsServiceKey(tokenObject: TokensDataStore.etherToken(forServer: server))) {
-                delegate?.didPressOpenWebPage(url, in: confirmationViewController)
-            } else {
-                let fallbackUrl = URL(string: "https://alphawallet.com/browser-item-category/utilities/")!
-                delegate?.didPressOpenWebPage(fallbackUrl, in: confirmationViewController)
-            }
+            delegate?.openFiatOnRamp(wallet: configurator.session.account, server: server, inCoordinator: self, viewController: confirmationViewController)
         case .nonceTooLow:
             showConfigureTransactionViewController(configurator, recoveryMode: .invalidNonce)
         case .gasPriceTooLow:
@@ -183,8 +176,8 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         sender.isEnabled = false
         confirmationViewController.canBeDismissed = false
         confirmationViewController.set(state: .pending)
-        firstly {
-            sendTransaction()
+        firstly { () -> Promise<ConfirmResult> in
+            return sendTransaction()
         }.done { result in
             self.handleSendTransactionSuccessfully(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()

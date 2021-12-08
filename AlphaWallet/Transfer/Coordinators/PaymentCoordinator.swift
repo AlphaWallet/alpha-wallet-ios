@@ -7,6 +7,7 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator)
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)
     func didCancel(in coordinator: PaymentCoordinator)
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: PaymentCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
 class PaymentCoordinator: Coordinator {
@@ -112,6 +113,10 @@ extension PaymentCoordinator: SendCoordinatorDelegate {
     func didCancel(in coordinator: SendCoordinator) {
         removeCoordinator(coordinator)
         cancel()
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SendCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
     }
 }
 

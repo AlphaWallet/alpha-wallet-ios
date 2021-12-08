@@ -348,6 +348,6 @@ extension TokenViewController: ActivitiesPageViewDelegate {
 // MARK: Analytics
 extension TokenViewController {
     private func logStartOnRamp(name: String) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.onRamp, properties: [Analytics.Properties.name.rawValue: name])
+        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analyticsCoordinator: analyticsCoordinator)
     }
 }

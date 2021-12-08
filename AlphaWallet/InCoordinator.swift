@@ -800,17 +800,27 @@ class InCoordinator: NSObject, Coordinator {
             showPaymentFlow(for: .request, server: config.anyEnabledServer(), navigationController: navigationController)
         }
     }
+
+    private func openFiatOnRamp(wallet: Wallet, server: RPCServer, inViewController viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        let coordinator = FiatOnRampCoordinator(wallet: wallet, server: server, viewController: viewController, source: source, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        coordinator.start()
+    }
 }
 
 // swiftlint:enable type_body_length
 extension InCoordinator: WalletConnectCoordinatorDelegate {
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        handlePendingTransaction(transaction: transaction)
+    }
+
     func universalScannerSelected(in coordinator: WalletConnectCoordinator) {
         tokensCoordinator?.launchUniversalScanner(fromSource: .walletScreen)
     }
 
-    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: WalletConnectCoordinator) {
-        handlePendingTransaction(transaction: transaction)
-    }
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    } 
 }
 
 extension InCoordinator: CanOpenURL {
@@ -1078,6 +1088,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
@@ -1106,6 +1120,13 @@ extension InCoordinator: PaymentCoordinatorDelegate {
 
         removeCoordinator(coordinator)
     }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: PaymentCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
+    }
+}
+
+extension InCoordinator: FiatOnRampCoordinatorDelegate {
 }
 
 extension InCoordinator: DappBrowserCoordinatorDelegate {
@@ -1131,6 +1152,10 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 }
 
@@ -1176,6 +1201,10 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ClaimPaidOrderCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 }
 
@@ -1226,6 +1255,10 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
         case .sentRawTransaction, .signedTransaction:
             break
         }
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ReplaceTransactionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 }
 
