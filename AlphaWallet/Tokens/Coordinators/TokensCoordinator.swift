@@ -131,13 +131,13 @@ class TokensCoordinator: Coordinator {
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 
-        let myqrCodeBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
+        let moreBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
         let qrCodeBarButton = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
-        myqrCodeBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
+        moreBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
         qrCodeBarButton.imageInsets = .init(top: 0, left: 15, bottom: 0, right: -15)
 
         tokensViewController.navigationItem.rightBarButtonItems = [
-            myqrCodeBarButton,
+            moreBarButton,
             qrCodeBarButton
         ]
         tokensViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: tokensViewController.blockieImageView)
