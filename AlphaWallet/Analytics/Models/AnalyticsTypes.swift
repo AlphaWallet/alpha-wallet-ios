@@ -58,6 +58,7 @@ enum Analytics {
         case walletConnectConnectionTimeout = "WalletConnect Connection Timeout"
         case walletConnectConnectionFailed = "WalletConnect Connection Failed"
         case clearBrowserCache = "Clear Browser Cache"
+        case pingInfura = "Ping Infura"
         case rectifySendTransactionErrorInActionSheet = "Rectify Send Txn Error"
         case nameWallet = "Name Wallet"
         case firstWalletAction = "First Wallet Action"

@@ -102,6 +102,9 @@
 "settings.contactUs.title" = "联系我们";
 "settings.changeCurrency.title" = "更改货币";
 "settings.analitycs.title" = "分析";
+"settings.pingInfura.title" = "Ping Infura";
+"settings.pingInfura.successful" = "Infura looks OK";
+"settings.pingInfura.fail" = "Infura Error";
 "settings.support.title" = "支持";
 "settings.notifications.title" = "通知设置";
 "settings.passcode.title" = "密码 / Touch ID";
