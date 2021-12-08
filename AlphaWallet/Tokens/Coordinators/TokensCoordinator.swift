@@ -131,14 +131,13 @@ class TokensCoordinator: Coordinator {
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 
-        //NOTE: https://github.com/AlphaWallet/alpha-wallet-ios/issues/3255
-        let myqrCodeBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
+        let moreBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
         let qrCodeBarButton = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
-        myqrCodeBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
+        moreBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
         qrCodeBarButton.imageInsets = .init(top: 0, left: 15, bottom: 0, right: -15)
 
         tokensViewController.navigationItem.rightBarButtonItems = [
-            myqrCodeBarButton,
+            moreBarButton,
             qrCodeBarButton
         ]
         tokensViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: tokensViewController.blockieImageView)
@@ -265,6 +264,16 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), inViewController: .none, in: strongSelf)
         }
         alertController.addAction(showMyWalletAddressAction)
+
+        if config.enabledServers.contains(.main) {
+            let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
+                let server = RPCServer.main
+                let account = strongSelf.sessions.anyValue.account
+                strongSelf.delegate?.openFiatOnRamp(wallet: account, server: server, inCoordinator: strongSelf, viewController: strongSelf.tokensViewController, source: .walletTab)
+            }
+            alertController.addAction(buyAction)
+        }
 
         let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
