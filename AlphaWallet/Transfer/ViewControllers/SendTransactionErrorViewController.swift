@@ -10,6 +10,7 @@ protocol SendTransactionErrorViewControllerDelegate: AnyObject {
 
 class SendTransactionErrorViewController: UIViewController {
     private let server: RPCServer
+    private let analyticsCoordinator: AnalyticsCoordinator
     private let error: SendTransactionNotRetryableError
     private lazy var viewModel = SendTransactionErrorViewModel(server: server, error: error)
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: "", isMinimalMode: true))
@@ -105,8 +106,9 @@ class SendTransactionErrorViewController: UIViewController {
 
     weak var delegate: SendTransactionErrorViewControllerDelegate?
 
-    init(server: RPCServer, error: SendTransactionNotRetryableError) {
+    init(server: RPCServer, analyticsCoordinator: AnalyticsCoordinator, error: SendTransactionNotRetryableError) {
         self.server = server
+        self.analyticsCoordinator = analyticsCoordinator
         self.error = error
         super.init(nibName: nil, bundle: nil)
 
@@ -233,6 +235,12 @@ class SendTransactionErrorViewController: UIViewController {
 
     @objc private func linkButtonTapped() {
         if let url = viewModel.linkUrl {
+            switch viewModel.error {
+            case .insufficientFunds:
+                analyticsCoordinator.log(navigation: Analytics.Navigation.openHelpUrl, properties: [Analytics.Properties.type.rawValue: Analytics.HelpUrl.insufficientFunds.rawValue])
+            case .nonceTooLow, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
+                break
+            }
             delegate?.linkTapped(url, forError: error, inController: self)
         } else {
             assertImpossibleCodePath(message: "Should only show link button if there's a URl")

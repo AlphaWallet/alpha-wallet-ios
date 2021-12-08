@@ -37,6 +37,7 @@ enum Analytics {
         case github = "Screen: Github"
         case explorer = "Screen: Explorer"
         case openShortcut = "Screen: Shortcut"
+        case openHelpUrl = "Screen: Help URL"
     }
 
     enum Action: String, AnalyticsAction {
@@ -179,5 +180,9 @@ enum Analytics {
 
     enum ShortcutType: String {
         case walletQrCode
+    }
+
+    enum HelpUrl: String {
+        case insufficientFunds
     }
 }
