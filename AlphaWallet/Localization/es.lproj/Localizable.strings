@@ -544,6 +544,7 @@
 "a.wallet.token.arbitrumBridge.button.title" = "Convert to Arbitrum";
 "a.wallet.token.buy.xDai.title" = "Buy xDai";
 "buyCrypto.title" = "Buy Crypto";
+"a.wallet.token.buy.title" = "Buy";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";
 "qrCode.watchWallet.title" = "Watch Wallet";
