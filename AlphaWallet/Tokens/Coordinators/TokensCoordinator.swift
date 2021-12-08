@@ -131,7 +131,6 @@ class TokensCoordinator: Coordinator {
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 
-        //NOTE: https://github.com/AlphaWallet/alpha-wallet-ios/issues/3255
         let myqrCodeBarButton = UIBarButtonItem.moreBarButton(self, selector: #selector(moreButtonSelected))
         let qrCodeBarButton = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(scanQRCodeButtonSelected))
         myqrCodeBarButton.imageInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
