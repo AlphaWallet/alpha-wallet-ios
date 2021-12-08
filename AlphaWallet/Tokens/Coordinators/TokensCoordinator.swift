@@ -265,6 +265,16 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(showMyWalletAddressAction)
 
+        if config.enabledServers.contains(.main) {
+            let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
+                let server = RPCServer.main
+                let account = strongSelf.sessions.anyValue.account
+                strongSelf.delegate?.openFiatOnRamp(wallet: account, server: server, inCoordinator: strongSelf, viewController: strongSelf.tokensViewController, source: .walletTab)
+            }
+            alertController.addAction(buyAction)
+        }
+
         let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.didPressAddHideTokens(viewModel: strongSelf.rootViewController.viewModel)

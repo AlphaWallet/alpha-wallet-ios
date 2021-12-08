@@ -191,5 +191,6 @@ enum Analytics {
         case transactionActionSheetInsufficientFunds
         case speedupTransactionInsufficientFunds
         case cancelTransactionInsufficientFunds
+        case walletTab
     }
 }
