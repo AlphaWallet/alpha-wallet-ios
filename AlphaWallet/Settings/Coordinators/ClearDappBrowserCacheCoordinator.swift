@@ -3,11 +3,17 @@
 import UIKit
 import WebKit
 
+protocol ClearDappBrowserCacheCoordinatorDelegate: AnyObject {
+    func done(in coordinator: ClearDappBrowserCacheCoordinator)
+    func didCancel(in coordinator: ClearDappBrowserCacheCoordinator)
+}
+
 class ClearDappBrowserCacheCoordinator: Coordinator {
     private let viewController: UIViewController
     private let analyticsCoordinator: AnalyticsCoordinator
 
     var coordinators: [Coordinator] = []
+    weak var delegate: ClearDappBrowserCacheCoordinatorDelegate?
 
     init(inViewController viewController: UIViewController, analyticsCoordinator: AnalyticsCoordinator) {
         self.viewController = viewController
@@ -21,9 +27,13 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
                 alertButtonStyles: [.destructive, .cancel],
                 viewController: viewController,
                 completion: { choice in
-                    guard choice == 0 else { return }
+                    guard choice == 0 else {
+                        self.delegate?.didCancel(in: self)
+                        return
+                    }
                     self.logUse()
                     WKWebView.clearCache()
+                    self.delegate?.done(in: self)
                 })
     }
 }
