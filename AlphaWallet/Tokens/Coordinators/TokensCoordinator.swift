@@ -193,7 +193,7 @@ class TokensCoordinator: Coordinator {
         coordinator.addImportedToken(forContract: contract)
     }
 
-    func addUefaTokenIfAny() {
+    private func addUefaTokenIfAny() {
         let server = Constants.uefaRpcServer
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: Constants.uefaMainnet, onlyIfThereIsABalance: true)
@@ -281,7 +281,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         walletConnectCoordinator.showSessionDetails(in: navigationController)
     }
 
-    func didPressAddHideTokens(viewModel: TokensViewModel) {
+    private func didPressAddHideTokens(viewModel: TokensViewModel) {
         let coordinator: AddHideTokensCoordinator = .init(
             tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
