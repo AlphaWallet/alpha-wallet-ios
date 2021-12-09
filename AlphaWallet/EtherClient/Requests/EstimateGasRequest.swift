@@ -7,8 +7,22 @@ import BigInt
 struct EstimateGasRequest: JSONRPCKit.Request {
     typealias Response = String
 
+    enum TransactionType {
+        case normal(to: AlphaWallet.Address)
+        case contractDeployment
+    }
+
+    private var to: AlphaWallet.Address? {
+        switch transactionType {
+        case .normal(let to):
+            return to
+        case .contractDeployment:
+            return nil
+        }
+    }
+
     let from: AlphaWallet.Address
-    let to: AlphaWallet.Address
+    let transactionType: TransactionType
     let value: BigInt
     let data: Data
 
@@ -18,14 +32,16 @@ struct EstimateGasRequest: JSONRPCKit.Request {
 
     var parameters: Any? {
         //Explicit type declaration to speed up build time. 160msec -> <100ms, as of Xcode 11.7
-        let results: [[String: String]] = [
+        var results: [[String: String]] = [
             [
                 "from": from.description,
-                "to": to.eip55String,
                 "value": "0x" + String(value, radix: 16),
                 "data": data.hexEncoded,
             ],
         ]
+        if let to: AlphaWallet.Address = to {
+            results[0]["to"] = to.eip55String
+        }
         return results
     }
 

@@ -136,10 +136,15 @@ class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        guard let toAddress = toAddress else { return }
+        let transactionType: EstimateGasRequest.TransactionType
+        if let toAddress = toAddress {
+            transactionType = .normal(to: toAddress)
+        } else {
+            transactionType = .contractDeployment
+        }
         let request = EstimateGasRequest(
             from: session.account.address,
-            to: toAddress,
+            transactionType: transactionType,
             value: value,
             data: currentConfiguration.data
         )
@@ -170,9 +175,9 @@ class TransactionConfigurator {
             }
 
             self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-        }.catch({ e in
+        }.catch { e in
             error(value: e, rpcServer: self.session.server)
-        })
+        }
     }
 
     private func estimateGasPrice() {
