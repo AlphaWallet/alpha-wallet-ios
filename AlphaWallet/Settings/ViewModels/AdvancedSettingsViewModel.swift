@@ -32,6 +32,7 @@ enum AdvancedSettingsRow: CaseIterable {
     case analytics
     case usePrivateNetwork
     case pingInfura
+    case exportJSONKeystore
 
     var title: String {
         switch self {
@@ -51,6 +52,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         case .pingInfura:
             return R.string.localizable.settingsPingInfuraTitle()
+        case .exportJSONKeystore:
+            return R.string.localizable.settingsAdvancedExportJSONKeystoreTitle()
         }
     }
 
@@ -73,6 +76,8 @@ enum AdvancedSettingsRow: CaseIterable {
         case .pingInfura:
             //TODO need a more appropriate icon, maybe represent diagnostic or (to a lesser degree Infura)
             return R.image.settings_analytics()!
+        case .exportJSONKeystore:
+            return R.image.iconsSettingsJson()!
         }
     }
 }
