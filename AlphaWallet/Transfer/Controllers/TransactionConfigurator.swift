@@ -136,10 +136,15 @@ class TransactionConfigurator {
     }
 
     private func estimateGasLimit() {
-        guard let toAddress = toAddress else { return }
+        let transactionType: EstimateGasRequest.TransactionType
+        if let toAddress = toAddress {
+            transactionType = .normal(to: toAddress)
+        } else {
+            transactionType = .contractDeployment
+        }
         let request = EstimateGasRequest(
             from: session.account.address,
-            to: toAddress,
+            transactionType: transactionType,
             value: value,
             data: currentConfiguration.data
         )
@@ -147,6 +152,7 @@ class TransactionConfigurator {
         firstly {
             Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
         }.done { gasLimit in
+            info("Estimated gas limit with eth_estimateGas: \(gasLimit)")
             let gasLimit: BigInt = {
                 let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
                 if limit == GasLimitConfiguration.minGasLimit {
@@ -154,6 +160,7 @@ class TransactionConfigurator {
                 }
                 return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
             }()
+            info("Using gas limit: \(gasLimit)")
             var customConfig = self.configurations.custom
             customConfig.setEstimated(gasLimit: gasLimit)
             self.configurations.custom = customConfig
@@ -170,9 +177,10 @@ class TransactionConfigurator {
             }
 
             self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
-        }.catch({ e in
+        }.catch { e in
+            info("Error estimating gas limit: \(e)")
             error(value: e, rpcServer: self.session.server)
-        })
+        }
     }
 
     private func estimateGasPrice() {
