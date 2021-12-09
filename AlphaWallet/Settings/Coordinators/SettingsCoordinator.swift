@@ -277,6 +277,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
 
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
         let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
@@ -331,6 +332,16 @@ extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: PingInfuraCoordinator) {
+        removeCoordinator(self)
+    }
+}
+
+extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
+    func done(in coordinator: ClearDappBrowserCacheCoordinator) {
+        removeCoordinator(self)
+    }
+
+    func didCancel(in coordinator: ClearDappBrowserCacheCoordinator) {
         removeCoordinator(self)
     }
 }
