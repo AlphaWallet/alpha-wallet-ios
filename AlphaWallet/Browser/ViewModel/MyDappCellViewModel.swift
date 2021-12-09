@@ -15,7 +15,7 @@ struct MyDappCellViewModel {
     }
 
     var fallbackImage: UIImage? {
-        return R.image.launch_icon()
+        return R.image.iconsTokensPlaceholder()
     }
 
     var name: String {
