@@ -13,9 +13,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private static let yMargin = CGFloat(5)
 
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
-    private let thumbnailImageView = WebImageView(type: .thumbnail)
+    private let thumbnailImageView = WebImageView(type: .thumbnail, size: .init(width: 300, height: 300))
     private let bigImageBackground = UIView()
-    private let bigImageView = WebImageView(type: .original)
+    private let bigImageView = WebImageView(type: .original, size: .init(width: 300, height: 300))
     //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little for CryptoKitties
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()

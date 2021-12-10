@@ -6,8 +6,30 @@ import UIKit
 class OpenSeaNonFungibleTokenViewCellViewModel {
     private let token: TokenObject
     var imageUrl: URL?
-    var title: String {
+    var tokenAddress: AlphaWallet.Address {
+        token.contractAddress
+    }
+    private var title: String {
         return token.name
+    }
+
+    private var amount: String {
+        let actualBalance = token.nonZeroBalance
+        return actualBalance.count.toString()
+    }
+
+    var tickersAmountAttributedString: NSAttributedString {
+        return .init(string: "\(amount) \(token.symbol)", attributes: [
+            .font: Fonts.regular(size: 15),
+            .foregroundColor: R.color.dove()!
+        ])
+    }
+
+    var tickersTitleAttributedString: NSAttributedString {
+        return .init(string: title, attributes: [
+            .font: Fonts.regular(size: 20),
+            .foregroundColor: Colors.appText
+        ])
     }
 
     init(config: Config, token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
@@ -26,7 +48,7 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return GroupedTable.Color.background
+        return Colors.appBackground
     }
 
     var contentsBackgroundColor: UIColor {
@@ -34,14 +56,6 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
-    }
-
-    var titleColor: UIColor {
-        return Colors.appText
-    }
-
-    var titleFont: UIFont {
-        return Fonts.semibold(size: 10)
+        return Metrics.CornerRadius.nftBox
     }
 }

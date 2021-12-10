@@ -26,7 +26,7 @@ class Erc875NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPos
     }
 
     private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView(type: .thumbnail)
+        let imageView = WebImageView(type: .thumbnail, size: .init(width: 40, height: 40))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -90,7 +90,7 @@ class NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPositioni
     }
 
     private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView(type: .thumbnail)
+        let imageView = WebImageView(type: .thumbnail, size: .init(width: 40, height: 40))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()

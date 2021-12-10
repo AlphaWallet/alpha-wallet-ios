@@ -21,7 +21,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
     private let tokenObject: TokenObject
     private var viewModel: Erc1155TokenInstanceViewModel
     private let account: Wallet
-    private let bigImageView = WebImageView(type: .original)
+    private let bigImageView = WebImageView(type: .original, size: .init(width: 40, height: 40))
     lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
 
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
@@ -99,9 +99,6 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
 
-        bigImageView.contentMode = .scaleAspectFit
-        bigImageView.backgroundColor = .clear
-        bigImageView.clipsToBounds = true
         var subviews: [UIView] = [bigImageView]
 
         for each in viewModel.configurations {

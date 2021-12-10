@@ -7,6 +7,15 @@ enum TokenObjectOrRpcServerPair {
     case tokenObject(TokenObject)
     case rpcServer(RPCServer)
 
+    var tokenObject: TokenObject? {
+        switch self {
+        case .rpcServer:
+            return nil
+        case .tokenObject(let token):
+            return token
+        }
+    }
+
     var canDelete: Bool {
         switch self {
         case .rpcServer:
@@ -40,13 +49,21 @@ class TokensViewModel {
     private (set) var sections: [TokensViewController.Section] = []
 
     private func refreshSections(walletConnectSessions count: Int) {
+        let varyTokenOrCollectiblePeirsSection: TokensViewController.Section = {
+            switch filter {
+            case .all, .currencyOnly, .keyword, .assetsOnly, .type:
+                return .tokens
+            case .collectiblesOnly:
+                return .collectiblePairs
+            }
+        }()
         if isSearchActive {
-            sections = [.tokens]
+            sections = [varyTokenOrCollectiblePeirsSection]
         } else {
             if count == .zero {
-                sections = [.walletSummary, .filters, .search, .tokens]
+                sections = [.walletSummary, .filters, .search, varyTokenOrCollectiblePeirsSection]
             } else {
-                sections = [.walletSummary, .filters, .search, .activeWalletSession(count: count), .tokens]
+                sections = [.walletSummary, .filters, .search, .activeWalletSession(count: count), varyTokenOrCollectiblePeirsSection]
             }
         }
     }
@@ -75,8 +92,12 @@ class TokensViewModel {
         case .assetsOnly, .collectiblesOnly, .type:
             return false
         }
-    }
+    } 
 
+    var hasContent: Bool {
+        return !collectiblePairs.isEmpty
+    }
+    
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
         case .all, .currencyOnly, .assetsOnly, .keyword, .type:
@@ -86,12 +107,22 @@ class TokensViewModel {
         }
     }
 
-    var hasContent: Bool {
-        return !filteredTokens.isEmpty
+    func numberOfItems() -> Int {
+        switch filter {
+        case .all, .currencyOnly, .keyword, .assetsOnly, .type:
+            return filteredTokens.count
+        case .collectiblesOnly:
+            return collectiblePairs.count
+        }
     }
 
-    func numberOfItems() -> Int {
-        return filteredTokens.count
+    var collectiblePairs: [(left: TokenObject, right: TokenObject?)] {
+        let tokens = filteredTokens.compactMap { $0.tokenObject }
+        return tokens.chunked(into: 2).compactMap { elems -> (left: TokenObject, right: TokenObject?)? in
+            guard let left = elems.first else { return nil }
+
+            return (left: left, right: elems.last)
+        }
     }
 
     func item(for row: Int, section: Int) -> TokenObjectOrRpcServerPair {

@@ -140,6 +140,7 @@ enum Metrics {
         static let box = CGFloat(2)
         static let textbox = CGFloat(5)
         static let button = CGFloat(4)
+        static let nftBox = CGFloat(8)
     }
 
     enum DappsHome {
