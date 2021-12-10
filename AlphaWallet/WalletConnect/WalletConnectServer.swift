@@ -53,7 +53,7 @@ extension WalletConnectSession {
     }
 }
 
-class WalletConnectServer {
+class WalletConnectServer: NSObject {
     private static let connectionTimeout: TimeInterval = 10
 
     enum ConnectionChoice {
@@ -129,6 +129,7 @@ class WalletConnectServer {
 
     init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
+        super.init()
         _sessions.value = server.openSessions()
 
         server.register(handler: requestHandler)
@@ -298,19 +299,8 @@ extension WalletConnectServer: WalletConnectServerRequestHandlerDelegate {
 }
 
 extension WalletConnectServer: ServerDelegate {
-    private func removeSession(for url: WalletConnectURL) {
-        guard var sessions = _sessions.value else { return }
 
-        if let index = sessions.firstIndex(where: { $0.url.absoluteString == url.absoluteString }) {
-            set(server: nil, for: sessions[index].url)
-            sessions.remove(at: index)
-        }
-
-        UserDefaults.standard.walletConnectSessions = sessions
-        refresh(sessions: sessions)
-    }
-
-    func server(_ server: Server, didFailToConnect url: WalletConnectURL) {
+    func server(_ server: Server, didFailToConnect url: WCURL) {
         debug("WalletConnect didFailToConnect: \(url)")
         DispatchQueue.main.async {
             guard let delegate = self.delegate else { return }
@@ -318,22 +308,6 @@ extension WalletConnectServer: ServerDelegate {
             self.removeSession(for: url)
             delegate.server(self, didFail: WalletConnectError.connect(url))
         }
-    }
-
-    private func refresh(sessions value: [Session]) {
-        _sessions.value = value
-    }
-
-    private func set(server: RPCServer?, for url: WalletConnectURL) {
-        var urlToServer = UserDefaults.standard.urlToServer
-
-        if let server = server {
-            urlToServer[url] = server
-        } else {
-            urlToServer.removeValue(forKey: url)
-        }
-
-        UserDefaults.standard.urlToServer = urlToServer
     }
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
@@ -361,19 +335,7 @@ extension WalletConnectServer: ServerDelegate {
     func server(_ server: Server, didConnect session: Session) {
         debug("WalletConnect didConnect: \(session.url.absoluteString)")
         DispatchQueue.main.async {
-            guard var sessions = self._sessions.value else { return }
-            if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
-                sessions[index] = session
-            } else {
-                sessions.append(session)
-            }
-
-            UserDefaults.standard.walletConnectSessions = sessions
-            self.refresh(sessions: sessions)
-
-            if let delegate = self.delegate {
-                delegate.server(self, didConnect: session)
-            }
+            self.addOrUpdateSession(session: session)
         }
     }
 
@@ -381,6 +343,53 @@ extension WalletConnectServer: ServerDelegate {
         DispatchQueue.main.async {
             self.removeSession(for: session.url)
         }
+    }
+
+    private func addOrUpdateSession(session: Session) {
+        guard var sessions = _sessions.value else { return }
+        if let index = sessions.firstIndex(where: { $0.dAppInfo.peerId == session.dAppInfo.peerId }) {
+            sessions[index] = session
+        } else {
+            sessions.append(session)
+        }
+
+        UserDefaults.standard.walletConnectSessions = sessions
+        refresh(sessions: sessions)
+    }
+
+    func server(_ server: Server, didUpdate session: Session) {
+        debug("WalletConnect didUpdate: \(session.url.absoluteString)")
+        DispatchQueue.main.async {
+            self.addOrUpdateSession(session: session)
+        }
+    }
+
+    private func removeSession(for url: WalletConnectURL) {
+        guard var sessions = _sessions.value else { return }
+
+        if let index = sessions.firstIndex(where: { $0.url.absoluteString == url.absoluteString }) {
+            set(server: nil, for: sessions[index].url)
+            sessions.remove(at: index)
+        }
+
+        UserDefaults.standard.walletConnectSessions = sessions
+        refresh(sessions: sessions)
+    }
+
+    private func refresh(sessions value: [Session]) {
+        _sessions.value = value
+    }
+
+    private func set(server: RPCServer?, for url: WalletConnectURL) {
+        var urlToServer = UserDefaults.standard.urlToServer
+
+        if let server = server {
+            urlToServer[url] = server
+        } else {
+            urlToServer.removeValue(forKey: url)
+        }
+
+        UserDefaults.standard.urlToServer = urlToServer
     }
 }
 
