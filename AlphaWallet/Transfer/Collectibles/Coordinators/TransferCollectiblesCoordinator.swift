@@ -18,7 +18,7 @@ protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDel
 
 class TransferCollectiblesCoordinator: Coordinator {
     private lazy var sendViewController: TransferTokenBatchCardsViaWalletAddressViewController = {
-        return makeTransferTokensCardViaWalletAddressViewController(token: tokenObject, for: filteredTokenHolders, paymentFlow: .send(type: .erc875Token(tokenObject)))
+        return makeTransferTokensCardViaWalletAddressViewController(token: tokenObject, tokenHolders: filteredTokenHolders)
     }()
     private let keystore: Keystore
     private let tokenObject: TokenObject
@@ -67,9 +67,9 @@ class TransferCollectiblesCoordinator: Coordinator {
         delegate?.didCancel(in: self)
     }
     
-    private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolders: [TokenHolder], paymentFlow: PaymentFlow) -> TransferTokenBatchCardsViaWalletAddressViewController {
+    private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
         let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokenBatchCardsViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = TransferTokenBatchCardsViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
 
@@ -94,7 +94,7 @@ extension TransferCollectiblesCoordinator: TransferTokenBatchCardsViaWalletAddre
         delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: self)
     }
 
-    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
+    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController) {
 
         //NOTE: we have to make sure that token holders have the same contract address!
         guard let firstTokenHolder = tokenHolders.first else { return }

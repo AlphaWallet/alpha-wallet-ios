@@ -140,11 +140,11 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
 
     func sell() {
-        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject)), in: self)
+        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject, tokenHolders: [tokenHolder])), in: self)
     }
 
     func transfer() {
-        let transactionType = TransactionType(token: tokenObject)
+        let transactionType = TransactionType(token: tokenObject, tokenHolders: [tokenHolder])
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transactionType), in: self)
     }
 

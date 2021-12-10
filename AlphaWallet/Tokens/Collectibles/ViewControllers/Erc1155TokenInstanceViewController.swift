@@ -192,7 +192,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
     }
 
     private func sell() {
-        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject)), in: self)
+        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .erc875Token(tokenObject, tokenHolders: [tokenHolder])), in: self)
     }
 
     private func transfer() {

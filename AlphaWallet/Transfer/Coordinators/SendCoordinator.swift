@@ -102,12 +102,6 @@ extension SendCoordinator: ScanQRCodeCoordinatorDelegate {
     }
 }
 
-struct FungiblesTransactionAmount {
-    var value: String
-    var shortValue: String?
-    var isAllFunds: Bool = false
-}
-
 extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in controller: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }

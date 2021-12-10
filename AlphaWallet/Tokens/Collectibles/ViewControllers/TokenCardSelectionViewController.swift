@@ -38,8 +38,6 @@ extension TokenCardSelectionViewController {
 }
 protocol TokenCardSelectionViewControllerDelegate: class {
     func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
-    func didTapSell(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
-    func didTapDeal(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
 
 class TokenCardSelectionViewController: UIViewController {
@@ -164,10 +162,8 @@ class TokenCardSelectionViewController: UIViewController {
                 selectAllTokens()
             case .clear:
                 clearAllSelections()
-            case .sell:
-                delegate?.didTapSell(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
-            case .deal:
-                delegate?.didTapDeal(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
+            case .sell, .deal:
+                break
             case .send:
                 delegate?.didTapSend(in: self, tokenObject: viewModel.tokenObject, tokenHolders: viewModel.tokenHolders)
             }

@@ -7,6 +7,27 @@ enum Erc1155TokenTransactionType {
 }
 
 enum TransactionType {
+    init(token: TokenObject, tokenHolders: [TokenHolder]) {
+        self = {
+            switch token.type {
+            case .nativeCryptocurrency:
+                return .nativeCryptocurrency(token, destination: nil, amount: nil)
+            case .erc20:
+                //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
+                return .erc20Token(token, destination: nil, amount: nil)
+            case .erc875:
+                return .erc875Token(token, tokenHolders: tokenHolders)
+            case .erc721:
+                //NOTE: here we got only one token, using array to avoid optional
+                return .erc721Token(token, tokenHolders: tokenHolders)
+            case .erc721ForTickets:
+                return .erc721ForTicketToken(token, tokenHolders: tokenHolders)
+            case .erc1155:
+                return .erc1155Token(token, transferType: .singleTransfer, tokenHolders: tokenHolders)
+            }
+        }()
+    }
+
     init(token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
         self = {
             switch token.type {
@@ -18,11 +39,12 @@ enum TransactionType {
                 //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
                 return .erc20Token(token, destination: recipient, amount: amount)
             case .erc875:
-                return .erc875Token(token)
+                return .erc875Token(token, tokenHolders: [])
             case .erc721:
-                return .erc721Token(token)
+                //NOTE: here we got only one token, using array to avoid optional
+                return .erc721Token(token, tokenHolders: [])
             case .erc721ForTickets:
-                return .erc721ForTicketToken(token)
+                return .erc721ForTicketToken(token, tokenHolders: [])
             case .erc1155:
                 return .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])
             }
@@ -31,10 +53,10 @@ enum TransactionType {
 
     case nativeCryptocurrency(TokenObject, destination: AddressOrEnsName?, amount: BigInt?)
     case erc20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
-    case erc875Token(TokenObject)
-    case erc875TokenOrder(TokenObject)
-    case erc721Token(TokenObject)
-    case erc721ForTicketToken(TokenObject)
+    case erc875Token(TokenObject, tokenHolders: [TokenHolder])
+    case erc875TokenOrder(TokenObject, tokenHolders: [TokenHolder])
+    case erc721Token(TokenObject, tokenHolders: [TokenHolder])
+    case erc721ForTicketToken(TokenObject, tokenHolders: [TokenHolder])
     case erc1155Token(TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder])
     case dapp(TokenObject, DAppRequester)
     case claimPaidErc875MagicLink(TokenObject)
@@ -66,13 +88,13 @@ extension TransactionType {
             return token.symbol
         case .erc20Token(let token, _, _):
             return token.symbol
-        case .erc875Token(let token):
+        case .erc875Token(let token, _):
             return token.symbol
-        case .erc875TokenOrder(let token):
+        case .erc875TokenOrder(let token, _):
             return token.symbol
-        case .erc721Token(let token):
+        case .erc721Token(let token, _):
             return token.symbol
-        case .erc721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token, _):
             return token.symbol
         case .erc1155Token(let token, _, _):
             return token.symbol
@@ -89,13 +111,13 @@ extension TransactionType {
             return token
         case .erc20Token(let token, _, _):
             return token
-        case .erc875Token(let token):
+        case .erc875Token(let token, _):
             return token
-        case .erc875TokenOrder(let token):
+        case .erc875TokenOrder(let token, _):
             return token
-        case .erc721Token(let token):
+        case .erc721Token(let token, _):
             return token
-        case .erc721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token, _):
             return token
         case .erc1155Token(let token, _, _):
             return token
@@ -112,13 +134,13 @@ extension TransactionType {
             return token.server
         case .erc20Token(let token, _, _):
             return token.server
-        case .erc875Token(let token):
+        case .erc875Token(let token, _):
             return token.server
-        case .erc875TokenOrder(let token):
+        case .erc875TokenOrder(let token, _):
             return token.server
-        case .erc721Token(let token):
+        case .erc721Token(let token, _):
             return token.server
-        case .erc721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token, _):
             return token.server
         case .erc1155Token(let token, _, _):
             return token.server
@@ -133,13 +155,13 @@ extension TransactionType {
             return Constants.nativeCryptoAddressInDatabase
         case .erc20Token(let token, _, _):
             return token.contractAddress
-        case .erc875Token(let token):
+        case .erc875Token(let token, _):
             return token.contractAddress
-        case .erc875TokenOrder(let token):
+        case .erc875TokenOrder(let token, _):
             return token.contractAddress
-        case .erc721Token(let token):
+        case .erc721Token(let token, _):
             return token.contractAddress
-        case .erc721ForTicketToken(let token):
+        case .erc721ForTicketToken(let token, _):
             return token.contractAddress
         case .erc1155Token(let token, _, _):
             return token.contractAddress

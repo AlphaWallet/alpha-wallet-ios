@@ -1038,7 +1038,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
         switch transactionType {
-        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token), .erc721Token(let token), .erc1155Token(let token, _, _):
+        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token, _), .erc721Token(let token, _), .erc1155Token(let token, _, _):
             if shouldSwitchServer {
                 open(url: url, onServer: token.server)
             } else {

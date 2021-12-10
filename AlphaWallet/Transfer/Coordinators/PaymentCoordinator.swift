@@ -73,6 +73,13 @@ class PaymentCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
+    private func startWithSendNFTCoordinator(transactionType: TransactionType, tokenObject: TokenObject, tokenHolder: TokenHolder) {
+        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: storage, ethPrice: ethPrice, tokenObject: tokenObject, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
     func start() {
         if shouldRestoreNavigationBarIsHiddenState {
             self.navigationController.setNavigationBarHidden(false, animated: true)
@@ -83,8 +90,12 @@ class PaymentCoordinator: Coordinator {
             switch transactionType {
             case .erc1155Token(let tokenObject, let transferType, let tokenHolders):
                 startWithSendCollectiblesCoordinator(tokenObject: tokenObject, transferType: transferType, tokenHolders: tokenHolders)
-            case .nativeCryptocurrency, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .dapp, .claimPaidErc875MagicLink, .tokenScript:
+            case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder:
                 startWithSendCoordinator(transactionType: transactionType)
+            case .erc875Token(let tokenObject, let tokenHolders), .erc721Token(let tokenObject, let tokenHolders):
+                startWithSendNFTCoordinator(transactionType: transactionType, tokenObject: tokenObject, tokenHolder: tokenHolders[0])
+            case .erc721ForTicketToken(let tokenObject, let tokenHolders):
+                startWithSendNFTCoordinator(transactionType: transactionType, tokenObject: tokenObject, tokenHolder: tokenHolders[0])
             }
         case (.request, _):
             let coordinator = RequestCoordinator(navigationController: navigationController, account: session.account)
@@ -115,6 +126,22 @@ class PaymentCoordinator: Coordinator {
         } else {
             navigationController.popToRootViewController(animated: animated)
         }
+    }
+}
+
+extension PaymentCoordinator: TransferNFTCoordinatorDelegate {
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransferNFTCoordinator) {
+        delegate?.didFinish(result, in: self)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferNFTCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+    }
+
+    func didCancel(in coordinator: TransferNFTCoordinator) {
+        removeCoordinator(coordinator)
+        cancel()
     }
 }
 

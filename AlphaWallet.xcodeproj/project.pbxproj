@@ -763,7 +763,6 @@
 		8728FFE12742900A008E5524 /* SingleTokenCardSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE02742900A008E5524 /* SingleTokenCardSelectionViewModel.swift */; };
 		8728FFE32742906A008E5524 /* TokenCardTableViewCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */; };
 		8728FFE527429967008E5524 /* TokensCardCollectionViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE427429966008E5524 /* TokensCardCollectionViewControllerViewModel.swift */; };
-		8728FFE827429D11008E5524 /* TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE727429D11008E5524 /* TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift */; };
 		8728FFEA2743CAA7008E5524 /* TokenCardSelectionSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8728FFE92743CAA7008E5524 /* TokenCardSelectionSectionHeaderView.swift */; };
 		872D9564271D633E00870971 /* WalletConnectConnectionTimeoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */; };
 		872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872D9565271D66C200870971 /* GasPriceEstimates.swift */; };
@@ -942,6 +941,7 @@
 		87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */; };
 		87D5BBDD2727DCB40053E6D2 /* EnjinBalances.graphql in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */; };
 		87D7326727636D7E00375C18 /* TransferCollectiblesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */; };
+		87D732692763E59700375C18 /* FungiblesTransactionAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */; };
 		87D949BB2710553000A96A85 /* DASLookupRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D949BA2710553000A96A85 /* DASLookupRequest.swift */; };
 		87D949BD2710559700A96A85 /* DASNameLookupCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D949BC2710559700A96A85 /* DASNameLookupCoordinator.swift */; };
 		87DB61C1264A94CD009FBDDE /* ABI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DB61C0264A94CD009FBDDE /* ABI.swift */; };
@@ -1817,7 +1817,6 @@
 		8728FFE02742900A008E5524 /* SingleTokenCardSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenCardSelectionViewModel.swift; sourceTree = "<group>"; };
 		8728FFE22742906A008E5524 /* TokenCardTableViewCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellFactory.swift; sourceTree = "<group>"; };
 		8728FFE427429966008E5524 /* TokensCardCollectionViewControllerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensCardCollectionViewControllerViewModel.swift; sourceTree = "<group>"; };
-		8728FFE727429D11008E5524 /* TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift"; sourceTree = "<group>"; };
 		8728FFE92743CAA7008E5524 /* TokenCardSelectionSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenCardSelectionSectionHeaderView.swift; sourceTree = "<group>"; };
 		872D9563271D633D00870971 /* WalletConnectConnectionTimeoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConnectionTimeoutViewController.swift; sourceTree = "<group>"; };
 		872D9565271D66C200870971 /* GasPriceEstimates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasPriceEstimates.swift; sourceTree = "<group>"; };
@@ -1991,6 +1990,7 @@
 		87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinToken.graphql; sourceTree = "<group>"; };
 		87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinBalances.graphql; sourceTree = "<group>"; };
 		87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCollectiblesCoordinator.swift; sourceTree = "<group>"; };
+		87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FungiblesTransactionAmount.swift; sourceTree = "<group>"; };
 		87D949BA2710553000A96A85 /* DASLookupRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASLookupRequest.swift; sourceTree = "<group>"; };
 		87D949BC2710559700A96A85 /* DASNameLookupCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DASNameLookupCoordinator.swift; sourceTree = "<group>"; };
 		87DB61C0264A94CD009FBDDE /* ABI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABI.swift; sourceTree = "<group>"; };
@@ -3025,6 +3025,7 @@
 				8750F91624EE5AE100E19DFF /* RecipientResolver.swift */,
 				5E7C78162DA41FF1AEF858E7 /* TransactionConfigurations.swift */,
 				5E7C7704A86D685C1B9CF5AF /* SendTransactionError.swift */,
+				87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3050,9 +3051,9 @@
 				29F114F31FA8117C00114A29 /* SendCoordinator.swift */,
 				29F114F51FA8147300114A29 /* RequestCoordinator.swift */,
 				29C0FCE0200DA94A004A13CB /* SignMessageCoordinator.swift */,
-				5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */,
 				8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */,
 				8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */,
+				5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -4502,14 +4503,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		8728FFE627429CDE008E5524 /* CoordinatorExtensions */ = {
-			isa = PBXGroup;
-			children = (
-				8728FFE727429D11008E5524 /* TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift */,
-			);
-			path = CoordinatorExtensions;
-			sourceTree = "<group>";
-		};
 		8731E6D92565267800A6A7DA /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -4604,7 +4597,6 @@
 		8739BBD226CD2A5C0045CFED /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
-				8728FFE627429CDE008E5524 /* CoordinatorExtensions */,
 				8739BBD326CD2A820045CFED /* TokenCardSelectionCoordinator.swift */,
 				879F183F26E73B79000602F2 /* TokensCardCollectionCoordinator.swift */,
 			);
@@ -5571,6 +5563,7 @@
 				87897B9E25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift in Sources */,
 				874AF0832603405F00D613A5 /* LoadingIndicatorView.swift in Sources */,
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
+				87D732692763E59700375C18 /* FungiblesTransactionAmount.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
 				879F184426E73BFF000602F2 /* SingleTokenCardSelectionView.swift in Sources */,
@@ -5802,7 +5795,6 @@
 				5E7C7CF43176653FFCE86644 /* SettingsCoordinator.swift in Sources */,
 				87BBF9862563DD7600FF4846 /* WalletConnect+UserDefaults.swift in Sources */,
 				5E7C745DACB5FCCEBCEB49CA /* WelcomeViewController.swift in Sources */,
-				8728FFE827429D11008E5524 /* TokensCardCollectionCoordinator+TokenInstanceActionViewControllerDelegate.swift in Sources */,
 				5E7C733638D7596F93DEE2A9 /* OnboardingCollectionViewController.swift in Sources */,
 				5E7C72670E16AFB8DAF64673 /* OnboardingPageViewModel.swift in Sources */,
 				5E7C7FE10C2FEA7316401F04 /* WelcomeViewModel.swift in Sources */,

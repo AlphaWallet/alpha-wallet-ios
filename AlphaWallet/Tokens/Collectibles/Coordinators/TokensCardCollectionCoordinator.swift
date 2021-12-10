@@ -28,17 +28,17 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
 
     private let session: WalletSession
     private let tokensStorage: TokensDataStore
-    private let ethPrice: Subscribable<Double>
+    private (set) var ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let transactionsStorage: TransactionsStorage
 
-    private let analyticsCoordinator: AnalyticsCoordinator
+    private (set) var analyticsCoordinator: AnalyticsCoordinator
     private let activitiesService: ActivitiesServiceType
     weak var delegate: TokensCardCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-
+    private let paymantFlow: PaymentFlow
     init(
             session: WalletSession,
             navigationController: UINavigationController,
@@ -50,8 +50,10 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
             eventsDataStore: EventsDataStoreProtocol,
             analyticsCoordinator: AnalyticsCoordinator,
             activitiesService: ActivitiesServiceType,
-            transactionsStorage: TransactionsStorage
+            transactionsStorage: TransactionsStorage,
+            paymantFlow: PaymentFlow
     ) {
+        self.paymantFlow = paymantFlow
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
@@ -167,7 +169,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
-        makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: .send(type: .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])), target: vc)
+        makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: paymantFlow, target: vc)
 
         return vc
     }
@@ -239,14 +241,6 @@ extension TokensCardCollectionCoordinator: TokenCardSelectionCoordinatorDelegate
         delegate?.didTapSend(forTransactionType: .erc1155Token(tokenObject, transferType: .singleTransfer, tokenHolders: filteredTokenHolders), in: self, viewController: vc)
     }
 
-    func didTapSell(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
-        removeCoordinator(coordinator)
-    }
-
-    func didTapDeal(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
-        removeCoordinator(coordinator)
-    }
-
     func didFinish(in coordinator: TokenCardSelectionCoordinator) {
         removeCoordinator(coordinator)
     }
@@ -256,7 +250,6 @@ extension TokensCardCollectionCoordinator: Erc1155TokenInstanceViewControllerDel
 
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: Erc1155TokenInstanceViewController) {
         //showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
-
     }
 
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController) {
@@ -288,13 +281,67 @@ extension TokensCardCollectionCoordinator: Erc1155TokenInstanceViewControllerDel
     }
 }
 
-extension Collection where Element == TokenHolder {
-    var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] {
-        var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] = [:]
-        for each in self {
-            valuesAll.merge(each.valuesAll) { (current, _) in current }
+extension TokensCardCollectionCoordinator: TokenInstanceActionViewControllerDelegate {
+
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
+        //no-op, remove it later
+    }
+
+    func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
+        viewController.navigationController?.popViewController(animated: true)
+    }
+
+    func confirmTransactionSelected(in viewController: TokenInstanceActionViewController, tokenObject: TokenObject, contract: AlphaWallet.Address, tokenId: TokenId, values: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore, transactionFunction: FunctionOrigin) {
+
+        switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
+        case .success((let transaction, let functionCallMetaData)):
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
+            coordinator.delegate = self
+            addCoordinator(coordinator)
+            coordinator.start(fromSource: .tokenScript)
+        case .failure:
+            //TODO throw an error
+            break
         }
-        return valuesAll
+    }
+}
+
+extension TokensCardCollectionCoordinator: TransactionConfirmationCoordinatorDelegate {
+    func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
+        //TODO improve error message. Several of this delegate func
+        coordinator.navigationController.displayError(message: error.localizedDescription)
+    }
+
+    func didClose(in coordinator: TransactionConfirmationCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        //delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
+    }
+
+    func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
+        coordinator.close { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.removeCoordinator(coordinator)
+
+            let coordinator = TransactionInProgressCoordinator(presentingViewController: coordinator.presentingViewController)
+            coordinator.delegate = strongSelf
+            strongSelf.addCoordinator(coordinator)
+
+            coordinator.start()
+        }
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
+        //delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: .transactionActionSheetInsufficientFunds)
+    }
+}
+
+extension TokensCardCollectionCoordinator: TransactionInProgressCoordinatorDelegate {
+
+    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
@@ -309,6 +356,16 @@ extension TokensCardCollectionCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+extension Collection where Element == TokenHolder {
+    var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] {
+        var valuesAll: [TokenId: [AttributeId: AssetAttributeSyntaxValue]] = [:]
+        for each in self {
+            valuesAll.merge(each.valuesAll) { (current, _) in current }
+        }
+        return valuesAll
     }
 }
 

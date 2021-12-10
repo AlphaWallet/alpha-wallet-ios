@@ -317,9 +317,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .erc20:
             coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
-            coordinator.showTokenList(for: .send(type: .erc721Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .erc721Token(token, tokenHolders: [])), token: token, navigationController: navigationController)
         case .erc875, .erc721ForTickets:
-            coordinator.showTokenList(for: .send(type: .erc875Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .erc875Token(token, tokenHolders: [])), token: token, navigationController: navigationController)
         case .erc1155:
             coordinator.showTokenList(for: .send(type: .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])), token: token, navigationController: navigationController)
         }

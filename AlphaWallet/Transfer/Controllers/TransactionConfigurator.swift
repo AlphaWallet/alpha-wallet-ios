@@ -347,7 +347,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: [Address(address: transaction.recipient!), BigUInt(transaction.value)])
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .erc875Token(let token):
+            case .erc875Token(let token, _):
                 let parameters: [Any] = [TrustKeystore.Address(address: transaction.recipient!), transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
@@ -359,7 +359,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .erc875TokenOrder(let token):
+            case .erc875TokenOrder(let token, _):
                 let parameters: [Any] = [
                     transaction.expiry!,
                     transaction.indices!.map({ BigUInt($0) }),
@@ -385,7 +385,7 @@ class TransactionConfigurator {
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
-            case .erc721Token(let token), .erc721ForTicketToken(let token):
+            case .erc721Token(let token, _), .erc721ForTicketToken(let token, _):
                 let function: Function
                 let parameters: [Any]
 

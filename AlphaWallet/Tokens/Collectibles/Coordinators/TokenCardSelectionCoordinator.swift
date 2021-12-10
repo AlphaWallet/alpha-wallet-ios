@@ -10,8 +10,6 @@ import UIKit
 protocol TokenCardSelectionCoordinatorDelegate: AnyObject {
     func didFinish(in coordinator: TokenCardSelectionCoordinator)
     func didTapSend(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
-    func didTapSell(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
-    func didTapDeal(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
 
 class TokenCardSelectionCoordinator: Coordinator {
@@ -58,18 +56,6 @@ extension TokenCardSelectionCoordinator: TokenCardSelectionViewControllerDelegat
     func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
             self.delegate?.didTapSend(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
-        }
-    }
-
-    func didTapSell(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
-        parentsNavigationController.dismiss(animated: true) {
-            self.delegate?.didTapSell(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
-        }
-    }
-
-    func didTapDeal(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
-        parentsNavigationController.dismiss(animated: true) {
-            self.delegate?.didTapDeal(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
         }
     }
 }

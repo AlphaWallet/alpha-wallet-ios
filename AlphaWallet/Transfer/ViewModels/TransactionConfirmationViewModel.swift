@@ -614,7 +614,7 @@ extension TransactionConfirmationViewModel {
                     } else {
                         title = tokenId ?? ""
                     }
-                    return .init(title: .normal("title"), headerName: headerName, configuration: configuration)
+                    return .init(title: .normal(title), headerName: headerName, configuration: configuration)
                 }
             case .recipient:
                 return .init(title: .normal(recipientResolver.value), headerName: headerName, configuration: configuration)

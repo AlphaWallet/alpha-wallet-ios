@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
+    func didEnterWalletAddress(tokenHolders: [TokenHolder], to recipient: AlphaWallet.Address, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
     func openQRCode(in controller: TransferTokenBatchCardsViaWalletAddressViewController)
     func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: TransferTokenBatchCardsViaWalletAddressViewController)
 }
@@ -55,7 +55,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel
-    private(set) var paymentFlow: PaymentFlow
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -71,10 +70,9 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return view
     }()
 
-    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, paymentFlow: PaymentFlow, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.token = token
-        self.paymentFlow = paymentFlow
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -172,7 +170,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         targetAddressTextField.errorState = .none
 
         if let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) {
-            delegate?.didEnterWalletAddress(tokenHolders: viewModel.tokenHolders, to: address, paymentFlow: paymentFlow, in: self)
+            delegate?.didEnterWalletAddress(tokenHolders: viewModel.tokenHolders, to: address, in: self)
         } else {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
         }
