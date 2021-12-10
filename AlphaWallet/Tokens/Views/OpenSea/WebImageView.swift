@@ -40,6 +40,7 @@ class WebImageView: UIView {
 
     var image: UIImage? {
         didSet {
+            loadedUrl = .none
             imageView.image = image
             setIsLoadingImageFromURL(false)
             webView.loadHTMLString("", baseURL: nil)
@@ -80,8 +81,13 @@ class WebImageView: UIView {
             self.size = observer.frame.size
         }
     }
+    private var loadedUrl: URL?
 
     private func setWebViewURL(url: URL?) {
+        if let loadedUrl = loadedUrl, loadedUrl == url {
+            return
+        }
+
         imageView.image = nil
         setIsLoadingImageFromURL(true)
 
@@ -109,6 +115,7 @@ class WebImageView: UIView {
         } else {
             webView.loadHTMLString("", baseURL: nil)
         }
+        loadedUrl = url
     }
 
     required init?(coder: NSCoder) {

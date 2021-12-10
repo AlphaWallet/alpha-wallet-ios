@@ -10,6 +10,7 @@ class OpenSeaNonFungibleTokenView: UIView {
     private let imageHolder = UIView()
     private let label = UILabel()
     private let countLabel = UILabel()
+    private var tokenAddress: AlphaWallet.Address?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -66,10 +67,22 @@ class OpenSeaNonFungibleTokenView: UIView {
 
         imageHolder.clipsToBounds = true
 
-        if let url = viewModel.imageUrl {
-            imageView.url = url
+        func setImage(url imageUrl: URL?, placeholder: UIImage? = UIImage(named: "AppIcon60x60")) {
+            if let url = imageUrl {
+                imageView.url = url
+            } else {
+                imageView.image = placeholder
+            }
+        }
+
+        if let tokenAddress = tokenAddress {
+            if tokenAddress.sameContract(as: viewModel.tokenAddress) {
+                //no-op
+            } else {
+                setImage(url: viewModel.imageUrl)
+            }
         } else {
-            imageView.image = UIImage(named: "AppIcon60x60")
+            setImage(url: viewModel.imageUrl)
         }
 
         label.textAlignment = .center
@@ -77,18 +90,12 @@ class OpenSeaNonFungibleTokenView: UIView {
 
         countLabel.textAlignment = .center
         countLabel.attributedText = viewModel.tickersAmountAttributedString
+
+        tokenAddress = viewModel.tokenAddress
     }
 }
 
-struct OpenSeaNonFungibleTokenPairTableCellViewModel: Equatable {
-    static func == (lhs: OpenSeaNonFungibleTokenPairTableCellViewModel, rhs: OpenSeaNonFungibleTokenPairTableCellViewModel) -> Bool {
-        let leftAreEqual = lhs.leftViewModel.tokenAddress.sameContract(as: rhs.leftViewModel.tokenAddress)
-        guard let address1 = lhs.rightViewModel?.tokenAddress, let address2 = rhs.rightViewModel?.tokenAddress else {
-            return false
-        }
-        return leftAreEqual && address1.sameContract(as: address2)
-    }
-
+struct OpenSeaNonFungibleTokenPairTableCellViewModel {
     var leftViewModel: OpenSeaNonFungibleTokenViewCellViewModel
     var rightViewModel: OpenSeaNonFungibleTokenViewCellViewModel?
 }
@@ -125,7 +132,6 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
         return .init(width: width / 2, height: UICollectionViewFlowLayout.collectiblesItemSize.height - edgeInsets.bottom - edgeInsets.top)
     }
     weak var delegate: OpenSeaNonFungibleTokenPairTableCellDelegate?
-    private(set) var viewModel: OpenSeaNonFungibleTokenPairTableCellViewModel?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -168,8 +174,6 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
     }
 
     func configure(viewModel: OpenSeaNonFungibleTokenPairTableCellViewModel) {
-        self.viewModel = viewModel
-
         left.configure(viewModel: viewModel.leftViewModel)
         if let viewModel = viewModel.rightViewModel {
             right.configure(viewModel: viewModel)

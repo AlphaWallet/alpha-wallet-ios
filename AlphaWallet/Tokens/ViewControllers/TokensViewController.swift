@@ -496,6 +496,7 @@ extension TokensViewController: UITableViewDataSource {
                 }
             }
         case .collectiblePairs:
+
             let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
             cell.delegate = self
 
@@ -504,16 +505,12 @@ extension TokensViewController: UITableViewDataSource {
             let session = sessions[server]
             let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(config: session.config, token: pair.left, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
 
-            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in
+            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token -> OpenSeaNonFungibleTokenViewCellViewModel in
                 let server = token.server
                 let session = sessions[server]
-                return OpenSeaNonFungibleTokenViewCellViewModel(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+                return .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
             }
 
-            let viewModel: OpenSeaNonFungibleTokenPairTableCellViewModel = .init(leftViewModel: left, rightViewModel: right)
-            if let viewModel2 = cell.viewModel, viewModel == viewModel2 {
-                return cell
-            }
             cell.configure(viewModel: .init(leftViewModel: left, rightViewModel: right))
 
             return cell
