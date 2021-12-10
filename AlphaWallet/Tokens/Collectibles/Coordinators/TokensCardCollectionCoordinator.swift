@@ -184,9 +184,7 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
 
             navigationController.pushViewController(viewController, animated: true)
         case .single:
-            let viewController = makeTokenInstanceViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, mode: .interactive)
-
-            navigationController.pushViewController(viewController, animated: true)
+            showTokenInstance(tokenHolder: tokenHolder)
         }
     }
 
@@ -207,6 +205,16 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
+    }
+
+    func showTokenInstance(tokenHolder: TokenHolder, mode: TokenInstanceViewMode = .interactive) {
+        let viewController = makeTokenInstanceViewController(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, mode: mode)
+        viewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(didCloseTokenInstanceSelected))
+        navigationController.pushViewController(viewController, animated: true)
+    }
+    
+    @objc private func didCloseTokenInstanceSelected(_ sender: UIBarButtonItem) {
+        navigationController.popViewController(animated: true)
     }
 }
 

@@ -11,7 +11,9 @@ enum TransactionType {
         self = {
             switch token.type {
             case .nativeCryptocurrency:
-                return .nativeCryptocurrency(token, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
+                return .nativeCryptocurrency(token, destination: recipient, amount: amount.flatMap {
+                    EtherNumberFormatter().number(from: $0, units: .ether)
+                })
             case .erc20:
                 //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
                 return .erc20Token(token, destination: recipient, amount: amount)

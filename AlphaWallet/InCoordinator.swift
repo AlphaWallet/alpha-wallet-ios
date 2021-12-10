@@ -1095,6 +1095,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator) {
+        guard let coordinator = coordinatorOfType(type: TokensCardCollectionCoordinator.self) else { return }
+
+        coordinator.showTokenInstance(tokenHolder: tokenHolder, mode: .preview)
+    }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {
         handlePendingTransaction(transaction: transaction)

@@ -8,6 +8,7 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)
     func didCancel(in coordinator: PaymentCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: PaymentCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator)
 }
 
 class PaymentCoordinator: Coordinator {
@@ -127,7 +128,7 @@ extension PaymentCoordinator: TransferCollectiblesCoordinatorDelegate {
     }
 
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: TransferCollectiblesCoordinator) {
-        //FIXME:
+        delegate?.didSelectTokenHolder(tokenHolder: tokenHolder, in: self)
     }
 
     func didCancel(in coordinator: TransferCollectiblesCoordinator) {

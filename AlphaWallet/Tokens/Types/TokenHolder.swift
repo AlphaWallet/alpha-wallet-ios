@@ -21,6 +21,7 @@ struct TokenSelection: Equatable {
 enum TokenHolderSelectionStrategy {
     case all
     case token(tokenId: TokenId, amount: Int)
+    case allFor(tokenId: TokenId)
 }
 
 enum TokenHolderUnselectionStrategy {
@@ -49,6 +50,9 @@ extension TokenHolder {
 
     func select(with strategy: TokenHolderSelectionStrategy) {
         switch strategy {
+        case .allFor(let tokenId):
+            guard let token = token(tokenId: tokenId) else { return }
+            select(with: .token(tokenId: tokenId, amount: token.value ?? 0))
         case .all:
             selections = tokens.compactMap {
                 //TODO need to make sure the available `amount` is set previously  so we can use it here
@@ -77,6 +81,9 @@ extension TokenHolder {
         switch strategy {
         case .all:
             selections = []
+        case .allFor(let tokenId):
+            guard let token = token(tokenId: tokenId) else { return }
+            unselect(with: .token(tokenId: tokenId, amount: token.value ?? 0))
         case .token(let tokenId, let amount):
             if let index = selections.firstIndex(where: { $0.tokenId == tokenId }) {
                 selections[index] = TokenSelection(tokenId: tokenId, value: amount)

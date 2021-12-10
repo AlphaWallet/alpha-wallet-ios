@@ -197,6 +197,8 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
 
     private func transfer() {
         let transactionType = TransactionType(token: tokenObject)
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transactionType), in: self)
     }
 
