@@ -882,6 +882,7 @@
 		87A97D7726FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A97D7626FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift */; };
 		87AA56DF270F1B6E00A9EE3F /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
 		87AA5DCC27303C89000A2DEA /* EnjinOauth.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87AA5DCB27303C89000A2DEA /* EnjinOauth.graphql */; };
+		87AB425B2767A0030099DF9F /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 87AB425A2767A0030099DF9F /* Apollo */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B6526A256FBF36000EF927 /* SwapTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B65269256FBF36000EF927 /* SwapTokenService.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
@@ -934,8 +935,6 @@
 		87D457F526677CBF00BA1442 /* ERC20BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */; };
 		87D457F726677CD300BA1442 /* NativecryptoBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */; };
 		87D5BBCC2727D2920053E6D2 /* schema.json in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBCA2727D2910053E6D2 /* schema.json */; };
-		87D5BBD22727D4C60053E6D2 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 87D5BBD12727D4C60053E6D2 /* Apollo */; };
-		87D5BBD42727D4C60053E6D2 /* ApolloWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = 87D5BBD32727D4C60053E6D2 /* ApolloWebSocket */; };
 		87D5BBD72727D69E0053E6D2 /* EnjinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */; };
 		87D5BBD92727D9B20053E6D2 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD82727D9B20053E6D2 /* API.swift */; };
 		87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */; };
@@ -2074,8 +2073,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8630C92268AD9640049B138 /* MailchimpSDK in Frameworks */,
-				87D5BBD42727D4C60053E6D2 /* ApolloWebSocket in Frameworks */,
-				87D5BBD22727D4C60053E6D2 /* Apollo in Frameworks */,
+				87AB425B2767A0030099DF9F /* Apollo in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4997,8 +4995,7 @@
 			name = AlphaWallet;
 			packageProductDependencies = (
 				C8630C91268AD9640049B138 /* MailchimpSDK */,
-				87D5BBD12727D4C60053E6D2 /* Apollo */,
-				87D5BBD32727D4C60053E6D2 /* ApolloWebSocket */,
+				87AB425A2767A0030099DF9F /* Apollo */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -5124,7 +5121,7 @@
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
 				C8630C90268AD9640049B138 /* XCRemoteSwiftPackageReference "Mailchimp-SDK-iOS" */,
-				87D5BBD02727D4C60053E6D2 /* XCRemoteSwiftPackageReference "apollo-ios" */,
+				87AB42592767A0030099DF9F /* XCRemoteSwiftPackageReference "apollo-ios" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -6988,7 +6985,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		87D5BBD02727D4C60053E6D2 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
+		87AB42592767A0030099DF9F /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apollographql/apollo-ios.git";
 			requirement = {
@@ -7007,15 +7004,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		87D5BBD12727D4C60053E6D2 /* Apollo */ = {
+		87AB425A2767A0030099DF9F /* Apollo */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 87D5BBD02727D4C60053E6D2 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			package = 87AB42592767A0030099DF9F /* XCRemoteSwiftPackageReference "apollo-ios" */;
 			productName = Apollo;
-		};
-		87D5BBD32727D4C60053E6D2 /* ApolloWebSocket */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 87D5BBD02727D4C60053E6D2 /* XCRemoteSwiftPackageReference "apollo-ios" */;
-			productName = ApolloWebSocket;
 		};
 		C8630C91268AD9640049B138 /* MailchimpSDK */ = {
 			isa = XCSwiftPackageProductDependency;
