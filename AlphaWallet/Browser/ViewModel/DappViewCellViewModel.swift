@@ -11,7 +11,7 @@ class DappViewCellViewModel {
     }
 
     var fallbackImage: UIImage? {
-        return R.image.launch_icon()
+        return R.image.iconsTokensPlaceholder()
     }
 
     var domainName: String {
