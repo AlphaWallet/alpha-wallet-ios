@@ -30,7 +30,7 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let storage: TokensDataStore
-    private let cryptoPrice: Subscribable<Double>
+    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -71,7 +71,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
-        self.cryptoPrice = ethPrice
+        self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -419,7 +419,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 navigationController: navigationController,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: cryptoPrice,
+                ethPrice: ethPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -440,7 +440,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 navigationController: navigationController,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: cryptoPrice,
+                ethPrice: ethPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -593,7 +593,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: server, account: session.account)
         let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         let vc = TokenInstanceActionViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
@@ -734,7 +734,7 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
         case .success((let transaction, let functionCallMetaData)):
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: cryptoPrice), analyticsCoordinator: analyticsCoordinator)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)
