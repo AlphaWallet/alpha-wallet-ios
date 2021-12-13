@@ -3,7 +3,7 @@
 import UIKit
 import PromiseKit
 
-typealias TokenImage = (image: UIImage, symbol: String, isFinal: Bool)
+typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool)
 typealias Image = UIImage
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
@@ -106,11 +106,11 @@ extension TokenObject {
         switch type {
         case .nativeCryptocurrency:
             if let img = server.iconImage {
-                return .init((image: img, symbol: "", isFinal: true))
+                return .init((image: .image(img), symbol: "", isFinal: true))
             }
         case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
             if let img = contractAddress.tokenImage {
-                return .init((image: img, symbol: "", isFinal: true))
+                return .init((image: .image(img), symbol: "", isFinal: true))
             }
         }
         return TokenImageFetcher.instance.image(forToken: self)
@@ -127,10 +127,19 @@ class TokenImageFetcher {
     private static var subscribables: ThreadSafeDictionary<String, Subscribable<TokenImage>> = .init()
     private let queue: DispatchQueue = .global()
 
-    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, server: RPCServer, symbol: String) -> TokenImage? {
+    private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String) -> TokenImage? {
         guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
-        return (image: programmaticallyGeneratedIconImage(for: contractAddress, server: server), symbol: symbol, isFinal: false)
+        let rawImage: UIImage
+
+        switch type {
+        case .erc1155, .erc721, .erc721ForTickets:
+            rawImage = R.image.tokenPlaceholderLarge()!
+        case .erc20, .erc875, .nativeCryptocurrency:
+            rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server)
+        }
+
+        return (image: .image(rawImage), symbol: symbol, isFinal: false)
     }
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
@@ -160,7 +169,7 @@ class TokenImageFetcher {
 
         if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             queue.async {
-                let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
+                let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
 
                 DispatchQueue.main.async {
                     subscribable.value = generatedImage
@@ -170,7 +179,7 @@ class TokenImageFetcher {
         }
 
         queue.async {
-            let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, server: server, symbol: name)
+            let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
 
             DispatchQueue.main.async {
                 if subscribable.value == nil {
@@ -182,7 +191,7 @@ class TokenImageFetcher {
                 subscribable.value = (image: $0, symbol: "", isFinal: true)
             }).catch(on: queue) { _ in
                 Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
-                    subscribable.value = (image: $0, symbol: "", isFinal: false)
+                    subscribable.value = (image: .image($0), symbol: "", isFinal: false)
                 }).catch(on: .main, { _ in
                     subscribable.value = generatedImage
                 })
@@ -192,18 +201,16 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    private static func fetchFromOpenSea(_ type: TokenType, balance: String?, queue: DispatchQueue) -> Promise<UIImage> {
+    private static func fetchFromOpenSea(_ type: TokenType, balance: String?, queue: DispatchQueue) -> Promise<WebImageViewImage> {
         Promise { seal in
             queue.async {
                 switch type {
                 case .erc721, .erc1155:
-                    if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data), !openSeaNonFungible.contractImageUrl.isEmpty {
-                        let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
-                        fetch(request: request, queue: queue).done(on: queue, { image in
-                            seal.fulfill(image)
-                        }).catch(on: queue, { _ in
-                            seal.reject(ImageAvailabilityError.notAvailable)
-                        })
+                    if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data) {
+                        guard let url = URL(string: openSeaNonFungible.contractImageUrl) ?? URL(string: openSeaNonFungible.thumbnailUrl) else {
+                            return seal.reject(ImageAvailabilityError.notAvailable)
+                        }
+                        return seal.fulfill(.url(url))
                     } else {
                         seal.reject(ImageAvailabilityError.notAvailable)
                     }

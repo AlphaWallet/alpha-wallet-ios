@@ -26,6 +26,13 @@ struct TokensCardCollectionInfoPageViewModel {
     }
     let tokenHolders: [TokenHolder]
     var configurations: [TokensCardCollectionInfoPageViewConfiguration] = []
+    var image: URL? {
+        return tokenHolders.first.flatMap { $0.values.imageUrlUrlValue ?? $0.values.thumbnailUrlUrlValue }
+    }
+
+    var tokenImagePlaceholder: UIImage? {
+        return R.image.tokenPlaceholderLarge()
+    }
 
     init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, forWallet wallet: Wallet) {
         self.server = server

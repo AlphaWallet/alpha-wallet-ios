@@ -21,8 +21,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
     private let tokenObject: TokenObject
     private var viewModel: Erc1155TokenInstanceViewModel
     private let account: Wallet
-    private let bigImageView = WebImageView(type: .original, size: .init(width: 40, height: 40))
-    lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
+    private let bigImageView = WebImageView()
 
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
 
@@ -75,7 +74,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: view),
-            bigImageHolderHeightConstraint,
+            bigImageView.heightAnchor.constraint(equalToConstant: 250),
         ])
 
         configure(viewModel: viewModel)
@@ -143,15 +142,8 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
             }
         }
 
-        if let url = tokenHolder.values.imageUrlUrlValue {
-            bigImageView.url = url
-            bigImageHolderHeightConstraint.constant = 300
-        } else if let url = tokenHolder.values.thumbnailUrlUrlValue {
-            bigImageView.url = url
-            bigImageHolderHeightConstraint.constant = 300
-        } else {
-            bigImageHolderHeightConstraint.constant = 0
-        }
+        let url = tokenHolder.values.imageUrlUrlValue ?? tokenHolder.values.thumbnailUrlUrlValue
+        bigImageView.setImage(url: url, placeholder: viewModel.tokenImagePlaceholder)
 
         generateSubviews(viewModel: viewModel)
     }

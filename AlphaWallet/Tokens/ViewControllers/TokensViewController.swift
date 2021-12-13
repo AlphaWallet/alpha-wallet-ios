@@ -458,9 +458,8 @@ extension TokensViewController: UITableViewDataSource {
         case .tokens:
             switch viewModel.item(for: indexPath.row, section: indexPath.section) {
             case .rpcServer(let server):
-                let isTopSeparatorHidden = indexPath.row != 0 && indexPath.section != 0
                 let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-                cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: isTopSeparatorHidden))
+                cell.configure(viewModel: TokenListServerTableViewCellViewModel(server: server, isTopSeparatorHidden: true))
 
                 return cell
             case .tokenObject(let token):
@@ -500,7 +499,7 @@ extension TokensViewController: UITableViewDataSource {
             let pair = viewModel.collectiblePairs[indexPath.row]
 
             let cell: OpenSeaNonFungibleTokenPairTableCell
-            //NOTE: lets keep for now approach with caching cells for pairs, to 
+            //NOTE: lets keep for now approach with caching cells for pairs, to
             if let value = cachedCollectiblePairCells[pair] {
                 cell = value
             } else {
@@ -510,14 +509,9 @@ extension TokensViewController: UITableViewDataSource {
                 cachedCollectiblePairCells[pair] = cell
             }
 
-            let server = pair.left.server
-            let session = sessions[server]
-            let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(config: session.config, token: pair.left, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
-
-            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token -> OpenSeaNonFungibleTokenViewCellViewModel in
-                let server = token.server
-                let session = sessions[server]
-                return .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+            let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(token: pair.left)
+            let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in
+                return OpenSeaNonFungibleTokenViewCellViewModel(token: token)
             }
 
             cell.configure(viewModel: .init(leftViewModel: left, rightViewModel: right))

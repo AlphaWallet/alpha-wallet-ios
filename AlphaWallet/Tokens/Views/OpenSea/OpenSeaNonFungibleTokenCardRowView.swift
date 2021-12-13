@@ -13,9 +13,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private static let yMargin = CGFloat(5)
 
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
-    private let thumbnailImageView = WebImageView(type: .thumbnail, size: .init(width: 300, height: 300))
+    private let thumbnailImageView = WebImageView()
     private let bigImageBackground = UIView()
-    private let bigImageView = WebImageView(type: .original, size: .init(width: 300, height: 300))
+    private let bigImageView = WebImageView()
     //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little for CryptoKitties
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()
@@ -472,17 +472,17 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         statsLabel.text = viewModel.statsTitle
 
         if viewModel.areImagesHidden {
-            thumbnailImageView.url = nil
-            bigImageView.url = nil
+            thumbnailImageView.setImage(url: nil)
+            bigImageView.setImage(url: nil)
         } else {
             if let url = viewModel.imageUrl {
-                thumbnailImageView.url = url
-                bigImageView.url = url
+                thumbnailImageView.setImage(url: url)
+                bigImageView.setImage(url: url)
                 //TODO this is dubious. But we don't have the image (and hence the dimensions) to calculate based on aspect ratio anymore
                 bigImageHolderHeightConstraint.constant = 300
             } else {
-                thumbnailImageView.url = nil
-                bigImageView.url = nil
+                thumbnailImageView.setImage(url: nil)
+                bigImageView.setImage(url: nil)
             }
         }
 

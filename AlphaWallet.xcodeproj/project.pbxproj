@@ -875,6 +875,7 @@
 		87A5D53E26B9767300856995 /* QuickSwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5D53D26B9767300856995 /* QuickSwap.swift */; };
 		87A97D7726FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A97D7626FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift */; };
 		87AA56DF270F1B6E00A9EE3F /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
+		87AB4251276755400099DF9F /* WebImage in Resources */ = {isa = PBXBuildFile; fileRef = 87AB4250276755400099DF9F /* WebImage */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
 		87B6526A256FBF36000EF927 /* SwapTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B65269256FBF36000EF927 /* SwapTokenService.swift */; };
 		87B93B0E2726A46500F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
@@ -1912,6 +1913,7 @@
 		87A5D53D26B9767300856995 /* QuickSwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSwap.swift; sourceTree = "<group>"; };
 		87A97D7626FE01B7000C2F38 /* GetENSTextRecordsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetENSTextRecordsCoordinator.swift; sourceTree = "<group>"; };
 		87AA56DE270F1B6E00A9EE3F /* config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
+		87AB4250276755400099DF9F /* WebImage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebImage; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
 		87B65269256FBF36000EF927 /* SwapTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenService.swift; sourceTree = "<group>"; };
 		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
@@ -2124,6 +2126,7 @@
 		2912CCF71F6A830700C6CBE3 /* AlphaWallet */ = {
 			isa = PBXGroup;
 			children = (
+				87AB4250276755400099DF9F /* WebImage */,
 				8712A37A26F314EF0009C376 /* Alerts */,
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
 				878EE942255BC352000210DE /* Share */,
@@ -5075,6 +5078,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
+				87AB4251276755400099DF9F /* WebImage in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
 				87B93B142726C79400F6EA73 /* helpers.js in Resources */,
 				C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */,

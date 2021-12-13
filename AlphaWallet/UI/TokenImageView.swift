@@ -33,11 +33,14 @@ class TokenImageView: UIView {
         label.adjustsFontSizeToFitWidth = true
         return label
     }()
-    private var imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+    private lazy var imageView: WebImageView = {
+        let imageView = WebImageView()
         return imageView
     }()
+
+    private var tokenImagePlaceholder: UIImage? {
+        return R.image.tokenPlaceholderLarge()
+    }
 
     var subscribable: Subscribable<TokenImage>? {
         didSet {
@@ -46,15 +49,25 @@ class TokenImageView: UIView {
             }
 
             if let subscribable = subscribable {
-                imageView.image = nil
-                subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol  in
+                if subscribable.value == nil {
+                    imageView.setImage(url: nil)
+                }
+
+                subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
                     guard let strongSelf = self else { return }
-                    strongSelf.imageView.image = imageAndSymbol?.image
+                    switch imageAndSymbol?.image {
+                    case .image(let v):
+                        strongSelf.imageView.setImage(image: v)
+                    case .url(let v):
+                        strongSelf.imageView.setImage(url: v)
+                    case .none:
+                        strongSelf.imageView.setImage(url: nil)
+                    }
                     strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                 }
             } else {
                 subscriptionKey = nil
-                imageView.image = nil
+                imageView.setImage(url: nil)
                 symbolLabel.text = ""
             }
         }
