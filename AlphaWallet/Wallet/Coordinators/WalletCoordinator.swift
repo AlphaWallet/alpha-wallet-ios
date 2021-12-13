@@ -87,6 +87,9 @@ class WalletCoordinator: Coordinator {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let account):
+                //Not the best implementation, since there's some coupling, but it's clean. We need this so we don't show the What's New UI right after a wallet is created and clash with the pop up prompting user to back up the new wallet, for new installs and creating new wallets for existing installs
+                WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
+
                 let wallet = Wallet(type: WalletType.real(account))
                 //Bit of delay to wait for the UI animation to almost finish
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
