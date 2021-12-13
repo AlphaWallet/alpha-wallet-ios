@@ -333,20 +333,6 @@ class TokensViewController: UIViewController {
         tableView.backgroundColor = viewModel.backgroundColor
     }
 
-    //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
-    private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
-        var contractsForCollectibles = [AlphaWallet.Address]()
-        for i in (0..<viewModel.numberOfItems()) {
-            switch viewModel.item(for: i, section: 0) {
-            case .rpcServer:
-                break
-            case .tokenObject(let token):
-                contractsForCollectibles.append(token.contractAddress)
-            }
-        }
-        return contractsForCollectibles
-    }
-
     private func handleTokenCollectionUpdates() {
         tokenCollection.subscribe { [weak self] result in
             guard let strongSelf = self else { return }
@@ -609,18 +595,21 @@ extension TokensViewController: UISearchControllerDelegate {
     }
 
     func willDismissSearchController(_ searchController: UISearchController) {
+        guard viewModel.isSearchActive else { return }
         viewModel.isSearchActive = false
 
         resetTableHeaderViewWithSubview()
 
         UIView.animate(withDuration: 0.3, delay: 0, options: [], animations: {
-            searchController.searchBar.alpha = 0
-
             self.navigationController?.view.setNeedsLayout()
             self.navigationController?.view.layoutSubviews()
         }, completion: { _ in
             //no-op
         })
+    }
+
+    func didDismissSearchController(_ searchController: UISearchController) {
+        navigationItem.searchController = nil
     }
 }
 
@@ -662,17 +651,17 @@ extension TokensViewController: UISearchResultsUpdating {
 extension TokensViewController: UISearchBarDelegate {
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         let searchController = self.searchController
-        tableView.tableHeaderView = searchController.searchBar
+        navigationItem.searchController = searchController
 
         DispatchQueue.main.async {
             searchController.isActive = true
 
-            UIView.animate(withDuration: 0.2, delay: 0.1, options: [.curveLinear], animations: {
-                searchController.searchBar.alpha = 1
-
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveLinear], animations: {
                 self.navigationController?.view.setNeedsLayout()
                 self.navigationController?.view.layoutSubviews()
             }, completion: { _ in
+                self.viewModel.isSearchActive = true
+                self.reloadTableData()
                 searchController.searchBar.becomeFirstResponder()
             })
         }
@@ -717,6 +706,7 @@ extension TokensViewController {
     }
 
     private func wireUpSearchController() {
+        navigationItem.hidesSearchBarWhenScrolling = false
         searchController.searchResultsUpdater = self
     }
 
