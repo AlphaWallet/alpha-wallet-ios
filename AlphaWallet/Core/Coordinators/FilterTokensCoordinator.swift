@@ -108,6 +108,21 @@ class FilterTokensCoordinator {
     }
 
     func sortDisplayedTokens(tokens: [TokenObject]) -> [TokenObject] {
+
+        func sortTokensByFiatValues(_ token1: TokenObject, _ token2: TokenObject) -> Bool {
+            let value1 = coinTickersFetcher.ticker(for: token1.addressAndRPCServer).flatMap({ ticker in
+                EthCurrencyHelper(ticker: ticker)
+                    .fiatValue(value: token1.optionalDecimalValue)
+            }) ?? -1
+
+            let value2 = coinTickersFetcher.ticker(for: token2.addressAndRPCServer).flatMap({ ticker in
+                EthCurrencyHelper(ticker: ticker)
+                    .fiatValue(value: token2.optionalDecimalValue)
+            }) ?? -1
+
+            return value1 > value2
+        }
+
         let nativeCryptoAddressInDatabase = Constants.nativeCryptoAddressInDatabase.eip55String
 
         let result = tokens.filter {
@@ -128,7 +143,7 @@ class FilterTokensCoordinator {
                 } else if $0.server != $1.server {
                     return $0.server.displayOrderPriority < $1.server.displayOrderPriority
                 } else {
-                    return false
+                    return sortTokensByFiatValues($0, $1)
                 }
             }
         })
