@@ -41,12 +41,18 @@ class WhatsNewListingViewController: ModalViewController {
 
 extension WhatsNewListingViewController: ModalViewControllerDelegate {
     func didDismiss(_ controller: ModalViewController) {
-        whatsNewListingDelegate?.didDismiss(controller: self)
+        controller.dismissViewAnimated {
+            controller.dismiss(animated: false) {
+                self.whatsNewListingDelegate?.didDismiss(controller: self)
+            }
+        }
     }
 
     func didClose(_ controller: ModalViewController) {
         controller.dismissViewAnimated {
-            self.whatsNewListingDelegate?.didDismiss(controller: self)
+            controller.dismiss(animated: false) {
+                self.whatsNewListingDelegate?.didDismiss(controller: self)
+            }
         }
     }
 }
