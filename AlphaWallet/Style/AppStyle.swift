@@ -7,7 +7,7 @@ func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
     UIWindow.appearance().tintColor = Colors.appTint
     UITabBar.appearance().tintColor = Colors.appTint
-    UINavigationBar.appearance().barTintColor = Colors.appBackground
+    UINavigationBar.appearance().barTintColor = R.color.white()!
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
     UINavigationBar.appearance().titleTextAttributes = [
@@ -23,14 +23,14 @@ func applyStyle() {
     if #available(iOS 15.0, *) {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = Colors.appBackground
+        appearance.backgroundColor = R.color.white()!
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
         appearance.titleTextAttributes = [
-            .foregroundColor: Colors.navigationTitleColor,
+            .foregroundColor: R.color.black()!,
             .font: Fonts.semibold(size: 17) as Any
         ]
         appearance.largeTitleTextAttributes = [
-            .foregroundColor: Colors.navigationTitleColor,
+            .foregroundColor: R.color.black()!,
             .font: Fonts.bold(size: 36) as Any,
         ]
         UINavigationBar.appearance().standardAppearance = appearance

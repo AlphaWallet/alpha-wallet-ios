@@ -97,6 +97,16 @@
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
 "settings.tokenScriptStandard.title" = "TokenScript Compatibility";
+"settings.advanced.exportJSONKeystore.title" = "Export Keystore JSON";
+"settings.advanced.exportJSONKeystore.file.title" = "Export Keystore JSON";
+"settings.advanced.exportJSONKeystore.file.label" = "Your Keystore JSON";
+"settings.advanced.exportJSONKeystore.file.passwordButton.info" = "Set Password for Keystore JSON";
+"settings.advanced.exportJSONKeystore.file.passwordButton.password" = "Export Keystore JSON";
+"settings.advanced.exportJSONKeystore.password.title" = "Set Password for Keystore JSON";
+"settings.advanced.exportJSONKeystore.password.label" = "Password";
+"settings.advanced.exportJSONKeystore.password.passwordButton.info" = "Export Keystore JSON";
+"settings.advanced.exportJSONKeystore.password.passwordButton.password" = "Your Keystore JSON";
+"settings.advanced.exportJSONKeystore.file.exporting" = "Exporting";
 "settings.general.title" = "General";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";

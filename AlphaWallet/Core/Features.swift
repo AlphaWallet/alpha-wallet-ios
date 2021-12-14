@@ -25,4 +25,5 @@ enum Features {
     static let isUsingAppEnforcedTimeoutForMakingWalletConnectConnections = true
     static let isAttachingLogFilesToSupportEmailEnabled = false
     static let isPalmEnabled = true
+    static let isExportJsonKeystoreEnabled = false
 }

@@ -172,7 +172,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
-        let controller = AdvancedSettingsViewController(config: config)
+        let controller = AdvancedSettingsViewController(keystore: keystore, config: config)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(controller, animated: true)
@@ -318,6 +318,13 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         coordinator.start()
         addCoordinator(coordinator)
     }
+
+    func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController) {
+        let coordinator = ExportJsonKeystoreCoordinator(keystore: keystore, navigationController: navigationController)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
+    }
 }
 
 extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
@@ -333,6 +340,12 @@ extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
 
     func didCancel(in coordinator: PingInfuraCoordinator) {
         removeCoordinator(self)
+    }
+}
+
+extension SettingsCoordinator: ExportJsonKeystoreCoordinatorDelegate {
+    func didComplete(coordinator: ExportJsonKeystoreCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
