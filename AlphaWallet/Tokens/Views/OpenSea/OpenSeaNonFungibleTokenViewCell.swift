@@ -136,21 +136,26 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        background.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(background)
         selectionStyle = .none
 
-        let stackView = [left, right].asStackView(axis: .horizontal, spacing: spacing)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        background.addSubview(stackView)
+        background.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(background)
+        background.addSubview(left)
+        background.addSubview(right)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: background, edgeInsets: edgeInsets),
             background.anchorsConstraint(to: contentView),
-
+            left.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 16),
+            left.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
+            left.bottomAnchor.constraint(equalTo: background.bottomAnchor),
             left.widthAnchor.constraint(equalToConstant: cellSize.width),
+
+            right.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -16),
+            right.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
+            right.bottomAnchor.constraint(equalTo: background.bottomAnchor),
             right.widthAnchor.constraint(equalToConstant: cellSize.width),
-            self.heightAnchor.constraint(equalToConstant: cellSize.height)
+
+            right.leadingAnchor.constraint(equalTo: left.trailingAnchor, constant: 16)
         ])
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellSelected))
@@ -179,11 +184,5 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
             right.configure(viewModel: viewModel)
         }
         right.isHidden = viewModel.rightViewModel == nil
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        separatorInset = .init(top: 0, left: 1000, bottom: 0, right: 0)
     }
 }

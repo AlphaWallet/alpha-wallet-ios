@@ -193,7 +193,8 @@ class TokensViewController: UIViewController {
 
         return header
     }()
-
+    private var cachedCollectiblePairCells: [CollectiblePairs: OpenSeaNonFungibleTokenPairTableCell] = [:]
+    
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
          tokenCollection: TokenCollection,
@@ -496,11 +497,19 @@ extension TokensViewController: UITableViewDataSource {
                 }
             }
         case .collectiblePairs:
-
-            let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.delegate = self
-
             let pair = viewModel.collectiblePairs[indexPath.row]
+
+            let cell: OpenSeaNonFungibleTokenPairTableCell
+            //NOTE: lets keep for now approach with caching cells for pairs, to 
+            if let value = cachedCollectiblePairCells[pair] {
+                cell = value
+            } else {
+                cell = tableView.dequeueReusableCell(for: indexPath)
+                cell.delegate = self
+
+                cachedCollectiblePairCells[pair] = cell
+            }
+
             let server = pair.left.server
             let session = sessions[server]
             let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(config: session.config, token: pair.left, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
@@ -523,12 +532,20 @@ extension TokensViewController: UITableViewDataSource {
             switch viewModel.item(for: indexPath.row, section: indexPath.section) {
             case .rpcServer:
                 return Style.Wallet.Header.height
-            default:
+            case .tokenObject:
                 return Style.Wallet.Row.height
             }
-        default:
+        case .search, .walletSummary, .filters, .activeWalletSession:
             return Style.Wallet.Row.height
+        case .collectiblePairs:
+            return Style.Wallet.Row.collectiblePairsHeight
         }
+    }
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let cell = cell as? OpenSeaNonFungibleTokenPairTableCell else { return }
+
+        cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
