@@ -332,3 +332,14 @@ enum Screen {
         }
     }
 }
+
+enum Style {
+    enum Wallet {
+        enum Header {
+            static let height = 60.0
+        }
+        enum Row {
+            static let height = 80.0
+        }
+    }
+}
