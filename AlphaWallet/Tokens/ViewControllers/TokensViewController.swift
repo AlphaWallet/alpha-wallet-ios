@@ -520,6 +520,20 @@ extension TokensViewController: UITableViewDataSource {
         }
     }
 
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch viewModel.sections[indexPath.section] {
+        case .tokens:
+            switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+            case .rpcServer:
+                return Style.Wallet.Header.height
+            default:
+                return Style.Wallet.Row.height
+            }
+        default:
+            return Style.Wallet.Row.height
+        }
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch viewModel.sections[section] {
         case .search, .walletSummary, .filters, .activeWalletSession:
