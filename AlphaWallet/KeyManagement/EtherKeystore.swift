@@ -384,6 +384,27 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
+    func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+        let key: Data
+        switch getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
+        case .seed, .seedPhrase:
+            //Not possible
+            return completion(.failure(.failedToExportPrivateKey))
+        case .key(let k):
+            key = k
+        case .userCancelled:
+            return completion(.failure(.userCancelled))
+        case .notFound, .otherFailure:
+            return completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+        }
+        //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
+        if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
+            completion(result)
+        } else {
+            completion(.failure(.failedToExportPrivateKey))
+        }
+    }
+
     func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
         let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt, context: context, withUserPresence: isUserPresenceCheckPossible)
         switch seedPhrase {

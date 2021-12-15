@@ -129,6 +129,9 @@ struct FakeKeystore: Keystore {
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 
+    func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    }
+
     func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 }
