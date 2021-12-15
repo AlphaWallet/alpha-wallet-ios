@@ -620,21 +620,30 @@ open class EtherKeystore: NSObject, Keystore {
     private func getPrivateKeyForSigning(forAccount account: AlphaWallet.Address) -> WalletSeedOrKey {
         let prompt = R.string.localizable.keystoreAccessKeySign()
         if isHdWallet(account: account) {
-            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: isUserPresenceCheckPossible)
-            switch seed {
-            case .seed(let seed):
-                let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
-                let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
-                return .key(privateKey)
-            case .key, .seedPhrase:
-                //Not possible
-                return seed
-            case .userCancelled, .notFound, .otherFailure:
-                return seed
-            }
+            return getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
         } else {
             return getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
         }
+    }
+
+    private func getPrivateKeyFromHdWallet0thAddress(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool) -> WalletSeedOrKey {
+        guard isHdWallet(account: account) else {
+            assertImpossibleCodePath()
+            return .otherFailure
+        }
+        let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)
+        switch seed {
+        case .seed(let seed):
+            let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
+            let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
+            return .key(privateKey)
+        case .key, .seedPhrase:
+            //Not possible
+            return seed
+        case .userCancelled, .notFound, .otherFailure:
+            return seed
+        }
+
     }
 
     private func getPrivateKeyFromNonHdWallet(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool, shouldWriteWithUserPresenceIfNotFound: Bool = true) -> WalletSeedOrKey {
