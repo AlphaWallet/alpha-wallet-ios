@@ -14,7 +14,7 @@ cache:
 before_install:
   - bundle install
   - pod install --repo-update
-  - travis_retry brew update
+  - travis_wait brew update
   - brew install swiftlint || true
 
 script:
