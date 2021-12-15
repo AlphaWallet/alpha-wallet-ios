@@ -342,4 +342,20 @@ enum Style {
             static let height = 80.0
         }
     }
+    enum SelectionIndicator {
+        static let height = 8.0
+        static let width = 8.0
+        static let leadingOffset = 8.0
+        static let color = R.color.azure()
+    }
+    enum AccessoryView {
+        static var chevron: UIImageView {
+            let imageView = UIImageView(image: R.image.iconsSystemArrowRight())
+            NSLayoutConstraint.activate([
+                imageView.widthAnchor.constraint(equalToConstant: 24.0),
+                imageView.heightAnchor.constraint(equalToConstant: 24.0)
+            ])
+            return imageView
+        }
+    }
 }

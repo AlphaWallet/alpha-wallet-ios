@@ -41,10 +41,6 @@ struct AccountViewModel {
         return wallet.address
     }
 
-    var accessoryType: UITableViewCell.AccessoryType {
-        return isSelected ? .checkmark : .disclosureIndicator
-    }
-
     var isSelected: Bool {
         return wallet == current
     }
