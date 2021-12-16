@@ -7,6 +7,8 @@ func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
     UIWindow.appearance().tintColor = Colors.appTint
     UITabBar.appearance().tintColor = Colors.appTint
+    UITabBar.appearance().shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
+    UITabBar.appearance().backgroundImage = UIImage(color: Style.TabBar.Background.color)
     UINavigationBar.appearance().barTintColor = R.color.white()!
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
@@ -18,7 +20,7 @@ func applyStyle() {
         .foregroundColor: Colors.navigationTitleColor,
         .font: Fonts.bold(size: 36) as Any,
     ]
-
+    UINavigationBar.appearance().shadowImage = UIImage(color: Style.NavigationBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     // NOTE: Fixes iOS 15 navigation bar black background
     if #available(iOS 15.0, *) {
         let appearance = UINavigationBarAppearance()
@@ -68,6 +70,8 @@ func applyStyle() {
     UIRefreshControl.appearance().tintColor = Colors.navigationTitleColor
 
     UISwitch.appearance().onTintColor = Colors.appTint
+
+    UITableView.appearance().separatorColor = Style.TableView.Separator.color
 }
 
 func applyStyle(viewController: UIViewController) {
@@ -356,6 +360,35 @@ enum Style {
                 imageView.heightAnchor.constraint(equalToConstant: 24.0)
             ])
             return imageView
+        }
+    }
+    enum TableView {
+        enum Separator {
+            static let color: UIColor = R.color.mercury()!
+        }
+    }
+    enum TabBar {
+        enum Background {
+            static let color: UIColor = {
+                if #available(iOS 13.0, *) {
+                    return UIColor.systemBackground
+                } else {
+                    return R.color.white()!
+                }
+            }()
+        }
+        enum Separator {
+            static let color: UIColor = R.color.mercury()!
+        }
+    }
+    enum SegmentedControl {
+        enum Separator {
+            static let color: UIColor = R.color.mercury()!
+        }
+    }
+    enum NavigationBar {
+        enum Separator {
+            static let color: UIColor = R.color.mercury()!
         }
     }
 }
