@@ -30,6 +30,18 @@ enum TokenObjectOrRpcServerPair {
     }
 }
 
+struct CollectiblePairs: Hashable {
+    let left: TokenObject
+    let right: TokenObject?
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(left.hash)
+        if let value = right {
+            hasher.combine(value.hash)
+        }
+    }
+}
+
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
@@ -116,12 +128,13 @@ class TokensViewModel {
         }
     }
 
-    var collectiblePairs: [(left: TokenObject, right: TokenObject?)] {
+    var collectiblePairs: [CollectiblePairs] {
         let tokens = filteredTokens.compactMap { $0.tokenObject }
-        return tokens.chunked(into: 2).compactMap { elems -> (left: TokenObject, right: TokenObject?)? in
+        return tokens.chunked(into: 2).compactMap { elems -> CollectiblePairs? in
             guard let left = elems.first else { return nil }
 
-            return (left: left, right: elems.last)
+            let right = (elems.last?.contractAddress.sameContract(as: left.contractAddress) ?? false) ? nil : elems.last
+            return .init(left: left, right: right)
         }
     }
 

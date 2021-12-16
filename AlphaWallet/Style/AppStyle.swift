@@ -344,6 +344,7 @@ enum Style {
         }
         enum Row {
             static let height = 80.0
+            static let collectiblePairsHeight = 250.0
         }
     }
     enum SelectionIndicator {
