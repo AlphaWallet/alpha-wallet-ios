@@ -658,19 +658,18 @@ open class EtherKeystore: NSObject, Keystore {
             assertImpossibleCodePath()
             return .otherFailure
         }
-        let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)
-        switch seed {
+        let seedResult = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)
+        switch seedResult {
         case .seed(let seed):
             let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
             return .key(privateKey)
+        case .userCancelled, .notFound, .otherFailure:
+            return seedResult
         case .key, .seedPhrase:
             //Not possible
-            return seed
-        case .userCancelled, .notFound, .otherFailure:
-            return seed
+            return .otherFailure
         }
-
     }
 
     private func getPrivateKeyFromNonHdWallet(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool, shouldWriteWithUserPresenceIfNotFound: Bool = true) -> WalletSeedOrKey {
