@@ -46,7 +46,8 @@ struct SegmentedControlViewModel {
 	}
 
 	var unselectedBarColor: UIColor {
-		return R.color.alto()!
+        return Style.SegmentedControl.Separator.color
+		// return R.color.alto()!
 	}
 
 	var selectedBarColor: UIColor {
