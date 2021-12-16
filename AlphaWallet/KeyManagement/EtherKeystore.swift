@@ -384,6 +384,27 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
+    func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+        let key: Data
+        switch getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
+        case .seed, .seedPhrase:
+            //Not possible
+            return completion(.failure(.failedToExportPrivateKey))
+        case .key(let k):
+            key = k
+        case .userCancelled:
+            return completion(.failure(.userCancelled))
+        case .notFound, .otherFailure:
+            return completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+        }
+        //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
+        if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
+            completion(result)
+        } else {
+            completion(.failure(.failedToExportPrivateKey))
+        }
+    }
+
     func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
         let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt, context: context, withUserPresence: isUserPresenceCheckPossible)
         switch seedPhrase {
@@ -620,21 +641,30 @@ open class EtherKeystore: NSObject, Keystore {
     private func getPrivateKeyForSigning(forAccount account: AlphaWallet.Address) -> WalletSeedOrKey {
         let prompt = R.string.localizable.keystoreAccessKeySign()
         if isHdWallet(account: account) {
-            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: isUserPresenceCheckPossible)
-            switch seed {
-            case .seed(let seed):
-                let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
-                let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
-                return .key(privateKey)
-            case .key, .seedPhrase:
-                //Not possible
-                return seed
-            case .userCancelled, .notFound, .otherFailure:
-                return seed
-            }
+            return getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
         } else {
             return getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
         }
+    }
+
+    private func getPrivateKeyFromHdWallet0thAddress(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool) -> WalletSeedOrKey {
+        guard isHdWallet(account: account) else {
+            assertImpossibleCodePath()
+            return .otherFailure
+        }
+        let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: withUserPresence)
+        switch seed {
+        case .seed(let seed):
+            let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
+            let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
+            return .key(privateKey)
+        case .key, .seedPhrase:
+            //Not possible
+            return seed
+        case .userCancelled, .notFound, .otherFailure:
+            return seed
+        }
+
     }
 
     private func getPrivateKeyFromNonHdWallet(forAccount account: AlphaWallet.Address, prompt: String, withUserPresence: Bool, shouldWriteWithUserPresenceIfNotFound: Bool = true) -> WalletSeedOrKey {

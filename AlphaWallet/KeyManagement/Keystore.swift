@@ -34,6 +34,7 @@ protocol Keystore {
     func createAccount() -> Result<AlphaWallet.Address, KeystoreError>
     func elevateSecurity(forAccount account: AlphaWallet.Address) -> Bool
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
+    func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
     func exportSeedPhraseOfHdWallet(forAccount account: AlphaWallet.Address, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void)
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void)
     func delete(wallet: Wallet) -> Result<Void, KeystoreError>
