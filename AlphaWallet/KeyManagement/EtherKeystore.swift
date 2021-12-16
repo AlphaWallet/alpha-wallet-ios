@@ -341,9 +341,9 @@ open class EtherKeystore: NSObject, Keystore {
     private func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
         guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase) else { return false }
         guard wallet.mnemonic == mnemonic else { return false }
-        let seed = HDWallet.computeSeedWithChecksum(fromSeedPhrase: mnemonic)
         guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
         //If seed phrase has a typo, the typo will be dropped and "abandon" added as the first word, deriving a different mnemonic silently. We don't want that to happen!
+
         guard walletWhenImported.mnemonic == mnemonic else { return false }
         let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
         let address = AlphaWallet.Address(fromPrivateKey: privateKey)

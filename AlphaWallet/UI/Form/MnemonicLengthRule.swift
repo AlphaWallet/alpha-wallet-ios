@@ -6,7 +6,13 @@ import WalletCore
 
 struct MnemonicLengthRule<T: Equatable>: RuleType {
     public init() {
-        self.validationError = ValidationError(msg: R.string.localizable.importWalletImportInvalidMnemonicCount())
+        var msg: String
+        if Features.is24SeedWordPhraseAllowed {
+            msg = R.string.localizable.importWalletImportInvalidMnemonicCount24()
+        } else {
+            msg = R.string.localizable.importWalletImportInvalidMnemonicCount12()
+        }
+        self.validationError = ValidationError(msg: msg)
     }
 
     public var id: String?
@@ -15,8 +21,15 @@ struct MnemonicLengthRule<T: Equatable>: RuleType {
     public func isValid(value: T?) -> ValidationError? {
         if let str = value as? String {
             let words = str.trimmed.split(separator: " ")
-            return (words.count != HDWallet.mnemonicWordCount) ? validationError : nil
+            return !isValidSeedPhraseLength(count: words.count) ? validationError : nil
         }
         return value != nil ? nil : validationError
+    }
+
+    private func isValidSeedPhraseLength(count: Int) -> Bool {
+        if Features.is24SeedWordPhraseAllowed {
+            return HDWallet.validSeedPhraseCounts.contains(count)
+        }
+        return count == HDWallet.SeedPhraseCount.word12.count
     }
 }
