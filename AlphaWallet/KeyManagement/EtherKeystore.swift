@@ -368,13 +368,16 @@ open class EtherKeystore: NSObject, Keystore {
         switch getPrivateKeyFromNonHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
         case .seed, .seedPhrase:
             //Not possible
-            return completion(.failure(.failedToExportPrivateKey))
+            completion(.failure(.failedToExportPrivateKey))
+            return
         case .key(let k):
             key = k
         case .userCancelled:
-            return completion(.failure(.userCancelled))
+            completion(.failure(.userCancelled))
+            return
         case .notFound, .otherFailure:
-            return completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+            completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+            return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
         if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
@@ -389,13 +392,16 @@ open class EtherKeystore: NSObject, Keystore {
         switch getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
         case .seed, .seedPhrase:
             //Not possible
-            return completion(.failure(.failedToExportPrivateKey))
+            completion(.failure(.failedToExportPrivateKey))
+            return
         case .key(let k):
             key = k
         case .userCancelled:
-            return completion(.failure(.userCancelled))
+            completion(.failure(.userCancelled))
+            return
         case .notFound, .otherFailure:
-            return completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+            completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
+            return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
         if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
