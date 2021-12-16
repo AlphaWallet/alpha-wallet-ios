@@ -24,8 +24,9 @@ class WhatsNewExperimentCoordinator: Coordinator {
     var hasRan: Bool {
         get {
             userDefaults.bool(forKey: Self.key)
-        } set {
-            userDefaults.set(true, forKey: Self.key)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Self.key)
         }
     }
 
