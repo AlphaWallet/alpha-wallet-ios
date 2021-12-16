@@ -36,6 +36,6 @@ class WalletSummaryTableViewCell: UITableViewCell {
         backgroundColor = viewModel.backgroundColor
         summaryView.configure(viewModel: viewModel)
 
-        accessoryView = Style.AccessoryView.chevron
+        accessoryType = .none
     }
 }
