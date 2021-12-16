@@ -85,16 +85,4 @@ class ConfigTests: XCTestCase {
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         Config.setLocale(AppLocale.system)
     }
-
-    func testNibsAccessAfterSwitchingLocale() {
-        Config.setLocale(AppLocale.english)
-        Config.setLocale(AppLocale.simplifiedChinese)
-
-        let tableView = UITableView()
-        tableView.register(UINib(resource: R.nib.bookmarkViewCell), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
-        XCTAssertNoThrow(tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name))
-
-        //Must change this back to system, otherwise other tests will break either immediately or the next run
-        Config.setLocale(AppLocale.system)
-    }
 }
