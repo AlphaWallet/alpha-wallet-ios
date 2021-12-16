@@ -66,12 +66,17 @@ class ExportJsonKeystoreFileViewController: UIViewController {
         fileView.disableButton()
         firstly {
             viewModel.computeJsonKeystore(password: password)
-        }.done(on: DispatchQueue.main) { jsonData in
+        }.done { jsonData in
             self.exportedData = jsonData
             self.fileView.set(content: jsonData)
             self.fileView.enableButton()
         }.catch { error in
-            self.navigationController?.displayError(error: error)
+            guard let navigationController = self.navigationController else { return }
+            firstly {
+                navigationController.displayErrorPromise(message: error.prettyError)
+            }.done {
+                navigationController.popViewController(animated: true)
+            }
         }
     }
 
