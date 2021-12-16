@@ -43,7 +43,7 @@ class PingInfuraCoordinator: Coordinator {
         let request = EtherServiceRequest(server: .main, batch: BatchFactory().create(BlockNumberRequest()))
         firstly {
             Session.send(request)
-        }.done { (x: Int) in
+        }.done { _ in
             UIAlertController.alert(
                     title: R.string.localizable.settingsPingInfuraSuccessful(),
                     message: nil,
