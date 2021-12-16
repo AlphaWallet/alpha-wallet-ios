@@ -344,7 +344,10 @@ open class EtherKeystore: NSObject, Keystore {
         let seed = HDWallet.computeSeedWithChecksum(fromSeedPhrase: mnemonic)
         guard let walletWhenImported = HDWallet(entropy: wallet.entropy, passphrase: emptyPassphrase) else { return false }
         //If seed phrase has a typo, the typo will be dropped and "abandon" added as the first word, deriving a different mnemonic silently. We don't want that to happen!
-        guard walletWhenImported.mnemonic == mnemonic else { return false }
+
+        // The wallet created via the above seed is not valid. It generates a mnemonic of "" so the next line of code always fails.
+        // FIXME: - add the line below back when issue above is solved
+        // guard walletWhenImported.mnemonic == mnemonic else { return false }
         let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
         let address = AlphaWallet.Address(fromPrivateKey: privateKey)
         let testData = "any data will do here"

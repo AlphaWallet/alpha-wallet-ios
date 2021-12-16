@@ -187,7 +187,8 @@
 "importWallet.import.button.title" = "Importar";
 "importWallet.import.invalidAddress" = "Dirección de Ethereum no válida";
 "importWallet.import.invalidPrivateKey" = "La clave privada debe tener 64 caracteres de longitud";
-"importWallet.import.invalidMnemonicCount" = "La frase semilla debe tener 12 palabras";
+"importWallet.import.invalidMnemonicCount.12" = "La frase semilla debe tener 12 palabras";
+"importWallet.import.invalidMnemonicCount.24" = "Seed phrase has to be 12 or 24 words";
 "importWallet.import.invalidMnemonic" = "La frase semilla no es válida";
 "importWallet.import.fromCloud.title" = "Importar desde iCloud/Dropbox/Google Drive";
 "importWallet.import.seedPhrase.description" = "Si tu frase semilla no está en inglés, pásala primero a inglés";
