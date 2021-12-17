@@ -33,6 +33,11 @@ extension MixpanelCoordinator: AnalyticsCoordinator {
         mixpanelInstance.track(event: action.rawValue, properties: props)
     }
 
+    func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) {
+        let props: Properties? = properties?.compactMapValues(convertParameterToSdkSpecificVersion)
+        mixpanelInstance.track(event: error.rawValue, properties: props)
+    }
+
     func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) {
         guard let value = convertParameterToSdkSpecificVersion(value) else { return }
         mixpanelInstance.people.set(property: property.rawValue, to: value)

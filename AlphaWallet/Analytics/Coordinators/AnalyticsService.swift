@@ -60,6 +60,10 @@ class AnalyticsService: NSObject, AnalyticsServiceType {
         mixpanelService?.log(action: action, properties: properties)
     }
 
+    func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) {
+        mixpanelService?.log(error: error, properties: properties)
+    }
+
     func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) {
         mixpanelService?.setUser(property: property, value: value)
     }

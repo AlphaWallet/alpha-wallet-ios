@@ -10,6 +10,10 @@ protocol AnalyticsAction {
     var rawValue: String { get }
 }
 
+protocol AnalyticsError {
+    var rawValue: String { get }
+}
+
 protocol AnalyticsUserProperty {
     var rawValue: String { get }
 }
@@ -67,6 +71,11 @@ enum Analytics {
         case editCustomChain = "Edit Custom Chain"
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
+    }
+
+    //Include "Error" at the end of the String value so it's easier to filter in analytics dashboard
+    enum Error: String, AnalyticsError {
+        case placeHolder
     }
 
     enum Properties: String {
