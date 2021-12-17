@@ -75,7 +75,7 @@ enum Analytics {
 
     //Include "Error" at the end of the String value so it's easier to filter in analytics dashboard
     enum Error: String, AnalyticsError {
-        case placeHolder
+        case sendTransactionNonceTooLow = "Send Transaction Nonce Too Low Error"
     }
 
     enum Properties: String {
