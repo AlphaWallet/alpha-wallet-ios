@@ -12,17 +12,20 @@ class SendTransactionCoordinator {
     private let session: WalletSession
     private let confirmType: ConfirmType
     private let config: Config
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     init(
         session: WalletSession,
         keystore: Keystore,
         confirmType: ConfirmType,
-        config: Config
+        config: Config,
+        analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.session = session
         self.keystore = keystore
         self.confirmType = confirmType
         self.config = config
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func send(rawTransaction: String) -> Promise<ConfirmResult> {
@@ -31,6 +34,9 @@ class SendTransactionCoordinator {
 
         return firstly {
             Session.send(request)
+        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
+            self.logSelectSendError(error)
+            throw error
         }.map { transactionID in
             .sentRawTransaction(id: transactionID, original: rawTransaction)
         }.get {
@@ -92,10 +98,23 @@ class SendTransactionCoordinator {
 
         return firstly {
             Session.send(request)
+        }.recover { error -> Promise<SendRawTransactionRequest.Response> in
+            self.logSelectSendError(error)
+            throw error
         }.map { transactionID in
             .sentTransaction(SentTransaction(id: transactionID, original: transaction))
         }.get {
             info("Sent transaction with transactionId: \($0)")
+        }
+    }
+
+    private func logSelectSendError(_ error: Error) {
+        guard let error = error as? SendTransactionNotRetryableError else { return }
+        switch error {
+        case .nonceTooLow:
+            analyticsCoordinator.log(error: Analytics.Error.sendTransactionNonceTooLow)
+        case .insufficientFunds, .gasPriceTooLow, .gasLimitTooLow, .gasLimitTooHigh, .possibleChainIdMismatch, .executionReverted:
+            break
         }
     }
 

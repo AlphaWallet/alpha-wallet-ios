@@ -581,6 +581,7 @@ extension String {
 //TODO Do not use this unless it's absolutely necessary — e.g. it requires a big re-architecting of code
 class NoOpAnalyticsService: AnalyticsServiceType {
     func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?) { }
+    func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) { }
     func applicationDidBecomeActive() { }
     func application(continue userActivity: NSUserActivity) { }
     func application(open url: URL, sourceApplication: String?, annotation: Any) { }
