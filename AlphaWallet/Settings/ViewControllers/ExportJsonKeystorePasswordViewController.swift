@@ -34,7 +34,6 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureController()
-        passwordView.passwordTextField.becomeFirstResponder()
         passwordView.disableButton()
     }
 
@@ -52,6 +51,13 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
         super.viewDidDisappear(animated)
         if !isStillInNavigationStack() {
             passwordDelegate?.didDismissPasswordController()
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        DispatchQueue.main.async {
+            self.passwordView.passwordTextField.becomeFirstResponder()
         }
     }
 
