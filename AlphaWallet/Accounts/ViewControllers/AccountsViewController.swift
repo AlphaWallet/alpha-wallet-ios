@@ -179,8 +179,9 @@ extension AccountsViewController: UITableViewDataSource {
 
             return cell
         case .summary:
+            let config = self.config
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(summary: walletBalanceCoordinator.subscribableWalletsSummary.value))
+            cell.configure(viewModel: .init(summary: walletBalanceCoordinator.subscribableWalletsSummary.value, config: config))
 
             if let key = cell.walletSummarySubscriptionKey {
                 walletBalanceCoordinator.subscribableWalletsSummary.unsubscribe(key)
@@ -188,7 +189,7 @@ extension AccountsViewController: UITableViewDataSource {
 
             cell.walletSummarySubscriptionKey = walletBalanceCoordinator.subscribableWalletsSummary.subscribe { summary in
                 DispatchQueue.main.async {
-                    cell.configure(viewModel: .init(summary: summary))
+                    cell.configure(viewModel: .init(summary: summary, config: config))
                 }
             }
 

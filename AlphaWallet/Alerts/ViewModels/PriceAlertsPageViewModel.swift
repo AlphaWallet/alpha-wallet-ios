@@ -13,6 +13,10 @@ struct PriceAlertsPageViewModel {
     var backgroundColor: UIColor = Colors.appWhite
     var alerts: [PriceAlert]
 
+    init(alerts: [PriceAlert]?) {
+        self.alerts = alerts ?? []
+    }
+
     var addNewAlertViewModel: ShowAddHideTokensViewModel {
         return .init(addHideTokensIcon: R.image.add_hide_tokens(), addHideTokensTitle: R.string.localizable.priceAlertNewAlert(), backgroundColor: R.color.alabaster()!, badgeText: nil)
     }

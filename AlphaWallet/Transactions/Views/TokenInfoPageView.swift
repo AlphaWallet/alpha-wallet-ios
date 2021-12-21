@@ -34,7 +34,7 @@ class TokenInfoPageView: UIView, PageViewType {
         let view = ScrollableStackView()
         return view
     }()
-
+    private let config: Config
     lazy var viewModel = TokenInfoPageViewModel(server: server, token: token, transactionType: transactionType)
     weak var delegate: TokenInfoPageViewDelegate?
     private var headerRefreshTimer: Timer?
@@ -44,9 +44,10 @@ class TokenInfoPageView: UIView, PageViewType {
     private let transactionType: TransactionType
     var rightBarButtonItem: UIBarButtonItem?
 
-    init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
+    init(server: RPCServer, token: TokenObject, config: Config, transactionType: TransactionType) {
         self.server = server
         self.token = token
+        self.config = config
         self.transactionType = transactionType
         super.init(frame: .zero)
 
@@ -77,69 +78,35 @@ class TokenInfoPageView: UIView, PageViewType {
         stackView.removeAllArrangedSubviews()
 
         stackView.addArrangedSubview(headerView)
-        stackView.addArrangedSubview(chartView)
 
-        stackView.addArrangedSubview(UIView.spacer(height: 10))
-        stackView.addArrangedSubview(UIView.separator())
-        stackView.addArrangedSubview(UIView.spacer(height: 10))
+        for each in viewModel.configurations {
+            switch each {
+            case .testnet:
+                stackView.addArrangedSubview(UIView.spacer(height: 40))
+                stackView.addArrangedSubview(UIView.separator())
 
-        let perfomanceHeader = TokenInfoHeaderView()
-        perfomanceHeader.configure(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance()))
+                let view = TestnetTokenInfoView()
+                view.configure(viewModel: .init())
 
-        stackView.addArrangedSubview(perfomanceHeader)
+                stackView.addArrangedSubview(view)
+            case .charts:
+                stackView.addArrangedSubview(chartView)
 
-        let view7 = TickerFieldValueView()
+                stackView.addArrangedSubview(UIView.spacer(height: 10))
+                stackView.addArrangedSubview(UIView.separator())
+                stackView.addArrangedSubview(UIView.spacer(height: 10))
+            case .field(let viewModel):
+                let view = TickerFieldValueView()
+                view.configure(viewModel: viewModel)
 
-        view7.configure(viewModel: viewModel.dayViewModel)
-        stackView.addArrangedSubview(view7)
+                stackView.addArrangedSubview(view)
+            case .header(let viewModel):
+                let perfomanceHeader = TokenInfoHeaderView()
+                perfomanceHeader.configure(viewModel: viewModel)
 
-        let view9 = TickerFieldValueView()
-
-        view9.configure(viewModel: viewModel.weekViewModel)
-        stackView.addArrangedSubview(view9)
-
-        let view10 = TickerFieldValueView()
-
-        view10.configure(viewModel: viewModel.monthViewModel)
-        stackView.addArrangedSubview(view10)
-
-        let view6 = TickerFieldValueView()
-
-        view6.configure(viewModel: viewModel.yearViewModel)
-        stackView.addArrangedSubview(view6)
-
-        let statsHeader = TokenInfoHeaderView()
-        statsHeader.configure(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats()))
-
-        stackView.addArrangedSubview(statsHeader)
-
-        let view5 = TickerFieldValueView()
-
-        view5.configure(viewModel: viewModel.markerCapViewModel)
-        stackView.addArrangedSubview(view5)
-
-        //NOTE: Comment it for now, we will check it later.
-        /*
-        let view1 = TickerFieldValueView()
-
-        view1.configure(viewModel: viewModel.totalSupplyViewModel)
-        stackView.addArrangedSubview(view1)
-
-        let view13 = TickerFieldValueView()
-
-        view13.configure(viewModel: viewModel.maxSupplyViewModel)
-        stackView.addArrangedSubview(view13)
-        */
-
-        let view14 = TickerFieldValueView()
-
-        view14.configure(viewModel: viewModel.yearLowViewModel)
-        stackView.addArrangedSubview(view14)
-
-        let view15 = TickerFieldValueView()
-
-        view15.configure(viewModel: viewModel.yearHighViewModel)
-        stackView.addArrangedSubview(view15)
+                stackView.addArrangedSubview(perfomanceHeader)
+            }
+        }
     }
 
     func configure(viewModel: TokenInfoPageViewModel) {

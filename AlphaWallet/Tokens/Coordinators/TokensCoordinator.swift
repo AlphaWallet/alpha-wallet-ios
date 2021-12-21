@@ -14,6 +14,8 @@ protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
+
+    func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
 }
 
 private struct NoContractDetailsDetected: Error {
@@ -222,6 +224,10 @@ class TokensCoordinator: Coordinator {
 
 extension TokensCoordinator: TokensViewControllerDelegate {
 
+    func whereAreMyTokensSelected(in viewController: UIViewController) {
+        delegate?.whereAreMyTokensSelected(in: self)
+    }
+    
     private func getWalletName() {
         let viewModel = tokensViewController.viewModel
 

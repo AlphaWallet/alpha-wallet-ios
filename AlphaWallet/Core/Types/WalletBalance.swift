@@ -11,7 +11,7 @@ import BigInt
 struct WalletBalance: Equatable {
     private let tokensWithTickers: Set<Activity.AssignedToken>
     private let wallet: Wallet
-
+    
     init(wallet: Wallet, values: Set<Activity.AssignedToken>) {
         self.wallet = wallet
         self.tokensWithTickers = values

@@ -12,6 +12,7 @@ class TokenCollection {
 
     let tokenDataStores: [TokensDataStore]
     private var privateTokenObjects: [TokenObject] = []
+    private let config: Config = Config()
 
     init(filterTokensCoordinator: FilterTokensCoordinator, tokenDataStores: [TokensDataStore]) {
         self.filterTokensCoordinator = filterTokensCoordinator
@@ -91,7 +92,7 @@ extension TokenCollection: TokensDataStoreDelegate {
     private func notifySubscribersOfUpdatedTokens() {
         //TODO not efficient. But how many elements can we actually have. Not that many?
         privateTokenObjects = tokenDataStores.compactMap { $0.enabledObject }.flatMap { $0 }
-        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: privateTokenObjects)
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: privateTokenObjects, config: config)
         for each in subscribers {
             each(.success(tokensViewModel))
         }

@@ -31,7 +31,7 @@ class TokenViewController: UIViewController {
     weak var delegate: TokenViewControllerDelegate?
 
     private lazy var tokenInfoPageView: TokenInfoPageView = {
-        let view = TokenInfoPageView(server: session.server, token: tokenObject, transactionType: transactionType)
+        let view = TokenInfoPageView(server: session.server, token: tokenObject, config: session.config, transactionType: transactionType)
         view.delegate = self
 
         return view
@@ -88,7 +88,7 @@ class TokenViewController: UIViewController {
         alertsSubscriptionKey = alertsSubscribable.subscribe { [weak alertsPageView] alerts in
             guard let view = alertsPageView else { return }
 
-            view.configure(viewModel: .init(alerts: alerts ?? []))
+            view.configure(viewModel: .init(alerts: alerts))
         }
 
         refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType: transactionType)
@@ -199,7 +199,6 @@ class TokenViewController: UIViewController {
                 guard let celf = self, let viewModel = viewModel else { return }
 
                 celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
-
                 celf.tokenInfoPageView.viewModel.ticker = viewModel.ticker
                 celf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
 
