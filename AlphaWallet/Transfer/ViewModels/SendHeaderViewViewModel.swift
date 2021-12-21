@@ -2,6 +2,13 @@
 
 import UIKit
 
+enum TokenInfoPageViewModelConfiguration {
+    case charts
+    case testnet
+    case header(viewModel: TokenInfoHeaderViewModel)
+    case field(viewModel: TickerFieldValueViewModel)
+}
+
 struct TokenInfoPageViewModel {
 
     var tabTitle: String {
@@ -16,6 +23,9 @@ struct TokenInfoPageViewModel {
     var currencyAmount: String?
     var isShowingValue: Bool = true
     var values: [ChartHistory] = []
+    var configurations: [TokenInfoPageViewModelConfiguration] {
+        TokenInfoPageViewModel.generateConfiguration(viewModel: self, server: server)
+    }
 
     init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
         self.server = server
@@ -24,6 +34,34 @@ struct TokenInfoPageViewModel {
         title = ""
         ticker = nil
         currencyAmount = nil
+    }
+
+    private static func generateConfiguration(viewModel: TokenInfoPageViewModel, server: RPCServer) -> [TokenInfoPageViewModelConfiguration] {
+        var configurations: [TokenInfoPageViewModelConfiguration] = []
+
+        if server.isTestnet {
+            configurations = [
+                .testnet
+            ]
+        } else {
+            configurations = [
+                .charts,
+                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance())),
+                .field(viewModel: viewModel.dayViewModel),
+                .field(viewModel: viewModel.weekViewModel),
+                .field(viewModel: viewModel.monthViewModel),
+                .field(viewModel: viewModel.yearViewModel),
+
+                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
+                .field(viewModel: viewModel.markerCapViewModel),
+                //.field(viewModel: viewModel.totalSupplyViewModel),
+                //.field(viewModel: viewModel.maxSupplyViewModel),
+                .field(viewModel: viewModel.yearLowViewModel),
+                .field(viewModel: viewModel.yearHighViewModel)
+            ]
+        }
+
+        return configurations
     }
 
     private var valuePercentageChangeValue: String? {
@@ -37,7 +75,7 @@ struct TokenInfoPageViewModel {
         }
     }
 
-    var markerCapViewModel: TickerFieldValueViewModel {
+    private var markerCapViewModel: TickerFieldValueViewModel {
         let value: String = {
             if let market_cap = ticker?.market_cap {
                 return StringFormatter().largeNumberFormatter(for: market_cap, currency: "USD")
@@ -54,7 +92,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldStatsMarket_cap(), attributedValue: attributedValue)
     }
 
-    var totalSupplyViewModel: TickerFieldValueViewModel {
+    private var totalSupplyViewModel: TickerFieldValueViewModel {
         let value: String = {
             if let total_volume = ticker?.total_supply {
                 return String(total_volume)
@@ -70,7 +108,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldStatsTotal_supply(), attributedValue: attributedValue)
     }
 
-    var maxSupplyViewModel: TickerFieldValueViewModel {
+    private var maxSupplyViewModel: TickerFieldValueViewModel {
         let value: String = {
             if let max_supply = ticker?.max_supply, let value = NumberFormatter.usd.string(from: max_supply) {
                 return String(value)
@@ -86,7 +124,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldStatsMax_supply(), attributedValue: attributedValue)
     }
 
-    var yearLowViewModel: TickerFieldValueViewModel {
+    private var yearLowViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
             if let min = HistoryHelper(history: history).minMax?.min, let value = NumberFormatter.usd.string(from: min) {
@@ -103,7 +141,7 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearLow(), attributedValue: attributedValue)
     }
 
-    var yearHighViewModel: TickerFieldValueViewModel {
+    private var yearHighViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
             if let max = HistoryHelper(history: history).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
@@ -120,22 +158,22 @@ struct TokenInfoPageViewModel {
         return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearHigh(), attributedValue: attributedValue)
     }
 
-    var yearViewModel: TickerFieldValueViewModel {
+    private var yearViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.year)
         return .init(title: R.string.localizable.tokenInfoFieldStatsYear(), attributedValue: attributedValue)
     }
 
-    var monthViewModel: TickerFieldValueViewModel {
+    private var monthViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.month)
         return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(), attributedValue: attributedValue)
     }
 
-    var weekViewModel: TickerFieldValueViewModel {
+    private var weekViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.week)
         return .init(title: R.string.localizable.tokenInfoFieldStatsWeek(), attributedValue: attributedValue)
     }
 
-    var dayViewModel: TickerFieldValueViewModel {
+    private var dayViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.day)
         return .init(title: R.string.localizable.tokenInfoFieldStatsDay(), attributedValue: attributedValue)
     }
@@ -185,9 +223,16 @@ struct TokenInfoPageViewModel {
         ])
     }
 
+    private var testnetValueHintLabelAttributedString: NSAttributedString {
+        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
+            .font: Fonts.regular(size: 17),
+            .foregroundColor: R.color.dove()!
+        ])
+    }
+
     var valueAttributedString: NSAttributedString? {
         if server.isTestnet {
-            return nil
+            return testnetValueHintLabelAttributedString
         } else {
             switch transactionType {
             case .nativeCryptocurrency, .erc20Token:

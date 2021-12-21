@@ -36,6 +36,14 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
         return label
     }()
 
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+
+        return label
+    }()
+
     private var badgeText: String? {
         didSet {
             if let value = badgeText, !value.isEmpty {
@@ -52,11 +60,15 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
     init() {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
+        addSubview(titleLabel)
         addSubview(addTokenButton)
         addSubview(badgeIndicatorView)
         badgeIndicatorView.addSubview(badgeLabel)
 
         NSLayoutConstraint.activate([
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+
             addTokenButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             addTokenButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             badgeIndicatorView.widthAnchor.constraint(greaterThanOrEqualTo: badgeIndicatorView.heightAnchor),
@@ -83,6 +95,7 @@ class AddHideTokensView: UIView, ReusableTableHeaderViewType {
         addTokenButton.titleLabel?.font = viewModel.addHideTokensTintFont
         badgeText = viewModel.badgeText
         badgeIndicatorView.backgroundColor = viewModel.badgeBackgroundColor
+        titleLabel.attributedText = viewModel.titleAttributedString
     }
 
     override func layoutSubviews() {

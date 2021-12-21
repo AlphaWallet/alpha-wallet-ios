@@ -1003,7 +1003,27 @@ extension InCoordinator: UITabBarControllerDelegate {
     }
 }
 
+extension InCoordinator: WhereAreMyTokensCoordinatorDelegate {
+
+    func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator) {
+        restartQueue.add(.reloadServers(Constants.defaultEnabledServers))
+        processRestartQueueAndRestartUI()
+    }
+
+    func didDismiss(in coordinator: WhereAreMyTokensCoordinator) {
+        //no-op
+    }
+}
+
 extension InCoordinator: TokensCoordinatorDelegate {
+
+    func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {
+        let coordinator = WhereAreMyTokensCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+
+        coordinator.start()
+    }
 
     func blockieSelected(in coordinator: TokensCoordinator) {
         delegate?.showWallets(in: self)

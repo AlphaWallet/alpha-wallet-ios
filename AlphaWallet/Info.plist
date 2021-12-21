@@ -103,6 +103,7 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>SourceSansPro-Black.otf</string>
+		<string>SourceSansPro-Italic.ttf</string>
 		<string>SourceSansPro-BlackIt.otf</string>
 		<string>SourceSansPro-Bold.otf</string>
 		<string>SourceSansPro-BoldIt.otf</string>

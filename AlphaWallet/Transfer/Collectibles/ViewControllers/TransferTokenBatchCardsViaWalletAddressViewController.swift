@@ -243,7 +243,7 @@ extension TransferTokenBatchCardsViaWalletAddressViewController: AddressTextFiel
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
-
+        //no-op
     }
 }
 

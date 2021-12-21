@@ -10,19 +10,32 @@ import UIKit
 struct WalletSummaryViewModel {
     private let summary: WalletSummary?
     private let alignment: NSTextAlignment
+    private var areTestnetsEnabled: Bool {
+        config.enabledServers.allSatisfy { $0.isTestnet }
+    }
+    private let config: Config
 
-    init(summary: WalletSummary?, alignment: NSTextAlignment = .left) {
+    init(summary: WalletSummary?, config: Config, alignment: NSTextAlignment = .left) {
         self.summary = summary
         self.alignment = alignment
+        self.config = config
     }
 
     var balanceAttributedString: NSAttributedString {
-        return .init(string: summary?.totalAmount ?? "--", attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
+        if areTestnetsEnabled {
+            return .init(string: "Testnet", attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
+        } else {
+            return .init(string: summary?.totalAmount ?? "--", attributes: Self.functional.walletBalanceAttributes(alignment: alignment))
+        }
     }
 
     var apprecation24HoursAttributedString: NSAttributedString {
-        let apprecation = Self.functional.todaysApprecationColorAndStringValuePair(summary: summary)
-        return .init(string: apprecation.0, attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: apprecation.1))
+        if areTestnetsEnabled {
+            return .init(string: "Testnet Mode", attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: .gray))
+        } else {
+            let apprecation = Self.functional.todaysApprecationColorAndStringValuePair(summary: summary)
+            return .init(string: apprecation.0, attributes: Self.functional.apprecation24HoursAttributes(alignment: alignment, foregroundColor: apprecation.1))
+        }
     }
 
     var accessoryType: UITableViewCell.AccessoryType {

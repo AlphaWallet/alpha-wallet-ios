@@ -34,6 +34,7 @@ class SendHeaderView: UIView {
         return label
     }()
     private var blockChainTagLabel = BlockchainTagLabel()
+    private var viewModel: TokenInfoPageViewModel?
 
     init() {
         super.init(frame: .zero)
@@ -66,11 +67,13 @@ class SendHeaderView: UIView {
     }
 
     func configure(viewModel: TokenInfoPageViewModel) {
+        self.viewModel = viewModel
         backgroundColor = viewModel.backgroundColor
 
         tokenIconImageView.subscribable = viewModel.iconImage
         titleLabel.attributedText = viewModel.titleAttributedString
         valueLabel.attributedText = viewModel.valueAttributedString
+
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }
 
@@ -79,6 +82,8 @@ class SendHeaderView: UIView {
     }
 
     @objc private func showHideMarketSelected(_ sender: UITapGestureRecognizer) {
+        guard let server = viewModel?.server, !server.isTestnet else { return }
+
         delegate?.showHideMarketPriceSelected(inHeaderView: self)
     }
 }

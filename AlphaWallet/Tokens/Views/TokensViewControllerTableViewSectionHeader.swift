@@ -59,6 +59,25 @@ extension TokensViewController {
             }
         }
 
+        var useSeparatorTopLine: Bool {
+            get {
+                !topSeparator.isHidden
+            }
+            set {
+                topSeparator.isHidden = !newValue
+            }
+        }
+
+
+        var useSeparatorBottomLine: Bool {
+            get {
+                !bottomSeparator.isHidden
+            }
+            set {
+                bottomSeparator.isHidden = !newValue
+            }
+        }
+
         override var reuseIdentifier: String? {
             T.reusableIdentifier
         }

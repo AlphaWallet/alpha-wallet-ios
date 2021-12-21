@@ -11,6 +11,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func didHide(token: TokenObject, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
+    func whereAreMyTokensSelected(in viewController: UIViewController)
 }
 
 extension UISearchBar: ReusableTableHeaderViewType {}
@@ -42,9 +43,31 @@ class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
-    enum Section {
+    enum Section: Equatable {
+        static func == (lhs: Section, rhs: Section) -> Bool {
+            switch (lhs, rhs) {
+            case (.walletSummary, .walletSummary):
+                return true
+            case (.filters, .filters):
+                return true
+            case (.testnetTokens, .testnetTokens):
+                return true
+            case (.search, .search):
+                return true
+            case (.tokens, .tokens):
+                return true
+            case (.collectiblePairs, .collectiblePairs):
+                return true
+            case (.activeWalletSession(let count1), .activeWalletSession(let count2)):
+                return count1 == count2
+            case (_, _):
+                return false
+            }
+        }
+
         case walletSummary
         case filters
+        case testnetTokens
         case search
         case tokens
         case collectiblePairs
@@ -123,6 +146,13 @@ class TokensViewController: UIViewController {
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     private let config: Config
     private let walletConnectCoordinator: WalletConnectCoordinator
+    private lazy var whereAreMyTokensView: AddHideTokensView = {
+        let view = AddHideTokensView()
+        view.delegate = self
+        view.configure(viewModel: ShowAddHideTokensViewModel.configuredForTestnet())
+
+        return view
+    }()
 
     var isConsoleButtonHidden: Bool {
         get {
@@ -216,7 +246,7 @@ class TokensViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
 
-        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [])
+        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], config: config)
 
         searchController = UISearchController(searchResultsController: nil)
 
@@ -266,11 +296,11 @@ class TokensViewController: UIViewController {
             strongSelf.tableView.reloadData()
         }
 
-        TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value)
+        TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value, config: config)
         subscriptionKey = walletSummarySubscription.subscribe { [weak walletSummaryView] balance in
             DispatchQueue.main.async {
                 guard let view = walletSummaryView else { return }
-                TokensViewController.reloadWalletSummaryView(view, with: balance)
+                TokensViewController.reloadWalletSummaryView(view, with: balance, config: config)
             }
         }
         navigationItem.largeTitleDisplayMode = .never
@@ -334,20 +364,6 @@ class TokensViewController: UIViewController {
         tableView.backgroundColor = viewModel.backgroundColor
     }
 
-    //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
-    private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
-        var contractsForCollectibles = [AlphaWallet.Address]()
-        for i in (0..<viewModel.numberOfItems()) {
-            switch viewModel.item(for: i, section: 0) {
-            case .rpcServer:
-                break
-            case .tokenObject(let token):
-                contractsForCollectibles.append(token.contractAddress)
-            }
-        }
-        return contractsForCollectibles
-    }
-
     private func handleTokenCollectionUpdates() {
         tokenCollection.subscribe { [weak self] result in
             guard let strongSelf = self else { return }
@@ -372,9 +388,9 @@ class TokensViewController: UIViewController {
         tableView.tableHeaderView = tableViewHeader
     }
 
-    private static func reloadWalletSummaryView(_ walletSummaryView: WalletSummaryView, with balance: WalletBalance?) {
+    private static func reloadWalletSummaryView(_ walletSummaryView: WalletSummaryView, with balance: WalletBalance?, config: Config) {
         let summary = balance.map { WalletSummary(balances: [$0]) }
-        walletSummaryView.configure(viewModel: .init(summary: summary, alignment: .center))
+        walletSummaryView.configure(viewModel: .init(summary: summary, config: config, alignment: .center))
     }
 }
 
@@ -408,7 +424,7 @@ extension TokensViewController: UITableViewDelegate {
             return TokensViewController.filterViewHeight
         case .activeWalletSession:
             return 80
-        case .search:
+        case .search, .testnetTokens:
             return TokensViewController.addHideTokensViewHeight
         case .tokens, .collectiblePairs:
             return 0.01
@@ -434,6 +450,13 @@ extension TokensViewController: UITableViewDelegate {
             header.delegate = self
 
             return header
+        case .testnetTokens:
+            let header: TokensViewController.GeneralTableViewSectionHeader<AddHideTokensView> = tableView.dequeueReusableHeaderFooterView()
+            header.useSeparatorTopLine = true
+            header.useSeparatorBottomLine = viewModel.isBottomSeparatorLineHiddenForTestnetHeader(section: section)
+            header.subview = whereAreMyTokensView
+
+            return header
         case .search:
             return searchBarHeader
         case .tokens, .collectiblePairs:
@@ -453,7 +476,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch viewModel.sections[indexPath.section] {
-        case .search, .walletSummary, .filters, .activeWalletSession:
+        case .search, .testnetTokens, .walletSummary, .filters, .activeWalletSession:
             return UITableViewCell()
         case .tokens:
             switch viewModel.item(for: indexPath.row, section: indexPath.section) {
@@ -521,19 +544,7 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch viewModel.sections[indexPath.section] {
-        case .tokens:
-            switch viewModel.item(for: indexPath.row, section: indexPath.section) {
-            case .rpcServer:
-                return Style.Wallet.Header.height
-            case .tokenObject:
-                return Style.Wallet.Row.height
-            }
-        case .search, .walletSummary, .filters, .activeWalletSession:
-            return Style.Wallet.Row.height
-        case .collectiblePairs:
-            return Style.Wallet.Row.collectiblePairsHeight
-        }
+        return viewModel.cellHeight(for: indexPath)
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -543,12 +554,7 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch viewModel.sections[section] {
-        case .search, .walletSummary, .filters, .activeWalletSession:
-            return 0
-        case .tokens, .collectiblePairs:
-            return viewModel.numberOfItems()
-        }
+        return viewModel.numberOfItems(for: section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -557,7 +563,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch viewModel.sections[indexPath.section] {
-        case .collectiblePairs, .search, .walletSummary, .filters, .activeWalletSession:
+        case .collectiblePairs, .testnetTokens, .search, .walletSummary, .filters, .activeWalletSession:
             return nil
         case .tokens:
             return trailingSwipeActionsConfiguration(forRowAt: indexPath)
@@ -592,6 +598,13 @@ extension TokensViewController: UITableViewDataSource {
 
             return configuration
         }
+    }
+}
+
+extension TokensViewController: AddHideTokensViewDelegate {
+
+    func view(_ view: AddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
+        delegate?.whereAreMyTokensSelected(in: self)
     }
 }
 
@@ -722,7 +735,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
             let pair = viewModel.collectiblePairs[indexPath.row]
             guard let token: TokenObject = isLeftCardSelected ? pair.left : pair.right else { return }
             delegate?.didSelect(token: token, in: self)
-        case .tokens, .activeWalletSession, .filters, .search, .walletSummary:
+        case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
             break
         }
     }

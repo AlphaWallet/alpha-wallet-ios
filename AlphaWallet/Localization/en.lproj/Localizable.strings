@@ -731,3 +731,10 @@
 "walletConnect.scanQRCodeAgain" = "Scan QR Code again";
 "donate.shortcuts.walletQrCode" = "Show Wallet QR Code";
 "whats.new" = "What’s new?";
+"token.testnetWarning" = "Ropsten tokens are like ‘Monopoly’ money. They have zero financial worth but are used by developers to try out new designs without needing to spend valuable coins. ";
+"token.value.testnetWarning" = "No Value, made for tests only";
+"whereAreMyTokens.title" = "Where are my Tokens?";
+"whereAreMyTokens.description" = "Don’t worry. Your tokens are safe. You are viewing Testnet networks. They are used by developers to try out new designs. You can switch to Mainnet any time.";
+"whereAreMyTokens.action" = "Switch to Mainnet";
+"whereAreMyTokens.testnet" = "Testnet";
+"whereAreMyTokens.whereAreMyTokens" = "Where are my tokens?";
