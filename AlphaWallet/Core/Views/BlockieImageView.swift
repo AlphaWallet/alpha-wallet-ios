@@ -9,7 +9,7 @@ import UIKit
 
 class BlockieImageView: UIView {
     private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
-    private lazy var imageView = WebImageView(type: .thumbnail, size: size)
+    private lazy var imageView = WebImageView()
 
     var subscribable: Subscribable<BlockiesImage>? {
         didSet {
@@ -23,7 +23,7 @@ class BlockieImageView: UIView {
                 }
             } else {
                 subscriptionKey = nil
-                self.imageView.url = nil
+                self.setBlockieImage(image: nil)
             }
         }
     }
@@ -36,11 +36,9 @@ class BlockieImageView: UIView {
             setBlockieImage(image: newValue)
         }
     }
-    private let size: CGSize
 
     ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
     init(size: CGSize) {
-        self.size = size
         super.init(frame: .zero)
 
         clipsToBounds = true
@@ -72,11 +70,11 @@ class BlockieImageView: UIView {
     func setBlockieImage(image: BlockiesImage?) {
         switch image {
         case .image(let image, _):
-            imageView.image = image
+            imageView.setImage(image: image)
         case .url(let url, _):
-            imageView.url = url
+            imageView.setImage(url: url)
         case .none:
-            imageView.url = nil
+            imageView.setImage(url: nil)
         }
     }
 

@@ -106,7 +106,7 @@ class AmountTextField: UIControl {
             case .cryptoCurrency(let tokenObject):
                 return tokenObject.icon
             case .usd:
-                return .init((image: R.image.usaFlag()!, symbol: "", isFinal: true))
+                return .init((image: .image(R.image.usaFlag()!), symbol: "", isFinal: true))
             }
         }
     }

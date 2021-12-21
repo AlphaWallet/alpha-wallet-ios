@@ -18,9 +18,8 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         return viewModel.tabTitle
     }
 
-    //FIXME: Replace it
-    private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView(edgeInsets: .init(top: 20, left: 0, bottom: 0, right: 0))
+    private var tokenIconImageView: WebImageView = {
+        let imageView = WebImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         return imageView
@@ -45,7 +44,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
 
         NSLayoutConstraint.activate([
             containerView.anchorsConstraint(to: self),
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 250)
+            tokenIconImageView.heightAnchor.constraint(equalTo: tokenIconImageView.widthAnchor, multiplier: 0.7)
         ])
 
         generateSubviews(viewModel: viewModel)
@@ -57,11 +56,11 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     private func generateSubviews(viewModel: TokensCardCollectionInfoPageViewModel) {
         stackView.removeAllArrangedSubviews()
 
+        stackView.addArrangedSubview(UIView.spacer(height: 10))
         stackView.addArrangedSubview(tokenIconImageView)
 
         stackView.addArrangedSubview(UIView.spacer(height: 10))
         stackView.addArrangedSubview(UIView.separator())
-        stackView.addArrangedSubview(UIView.spacer(height: 10))
 
         for each in viewModel.configurations {
             switch each {
@@ -77,14 +76,14 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
                 stackView.addArrangedSubview(field)
             }
         }
+
     }
 
     func configure(viewModel: TokensCardCollectionInfoPageViewModel) {
         self.viewModel = viewModel
 
         generateSubviews(viewModel: viewModel)
-
-        tokenIconImageView.subscribable = viewModel.iconImage
+        tokenIconImageView.setImage(url: viewModel.image, placeholder: viewModel.tokenImagePlaceholder)
     }
 
     required init?(coder: NSCoder) {

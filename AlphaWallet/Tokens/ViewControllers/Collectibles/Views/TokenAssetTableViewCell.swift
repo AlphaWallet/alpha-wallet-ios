@@ -26,7 +26,7 @@ class Erc875NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPos
     }
 
     private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView(type: .thumbnail, size: .init(width: 40, height: 40))
+        let imageView = WebImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -62,7 +62,7 @@ class Erc875NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPos
     func configure(viewModel: Erc875NonFungibleRowViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
         titleLabel.text = viewModel.title
-        thumbnailImageView.url = nil
+        thumbnailImageView.setImage(url: nil)
         descriptionLabel.attributedText = viewModel.attributedDescriptionText
     }
 
@@ -90,7 +90,7 @@ class NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPositioni
     }
 
     private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView(type: .thumbnail, size: .init(width: 40, height: 40))
+        let imageView = WebImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -125,7 +125,7 @@ class NonFungibleRowView: TokenCardRowViewProtocol & UIView & SelectionPositioni
     func configure(viewModel: NonFungibleRowViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
         titleLabel.text = viewModel.title
-        thumbnailImageView.url = viewModel.imageUrl
+        thumbnailImageView.setImage(url: viewModel.imageUrl)
         descriptionLabel.attributedText = viewModel.attributedDescriptionText
     }
 

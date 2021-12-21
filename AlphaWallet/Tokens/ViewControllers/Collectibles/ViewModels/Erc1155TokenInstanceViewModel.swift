@@ -25,7 +25,10 @@ struct Erc1155TokenInstanceViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var backgroundColor: UIColor = Colors.appBackground
-
+    var tokenImagePlaceholder: UIImage? {
+        return R.image.tokenPlaceholderLarge()
+    }
+    
     var actions: [TokenInstanceAction] {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions

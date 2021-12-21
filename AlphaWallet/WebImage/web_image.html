@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, shrink-to-fit=YES">
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .center-fit {
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
+        .sized {
+            
+        }
+    </style>
+    </head>
+    <body>
+        <div class="center-fit" id="container">
+            <img id="img" class="sized" onload = "loadImageSucceed(this.src)" onerror = "loadImageFailure(this.src)"/>
+        </div>
+    </body>
+    <script>
+        function loadImageSucceed(url) {
+          window.webkit.messageHandlers.WebImage.postMessage(`loadImageSucceed aw_separator ${url}`)
+        }
+
+        function loadImageFailure(url) {
+          window.webkit.messageHandlers.WebImage.postMessage(`loadImageFailure aw_separator ${url}`)
+        }
+
+        window.addEventListener("load", function() {
+            window.webkit.messageHandlers.WebImage.postMessage("pageDidLoad")
+        });
+
+        function replaceImageView(url) {
+            removeElementIfAny();
+
+            let el = createElement(url);
+            addElementAsChild(el);
+        }
+
+        function createElement(url) {
+            var img = document.createElement("img");
+            img.setAttribute('id', "img");
+            img.setAttribute('class', "sized");
+            img.setAttribute('onload', "loadImageSucceed(this.src)");
+            img.setAttribute('onerror', "loadImageFailure(this.src)");
+            img.setAttribute('src', `${url}`);
+            img.style.width = "inherit";
+            img.style.height = "inherit";
+
+            return img;
+        }
+
+        function removeElementIfAny() {
+            var prevImg = document.getElementById("img");
+            if (prevImg !== undefined) {
+                prevImg.remove();
+            }
+        }
+
+        function addElementAsChild(element) {
+            document.getElementById("container").appendChild(element);
+        }
+    </script>
+</html>

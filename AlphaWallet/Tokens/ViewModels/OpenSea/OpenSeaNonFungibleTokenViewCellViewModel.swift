@@ -5,7 +5,6 @@ import UIKit
 
 class OpenSeaNonFungibleTokenViewCellViewModel {
     private let token: TokenObject
-    var imageUrl: URL?
     var tokenAddress: AlphaWallet.Address {
         token.contractAddress
     }
@@ -31,20 +30,11 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
             .foregroundColor: Colors.appText
         ])
     }
+    let tokenIcon: Subscribable<TokenImage>
 
-    init(config: Config, token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
+    init(token: TokenObject) {
         self.token = token
-        //We use the contract's image and fallback to the first token ID's image if the former is not available
-        if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account).first {
-            let url = tokenHolder.values.contractImageUrlStringValue ?? ""
-            if url.isEmpty {
-                self.imageUrl = tokenHolder.values.imageUrlUrlValue
-            } else {
-                self.imageUrl = URL(string: url)
-            }
-        } else {
-            self.imageUrl = nil
-        }
+        self.tokenIcon = token.icon
     }
 
     var backgroundColor: UIColor {

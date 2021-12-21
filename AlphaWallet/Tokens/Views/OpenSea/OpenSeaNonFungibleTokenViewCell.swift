@@ -5,7 +5,7 @@ import UIKit
 
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
-    private let imageView = WebImageView(type: .thumbnail, size: UICollectionViewFlowLayout.collectiblesItemImageSize)
+    private let imageView = TokenImageView()
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label = UILabel()
@@ -67,23 +67,17 @@ class OpenSeaNonFungibleTokenView: UIView {
 
         imageHolder.clipsToBounds = true
 
-        func setImage(url imageUrl: URL?, placeholder: UIImage? = UIImage(named: "AppIcon60x60")) {
-            if let url = imageUrl {
-                imageView.url = url
-            } else {
-                imageView.image = placeholder
-            }
-        }
-
         if let tokenAddress = tokenAddress {
             if tokenAddress.sameContract(as: viewModel.tokenAddress) {
                 //no-op
             } else {
-                setImage(url: viewModel.imageUrl)
+                imageView.subscribable = viewModel.tokenIcon
             }
         } else {
-            setImage(url: viewModel.imageUrl)
+            imageView.subscribable = viewModel.tokenIcon
         }
+
+        imageView.subscribable = viewModel.tokenIcon
 
         label.textAlignment = .center
         label.attributedText = viewModel.tickersTitleAttributedString
