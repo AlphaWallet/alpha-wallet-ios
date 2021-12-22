@@ -12,7 +12,16 @@
             margin: auto;
         }
         .sized {
-            
+            width: auto;
+            display: block;
+            padding: 0px;
+        }
+        .center-fit img {
+            width: 300%;
+            height: auto;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
         }
     </style>
     </head>
@@ -47,9 +56,7 @@
             img.setAttribute('class', "sized");
             img.setAttribute('onload', "loadImageSucceed(this.src)");
             img.setAttribute('onerror', "loadImageFailure(this.src)");
-            img.setAttribute('src', `${url}`);
-            img.style.width = "inherit";
-            img.style.height = "inherit";
+            img.setAttribute('src', `${url}`); 
 
             return img;
         }
