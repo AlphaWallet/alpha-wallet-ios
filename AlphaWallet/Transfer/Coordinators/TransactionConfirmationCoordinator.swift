@@ -102,7 +102,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
 
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)

@@ -68,7 +68,6 @@ extension TokensViewController {
             }
         }
 
-
         var useSeparatorBottomLine: Bool {
             get {
                 !bottomSeparator.isHidden

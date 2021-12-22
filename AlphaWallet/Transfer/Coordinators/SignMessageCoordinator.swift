@@ -17,6 +17,12 @@ protocol SignMessageCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: SignMessageCoordinator)
 }
 
+extension UIApplication {
+    var firstKeyWindow: UIWindow? {
+        windows.filter { $0.isKeyWindow }.first
+    }
+}
+
 class SignMessageCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let presentationNavigationController: UINavigationController
@@ -55,7 +61,7 @@ class SignMessageCoordinator: Coordinator {
     }
 
     func start() {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
         analyticsCoordinator.log(navigation: Analytics.Navigation.signMessageRequest, properties: [Analytics.Properties.source.rawValue: source.rawValue, Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue])
         if let controller = keyWindow.rootViewController?.presentedViewController {
             controller.present(navigationController, animated: false)

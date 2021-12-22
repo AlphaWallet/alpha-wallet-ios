@@ -61,7 +61,7 @@ class WhereIsWalletAddressFoundOverlayView: UIView {
     func show() {
         dialog.configure()
         dialog.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-        UIApplication.shared.keyWindow?.addSubview(self)
+        UIApplication.shared.firstKeyWindow?.addSubview(self)
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 7, options: .curveEaseInOut, animations: {
             self.dialog.transform = .identity
         })

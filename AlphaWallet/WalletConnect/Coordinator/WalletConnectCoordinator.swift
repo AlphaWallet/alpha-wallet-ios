@@ -322,7 +322,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private var presentationViewController: UIViewController {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return navigationController }
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return navigationController }
 
         if let controller = keyWindow.rootViewController?.presentedViewController {
             return controller
