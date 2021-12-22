@@ -241,8 +241,8 @@ private class _WebImageView: UIView {
             guard size.width != 0 && size.height != 0 else { return }
 
             let js = """
-                document.getElementById("container").style.width = '\((size.width).rounded(.down))px';
-                document.getElementById("container").style.height = '\((size.height).rounded(.down))px';
+                document.getElementById("container").style.width = '\((size.width).rounded(.up))px';
+                document.getElementById("container").style.height = '\((size.height).rounded(.up))px';
              """
 
             strongSelf.execute(script: js, completion: { _ in
