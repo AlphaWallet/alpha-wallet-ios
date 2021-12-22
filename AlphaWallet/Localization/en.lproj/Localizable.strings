@@ -738,3 +738,4 @@
 "whereAreMyTokens.action" = "Switch to Mainnet";
 "whereAreMyTokens.testnet" = "Testnet";
 "whereAreMyTokens.whereAreMyTokens" = "Where are my tokens?";
+"tokens.searchbar.placeholder" = "Search for a token";

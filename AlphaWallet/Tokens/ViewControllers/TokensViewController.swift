@@ -790,6 +790,7 @@ extension TokensViewController {
         searchBar.layer.borderWidth = 1
         searchBar.layer.borderColor = UIColor.clear.cgColor
         searchBar.backgroundImage = UIImage()
+        searchBar.placeholder = R.string.localizable.tokensSearchbarPlaceholder()
     }
 }
 
