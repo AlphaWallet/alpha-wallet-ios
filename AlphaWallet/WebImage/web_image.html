@@ -10,6 +10,7 @@
             max-width: 100%;
             max-height: 100%;
             margin: auto;
+            /*border: 1px solid black;*/
         }
         .sized {
             width: auto;
@@ -17,59 +18,28 @@
             padding: 0px;
         }
         .center-fit img {
-            width: 300%;
+           /*width: 100%;
             height: auto;
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
+
+           border: 1px solid red;*/
+        }
+        div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
     </head>
     <body>
         <div class="center-fit" id="container">
-            <img id="img" class="sized" onload = "loadImageSucceed(this.src)" onerror = "loadImageFailure(this.src)"/>
+            <img id="img" class="sized" onload = "loadImageSucceed(this.src)" onabort = "loadImageFailure(this.src)" onerror = "loadImageFailure(this.src)" data-scale = "<scale>" data-align = "<align>"/>
         </div>
     </body>
-    <script>
-        function loadImageSucceed(url) {
-          window.webkit.messageHandlers.WebImage.postMessage(`loadImageSucceed aw_separator ${url}`)
-        }
-
-        function loadImageFailure(url) {
-          window.webkit.messageHandlers.WebImage.postMessage(`loadImageFailure aw_separator ${url}`)
-        }
-
-        window.addEventListener("load", function() {
-            window.webkit.messageHandlers.WebImage.postMessage("pageDidLoad")
-        });
-
-        function replaceImageView(url) {
-            removeElementIfAny();
-
-            let el = createElement(url);
-            addElementAsChild(el);
-        }
-
-        function createElement(url) {
-            var img = document.createElement("img");
-            img.setAttribute('id', "img");
-            img.setAttribute('class', "sized");
-            img.setAttribute('onload', "loadImageSucceed(this.src)");
-            img.setAttribute('onerror', "loadImageFailure(this.src)");
-            img.setAttribute('src', `${url}`); 
-
-            return img;
-        }
-
-        function removeElementIfAny() {
-            var prevImg = document.getElementById("img");
-            if (prevImg !== undefined) {
-                prevImg.remove();
-            }
-        }
-
-        function addElementAsChild(element) {
-            document.getElementById("container").appendChild(element);
-        }
-    </script>
+    <script src="jquery-3.6.0.min.js" type="text/javascript"></script>
+    <script src="image-scale.min.js" type="text/javascript"></script>
+<!--    <script src="jquery.cacheImages.min.js" type="text/javascript"></script>-->
+    <script src="page.js" type="text/javascript"></script>
 </html>
