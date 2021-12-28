@@ -8,6 +8,9 @@
 import UIKit
 
 extension UIBarButtonItem {
+    static func selectBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        return .init(title: R.string.localizable.aWalletTokenSelectTokens(), style: .plain, target: target, action: selector)
+    }
 
     static func cancelBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(barButtonSystemItem: .cancel, target: target, action: selector)

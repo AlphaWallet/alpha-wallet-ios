@@ -36,11 +36,6 @@ class WebImageView: UIView {
         case invalidURL
     }
 
-    enum ImageType {
-        case thumbnail
-        case original
-    }
-
     private lazy var webView: _WebImageView = {
         let webView = _WebImageView()
         return webView

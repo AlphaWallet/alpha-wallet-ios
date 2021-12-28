@@ -122,8 +122,7 @@ class InCoordinatorTests: XCTestCase {
                 coinTickersFetcher: FakeCoinTickersFetcher()
         )
         coordinator.showTabBar(for: .make(), animated: false)
-
-        coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil)), server: .main, navigationController: coordinator.navigationController)
+        coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(coordinator.navigationController.viewControllers.last is SendViewController)

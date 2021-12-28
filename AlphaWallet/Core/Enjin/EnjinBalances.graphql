@@ -1,0 +1,11 @@
+query GetEnjinBalances($ethAddress: String! $page: Int! $limit: Int!) {
+    EnjinBalances(ethAddress: $ethAddress pagination: { page: $page, limit: $limit }) {
+   token {
+     id
+   }
+   wallet {
+     ethAddress
+   }
+   value
+ }
+}

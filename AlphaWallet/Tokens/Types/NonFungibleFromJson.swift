@@ -22,6 +22,20 @@ protocol NonFungibleFromJson: Codable {
     var generationTrait: OpenSeaNonFungibleTrait? { get }
     var collectionCreatedDate: Date? { get }
     var collectionDescription: String? { get }
+    var meltStringValue: String? { get }
+    var meltFeeRatio: Int? { get }
+    var meltFeeMaxRatio: Int? { get }
+    var totalSupplyStringValue: String? { get }
+    var circulatingSupplyStringValue: String? { get }
+    var reserveStringValue: String? { get }
+    var nonFungible: Bool? { get }
+    var blockHeight: Int? { get }
+    var mintableSupply: BigInt? { get }
+    var transferable: String? { get }
+    var supplyModel: String? { get }
+    var issuer: String? { get }
+    var created: String? { get }
+    var transferFee: String? { get }
 }
 
 func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {

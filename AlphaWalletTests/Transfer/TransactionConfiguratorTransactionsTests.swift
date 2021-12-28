@@ -28,7 +28,7 @@ class TransactionConfiguratorTransactionsTests: XCTestCase {
         let address2 = AlphaWallet.Address(string: "0x1000000000000000000000000000000000000002")!
         let token = TokenObject(contract: address, server: .main, value: "0", type: .erc721)
 
-        let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token), value: BigInt(0), recipient: address2, contract: address, data: nil, tokenId: BigUInt("0"))
+        let transaction = UnconfirmedTransaction(transactionType: .erc721Token(token, tokenHolders: []), value: BigInt(0), recipient: address2, contract: address, data: nil, tokenId: BigUInt("0"))
 
         let configurator = TransactionConfigurator(session: .make(), transaction: transaction)
 

@@ -569,20 +569,18 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
-        let session = walletSessions[server]
-        let tokenStorage = tokensStorages[server]
-
-        switch (type, session.account.type) {
+        switch (type, walletSessions[server].account.type) {
         case (.send, .real), (.request, _):
             let coordinator = PaymentCoordinator(
                     navigationController: navigationController,
                     flow: type,
-                    session: session,
+                    session: walletSessions[server],
                     keystore: keystore,
-                    storage: tokenStorage,
+                    tokensStorage: tokensStorages[server],
                     ethPrice: nativeCryptoCurrencyPrices[server],
                     assetDefinitionStore: assetDefinitionStore,
-                    analyticsCoordinator: analyticsCoordinator
+                    analyticsCoordinator: analyticsCoordinator,
+                    eventsDataStore: eventsDataStore
             )
             coordinator.delegate = self
             coordinator.start()
@@ -1058,7 +1056,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
         switch transactionType {
-        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token), .erc721Token(let token), .erc1155Token(let token):
+        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token, _), .erc721Token(let token, _), .erc1155Token(let token, _, _):
             if shouldSwitchServer {
                 open(url: url, onServer: token.server)
             } else {
@@ -1115,6 +1113,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator) {
+        guard let coordinator = coordinatorOfType(type: TokensCardCollectionCoordinator.self) else { return }
+
+        coordinator.showTokenInstance(tokenHolder: tokenHolder, mode: .preview)
+    }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator) {
         handlePendingTransaction(transaction: transaction)
@@ -1217,7 +1220,7 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {
+    func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didCompleteTransaction result: ConfirmResult) {
         claimOrderCoordinatorCompletionBlock?(true)
         claimOrderCoordinatorCompletionBlock = nil
         removeCoordinator(coordinator)

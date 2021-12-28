@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import PromiseKit
 
-protocol TokensCoordinatorDelegate: class, CanOpenURL {
+protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator)
@@ -75,7 +75,7 @@ class TokensCoordinator: Coordinator {
     }()
 
     private var addressToAutoDetectServerFor: AlphaWallet.Address?
-    private var sendToAddressState: SendToAddressState = .none
+    private var sendToAddress: AlphaWallet.Address? = .none
     private var singleChainTokenCoordinators: [SingleChainTokenCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
@@ -323,11 +323,11 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .erc20:
             coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
-            coordinator.showTokenList(for: .send(type: .erc721Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
         case .erc875, .erc721ForTickets:
-            coordinator.showTokenList(for: .send(type: .erc875Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc875Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
         case .erc1155:
-            coordinator.showTokenList(for: .send(type: .erc1155Token(token)), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc1155Token(token, transferType: .singleTransfer, tokenHolders: []))), token: token, navigationController: navigationController)
         }
     }
 
@@ -350,14 +350,15 @@ extension TokensCoordinator: SelectTokenCoordinatorDelegate {
     func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: TokenObject) {
         removeCoordinator(coordinator)
 
-        switch sendToAddressState {
-        case .pending(let address):
-            let paymentFlow = PaymentFlow.send(type: .init(token: token, recipient: .address(address), amount: nil))
+        switch sendToAddress {
+        case .some(let address):
+            let paymentFlow = PaymentFlow.send(type: .transaction(.init(token: token, recipient: .address(address), amount: nil)))
 
             delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
         case .none:
             break
         }
+        sendToAddress = .none
     }
 
     func selectAssetDidCancel(in coordinator: SelectTokenCoordinator) {
@@ -386,7 +387,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject) {
         removeCoordinator(coordinator)
 
-        let paymentFlow = PaymentFlow.send(type: transactionType)
+        let paymentFlow = PaymentFlow.send(type: .transaction(transactionType))
 
         delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
     }
@@ -428,7 +429,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
     }
 
     private func handleSendToAddress(_ address: AlphaWallet.Address) {
-        sendToAddressState = .pending(address: address)
+        sendToAddress = address
 
         let coordinator = SelectTokenCoordinator(
             assetDefinitionStore: assetDefinitionStore,
@@ -508,6 +509,10 @@ extension TokensCoordinator: EditPriceAlertCoordinatorDelegate {
 }
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
+    
+    func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
+    }
 
     func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator) {
         let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: cordinator.session, alertService: alertService)

@@ -25,7 +25,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let session: WalletSession
     private let transaction: TransactionInstance
     private let mode: Mode
-    private var transactionConfirmationResult: TransactionConfirmationResult = .noData
+    private var transactionConfirmationResult: ConfirmResult? = .none
 
     private var recipient: AlphaWallet.Address? {
         switch transactionType {
@@ -134,7 +134,7 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
             guard let strongSelf = self else { return }
 
             strongSelf.removeCoordinator(coordinator)
-            strongSelf.transactionConfirmationResult = .confirmationResult(result)
+            strongSelf.transactionConfirmationResult = result
 
             let coordinator = TransactionInProgressCoordinator(presentingViewController: strongSelf.presentingViewController)
             coordinator.delegate = strongSelf
@@ -163,9 +163,9 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
 extension ReplaceTransactionCoordinator: TransactionInProgressCoordinatorDelegate {
     func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         switch transactionConfirmationResult {
-        case .confirmationResult(let result):
+        case .some(let result):
             delegate?.didFinish(result, in: self)
-        case .noData:
+        case .none:
             break
         }
     }

@@ -24,8 +24,10 @@ struct Token {
     let symbol: String
     let status: Status
     let values: [AttributeId: AssetAttributeSyntaxValue]
-    //TODO check this is set correct for available amount
-    let amount: Int? = .none
+
+    var value: Int? {
+        values.valueIntValue.flatMap { String($0) }.flatMap { Int($0) }
+    }
 
     static var empty: Token {
         return Token(

@@ -22,6 +22,7 @@ enum ActivitiesFilterStrategy {
     case none
     case nativeCryptocurrency(primaryKey: String)
     case contract(contract: AlphaWallet.Address)
+    case operationTypes(operationTypes: [OperationType], contract: AlphaWallet.Address)
 
     func isRecentTransaction(transaction: TransactionInstance) -> Bool {
         switch self {
@@ -29,6 +30,8 @@ enum ActivitiesFilterStrategy {
             return ActivitiesFilterStrategy.filterTransactionsForNativeCryptocurrency(transaction: transaction)
         case .contract(let contract):
             return ActivitiesFilterStrategy.filterTransactionsForERC20Token(transaction: transaction, contract: contract)
+        case .operationTypes(let operationTypes, let contract):
+            return ActivitiesFilterStrategy.filterTransactionsForCustomOperations(transaction: transaction, operationTypes: operationTypes, contract: contract)
         case .none:
             return true
         }
@@ -41,6 +44,19 @@ enum ActivitiesFilterStrategy {
     private static func filterTransactionsForERC20Token(transaction: TransactionInstance, contract: AlphaWallet.Address) -> Bool {
         (transaction.state == .completed || transaction.state == .pending) && transaction.localizedOperations.contains(where: { op in
             (op.operationType == .erc20TokenTransfer || op.operationType == .erc20TokenApprove) && (op.contract.flatMap({ contract.sameContract(as: $0) }) ?? false)
+        })
+    }
+
+    private static func filterTransactionsForCustomOperations(transaction: TransactionInstance, operationTypes: [OperationType], contract: AlphaWallet.Address) -> Bool {
+        let isInCompletedOrPandingState: Bool = transaction.state == .completed || transaction.state == .pending
+        func hasValidOperationState(operationTypes: [OperationType], operationType: OperationType) -> Bool {
+            return operationTypes.contains(operationType)
+        }
+
+        return isInCompletedOrPandingState && transaction.localizedOperations.contains(where: { op in
+            let isMatchingContract = (op.contract.flatMap({ contract.sameContract(as: $0) }) ?? false)
+            let hasValidOperationTypes = hasValidOperationState(operationTypes: operationTypes, operationType: op.operationType)
+            return hasValidOperationTypes && isMatchingContract
         })
     }
 }
@@ -332,7 +348,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         switch strategy {
         case .none:
             return filteredActivitiesForThisCard
-        case .contract(let contract):
+        case .contract(let contract), .operationTypes(_, let contract):
             return filteredActivitiesForThisCard.filter { mapped -> Bool in
                 return mapped.tokenObject.contractAddress.sameContract(as: contract)
             }

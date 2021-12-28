@@ -12,14 +12,23 @@ struct DecodedFunctionCall {
 //        case erc20BalanceOf(address: AlphaWallet.Address)
 //        case erc20Allowance(address: AlphaWallet.Address, address: AlphaWallet.Address)
 //        case erc20TransferFrom(address: AlphaWallet.Address, address: AlphaWallet.Address, value: BigUInt)
+
+        //NOTE: erc20
         case erc20Transfer(recipient: AlphaWallet.Address, value: BigUInt)
         case erc20Approve(spender: AlphaWallet.Address, value: BigUInt)
+        //NOTE: native crypty
         case nativeCryptoTransfer(value: BigUInt)
+        //NOTE: erc1155
+        case erc1155SafeTransfer(spender: AlphaWallet.Address)
+        case erc1155SafeBatchTransfer(spender: AlphaWallet.Address)
+
         case others
     }
 
     static let erc20Transfer = (name: "transfer", interfaceHash: "a9059cbb", byteCount: 68)
     static let erc20Approve = (name: "approve", interfaceHash: "095ea7b3", byteCount: 68)
+    static let erc1155SafeTransfer = (name: "safeTransferFrom", interfaceHash: "f242432a", byteCount: 68)
+    static let erc1155SafeBatchTransfer = (name: "safeBatchTransferFrom", interfaceHash: "2eb2c2d6", byteCount: 68)
 
     let name: String
     let arguments: [(type: ABIType, value: AnyObject)]

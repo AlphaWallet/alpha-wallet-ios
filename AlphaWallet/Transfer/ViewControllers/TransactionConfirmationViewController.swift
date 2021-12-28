@@ -99,6 +99,7 @@ class TransactionConfirmationViewController: UIViewController {
 
     var canBeDismissed = true
     weak var delegate: TransactionConfirmationViewControllerDelegate?
+
     // swiftlint:disable function_body_length
     init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
@@ -530,7 +531,17 @@ extension TransactionConfirmationViewController {
                     } else {
                         //no-op
                     }
-                case .tokenId, .network:
+                case .tokenId:
+                    //NOTE: Maybe its needed to update with something else
+                    let tokenIdsAndValuesViews = viewModel.tokenIdAndValueViewModels().enumerated().map { (index, value) -> UIView in
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: value, subtitle: ""))
+                        view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: index)
+                        return view
+                    }
+
+                    children.append(UIView.spacer(height: 20))
+                    children.append(contentsOf: tokenIdsAndValuesViews)
+                case .network:
                     break
                 }
                 header.childrenStackView.addArrangedSubviews(children)

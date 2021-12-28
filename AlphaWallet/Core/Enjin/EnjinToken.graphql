@@ -1,0 +1,28 @@
+query GetEnjinToken($id: String!) {
+   EnjinToken(id: $id) {
+    id
+    name
+    creator
+    meltValue
+    meltFeeRatio
+    meltFeeMaxRatio
+    supplyModel
+    totalSupply
+    circulatingSupply
+    reserve
+    transferable
+    nonFungible
+    blockHeight
+    markedForDelete
+    createdAt
+    updatedAt
+    mintableSupply
+    itemURI
+    transferFeeSettings {
+      type
+    }
+    wallet {
+      ethAddress
+    }
+ }
+}

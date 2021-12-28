@@ -13,7 +13,7 @@ import Result
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController)
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController)
     func didTapURL(url: URL, in viewController: TokensCardViewController)
@@ -204,13 +204,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
     func sell() {
         guard let selectedTokenHolder = selectedTokenHolder else { return }
-        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .erc875Token(viewModel.token)), in: self)
+        let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [selectedTokenHolder])
+        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 
     func transfer() {
         guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType(token: viewModel.token)
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transactionType), tokenHolders: viewModel.tokenHolders, in: self)
+        let transactionType = TransactionType(token: viewModel.token, tokenHolders: [selectedTokenHolder])
+        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 
     private func handle(action: TokenInstanceAction) {

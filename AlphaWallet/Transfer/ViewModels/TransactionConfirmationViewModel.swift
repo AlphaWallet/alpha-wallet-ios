@@ -23,9 +23,9 @@ enum TransactionConfirmationViewModel {
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
-        case .sendNftTransaction(_, _, let ethPrice, let tokenInstanceName):
+        case .sendNftTransaction(_, _, let ethPrice, let tokenInstanceNames):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
-            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName))
+            self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice, tokenInstanceNames: tokenInstanceNames))
         case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
         case .speedupTransaction(_, let ethPrice):
@@ -503,7 +503,7 @@ extension TransactionConfirmationViewModel {
         private let configurator: TransactionConfigurator
         private let transactionType: TransactionType
         private let session: WalletSession
-        private let tokenInstanceName: String?
+        private let tokenInstanceNames: [TokenId: String]
 
         var server: RPCServer {
             configurator.session.server
@@ -523,13 +523,13 @@ extension TransactionConfirmationViewModel {
             return Section.allCases
         }
 
-        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>, tokenInstanceName: String?) {
+        init(configurator: TransactionConfigurator, recipientResolver: RecipientResolver, ethPrice: Subscribable<Double>, tokenInstanceNames: [TokenId: String]) {
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
             self.recipientResolver = recipientResolver
             self.ethPrice = ethPrice
-            self.tokenInstanceName = tokenInstanceName
+            self.tokenInstanceNames = tokenInstanceNames
         }
 
         func isSubviewsHidden(section: Int, row: Int) -> Bool {
@@ -548,6 +548,27 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return true
                 }
+            }
+        }
+
+        private var tokenIdsAndValues: [UnconfirmedTransaction.TokenIdAndValue] {
+            configurator.transaction.tokenIdsAndValues ?? []
+        }
+
+        func tokenIdAndValueViewModels() -> [String] {
+            return tokenIdsAndValues.map { tokenIdAndValue in
+
+                let tokenId = tokenIdAndValue.tokenId
+                let value = tokenIdAndValue.value
+                let title: String
+
+                if let tokenInstanceName = tokenInstanceNames[tokenId], !tokenInstanceName.isEmpty {
+                    title = "\(value) x \(tokenInstanceName) (\(tokenId))"
+                } else {
+                    title = "\(value) x \(tokenId)"
+                }
+
+                return title
             }
         }
 
@@ -572,24 +593,18 @@ extension TransactionConfirmationViewModel {
             case .tokenId:
                 switch transactionType {
                 case .erc1155Token:
-                    let title: String
-                    if let tokenIdAndValue = configurator.transaction.tokenIdsAndValues?.first {
-                        let tokenId = tokenIdAndValue.tokenId
-                        let value = tokenIdAndValue.value
-                        if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
-                            title = "\(value) x \(tokenInstanceName) (\(tokenId))"
-                        } else {
-                            title = "\(value) x \(tokenId)"
-                        }
-                    } else {
-                        //TODO this really shouldn't be possible
-                        title = tokenInstanceName ?? ""
+                    let viewModels = tokenIdAndValueViewModels()
+                    guard viewModels.count == 1 else {
+                        return .init(title: .normal(nil), headerName: "Token IDs", configuration: configuration)
                     }
-                    return .init(title: .normal(title), headerName: headerName, configuration: configuration)
+
+                    return .init(title: .normal(viewModels.first ?? "-"), headerName: headerName, configuration: configuration)
                 case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript:
                     //This is really just for ERC721, but the type system…
                     let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
                     let title: String
+                    let tokenInstanceName = configurator.transaction.tokenId.flatMap { tokenInstanceNames[$0] }
+
                     if let tokenInstanceName = tokenInstanceName, !tokenInstanceName.isEmpty {
                         if let tokenId = tokenId {
                             title = "\(tokenInstanceName) (\(tokenId))"

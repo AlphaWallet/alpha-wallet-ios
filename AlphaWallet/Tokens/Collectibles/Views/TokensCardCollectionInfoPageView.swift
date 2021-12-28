@@ -18,8 +18,8 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         return viewModel.tabTitle
     }
 
-    private var tokenIconImageView: WebImageView = {
-        let imageView = WebImageView()
+    private var tokenIconImageView: TokenImageView = {
+        let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         return imageView
@@ -60,9 +60,8 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         stackView.addArrangedSubview(tokenIconImageView)
 
         stackView.addArrangedSubview(UIView.spacer(height: 10))
-        stackView.addArrangedSubview(UIView.separator())
 
-        for each in viewModel.configurations {
+        for (index, each) in viewModel.configurations.enumerated() {
             switch each {
             case .header(let viewModel):
                 let performanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
@@ -70,20 +69,19 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
 
                 stackView.addArrangedSubview(performanceHeader)
             case .field(let viewModel):
-                let field = TokenInstanceAttributeView()
-                field.configure(viewModel: viewModel)
-
-                stackView.addArrangedSubview(field)
+                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
+                view.configure(viewModel: viewModel)
+                view.delegate = self
+                stackView.addArrangedSubview(view)
             }
         }
-
     }
 
     func configure(viewModel: TokensCardCollectionInfoPageViewModel) {
         self.viewModel = viewModel
 
         generateSubviews(viewModel: viewModel)
-        tokenIconImageView.setImage(url: viewModel.image, placeholder: viewModel.tokenImagePlaceholder)
+        tokenIconImageView.subscribable = viewModel.iconImage
     }
 
     required init?(coder: NSCoder) {
@@ -93,5 +91,10 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     @objc private func showContractWebPage() {
         delegate?.didPressViewContractWebPage(forContract: viewModel.contractAddress, in: self)
     }
+}
 
+extension TokensCardCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
+    func didSelect(in view: TokenInstanceAttributeView) {
+        //no-op
+    }
 }

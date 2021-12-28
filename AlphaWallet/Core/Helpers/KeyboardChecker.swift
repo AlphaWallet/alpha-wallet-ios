@@ -25,11 +25,13 @@ class KeyboardChecker: NSObject {
     var constraint: NSLayoutConstraint?
     //NOTE: for views with input view 'date picker', we need to ignore bottom safe area
     private let ignoreBottomSafeArea: Bool
-
-    init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight, ignoreBottomSafeArea: Bool = false) {
+    private let buttonsBarHeight: CGFloat
+    
+    init(_ viewController: UIViewController, resetHeightDefaultValue: CGFloat = -UIApplication.shared.bottomSafeAreaHeight, ignoreBottomSafeArea: Bool = false, buttonsBarHeight: CGFloat = 0) {
         self.viewController = viewController
         self.resetHeightDefaultValue = resetHeightDefaultValue
         self.ignoreBottomSafeArea = ignoreBottomSafeArea
+        self.buttonsBarHeight = buttonsBarHeight
         super.init()
 
         //NOTE: while protection has turned on, we want to subscribe/unsubscribe from handling keyboard appearence, to prevent bottom inset
@@ -66,18 +68,18 @@ class KeyboardChecker: NSObject {
         let diff = keyboardEndFrame.height - yKeyboardFrameOffset
         if diff > yKeyboardFrameOffset {
             if let tabBar = tabBar, tabBar.isHidden {
-                constraint?.constant = -keyboardEndFrame.height
+                constraint?.constant = -keyboardEndFrame.height - buttonsBarHeight
             } else {
-                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
             }
         } else {
             if ignoreBottomSafeArea {
-                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
             } else {
                 if UIApplication.shared.bottomSafeAreaHeight > 0.0 {
                     constraint?.constant = -(diff + UIApplication.shared.bottomSafeAreaHeight)
                 } else {
-                    constraint?.constant = -(keyboardEndFrame.height - tabBarHeight)
+                    constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
                 }
             }
         }

@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol SelectableTokenCardContainerTableViewCellDelegate: class {
+    func didCloseSelection(in sender: SelectableTokenCardContainerTableViewCell, with selectedAmount: Int)
+}
+
 class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
     private var viewModel: SelectableTokenCardContainerTableViewCellViewModel?
 
@@ -44,7 +48,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
     }()
 
     private lazy var toolbarAmountSelectionView: SingleTokenCardAmountSelectionToolbarView = {
-        let view = SingleTokenCardAmountSelectionToolbarView(viewModel: .init(availableAmount: 20, selectedAmount: 1))
+        let view = SingleTokenCardAmountSelectionToolbarView(viewModel: .init())
         view.delegate = self
 
         return view
@@ -71,12 +75,14 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
 
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
         isUserInteractionEnabled = true
+        addSubview(hiddenTextField)
     }
 
     private var selectionViewPositioningConstraints: [NSLayoutConstraint] = []
 
     func prapare(with view: UIView & SelectionPositioningView) {
         super.configure(subview: view)
+
         NSLayoutConstraint.deactivate(selectionViewPositioningConstraints)
         selectedAmountView.removeFromSuperview()
 
@@ -84,7 +90,10 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
 
         selectionViewPositioningConstraints = [
             selectedAmountView.centerXAnchor.constraint(equalTo: view.positioningView.centerXAnchor),
-            selectedAmountView.centerYAnchor.constraint(equalTo: view.positioningView.centerYAnchor)
+            selectedAmountView.centerYAnchor.constraint(equalTo: view.positioningView.centerYAnchor),
+
+            selectedAmountView.heightAnchor.constraint(equalToConstant: 35),
+            selectedAmountView.widthAnchor.constraint(equalToConstant: 35)
         ]
 
         NSLayoutConstraint.activate(selectionViewPositioningConstraints)
@@ -102,13 +111,13 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
         contentView.backgroundColor = viewModel.contentsBackgroundColor
 
         selectedAmountView.configure(viewModel: viewModel.selectionViewModel)
-        toolbarAmountSelectionView.configure(viewModel: .init(availableAmount: viewModel.availableAmount, selectedAmount: viewModel.selectionViewModel.selectedAmount ?? 0))
+        toolbarAmountSelectionView.configure(viewModel: viewModel.cardAmountSelectionToolbarViewModel)
 
         selectionStateViews.selectionImageView.image = viewModel.selectionImage
     }
 
     @objc private func didTap(_ sender: UITapGestureRecognizer) {
-        if let viewModel = viewModel, viewModel.selectionViewModel.isHidden {
+        if let viewModel = viewModel, viewModel.selectionViewModel.isSingleSelectionEnabled {
             let newSelection = viewModel.selectionViewModel.isSelected ? 0 : 1
 
             delegate?.didCloseSelection(in: self, with: newSelection)
