@@ -395,4 +395,10 @@ enum Style {
             static let color: UIColor = R.color.mercury()!
         }
     }
+    enum ScrollableSegmentedControl {
+        static let configuration = ScrollableSegmentedControlConfiguration(lineConfiguration: ScrollableSegmentedControlHighlightableLineViewConfiguration(lineHeight: 1.0, highlightHeight: 3.0, lineColor: R.color.mercury()!, highLightColor: R.color.azure()!), isProportionalWidth: true, cellSpacing: 0.0, alignmentWhenNotScrollable: .filled, animationDuration: 0.25, animationCurve: .easeInOut)
+    }
+    enum ScrollableSegmentedControlCell {
+        static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: R.font.sourceSansProSemibold(size: 15.0)!, nonHighlightedFont: R.font.sourceSansProRegular(size: 15.0)!, cellPadding: 8.0, textBottomPadding: 12.0)
+    }
 }
