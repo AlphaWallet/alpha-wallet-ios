@@ -76,7 +76,7 @@ class ExportJsonKeystoreFileViewController: UIViewController {
                 navigationController.displayErrorPromise(message: error.prettyError)
             }.done {
                 navigationController.popViewController(animated: true)
-            }
+            }.cauterize()
         }
     }
 

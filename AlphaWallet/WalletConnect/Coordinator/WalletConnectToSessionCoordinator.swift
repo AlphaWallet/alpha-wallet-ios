@@ -48,7 +48,7 @@ class WalletConnectToSessionCoordinator: Coordinator {
     }
 
     func start() {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return }
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
         analyticsCoordinator.log(navigation: Analytics.Navigation.walletConnect)
 
         if let controller = keyWindow.rootViewController?.presentedViewController {

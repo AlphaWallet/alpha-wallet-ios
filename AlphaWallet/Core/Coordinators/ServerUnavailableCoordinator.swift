@@ -32,7 +32,7 @@ class ServerUnavailableCoordinator: Coordinator {
     }
 
     func start() -> Promise<Void> {
-        guard let keyWindow = UIApplication.shared.keyWindow else { return promiseToReturn }
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return promiseToReturn }
 
         let message = R.string.localizable.serverWarningServerIsDisabled(server.name)
         

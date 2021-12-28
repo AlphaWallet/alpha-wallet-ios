@@ -78,13 +78,13 @@ class NativeCryptoCurrencyBalanceView: UIView {
         label.attributedText = attributedBalanceText
 
         let size = desiredSizeBasedOnLabelInstrinsicContentSize
-        let currentWindow = UIApplication.shared.keyWindow!
+        let currentWindow = UIApplication.shared.firstKeyWindow!
         frame = .init(x: currentWindow.frame.width - size.width - rightMargin, y: topMargin, width: size.width, height: size.height)
     }
 
     private func float() {
         isHidden = true
-        let currentWindow = UIApplication.shared.keyWindow
+        let currentWindow = UIApplication.shared.firstKeyWindow
         currentWindow?.addSubview(self)
     }
 
