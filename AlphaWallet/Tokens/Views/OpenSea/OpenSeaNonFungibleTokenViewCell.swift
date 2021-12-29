@@ -38,8 +38,8 @@ class OpenSeaNonFungibleTokenView: UIView {
             background.anchorsConstraint(to: self, edgeInsets: .zero),
 
             stackView.anchorsConstraint(to: background),
-            imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
             imageView.anchorsConstraint(to: imageHolder),
+            textsStackView.heightAnchor.constraint(equalToConstant: 40)
         ])
         translatesAutoresizingMaskIntoConstraints = false
     }
