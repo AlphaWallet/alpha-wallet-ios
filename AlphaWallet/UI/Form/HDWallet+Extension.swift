@@ -7,12 +7,56 @@ import WalletCore
 extension HDWallet {
     static let mnemonicWordCount = 12
 
+    enum SeedPhraseCount {
+        case word12
+        case word24
+
+        init(seed: String) {
+            if seed.count > 33 {
+                self = .word24
+            } else {
+                self = .word12
+            }
+        }
+
+        var strength: Int32 {
+            switch self {
+            case .word12:
+                return 128
+            case .word24:
+                return 256
+            }
+        }
+
+        var entropyWithoutChecksumHexCount: Int {
+            Int(strength) / 8 * 2
+        }
+
+        var checksumHexCount: Int {
+            switch self {
+            case .word12:
+                return 1
+            case .word24:
+                return 2
+            }
+        }
+    }
+
     fileprivate static func leftPadStringWithZero(_ string: String, to count: Int) -> String {
         var result = string
         while result.count < count {
             result = "0" + result
         }
         return result
+    }
+
+    fileprivate static func leftPadDataWithZero(_ data: Data, to count: Int) -> Data {
+        let diff = count - data.count
+        if diff > 0 {
+            return Data(_hex: String(repeating: "00", count: diff)) + data
+        } else {
+            return data
+        }
     }
 
     //This is not the BIP-39 binary seed (which is after PBKDF2, using the string “mnemonic” + passphrase as the salt)
@@ -25,9 +69,28 @@ extension HDWallet {
         return String(inBase2, radix: 16)
     }
 
-    convenience init(seed: String, passphrase: String) {
-        //The seed has to be specified with a fixed number of characters (33)
-        self.init(data: Data(_hex: HDWallet.leftPadStringWithZero(seed, to: 33)), passphrase: passphrase)
+    convenience init?(seed: String, passphrase: String) {
+        let seedPhraseCount = SeedPhraseCount(seed: seed)
+        let data: Data = {
+            let seed: String = {
+                switch seedPhraseCount {
+                case .word12:
+                    return String(seed.dropLast(seedPhraseCount.checksumHexCount))
+                case .word24:
+                    return String(seed.dropLast(seedPhraseCount.checksumHexCount))
+                }
+            }()
+            if seed.count > seedPhraseCount.entropyWithoutChecksumHexCount {
+                if seed.count % 2 == 0 {
+                    return Data(_hex: seed.substring(to: seedPhraseCount.entropyWithoutChecksumHexCount))
+                } else {
+                    return Data(_hex: ("0" + seed).substring(to: seedPhraseCount.entropyWithoutChecksumHexCount))
+                }
+            } else {
+                return Data(_hex: HDWallet.leftPadStringWithZero(seed, to: seedPhraseCount.entropyWithoutChecksumHexCount))
+            }
+        }()
+        self.init(entropy: data, passphrase: passphrase)
     }
 }
 
