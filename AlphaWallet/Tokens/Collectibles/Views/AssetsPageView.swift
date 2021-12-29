@@ -21,7 +21,7 @@ class AssetsPageView: UIView, PageViewType {
     var rightBarButtonItem: UIBarButtonItem?
 
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView(frame: .zero, style: .plain)
         tableView.register(TokenCardContainerTableViewCell.self)
         tableView.isEditing = false
         tableView.estimatedRowHeight = 100
