@@ -19,7 +19,6 @@ protocol TokensCardCollectionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokensCardCollectionViewController: UIViewController {
-    private let roundedBackground = RoundedBackground()
     private (set) var viewModel: TokensCardCollectionViewControllerViewModel
     private let tokenObject: TokenObject
     private let session: WalletSession
@@ -64,16 +63,9 @@ class TokensCardCollectionViewController: UIViewController {
         assetsPageView.delegate = self
         containerView.delegate = self
 
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-        roundedBackground.addSubview(containerView)
+        view.addSubview(containerView)
 
-        NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            containerView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+        NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
         navigationItem.largeTitleDisplayMode = .never
 
