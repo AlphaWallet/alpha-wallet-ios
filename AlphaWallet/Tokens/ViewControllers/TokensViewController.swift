@@ -90,7 +90,7 @@ class TokensViewController: UIViewController {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
-    lazy private var tableViewFilterView = SegmentedControl.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
+    lazy private var tableViewFilterView = ScrollableSegmentedControlAdapter.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -100,7 +100,7 @@ class TokensViewController: UIViewController {
         tableView.register(OpenSeaNonFungibleTokenPairTableCell.self)
 
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<UISearchBar>.self)
-        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<SegmentedControl>.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<ScrollableSegmentedControlAdapter>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
@@ -439,7 +439,7 @@ extension TokensViewController: UITableViewDelegate {
 
             return header
         case .filters:
-            let header: TokensViewController.GeneralTableViewSectionHeader<SegmentedControl> = tableView.dequeueReusableHeaderFooterView()
+            let header: TokensViewController.GeneralTableViewSectionHeader<ScrollableSegmentedControlAdapter> = tableView.dequeueReusableHeaderFooterView()
             header.subview = tableViewFilterView
             header.useSeparatorLine = false
 
