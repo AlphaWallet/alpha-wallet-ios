@@ -72,7 +72,7 @@ class SendTransactionCoordinator {
 
     private func resolveNextNonce(for transaction: UnsignedTransaction) -> Promise<UnsignedTransaction> {
         firstly {
-            GetNextNonce(server: session.server, wallet: session.account.address).promise()
+            GetNextNonce(rpcURL: rpcURL, wallet: session.account.address).promise()
         }.map { nonce -> UnsignedTransaction in
             let transaction = self.appendNonce(to: transaction, currentNonce: nonce)
             return transaction
