@@ -332,6 +332,7 @@ class TransactionConfigurator {
         TransactionConfiguration(gasPrice: TransactionConfigurator.computeDefaultGasPrice(server: server, transaction: transaction), gasLimit: gasLimit, data: data)
     }
 
+// swiftlint:disable function_body_length
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) -> TransactionConfiguration {
         do {
             switch transaction.transactionType {
@@ -448,6 +449,7 @@ class TransactionConfigurator {
             return .init(transaction: transaction)
         }
     }
+// swiftlint:enable function_body_length
 
     func start() {
         estimateGasPrice()

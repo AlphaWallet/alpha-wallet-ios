@@ -8,8 +8,8 @@
 import UIKit
 
 struct TokenInstanceAttributeViewModel: Equatable {
-    
-    static func ==(lsh: TokenInstanceAttributeViewModel, rhs: TokenInstanceAttributeViewModel) -> Bool {
+
+    static func == (lsh: TokenInstanceAttributeViewModel, rhs: TokenInstanceAttributeViewModel) -> Bool {
         return lsh.title == rhs.title &&
             lsh.attributedValue == rhs.attributedValue &&
             lsh.separatorColor == rhs.separatorColor &&

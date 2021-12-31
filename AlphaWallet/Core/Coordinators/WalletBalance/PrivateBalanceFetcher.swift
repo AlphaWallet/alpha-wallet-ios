@@ -24,6 +24,7 @@ protocol PrivateBalanceFetcherType: AnyObject {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
+// swiftlint:disable type_body_length
 class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     typealias TokenIdMetaData = (contract: AlphaWallet.Address, tokenId: BigUInt, json: String)
 
@@ -276,9 +277,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func updateNonOpenSeaNonFungiblesBalance(contracts: [AlphaWallet.Address], tokens: [Activity.AssignedToken], enjinTokens: EnjinSemiFungibleTokens) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
         let erc721Contracts = filterAwayErc1155Tokens(contracts: contracts)
         let erc721Promises: [Promise<[TokenBatchOperation]>] = erc721Contracts
-            .map { updateNonOpenSeaErc721Balance(contract: $0, tokens: tokens)
-            .map { $0 == nil ? [] : [$0!] } }
-
+            .map { updateNonOpenSeaErc721Balance(contract: $0, tokens: tokens).map { $0 == nil ? [] : [$0!] } }
         let erc1155Promise: Promise<[TokenBatchOperation]> = updateNonOpenSeaErc1155Balance(tokens: tokens, enjinTokens: enjinTokens)
         return firstly {
             when(fulfilled: erc721Promises + [erc1155Promise])
@@ -406,7 +405,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
         return .value(jsonDictionary.rawString()!)
     }
-    
+
     private func fetchTokenJson(forTokenId tokenId: String, tokenType: TokenType, uri originalUri: URL, address: AlphaWallet.Address, tokens: [Activity.AssignedToken], enjinTokens: EnjinSemiFungibleTokens) -> Promise<String> {
         struct Error: Swift.Error {
         }
@@ -512,6 +511,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         transactionStorage.writeJsonForTransactions(toUrl: url)
     }
 }
+// swiftlint:enable type_body_length
 
 extension PrivateBalanceFetcher {
     class functional {}
@@ -576,7 +576,7 @@ fileprivate extension PrivateBalanceFetcher.functional {
                 } else {
                     //no op
                 }
-            } 
+            }
 
             let tokenType: TokenType
             if let anyNonFungible = anyNonFungible {
