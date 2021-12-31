@@ -41,4 +41,15 @@ class HDWalletTest: XCTestCase {
         let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)!
         XCTAssertEqual(seedPhrase, wallet.mnemonic)
     }
+
+    func testLeftPadStringWithZero() {
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("abc", to: 5), "00abc")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("abc", to: 3), "abc")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("abc", to: 2), "abc")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("abc", to: 0), "abc")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("abc", to: 6), "000abc")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("", to: 0), "")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("", to: 1), "0")
+        XCTAssertEqual(HDWallet.leftPadStringWithZero("", to: 2), "00")
+    }
 }
