@@ -158,6 +158,8 @@ enum Metrics {
             static let shadowColor = UIColor.black
         }
     }
+
+    static let tokenChainOverlayDimension = CGFloat(16)
 }
 
 enum GroupedTable {

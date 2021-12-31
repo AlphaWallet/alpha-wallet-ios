@@ -3,7 +3,7 @@
 import UIKit
 import PromiseKit
 
-typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool)
+typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
 typealias Image = UIImage
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
@@ -32,7 +32,7 @@ extension RPCServer {
         return RPCServerImageFetcher.instance.image(server: self)
     }
 
-    fileprivate var _walletConnectIconImage: UIImage? {
+    var staticOverlayIcon: UIImage? {
         switch self {
         case .main:
             return R.image.iconsNetworkEth()
@@ -88,7 +88,7 @@ class RPCServerImageFetcher {
             let sub = Subscribable<Image>(nil)
             Self.subscribables[server.chainID] = sub
 
-            if let value = server._walletConnectIconImage {
+            if let value = server.staticOverlayIcon {
                 sub.value = value
             } else {
                 sub.value = Self.programmaticallyGenerateIcon(for: server)
@@ -106,11 +106,11 @@ extension TokenObject {
         switch type {
         case .nativeCryptocurrency:
             if let img = server.iconImage {
-                return .init((image: .image(img), symbol: "", isFinal: true))
+                return .init((image: .image(img), symbol: "", isFinal: true, overlayServerIcon: nil))
             }
         case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
             if let img = contractAddress.tokenImage {
-                return .init((image: .image(img), symbol: "", isFinal: true))
+                return .init((image: .image(img), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon))
             }
         }
         return TokenImageFetcher.instance.image(forToken: self)
@@ -131,15 +131,21 @@ class TokenImageFetcher {
         guard let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, symbol.count].min() else { return nil }
         let symbol = symbol.substring(to: i)
         let rawImage: UIImage
+        let overlayServerIcon: UIImage?
 
         switch type {
         case .erc1155, .erc721, .erc721ForTickets:
             rawImage = R.image.tokenPlaceholderLarge()!
-        case .erc20, .erc875, .nativeCryptocurrency:
+            overlayServerIcon = server.staticOverlayIcon
+        case .erc20, .erc875:
             rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server)
+            overlayServerIcon = server.staticOverlayIcon
+        case .nativeCryptocurrency:
+            rawImage = programmaticallyGeneratedIconImage(for: contractAddress, server: server)
+            overlayServerIcon = nil
         }
 
-        return (image: .image(rawImage), symbol: symbol, isFinal: false)
+        return (image: .image(rawImage), symbol: symbol, isFinal: false, overlayServerIcon: overlayServerIcon)
     }
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
@@ -188,10 +194,10 @@ class TokenImageFetcher {
             }
 
             Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "", isFinal: true)
+                subscribable.value = (image: $0, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
             }).catch(on: queue) { _ in
                 Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
-                    subscribable.value = (image: .image($0), symbol: "", isFinal: false)
+                    subscribable.value = (image: .image($0), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
                 }).catch(on: .main, { _ in
                     subscribable.value = generatedImage
                 })
@@ -260,7 +266,9 @@ class GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {
-        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
+        //TODO switch back to loading from `master` after both iOS and Android is capable of overlaying the chain icon to token icons and we have updated `master` to remove the preprocessed overlay icons
+        //case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
+        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/with-chain-overlay-removed/"
         case thirdParty = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
     }
 

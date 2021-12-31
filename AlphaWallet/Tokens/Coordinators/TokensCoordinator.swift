@@ -227,7 +227,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func whereAreMyTokensSelected(in viewController: UIViewController) {
         delegate?.whereAreMyTokensSelected(in: self)
     }
-    
+
     private func getWalletName() {
         let viewModel = tokensViewController.viewModel
 
@@ -509,7 +509,7 @@ extension TokensCoordinator: EditPriceAlertCoordinatorDelegate {
 }
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
-    
+
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
