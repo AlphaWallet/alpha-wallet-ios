@@ -585,7 +585,6 @@
 		5E7C7D0A8197BF7725619D87 /* TransactionRowCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7365D14169D22AE1D20A /* TransactionRowCellViewModel.swift */; };
 		5E7C7D1EE18AC83D633A6749 /* EnterPasswordCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78454B11E39CF8B5E695 /* EnterPasswordCoordinator.swift */; };
 		5E7C7D28171AB1C7FF5379A7 /* OpenSeaNonFungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C703366F010BFEF6B06C6 /* OpenSeaNonFungibleTokenViewCell.swift */; };
-		5E7C7D4CC66FE44C01C0F393 /* Scrollable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F65E8C1E20EBA6A5F4 /* Scrollable.swift */; };
 		5E7C7D5843B705ACD26E9090 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */; };
 		5E7C7D5D3FBA199DB0449776 /* TokenListFormatRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D27B0DA47F340CEA70C /* TokenListFormatRowView.swift */; };
 		5E7C7D6AC52076681FE8C43E /* AssetDefinitionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7716E500124CA910FB2C /* AssetDefinitionStore.swift */; };
@@ -1433,7 +1432,6 @@
 		5E7C75E3F2155466F46BB139 /* Erc721TokenIdsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Erc721TokenIdsFetcher.swift; sourceTree = "<group>"; };
 		5E7C75E7D995ABE0E6B7AD55 /* DappButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappButton.swift; sourceTree = "<group>"; };
 		5E7C75F0DB84DB0F5449D6C1 /* WalletConnectSessionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionsViewController.swift; sourceTree = "<group>"; };
-		5E7C75F65E8C1E20EBA6A5F4 /* Scrollable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scrollable.swift; sourceTree = "<group>"; };
 		5E7C75F846C598287230CFAB /* WhatsNewViews.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatsNewViews.swift; sourceTree = "<group>"; };
 		5E7C76052512831B707659CA /* WhereIsWalletAddressFoundOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhereIsWalletAddressFoundOverlayView.swift; sourceTree = "<group>"; };
 		5E7C7607B0EF9B8F1BC41073 /* TermsOfServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceViewController.swift; sourceTree = "<group>"; };
@@ -2339,7 +2337,6 @@
 				5E7C7AC5A210D034DBC75FB0 /* TextView.swift */,
 				5E7C73D0DCE61EA2DE2DA21D /* AmountTextField.swift */,
 				873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */,
-				5E7C75F65E8C1E20EBA6A5F4 /* Scrollable.swift */,
 				5E7C7D931F68BFB5E1DCE001 /* TokenCardRowView.swift */,
 				5E7C7AD07E232C7A32564731 /* ViewModels */,
 				5E7C7CD1FB7D353704EF3389 /* DateEntryField.swift */,
@@ -5968,7 +5965,6 @@
 				5E7C7B8242E31B4DA0263BE5 /* EthTypedData.swift in Sources */,
 				5E7C76D09352C069C140B6CF /* PreferencesController.swift in Sources */,
 				5E7C7569C4D26E565F3E4F56 /* PreferenceOption.swift in Sources */,
-				5E7C7D4CC66FE44C01C0F393 /* Scrollable.swift in Sources */,
 				8712A38D26F476540009C376 /* EditPriceAlertViewModel.swift in Sources */,
 				5E7C744B0282FD7B3A29AA7B /* ScriptMessageProxy.swift in Sources */,
 				5E7C7DD4D2EAA036961F18F0 /* DAppRequster.swift in Sources */,
