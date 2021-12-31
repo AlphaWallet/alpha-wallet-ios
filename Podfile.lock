@@ -100,11 +100,11 @@ PODS:
     - CryptoSwift (~> 1.0)
     - secp256k1_ios (~> 0.1.0)
     - TrezorCrypto
-  - TrustWalletCore (2.3.3):
-    - TrustWalletCore/Core (= 2.3.3)
-  - TrustWalletCore/Core (2.3.3):
+  - TrustWalletCore (2.6.34):
+    - TrustWalletCore/Core (= 2.6.34)
+  - TrustWalletCore/Core (2.6.34):
     - TrustWalletCore/Types
-  - TrustWalletCore/Types (2.3.3):
+  - TrustWalletCore/Types (2.6.34):
     - SwiftProtobuf
   - UnstoppableDomainsResolution (0.1.6):
     - Base58Swift (~> 2.1)
@@ -156,7 +156,7 @@ DEPENDENCIES:
   - SwiftyJSON (= 5.0.0)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `c0bdc4f6ffc117b103e19d17b83109d4f5a0e764`)
-  - TrustWalletCore (= 2.3.3)
+  - TrustWalletCore (= 2.6.34)
   - UnstoppableDomainsResolution (= 0.1.6)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift.git`)
   - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `cce12b1c421f18b5768e5249a8343932737a51fe`)
@@ -312,11 +312,11 @@ SPEC CHECKSUMS:
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 3d8b4571c66648fb985015c96b3185440bb837fe
-  TrustWalletCore: 84a87886e55b4efa875b452926d3ba58a32359c8
+  TrustWalletCore: a92d85baa15932279cce925559e93695558cafdd
   UnstoppableDomainsResolution: dc89a8d9e51f3786b46274b457875a231d5bdbb8
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 72f2302e77abc5d59a96eff57825e918889327a1
+PODFILE CHECKSUM: bb392f12f7e9a8a473a0ffc8b19dda73b8c1104f
 
 COCOAPODS: 1.11.2
