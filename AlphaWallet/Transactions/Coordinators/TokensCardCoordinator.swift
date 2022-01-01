@@ -18,7 +18,6 @@ protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator)
 }
 
-// swiftlint:disable type_body_length
 class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
@@ -425,7 +424,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         delegate?.didPress(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), inViewController: viewController, in: self)
     }
 }
-// swiftlint:enable type_body_length
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
