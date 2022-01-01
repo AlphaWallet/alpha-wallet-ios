@@ -42,12 +42,13 @@ extension HDWallet {
         }
     }
 
-    fileprivate static func leftPadStringWithZero(_ string: String, to count: Int) -> String {
-        var result = string
-        while result.count < count {
-            result = "0" + result
+    static func leftPadStringWithZero(_ string: String, to count: Int) -> String {
+        let diff = count - string.count
+        if diff > 0 {
+            return String(repeating: "0", count: diff) + string
+        } else {
+            return string
         }
-        return result
     }
 
     fileprivate static func leftPadDataWithZero(_ data: Data, to count: Int) -> Data {
