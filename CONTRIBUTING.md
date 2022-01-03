@@ -34,6 +34,10 @@ Don't include unnecessary `self.` references. It suggests that `self` is strongl
 
 Avoid using `switch-default`
 
+Others
+---
+Hide changes behind a flag in `Features.swift` if the change isn't ready yet but should be merged first. For example, maybe it needs more testing, but would be benefit to merge earlier to avoid merge conflicts.
+
 How to Add a New Chain
 ---
 1. Open RPCServers.swift
