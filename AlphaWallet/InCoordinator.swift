@@ -709,6 +709,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func restartUI(withReason reason: RestartReason, account: Wallet) {
         OpenSea.resetInstances()
+        EnjinProvider.resetInstances()
         disconnectWalletConnectSessionsSelectively(for: reason)
         delegate?.didRestart(in: self, wallet: account)
     }

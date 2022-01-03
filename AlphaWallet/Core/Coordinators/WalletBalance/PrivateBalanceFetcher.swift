@@ -307,9 +307,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 return nil
             }
             return .update(tokenObject: tokenObject, action: .nonFungibleBalance(jsons))
-        }).recover { _ -> Guarantee<TokenBatchOperation?> in
+        }).recover({ _ -> Guarantee<TokenBatchOperation?> in
             return .value(nil)
-        }
+        })
     }
 
     private func updateNonOpenSeaErc1155Balance(tokens: [Activity.AssignedToken], enjinTokens: EnjinSemiFungibleTokens) -> Promise<[TokenBatchOperation]> {

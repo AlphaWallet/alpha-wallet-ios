@@ -38,7 +38,7 @@ class EnjinProvider {
 
     private static var instances = [AddressAndRPCServer: WeakRef<EnjinProvider>]()
     //NOTE: using AddressAndRPCServer fixes issue with incorrect tokens returned from makeFetchPromise
-    // the problem was that cached OpenSea returned tokens from multiple wallets
+    // the problem was that cached Enjin returned tokens from multiple wallets
     private let key: AddressAndRPCServer
     private var recentWalletsWithManyTokens = [AlphaWallet.Address: (Date, PromiseResult)]()
     private var fetch = EnjinProvider.makeEmptyFulfilledPromise()
@@ -84,9 +84,9 @@ class EnjinProvider {
         fetch = EnjinProvider.makeEmptyFulfilledPromise()
     }
 
-    ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
+    ///Uses a promise to make sure we don't fetch from Enjin multiple times concurrently
     func makeFetchPromise() -> PromiseResult {
-        guard OpenSea.isServerSupported(key.server) else {
+        guard EnjinProvider.isServerSupported(key.server) else {
             fetch = .value([:])
             return fetch
         }

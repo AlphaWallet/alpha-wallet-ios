@@ -56,9 +56,9 @@ class OpenSea {
 
     static func isServerSupported(_ server: RPCServer) -> Bool {
         switch server {
-        case .main, .rinkeby:
+        case .main, .rinkeby, .polygon:
             return true
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
             return false
         }
     }
@@ -105,17 +105,17 @@ class OpenSea {
 
     private static func getBaseURLForOpensea(for server: RPCServer) -> String {
         switch server {
-        case .main:
+        case .main, .polygon:
             return Constants.openseaAPI
         case .rinkeby:
             return Constants.openseaRinkebyAPI
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
             return Constants.openseaAPI
         }
     }
 
-    static func fetchAsset(for value: Eip155URL) -> Promise<URL> {
-        let baseURL = getBaseURLForOpensea(for: .main)
+    static func fetchAsset(for value: Eip155URL, server: RPCServer = .main) -> Promise<URL> {
+        let baseURL = getBaseURLForOpensea(for: server)
         guard let url = URL(string: "\(baseURL)api/v1/asset/\(value.path)") else {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
