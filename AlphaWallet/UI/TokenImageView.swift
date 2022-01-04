@@ -37,6 +37,10 @@ class TokenImageView: UIView {
         let imageView = WebImageView()
         return imageView
     }()
+    private lazy var chainOverlayImageView: UIImageView = {
+        let imageView = UIImageView()
+        return imageView
+    }()
 
     private var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
@@ -51,6 +55,7 @@ class TokenImageView: UIView {
             if let subscribable = subscribable {
                 if subscribable.value == nil {
                     imageView.setImage(url: nil, placeholder: tokenImagePlaceholder)
+                    chainOverlayImageView.image = nil
                 }
 
                 subscriptionKey = subscribable.subscribe { [weak self] imageAndSymbol in
@@ -63,6 +68,7 @@ class TokenImageView: UIView {
                     case .none:
                         strongSelf.imageView.setImage(url: nil, placeholder: strongSelf.tokenImagePlaceholder)
                     }
+                    strongSelf.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
                     strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                 }
             } else {
@@ -79,6 +85,9 @@ class TokenImageView: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imageView)
 
+        chainOverlayImageView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(chainOverlayImageView)
+
         symbolLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(symbolLabel)
 
@@ -86,6 +95,10 @@ class TokenImageView: UIView {
             symbolLabel.anchorsConstraint(to: imageView),
 
             imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            chainOverlayImageView.leftAnchor.constraint(equalTo: imageView.leftAnchor, constant: 0),
+            chainOverlayImageView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0),
+            chainOverlayImageView.widthAnchor.constraint(equalToConstant: Metrics.tokenChainOverlayDimension),
+            chainOverlayImageView.heightAnchor.constraint(equalTo: chainOverlayImageView.widthAnchor),
         ])
     }
 
