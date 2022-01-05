@@ -148,8 +148,8 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
         let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.message, style: .alert, in: navigationController)
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        navigationController.present(alertController, animated: true, completion: nil)
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+        navigationController.present(alertController, animated: true)
     }
 
     func notifyRpcURlHostnameFailure() {
