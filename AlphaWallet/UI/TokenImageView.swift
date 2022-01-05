@@ -24,6 +24,7 @@ class ImageView: UIImageView {
 }
 
 class TokenImageView: UIView {
+    private let shouldShowChainOverlay: Bool
     private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {
         let label = UILabel()
@@ -68,7 +69,9 @@ class TokenImageView: UIView {
                     case .none:
                         strongSelf.imageView.setImage(url: nil, placeholder: strongSelf.tokenImagePlaceholder)
                     }
-                    strongSelf.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
+                    if strongSelf.shouldShowChainOverlay {
+                        strongSelf.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
+                    }
                     strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                 }
             } else {
@@ -79,7 +82,9 @@ class TokenImageView: UIView {
         }
     }
 
-    init(edgeInsets: UIEdgeInsets = .zero) {
+    init(shouldShowChainOverlay: Bool, edgeInsets: UIEdgeInsets = .zero) {
+        self.shouldShowChainOverlay = shouldShowChainOverlay
+
         super.init(frame: .zero)
 
         imageView.translatesAutoresizingMaskIntoConstraints = false

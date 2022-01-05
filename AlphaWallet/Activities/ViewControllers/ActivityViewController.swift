@@ -17,7 +17,7 @@ class ActivityViewController: UIViewController {
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
-    private let tokenImageView = TokenImageView()
+    private let tokenImageView = TokenImageView(shouldShowChainOverlay: false)
     private let stateView = ActivityStateView()
     private let titleLabel = UILabel()
     private let subTitleLabel = UILabel()

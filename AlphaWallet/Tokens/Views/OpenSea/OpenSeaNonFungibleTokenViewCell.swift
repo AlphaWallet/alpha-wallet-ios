@@ -5,7 +5,7 @@ import UIKit
 
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
-    private let imageView = TokenImageView()
+    private let imageView = TokenImageView(shouldShowChainOverlay: false)
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label = UILabel()
@@ -160,7 +160,7 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
     required init?(coder: NSCoder) {
         return nil
     }
-    
+
     @objc private func cellSelected(_ sender: UITapGestureRecognizer) {
         guard let indexPath = self.indexPath else { return }
 

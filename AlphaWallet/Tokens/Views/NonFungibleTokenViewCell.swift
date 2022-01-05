@@ -12,7 +12,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         [titleLabel, tickersAmountLabel]
     }
     private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView()
+        let imageView = TokenImageView(shouldShowChainOverlay: true)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()

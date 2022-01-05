@@ -19,7 +19,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     }
 
     private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView()
+        let imageView = TokenImageView(shouldShowChainOverlay: false)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         return imageView

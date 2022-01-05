@@ -4,7 +4,7 @@ import UIKit
 
 class DefaultActivityItemViewCell: UITableViewCell {
     private let background = UIView()
-    private let tokenImageView = TokenImageView()
+    private let tokenImageView = TokenImageView(shouldShowChainOverlay: true)
     private let stateView: ActivityStateView = {
         let view = ActivityStateView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -69,7 +69,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 20),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -20),
             background.anchorsConstraint(to: contentView),
-            
+
             ] + stateView.anchorConstraints(to: tokenImageView))
     }
 
@@ -105,5 +105,5 @@ class DefaultActivityItemViewCell: UITableViewCell {
         tokenImageView.subscribable = viewModel.iconImage
 
         stateView.configure(viewModel: viewModel.activityStateViewViewModel)
-    } 
+    }
 }

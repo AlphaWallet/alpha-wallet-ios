@@ -30,7 +30,7 @@ class SelectCurrencyButton: UIControl {
     }()
 
     private let currencyIconImageView: TokenImageView = {
-        let imageView = TokenImageView()
+        let imageView = TokenImageView(shouldShowChainOverlay: false)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.setContentHuggingPriority(.required, for: .horizontal)
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)

@@ -18,7 +18,7 @@ class FungibleTokenViewCell: UITableViewCell {
     private lazy var changeValueContainer: UIView = [priceChangeLabel, apprecation24hoursView].asStackView(spacing: 5)
 
     private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView()
+        let imageView = TokenImageView(shouldShowChainOverlay: true)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
