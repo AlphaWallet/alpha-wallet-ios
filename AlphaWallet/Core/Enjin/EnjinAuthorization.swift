@@ -225,7 +225,7 @@ class UserManagementInterceptor: ApolloInterceptor {
             }
         }
 
-        let overridenCompletion: ((Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) = { result in
+        let overridenCompletion: (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void = { result in
             switch result {
             case .failure(let error):
                 if let error = error as? ResponseCodeInterceptor.ResponseCodeError {

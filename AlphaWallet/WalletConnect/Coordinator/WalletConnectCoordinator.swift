@@ -142,7 +142,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping (() -> Void) = {}) {
+    private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping () -> Void = {}) {
         if let viewController = sessionsViewController {
             viewController.configure(state: state)
             completion()

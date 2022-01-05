@@ -49,7 +49,7 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func handleExport(result: (Result<String, KeystoreError>), completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func handleExport(result: Result<String, KeystoreError>, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
             let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.eip55String).json"))
