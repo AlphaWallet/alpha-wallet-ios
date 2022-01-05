@@ -35,7 +35,7 @@ class WalletConnectSessionCell: UITableViewCell {
     }()
 
     private let serverIconImageView: RoundedImageView = {
-        let imageView = RoundedImageView(size: .init(width: 16, height: 16))
+        let imageView = RoundedImageView(size: .init(width: Metrics.tokenChainOverlayDimension, height: Metrics.tokenChainOverlayDimension))
         return imageView
     }()
 
