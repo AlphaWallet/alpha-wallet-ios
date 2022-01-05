@@ -56,7 +56,8 @@ class BackupCoordinator: Coordinator {
             do {
                 try value.data(using: .utf8)!.write(to: url)
             } catch {
-                return completion(.failure(AnyError(error)))
+                completion(.failure(AnyError(error)))
+                return
             }
 
             let activityViewController = UIActivityViewController(

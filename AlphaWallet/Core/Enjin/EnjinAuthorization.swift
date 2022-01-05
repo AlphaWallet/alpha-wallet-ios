@@ -246,7 +246,8 @@ class UserManagementInterceptor: ApolloInterceptor {
         }
 
         guard let token = UserManager.shared.accessToken else {
-            return authorizeEnjinUser()
+            authorizeEnjinUser()
+            return
         }
 
         addTokenAndProceed(token, to: request, chain: chain, response: response, completion: overridenCompletion)

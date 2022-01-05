@@ -43,7 +43,8 @@ class ENSReverseLookupCoordinator {
     ) {
         let node = "\(input.eip55String.drop0x).addr.reverse".lowercased().nameHash
         if let cachedResult = cachedResult(forNode: node) {
-            return completion(.success(cachedResult))
+            completion(.success(cachedResult))
+            return
         }
 
         let function = GetENSResolverEncode()
