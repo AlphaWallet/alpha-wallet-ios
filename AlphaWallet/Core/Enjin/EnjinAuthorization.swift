@@ -225,7 +225,7 @@ class UserManagementInterceptor: ApolloInterceptor {
             }
         }
 
-        let overridenCompletion: ((Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void) = { result in
+        let overridenCompletion: (Swift.Result<GraphQLResult<Operation.Data>, Error>) -> Void = { result in
             switch result {
             case .failure(let error):
                 if let error = error as? ResponseCodeInterceptor.ResponseCodeError {
@@ -246,7 +246,8 @@ class UserManagementInterceptor: ApolloInterceptor {
         }
 
         guard let token = UserManager.shared.accessToken else {
-            return authorizeEnjinUser()
+            authorizeEnjinUser()
+            return
         }
 
         addTokenAndProceed(token, to: request, chain: chain, response: response, completion: overridenCompletion)

@@ -213,7 +213,6 @@
 "tickets.titlecase" = "门票";
 "kat.lowercase" = "加密猫";
 "kat.titlecase" = "加密猫";
-"kat.titlecase" = "加密猫";
 "tokens.newtoken.navigation.title" = "添加订制代币";
 "transaction.cell.error.title" = "错误";
 "transaction.cell.received.title" = "收到了";
@@ -627,7 +626,7 @@
 "walletConnect.session.connectedURL" = "Connected to";
 "walletConnect.session.disconnect" = "Disconnect";
 "walletConnect.session.switchNetwork" = "Switch Network";
-"walletConnect.session.signedTransactions" = "Signed Transactions"; 
+"walletConnect.session.signedTransactions" = "Signed Transactions";
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
 "walletConnect.failure.title" = "WalletConnect Error";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
@@ -718,7 +717,6 @@
 "url.telegramCustomer" = "Telegram (Customer Support)";
 "url.twitter" = "Twitter";
 "url.reddit" = "Reddit";
-"url.twitter" = "Twitter";
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
 "url.github" = "Github (File an issue)";

@@ -221,20 +221,24 @@ extension BrowserViewController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url, let scheme = url.scheme else {
-            return decisionHandler(.allow)
+            decisionHandler(.allow)
+            return
         }
         let app = UIApplication.shared
         if ["tel", "mailto"].contains(scheme), app.canOpenURL(url) {
             app.open(url)
-            return decisionHandler(.cancel)
+            decisionHandler(.cancel)
+            return
         }
         if MagicLinkURL(url: url) != nil {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
-            return decisionHandler(.cancel)
+            decisionHandler(.cancel)
+            return
         }
         if url.scheme == ShareContentAction.scheme {
             delegate?.handleCustomUrlScheme(url, inBrowserViewController: self)
-            return decisionHandler(.cancel)
+            decisionHandler(.cancel)
+            return
         }
 
         decisionHandler(.allow)

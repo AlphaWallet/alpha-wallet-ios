@@ -66,12 +66,14 @@ class StaticHTMLViewController: UIViewController {
 extension StaticHTMLViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url, url.scheme != nil else {
-            return decisionHandler(.allow)
+            decisionHandler(.allow)
+            return
         }
 
         if url.absoluteString.hasPrefix("http") {
             delegate?.didPressOpenWebPage(url, in: self)
-            return decisionHandler(.cancel)
+            decisionHandler(.cancel)
+            return
         }
 
         decisionHandler(.allow)

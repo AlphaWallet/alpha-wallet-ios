@@ -11,7 +11,7 @@ class TokenCardContainerTableViewCell: ContainerTableViewCell {
     weak var delegate: BaseTokenCardTableViewCellDelegate?
 
     var subview: (TokenCardRowViewProtocol & UIView)? {
-        viewContainerView.subviews.compactMap { $0 as? (TokenCardRowViewProtocol & UIView) }.first
+        viewContainerView.subviews.compactMap { $0 as? TokenCardRowViewProtocol & UIView }.first
     }
 
     func configure(viewModel: BaseTokenCardTableViewCellViewModel, tokenId: TokenId, assetDefinitionStore: AssetDefinitionStore) {

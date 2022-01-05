@@ -17,7 +17,7 @@ extension UIGestureRecognizer {
 private class GestureTarget: UIView {
     class ClosureContainer {
         weak var gesture: UIGestureRecognizer?
-        let closure: (() -> Void)
+        let closure: () -> Void
 
         init(closure: @escaping () -> Void) {
             self.closure = closure
