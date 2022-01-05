@@ -5,7 +5,8 @@ import BigInt
 import WalletCore
 
 extension HDWallet {
-    static let mnemonicWordCount = 12
+
+    static let validSeedPhraseCounts = [HDWallet.SeedPhraseCount.word12.count, HDWallet.SeedPhraseCount.word24.count]
 
     enum SeedPhraseCount {
         case word12
@@ -38,6 +39,15 @@ extension HDWallet {
                 return 1
             case .word24:
                 return 2
+            }
+        }
+
+        var count: Int {
+            switch self {
+            case .word12:
+                return 12
+            case .word24:
+                return 24
             }
         }
     }

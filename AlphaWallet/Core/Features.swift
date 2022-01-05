@@ -26,4 +26,5 @@ enum Features {
     static let isAttachingLogFilesToSupportEmailEnabled = false
     static let isPalmEnabled = true
     static let isExportJsonKeystoreEnabled = true
+    static let is24SeedWordPhraseAllowed = false
 }

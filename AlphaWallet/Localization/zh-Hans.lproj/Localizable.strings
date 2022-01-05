@@ -149,7 +149,7 @@
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "您的助记词";
-"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down 12 words and\n keep them in a secret place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Making backup is very simple and safe:\n just write down these 12/24 words and\n keep them in a secret place, offline.";
 "wallets.showSeedPhrase.testSeedPhrase" = "好的，我记下来了";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "切勿将助记词保存为屏幕截图";
 "wallets.verifySeedPhrase.title" = "验证助记词";
@@ -187,7 +187,8 @@
 "importWallet.import.button.title" = "导入";
 "importWallet.import.invalidAddress" = "无效以太坊地址";
 "importWallet.import.invalidPrivateKey" = "私钥至少需要 64 个字符";
-"importWallet.import.invalidMnemonicCount" = "助记词至少需要 12 个单词";
+"importWallet.import.invalidMnemonicCount.12" = "助记词至少需要 12 个单词";
+"importWallet.import.invalidMnemonicCount.24" = "Seed phrase has to be 12 or 24 words";
 "importWallet.import.invalidMnemonic" = "助记词无效";
 "importWallet.import.fromCloud.title" = "从 iCloud/Dropbox/Google Drive 导入";
 "importWallet.import.seedPhrase.description" = "如果您的助记词不是英语，请先将其转换为英语";
