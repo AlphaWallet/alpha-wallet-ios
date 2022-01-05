@@ -5,7 +5,7 @@ import UIKit
 
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
-    private let imageView = TokenImageView()
+    private let imageView = TokenImageView(scale: .bestFill)
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label = UILabel()
@@ -30,7 +30,9 @@ class OpenSeaNonFungibleTokenView: UIView {
         ].asStackView(axis: .vertical, spacing: 0, alignment: .fill)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
-
+        imageView.isRoundingEnabled = false
+        imageView.isChainOverlayHidden = true
+        
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageHolder.addSubview(imageView)
 

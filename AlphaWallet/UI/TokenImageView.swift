@@ -34,7 +34,7 @@ class TokenImageView: UIView {
         return label
     }()
     private lazy var imageView: WebImageView = {
-        let imageView = WebImageView()
+        let imageView = WebImageView(scale: scale, align: align)
         return imageView
     }()
     private lazy var chainOverlayImageView: UIImageView = {
@@ -44,6 +44,18 @@ class TokenImageView: UIView {
 
     private var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
+    }
+
+    var isChainOverlayHidden: Bool = false {
+        didSet {
+            chainOverlayImageView.isHidden = isChainOverlayHidden
+        }
+    }
+    
+    var isRoundingEnabled: Bool = true {
+        didSet {
+            self.layoutIfNeeded()
+        }
     }
 
     var subscribable: Subscribable<TokenImage>? {
@@ -78,8 +90,12 @@ class TokenImageView: UIView {
             }
         }
     }
+    private let scale: WebImageView.Scale
+    private let align: WebImageView.Align
 
-    init(edgeInsets: UIEdgeInsets = .zero) {
+    init(edgeInsets: UIEdgeInsets = .zero, scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
+        self.scale = scale
+        self.align = align
         super.init(frame: .zero)
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -100,6 +116,8 @@ class TokenImageView: UIView {
             chainOverlayImageView.widthAnchor.constraint(equalToConstant: Metrics.tokenChainOverlayDimension),
             chainOverlayImageView.heightAnchor.constraint(equalTo: chainOverlayImageView.widthAnchor),
         ])
+
+        chainOverlayImageView.isHidden = isChainOverlayHidden
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -108,6 +126,10 @@ class TokenImageView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+
+        guard isRoundingEnabled else {
+            return imageView.cornerRadius = 0
+        }
         imageView.cornerRadius = bounds.width / 2
     }
 }

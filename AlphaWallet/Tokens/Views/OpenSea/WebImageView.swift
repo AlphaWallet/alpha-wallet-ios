@@ -37,7 +37,7 @@ class WebImageView: UIView {
     }
 
     private lazy var webView: _WebImageView = {
-        let webView = _WebImageView()
+        let webView = _WebImageView(scale: scale, align: align)
         return webView
     }()
 
@@ -79,10 +79,13 @@ class WebImageView: UIView {
     }
 
     private var placeholder: UIImage?
+    private let scale: WebImageView.Scale
+    private let align: WebImageView.Align
 
-    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge(), scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
         self.placeholder = placeholder
-
+        self.scale = scale
+        self.align = align
         super.init(frame: .zero)
 
         addSubview(webView)
@@ -129,6 +132,28 @@ class WebImageView: UIView {
     }
 }
 
+extension WebImageView {
+    enum Align: String {
+        case left = "left"
+        case right = "right"
+        case center = "center"
+        case top = "top"
+        case bottom = "bottom"
+        case topLeft = "top-left"
+        case topRight = "top-right"
+        case bottomLeft = "bottom-left"
+        case bottomRight = "bottom-right"
+    }
+
+    enum Scale: String {
+        case fill = "fill"
+        case bestFill = "best-fill"
+        case bestFit = "best-fit"
+        case bestFitDown = "best-fit-down"
+        case none = "none"
+    }
+}
+
 private class _WebImageView: UIView {
     private static let folder = "WebImage"
 
@@ -154,7 +179,7 @@ private class _WebImageView: UIView {
     private var pageDidLoad: Bool = false
     private var pendingToLoadURL: String?
 
-    init() {
+    init(scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
         super.init(frame: .zero)
 
         webView.configuration.userContentController.add(self, name: "WebImage")
@@ -167,7 +192,7 @@ private class _WebImageView: UIView {
 
         func loadHtmlForImage() {
             let resourceURL = Bundle.main.resourceURL?.appendingPathComponent(_WebImageView.folder)
-            let html = generateBaseHtmlPage()
+            let html = generateBaseHtmlPage(scale: scale, align: align)
             webView.loadHTMLString(html, baseURL: resourceURL)
         }
 
@@ -206,21 +231,9 @@ private class _WebImageView: UIView {
         loadImageFor(url: url)
     }
 
-    private func loadImageFor(url: String, completion: @escaping () -> Void = {}) {
+    private func loadImageFor(url: String) {
         let js = """
-            replaceImageView("\(url)");
-         """
-
-        execute(script: js)
-    }
-
-    private func invalidateContainerOnload() {
-        guard frame.size.width != 0 else { return }
-
-        let js = """
-           setTimeout(function() {
-                document.getElementById("container").style.width = '\((frame.size.width + 0.1).rounded(.down))px';
-           }, 100);
+            setImage("\(url)");
          """
 
         execute(script: js)
@@ -250,10 +263,12 @@ private class _WebImageView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func generateBaseHtmlPage() -> String {
+    private func generateBaseHtmlPage(scale: WebImageView.Scale, align: WebImageView.Align) -> String {
         guard let filePath = Bundle.main.path(forResource: "web_image", ofType: "html", inDirectory: _WebImageView.folder) else { return "" }
-        guard let html = try? String(contentsOfFile: filePath, encoding: .utf8) else { return "" }
-
+        guard var html = try? String(contentsOfFile: filePath, encoding: .utf8) else { return "" }
+        html = html.replacingOccurrences(of: "<scale>", with: scale.rawValue)
+        html = html.replacingOccurrences(of: "<align>", with: align.rawValue)
+        
         return html
     }
 
