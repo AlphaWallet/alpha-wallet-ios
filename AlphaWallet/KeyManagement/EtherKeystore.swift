@@ -14,11 +14,11 @@ enum EtherKeystoreError: LocalizedError {
 
 // swiftlint:disable type_body_length
 ///We use ECDSA keys (created and stored in the Secure Enclave), achieving symmetric encryption based on Diffie-Hellman to encrypt the HD wallet seed (actually entropy) and raw private keys and store the ciphertext in the keychain.
-//
-//There are 2 sets of (ECDSA key and ciphertext) for each Ethereum raw private key or HD wallet seed (actually entropy). 1 set is stored requiring user presence for access and the other doesn't. The second set is needed to ensure the user has does not lose access to the Ethereum raw private key (or HD wallet seed) when they delete their iOS passcode. Once the user has verified that they have backed up their wallet, they can choose to elevate the security of their wallet which deletes the set of (ECDSA key and ciphertext) that do not require user-presence.
-//
-//Technically, having 2 sets of (ECDSA key and ciphertext) for each Ethereum raw private key or HD wallet seed (actually entropy) may not be required for iOS. But it is done:
-//(A) to be confident that we don't cause the user to lose access to their wallets and
+///
+///There are 2 sets of (ECDSA key and ciphertext) for each Ethereum raw private key or HD wallet seed (actually entropy). 1 set is stored requiring user presence for access and the other doesn't. The second set is needed to ensure the user has does not lose access to the Ethereum raw private key (or HD wallet seed) when they delete their iOS passcode. Once the user has verified that they have backed up their wallet, they can choose to elevate the security of their wallet which deletes the set of (ECDSA key and ciphertext) that do not require user-presence.
+///
+///Technically, having 2 sets of (ECDSA key and ciphertext) for each Ethereum raw private key or HD wallet seed (actually entropy) may not be required for iOS. But it is done:
+///(A) to be confident that we don't cause the user to lose access to their wallets and
 ///(B) to be consistent with Android's UI and implementation which seems like users will lose access to the data (i.e wallet) which requires user presence if the equivalent of their iOS passcode/biometrics is disabled/deleted
 open class EtherKeystore: NSObject, Keystore {
     private struct Keys {
