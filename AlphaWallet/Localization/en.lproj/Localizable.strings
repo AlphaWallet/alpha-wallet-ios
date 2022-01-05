@@ -212,7 +212,6 @@
 "tickets.lowercase" = "tickets";
 "tickets.titlecase" = "Tickets";
 "kat.lowercase" = "cryptokitties";
-"kat.titlecase" = "Cryptokitties";
 "kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "Add Custom Token";
 "transaction.cell.error.title" = "Error";
@@ -562,7 +561,7 @@
 "qrCode.addCustomToken.title" = "Add Custom Token";
 "qrCode.openInBrowser.title" = "Open in Browser";
 "qrCode.openInEtherscan.title" = "Open in Etherscan";
-"assets.selectAsset.title" = "Select Asset"; 
+"assets.selectAsset.title" = "Select Asset";
 "activity.from" = "from %@";
 "activity.to" = "to %@";
 "activity.approvalObtained" = "Gave approval to move %@";
@@ -630,7 +629,7 @@
 "walletConnect.session.signedTransactions" = "Signed Transactions";
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
 "walletConnect.failure.title" = "WalletConnect Error";
-"walletConnect.sendRawTransaction.title" = "Send raw transaction"; 
+"walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
 "walletConnect.connection.title" = "Connect To Site?";
@@ -644,7 +643,7 @@
 "signature.confirmation.title" = "Signature Request";
 "server.warning.serverIsDisabled" = "%@ is disabled. Please enable it in Settings > Select Active Networks";
 "settings.wallet.rename" = "Name this Wallet";
-"wallet.rename.save" = "Save Name"; 
+"wallet.rename.save" = "Save Name";
 "wallet.rename.enterNameTitle" = "Enter Name (min. 5 characters)";
 "wallets.hideToken.error.AddTokenFailure" = "Add token failure";
 "addCustomChain.unnamed" = "Unnamed";
@@ -718,7 +717,6 @@
 "url.telegramCustomer" = "Telegram (Customer Support)";
 "url.twitter" = "Twitter";
 "url.reddit" = "Reddit";
-"url.twitter" = "Twitter";
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
 "url.github" = "Github (File an issue)";

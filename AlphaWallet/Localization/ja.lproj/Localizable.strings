@@ -212,7 +212,6 @@
 "tickets.lowercase" = "チケット";
 "tickets.titlecase" = "チケット";
 "kat.lowercase" = "cryptokitties";
-"kat.titlecase" = "Cryptokitties";
 "kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "カスタム トークンを追加";
 "transaction.cell.error.title" = "エラー";
@@ -718,7 +717,6 @@
 "url.telegramCustomer" = "Telegram (Customer Support)";
 "url.twitter" = "Twitter";
 "url.reddit" = "Reddit";
-"url.twitter" = "Twitter";
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
 "url.github" = "Github (File an issue)";
