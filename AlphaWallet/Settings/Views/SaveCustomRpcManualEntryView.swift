@@ -13,7 +13,8 @@ import UIKit
     func addHttpsText()
 }
 
-class SaveCustomRpcView: UIView {
+class SaveCustomRpcManualEntryView: UIView {
+
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var scrollViewBottomConstraint: NSLayoutConstraint!
     private let roundedBackground = RoundedBackground()
@@ -70,9 +71,9 @@ class SaveCustomRpcView: UIView {
         return view
     }()
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, isEmbedded: Bool) {
         super.init(frame: frame)
-        configure()
+        configure(isEmbedded: isEmbedded)
     }
 
     required init?(coder: NSCoder) {
@@ -93,9 +94,12 @@ class SaveCustomRpcView: UIView {
         button.addTarget(target, action: action, for: .touchUpInside)
     }
 
-    private func configure() {
+    private func configure(isEmbedded: Bool) {
+        translatesAutoresizingMaskIntoConstraints = !isEmbedded
         scrollViewBottomConstraint = scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        scrollViewBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
+        if !isEmbedded {
+            scrollViewBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
+        }
 
         let stackView = (
             TextField.layoutSubviews(for: chainNameTextField) +
@@ -192,9 +196,11 @@ class SaveCustomRpcView: UIView {
     private func currentTextField() -> TextField? {
         return allTextFields.first { $0.textField.isFirstResponder }
     }
+
 }
 
-extension SaveCustomRpcView: KeyboardNavigationDelegateProtocol {
+extension SaveCustomRpcManualEntryView: KeyboardNavigationDelegateProtocol {
+
     func gotoNextResponder() {
         nextTextField()?.becomeFirstResponder()
     }
@@ -207,6 +213,7 @@ extension SaveCustomRpcView: KeyboardNavigationDelegateProtocol {
         guard let currentTextField = currentTextField(), let inputString = currentTextField.textField.text, !inputString.lowercased().starts(with: "https://") else { return }
         currentTextField.textField.text = "https://" + inputString
     }
+
 }
 
 fileprivate func defaultTextField(_ type: UIKeyboardType, placeHolder: String, label: String) -> TextField {

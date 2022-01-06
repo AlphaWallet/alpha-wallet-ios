@@ -15,8 +15,13 @@ enum SaveCustomRpcError: Error {
     case chainNameInvalidField, rpcEndPointInvalidField, chainIDInvalidField, symbolInvalidField, explorerEndpointInvalidField, chainIDDuplicateField
 }
 
-struct SaveCustomRpcViewModel {
-    private let model: CustomRPC
+struct SaveCustomRpcManualEntryViewModel {
+
+    private let operation: SaveOperationType
+
+    private var model: CustomRPC {
+        operation.customRpc
+    }
 
     var chainID: String {
         if model.chainID == 0 {
@@ -63,12 +68,27 @@ struct SaveCustomRpcViewModel {
         return model.isTestnet
     }
 
-    init(model: CustomRPC) {
-        self.model = model
+    var isAddOperation: Bool {
+        switch operation {
+        case .add:
+            return true
+        case .edit:
+            return false
+        }
     }
+
+    var isEditOperation: Bool {
+        !isAddOperation
+    }
+
+    init(operation: SaveOperationType) {
+        self.operation = operation
+    }
+
 }
 
-extension SaveCustomRpcViewModel {
+extension SaveCustomRpcManualEntryViewModel {
+
     func validate(chainName: String, rpcEndpoint: String, chainID: String, symbol: String, explorerEndpoint: String, isTestNet: Bool) -> Result<CustomRPC, SaveCustomRpcErrors> {
         var errors: [SaveCustomRpcError] = []
 
@@ -126,4 +146,5 @@ extension SaveCustomRpcViewModel {
             }
         }
     }
+
 }

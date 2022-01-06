@@ -1,5 +1,5 @@
 //
-//  SaveCustomRpcViewController.swift
+//  SaveCustomRpcManualEntryViewController.swift
 //  AlphaWallet
 //
 //  Created by Jerome Chan on 7/11/21.
@@ -7,19 +7,25 @@
 
 import UIKit
 
-protocol SaveCustomRpcViewControllerDelegate: AnyObject {
-    func didFinish(in viewController: SaveCustomRpcViewController, customRpc: CustomRPC)
+protocol SaveCustomRpcEntryViewControllerDataDelegate: AnyObject {
+    func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC)
 }
 
-class SaveCustomRpcViewController: UIViewController {
-    private let viewModel: SaveCustomRpcViewModel
-    private var editView: SaveCustomRpcView {
-        return view as! SaveCustomRpcView
-    }
-    private lazy var keyboardChecker: KeyboardChecker = KeyboardChecker(self)
-    weak var delegate: SaveCustomRpcViewControllerDelegate?
+protocol SaveCustomRpcHandleUrlFailure: AnyObject {
+    func handleRpcUrlFailure()
+}
 
-    init(viewModel: SaveCustomRpcViewModel) {
+class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHandleUrlFailure {
+
+    private lazy var keyboardChecker: KeyboardChecker = KeyboardChecker(self)
+    private let viewModel: SaveCustomRpcManualEntryViewModel
+
+    weak var dataDelegate: SaveCustomRpcEntryViewControllerDataDelegate?
+    var editView: SaveCustomRpcManualEntryView {
+        return view as! SaveCustomRpcManualEntryView
+    }
+
+    init(viewModel: SaveCustomRpcManualEntryViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -30,8 +36,8 @@ class SaveCustomRpcViewController: UIViewController {
     }
 
     override func loadView() {
-        let rootView = SaveCustomRpcView(frame: .zero)
-        view = rootView
+        view = SaveCustomRpcManualEntryView(frame: .zero, isEmbedded: viewModel.isAddOperation)
+        view.isHidden = viewModel.isAddOperation
     }
 
     override func viewDidLoad() {
@@ -49,11 +55,15 @@ class SaveCustomRpcViewController: UIViewController {
         keyboardChecker.viewWillDisappear()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
     func handleRpcUrlFailure() {
         editView.rpcEndPointTextField.status = .error(R.string.localizable.addrpcServerRpcUrlError())
         editView.rpcEndPointTextField.becomeFirstResponder()
     }
-    
+
     private func configure() {
         editView.chainNameTextField.value = viewModel.chainName
         editView.chainNameTextField.delegate = self
@@ -75,9 +85,10 @@ class SaveCustomRpcViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapSelected))
         editView.addBackgroundGestureRecognizer(tap)
         editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
-        editView.configureKeyboard(keyboardChecker: keyboardChecker)
+        if viewModel.isEditOperation {
+            editView.configureKeyboard(keyboardChecker: keyboardChecker)
+        }
         editView.addSaveButtonTarget(self, action: #selector(handleSaveCustomRPC))
-        editView.chainNameTextField.becomeFirstResponder()
     }
 
     @objc private func tapSelected(_ sender: UITapGestureRecognizer) {
@@ -96,7 +107,6 @@ class SaveCustomRpcViewController: UIViewController {
             symbol: editView.symbolTextField.value,
             explorerEndpoint: editView.explorerEndpointTextField.value,
             isTestNet: editView.isTestNetworkView.isOn)
-
         view.endEditing(true)
         switch result {
         case .failure(.list(let errors)):
@@ -129,11 +139,13 @@ class SaveCustomRpcViewController: UIViewController {
 
     private func handleValidationSuccess(customRPC: CustomRPC) {
         editView.resetAllTextFieldStatus()
-        delegate?.didFinish(in: self, customRpc: customRPC)
+        dataDelegate?.didFinish(in: self, customRpc: customRPC)
     }
+
 }
 
-extension SaveCustomRpcViewController: TextFieldDelegate {
+extension SaveCustomRpcManualEntryViewController: TextFieldDelegate {
+
     func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
         case editView.explorerEndpointTextField:
@@ -158,4 +170,9 @@ extension SaveCustomRpcViewController: TextFieldDelegate {
     func nextButtonTapped(for textField: TextField) {
         //no-op
     }
+
+}
+
+extension SaveCustomRpcManualEntryViewController: HandleAddMultipleCustomRpcViewControllerResponse {
+
 }

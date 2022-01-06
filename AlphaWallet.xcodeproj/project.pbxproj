@@ -9,13 +9,17 @@
 /* Begin PBXBuildFile section */
 		021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */; };
 		02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */; };
-		02220CFE273A9CDB006A09BF /* SaveCustomRpcViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */; };
-		02220D00273A9DD6006A09BF /* SaveCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */; };
-		02220D02273A9E24006A09BF /* SaveCustomRpcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */; };
 		022CED7E277B01E10043287F /* ScrollableSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */; };
 		022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */; };
 		022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */; };
 		022CED82277B04010043287F /* ScrollableSegmentedControlAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED81277B04010043287F /* ScrollableSegmentedControlAdapter.swift */; };
+		023286E0277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286DF277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift */; };
+		023286E2277D7960007D33C5 /* AddMultipleCustomRpcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286E1277D7960007D33C5 /* AddMultipleCustomRpcView.swift */; };
+		023286E4277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286E3277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift */; };
+		02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */; };
+		0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */; };
+		0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */; };
+		02425FB327852B85007ECF94 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 02425FB227852B85007ECF94 /* chains.zip */; };
 		025F5D162760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */; };
 		025F5D182760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */; };
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
@@ -23,6 +27,20 @@
 		025F5D1F2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */; };
 		025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */; };
 		025F5D2F2760CDE600B2A3BC /* StringValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D2E2760CDE600B2A3BC /* StringValidator.swift */; };
+		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
+		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
+		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
+		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
+		02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */; };
+		02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */; };
+		02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */; };
+		02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */; };
+		02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */; };
+		02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */; };
+		02F4E8BC2771763800D89C19 /* SaveCustomRpcOverallModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */; };
+		02F4E8BE27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */; };
+		02F4E8C027717A5200D89C19 /* SaveCustomRpcBrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */; };
+		02F4E8C42771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */; };
 		0DF46B4002E13613F768E7AE /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
@@ -1064,13 +1082,17 @@
 /* Begin PBXFileReference section */
 		021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewModel.swift; sourceTree = "<group>"; };
 		02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcCoordinator.swift; sourceTree = "<group>"; };
-		02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcViewController.swift; sourceTree = "<group>"; };
-		02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcViewModel.swift; sourceTree = "<group>"; };
-		02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcView.swift; sourceTree = "<group>"; };
 		022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControl.swift; sourceTree = "<group>"; };
 		022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlHighlightableLineView.swift; sourceTree = "<group>"; };
 		022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlCell.swift; sourceTree = "<group>"; };
 		022CED81277B04010043287F /* ScrollableSegmentedControlAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlAdapter.swift; sourceTree = "<group>"; };
+		023286DF277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewController.swift; sourceTree = "<group>"; };
+		023286E1277D7960007D33C5 /* AddMultipleCustomRpcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcView.swift; sourceTree = "<group>"; };
+		023286E3277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcPresentationController.swift; sourceTree = "<group>"; };
+		02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcModel.swift; sourceTree = "<group>"; };
+		0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewModel.swift; sourceTree = "<group>"; };
+		0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecuteOnceOnly.swift; sourceTree = "<group>"; };
+		02425FB227852B85007ECF94 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = chains.zip; sourceTree = "<group>"; };
 		025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewModel.swift; sourceTree = "<group>"; };
 		025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreCoordinator.swift; sourceTree = "<group>"; };
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
@@ -1078,6 +1100,20 @@
 		025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileView.swift; sourceTree = "<group>"; };
 		025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordView.swift; sourceTree = "<group>"; };
 		025F5D2E2760CDE600B2A3BC /* StringValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidator.swift; sourceTree = "<group>"; };
+		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
+		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
+		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
+		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
+		02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableRpcNetwork.swift; sourceTree = "<group>"; };
+		02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewModel.swift; sourceTree = "<group>"; };
+		02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewController.swift; sourceTree = "<group>"; };
+		02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryView.swift; sourceTree = "<group>"; };
+		02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallViewController.swift; sourceTree = "<group>"; };
+		02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallView.swift; sourceTree = "<group>"; };
+		02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallModel.swift; sourceTree = "<group>"; };
+		02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseViewController.swift; sourceTree = "<group>"; };
+		02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseView.swift; sourceTree = "<group>"; };
+		02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseDataController.swift; sourceTree = "<group>"; };
 		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.release.xcconfig"; sourceTree = "<group>"; };
 		290B2B551F8F50030053C83E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2136,6 +2172,35 @@
 			path = ScrollableSegmentedControl;
 			sourceTree = "<group>";
 		};
+		023286DE277D78E9007D33C5 /* AddMultipleCustomRpc */ = {
+			isa = PBXGroup;
+			children = (
+				02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */,
+				0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */,
+				023286DF277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift */,
+				023286E1277D7960007D33C5 /* AddMultipleCustomRpcView.swift */,
+				023286E3277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift */,
+			);
+			path = AddMultipleCustomRpc;
+			sourceTree = "<group>";
+		};
+		02C7AF6D2770C3E4005367EE /* Rpc Network */ = {
+			isa = PBXGroup;
+			children = (
+				02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */,
+			);
+			path = "Rpc Network";
+			sourceTree = "<group>";
+		};
+		02C91C80277013B100EB10FB /* Rpc Network */ = {
+			isa = PBXGroup;
+			children = (
+				02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */,
+				02425FB227852B85007ECF94 /* chains.zip */,
+			);
+			path = "Rpc Network";
+			sourceTree = "<group>";
+		};
 		290B2B511F8F4F840053C83E /* Localization */ = {
 			isa = PBXGroup;
 			children = (
@@ -2193,6 +2258,7 @@
 				87741F1B2770C3AD007F4604 /* WhereAreMyTokens */,
 				87D5BBD82727D9B20053E6D2 /* API.swift */,
 				87D5BBCA2727D2910053E6D2 /* schema.json */,
+				02C91C80277013B100EB10FB /* Rpc Network */,
 				8712A37A26F314EF0009C376 /* Alerts */,
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
 				878EE942255BC352000210DE /* Share */,
@@ -2208,6 +2274,7 @@
 				291ED0901F6FA5C800E7E93A /* Transfer */,
 				2996F14E1F6CA802005C33AE /* Export */,
 				2996F1441F6C9875005C33AE /* Settings */,
+				023286DE277D78E9007D33C5 /* AddMultipleCustomRpc */,
 				291F52BD1F6C873600B369AB /* Accounts */,
 				291F52BA1F6B8CAF00B369AB /* Models */,
 				2912CD301F6A83E100C6CBE3 /* Welcome */,
@@ -2251,6 +2318,7 @@
 		2912CD0E1F6A830700C6CBE3 /* AlphaWalletTests */ = {
 			isa = PBXGroup;
 			children = (
+				02C7AF6D2770C3E4005367EE /* Rpc Network */,
 				5E7C7211BBC35E6ABC59CD5E /* Browser */,
 				77872D2A202514930032D687 /* Wallet */,
 				CCA4FE301FD3652100749AE4 /* Core */,
@@ -2832,10 +2900,10 @@
 				87ED8F98248541380005C69B /* AdvancedSettingsViewModel.swift */,
 				87ED8F9C248647C80005C69B /* SettingViewHeaderViewModel.swift */,
 				87ED8FAE2488EA9C0005C69B /* SupportViewModel.swift */,
-				02220CFF273A9DD6006A09BF /* SaveCustomRpcViewModel.swift */,
 				5E7C73BF5CE15E6D7AFC3F0C /* ChooseSendPrivateTransactionsProviderViewModel.swift */,
 				025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */,
 				021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */,
+				02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3316,10 +3384,12 @@
 				87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */,
 				87ED8FAC2488EA610005C69B /* SupportViewController.swift */,
 				87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */,
-				02220CFD273A9CDA006A09BF /* SaveCustomRpcViewController.swift */,
 				5E7C7177F1DDDDDDE020CB4D /* ChooseSendPrivateTransactionsProviderViewController.swift */,
 				025F5D1A2760C75800B2A3BC /* ExportJsonKeystoreFileViewController.swift */,
 				025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */,
+				02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */,
+				02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */,
+				02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3341,6 +3411,9 @@
 				5E7C7287B9288EAA0D66BAC4 /* PreferenceOption.swift */,
 				5E7C7F1B66DB15E6167416F8 /* SearchEngine.swift */,
 				5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */,
+				02645121277206C0009260DC /* TableViewSection.swift */,
+				02645123277217D9009260DC /* CustomRpcTableViewSection.swift */,
+				02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3759,6 +3832,7 @@
 				5E7C7047DF54A8DD986FF346 /* AddCustomChain.swift */,
 				5E7C759ADA5FFA0461E2BC1E /* EnableChain.swift */,
 				5E7C71FA42A4828FDC07E72E /* SendPrivateTransactionsProvider.swift */,
+				02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -4023,10 +4097,13 @@
 				87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */,
 				5E7C7DC3AEBE4049927B7625 /* EnableServersHeaderView.swift */,
 				876C80CC2673940B00B16595 /* SwitchView.swift */,
-				02220D01273A9E23006A09BF /* SaveCustomRpcView.swift */,
 				5E7C73BFE30E0D43E97806EF /* SelectionTableViewCell.swift */,
 				025F5D1D2760C76A00B2A3BC /* ExportJsonKeystoreFileView.swift */,
 				025F5D1E2760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift */,
+				02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */,
+				02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */,
+				02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */,
+				028D4E59277309ED00E7418D /* EmptyTableView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -5000,6 +5077,7 @@
 				5E7C77DBECDF831CD6C8FF71 /* Environment.swift */,
 				5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */,
 				025F5D2E2760CDE600B2A3BC /* StringValidator.swift */,
+				0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -5223,6 +5301,7 @@
 				C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */,
 				5E7C73AB79C2C5FC6C76CDFF /* ERC20-TokenScript.tsml in Resources */,
 				5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */,
+				02425FB327852B85007ECF94 /* chains.zip in Resources */,
 				5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */,
 				5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */,
 				5E7C7CE29C74DF7FDDDB6A0D /* ERC721-TokenScript.tsml in Resources */,
@@ -5589,6 +5668,7 @@
 				29BE3FD21F707DC300F6BFC2 /* TransactionDataCoordinator.swift in Sources */,
 				29F1C85120032688003780D8 /* Address.swift in Sources */,
 				29FA00D4201EC662002F7DC5 /* NSObject.swift in Sources */,
+				028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */,
 				771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */,
 				29FF6D6B2011D2AF00A3011C /* InCoordinatorError.swift in Sources */,
 				29F114F01FA6D53700114A29 /* ImportSelectionType.swift in Sources */,
@@ -5658,6 +5738,7 @@
 				29E14FD11F7F457D00185568 /* TransactionsStorage.swift in Sources */,
 				87ED8F97248540F90005C69B /* AdvancedSettingsViewController.swift in Sources */,
 				299B5E451FD22FB40051361C /* ConfigureTransactionViewModel.swift in Sources */,
+				023286E0277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift in Sources */,
 				29F114EE1FA65DEF00114A29 /* ImportType.swift in Sources */,
 				29BDF1981FEE4DB00023A45F /* GasPriceConfiguration.swift in Sources */,
 				29FA00CC201CA63C002F7DC5 /* Method.swift in Sources */,
@@ -5703,6 +5784,7 @@
 				874D099625EE33B600A58EF2 /* ScrollableStackView.swift in Sources */,
 				29E9CFCD1FE7343C00017744 /* NewTokenViewModel.swift in Sources */,
 				299B5E421FD2298E0051361C /* ConfigureTransactionViewController.swift in Sources */,
+				02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */,
 				294DFBA31FE0E2EA004CEB56 /* TransactionValue.swift in Sources */,
 				87D163A8242CD9A2002662D2 /* AddHideTokensView.swift in Sources */,
 				2912CD2B1F6A833E00C6CBE3 /* TransactionsViewController.swift in Sources */,
@@ -5764,6 +5846,7 @@
 				291F52A91F6B7BE100B369AB /* BlockNumber.swift in Sources */,
 				739533971FEFF5FD0084AFAB /* Currency.swift in Sources */,
 				025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */,
+				02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */,
 				298542F31FBD594D00CB5081 /* SettingsViewModel.swift in Sources */,
 				874D099025EE32EF00A58EF2 /* SignatureConfirmationDetailsViewModel.swift in Sources */,
 				CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */,
@@ -5819,6 +5902,7 @@
 				442FC546ED56F5C9D3D35471 /* TokenCardRedemptionViewModel.swift in Sources */,
 				5E7C75F80A7E178B49830BCD /* TokenCardsViewControllerHeader.swift in Sources */,
 				5E7C7E5C30EFDC70DF1E00C1 /* TokensCardViewControllerHeaderViewModel.swift in Sources */,
+				02F4E8C42771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift in Sources */,
 				5E7C7B3E08EEA63C5B68B9C4 /* TokenCardRedemptionInfoViewController.swift in Sources */,
 				442FCC0C672901AF791D320F /* Event.swift in Sources */,
 				442FC01053E2F1B59355A961 /* Arguments.swift in Sources */,
@@ -5836,6 +5920,7 @@
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,
 				5E7C7CF3BB38045FA40F38AE /* PrivacyPolicyViewController.swift in Sources */,
+				0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */,
 				5E7C7FDD73F658772181896B /* TermsOfServiceViewController.swift in Sources */,
 				5E7C7D03D745BF5C202A2CD1 /* TokensCoordinator.swift in Sources */,
 				5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */,
@@ -5850,7 +5935,6 @@
 				879F184F26E73ECB000602F2 /* TransferTokenBatchCardsViaWalletAddressViewController.swift in Sources */,
 				87BB63DE265E21C900FF702A /* WalletSummary.swift in Sources */,
 				5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */,
-				02220D02273A9E24006A09BF /* SaveCustomRpcView.swift in Sources */,
 				5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */,
 				87ED8FA92488E4430005C69B /* SendViewSectionHeader.swift in Sources */,
 				5E7C76F8CB67466725C590CE /* FungibleTokenViewCellViewModel.swift in Sources */,
@@ -5919,6 +6003,8 @@
 				8712A38726F475C00009C376 /* StorageType.swift in Sources */,
 				5E7C7E68425E20834B898D06 /* AppLocale.swift in Sources */,
 				5E7C7488D5CAE24B7462815A /* LiveLocaleSwitcherBundle.swift in Sources */,
+				02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */,
+				02F4E8C027717A5200D89C19 /* SaveCustomRpcBrowseView.swift in Sources */,
 				5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */,
 				5E7C7788984F7ADCFE5B4DE0 /* AddressTextField.swift in Sources */,
 				5E7C7E47C3C412A52DED7380 /* TextView.swift in Sources */,
@@ -5985,6 +6071,7 @@
 				87620028266E14A80059B05A /* PopularTokenViewCell.swift in Sources */,
 				5E7C70CF1C732CE07D074A8B /* BookmarksStore.swift in Sources */,
 				5E7C7E2E47ED7EDD5C127D1D /* HistoryStore.swift in Sources */,
+				023286E4277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift in Sources */,
 				5E7C7FC76A025AD91D57B960 /* HistoriesViewModel.swift in Sources */,
 				5E7C7855E46A6604B2028C9D /* BrowserErrorView.swift in Sources */,
 				874DED1524C1BAFF006C8FCE /* SelectTokenCoordinator.swift in Sources */,
@@ -5993,6 +6080,7 @@
 				5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */,
 				878EE94E255BE1F0000210DE /* UrlSchemeCoordinator.swift in Sources */,
 				8712A38926F475DC0009C376 /* PriceAlertService.swift in Sources */,
+				023286E2277D7960007D33C5 /* AddMultipleCustomRpcView.swift in Sources */,
 				5E7C77D5AD018763345D8DD5 /* CanOpenContractWebPage.swift in Sources */,
 				5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */,
 				87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */,
@@ -6023,7 +6111,6 @@
 				5E7C74438E1FBF28ADFAFAD1 /* BaseTokenCardTableViewCellViewModel.swift in Sources */,
 				5E7C72B3D5F75999937FCFA1 /* TokenListFormatRowViewModel.swift in Sources */,
 				87CA8495253DDFF200BF8443 /* TransitionButton.swift in Sources */,
-				02220CFE273A9CDB006A09BF /* SaveCustomRpcViewController.swift in Sources */,
 				5E7C7582387C12CE25D7FE78 /* TokenListFormatTableViewCellWithCheckbox.swift in Sources */,
 				5E7C7D5D3FBA199DB0449776 /* TokenListFormatRowView.swift in Sources */,
 				8762002C266E150B0059B05A /* WalletTokenViewCellViewModel.swift in Sources */,
@@ -6037,6 +6124,7 @@
 				5E7C7E02785866606FF298F3 /* OpenSeaNonFungibleTokenViewCellViewModel.swift in Sources */,
 				5E7C772EC476993A170C840B /* GenerateSellMagicLinkViewController.swift in Sources */,
 				5E7C7AC88DB7EB58FDAF1B21 /* ConfirmSignMessageViewControllerViewModel.swift in Sources */,
+				02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */,
 				5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */,
 				5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */,
 				879F184026E73B79000602F2 /* TokensCardCollectionCoordinator.swift in Sources */,
@@ -6073,6 +6161,7 @@
 				5E7C79E9A6A3DFB7FA680752 /* DappViewCell.swift in Sources */,
 				8728FFE12742900A008E5524 /* SingleTokenCardSelectionViewModel.swift in Sources */,
 				8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */,
+				02F4E8BE27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift in Sources */,
 				5E7C77649E432A905B836E95 /* DappViewCellViewModel.swift in Sources */,
 				5E7C7A6CC21C553CD4008F14 /* DappButton.swift in Sources */,
 				5E7C7E83AD74AFB0C717EAC0 /* DappsHomeViewControllerHeaderView.swift in Sources */,
@@ -6089,6 +6178,7 @@
 				5E7C72CEFE98436DB8EC0E05 /* BrowserHistoryCell.swift in Sources */,
 				5E7C7EF1F2CDFA52BBF1C620 /* BrowserHistoryCellViewModel.swift in Sources */,
 				5E7C77B397BCB0E254F359A8 /* DappsAutoCompletionCellViewModel.swift in Sources */,
+				02F4E8BC2771763800D89C19 /* SaveCustomRpcOverallModel.swift in Sources */,
 				5E7C7B4778FF36371701242E /* BrowserHistoryViewControllerHeaderView.swift in Sources */,
 				5E7C7FE5F70D5777FD7258B2 /* DappsHomeEmptyView.swift in Sources */,
 				5E7C7EAAF2BD4D12987968E4 /* MyDappCellViewModel.swift in Sources */,
@@ -6236,6 +6326,7 @@
 				5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */,
 				87A3022724C02212000DF32E /* TransactionConfirmationViewController.swift in Sources */,
 				5E7C7F01A771565A1BCF7FFA /* SeedPhraseCollectionView.swift in Sources */,
+				0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */,
 				5E7C768CFA892DEBB633961B /* SeedPhraseCollectionViewModel.swift in Sources */,
 				5E7C7E8E89279EB6DB805620 /* SuccessOverlayView.swift in Sources */,
 				5E7C738BCA59B1DE116ECC96 /* WhereIsWalletAddressFoundOverlayView.swift in Sources */,
@@ -6271,6 +6362,7 @@
 				8499D446C6ADE858FE633096 /* GetERC721ForTicketsBalanceCoordinator.swift in Sources */,
 				8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */,
 				8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */,
+				02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */,
 				8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */,
 				87BBF98D2563DD7600FF4846 /* WalletConnectSessionCoordinator.swift in Sources */,
 				5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */,
@@ -6321,7 +6413,7 @@
 				5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */,
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,
-				02220D00273A9DD6006A09BF /* SaveCustomRpcViewModel.swift in Sources */,
+				02645122277206C0009260DC /* TableViewSection.swift in Sources */,
 				876C80CD2673940B00B16595 /* SwitchView.swift in Sources */,
 				87741F212770C71E007F4604 /* WhereAreMyTokensCoordinator.swift in Sources */,
 				5E7C7E2109BCEB05899A4F9A /* DefaultActivityItemViewCell.swift in Sources */,
@@ -6354,6 +6446,7 @@
 				872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */,
 				5E7C71FA0D6A918598005EF3 /* SendTransactionError.swift in Sources */,
 				5E7C715B5921162B65A9A706 /* PromptViewController.swift in Sources */,
+				02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */,
 				5E7C785C39CC8243BEC1219C /* PromptViewModel.swift in Sources */,
 				87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */,
 				5E7C7FD7D2C8BCF6B127FB84 /* EnableServersHeaderView.swift in Sources */,
@@ -6368,6 +6461,7 @@
 				5E7C738FFC4292F6B0D6BC4B /* Erc721TokenIdsFetcher.swift in Sources */,
 				5E7C7F61D540CAFC68D6843D /* WebImageView.swift in Sources */,
 				5E7C70E0B9ADB12991D6AE07 /* URL.swift in Sources */,
+				02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */,
 				5E7C74A72A6BB7ECFFA45EA2 /* AddCustomChain.swift in Sources */,
 				5E7C711131E8E0B8AD983B70 /* EthChainIdRequest.swift in Sources */,
 				5E7C7711465975C681496C9C /* EnableChain.swift in Sources */,
@@ -6393,6 +6487,7 @@
 				5E7C73A66AD0CF28767CC142 /* WhatsNewListingCoordinator.swift in Sources */,
 				5E7C793EEF16E1689FE62543 /* WhatsNewListingViewController.swift in Sources */,
 				5E7C7FF312AB61DBEBD86C94 /* WhatsNewViewModels.swift in Sources */,
+				02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */,
 				5E7C7CC1E06FFC3A5BEBF1EC /* WhatsNewViews.swift in Sources */,
 				5E7C71967C34DD3F207F8126 /* WhatsNewExperimentCoordinator.swift in Sources */,
 				5E7C7062A44AF416B110008A /* PingInfuraCoordinator.swift in Sources */,
@@ -6442,6 +6537,7 @@
 				295996031FAA865800DB66A8 /* TokensCoordinatorTests.swift in Sources */,
 				29336FE71F6B245D005E3BFC /* WelcomeViewModelTests.swift in Sources */,
 				73958DC720263525000A40EB /* SplashCoordinatorTests.swift in Sources */,
+				02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */,
 				29F114FA1FA817A800114A29 /* RequestCoordinatorTests.swift in Sources */,
 				2977CAE01F7DEEB0009682A0 /* FakeEtherKeystore.swift in Sources */,
 				29DBF2A51F9EB75E00327C60 /* BackupCoordinatorTests.swift in Sources */,
