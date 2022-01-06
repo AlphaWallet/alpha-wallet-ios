@@ -210,7 +210,7 @@ class ImportWalletViewController: UIViewController {
 
         footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
-        keyboardChecker.constraint = footerBottomConstraint
+        keyboardChecker.constraints = [footerBottomConstraint]
 
         let labelButtonInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
 

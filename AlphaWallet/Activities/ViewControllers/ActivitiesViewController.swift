@@ -29,7 +29,7 @@ class ActivitiesViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
 
         bottomConstraint = activitiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        keyboardChecker.constraint = bottomConstraint
+        keyboardChecker.constraints = [bottomConstraint]
 
         view.addSubview(activitiesView)
 

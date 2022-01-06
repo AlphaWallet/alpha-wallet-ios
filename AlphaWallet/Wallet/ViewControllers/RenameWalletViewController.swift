@@ -46,7 +46,7 @@ class RenameWalletViewController: UIViewController {
 
         footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
-        keyboardChecker.constraint = footerBottomConstraint
+        keyboardChecker.constraints = [footerBottomConstraint]
 
         let stackview = [
             nameTextField.label,

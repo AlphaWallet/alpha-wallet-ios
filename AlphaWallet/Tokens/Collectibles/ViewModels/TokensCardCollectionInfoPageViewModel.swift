@@ -27,10 +27,11 @@ struct TokensCardCollectionInfoPageViewModel {
     }
     let tokenHolders: [TokenHolder]
     var configurations: [TokensCardCollectionInfoPageViewConfiguration] = []
+
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
     }
-    
+
     init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, forWallet wallet: Wallet) {
         self.server = server
         self.tokenObject = token
@@ -39,14 +40,16 @@ struct TokensCardCollectionInfoPageViewModel {
     }
 
     var createdDateViewModel: TokenInstanceAttributeViewModel {
-        let string: String? = tokenHolders.first?.values["collectionCreatedDate"]?.generalisedTimeValue?.formatAsShortDateString()
-        let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0) }
+        let string: String? = tokenHolders.first?.values.collectionCreatedDateGeneralisedTimeValue?.formatAsShortDateString()
+        let attributedString: NSAttributedString? = string.flatMap {
+            TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
+        }
         return .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: attributedString)
     }
 
-    var descriptionViewModel: TokenInstanceAttributeViewModel {
-        let string: String? = tokenHolders.first?.values["collectionDescription"]?.stringValue
-        let attributedString: NSAttributedString? = string.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .left) }
+    var descriptionViewModel: TokenInstanceAttributeViewModel? {
+        guard let string: String = tokenHolders.first?.values.collectionDescriptionStringValue, string.nonEmpty else { return nil }
+        let attributedString = TokenInstanceAttributeViewModel.defaultValueAttributedString(string, alignment: .left)
         return .init(title: nil, attributedValue: attributedString, isSeparatorHidden: true)
     }
 
@@ -70,12 +73,13 @@ struct TokensCardCollectionInfoPageViewModel {
             .field(viewModel: createdDateViewModel)
         ]
 
-        configurations += [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
-            .field(viewModel: descriptionViewModel),
-        ]
+        if let viewModel = descriptionViewModel {
+            configurations += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .field(viewModel: viewModel),
+            ]
+        }
 
         return configurations
     }
-}
-
+} 

@@ -176,7 +176,7 @@ private class _ModalViewController: UIViewController {
             }
         }
 
-        keyboard.constraint = bottomConstraint
+        keyboard.constraints = [bottomConstraint]
     }
 
     override func viewDidLoad() {

@@ -12,10 +12,10 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let _tokenId: TokenId
     let areDetailsVisible: Bool
-    let width: CGFloat
+    private let width: CGFloat
     let convertHtmlInDescription: Bool
     var contentsBackgroundColor: UIColor {
-        return .clear
+        return Colors.appBackground
     }
 
     init(tokenHolder: TokenHolder, tokenId: TokenId, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
@@ -39,12 +39,28 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
         return Colors.appHighlightGreen
     }
 
-    var attributedDescriptionText: NSAttributedString {
-//        tokenHolder.selectedCount(tokenId: _tokenId)
-        return .init(string: R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values.valueIntValue ?? 0)), attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
-        ])
+    var titleTextFont: UIFont {
+        return Screen.TokenCard.Font.title
+    }
+
+    var titleTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.title
+    }
+
+    var titleText: String {
+        return title
+    }
+
+    var descriptionTextFont: UIFont {
+        return Screen.TokenCard.Font.subtitle
+    }
+
+    var descriptionTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.subtitle
+    }
+
+    var descriptionText: String {
+        return R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values.valueIntValue ?? 0))
     }
 
     var bigImageBackgroundColor: UIColor {
@@ -301,16 +317,15 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
     }
 }
 
-
 struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let _tokenId: TokenId
     let areDetailsVisible: Bool
-    let width: CGFloat
+    private let width: CGFloat
     let convertHtmlInDescription: Bool
     var contentsBackgroundColor: UIColor {
-        return .clear
+        return Colors.appBackground
     }
 
     init(tokenHolder: TokenHolder, tokenId: TokenId, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
@@ -334,12 +349,28 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
         return Colors.appHighlightGreen
     }
 
-    var attributedDescriptionText: NSAttributedString {
-        let selectedAmount = tokenHolder.selectedCount(tokenId: _tokenId) ?? 0
-        return .init(string: R.string.localizable.semifungiblesAssetsCount(selectedAmount), attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
-        ])
+    var titleTextFont: UIFont {
+        return Screen.TokenCard.Font.title
+    }
+
+    var titleTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.title
+    }
+
+    var titleText: String {
+        return title
+    }
+
+    var descriptionTextFont: UIFont {
+        return Screen.TokenCard.Font.subtitle
+    }
+
+    var descriptionTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.subtitle
+    }
+
+    var descriptionText: String {
+        return R.string.localizable.semifungiblesAssetsCount(Int(tokenHolder.values.valueIntValue ?? 0))
     }
 
     var bigImageBackgroundColor: UIColor {

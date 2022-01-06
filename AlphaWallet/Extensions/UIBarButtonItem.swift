@@ -7,7 +7,60 @@
 
 import UIKit
 
+enum GridOrListSelectionState: Int {
+    case grid
+    case list
+
+    mutating func toggle() {
+        switch self {
+        case .grid:
+            self = .list
+        case .list:
+            self = .grid
+        }
+    }
+
+    var inverted: GridOrListSelectionState {
+        switch self {
+        case .list:
+            return .grid
+        case .grid:
+            return .list
+        }
+    }
+
+    var image: UIImage? {
+        switch self {
+        case .grid:
+            return R.image.iconsSystemGrid()
+        case .list:
+            return R.image.iconsSystemList()
+        }
+    }
+}
+
 extension UIBarButtonItem {
+
+    func toggleSelection() {
+        guard var selection = selection else { return }
+        selection.toggle()
+
+        self.selection = selection
+        image = self.selection?.image
+    }
+
+    static func switchGridToListViewBarButton(selection: GridOrListSelectionState = .grid, _ target: AnyObject, selector: Selector) -> UIBarButtonItem {
+        let sender = UIBarButtonItem(image: nil, style: .plain, target: target, action: selector)
+        sender.selection = selection
+
+        sender.image = sender.selection?.image
+        sender.selectionClosure = { sender in
+            target.performSelector(onMainThread: selector, with: sender, waitUntilDone: false)
+        }
+
+        return sender
+    }
+
     static func selectBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(title: R.string.localizable.aWalletTokenSelectTokens(), style: .plain, target: target, action: selector)
     }
@@ -48,7 +101,7 @@ extension UIBarButtonItem {
         .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
     }
 
-    static func backBarButton(selectionClosure: @escaping () -> Void) -> UIBarButtonItem {
+    static func backBarButton(selectionClosure: @escaping (UIBarButtonItem) -> Void) -> UIBarButtonItem {
         let barButton = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: nil, action: nil)
         barButton.selectionClosure = selectionClosure
 
@@ -57,11 +110,12 @@ extension UIBarButtonItem {
 
     private struct AssociatedObject {
         static var key = "action_closure_key"
+        static var selectionState = "is_selected_state_key"
     }
 
-    var selectionClosure: (() -> Void)? {
+    var selectionClosure: ((UIBarButtonItem) -> Void)? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedObject.key) as? () -> Void
+            return objc_getAssociatedObject(self, &AssociatedObject.key) as? (UIBarButtonItem) -> Void
         }
         set {
             objc_setAssociatedObject(self, &AssociatedObject.key, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -70,7 +124,16 @@ extension UIBarButtonItem {
         }
     }
 
-    @objc func didTapButton(_ sender: Any) {
-        selectionClosure?()
+    var selection: GridOrListSelectionState? {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedObject.selectionState) as? GridOrListSelectionState
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedObject.selectionState, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+
+    @objc func didTapButton(_ sender: UIBarButtonItem) {
+        selectionClosure?(sender)
     }
 }

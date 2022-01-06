@@ -22,7 +22,7 @@ class KeyboardChecker: NSObject {
     private weak var viewController: UIViewController?
     private let notificationCenter = NotificationCenter.default
     private let resetHeightDefaultValue: CGFloat
-    var constraint: NSLayoutConstraint?
+    var constraints: [NSLayoutConstraint] = []
     //NOTE: for views with input view 'date picker', we need to ignore bottom safe area
     private let ignoreBottomSafeArea: Bool
     private let buttonsBarHeight: CGFloat
@@ -57,6 +57,12 @@ class KeyboardChecker: NSObject {
         viewController?.tabBarController?.tabBar
     }
 
+    private func updateContraints(value: CGFloat) {
+        for each in constraints {
+            each.constant = value
+        }
+    }
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let change = notification.keyboardInfo, let view = viewController?.view else {
             return
@@ -68,18 +74,18 @@ class KeyboardChecker: NSObject {
         let diff = keyboardEndFrame.height - yKeyboardFrameOffset
         if diff > yKeyboardFrameOffset {
             if let tabBar = tabBar, tabBar.isHidden {
-                constraint?.constant = -keyboardEndFrame.height - buttonsBarHeight
+                updateContraints(value: -keyboardEndFrame.height - buttonsBarHeight)
             } else {
-                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
+                updateContraints(value: -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight))
             }
         } else {
             if ignoreBottomSafeArea {
-                constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
+                updateContraints(value: -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight))
             } else {
                 if UIApplication.shared.bottomSafeAreaHeight > 0.0 {
-                    constraint?.constant = -(diff + UIApplication.shared.bottomSafeAreaHeight)
+                    updateContraints(value: -(diff + UIApplication.shared.bottomSafeAreaHeight))
                 } else {
-                    constraint?.constant = -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight)
+                    updateContraints(value: -(keyboardEndFrame.height - tabBarHeight - buttonsBarHeight))
                 }
             }
         }
@@ -100,18 +106,18 @@ class KeyboardChecker: NSObject {
 
         //NOTE: we need to determine if keyboard hiding now or not. because there is cases when when we change keyboard, (software/external), and keyboardWillHide called all the time, and we dont know what height should set.
         if keyboardBeginFrame.height <= keyboardEndFrame.height {
-            constraint?.constant = resetHeightDefaultValue
+            updateContraints(value: resetHeightDefaultValue)
         } else {
             let keyboardEndFrame = view.convert(change.endFrame, to: view.window)
             let yKeyboardFrameOffset = keyboardEndFrame.origin.y - change.endFrame.origin.y
             let diff = keyboardEndFrame.height - yKeyboardFrameOffset
 
             if diff < 0 {
-                constraint?.constant = resetHeightDefaultValue
+                updateContraints(value: resetHeightDefaultValue)
             } else if diff > yKeyboardFrameOffset {
-                constraint?.constant = -(keyboardEndFrame.height - abs(resetHeightDefaultValue))
+                updateContraints(value: -(keyboardEndFrame.height - abs(resetHeightDefaultValue)))
             } else {
-                constraint?.constant = -(diff + UIApplication.shared.bottomSafeAreaHeight)
+                updateContraints(value: -(diff + UIApplication.shared.bottomSafeAreaHeight))
             }
         }
 

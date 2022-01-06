@@ -42,7 +42,7 @@ class ExportJsonKeystorePasswordView: UIView {
     }()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
-    var bottomConstraint: NSLayoutConstraint?
+    var bottomConstraint: NSLayoutConstraint!
 
     convenience init() {
         self.init(frame: .zero)

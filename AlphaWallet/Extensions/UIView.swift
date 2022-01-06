@@ -3,7 +3,25 @@
 import Foundation
 import UIKit
 
+extension Array where Iterator.Element == NSLayoutConstraint {
+    func configure(edgeInsets: UIEdgeInsets) {
+        guard count == 4 else { return }
+
+        let values: [CGFloat] = [edgeInsets.left, -edgeInsets.right, edgeInsets.top, -edgeInsets.bottom]
+        for (index, each) in self.enumerated() {
+            each.constant = values[index]
+        }
+    }
+}
+
 extension UIView {
+    func sized(_ size: CGSize) -> [NSLayoutConstraint] {
+        return [
+            heightAnchor.constraint(equalToConstant: size.height),
+            widthAnchor.constraint(equalToConstant: size.width)
+        ]
+    }
+
     static func tableFooterToRemoveEmptyCellSeparators() -> UIView {
       return .init()
     }

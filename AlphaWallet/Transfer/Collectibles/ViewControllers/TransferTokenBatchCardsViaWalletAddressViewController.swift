@@ -117,7 +117,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     private lazy var factory: TokenCardTableViewCellFactory = {
         TokenCardTableViewCellFactory()
     }()
-    private var cachedCellsCardRowViews: [Int: UIView & TokenCardRowViewProtocol] = [:]
+    private var cachedCellsCardRowViews: [Int: UIView & TokenCardRowViewProtocol & TokenCardRowViewLayoutConfigurableProtocol] = [:]
 
     private func generateViewsForSelectedTokenHolders(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) -> [UIView] {
         var subviews: [UIView] = []
@@ -132,15 +132,14 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     }
 
     private func generateViewFor(tokenHolder: TokenHolder, index: Int) -> UIView {
-        let subview: UIView & TokenCardRowViewProtocol
+        let subview: UIView & TokenCardRowViewProtocol & TokenCardRowViewLayoutConfigurableProtocol
         if let value = cachedCellsCardRowViews[index] {
             subview = value
         } else {
-            subview = factory.create(for: tokenHolder)
-
+            subview = factory.create(for: tokenHolder, layout: .list, listEdgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16))
             cachedCellsCardRowViews[index] = subview
         }
-
+        
         configureToAllowSelection(subview, tokenHolder: tokenHolder, index: index)
         configure(subview: subview, tokenId: tokenHolder.tokenId, tokenHolder: tokenHolder)
 

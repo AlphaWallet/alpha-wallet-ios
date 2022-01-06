@@ -84,7 +84,7 @@ class SaveCustomRpcView: UIView {
     }
 
     func configureKeyboard(keyboardChecker: KeyboardChecker) {
-        keyboardChecker.constraint = scrollViewBottomConstraint
+        keyboardChecker.constraints = [scrollViewBottomConstraint]
     }
 
     func addSaveButtonTarget(_ target: Any?, action: Selector) {

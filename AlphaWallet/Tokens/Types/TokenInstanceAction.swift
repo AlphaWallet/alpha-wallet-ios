@@ -139,7 +139,9 @@ struct TokenInstanceAction {
         case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return nil
         case .tokenScript(_, _, _, _, _, let selection):
-            guard let selection = selection, let values = tokenHolder.values(tokenId: tokenId), let symbol = tokenHolder.symbol(tokenId: tokenId) else { return nil }
+            guard let selection = selection,
+                  let values = tokenHolder.values(tokenId: tokenId),
+                  let symbol = tokenHolder.symbol(tokenId: tokenId) else { return nil }
             let parser = TokenScriptFilterParser(expression: selection.filter)
 
             let filterExpressionIsTrue = parser.parse(withValues: values, ownerAddress: walletAddress, symbol: symbol, fungibleBalance: fungibleBalance)

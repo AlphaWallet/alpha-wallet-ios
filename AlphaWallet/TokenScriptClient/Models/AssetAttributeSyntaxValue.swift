@@ -3,7 +3,15 @@
 import Foundation
 import BigInt
 
-struct AssetAttributeSyntaxValue {
+struct AssetAttributeSyntaxValue: Hashable {
+    static func == (lhs: AssetAttributeSyntaxValue, rhs: AssetAttributeSyntaxValue) -> Bool {
+        return lhs.description == rhs.description
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
+
     private let _value: AssetInternalValue
 
     let syntax: AssetAttributeSyntax

@@ -15,7 +15,7 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
     private let tokenId: TokenId
 
     var contentsBackgroundColor: UIColor {
-        return .clear
+        return Colors.appBackground
     }
 
     init(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore) {
@@ -24,6 +24,18 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
         self.tokenView = tokenView
         self.assetDefinitionStore = assetDefinitionStore
         displayHelper = .init(contract: tokenHolder.contractAddress)
+    }
+
+    var titleTextFont: UIFont {
+        return Screen.TokenCard.Font.title
+    }
+
+    var titleTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.title
+    }
+
+    var titleText: String {
+        return title
     }
 
     var title: String {
@@ -35,15 +47,19 @@ struct Erc875NonFungibleRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    var attributedDescriptionText: NSAttributedString {
-        return .init(string: R.string.localizable.semifungiblesAssetsCount(_tokenCount), attributes: [
-            .foregroundColor: Screen.TokenCard.Color.subtitle,
-            .font: Screen.TokenCard.Font.subtitle
-        ])
+    var descriptionTextFont: UIFont {
+        return Screen.TokenCard.Font.subtitle
+    }
+
+    var descriptionTextForegroundColor: UIColor {
+        return Screen.TokenCard.Color.subtitle
+    }
+
+    var descriptionText: String {
+        return R.string.localizable.semifungiblesAssetsCount(_tokenCount)
     }
 
     var _tokenCount: Int {
-
         Int(tokenHolder.values.valueIntValue ?? 0)
     }
 

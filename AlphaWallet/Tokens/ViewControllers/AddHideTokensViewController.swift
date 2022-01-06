@@ -60,7 +60,7 @@ class AddHideTokensViewController: UIViewController {
         view.addSubview(tableView)
 
         bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        keyboardChecker.constraint = bottomConstraint
+        keyboardChecker.constraints = [bottomConstraint]
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -138,7 +138,6 @@ class AddHideTokensViewController: UIViewController {
 }
 
 extension AddHideTokensViewController: StatefulViewController {
-    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
         return !viewModel.sections.isEmpty
     }

@@ -9,12 +9,17 @@
 import Foundation
 import BigInt
 
-struct TokenSelection: Equatable {
+struct TokenSelection: Equatable, Hashable {
     let tokenId: TokenId
     let value: Int
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.tokenId == rhs.tokenId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tokenId)
+        hasher.combine(value)
     }
 }
 
@@ -99,7 +104,19 @@ enum TokenHolderType {
     case single
 }
 
-class TokenHolder {
+class TokenHolder: Hashable {
+    static func == (lhs: TokenHolder, rhs: TokenHolder) -> Bool {
+        return lhs.tokenId == rhs.tokenId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tokens)
+        hasher.combine(contractAddress.eip55String)
+        hasher.combine(isSelected)
+        hasher.combine(areDetailsVisible)
+        hasher.combine(selections)
+    }
+
     let tokens: [Token]
     let contractAddress: AlphaWallet.Address
     let hasAssetDefinition: Bool

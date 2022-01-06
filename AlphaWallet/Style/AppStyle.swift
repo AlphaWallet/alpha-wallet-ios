@@ -343,6 +343,10 @@ enum Screen {
 }
 
 enum Style {
+    enum SearchBar {
+        static let height = 50.0
+    }
+
     enum Wallet {
         enum Header {
             static let height = 60.0
@@ -392,6 +396,7 @@ enum Style {
             static let color: UIColor = R.color.mercury()!
         }
     }
+    
     enum NavigationBar {
         enum Separator {
             static let color: UIColor = R.color.mercury()!

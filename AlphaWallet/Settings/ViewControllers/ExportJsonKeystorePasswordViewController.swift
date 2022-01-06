@@ -70,7 +70,7 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
         passwordView.setButton(title: buttonTitle)
         passwordView.addExportButtonTarget(self, action: #selector(requestExportAction(_:)))
         passwordView.passwordTextField.delegate = self
-        keyboardChecker.constraint = passwordView.bottomConstraint
+        keyboardChecker.constraints = [passwordView.bottomConstraint]
     }
 
     @objc func requestExportAction(_ sender: UIButton?) {

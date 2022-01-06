@@ -1,30 +1,28 @@
 //
-//  TokensCardCollectionInfoPageView.swift
+//  TokenInstanceInfoPageView.swift
 //  AlphaWallet
 //
-//  Created by Vladyslav Shepitko on 07.09.2021.
+//  Created by Vladyslav Shepitko on 23.12.2021.
 //
 
 import UIKit
 
-protocol TokensCardCollectionInfoPageViewDelegate: class {
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView)
+protocol TokenInstanceInfoPageViewDelegate: class {
+    func didSelecAttributeView(attributeView: TokenInstanceAttributeView, in view: TokenInstanceInfoPageView)
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokenInstanceInfoPageView)
 }
 
-class TokensCardCollectionInfoPageView: UIView, PageViewType {
+class TokenInstanceInfoPageView: UIView, PageViewType {
     private let headerViewRefreshInterval: TimeInterval = 5.0
 
     var title: String {
         return viewModel.tabTitle
     }
 
-    private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView(scale: .bestFitDown)
+    private var webImageView: WebImageView = {
+        let imageView = WebImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
-        imageView.isRoundingEnabled = false
-        imageView.isChainOverlayHidden = true
-        
         return imageView
     }()
 
@@ -33,11 +31,11 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         containerView.stackView
     }
 
-    private (set) var viewModel: TokensCardCollectionInfoPageViewModel
-    weak var delegate: TokensCardCollectionInfoPageViewDelegate?
+    private (set) var viewModel: TokenInstanceInfoPageViewModel
+    weak var delegate: TokenInstanceInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
 
-    init(viewModel: TokensCardCollectionInfoPageViewModel) {
+    init(viewModel: TokenInstanceInfoPageViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
 
@@ -47,20 +45,20 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
 
         NSLayoutConstraint.activate([
             containerView.anchorsConstraint(to: self),
-            tokenIconImageView.heightAnchor.constraint(equalTo: tokenIconImageView.widthAnchor, multiplier: 0.7)
+            webImageView.heightAnchor.constraint(equalTo: webImageView.widthAnchor, multiplier: 0.7)
         ])
 
         generateSubviews(viewModel: viewModel)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
-        tokenIconImageView.addGestureRecognizer(tap)
+        webImageView.addGestureRecognizer(tap)
     }
 
-    private func generateSubviews(viewModel: TokensCardCollectionInfoPageViewModel) {
+    private func generateSubviews(viewModel: TokenInstanceInfoPageViewModel) {
         stackView.removeAllArrangedSubviews()
 
         stackView.addArrangedSubview(UIView.spacer(height: 10))
-        stackView.addArrangedSubview(tokenIconImageView)
+        stackView.addArrangedSubview(webImageView)
         stackView.addArrangedSubview(UIView.spacer(height: 20))
 
         for (index, each) in viewModel.configurations.enumerated() {
@@ -79,11 +77,11 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         }
     }
 
-    func configure(viewModel: TokensCardCollectionInfoPageViewModel) {
+    func configure(viewModel: TokenInstanceInfoPageViewModel) {
         self.viewModel = viewModel
 
         generateSubviews(viewModel: viewModel)
-        tokenIconImageView.subscribable = viewModel.iconImage
+        webImageView.setImage(url: viewModel.imageUrl, placeholder: viewModel.tokenImagePlaceholder)
     }
 
     required init?(coder: NSCoder) {
@@ -95,8 +93,8 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     }
 }
 
-extension TokensCardCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
+extension TokenInstanceInfoPageView: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
-        //no-op
+        delegate?.didSelecAttributeView(attributeView: view, in: self)
     }
 }

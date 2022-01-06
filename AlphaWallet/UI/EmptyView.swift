@@ -130,6 +130,23 @@ final class FilterTokensEmptyViewDefaultPlacement: EmptyViewPlacement {
     }
 }
 
+final class FilterTokensHoldersEmptyViewDefaultPlacement: EmptyViewPlacement {
+    private let verticalOffset: CGFloat
+
+    init(verticalOffset: CGFloat) {
+        self.verticalOffset = verticalOffset
+    }
+
+    func resolveContraints(superView: UIView, container: UIView) -> [NSLayoutConstraint] {
+        return [
+            container.trailingAnchor.constraint(equalTo: superView.trailingAnchor),
+            container.leadingAnchor.constraint(equalTo: superView.leadingAnchor),
+            container.centerXAnchor.constraint(equalTo: superView.centerXAnchor),
+            container.centerYAnchor.constraint(equalTo: superView.centerYAnchor, constant: verticalOffset)
+        ]
+    }
+}
+
 extension EmptyView {
     static func tokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
         EmptyView()
@@ -180,5 +197,13 @@ extension EmptyView {
             .configure(buttonTitle: R.string.localizable.addCustomTokenTitle(), width: 240, buttonSelectionClosure: completion)
             .configure(spacing: 30)
             .configure(insets: .zero)
+    }
+
+    static func filterTokenHoldersEmptyView() -> EmptyView {
+        EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
+            .configure(image: R.image.iconsIllustrationsSearchResults())
+            .configure(title: R.string.localizable.seachTokenNoresultsTitle())
+            .configure(spacing: 30)
+            .configure(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
     }
 }
