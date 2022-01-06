@@ -158,7 +158,7 @@ class ImportWalletViewController: UIViewController {
     }
 
     private var mnemonicInputString: String {
-        mnemonicTextView.value.lowercased()
+        mnemonicTextView.value.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     weak var delegate: ImportWalletViewControllerDelegate?
