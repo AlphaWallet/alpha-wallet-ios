@@ -133,6 +133,40 @@ struct AccountsViewModel {
         }
     }
 
+    func indexPath(for wallet: Wallet) -> IndexPath? {
+        guard let sectionIndex = sections.firstIndex(where: { sectionType in
+            switch sectionType {
+            case .summary:
+                return false
+            case .hdWallet:
+                return keystore.isHdWallet(wallet: wallet)
+            case .keystoreWallet:
+                return keystore.isKeystore(wallet: wallet)
+            case .watchedWallet:
+                return keystore.isWatched(wallet: wallet)
+            }
+        }) else { return nil }
+        switch sections[sectionIndex] {
+        case .summary:
+            return nil
+        case .hdWallet:
+            guard let rowIndex = hdWallets.firstIndex(where: { indexWallet in
+                indexWallet == wallet
+            }) else { return nil }
+            return IndexPath(row: rowIndex, section: sectionIndex)
+        case .keystoreWallet:
+            guard let rowIndex = keystoreWallets.firstIndex(where: { indexWallet in
+                indexWallet == wallet
+            }) else { return nil }
+            return IndexPath(row: rowIndex, section: sectionIndex)
+        case .watchedWallet:
+            guard let rowIndex = watchedWallets.firstIndex(where: { indexWallet in
+                indexWallet == wallet
+            }) else { return nil }
+            return IndexPath(row: rowIndex, section: sectionIndex)
+        }
+    }
+
 }
 
 enum AccountsSectionType: Int, CaseIterable {

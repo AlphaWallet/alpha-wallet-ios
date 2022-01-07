@@ -67,6 +67,16 @@ class AccountsViewController: UIViewController {
         configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration, analyticsCoordinator: analyticsCoordinator))
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        scrollCurrentWalletIntoView()
+    }
+
+    private func scrollCurrentWalletIntoView() {
+        guard let indexPath = viewModel.indexPath(for: keystore.currentWallet) else { return }
+        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+    }
+
     func configure(viewModel: AccountsViewModel) {
         self.viewModel = viewModel
         title = viewModel.title
