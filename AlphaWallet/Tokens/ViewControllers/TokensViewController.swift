@@ -571,7 +571,9 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        switch viewModel.item(for: indexPath.row, section: indexPath.section) {
+        let item = viewModel.item(for: indexPath.row, section: indexPath.section)
+        guard item.canDelete else { return nil }
+        switch item {
         case .rpcServer:
             return nil
         case .tokenObject(let token):
