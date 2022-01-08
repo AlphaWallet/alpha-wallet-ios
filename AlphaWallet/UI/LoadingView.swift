@@ -10,7 +10,7 @@ class LoadingView: UIView {
     private let viewModel = StateViewModel()
 
     let label = UILabel()
-    let loadingIndicator = UIActivityIndicatorView(style: .gray)
+    let loadingIndicator = UIActivityIndicatorView(style: .medium)
 
     init(
         frame: CGRect = .zero,

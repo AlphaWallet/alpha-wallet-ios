@@ -317,10 +317,6 @@ extension TokenCardSelectionViewController {
         definesPresentationContext = true
     }
 
-    private func doNotDimTableViewToReuseTableForFilteringResult() {
-        searchController.dimsBackgroundDuringPresentation = false
-    }
-
     private func wireUpSearchController() {
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
@@ -340,7 +336,6 @@ extension TokenCardSelectionViewController {
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
         fixTableViewBackgroundColor()
-        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
 

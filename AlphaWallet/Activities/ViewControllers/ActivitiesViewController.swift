@@ -114,10 +114,6 @@ extension ActivitiesViewController {
         definesPresentationContext = true
     }
 
-    private func doNotDimTableViewToReuseTableForFilteringResult() {
-        searchController.dimsBackgroundDuringPresentation = false
-    }
-
     private func wireUpSearchController() {
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
@@ -130,7 +126,6 @@ extension ActivitiesViewController {
 
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
-        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
 

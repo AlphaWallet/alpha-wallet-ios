@@ -19,7 +19,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let header = TokensCardViewControllerTitleHeader()
     lazy private var tokenCardRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
     private let statusLabel = UILabel()
-    private let activityIndicator = UIActivityIndicatorView(style: .whiteLarge)
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var costStackView: UIStackView?
     private let ethCostLabelLabel = UILabel()
     private let ethCostLabel = UILabel()

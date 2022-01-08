@@ -41,7 +41,7 @@ class AddressOrEnsNameLabel: UILabel {
     }
 
     let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .gray)
+        let indicator = UIActivityIndicatorView(style: .medium)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.heightAnchor.constraint(equalToConstant: 15).isActive = true

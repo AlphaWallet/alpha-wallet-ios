@@ -160,7 +160,7 @@ private class _ModalViewController: UIViewController {
         contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
             guard let strongSelf = self, strongSelf.allowDismissalAnimation else { return }
 
-            let statusBarHeight = UIApplication.shared.statusBarFrame.height
+            let statusBarHeight = UIApplication.shared.firstKeyWindow?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
             let footerHeight = strongSelf.footerStackView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
 
             let headerHeight = DataEntry.Metric.TransactionConfirmation.headerHeight

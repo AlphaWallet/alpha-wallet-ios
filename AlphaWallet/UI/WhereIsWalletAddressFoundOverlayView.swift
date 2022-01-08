@@ -42,7 +42,7 @@ class WhereIsWalletAddressFoundOverlayView: UIView {
 
     private func clipBottomRight() {
         //TODO support clipping for iPad too
-        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.phone {
+        if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone {
             let clipDimension = CGFloat(180)
             let clipPath = UIBezierPath(ovalIn: CGRect(x: UIScreen.main.bounds.size.width - clipDimension / 2 - 20, y: UIScreen.main.bounds.size.height - clipDimension / 2 - 20, width: clipDimension, height: clipDimension))
             let maskPath = UIBezierPath(rect: UIScreen.main.bounds)
