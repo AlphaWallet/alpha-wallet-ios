@@ -93,13 +93,20 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
         coordinator.mark(token: token, isHidden: isHidden)
     }
 
-    func didPressAddToken(in viewController: UIViewController) {
+    func didPressAddToken(in viewController: UIViewController, with addressString: String) {
+        let initialState: NewTokenInitialState
+        if let walletAddress = AlphaWallet.Address(string: addressString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            initialState = .address(walletAddress)
+        } else {
+            initialState = .empty
+        }
         let coordinator = NewTokenCoordinator(
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
             tokenCollection: tokenCollection,
             config: config,
             singleChainTokenCoordinators: singleChainTokenCoordinators,
+            initialState: initialState,
             sessions: sessions
         )
         coordinator.delegate = self

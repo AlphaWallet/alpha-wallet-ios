@@ -5,7 +5,7 @@ import StatefulViewController
 import PromiseKit
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
-    func didPressAddToken(in viewController: UIViewController)
+    func didPressAddToken(in viewController: UIViewController, with addressString: String)
     func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool)
     func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController)
     func didClose(viewController: AddHideTokensViewController)
@@ -53,8 +53,8 @@ class AddHideTokensViewController: UIViewController {
 
         emptyView = EmptyView.filterTokensEmptyView(completion: { [weak self] in
             guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
-
-            delegate.didPressAddToken(in: strongSelf)
+            let addressString = strongSelf.searchController.searchBar.text ?? ""
+            delegate.didPressAddToken(in: strongSelf, with: addressString)
         }) 
 
         view.addSubview(tableView)
@@ -106,7 +106,7 @@ class AddHideTokensViewController: UIViewController {
     }
 
     @objc private func addToken() {
-        delegate?.didPressAddToken(in: self)
+        delegate?.didPressAddToken(in: self, with: "")
     }
 
     private func configure(viewModel: AddHideTokensViewModel) {
