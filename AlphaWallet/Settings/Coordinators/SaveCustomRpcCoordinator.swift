@@ -27,13 +27,17 @@ enum SaveOperationType {
     }
 }
 
+typealias OverallProtocol = SaveCustomRpcHandleUrlFailure & HandleAddMultipleCustomRpcViewControllerResponse
+
 class SaveCustomRpcCoordinator: NSObject, Coordinator {
+
     private let navigationController: UINavigationController
     private let config: Config
     private let restartQueue: RestartTaskQueue
     private let analyticsCoordinator: AnalyticsCoordinator
     private let operation: SaveOperationType
-    private var viewController: SaveCustomRpcViewController?
+    private var activeViewController: OverallProtocol?
+
     var coordinators: [Coordinator] = []
     weak var delegate: SaveCustomRpcCoordinatorDelegate?
 
@@ -46,15 +50,34 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        let viewModel = SaveCustomRpcViewModel(model: operation.customRpc)
-        let viewController = SaveCustomRpcViewController(viewModel: viewModel)
-        self.viewController = viewController
-        viewController.delegate = self
-        setNaviationTitle(viewController: viewController)
+        switch operation {
+        case .add:
+            startAdd()
+        case .edit:
+            startEdit()
+        }
+    }
+
+    private func startAdd() {
+        let model = SaveCustomRpcOverallModel(manualOperation: operation, browseModel: computeRpcList())
+        let viewController = SaveCustomRpcOverallViewController(model: model)
+        viewController.browseDataDelegate = self
+        viewController.manualDataDelegate = self
+        activeViewController = viewController
+        setNavigationTitle(viewController: viewController)
         navigationController.pushViewController(viewController, animated: true)
     }
 
-    private func setNaviationTitle(viewController: SaveCustomRpcViewController) {
+    private func startEdit() {
+        let viewModel = SaveCustomRpcManualEntryViewModel(operation: operation)
+        let viewController = SaveCustomRpcManualEntryViewController(viewModel: viewModel)
+        activeViewController = viewController
+        viewController.dataDelegate = self
+        setNavigationTitle(viewController: viewController)
+        navigationController.pushViewController(viewController, animated: true)
+    }
+
+    private func setNavigationTitle(viewController: UIViewController) {
         switch operation {
         case .add:
             viewController.navigationItem.title = R.string.localizable.addrpcServerNavigationTitle()
@@ -62,10 +85,21 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
             viewController.navigationItem.title = R.string.localizable.editCustomRPCNavigationTitle()
         }
     }
+
+    private func computeRpcList() -> [CustomRPC] {
+        let presentSet: Set = Set(RPCServer.availableServers.map { $0.chainID })
+        guard let available: [CustomRPC] = RpcNetwork.functional.availableServersFromCompressedJSONFile() else {
+            return []
+        }
+        let remaining = available.drop { presentSet.contains($0.chainID) }
+        return Array(remaining)
+    }
+
 }
 
-extension SaveCustomRpcCoordinator: SaveCustomRpcViewControllerDelegate {
-    func didFinish(in viewController: SaveCustomRpcViewController, customRpc: CustomRPC) {
+extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate {
+
+    func didFinish(in viewController: SaveCustomRpcManualEntryViewController, customRpc: CustomRPC) {
         let explorerEndpoints: [String]?
         let defaultDecimals = 18
 
@@ -80,9 +114,24 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcViewControllerDelegate {
         saveCustomChain.delegate = self
         saveCustomChain.run()
     }
+
+}
+
+extension SaveCustomRpcCoordinator: SaveCustomRpcBrowseViewControllerDataDelegate {
+
+    func didFinish(in viewController: SaveCustomRpcBrowseViewController, customRpcArray: [CustomRPC]) {
+        let model = AddMultipleCustomRpcModel(remainingCustomRpc: customRpcArray)
+        let addViewController = AddMultipleCustomRpcViewController(model: model, restartQueue: restartQueue)
+        addViewController.delegate = self
+        viewController.present(addViewController, animated: true) {
+            addViewController.start()
+        }
+    }
+
 }
 
 extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
+
     func notifyAddExplorerApiHostnameFailure(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<Bool> {
         UIAlertController.promptToUseUnresolvedExplorerURL(customChain: customChain, chainId: chainId, viewController: navigationController)
     }
@@ -105,11 +154,27 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
 
     func notifyRpcURlHostnameFailure() {
         DispatchQueue.main.async {
-            self.viewController?.handleRpcUrlFailure()
+            self.activeViewController?.handleRpcUrlFailure()
         }
     }
+
 }
 
-fileprivate extension CustomRPC {
+extension SaveCustomRpcCoordinator: AddMultipleCustomRpcViewControllerResponse {
+
+    func addMultipleCustomRpcCompleted() {
+        delegate?.restartToEdit(in: self)
+    }
+
+    func addMultipleCustomRpcFailed(added: NSArray, failed: NSArray, duplicates: NSArray, remaining: NSArray) {
+        // This passes the data to the SaveCustomrRpcOverallViewController which will then relay to the SaveCustomRpcBrowseViewController which will then remove all added, failed, and duplicated customRPCs from display and reload the tableview and display an error message indicating how many failed to add.
+        activeViewController?.handleAddMultipleCustomRpcFailure?(added: added, failed: failed, duplicates: duplicates, remaining: remaining)
+    }
+
+}
+
+extension CustomRPC {
+
     static let blank: CustomRPC = CustomRPC(chainID: 0, nativeCryptoTokenName: nil, chainName: "", symbol: nil, rpcEndpoint: "", explorerEndpoint: nil, etherscanCompatibleType: .unknown, isTestnet: false)
+
 }

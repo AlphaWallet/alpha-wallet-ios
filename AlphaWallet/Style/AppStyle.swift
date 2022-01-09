@@ -347,6 +347,10 @@ enum Style {
         static let height = 50.0
     }
 
+    enum Animation {
+        static let duration = 0.5
+        static let curve: UIView.AnimationCurve = .easeInOut
+    }
     enum Wallet {
         enum Header {
             static let height = 60.0
@@ -400,6 +404,29 @@ enum Style {
     enum NavigationBar {
         enum Separator {
             static let color: UIColor = R.color.mercury()!
+        }
+    }
+    enum RPCServerTableView {
+        static let HeaderHeight: CGFloat = 50.0
+        enum Cell {
+            enum text {
+                static let color: UIColor = R.color.black()!
+            }
+            enum detailedText {
+                static let color: UIColor = R.color.dove()!
+            }
+            enum tint {
+                static let color: UIColor = R.color.azure()!
+            }
+        }
+    }
+    enum Search {
+        enum Network {
+            enum Empty {
+                static let font = R.font.sourceSansProRegular(size: 17.0)
+                static let color: UIColor = R.color.mine()!
+                static let text: String = R.string.localizable.searchNetworkResultEmpty()
+            }
         }
     }
     enum ScrollableSegmentedControl {
