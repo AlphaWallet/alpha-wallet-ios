@@ -49,9 +49,9 @@ class BalanceCoordinator: NSObject, BalanceCoordinatorType {
 
         super.init()
 
-        balanceSubscriptionKey = privateSubscribableViewModel.subscribe { [weak self] viewModel in
+        balanceSubscriptionKey = privateSubscribableViewModel.subscribe { [weak subscribableEthBalanceViewModel] viewModel in
             DispatchQueue.main.async {
-                self?.subscribableEthBalanceViewModel.value = viewModel
+                subscribableEthBalanceViewModel?.value = viewModel
             }
         }
     }
