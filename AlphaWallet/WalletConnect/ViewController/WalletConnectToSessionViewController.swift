@@ -144,7 +144,7 @@ class WalletConnectToSessionViewController: UIViewController {
         contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
             guard let strongSelf = self, strongSelf.allowDismissalAnimation else { return }
 
-            let statusBarHeight = UIApplication.shared.statusBarFrame.height
+            let statusBarHeight = UIApplication.shared.firstKeyWindow?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
             let contentHeight = scrollView.contentSize.height + DataEntry.Metric.TransactionConfirmation.footerHeight + DataEntry.Metric.TransactionConfirmation.headerHeight + UIApplication.shared.bottomSafeAreaHeight
             let newHeight = min(UIScreen.main.bounds.height - statusBarHeight, contentHeight)
 

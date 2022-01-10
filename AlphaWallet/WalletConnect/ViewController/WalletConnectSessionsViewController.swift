@@ -41,7 +41,7 @@ class WalletConnectSessionsViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     
     private lazy var spinner: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView(style: .gray)
+        let view = UIActivityIndicatorView(style: .medium)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.hidesWhenStopped = true
         view.tintColor = .red

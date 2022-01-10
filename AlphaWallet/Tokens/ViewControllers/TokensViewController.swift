@@ -749,10 +749,6 @@ extension TokensViewController {
         definesPresentationContext = true
     }
 
-    private func doNotDimTableViewToReuseTableForFilteringResult() {
-        searchController.dimsBackgroundDuringPresentation = false
-    }
-
     private func wireUpSearchController() {
         searchController.searchResultsUpdater = self
     }
@@ -764,7 +760,6 @@ extension TokensViewController {
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
         TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: viewModel.backgroundColor)
-        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
     }
 

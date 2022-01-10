@@ -90,10 +90,11 @@ class KeyboardChecker: NSObject {
             }
         }
 
-        UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration) {
+        UIView.animate(withDuration: change.duration, delay: 0, options: [change.curve], animations: {
             view.layoutIfNeeded()
-        }
+        }, completion: { _ in
+
+        })
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
@@ -121,10 +122,11 @@ class KeyboardChecker: NSObject {
             }
         }
 
-        UIView.setAnimationCurve(change.curve)
-        UIView.animate(withDuration: change.duration) {
+        UIView.animate(withDuration: change.duration, delay: 0, options: [change.curve], animations: {
             view.layoutIfNeeded()
-        }
+        }, completion: { _ in
+
+        })
     }
 }
 
@@ -134,7 +136,7 @@ extension Notification {
         let beginFrame: CGRect
         let endFrame: CGRect
         let duration: Double
-        let curve: UIView.AnimationCurve
+        let curve: UIView.AnimationOptions
 
         init?(_ notification: Notification) {
             guard let info = notification.userInfo else {
@@ -144,7 +146,7 @@ extension Notification {
             beginFrame = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
             endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
             duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-            curve = UIView.AnimationCurve(rawValue: (info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue)!
+            curve = UIView.AnimationOptions(rawValue: UInt((info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue))
         }
     }
 

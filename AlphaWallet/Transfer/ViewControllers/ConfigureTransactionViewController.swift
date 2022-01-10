@@ -140,11 +140,9 @@ class ConfigureTransactionViewController: UIViewController {
 
         let endFrame = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
         let duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-        let curve = UIView.AnimationCurve(rawValue: (info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue)!
+        let curve = UIView.AnimationOptions(rawValue: UInt((info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue))
         let bottom = endFrame.height - UIApplication.shared.bottomSafeAreaHeight
-
-        UIView.setAnimationCurve(curve)
-        UIView.animate(withDuration: duration, animations: {
+        UIView.animate(withDuration: duration, delay: 0, options: [curve], animations: {
             self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottom, right: 0)
             self.tableView.scrollIndicatorInsets = self.tableView.contentInset
         }, completion: { _ in
@@ -158,10 +156,8 @@ class ConfigureTransactionViewController: UIViewController {
         }
 
         let duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-        let curve = UIView.AnimationCurve(rawValue: (info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue)!
-
-        UIView.setAnimationCurve(curve)
-        UIView.animate(withDuration: duration, animations: {
+        let curve = UIView.AnimationOptions(rawValue: UInt((info[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).intValue))
+        UIView.animate(withDuration: duration, delay: 0, options: [curve], animations: {
             self.tableView.contentInset = .zero
             self.tableView.scrollIndicatorInsets = self.tableView.contentInset
         }, completion: { _ in
