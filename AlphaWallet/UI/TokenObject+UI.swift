@@ -103,16 +103,6 @@ extension TokenObject {
     fileprivate static let numberOfCharactersOfSymbolToShowInIcon = 4
 
     var icon: Subscribable<TokenImage> {
-        switch type {
-        case .nativeCryptocurrency:
-            if let img = server.iconImage {
-                return .init((image: .image(img), symbol: "", isFinal: true, overlayServerIcon: nil))
-            }
-        case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
-            if let img = contractAddress.tokenImage {
-                return .init((image: .image(img), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon))
-            }
-        }
         return TokenImageFetcher.instance.image(forToken: self)
     }
 }
@@ -168,14 +158,29 @@ class TokenImageFetcher {
                 return subscribable
             }
         } else {
-            let sub = Subscribable<TokenImage>(nil)
+            let sub = Subscribable<TokenImage>(getDefaultOrGenerateIcon())
             Self.subscribables[key] = sub
             subscribable = sub
         }
 
+        func getDefaultOrGenerateIcon() -> TokenImage? {
+            switch type {
+            case .nativeCryptocurrency:
+                if let img = server.iconImage {
+                    return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: nil)
+                }
+            case .erc20, .erc875, .erc721, .erc721ForTickets, .erc1155:
+                if let img = contractAddress.tokenImage {
+                    return (image: .image(img), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+                }
+            }
+
+            return Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
+        }
+
         if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             queue.async {
-                let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
+                let generatedImage = getDefaultOrGenerateIcon()
 
                 DispatchQueue.main.async {
                     subscribable.value = generatedImage
@@ -185,7 +190,7 @@ class TokenImageFetcher {
         }
 
         queue.async {
-            let generatedImage = Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
+            let generatedImage = getDefaultOrGenerateIcon()
 
             DispatchQueue.main.async {
                 if subscribable.value == nil {
