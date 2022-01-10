@@ -47,18 +47,18 @@ enum SignatureConfirmationViewModel {
     }
 
     var navigationTitle: String {
-        return R.string.localizable.signatureConfirmationTitle()
+        return R.string.localizable.signatureConfirmationTitle(preferredLanguages: Languages.preferred())
     }
 
     var title: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        return R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred())
     }
     var confirmationButtonTitle: String {
-        return R.string.localizable.confirmPaymentSignButtonTitle()
+        return R.string.localizable.confirmPaymentSignButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var cancelationButtonTitle: String {
-        return R.string.localizable.cancel()
+        return R.string.localizable.cancel(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -92,7 +92,7 @@ enum SignatureConfirmationViewModel {
         }
 
         var viewModels: [ViewModelType] {
-            let header = R.string.localizable.signatureConfirmationMessageTitle()
+            let header = R.string.localizable.signatureConfirmationMessageTitle(preferredLanguages: Languages.preferred())
             var values: [ViewModelType] = []
             values = WalletConnectSessionBridgeToViewModelTypeArray(walletConnectSession: walletConnectSession).convert()
 
@@ -115,8 +115,8 @@ enum SignatureConfirmationViewModel {
         func convert() -> [MessageConfirmationViewModel.ViewModelType] {
             guard let session = walletConnectSession else { return [] }
 
-            var sessionNameHeader: String { R.string.localizable.walletConnectSessionName() }
-            var serverNameHeader: String { R.string.localizable.settingsNetworkButtonTitle() }
+            var sessionNameHeader: String { R.string.localizable.walletConnectSessionName(preferredLanguages: Languages.preferred()) }
+            var serverNameHeader: String { R.string.localizable.settingsNetworkButtonTitle(preferredLanguages: Languages.preferred()) }
 
             return [
                 .header(.init(title: .normal(session.dappShortName), headerName: sessionNameHeader, configuration: .init(section: 0))),

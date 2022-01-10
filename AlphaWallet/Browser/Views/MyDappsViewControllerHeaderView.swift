@@ -58,9 +58,9 @@ class MyDappsViewControllerHeaderView: UIView {
         header.configure(viewModel: viewModel)
 
         if isEditing {
-            toggleEditModeButton.setTitle(R.string.localizable.done().localizedUppercase, for: .normal)
+            toggleEditModeButton.setTitle(R.string.localizable.done(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         } else {
-            toggleEditModeButton.setTitle(R.string.localizable.editButtonTitle().localizedUppercase, for: .normal)
+            toggleEditModeButton.setTitle(R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         }
         toggleEditModeButton.titleLabel?.font = Fonts.bold(size: 12)
     }

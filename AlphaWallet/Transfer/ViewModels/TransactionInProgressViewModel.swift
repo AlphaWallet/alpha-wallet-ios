@@ -13,7 +13,7 @@ struct TransactionInProgressViewModel {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
 
-        return NSAttributedString(string: R.string.localizable.aWalletTokenTransactionInProgressTitle(), attributes: [
+        return NSAttributedString(string: R.string.localizable.aWalletTokenTransactionInProgressTitle(preferredLanguages: Languages.preferred()), attributes: [
             .paragraphStyle: style,
             .font: Fonts.regular(size: 28),
             .foregroundColor: Colors.black
@@ -21,7 +21,7 @@ struct TransactionInProgressViewModel {
     }
 
     var subtitleAttributedText: NSAttributedString {
-        let x = R.string.localizable.aWalletTokenTransactionInProgressSubtitle()
+        let x = R.string.localizable.aWalletTokenTransactionInProgressSubtitle(preferredLanguages: Languages.preferred())
         let style = NSMutableParagraphStyle()
         style.alignment = .center
         style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 14
@@ -34,7 +34,7 @@ struct TransactionInProgressViewModel {
     }
 
     var okButtonTitle: String {
-        return R.string.localizable.aWalletTokenTransactionInProgressConfirm()
+        return R.string.localizable.aWalletTokenTransactionInProgressConfirm(preferredLanguages: Languages.preferred())
     }
 
     var image: UIImage? {

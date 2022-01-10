@@ -15,7 +15,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
 	var headerTitle: String {
-        return R.string.localizable.confirmSignMessage()
+        return R.string.localizable.confirmSignMessage(preferredLanguages: Languages.preferred())
 	}
 
     var subtitle: String {
@@ -66,11 +66,11 @@ struct ConfirmSignMessageViewControllerViewModel {
 
     var actionButtonTitle: String {
         //TODO better to be "Sign" ?
-        return R.string.localizable.oK()
+        return R.string.localizable.oK(preferredLanguages: Languages.preferred())
     }
 
     var cancelButtonTitle: String {
-        return R.string.localizable.aWalletTokenSellConfirmCancelButtonTitle()
+        return R.string.localizable.aWalletTokenSellConfirmCancelButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var singleMessageLabelFont: UIFont {

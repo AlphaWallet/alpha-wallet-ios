@@ -11,7 +11,7 @@ struct ActivityViewModel {
     }
 
     var viewControllerTitle: String {
-        R.string.localizable.activityTabbarItemTitle()
+        R.string.localizable.activityTabbarItemTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -35,13 +35,13 @@ struct ActivityViewModel {
             case .pending:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendPending(symbol))")
             case .completed:
-                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle()) \(symbol)")
+                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle(preferredLanguages: Languages.preferred())) \(symbol)")
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
             }
             return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            return NSAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
+            return NSAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle(preferredLanguages: Languages.preferred())) \(symbol)")
         case .erc20OwnerApproved, .erc721OwnerApproved:
             let string: NSMutableAttributedString
             switch activity.state {

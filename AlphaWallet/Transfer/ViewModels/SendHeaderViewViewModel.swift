@@ -12,7 +12,7 @@ enum TokenInfoPageViewModelConfiguration {
 struct TokenInfoPageViewModel {
 
     var tabTitle: String {
-        return R.string.localizable.tokenTabInfo()
+        return R.string.localizable.tokenTabInfo(preferredLanguages: Languages.preferred())
     }
 
     private let token: TokenObject
@@ -46,13 +46,13 @@ struct TokenInfoPageViewModel {
         } else {
             configurations = [
                 .charts,
-                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance())),
+                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: viewModel.dayViewModel),
                 .field(viewModel: viewModel.weekViewModel),
                 .field(viewModel: viewModel.monthViewModel),
                 .field(viewModel: viewModel.yearViewModel),
 
-                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
+                .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: viewModel.markerCapViewModel),
                 //.field(viewModel: viewModel.totalSupplyViewModel),
                 //.field(viewModel: viewModel.maxSupplyViewModel),
@@ -138,7 +138,7 @@ struct TokenInfoPageViewModel {
             .font: Screen.TokenCard.Font.valueChangeValue,
             .foregroundColor: Colors.black
         ])
-        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearLow(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearLow(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private var yearHighViewModel: TickerFieldValueViewModel {
@@ -155,27 +155,27 @@ struct TokenInfoPageViewModel {
             .font: Screen.TokenCard.Font.valueChangeValue,
             .foregroundColor: Colors.black
         ])
-        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearHigh(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldPerformanceYearHigh(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private var yearViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.year)
-        return .init(title: R.string.localizable.tokenInfoFieldStatsYear(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsYear(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private var monthViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.month)
-        return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsMonth(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private var weekViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.week)
-        return .init(title: R.string.localizable.tokenInfoFieldStatsWeek(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsWeek(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private var dayViewModel: TickerFieldValueViewModel {
         let attributedValue: NSAttributedString = attributedHistoryValue(period: ChartHistoryPeriod.day)
-        return .init(title: R.string.localizable.tokenInfoFieldStatsDay(), attributedValue: attributedValue)
+        return .init(title: R.string.localizable.tokenInfoFieldStatsDay(preferredLanguages: Languages.preferred()), attributedValue: attributedValue)
     }
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
@@ -224,7 +224,7 @@ struct TokenInfoPageViewModel {
     }
 
     private var testnetValueHintLabelAttributedString: NSAttributedString {
-        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
+        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(preferredLanguages: Languages.preferred()), attributes: [
             .font: Fonts.regular(size: 17),
             .foregroundColor: R.color.dove()!
         ])

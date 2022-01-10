@@ -29,7 +29,7 @@ class WalletQrCodeDonation {
     func donate() {
         guard #available(iOS 12.0, *) else { return }
         let activity = NSUserActivity(activityType: Self.activityType)
-        activity.title = R.string.localizable.donateShortcutsWalletQrCode()
+        activity.title = R.string.localizable.donateShortcutsWalletQrCode(preferredLanguages: Languages.preferred())
         let walletKey = "wallet"
         activity.addUserInfoEntries(from: [Self.userInfoType.key: Self.userInfoType.value, walletKey: address.eip55String])
         activity.requiredUserInfoKeys = [walletKey, Self.userInfoType.key]

@@ -54,7 +54,7 @@ class VerifySeedPhraseViewController: UIViewController {
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
                 delegate?.didVerifySeedPhraseSuccessfully(for: account, in: self)
             case .seedPhraseNotMatched:
-                errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong()
+                errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong(preferredLanguages: Languages.preferred())
                 errorLabel.textColor = viewModel.errorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
             case .keystoreError(let error):
@@ -196,7 +196,7 @@ class VerifySeedPhraseViewController: UIViewController {
     }
 
     @objc private func didTakeScreenShot() {
-        displaySuccess(message: R.string.localizable.walletsVerifySeedPhraseDoNotTakeScreenshotDescription())
+        displaySuccess(message: R.string.localizable.walletsVerifySeedPhraseDoNotTakeScreenshotDescription(preferredLanguages: Languages.preferred()))
     }
 
     private func showSeedPhrases() {
@@ -243,12 +243,12 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseCollectionView.configure()
 
         clearChooseSeedPhraseButton.addTarget(self, action: #selector(clearChosenSeedPhrases), for: .touchUpInside)
-        clearChooseSeedPhraseButton.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
+        clearChooseSeedPhraseButton.setTitle(R.string.localizable.clearButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         clearChooseSeedPhraseButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
         clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         buttonsBar.configure()
-        continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(), for: .normal)
+        continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(preferredLanguages: Languages.preferred()), for: .normal)
         continueButton.addTarget(self, action: #selector(verify), for: .touchUpInside)
     }
 

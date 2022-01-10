@@ -9,7 +9,7 @@ struct VerifySeedPhraseViewModel {
     }
 
     var title: String {
-        return R.string.localizable.walletsVerifySeedPhraseTitle()
+        return R.string.localizable.walletsVerifySeedPhraseTitle(preferredLanguages: Languages.preferred())
     }
 
     var seedPhraseTextViewBorderNormalColor: UIColor {

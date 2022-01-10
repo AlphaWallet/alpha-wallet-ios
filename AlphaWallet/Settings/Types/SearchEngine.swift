@@ -13,9 +13,9 @@ enum SearchEngine: Int {
     var title: String {
         switch self {
         case .google:
-            return R.string.localizable.google()
+            return R.string.localizable.google(preferredLanguages: Languages.preferred())
         case .duckDuckGo:
-            return R.string.localizable.duckDuckGo()
+            return R.string.localizable.duckDuckGo(preferredLanguages: Languages.preferred())
         }
     }
 

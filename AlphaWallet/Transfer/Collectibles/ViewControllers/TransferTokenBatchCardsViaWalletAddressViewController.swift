@@ -28,21 +28,21 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private lazy var recipientHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.sendRecipient().uppercased(), showTopSeparatorLine: false))
+        view.configure(viewModel: .init(text: R.string.localizable.sendRecipient(preferredLanguages: Languages.preferred()).uppercased(), showTopSeparatorLine: false))
 
         return view
     }()
 
     private lazy var amountHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.sendAmount().uppercased()))
+        view.configure(viewModel: .init(text: R.string.localizable.sendAmount(preferredLanguages: Languages.preferred()).uppercased()))
 
         return view
     }()
 
     private lazy var selectedTokenCardsHeaderView: SendViewSectionHeader = {
         let view = SendViewSectionHeader()
-        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens()))
+        view.configure(viewModel: .init(text: R.string.localizable.semifungiblesSelectedTokens(preferredLanguages: Languages.preferred())))
         return view
     }()
 
@@ -192,7 +192,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         amountHeaderView.isHidden = viewModel.isAmountSelectionHidden

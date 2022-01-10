@@ -37,23 +37,23 @@ enum AdvancedSettingsRow: CaseIterable {
     var title: String {
         switch self {
         case .console:
-            return R.string.localizable.aConsoleTitle()
+            return R.string.localizable.aConsoleTitle(preferredLanguages: Languages.preferred())
         case .clearBrowserCache:
-            return R.string.localizable.aSettingsContentsClearDappBrowserCache()
+            return R.string.localizable.aSettingsContentsClearDappBrowserCache(preferredLanguages: Languages.preferred())
         case .tokenScript:
-            return R.string.localizable.aHelpAssetDefinitionOverridesTitle()
+            return R.string.localizable.aHelpAssetDefinitionOverridesTitle(preferredLanguages: Languages.preferred())
         case .changeLanguage:
-            return R.string.localizable.settingsLanguageButtonTitle()
+            return R.string.localizable.settingsLanguageButtonTitle(preferredLanguages: Languages.preferred())
         case .changeCurrency:
-            return R.string.localizable.settingsChangeCurrencyTitle()
+            return R.string.localizable.settingsChangeCurrencyTitle(preferredLanguages: Languages.preferred())
         case .analytics:
-            return R.string.localizable.settingsAnalitycsTitle()
+            return R.string.localizable.settingsAnalitycsTitle(preferredLanguages: Languages.preferred())
         case .usePrivateNetwork:
-            return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
+            return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle(preferredLanguages: Languages.preferred())
         case .pingInfura:
-            return R.string.localizable.settingsPingInfuraTitle()
+            return R.string.localizable.settingsPingInfuraTitle(preferredLanguages: Languages.preferred())
         case .exportJSONKeystore:
-            return R.string.localizable.settingsAdvancedExportJSONKeystoreTitle()
+            return R.string.localizable.settingsAdvancedExportJSONKeystoreTitle(preferredLanguages: Languages.preferred())
         }
     }
 

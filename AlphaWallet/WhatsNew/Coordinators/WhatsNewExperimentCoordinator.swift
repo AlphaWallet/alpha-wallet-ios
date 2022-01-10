@@ -60,7 +60,7 @@ class WhatsNewExperimentCoordinator: Coordinator {
                         "3. Type: wallet QR",
                     ])
         ])
-        coordinator.display(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(), shouldShowCheckmarks: false), delegate: self)
+        coordinator.display(viewModel: .init(model: listings, title: R.string.localizable.whatsNew(preferredLanguages: Languages.preferred()), shouldShowCheckmarks: false), delegate: self)
     }
 }
 

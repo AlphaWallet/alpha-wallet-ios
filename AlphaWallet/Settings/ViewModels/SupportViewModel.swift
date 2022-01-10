@@ -10,7 +10,7 @@ import UIKit
 class SupportViewModel: NSObject {
 
     var title: String {
-        R.string.localizable.settingsSupportTitle()
+        R.string.localizable.settingsSupportTitle(preferredLanguages: Languages.preferred())
     }
 
     var rows: [SupportRow] = [.telegramCustomer, .discord, .email, .twitter, .github, .faq]

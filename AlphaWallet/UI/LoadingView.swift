@@ -14,7 +14,7 @@ class LoadingView: UIView {
 
     init(
         frame: CGRect = .zero,
-        message: String = R.string.localizable.loading(),
+        message: String = R.string.localizable.loading(preferredLanguages: Languages.preferred()),
         image: UIImage? = .none,
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     ) {

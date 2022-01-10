@@ -119,15 +119,15 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    return R.string.localizable.tokenTransactionConfirmationNetwork(preferredLanguages: Languages.preferred())
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .balance:
-                    return R.string.localizable.transactionConfirmationSendSectionBalanceTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionBalanceTitle(preferredLanguages: Languages.preferred())
                 case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle(preferredLanguages: Languages.preferred())
                 case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle(preferredLanguages: Languages.preferred())
                 }
             }
         }
@@ -268,7 +268,7 @@ extension TransactionConfirmationViewModel {
             case .network:
                 return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
             case .balance:
-                let title = R.string.localizable.tokenTransactionConfirmationDefault()
+                let title = R.string.localizable.tokenTransactionConfirmationDefault(preferredLanguages: Languages.preferred())
                 return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
@@ -295,13 +295,13 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    return R.string.localizable.tokenTransactionConfirmationNetwork(preferredLanguages: Languages.preferred())
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle(preferredLanguages: Languages.preferred())
                 case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle(preferredLanguages: Languages.preferred())
                 }
             }
 
@@ -401,15 +401,15 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    return R.string.localizable.tokenTransactionConfirmationNetwork(preferredLanguages: Languages.preferred())
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .contract:
-                    return R.string.localizable.tokenTransactionConfirmationContractTitle()
+                    return R.string.localizable.tokenTransactionConfirmationContractTitle(preferredLanguages: Languages.preferred())
                 case .function:
-                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle()
+                    return R.string.localizable.tokenTransactionConfirmationFunctionTitle(preferredLanguages: Languages.preferred())
                 case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle(preferredLanguages: Languages.preferred())
                 }
             }
         }
@@ -489,13 +489,13 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    return R.string.localizable.tokenTransactionConfirmationNetwork(preferredLanguages: Languages.preferred())
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .recipient:
-                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionRecipientTitle(preferredLanguages: Languages.preferred())
                 case .tokenId:
-                    return R.string.localizable.transactionConfirmationSendSectionTokenIdTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionTokenIdTitle(preferredLanguages: Languages.preferred())
                 }
             }
         }
@@ -632,13 +632,13 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .network:
-                    return R.string.localizable.tokenTransactionConfirmationNetwork()
+                    return R.string.localizable.tokenTransactionConfirmationNetwork(preferredLanguages: Languages.preferred())
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .amount:
-                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle()
+                    return R.string.localizable.transactionConfirmationSendSectionAmountTitle(preferredLanguages: Languages.preferred())
                 case .numberOfTokens:
-                    return R.string.localizable.tokensTitlecase()
+                    return R.string.localizable.tokensTitlecase(preferredLanguages: Languages.preferred())
                 }
             }
         }
@@ -647,7 +647,7 @@ extension TransactionConfirmationViewModel {
         private let numberOfTokens: UInt
         let session: WalletSession
         private var defaultTitle: String {
-            return R.string.localizable.tokenTransactionConfirmationDefault()
+            return R.string.localizable.tokenTransactionConfirmationDefault(preferredLanguages: Languages.preferred())
         }
         private var configurationTitle: String {
             return configurator.selectedConfigurationType.title
@@ -716,9 +716,9 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .description:
-                    return R.string.localizable.activitySpeedupDescription()
+                    return R.string.localizable.activitySpeedupDescription(preferredLanguages: Languages.preferred())
                 }
             }
 
@@ -777,9 +777,9 @@ extension TransactionConfirmationViewModel {
             var title: String {
                 switch self {
                 case .gas:
-                    return R.string.localizable.tokenTransactionConfirmationGasTitle()
+                    return R.string.localizable.tokenTransactionConfirmationGasTitle(preferredLanguages: Languages.preferred())
                 case .description:
-                    return R.string.localizable.activityCancelDescription()
+                    return R.string.localizable.activityCancelDescription(preferredLanguages: Languages.preferred())
                 }
             }
 
@@ -835,29 +835,29 @@ extension TransactionConfirmationViewModel {
     var navigationTitle: String {
         switch self {
         case .sendFungiblesTransaction, .sendNftTransaction:
-            return R.string.localizable.tokenTransactionTransferConfirmationTitle()
+            return R.string.localizable.tokenTransactionTransferConfirmationTitle(preferredLanguages: Languages.preferred())
         case .dappOrWalletConnectTransaction, .tokenScriptTransaction:
-            return R.string.localizable.tokenTransactionConfirmationTitle()
+            return R.string.localizable.tokenTransactionConfirmationTitle(preferredLanguages: Languages.preferred())
         case .claimPaidErc875MagicLink:
-            return R.string.localizable.tokenTransactionPurchaseConfirmationTitle()
+            return R.string.localizable.tokenTransactionPurchaseConfirmationTitle(preferredLanguages: Languages.preferred())
         case .speedupTransaction:
-            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle(preferredLanguages: Languages.preferred())
         case .cancelTransaction:
-            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle()
+            return R.string.localizable.tokenTransactionSpeedupConfirmationTitle(preferredLanguages: Languages.preferred())
         }
     }
 
     var title: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        return R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred())
     }
     var confirmationButtonTitle: String {
         switch self {
         case .dappOrWalletConnectTransaction, .tokenScriptTransaction, .sendFungiblesTransaction, .sendNftTransaction, .claimPaidErc875MagicLink:
-            return R.string.localizable.confirmPaymentConfirmButtonTitle()
+            return R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred())
         case .speedupTransaction:
-            return R.string.localizable.activitySpeedup()
+            return R.string.localizable.activitySpeedup(preferredLanguages: Languages.preferred())
         case .cancelTransaction:
-            return R.string.localizable.tokenTransactionCancelConfirmationTitle()
+            return R.string.localizable.tokenTransactionCancelConfirmationTitle(preferredLanguages: Languages.preferred())
         }
     }
 

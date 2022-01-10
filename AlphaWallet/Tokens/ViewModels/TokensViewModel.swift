@@ -116,7 +116,7 @@ class TokensViewModel {
     }
 
     var walletDefaultTitle: String {
-        return R.string.localizable.walletTokensTabbarItemTitle()
+        return R.string.localizable.walletTokensTabbarItemTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -253,13 +253,13 @@ fileprivate extension WalletFilter {
     var title: String {
         switch self {
         case .all:
-            return R.string.localizable.aWalletContentsFilterAllTitle()
+            return R.string.localizable.aWalletContentsFilterAllTitle(preferredLanguages: Languages.preferred())
         case .currencyOnly:
-            return R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle()
+            return R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle(preferredLanguages: Languages.preferred())
         case .assetsOnly:
-            return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
+            return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle(preferredLanguages: Languages.preferred())
         case .collectiblesOnly:
-            return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
+            return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle(preferredLanguages: Languages.preferred())
         case .keyword, .type:
             return ""
         }

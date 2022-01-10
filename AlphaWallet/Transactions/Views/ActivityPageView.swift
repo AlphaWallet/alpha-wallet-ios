@@ -10,7 +10,7 @@ import StatefulViewController
 
 struct ActivityPageViewModel {
     var title: String {
-        return R.string.localizable.tokenTabActivity()
+        return R.string.localizable.tokenTabActivity(preferredLanguages: Languages.preferred())
     }
 
     let activitiesViewModel: ActivitiesViewModel

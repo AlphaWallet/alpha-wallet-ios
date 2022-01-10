@@ -253,7 +253,7 @@ private class PrivateXMLHandler {
 
     var labelInSingularForm: String? {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
-            return R.string.localizable.katTitlecase()
+            return R.string.localizable.katTitlecase(preferredLanguages: Languages.preferred())
         }
 
         if let labelStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let label = labelStringElement.text {
@@ -265,7 +265,7 @@ private class PrivateXMLHandler {
 
     var labelInPluralForm: String? {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
-            return R.string.localizable.katTitlecase()
+            return R.string.localizable.katTitlecase(preferredLanguages: Languages.preferred())
         }
 
         if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
@@ -907,7 +907,7 @@ public class XMLHandler {
         }
     }
 
-    func getLabel(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
+    func getLabel(fallback: String = R.string.localizable.tokenTitlecase(preferredLanguages: Languages.preferred())) -> String {
         if let baseXMLHandler = baseXMLHandler {
             return privateXMLHandler.labelInSingularForm ?? baseXMLHandler.labelInSingularForm ?? fallback
         } else {
@@ -915,7 +915,7 @@ public class XMLHandler {
         }
     }
 
-    func getNameInPluralForm(fallback: String = R.string.localizable.tokensTitlecase()) -> String {
+    func getNameInPluralForm(fallback: String = R.string.localizable.tokensTitlecase(preferredLanguages: Languages.preferred())) -> String {
         if let baseXMLHandler = baseXMLHandler {
             return privateXMLHandler.labelInPluralForm ?? baseXMLHandler.labelInPluralForm ?? fallback
         } else {

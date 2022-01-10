@@ -9,12 +9,12 @@ import UIKit
 import PromiseKit
 
 struct WalletConnectConnectionTimeoutViewModel {
-    let title: String = R.string.localizable.walletConnectErrorConnectionTimeoutTitle()
+    let title: String = R.string.localizable.walletConnectErrorConnectionTimeoutTitle(preferredLanguages: Languages.preferred())
 
     var errorMessage: String
 
     var actionButtonTitle: String {
-        return R.string.localizable.walletConnectScanQRCodeAgain()
+        return R.string.localizable.walletConnectScanQRCodeAgain(preferredLanguages: Languages.preferred())
     }
 
     init(errorMessage: String) {

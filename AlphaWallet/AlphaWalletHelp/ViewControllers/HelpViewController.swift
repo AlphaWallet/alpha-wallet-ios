@@ -8,11 +8,11 @@ protocol HelpViewControllerDelegate: class, CanOpenURL {
 class HelpViewController: UIViewController {
     private let banner = ContactUsBannerView()
     private lazy var rows: [(title: String, controller: UIViewController)] = [
-        (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController(delegate: self)),
-        (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController(delegate: self)),
-        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(), controller: HowDoITransferETHIntoMyWalletInfoViewController(delegate: self)),
-        (title: R.string.localizable.aHelpContentsPrivacyPolicy(), controller: PrivacyPolicyViewController(delegate: self)),
-        (title: R.string.localizable.aHelpContentsTermsOfService(), controller: TermsOfServiceViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsWhatIsETH(preferredLanguages: Languages.preferred()), controller: WhatIsEthereumInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(preferredLanguages: Languages.preferred()), controller: HowDoIGetMyMoneyInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(preferredLanguages: Languages.preferred()), controller: HowDoITransferETHIntoMyWalletInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsPrivacyPolicy(preferredLanguages: Languages.preferred()), controller: PrivacyPolicyViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsTermsOfService(preferredLanguages: Languages.preferred()), controller: TermsOfServiceViewController(delegate: self)),
     ]
     private weak var delegate: HelpViewControllerDelegate?
 
@@ -20,7 +20,7 @@ class HelpViewController: UIViewController {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.aHelpNavigationTitle()
+        title = R.string.localizable.aHelpNavigationTitle(preferredLanguages: Languages.preferred())
 
         view.backgroundColor = Colors.appBackground
 

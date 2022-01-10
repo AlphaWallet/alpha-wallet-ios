@@ -59,7 +59,7 @@ class TokenViewControllerHeaderView: UIView {
     private func configure() {
         recentTransactionsLabel.textColor = .init(red: 118, green: 118, blue: 118)
         recentTransactionsLabel.font = Fonts.semibold(size: 15)
-        recentTransactionsLabel.text = R.string.localizable.recentTransactions()
+        recentTransactionsLabel.text = R.string.localizable.recentTransactions(preferredLanguages: Languages.preferred())
 
         recentTransactionsLabelBorders.top.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
         recentTransactionsLabelBorders.bottom.backgroundColor = UIColor(red: 236, green: 236, blue: 236)

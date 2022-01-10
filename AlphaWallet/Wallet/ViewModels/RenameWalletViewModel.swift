@@ -11,15 +11,15 @@ struct RenameWalletViewModel {
     let account: AlphaWallet.Address
 
     var title: String {
-        return R.string.localizable.settingsWalletRename()
+        return R.string.localizable.settingsWalletRename(preferredLanguages: Languages.preferred())
     }
 
     var saveWalletNameTitle: String {
-        return R.string.localizable.walletRenameSave()
+        return R.string.localizable.walletRenameSave(preferredLanguages: Languages.preferred())
     }
 
     var walletNameTitle: String {
-        return R.string.localizable.walletRenameEnterNameTitle()
+        return R.string.localizable.walletRenameEnterNameTitle(preferredLanguages: Languages.preferred())
     }
 
     init(account: AlphaWallet.Address) {

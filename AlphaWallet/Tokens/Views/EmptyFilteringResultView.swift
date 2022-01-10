@@ -19,10 +19,10 @@ class EmptyFilteringResultView: UIView {
 
     init(
         frame: CGRect = .zero,
-        title: String = R.string.localizable.empty(),
+        title: String = R.string.localizable.empty(preferredLanguages: Languages.preferred()),
         image: UIImage? = R.image.no_transactions_mascot(),
         insets: UIEdgeInsets = .zero,
-        actionButtonTitle: String = R.string.localizable.addCustomTokenTitle(),
+        actionButtonTitle: String = R.string.localizable.addCustomTokenTitle(preferredLanguages: Languages.preferred()),
         onRetry: (() -> Void)? = .none
     ) {
         self.insets = insets

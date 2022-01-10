@@ -52,16 +52,16 @@ extension SortTokensParam: DropDownItemType {
         case .byField(let field, let direction):
             switch (field, direction) {
             case (.name, .ascending):
-                return R.string.localizable.sortTokensParamNameAscending()
+                return R.string.localizable.sortTokensParamNameAscending(preferredLanguages: Languages.preferred())
             case (.name, .descending):
-                return R.string.localizable.sortTokensParamNameDescending()
+                return R.string.localizable.sortTokensParamNameDescending(preferredLanguages: Languages.preferred())
             case (.value, .ascending):
-                return R.string.localizable.sortTokensParamValueAscending()
+                return R.string.localizable.sortTokensParamValueAscending(preferredLanguages: Languages.preferred())
             case (.value, .descending):
-                return R.string.localizable.sortTokensParamValueDescending()
+                return R.string.localizable.sortTokensParamValueDescending(preferredLanguages: Languages.preferred())
             }
         case .mostUsed:
-            return R.string.localizable.sortTokensParamMostUsed()
+            return R.string.localizable.sortTokensParamMostUsed(preferredLanguages: Languages.preferred())
         }
     }
 

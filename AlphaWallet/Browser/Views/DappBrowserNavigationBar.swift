@@ -64,7 +64,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         let closeButton = UIButton(type: .system)
         closeButton.tintColor = Colors.black
         closeButton.isHidden = true
-        closeButton.setTitle(R.string.localizable.done(), for: .normal)
+        closeButton.setTitle(R.string.localizable.done(preferredLanguages: Languages.preferred()), for: .normal)
         closeButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
@@ -82,7 +82,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.clearButtonMode = .whileEditing
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 40))
         textField.leftViewMode = .always
-        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
+        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder(preferredLanguages: Languages.preferred())
         textField.keyboardType = .webSearch
         textField.borderStyle = .none
         textField.backgroundColor = .white
@@ -229,7 +229,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         changeServerButton.setTitle(server.name, for: .normal)
 
-        cancelEditingButton.setTitle(R.string.localizable.cancel(), for: .normal)
+        cancelEditingButton.setTitle(R.string.localizable.cancel(preferredLanguages: Languages.preferred()), for: .normal)
     }
 
     func setBrowserBar(hidden: Bool) {

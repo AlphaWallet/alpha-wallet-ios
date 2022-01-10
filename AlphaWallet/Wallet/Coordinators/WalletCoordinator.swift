@@ -37,14 +37,14 @@ class WalletCoordinator: Coordinator {
         case .importWallet:
             let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
         case .watchWallet(let address):
             let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
             controller.watchAddressTextField.value = address?.eip55String ?? ""
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .plain, target: self, action: #selector(dismiss))
             controller.showWatchTab()
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
@@ -82,7 +82,7 @@ class WalletCoordinator: Coordinator {
 
     //TODO Rename this is create in both settings and new install
     func createInstantWallet() {
-        navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
+        navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(preferredLanguages: Languages.preferred()), animated: false)
         keystore.createAccount { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

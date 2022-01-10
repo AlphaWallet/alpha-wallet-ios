@@ -23,15 +23,15 @@ extension TokenCardSelectionViewController {
         var title: String {
             switch self {
             case .clear:
-                return R.string.localizable.semifungiblesToolbarClear()
+                return R.string.localizable.semifungiblesToolbarClear(preferredLanguages: Languages.preferred())
             case .selectAll:
-                return R.string.localizable.semifungiblesToolbarSelectAll()
+                return R.string.localizable.semifungiblesToolbarSelectAll(preferredLanguages: Languages.preferred())
             case .sell:
-                return R.string.localizable.semifungiblesToolbarSell()
+                return R.string.localizable.semifungiblesToolbarSell(preferredLanguages: Languages.preferred())
             case .deal:
-                return R.string.localizable.semifungiblesToolbarDeal()
+                return R.string.localizable.semifungiblesToolbarDeal(preferredLanguages: Languages.preferred())
             case .send:
-                return R.string.localizable.semifungiblesToolbarSend()
+                return R.string.localizable.semifungiblesToolbarSend(preferredLanguages: Languages.preferred())
             }
         }
     }
@@ -387,7 +387,7 @@ extension TokenCardSelectionViewController {
         
         lazy var selectAllButton: Button = {
             let button: Button = .init(size: .normal, style: .system)
-            button.setTitle(R.string.localizable.semifungiblesSelectionSelectAll(), for: .normal)
+            button.setTitle(R.string.localizable.semifungiblesSelectionSelectAll(preferredLanguages: Languages.preferred()), for: .normal)
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setContentCompressionResistancePriority(.required, for: .horizontal)
             button.setContentHuggingPriority(.required, for: .horizontal)

@@ -108,7 +108,7 @@ extension UIViewController {
 
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view
-        let action = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+        let action = UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default) { _ in
             seal.fulfill(())
         }
 

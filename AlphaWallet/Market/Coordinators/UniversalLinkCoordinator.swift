@@ -303,7 +303,7 @@ class UniversalLinkCoordinator: Coordinator {
             checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                 //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
                 guard supported || !requiresPaymaster else {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedServerDown())
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedServerDown(preferredLanguages: Languages.preferred()))
                     return
                 }
                 if supported {
@@ -359,7 +359,7 @@ class UniversalLinkCoordinator: Coordinator {
         let r = signedOrder.signature.substring(with: Range(uncheckedBounds: (2, 66)))
         checkIfLinkClaimed(r: r) { claimed in
             if claimed {
-                self.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
+                self.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed(preferredLanguages: Languages.preferred()))
             } else {
                 self.completeOrderHandling(signedOrder: signedOrder)
             }
@@ -372,9 +372,9 @@ class UniversalLinkCoordinator: Coordinator {
             guard let strongSelf = self else { return }
             guard let balance = try? result.dematerialize() else {
                 if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain(preferredLanguages: Languages.preferred()))
                 } else {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain(preferredLanguages: Languages.preferred()))
                 }
                 return
             }
@@ -384,7 +384,7 @@ class UniversalLinkCoordinator: Coordinator {
                     balance: balance
             )
             if filteredTokens.isEmpty {
-                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed(preferredLanguages: Languages.preferred()))
                 return
             }
 
@@ -434,14 +434,14 @@ class UniversalLinkCoordinator: Coordinator {
             prefix = server.magicLinkPrefix.description
         }
         guard let signedOrder = UniversalLinkHandler(server: server).parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
-            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain(preferredLanguages: Languages.preferred()))
             return false
         }
         importTokenViewController?.url = url
         importTokenViewController?.contract = signedOrder.order.contractAddress
 
         if isOrderExpired(signedOrder) {
-            showImportError(errorMessage: R.string.localizable.aClaimTokenLinkExpired())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenLinkExpired(preferredLanguages: Languages.preferred()))
             return true
         }
 
@@ -461,7 +461,7 @@ class UniversalLinkCoordinator: Coordinator {
                 )
             }
         case .failure:
-            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain(preferredLanguages: Languages.preferred()))
             return false
         }
         return true
@@ -536,9 +536,9 @@ class UniversalLinkCoordinator: Coordinator {
         let errorMessage: String
         switch server {
         case .xDai:
-            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
+            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle(preferredLanguages: Languages.preferred())
         case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
-            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
+            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle(preferredLanguages: Languages.preferred())
         }
         if ethPrice.value == nil {
             let ethCost = convert(ethCost: signedOrder.order.price)
@@ -599,7 +599,7 @@ class UniversalLinkCoordinator: Coordinator {
                 let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
-                let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
+                let localizedTokenTypeName = R.string.localizable.tokensTitlecase(preferredLanguages: Languages.preferred())
                 makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
                 let getContractName = strongSelf.tokenProvider.getContractName(for: contractAddress)
@@ -690,7 +690,7 @@ class UniversalLinkCoordinator: Coordinator {
                 strongSelf.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle(preferredLanguages: Languages.preferred()))
             }
         }
     }
@@ -721,7 +721,7 @@ class UniversalLinkCoordinator: Coordinator {
                 strongSelf.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle(preferredLanguages: Languages.preferred()))
             }
         }
     }

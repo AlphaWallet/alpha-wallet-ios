@@ -90,9 +90,9 @@ extension SignatureConfirmationDetailsViewModel {
         var title: String {
             switch rawValue {
             case .message:
-                return R.string.localizable.signatureConfirmationMessageTitle()
+                return R.string.localizable.signatureConfirmationMessageTitle(preferredLanguages: Languages.preferred())
             case .personalMessage:
-                return R.string.localizable.signatureConfirmationPersonalmessageTitle()
+                return R.string.localizable.signatureConfirmationPersonalmessageTitle(preferredLanguages: Languages.preferred())
             case .typedMessage, .eip712v3And4:
                 return String()
             }

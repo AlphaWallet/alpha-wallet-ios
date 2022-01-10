@@ -86,7 +86,7 @@ class TextView: UIControl {
     var pasteButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        button.setTitle(R.string.localizable.sendPasteButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)

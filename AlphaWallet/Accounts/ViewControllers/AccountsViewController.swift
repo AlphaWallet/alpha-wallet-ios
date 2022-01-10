@@ -85,9 +85,9 @@ class AccountsViewController: UIViewController {
 
     private func confirmDelete(account: Wallet) {
         confirm(
-            title: R.string.localizable.accountsConfirmDeleteTitle(),
-            message: R.string.localizable.accountsConfirmDeleteMessage(),
-            okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
+            title: R.string.localizable.accountsConfirmDeleteTitle(preferredLanguages: Languages.preferred()),
+            message: R.string.localizable.accountsConfirmDeleteMessage(preferredLanguages: Languages.preferred()),
+            okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(preferredLanguages: Languages.preferred()),
             okStyle: .destructive
         ) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -109,7 +109,7 @@ class AccountsViewController: UIViewController {
     }
 
     private func delete(account: Wallet) {
-        navigationController?.displayLoading(text: R.string.localizable.deleting())
+        navigationController?.displayLoading(text: R.string.localizable.deleting(preferredLanguages: Languages.preferred()))
         let result = keystore.delete(wallet: account)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
@@ -243,7 +243,7 @@ extension AccountsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 
-        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
+        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress(preferredLanguages: Languages.preferred())) { _, _, complete in
             guard let account = self.viewModel.account(for: indexPath) else { return }
             UIPasteboard.general.string = account.address.eip55String
             complete(true)
@@ -252,7 +252,7 @@ extension AccountsViewController: UITableViewDelegate {
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
         copyAction.backgroundColor = R.color.azure()
 
-        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
+        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction(preferredLanguages: Languages.preferred())) { _, _, complete in
             guard let account = self.viewModel.account(for: indexPath) else { return }
             self.confirmDelete(account: account)
 

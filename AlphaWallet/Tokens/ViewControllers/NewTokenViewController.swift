@@ -18,7 +18,7 @@ enum RPCServerOrAuto: Hashable {
     var displayName: String {
         switch self {
         case .auto:
-            return R.string.localizable.detectingServerAutomatically()
+            return R.string.localizable.detectingServerAutomatically(preferredLanguages: Languages.preferred())
         case .server(let server):
             return server.displayName
         }
@@ -27,7 +27,7 @@ enum RPCServerOrAuto: Hashable {
     var name: String {
         switch self {
         case .auto:
-            return R.string.localizable.detectingServerAutomaticallyButtonTitle()
+            return R.string.localizable.detectingServerAutomaticallyButtonTitle(preferredLanguages: Languages.preferred())
         case .server(let server):
             return server.name
         }
@@ -232,17 +232,17 @@ class NewTokenViewController: UIViewController {
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
-        saveButton.setTitle(R.string.localizable.done(), for: .normal)
+        saveButton.setTitle(R.string.localizable.done(preferredLanguages: Languages.preferred()), for: .normal)
     }
 
     private func updateSaveButtonBasedOnTokenTypeDetected() {
         let saveButton = buttonsBar.buttons[0]
         if tokenType == nil {
             saveButton.isEnabled = false
-            saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(), for: .normal)
+            saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(preferredLanguages: Languages.preferred()), for: .normal)
         } else {
             saveButton.isEnabled = true
-            saveButton.setTitle(R.string.localizable.done(), for: .normal)
+            saveButton.setTitle(R.string.localizable.done(preferredLanguages: Languages.preferred()), for: .normal)
         }
     }
 
@@ -282,7 +282,7 @@ class NewTokenViewController: UIViewController {
         var isValid: Bool = true
 
         if addressTextField.value.trimmed.isEmpty {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
             addressTextField.errorState = .error(error.prettyError)
             isValid = false
         } else {
@@ -290,7 +290,7 @@ class NewTokenViewController: UIViewController {
         }
 
         if nameTextField.value.trimmed.isEmpty {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
             nameTextField.status = .error(error.prettyError)
             isValid = false
         } else {
@@ -298,7 +298,7 @@ class NewTokenViewController: UIViewController {
         }
 
         if symbolTextField.value.trimmed.isEmpty {
-            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
             symbolTextField.status = .error(error.prettyError)
             isValid = false
         } else {
@@ -312,13 +312,13 @@ class NewTokenViewController: UIViewController {
             switch tokenType {
             case .nativeCryptocurrency, .erc20:
                 if decimalsTextField.value.trimmed.isEmpty {
-                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
                     decimalsTextField.status = .error(error.prettyError)
                     isValid = false
                 }
             case .erc721, .erc875, .erc721ForTickets, .erc1155:
                 if balanceTextField.value.trimmed.isEmpty {
-                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
                     balanceTextField.status = .error(error.prettyError)
                     isValid = false
                 }

@@ -15,7 +15,7 @@ class ExportJsonKeystorePasswordView: UIView {
         label.backgroundColor = R.color.white()!
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: Fonts.regular(size: 13.0))
         label.textColor = R.color.dove()!
-        label.text = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordLabel()
+        label.text = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordLabel(preferredLanguages: Languages.preferred())
         label.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         return label
     }()
@@ -28,7 +28,7 @@ class ExportJsonKeystorePasswordView: UIView {
         textField.textColor = R.color.mine()!
         textField.borderStyle = .roundedRect
         textField.isSecureTextEntry = true
-        textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
+        textField.placeholder = R.string.localizable.enterPasswordPasswordTextFieldPlaceholder(preferredLanguages: Languages.preferred())
         textField.autocorrectionType = .no
         textField.spellCheckingType = .no
         _ = textField.heightAnchor.constraint(equalToConstant: 50.0).isActive = true

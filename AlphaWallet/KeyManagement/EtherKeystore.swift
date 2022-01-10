@@ -366,7 +366,7 @@ open class EtherKeystore: NSObject, Keystore {
 
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
         let key: Data
-        switch getPrivateKeyFromNonHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
+        switch getPrivateKeyFromNonHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(preferredLanguages: Languages.preferred()), withUserPresence: isUserPresenceCheckPossible) {
         case .seed, .seedPhrase:
             //Not possible
             completion(.failure(.failedToExportPrivateKey))
@@ -390,7 +390,7 @@ open class EtherKeystore: NSObject, Keystore {
 
     func exportRawPrivateKeyFromHdWallet0thAddressForBackup(forAccount account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
         let key: Data
-        switch getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(), withUserPresence: isUserPresenceCheckPossible) {
+        switch getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup(preferredLanguages: Languages.preferred()), withUserPresence: isUserPresenceCheckPossible) {
         case .seed, .seedPhrase:
             //Not possible
             completion(.failure(.failedToExportPrivateKey))
@@ -427,7 +427,7 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
-        switch getSeedPhraseForHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(), context: context, withUserPresence: isUserPresenceCheckPossible) {
+        switch getSeedPhraseForHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(preferredLanguages: Languages.preferred()), context: context, withUserPresence: isUserPresenceCheckPossible) {
         case .seedPhrase(let actualSeedPhrase):
             let matched = inputSeedPhrase.lowercased() == actualSeedPhrase.lowercased()
             completion(.success(matched))
@@ -646,7 +646,7 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func getPrivateKeyForSigning(forAccount account: AlphaWallet.Address) -> WalletSeedOrKey {
-        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let prompt = R.string.localizable.keystoreAccessKeySign(preferredLanguages: Languages.preferred())
         if isHdWallet(account: account) {
             return getPrivateKeyFromHdWallet0thAddress(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
         } else {
@@ -844,7 +844,7 @@ open class EtherKeystore: NSObject, Keystore {
         let prompt: String
         var isSuccessful: Bool
         if isHdWallet(account: account) {
-            prompt = R.string.localizable.keystoreAccessKeyHdLock()
+            prompt = R.string.localizable.keystoreAccessKeyHdLock(preferredLanguages: Languages.preferred())
             let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: false)
             switch seed {
             case .seed(let seed):
@@ -870,7 +870,7 @@ open class EtherKeystore: NSObject, Keystore {
                 return false
             }
         } else {
-            prompt = R.string.localizable.keystoreAccessKeyNonHdLock()
+            prompt = R.string.localizable.keystoreAccessKeyNonHdLock(preferredLanguages: Languages.preferred())
             let keyStoredAsRawPrivateKey = getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: false)
             switch keyStoredAsRawPrivateKey {
             case .seed, .seedPhrase:

@@ -55,7 +55,7 @@ class ExportJsonKeystoreFileViewController: UIViewController {
     }
 
     private func configureController() {
-        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystoreFileTitle()
+        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystoreFileTitle(preferredLanguages: Languages.preferred())
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(requestDoneAction(_:)))
         navigationItem.rightBarButtonItems = [doneButton]
         fileView.setButton(title: buttonTitle)

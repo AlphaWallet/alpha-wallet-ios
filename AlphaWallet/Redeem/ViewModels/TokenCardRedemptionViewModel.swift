@@ -14,7 +14,7 @@ struct TokenCardRedemptionViewModel {
     let tokenHolder: TokenHolder
 
     var headerTitle: String {
-        return R.string.localizable.aWalletTokenRedeemShowQRCodeTitle()
+        return R.string.localizable.aWalletTokenRedeemShowQRCodeTitle(preferredLanguages: Languages.preferred())
     }
 
     var headerColor: UIColor {

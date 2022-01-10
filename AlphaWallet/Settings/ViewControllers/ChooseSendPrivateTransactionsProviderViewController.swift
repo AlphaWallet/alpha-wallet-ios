@@ -44,7 +44,7 @@ class ChooseSendPrivateTransactionsProviderViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
+        title = R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle(preferredLanguages: Languages.preferred())
         navigationItem.largeTitleDisplayMode = .never
     }
 

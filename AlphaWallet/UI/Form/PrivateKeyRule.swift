@@ -6,7 +6,7 @@ import Eureka
 public struct PrivateKeyRule<T: Equatable>: RuleType {
 
     public init(msg: String = "") {
-        let msg = msg.isEmpty ? R.string.localizable.importWalletImportInvalidPrivateKey() : msg
+        let msg = msg.isEmpty ? R.string.localizable.importWalletImportInvalidPrivateKey(preferredLanguages: Languages.preferred()) : msg
         self.validationError = ValidationError(msg: msg)
     }
 

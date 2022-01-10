@@ -118,7 +118,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
             let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
-                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
@@ -150,7 +150,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 

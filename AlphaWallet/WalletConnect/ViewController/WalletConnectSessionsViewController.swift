@@ -100,7 +100,7 @@ class WalletConnectSessionsViewController: UIViewController {
     }
 
     func configure(state: State) {
-        title = R.string.localizable.walletConnectTitle()
+        title = R.string.localizable.walletConnectTitle(preferredLanguages: Languages.preferred())
         set(state: state)
     }
 
@@ -146,7 +146,7 @@ extension WalletConnectSessionsViewController: UITableViewDelegate {
 
 extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let title = R.string.localizable.walletConnectSessionDisconnect()
+        let title = R.string.localizable.walletConnectSessionDisconnect(preferredLanguages: Languages.preferred())
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
             let session = strongSelf.sessionsValue[indexPath.row].session

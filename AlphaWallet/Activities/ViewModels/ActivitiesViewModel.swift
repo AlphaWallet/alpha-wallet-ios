@@ -208,10 +208,10 @@ struct ActivitiesViewModel {
     func titleForHeader(in section: Int) -> String {
         let date = filteredItems[section].date.date
         if NSCalendar.current.isDateInToday(date) {
-            return R.string.localizable.today().localizedUppercase
+            return R.string.localizable.today(preferredLanguages: Languages.preferred()).localizedUppercase
         }
         if NSCalendar.current.isDateInYesterday(date) {
-            return R.string.localizable.yesterday().localizedUppercase
+            return R.string.localizable.yesterday(preferredLanguages: Languages.preferred()).localizedUppercase
         }
 
         return filteredItems[section].date.stringValue.localizedUppercase

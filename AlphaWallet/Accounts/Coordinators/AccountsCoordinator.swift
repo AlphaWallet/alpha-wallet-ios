@@ -34,9 +34,9 @@ struct AccountsCoordinatorViewModel {
         var navigationTitle: String {
             switch self {
             case .changeWallets:
-                return R.string.localizable.walletNavigationTitle()
+                return R.string.localizable.walletNavigationTitle(preferredLanguages: Languages.preferred())
             case .summary:
-                return R.string.localizable.walletsNavigationTitle()
+                return R.string.localizable.walletsNavigationTitle(preferredLanguages: Languages.preferred())
             }
         }
     }
@@ -105,10 +105,10 @@ class AccountsCoordinator: Coordinator {
         UIAlertController.alert(title: nil,
                 message: nil,
                 alertButtonTitles: [
-                    R.string.localizable.walletCreateButtonTitle(),
-                    R.string.localizable.walletImportButtonTitle(),
-                    R.string.localizable.walletWatchButtonTitle(),
-                    R.string.localizable.cancel()
+                    R.string.localizable.walletCreateButtonTitle(preferredLanguages: Languages.preferred()),
+                    R.string.localizable.walletImportButtonTitle(preferredLanguages: Languages.preferred()),
+                    R.string.localizable.walletWatchButtonTitle(preferredLanguages: Languages.preferred()),
+                    R.string.localizable.cancel(preferredLanguages: Languages.preferred())
                 ],
                 alertButtonStyles: [
                     .default,
@@ -151,9 +151,9 @@ class AccountsCoordinator: Coordinator {
         case .real(let account):
             let actionTitle: String
             if keystore.isHdWallet(account: account) {
-                actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
+                actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle(preferredLanguages: Languages.preferred())
             } else {
-                actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
+                actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle(preferredLanguages: Languages.preferred())
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
@@ -164,7 +164,7 @@ class AccountsCoordinator: Coordinator {
             }
             controller.addAction(backupKeystoreAction)
 
-            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
+            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
                 self?.promptRenameWallet(account)
             }
 
@@ -172,27 +172,27 @@ class AccountsCoordinator: Coordinator {
                 controller.addAction(renameAction)
             }
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(preferredLanguages: Languages.preferred()), style: .default) { _ in
                 UIPasteboard.general.string = account.eip55String
             }
             controller.addAction(copyAction)
 
-            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in }
 
             controller.addAction(cancelAction)
 
             navigationController.present(controller, animated: true)
         case .watch:
-            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
+            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
                 self?.promptRenameWallet(account.address)
             }
             controller.addAction(renameAction)
 
-            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(preferredLanguages: Languages.preferred()), style: .default) { _ in
                 UIPasteboard.general.string = account.address.eip55String
             }
             controller.addAction(copyAction)
-            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in }
             controller.addAction(cancelAction)
 
             navigationController.present(controller, animated: true)
@@ -201,12 +201,12 @@ class AccountsCoordinator: Coordinator {
 
     private func promptRenameWallet(_ account: AlphaWallet.Address) {
         let alertController = UIAlertController(
-                title: R.string.localizable.walletsNameRenameTo(),
+                title: R.string.localizable.walletsNameRenameTo(preferredLanguages: Languages.preferred()),
                 message: nil,
                 preferredStyle: .alert
         )
 
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: { [weak self] _ -> Void in
             guard let strongSelf = self else { return }
             let textField = alertController.textFields![0] as UITextField
             let name = textField.text?.trimmed ?? ""
@@ -219,7 +219,7 @@ class AccountsCoordinator: Coordinator {
             strongSelf.accountsViewController.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration, analyticsCoordinator: strongSelf.analyticsCoordinator))
         }))
 
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel))
         alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
             guard let strongSelf = self else { return }
             ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: account) { result in

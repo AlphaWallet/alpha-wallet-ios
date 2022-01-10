@@ -41,7 +41,7 @@ class TokenCardSelectionViewModel {
         if tokenSelectionCount > 0 {
             return R.string.localizable.semifungiblesSelectedTokens2(String(tokenSelectionCount))
         } else {
-            return R.string.localizable.assetsSelectAssetTitle()
+            return R.string.localizable.assetsSelectAssetTitle(preferredLanguages: Languages.preferred())
         }
     }
 

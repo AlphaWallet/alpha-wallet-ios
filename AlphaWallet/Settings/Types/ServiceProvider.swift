@@ -15,19 +15,19 @@ enum URLServiceProvider {
     var title: String {
         switch self {
         case .discord:
-            return R.string.localizable.urlDiscord()
+            return R.string.localizable.urlDiscord(preferredLanguages: Languages.preferred())
         case .telegramCustomer:
-            return R.string.localizable.urlTelegramCustomer()
+            return R.string.localizable.urlTelegramCustomer(preferredLanguages: Languages.preferred())
         case .twitter:
-            return R.string.localizable.urlTwitter()
+            return R.string.localizable.urlTwitter(preferredLanguages: Languages.preferred())
         case .reddit:
-            return R.string.localizable.urlReddit()
+            return R.string.localizable.urlReddit(preferredLanguages: Languages.preferred())
         case .facebook:
-            return R.string.localizable.urlFacebook()
+            return R.string.localizable.urlFacebook(preferredLanguages: Languages.preferred())
         case .faq:
-            return R.string.localizable.urlFaq().uppercased()
+            return R.string.localizable.urlFaq(preferredLanguages: Languages.preferred()).uppercased()
         case .github:
-            return R.string.localizable.urlGithub()
+            return R.string.localizable.urlGithub(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -95,7 +95,7 @@ final class ContactUsEmailResolver: NSObject {
     private var emailTemplate: String {
         return """
                \n\n\n
-               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers(preferredLanguages: Languages.preferred()))
                \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
                \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
                \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
@@ -107,7 +107,7 @@ final class ContactUsEmailResolver: NSObject {
         let mailComposer = MFMailComposeViewController()
 
         mailComposer.setToRecipients([Constants.supportEmail])
-        mailComposer.setSubject(R.string.localizable.aHelpContactEmailSubject())
+        mailComposer.setSubject(R.string.localizable.aHelpContactEmailSubject(preferredLanguages: Languages.preferred()))
         mailComposer.setMessageBody(emailTemplate, isHTML: false)
         mailComposer.makePresentationFullScreenForiOS13Migration()
 

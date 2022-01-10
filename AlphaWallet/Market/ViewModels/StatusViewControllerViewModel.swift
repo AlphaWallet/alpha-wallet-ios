@@ -56,7 +56,7 @@ struct StatusViewControllerViewModel {
 		}
 	}
 	var actionButtonTitle: String {
-		return R.string.localizable.done()
+		return R.string.localizable.done(preferredLanguages: Languages.preferred())
 	}
 	var showActivityIndicator: Bool {
 		return state == .processing

@@ -76,7 +76,7 @@ class RequestViewController: UIViewController {
 
 		super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.aSettingsContentsMyWalletAddress()
+        title = R.string.localizable.aSettingsContentsMyWalletAddress(preferredLanguages: Languages.preferred())
 
 		view.backgroundColor = viewModel.backgroundColor
 		view.addSubview(roundedBackground)

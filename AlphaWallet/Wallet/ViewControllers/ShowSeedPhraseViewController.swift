@@ -154,7 +154,7 @@ class ShowSeedPhraseViewController: UIViewController {
     }
 
     @objc private func didTakeScreenShot() {
-        displaySuccess(message: R.string.localizable.walletsShowSeedPhraseDoNotTakeScreenshotDescription())
+        displaySuccess(message: R.string.localizable.walletsShowSeedPhraseDoNotTakeScreenshotDescription(preferredLanguages: Languages.preferred()))
     }
 
     private func showSeedPhrases() {

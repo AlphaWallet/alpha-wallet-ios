@@ -44,7 +44,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if let tokenHolder = tokenHolder {
             return R.string.localizable.aClaimTokenTitle(tokenHolder.name)
         } else {
-            return R.string.localizable.aClaimTokenTitle(R.string.localizable.tokensTitlecase())
+            return R.string.localizable.aClaimTokenTitle(R.string.localizable.tokensTitlecase(preferredLanguages: Languages.preferred()))
         }
     }
 
@@ -185,13 +185,13 @@ struct ImportMagicTokenViewControllerViewModel {
     var statusText: String {
         switch state {
         case .validating:
-            return R.string.localizable.aClaimTokenValidatingTitle()
+            return R.string.localizable.aClaimTokenValidatingTitle(preferredLanguages: Languages.preferred())
         case .promptImport:
-            return R.string.localizable.aClaimTokenPromptImportTitle()
+            return R.string.localizable.aClaimTokenPromptImportTitle(preferredLanguages: Languages.preferred())
         case .processing:
-            return R.string.localizable.aClaimTokenInProgressTitle()
+            return R.string.localizable.aClaimTokenInProgressTitle(preferredLanguages: Languages.preferred())
         case .succeeded:
-            return R.string.localizable.aClaimTokenSuccessTitle()
+            return R.string.localizable.aClaimTokenSuccessTitle(preferredLanguages: Languages.preferred())
         case .failed(let errorMessage):
             return errorMessage
         }
@@ -214,7 +214,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelLabelText: String {
-        return R.string.localizable.aClaimTokenEthCostLabelTitle()
+        return R.string.localizable.aClaimTokenEthCostLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var ethCostLabelLabelColor: UIColor {
@@ -226,10 +226,10 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        guard let cost = cost else { return R.string.localizable.aClaimTokenEthCostFreeTitle() }
+        guard let cost = cost else { return R.string.localizable.aClaimTokenEthCostFreeTitle(preferredLanguages: Languages.preferred()) }
         switch cost {
         case .free:
-            return R.string.localizable.aClaimTokenEthCostFreeTitle()
+            return R.string.localizable.aClaimTokenEthCostFreeTitle(preferredLanguages: Languages.preferred())
         case .paid(let ethCost, _):
             return "\(ethCost) \(server.symbol)"
         }
@@ -244,7 +244,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelText: String {
-        return R.string.localizable.aClaimTokenDollarCostLabelTitle()
+        return R.string.localizable.aClaimTokenDollarCostLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var dollarCostLabelLabelColor: UIColor {
@@ -294,9 +294,9 @@ struct ImportMagicTokenViewControllerViewModel {
             return ""
         case .promptImport:
             if transactionIsFree {
-                return R.string.localizable.aClaimTokenImportButtonTitle()
+                return R.string.localizable.aClaimTokenImportButtonTitle(preferredLanguages: Languages.preferred())
             } else {
-                return R.string.localizable.aClaimTokenPurchaseButtonTitle()
+                return R.string.localizable.aClaimTokenPurchaseButtonTitle(preferredLanguages: Languages.preferred())
             }
         case .processing:
             return ""
@@ -310,9 +310,9 @@ struct ImportMagicTokenViewControllerViewModel {
     var cancelButtonTitle: String {
         switch state {
         case .validating, .promptImport, .processing:
-            return R.string.localizable.cancel()
+            return R.string.localizable.cancel(preferredLanguages: Languages.preferred())
         case .succeeded, .failed:
-            return R.string.localizable.done()
+            return R.string.localizable.done(preferredLanguages: Languages.preferred())
         }
     }
 

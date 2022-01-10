@@ -181,7 +181,7 @@ class ConfigureTransactionViewController: UIViewController {
         label.numberOfLines = 0
         label.font = Fonts.regular(size: 15)
         label.textColor = R.color.dove()
-        label.text = R.string.localizable.transactionConfirmationFeeFooterText()
+        label.text = R.string.localizable.transactionConfirmationFeeFooterText(preferredLanguages: Languages.preferred())
         footer.addSubview(label)
         NSLayoutConstraint.activate([
             label.anchorsConstraint(to: footer, edgeInsets: UIEdgeInsets(top: 0, left: 32, bottom: 0, right: 32)),

@@ -9,9 +9,9 @@ enum SendPrivateTransactionsProvider: String {
     var title: String {
         switch self {
         case .ethermine:
-            return R.string.localizable.sendPrivateTransactionsProviderEtheremine()
+            return R.string.localizable.sendPrivateTransactionsProviderEtheremine(preferredLanguages: Languages.preferred())
         case .eden:
-            return R.string.localizable.sendPrivateTransactionsProviderEden()
+            return R.string.localizable.sendPrivateTransactionsProviderEden(preferredLanguages: Languages.preferred())
         }
     }
 

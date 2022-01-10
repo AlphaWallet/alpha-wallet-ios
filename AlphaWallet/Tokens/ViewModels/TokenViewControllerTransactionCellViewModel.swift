@@ -44,13 +44,13 @@ struct TokenViewControllerTransactionCellViewModel {
 
     var type: String {
         if transaction.state == .pending {
-            return R.string.localizable.transactionCellPendingTitle()
+            return R.string.localizable.transactionCellPendingTitle(preferredLanguages: Languages.preferred())
         } else {
             switch transactionViewModel.direction {
             case .incoming:
-                return R.string.localizable.transactionCellReceivedTitle()
+                return R.string.localizable.transactionCellReceivedTitle(preferredLanguages: Languages.preferred())
             case .outgoing:
-                return R.string.localizable.transactionCellSentTitle()
+                return R.string.localizable.transactionCellSentTitle(preferredLanguages: Languages.preferred())
             }
         }
     }

@@ -99,17 +99,17 @@ struct Erc1155TokenInstanceViewModel {
 
         let value: BigInt = values.valueIntValue ?? 0
         previewViewModels += [
-            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
+            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(preferredLanguages: Languages.preferred()), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
         ]
         if let description = values.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
             previewViewModels += [
-                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left), isSeparatorHidden: true))
             ]
         }
 
         return [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails(preferredLanguages: Languages.preferred())))
         ] + previewViewModels
     }
 

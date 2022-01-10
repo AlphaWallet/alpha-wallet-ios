@@ -7,7 +7,7 @@ struct LocalesViewModel {
     let selectedLocale: AppLocale
 
     var title: String {
-        return R.string.localizable.settingsLanguageButtonTitle()
+        return R.string.localizable.settingsLanguageButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     init(locales: [AppLocale], selectedLocale: AppLocale) {

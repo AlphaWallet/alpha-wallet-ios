@@ -21,9 +21,9 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
     }
 
     func start() {
-        UIAlertController.alert(title: "\(R.string.localizable.aSettingsContentsClearDappBrowserCache())?",
+        UIAlertController.alert(title: "\(R.string.localizable.aSettingsContentsClearDappBrowserCache(preferredLanguages: Languages.preferred()))?",
                 message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
+                alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred()), R.string.localizable.cancel(preferredLanguages: Languages.preferred())],
                 alertButtonStyles: [.destructive, .cancel],
                 viewController: viewController,
                 completion: { choice in

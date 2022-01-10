@@ -16,7 +16,7 @@ enum TokensCardCollectionInfoPageViewConfiguration {
 struct TokensCardCollectionInfoPageViewModel {
 
     var tabTitle: String {
-        return R.string.localizable.tokenTabInfo()
+        return R.string.localizable.tokenTabInfo(preferredLanguages: Languages.preferred())
     }
 
     private let tokenObject: TokenObject
@@ -44,7 +44,7 @@ struct TokensCardCollectionInfoPageViewModel {
         let attributedString: NSAttributedString? = string.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }
-        return .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: attributedString)
+        return .init(title: R.string.localizable.semifungiblesCreatedDate(preferredLanguages: Languages.preferred()), attributedValue: attributedString)
     }
 
     var descriptionViewModel: TokenInstanceAttributeViewModel? {
@@ -69,13 +69,13 @@ struct TokensCardCollectionInfoPageViewModel {
         var configurations: [TokensCardCollectionInfoPageViewConfiguration] = []
 
         configurations = [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails())),
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails(preferredLanguages: Languages.preferred()))),
             .field(viewModel: createdDateViewModel)
         ]
 
         if let viewModel = descriptionViewModel {
             configurations += [
-                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: viewModel),
             ]
         }

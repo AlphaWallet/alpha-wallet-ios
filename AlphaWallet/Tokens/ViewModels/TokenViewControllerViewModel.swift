@@ -137,10 +137,10 @@ struct TokenViewControllerViewModel {
     }
 
     var sendButtonTitle: String {
-        return R.string.localizable.send()
+        return R.string.localizable.send(preferredLanguages: Languages.preferred())
     }
 
     var receiveButtonTitle: String {
-        return R.string.localizable.receive()
+        return R.string.localizable.receive(preferredLanguages: Languages.preferred())
     }
 }

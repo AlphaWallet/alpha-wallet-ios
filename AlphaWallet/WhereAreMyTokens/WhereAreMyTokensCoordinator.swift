@@ -25,9 +25,9 @@ class WhereAreMyTokensCoordinator: NSObject, Coordinator {
     func start() {
         let viewController = PromptViewController()
         viewController.configure(viewModel: .init(
-            title: R.string.localizable.whereAreMyTokensTitle(),
-            description: R.string.localizable.whereAreMyTokensDescription(),
-            buttonTitle: R.string.localizable.whereAreMyTokensAction()
+            title: R.string.localizable.whereAreMyTokensTitle(preferredLanguages: Languages.preferred()),
+            description: R.string.localizable.whereAreMyTokensDescription(preferredLanguages: Languages.preferred()),
+            buttonTitle: R.string.localizable.whereAreMyTokensAction(preferredLanguages: Languages.preferred())
         ))
         viewController._delegate = self
 

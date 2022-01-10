@@ -11,11 +11,11 @@ struct PromptBackupWalletAfterIntervalViewViewModel: PromptBackupWalletViewModel
     }
 
     var title: String {
-        return R.string.localizable.backupPromptAfterIntervalTitle()
+        return R.string.localizable.backupPromptAfterIntervalTitle(preferredLanguages: Languages.preferred())
     }
 
     var description: String {
-        return R.string.localizable.backupPromptAfterIntervalDescription()
+        return R.string.localizable.backupPromptAfterIntervalDescription(preferredLanguages: Languages.preferred())
     }
 
     var backupButtonBackgroundColor: UIColor {

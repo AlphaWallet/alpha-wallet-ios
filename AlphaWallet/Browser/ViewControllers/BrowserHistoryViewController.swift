@@ -35,8 +35,8 @@ final class BrowserHistoryViewController: UIViewController {
         view.addSubview(tableView)
         emptyView = {
             let emptyView = DappsHomeEmptyView()
-            let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
-            emptyView.configure(viewModel: .init(headerViewViewModel: headerViewModel, title: R.string.localizable.browserNoHistoryLabelTitle()))
+            let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory(preferredLanguages: Languages.preferred()))
+            emptyView.configure(viewModel: .init(headerViewViewModel: headerViewModel, title: R.string.localizable.browserNoHistoryLabelTitle(preferredLanguages: Languages.preferred())))
             return emptyView
         }()
 
@@ -84,7 +84,7 @@ final class BrowserHistoryViewController: UIViewController {
     }
 
     private func resizeTableViewHeader() {
-        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory())
+        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.dappBrowserBrowserHistory(preferredLanguages: Languages.preferred()))
         headerView.delegate = self
         headerView.configure(viewModel: headerViewModel)
         let fittingSize = headerView.systemLayoutSizeFitting(.init(width: tableView.frame.size.width, height: 1000))
@@ -142,9 +142,9 @@ extension BrowserHistoryViewController: UITableViewDelegate {
         if editingStyle == .delete {
             let history = viewModel.item(for: indexPath)
             confirm(
-                    title: R.string.localizable.browserHistoryConfirmDeleteTitle(),
+                    title: R.string.localizable.browserHistoryConfirmDeleteTitle(preferredLanguages: Languages.preferred()),
                     message: history.url,
-                    okTitle: R.string.localizable.removeButtonTitle(),
+                    okTitle: R.string.localizable.removeButtonTitle(preferredLanguages: Languages.preferred()),
                     okStyle: .destructive
             ) { [weak self] result in
                 switch result {
@@ -163,9 +163,9 @@ extension BrowserHistoryViewController: UITableViewDelegate {
 extension BrowserHistoryViewController: BrowserHistoryViewControllerHeaderViewDelegate {
     func didTapClearAll(inHeaderView headerView: BrowserHistoryViewControllerHeaderView) {
         UIAlertController.alert(
-                title: R.string.localizable.dappBrowserClearHistory(),
-                message: R.string.localizable.dappBrowserClearHistoryPrompt(),
-                alertButtonTitles: [R.string.localizable.clearButtonTitle(), R.string.localizable.cancel()],
+                title: R.string.localizable.dappBrowserClearHistory(preferredLanguages: Languages.preferred()),
+                message: R.string.localizable.dappBrowserClearHistoryPrompt(preferredLanguages: Languages.preferred()),
+                alertButtonTitles: [R.string.localizable.clearButtonTitle(preferredLanguages: Languages.preferred()), R.string.localizable.cancel(preferredLanguages: Languages.preferred())],
                 alertButtonStyles: [.destructive, .cancel],
                 viewController: self,
                 completion: { [weak self] buttonIndex in

@@ -58,28 +58,28 @@ enum TransactionConfigurationType: Int, CaseIterable {
     var title: String {
         switch self {
         case .standard:
-            return R.string.localizable.transactionConfigurationTypeAverage()
+            return R.string.localizable.transactionConfigurationTypeAverage(preferredLanguages: Languages.preferred())
         case .slow:
-            return R.string.localizable.transactionConfigurationTypeSlow()
+            return R.string.localizable.transactionConfigurationTypeSlow(preferredLanguages: Languages.preferred())
         case .fast:
-            return R.string.localizable.transactionConfigurationTypeFast()
+            return R.string.localizable.transactionConfigurationTypeFast(preferredLanguages: Languages.preferred())
         case .rapid:
-            return R.string.localizable.transactionConfigurationTypeRapid()
+            return R.string.localizable.transactionConfigurationTypeRapid(preferredLanguages: Languages.preferred())
         case .custom:
-            return R.string.localizable.transactionConfigurationTypeCustom()
+            return R.string.localizable.transactionConfigurationTypeCustom(preferredLanguages: Languages.preferred())
         }
     }
 
     var estimatedProcessingTime: String {
         switch self {
         case .standard:
-            return R.string.localizable.transactionConfigurationTypeAverageTime()
+            return R.string.localizable.transactionConfigurationTypeAverageTime(preferredLanguages: Languages.preferred())
         case .slow:
-            return R.string.localizable.transactionConfigurationTypeSlowTime()
+            return R.string.localizable.transactionConfigurationTypeSlowTime(preferredLanguages: Languages.preferred())
         case .fast:
-            return R.string.localizable.transactionConfigurationTypeFastTime()
+            return R.string.localizable.transactionConfigurationTypeFastTime(preferredLanguages: Languages.preferred())
         case .rapid:
-            return R.string.localizable.transactionConfigurationTypeRapidTime()
+            return R.string.localizable.transactionConfigurationTypeRapidTime(preferredLanguages: Languages.preferred())
         case .custom:
             return ""
         }

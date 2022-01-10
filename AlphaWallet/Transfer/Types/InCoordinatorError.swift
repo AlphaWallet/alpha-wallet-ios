@@ -7,6 +7,6 @@ enum InCoordinatorError: LocalizedError {
     case onlyWatchAccount
 
     var errorDescription: String? {
-        return R.string.localizable.inCoordinatorErrorOnlyWatchAccount()
+        return R.string.localizable.inCoordinatorErrorOnlyWatchAccount(preferredLanguages: Languages.preferred())
     }
 }

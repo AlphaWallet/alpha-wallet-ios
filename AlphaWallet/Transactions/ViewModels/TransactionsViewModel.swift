@@ -81,10 +81,10 @@ struct TransactionsViewModel {
         guard let date = Self.formatter.date(from: value) else { return .init() }
         
         if NSCalendar.current.isDateInToday(date) {
-            return R.string.localizable.today().localizedUppercase
+            return R.string.localizable.today(preferredLanguages: Languages.preferred()).localizedUppercase
         }
         if NSCalendar.current.isDateInYesterday(date) {
-            return R.string.localizable.yesterday().localizedUppercase
+            return R.string.localizable.yesterday(preferredLanguages: Languages.preferred()).localizedUppercase
         }
         return value.localizedUppercase
     }

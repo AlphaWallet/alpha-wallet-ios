@@ -36,7 +36,7 @@ extension UIToolbar {
         toolbar.barStyle = .default
 
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: target, action: selector)
+        let done = UIBarButtonItem(title: R.string.localizable.done(preferredLanguages: Languages.preferred()), style: .done, target: target, action: selector)
 
         toolbar.items = [flexSpace, done]
         toolbar.sizeToFit()
@@ -50,7 +50,7 @@ extension UIToolbar {
         toolbar.barStyle = .default
 
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let next = UIBarButtonItem(title: R.string.localizable.next(), style: .plain, target: target, action: selector)
+        let next = UIBarButtonItem(title: R.string.localizable.next(preferredLanguages: Languages.preferred()), style: .plain, target: target, action: selector)
         toolbar.items = [flexSpace, next]
         toolbar.sizeToFit()
 

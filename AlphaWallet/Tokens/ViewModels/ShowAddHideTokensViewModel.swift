@@ -9,7 +9,7 @@ import UIKit
 
 struct ShowAddHideTokensViewModel {
     var addHideTokensIcon: UIImage?
-    var addHideTokensTitle: String? = R.string.localizable.walletsAddHideTokensTitle()
+    var addHideTokensTitle: String? = R.string.localizable.walletsAddHideTokensTitle(preferredLanguages: Languages.preferred())
     var addHideTokensTintColor: UIColor = Colors.appTint
     var addHideTokensTintFont: UIFont = Screen.Tokens.addHideTokenFont
 
@@ -35,10 +35,10 @@ struct ShowAddHideTokensViewModel {
 
 extension ShowAddHideTokensViewModel {
     static func configuredForTestnet() -> ShowAddHideTokensViewModel {
-        let titleAttributedString: NSAttributedString = .init(string: R.string.localizable.whereAreMyTokensTestnet(), attributes: [
+        let titleAttributedString: NSAttributedString = .init(string: R.string.localizable.whereAreMyTokensTestnet(preferredLanguages: Languages.preferred()), attributes: [
            .font: Fonts.bold(size: 24),
            .foregroundColor: Colors.black
         ])
-        return .init(addHideTokensTitle: R.string.localizable.whereAreMyTokensWhereAreMyTokens(), addHideTokensTintFont: Fonts.regular(size: 17), titleAttributedString: titleAttributedString)
+        return .init(addHideTokensTitle: R.string.localizable.whereAreMyTokensWhereAreMyTokens(preferredLanguages: Languages.preferred()), addHideTokensTintFont: Fonts.regular(size: 17), titleAttributedString: titleAttributedString)
     }
 }

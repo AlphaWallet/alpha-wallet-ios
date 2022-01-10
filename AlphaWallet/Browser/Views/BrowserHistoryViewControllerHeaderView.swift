@@ -42,7 +42,7 @@ class BrowserHistoryViewControllerHeaderView: UIView {
         backgroundColor = viewModel.backgroundColor
         header.configure(viewModel: viewModel)
 
-        clearButton.setTitle(R.string.localizable.clearButtonTitle().localizedUppercase, for: .normal)
+        clearButton.setTitle(R.string.localizable.clearButtonTitle(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         clearButton.titleLabel?.font = Fonts.bold(size: 12)
     }
 

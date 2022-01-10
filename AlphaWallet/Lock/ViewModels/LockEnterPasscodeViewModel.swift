@@ -3,7 +3,7 @@
 import UIKit
 
 class LockEnterPasscodeViewModel: LockViewModel {
-    let initialLabelText =  R.string.localizable.lockEnterPasscodeViewModelInitial()
-    let tryAfterOneMinute =  R.string.localizable.lockEnterPasscodeViewModelTryAfterOneMinute()
-    let loginReason = R.string.localizable.lockEnterPasscodeViewModelTouchId()
+    let initialLabelText =  R.string.localizable.lockEnterPasscodeViewModelInitial(preferredLanguages: Languages.preferred())
+    let tryAfterOneMinute =  R.string.localizable.lockEnterPasscodeViewModelTryAfterOneMinute(preferredLanguages: Languages.preferred())
+    let loginReason = R.string.localizable.lockEnterPasscodeViewModelTouchId(preferredLanguages: Languages.preferred())
 }

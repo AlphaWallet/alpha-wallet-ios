@@ -425,7 +425,7 @@ enum Style {
             enum Empty {
                 static let font = R.font.sourceSansProRegular(size: 17.0)
                 static let color: UIColor = R.color.mine()!
-                static let text: String = R.string.localizable.searchNetworkResultEmpty()
+                static let text: String = R.string.localizable.searchNetworkResultEmpty(preferredLanguages: Languages.preferred())
             }
         }
     }
@@ -434,5 +434,11 @@ enum Style {
     }
     enum ScrollableSegmentedControlCell {
         static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: R.font.sourceSansProSemibold(size: 15.0)!, nonHighlightedFont: R.font.sourceSansProRegular(size: 15.0)!, cellPadding: 8.0, textBottomPadding: 12.0)
+    }
+}
+
+struct Languages {
+    static func preferred() -> [String] {
+        return Bundle.main.preferredLocalizations
     }
 }

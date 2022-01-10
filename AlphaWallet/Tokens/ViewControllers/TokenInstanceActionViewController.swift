@@ -132,7 +132,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         //TODO better localized string, but we do want "Confirm" here
-        button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
+        button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         button.addTarget(self, action: #selector(proceed), for: .touchUpInside)
 
         let (html: html, hash: hash) = action.viewHtml(forTokenHolder: tokenHolder, tokenId: tokenHolder.tokenIds[0])

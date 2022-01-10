@@ -28,7 +28,7 @@ class ConsoleViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.aConsoleTitle()
+        title = R.string.localizable.aConsoleTitle(preferredLanguages: Languages.preferred())
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
 

@@ -33,9 +33,9 @@ struct BaseTokenCardTableViewCellViewModel {
             //TODO these states are not possible yet. We can return a meaningful string now, but just leaving it "" to make clear it's not possible yet
             return ""
         case .pending:
-            return R.string.localizable.transactionCellPendingTitle().localizedUppercase
+            return R.string.localizable.transactionCellPendingTitle(preferredLanguages: Languages.preferred()).localizedUppercase
         case .availableButDataUnavailable:
-            return R.string.localizable.transactionCellAvailableButDataUnavailableTitle().localizedUppercase
+            return R.string.localizable.transactionCellAvailableButDataUnavailableTitle(preferredLanguages: Languages.preferred()).localizedUppercase
         }
     }
 

@@ -31,7 +31,7 @@ struct SelectableTokenCardContainerTableViewCellViewModel {
     }
     
     var descriptionAttributedString: NSAttributedString {
-        return NSAttributedString(string: R.string.localizable.semifungiblesInfiniteFungibleToken(), attributes: [
+        return NSAttributedString(string: R.string.localizable.semifungiblesInfiniteFungibleToken(preferredLanguages: Languages.preferred()), attributes: [
             .foregroundColor: Screen.TokenCard.Color.subtitle,
             .font: Screen.TokenCard.Font.subtitle
         ])

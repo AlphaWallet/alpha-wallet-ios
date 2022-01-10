@@ -22,15 +22,15 @@ enum SendTransactionRetryableError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .possibleBinanceTestnetTimeout:
-            return R.string.localizable.sendTransactionErrorPossibleBinanceTestnetTimeout()
+            return R.string.localizable.sendTransactionErrorPossibleBinanceTestnetTimeout(preferredLanguages: Languages.preferred())
         case .rateLimited:
-            return R.string.localizable.sendTransactionErrorRateLimited()
+            return R.string.localizable.sendTransactionErrorRateLimited(preferredLanguages: Languages.preferred())
         case .networkConnectionWasLost:
-            return R.string.localizable.sendTransactionErrorNetworkConnectionWasLost()
+            return R.string.localizable.sendTransactionErrorNetworkConnectionWasLost(preferredLanguages: Languages.preferred())
         case .invalidCertificate:
-            return R.string.localizable.sendTransactionErrorInvalidCertificate()
+            return R.string.localizable.sendTransactionErrorInvalidCertificate(preferredLanguages: Languages.preferred())
         case .requestTimedOut:
-            return R.string.localizable.sendTransactionErrorRequestTimedOut()
+            return R.string.localizable.sendTransactionErrorRequestTimedOut(preferredLanguages: Languages.preferred())
         }
     }
 }

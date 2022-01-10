@@ -50,7 +50,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.supplyModel.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeSupplyType(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeSupplyType(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -58,7 +58,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.transferable.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTransferable(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTransferable(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -66,7 +66,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.meltStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMelt(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMelt(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -74,7 +74,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.meltFeeRatio.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeRatio(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeRatio(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -82,7 +82,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.meltFeeMaxRatio.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeMaxRatio(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeMaxRatio(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -90,7 +90,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.totalSupplyStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTotalSupply(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTotalSupply(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -98,7 +98,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.circulatingSupplyStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeCirculatingSupply(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeCirculatingSupply(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -106,7 +106,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.reserve.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeReserve(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeReserve(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -114,7 +114,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.nonFungible.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeNonFungible(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeNonFungible(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -122,7 +122,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.mintableSupply.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeAvailableToMint(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeAvailableToMint(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -130,7 +130,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.issuer.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeIssuer(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeIssuer(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -138,7 +138,7 @@ struct TokenInstanceViewModel {
         return tokenHolder.values.transferFee.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTransferFee(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTransferFee(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -147,7 +147,7 @@ struct TokenInstanceViewModel {
         let attributedString: NSAttributedString? = string.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }
-        return .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: attributedString)
+        return .init(title: R.string.localizable.semifungiblesCreatedDate(preferredLanguages: Languages.preferred()), attributedValue: attributedString)
     }
 
     var descriptionViewModel: TokenInstanceAttributeViewModel {
@@ -160,7 +160,7 @@ struct TokenInstanceViewModel {
     var tokenIdViewModel: TokenInstanceAttributeViewModel? {
         guard let values = tokenHolder.values(tokenId: tokenId), !values.isEmpty else { return nil }
         return values.tokenIdStringValue.flatMap { tokenId in
-            .init(title: R.string.localizable.semifungiblesTokenId(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId))
+            .init(title: R.string.localizable.semifungiblesTokenId(preferredLanguages: Languages.preferred()), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId))
         }
     }
 
@@ -193,17 +193,17 @@ struct TokenInstanceViewModel {
 
         let value: BigInt = values.valueIntValue ?? 0
         previewViewModels += [
-            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
+            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(preferredLanguages: Languages.preferred()), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
         ]
         if let description = values.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
             previewViewModels += [
-                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left), isSeparatorHidden: true))
             ]
         }
 
         return [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails(preferredLanguages: Languages.preferred())))
         ] + previewViewModels
     }
 

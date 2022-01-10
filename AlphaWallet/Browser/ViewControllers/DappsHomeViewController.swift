@@ -182,9 +182,9 @@ extension DappsHomeViewController: UICollectionViewDelegateFlowLayout {
 extension DappsHomeViewController: DappViewCellDelegate {
     func didTapDelete(dapp: Bookmark, inCell cell: DappViewCell) {
         confirm(
-                title: R.string.localizable.dappBrowserClearMyDapps(),
+                title: R.string.localizable.dappBrowserClearMyDapps(preferredLanguages: Languages.preferred()),
                 message: dapp.title,
-                okTitle: R.string.localizable.removeButtonTitle(),
+                okTitle: R.string.localizable.removeButtonTitle(preferredLanguages: Languages.preferred()),
                 okStyle: .destructive
         ) { [weak self] result in
             switch result {

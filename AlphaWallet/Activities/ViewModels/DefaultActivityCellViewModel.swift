@@ -39,7 +39,7 @@ struct DefaultActivityCellViewModel {
             case .pending:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendPending(symbol))")
             case .completed:
-                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle()) \(symbol)")
+                string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellSentTitle(preferredLanguages: Languages.preferred())) \(symbol)")
             case .failed:
                 string = NSMutableAttributedString(string: "\(R.string.localizable.activitySendFailed(symbol))")
             }
@@ -47,7 +47,7 @@ struct DefaultActivityCellViewModel {
             string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string
         case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle()) \(symbol)")
+            let string = NSMutableAttributedString(string: "\(R.string.localizable.transactionCellReceivedTitle(preferredLanguages: Languages.preferred())) \(symbol)")
             string.addAttribute(.font, value: Fonts.regular(size: 17), range: NSRange(location: 0, length: string.length))
             string.addAttribute(.font, value: Fonts.semibold(size: 17), range: NSRange(location: string.length - symbol.count, length: symbol.count))
             return string

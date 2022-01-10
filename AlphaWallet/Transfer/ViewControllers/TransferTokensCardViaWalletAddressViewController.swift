@@ -175,13 +175,13 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         targetAddressLabel.font = viewModel.targetAddressLabelFont
         targetAddressLabel.textColor = viewModel.targetAddressLabelTextColor
-        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
+        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle(preferredLanguages: Languages.preferred())
 
         targetAddressTextField.configureOnce()
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 

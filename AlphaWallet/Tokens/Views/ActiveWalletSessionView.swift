@@ -32,9 +32,9 @@ struct ActiveWalletSessionViewModel {
         style.alignment = .left
         let title: String
         if count == 1 {
-            title = R.string.localizable.walletConnectActiveSessions()
+            title = R.string.localizable.walletConnectActiveSessions(preferredLanguages: Languages.preferred())
         } else {
-            title = R.string.localizable.walletConnectActiveSessionsPlural()
+            title = R.string.localizable.walletConnectActiveSessionsPlural(preferredLanguages: Languages.preferred())
         }
         return .init(string: title, attributes: [
             .paragraphStyle: style,

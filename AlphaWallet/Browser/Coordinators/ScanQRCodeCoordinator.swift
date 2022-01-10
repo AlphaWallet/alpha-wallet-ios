@@ -23,17 +23,17 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
             showSwitchCameraButton: false,
             showTorchButton: true,
             showMyQRCodeButton: shouldShowMyQRCodeButton,
-            chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos(),
+            chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos(preferredLanguages: Languages.preferred()),
             bordersColor: Colors.qrCodeRectBorders,
-            messageText: R.string.localizable.qrCodeTitle(),
-            torchTitle: R.string.localizable.light(),
+            messageText: R.string.localizable.qrCodeTitle(preferredLanguages: Languages.preferred()),
+            torchTitle: R.string.localizable.light(preferredLanguages: Languages.preferred()),
             torchImage: R.image.light(),
             chooseFromPhotoLibraryButtonImage: R.image.browse(),
-            myQRCodeText: R.string.localizable.qrCodeMyqrCodeTitle(),
+            myQRCodeText: R.string.localizable.qrCodeMyqrCodeTitle(preferredLanguages: Languages.preferred()),
             myQRCodeImage: R.image.qrRoundedWhite()
         )
         controller.delegate = self
-        controller.title = R.string.localizable.browserScanQRCodeTitle()
+        controller.title = R.string.localizable.browserScanQRCodeTitle(preferredLanguages: Languages.preferred())
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
         controller.delegate = self
 

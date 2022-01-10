@@ -9,12 +9,12 @@ class CheckDeviceCoordinator: Coordinator {
 
     private lazy var alertViewController: UIAlertController = {
         let controller = UIAlertController(
-            title: R.string.localizable.appDeviceJailbreakTitle(),
-            message: R.string.localizable.appDeviceJailbreakDescription(),
+            title: R.string.localizable.appDeviceJailbreakTitle(preferredLanguages: Languages.preferred()),
+            message: R.string.localizable.appDeviceJailbreakDescription(preferredLanguages: Languages.preferred()),
             preferredStyle: .alert
         )
         controller.popoverPresentationController?.sourceView = navigationController.view
-        controller.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+        controller.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default))
 
         return controller
     }()

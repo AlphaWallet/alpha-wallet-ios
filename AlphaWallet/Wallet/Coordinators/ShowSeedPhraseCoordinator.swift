@@ -63,7 +63,7 @@ class ShowSeedPhraseCoordinator: Coordinator {
     private func createShowSeedPhraseViewController() -> ShowSeedPhraseViewController {
         var viewModel = ShowSeedPhraseViewModel(words: [])
         viewModel.subtitle = R.string.localizable.walletsShowSeedPhraseSubtitle2()
-        viewModel.buttonTitle = R.string.localizable.walletsShowSeedPhraseHideSeedPhrase()
+        viewModel.buttonTitle = R.string.localizable.walletsShowSeedPhraseHideSeedPhrase(preferredLanguages: Languages.preferred())
 
         let controller = ShowSeedPhraseViewController(keystore: keystore, account: account, viewModel: viewModel)
         controller.configure()

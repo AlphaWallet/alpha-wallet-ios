@@ -11,7 +11,7 @@ import PromiseKit
 extension VerifiableStatusViewController where Self: UIViewController {
     func updateNavigationRightBarButtons(withTokenScriptFileStatus statusPromise: Promise<TokenLevelTokenScriptDisplayStatus>?, hasShowInfoButton: Bool = true) {
         guard let status = statusPromise?.value else {
-            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(preferredLanguages: Languages.preferred()), style: .plain, target: nil, action: nil)
             var showInfoButton = hasShowInfoButton
             //TODO ugly. And duplicated below
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {

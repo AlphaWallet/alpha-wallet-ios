@@ -29,7 +29,7 @@ class TransactionsViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.transactionsTabbarItemTitle()
+        title = R.string.localizable.transactionsTabbarItemTitle(preferredLanguages: Languages.preferred())
 
         view.backgroundColor = self.viewModel.backgroundColor
 

@@ -10,12 +10,12 @@ struct KeystoreBackupIntroductionViewModel {
 
     var title: String {
         //The longer version is too long when another view controller is pushed onto it
-        let _ = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
-        return R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitleShorter()
+        let _ = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle(preferredLanguages: Languages.preferred())
+        return R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitleShorter(preferredLanguages: Languages.preferred())
     }
 
     var subtitle: String {
-        return R.string.localizable.walletsBackupKeystoreWalletIntroductionTitle()
+        return R.string.localizable.walletsBackupKeystoreWalletIntroductionTitle(preferredLanguages: Languages.preferred())
     }
 
     var subtitleColor: UIColor {
@@ -31,7 +31,7 @@ struct KeystoreBackupIntroductionViewModel {
     }
 
     var description: String {
-        return R.string.localizable.walletsBackupKeystoreWalletIntroductionDescription()
+        return R.string.localizable.walletsBackupKeystoreWalletIntroductionDescription(preferredLanguages: Languages.preferred())
     }
 
     var descriptionColor: UIColor {

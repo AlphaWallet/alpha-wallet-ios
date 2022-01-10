@@ -20,15 +20,15 @@ struct TokenInstanceAction {
     var name: String {
         switch type {
         case .erc20Send:
-            return R.string.localizable.send()
+            return R.string.localizable.send(preferredLanguages: Languages.preferred())
         case .erc20Receive:
-            return R.string.localizable.receive()
+            return R.string.localizable.receive(preferredLanguages: Languages.preferred())
         case .nftRedeem:
-            return R.string.localizable.aWalletTokenRedeemButtonTitle()
+            return R.string.localizable.aWalletTokenRedeemButtonTitle(preferredLanguages: Languages.preferred())
         case .nftSell:
-            return R.string.localizable.aWalletTokenSellButtonTitle()
+            return R.string.localizable.aWalletTokenSellButtonTitle(preferredLanguages: Languages.preferred())
         case .nonFungibleTransfer:
-            return R.string.localizable.aWalletTokenTransferButtonTitle()
+            return R.string.localizable.aWalletTokenTransferButtonTitle(preferredLanguages: Languages.preferred())
         case .tokenScript(_, let title, _, _, _, _):
             return title
         case .swap(let service):

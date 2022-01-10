@@ -55,7 +55,7 @@ class DiscoverDappCell: UITableViewCell {
         contentView.backgroundColor = viewModel.backgroundColor
 
         addButton.addTarget(self, action: #selector(onTappedAdd), for: .touchUpInside)
-        addButton.setTitle(R.string.localizable.addButtonTitle().localizedUppercase, for: .normal)
+        addButton.setTitle(R.string.localizable.addButtonTitle(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         addButton.isHidden = viewModel.isAddButtonHidden
         addButton.titleLabel?.font = viewModel.addRemoveButtonFont
         addButton.contentEdgeInsets = viewModel.addRemoveButtonContentEdgeInsets
@@ -64,7 +64,7 @@ class DiscoverDappCell: UITableViewCell {
         addButton.cornerRadius = viewModel.addRemoveButtonBorderCornerRadius
 
         removeButton.addTarget(self, action: #selector(onTappedRemove), for: .touchUpInside)
-        removeButton.setTitle(R.string.localizable.removeButtonTitle().localizedUppercase, for: .normal)
+        removeButton.setTitle(R.string.localizable.removeButtonTitle(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         removeButton.isHidden = viewModel.isRemoveButtonHidden
         removeButton.titleLabel?.font = viewModel.addRemoveButtonFont
         removeButton.contentEdgeInsets = viewModel.addRemoveButtonContentEdgeInsets

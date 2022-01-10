@@ -23,40 +23,40 @@ class SaveCustomRpcManualEntryView: UIView {
     var chainNameTextField: TextField = {
         let textField = defaultTextField(
             .default,
-            placeHolder: R.string.localizable.addrpcServerNetworkNameTitle(),
-            label: R.string.localizable.addrpcServerNetworkNameTitle())
+            placeHolder: R.string.localizable.addrpcServerNetworkNameTitle(preferredLanguages: Languages.preferred()),
+            label: R.string.localizable.addrpcServerNetworkNameTitle(preferredLanguages: Languages.preferred()))
         return textField
     }()
 
     var rpcEndPointTextField: TextField = {
         let textField = defaultTextField(
             .URL,
-            placeHolder: R.string.localizable.addrpcServerRpcUrlPlaceholder(),
-            label: R.string.localizable.addrpcServerRpcUrlTitle())
+            placeHolder: R.string.localizable.addrpcServerRpcUrlPlaceholder(preferredLanguages: Languages.preferred()),
+            label: R.string.localizable.addrpcServerRpcUrlTitle(preferredLanguages: Languages.preferred()))
         return textField
     }()
 
     var chainIDTextField: TextField = {
         let textField = defaultTextField(
             .decimalPad,
-            placeHolder: R.string.localizable.chainID(),
-            label: R.string.localizable.chainID())
+            placeHolder: R.string.localizable.chainID(preferredLanguages: Languages.preferred()),
+            label: R.string.localizable.chainID(preferredLanguages: Languages.preferred()))
         return textField
     }()
 
     var symbolTextField: TextField = {
         let textField = defaultTextField(
             .default,
-            placeHolder: R.string.localizable.symbol(),
-            label: R.string.localizable.symbol())
+            placeHolder: R.string.localizable.symbol(preferredLanguages: Languages.preferred()),
+            label: R.string.localizable.symbol(preferredLanguages: Languages.preferred()))
         return textField
     }()
 
     var explorerEndpointTextField: TextField = {
         let textField = defaultTextField(
             .URL,
-            placeHolder: R.string.localizable.addrpcServerBlockExplorerUrlPlaceholder(),
-            label: R.string.localizable.addrpcServerBlockExplorerUrlTitle())
+            placeHolder: R.string.localizable.addrpcServerBlockExplorerUrlPlaceholder(preferredLanguages: Languages.preferred()),
+            label: R.string.localizable.addrpcServerBlockExplorerUrlTitle(preferredLanguages: Languages.preferred()))
         textField.returnKeyType = .done
         return textField
     }()
@@ -150,7 +150,7 @@ class SaveCustomRpcManualEntryView: UIView {
         chainIDTextField.configureOnce()
         symbolTextField.configureOnce()
         explorerEndpointTextField.configureOnce()
-        buttonsBar.buttons[0].setTitle(R.string.localizable.editCustomRPCSaveButtonTitle(preferredLanguages: nil), for: .normal)
+        buttonsBar.buttons[0].setTitle(R.string.localizable.editCustomRPCSaveButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         configureInputAccessoryView()
     }
 

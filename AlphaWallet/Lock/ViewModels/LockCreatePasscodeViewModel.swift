@@ -3,7 +3,7 @@
 import UIKit
 
 class LockCreatePasscodeViewModel: LockViewModel {
-    let title = R.string.localizable.lockCreatePasscodeViewModelTitle()
-    let initialLabelText = R.string.localizable.lockCreatePasscodeViewModelInitial()
-    let confirmLabelText = R.string.localizable.lockCreatePasscodeViewModelConfirm()
+    let title = R.string.localizable.lockCreatePasscodeViewModelTitle(preferredLanguages: Languages.preferred())
+    let initialLabelText = R.string.localizable.lockCreatePasscodeViewModelInitial(preferredLanguages: Languages.preferred())
+    let confirmLabelText = R.string.localizable.lockCreatePasscodeViewModelConfirm(preferredLanguages: Languages.preferred())
 }

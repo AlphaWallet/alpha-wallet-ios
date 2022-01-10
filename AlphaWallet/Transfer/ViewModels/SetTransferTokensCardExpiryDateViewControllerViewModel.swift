@@ -18,7 +18,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTokenTransferMagicLinkDescriptionTitle()
+        return R.string.localizable.aWalletTokenTransferMagicLinkDescriptionTitle(preferredLanguages: Languages.preferred())
     }
 
     var descriptionLabelFont: UIFont {
@@ -30,7 +30,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteTitleLabelText: String {
-        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
+        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var noteTitleLabelFont: UIFont {
@@ -42,7 +42,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        return R.string.localizable.aWalletTokenTransferNoteLabelTitle()
+        return R.string.localizable.aWalletTokenTransferNoteLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var noteLabelFont: UIFont {
@@ -70,10 +70,10 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle(preferredLanguages: Languages.preferred())
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle(preferredLanguages: Languages.preferred())
     }
 }

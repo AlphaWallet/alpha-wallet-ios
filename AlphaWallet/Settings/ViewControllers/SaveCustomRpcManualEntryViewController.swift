@@ -60,7 +60,7 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
     }
 
     func handleRpcUrlFailure() {
-        editView.rpcEndPointTextField.status = .error(R.string.localizable.addrpcServerRpcUrlError())
+        editView.rpcEndPointTextField.status = .error(R.string.localizable.addrpcServerRpcUrlError(preferredLanguages: Languages.preferred()))
         editView.rpcEndPointTextField.becomeFirstResponder()
     }
 
@@ -84,7 +84,7 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapSelected))
         editView.addBackgroundGestureRecognizer(tap)
-        editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(), isOn: viewModel.isTestnet))
+        editView.isTestNetworkView.configure(viewModel: SwitchViewViewModel(text: R.string.localizable.addrpcServerIsTestnetTitle(preferredLanguages: Languages.preferred()), isOn: viewModel.isTestnet))
         if viewModel.isEditOperation {
             editView.configureKeyboard(keyboardChecker: keyboardChecker)
         }
@@ -121,17 +121,17 @@ class SaveCustomRpcManualEntryViewController: UIViewController, SaveCustomRpcHan
         for error in errors {
             switch error {
             case .chainNameInvalidField:
-                editView.chainNameTextField.status = .error(R.string.localizable.addrpcServerNetworkNameError())
+                editView.chainNameTextField.status = .error(R.string.localizable.addrpcServerNetworkNameError(preferredLanguages: Languages.preferred()))
             case .rpcEndPointInvalidField:
-                editView.rpcEndPointTextField.status = .error(R.string.localizable.addrpcServerRpcUrlError())
+                editView.rpcEndPointTextField.status = .error(R.string.localizable.addrpcServerRpcUrlError(preferredLanguages: Languages.preferred()))
             case .chainIDInvalidField:
-                editView.chainIDTextField.status = .error(R.string.localizable.addrpcServerChainIDError())
+                editView.chainIDTextField.status = .error(R.string.localizable.addrpcServerChainIDError(preferredLanguages: Languages.preferred()))
             case .symbolInvalidField:
-                editView.symbolTextField.status = .error(R.string.localizable.addrpcServerSymbolError())
+                editView.symbolTextField.status = .error(R.string.localizable.addrpcServerSymbolError(preferredLanguages: Languages.preferred()))
             case .explorerEndpointInvalidField:
-                editView.explorerEndpointTextField.status = .error(R.string.localizable.addrpcServerBlockExplorerUrlError())
+                editView.explorerEndpointTextField.status = .error(R.string.localizable.addrpcServerBlockExplorerUrlError(preferredLanguages: Languages.preferred()))
             case .chainIDDuplicateField:
-                editView.chainIDTextField.status = .error(R.string.localizable.editCustomRPCChainIDErrorDuplicate(preferredLanguages: nil))
+                editView.chainIDTextField.status = .error(R.string.localizable.editCustomRPCChainIDErrorDuplicate(preferredLanguages: Languages.preferred()))
             }
         }
         editView.allTextFields.first(where: { !$0.statusLabel.text.isEmpty })?.becomeFirstResponder()

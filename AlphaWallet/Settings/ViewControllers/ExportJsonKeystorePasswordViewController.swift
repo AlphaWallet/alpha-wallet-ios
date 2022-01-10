@@ -66,7 +66,7 @@ class ExportJsonKeystorePasswordViewController: UIViewController {
     }
 
     private func configureController() {
-        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordTitle()
+        navigationItem.title = R.string.localizable.settingsAdvancedExportJSONKeystorePasswordTitle(preferredLanguages: Languages.preferred())
         passwordView.setButton(title: buttonTitle)
         passwordView.addExportButtonTarget(self, action: #selector(requestExportAction(_:)))
         passwordView.passwordTextField.delegate = self

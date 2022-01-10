@@ -23,7 +23,7 @@ final class BrowserErrorView: UIView {
     private lazy var reloadButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.addTarget(self, action: #selector(reloadTapped), for: .touchUpInside)
-        button.setTitle(R.string.localizable.browserReloadButtonTitle(), for: .normal)
+        button.setTitle(R.string.localizable.browserReloadButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.sizeToFit()
         return button

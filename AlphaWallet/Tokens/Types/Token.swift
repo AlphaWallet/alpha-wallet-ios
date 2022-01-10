@@ -49,7 +49,7 @@ struct Token: Hashable {
                 tokenIdOrEvent: .tokenId(tokenId: Constants.nullTokenIdBigUInt),
                 tokenType: TokenType.erc875,
                 index: 0,
-                name: R.string.localizable.tokensTitlecase(),
+                name: R.string.localizable.tokensTitlecase(preferredLanguages: Languages.preferred()),
                 symbol: "",
                 status: .available,
                 values: [

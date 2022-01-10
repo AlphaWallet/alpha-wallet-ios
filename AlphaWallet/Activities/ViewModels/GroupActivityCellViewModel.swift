@@ -25,9 +25,9 @@ struct GroupActivityCellViewModel {
     var title: NSAttributedString {
         switch groupType {
         case .swap:
-            return NSAttributedString(string: R.string.localizable.activityGroupTransactionSwap())
+            return NSAttributedString(string: R.string.localizable.activityGroupTransactionSwap(preferredLanguages: Languages.preferred()))
         case .unknown:
-            return NSAttributedString(string: R.string.localizable.activityGroupTransactionUnknown())
+            return NSAttributedString(string: R.string.localizable.activityGroupTransactionUnknown(preferredLanguages: Languages.preferred()))
         }
     }
 

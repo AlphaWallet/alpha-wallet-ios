@@ -258,21 +258,21 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.barButtonItem = sender
 
-        let copyAddressAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { [weak self] _ in
+        let copyAddressAction = UIAlertAction(title: R.string.localizable.copyAddress(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             UIPasteboard.general.string = strongSelf.sessions.anyValue.account.address.eip55String
-            strongSelf.tokensViewController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+            strongSelf.tokensViewController.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard(preferredLanguages: Languages.preferred()))
         }
         alertController.addAction(copyAddressAction)
 
-        let showMyWalletAddressAction = UIAlertAction(title: R.string.localizable.settingsShowMyWalletTitle(), style: .default) { [weak self] _ in
+        let showMyWalletAddressAction = UIAlertAction(title: R.string.localizable.settingsShowMyWalletTitle(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), inViewController: .none, in: strongSelf)
         }
         alertController.addAction(showMyWalletAddressAction)
 
         if config.enabledServers.contains(.main) {
-            let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(), style: .default) { [weak self] _ in
+            let buyAction = UIAlertAction(title: R.string.localizable.buyCryptoTitle(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 let server = RPCServer.main
                 let account = strongSelf.sessions.anyValue.account
@@ -281,13 +281,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             alertController.addAction(buyAction)
         }
 
-        let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(), style: .default) { [weak self] _ in
+        let addHideTokensAction = UIAlertAction(title: R.string.localizable.walletsAddHideTokensTitle(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             strongSelf.didPressAddHideTokens(viewModel: strongSelf.rootViewController.viewModel)
         }
         alertController.addAction(addHideTokensAction)
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in }
         alertController.addAction(cancelAction)
 
         return alertController

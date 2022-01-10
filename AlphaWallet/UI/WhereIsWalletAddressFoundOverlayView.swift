@@ -120,17 +120,17 @@ private class Dialog: UIView {
         titleLabel.font = Fonts.regular(size: 24)
         titleLabel.textColor = .init(red: 33, green: 33, blue: 33)
         titleLabel.textAlignment = .center
-        titleLabel.text = R.string.localizable.onboardingNewWalletBackupWalletTitle()
+        titleLabel.text = R.string.localizable.onboardingNewWalletBackupWalletTitle(preferredLanguages: Languages.preferred())
 
         descriptionLabel.numberOfLines = 0
         descriptionLabel.font = Fonts.regular(size: 18)
         descriptionLabel.textColor = .init(red: 102, green: 102, blue: 102)
         descriptionLabel.textAlignment = .center
-        descriptionLabel.text = R.string.localizable.onboardingNewWalletBackupWalletDescription()
+        descriptionLabel.text = R.string.localizable.onboardingNewWalletBackupWalletDescription(preferredLanguages: Languages.preferred())
 
         buttonsBar.configure()
         let continueButton = buttonsBar.buttons[0]
-        continueButton.setTitle(R.string.localizable.continue().localizedUppercase, for: .normal)
+        continueButton.setTitle(R.string.localizable.continue(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
         continueButton.addTarget(self, action: #selector(hide), for: .touchUpInside)
     }
 

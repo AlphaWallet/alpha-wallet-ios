@@ -41,7 +41,7 @@ class BackupCoordinator: Coordinator {
 
     private func presentActivityViewController(for account: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         navigationController.displayLoading(
-            text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
+            text: R.string.localizable.exportPresentBackupOptionsLabelTitle(preferredLanguages: Languages.preferred())
         )
         keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }

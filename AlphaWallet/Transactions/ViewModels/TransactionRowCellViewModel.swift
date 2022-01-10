@@ -63,17 +63,17 @@ struct TransactionRowCellViewModel {
         switch transactionRow.state {
         case .completed:
             switch transactionRowViewModel.direction {
-            case .incoming: return R.string.localizable.transactionCellReceivedTitle()
-            case .outgoing: return R.string.localizable.transactionCellSentTitle()
+            case .incoming: return R.string.localizable.transactionCellReceivedTitle(preferredLanguages: Languages.preferred())
+            case .outgoing: return R.string.localizable.transactionCellSentTitle(preferredLanguages: Languages.preferred())
             }
         case .error:
-            return R.string.localizable.transactionCellErrorTitle()
+            return R.string.localizable.transactionCellErrorTitle(preferredLanguages: Languages.preferred())
         case .failed:
-            return R.string.localizable.transactionCellFailedTitle()
+            return R.string.localizable.transactionCellFailedTitle(preferredLanguages: Languages.preferred())
         case .unknown:
-            return R.string.localizable.transactionCellUnknownTitle()
+            return R.string.localizable.transactionCellUnknownTitle(preferredLanguages: Languages.preferred())
         case .pending:
-            return R.string.localizable.transactionCellPendingTitle()
+            return R.string.localizable.transactionCellPendingTitle(preferredLanguages: Languages.preferred())
         }
     }
 

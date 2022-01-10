@@ -24,7 +24,7 @@ class ActivitiesViewController: UIViewController {
         activitiesView = ActivitiesView(viewModel: viewModel, sessions: sessions)
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.activityTabbarItemTitle()
+        title = R.string.localizable.activityTabbarItemTitle(preferredLanguages: Languages.preferred())
         activitiesView.delegate = self
         view.backgroundColor = viewModel.backgroundColor
 

@@ -28,7 +28,7 @@ final class xDaiBridge: TokenActionsProvider, BridgeTokenURLProviderType {
     }
 
     var action: String {
-        return R.string.localizable.aWalletTokenXDaiBridgeButtonTitle()
+        return R.string.localizable.aWalletTokenXDaiBridgeButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var analyticsName: String {

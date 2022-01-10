@@ -11,27 +11,27 @@ struct ImportWalletViewModel {
     }
 
     var title: String {
-        return R.string.localizable.importNavigationTitle()
+        return R.string.localizable.importNavigationTitle(preferredLanguages: Languages.preferred())
     }
 
     var mnemonicLabel: String {
-        return R.string.localizable.mnemonic().uppercased()
+        return R.string.localizable.mnemonic(preferredLanguages: Languages.preferred()).uppercased()
     }
 
     var keystoreJSONLabel: String {
-        return R.string.localizable.keystoreJSON().uppercased()
+        return R.string.localizable.keystoreJSON(preferredLanguages: Languages.preferred()).uppercased()
     }
 
     var passwordLabel: String {
-        return R.string.localizable.password().uppercased()
+        return R.string.localizable.password(preferredLanguages: Languages.preferred()).uppercased()
     }
 
     var privateKeyLabel: String {
-        return R.string.localizable.privateKey().uppercased()
+        return R.string.localizable.privateKey(preferredLanguages: Languages.preferred()).uppercased()
     }
 
     var watchAddressLabel: String {
-        return R.string.localizable.ethereumAddress().uppercased()
+        return R.string.localizable.ethereumAddress(preferredLanguages: Languages.preferred()).uppercased()
     }
 
     var importKeystoreJsonButtonFont: UIFont {
@@ -42,7 +42,7 @@ struct ImportWalletViewModel {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
 
-        return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
+        return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(preferredLanguages: Languages.preferred()), attributes: [
             .paragraphStyle: style,
             .font: Fonts.light(size: ScreenChecker().isNarrowScreen ? 14 : 16),
             .foregroundColor: UIColor(red: 116, green: 116, blue: 116)
@@ -76,7 +76,7 @@ extension ImportWalletTab {
     var title: String {
         switch self {
         case .mnemonic:
-            return R.string.localizable.mnemonicShorter()
+            return R.string.localizable.mnemonicShorter(preferredLanguages: Languages.preferred())
         case .keystore:
             return ImportSelectionType.keystore.title
         case .privateKey:

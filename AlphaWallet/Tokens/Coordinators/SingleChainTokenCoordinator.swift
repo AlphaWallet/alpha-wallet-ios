@@ -9,7 +9,7 @@ import Result
 
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {
-        return R.string.localizable.aWalletNoTokens()
+        return R.string.localizable.aWalletNoTokens(preferredLanguages: Languages.preferred())
     }
 }
 

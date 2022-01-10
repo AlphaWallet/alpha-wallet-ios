@@ -146,7 +146,7 @@ extension PriceAlertsPageView: UITableViewDelegate {
     }
 
     private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let title = R.string.localizable.delete()
+        let title = R.string.localizable.delete(preferredLanguages: Languages.preferred())
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
             

@@ -169,7 +169,7 @@ class SendViewController: UIViewController {
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.send(), for: .normal)
+        nextButton.setTitle(R.string.localizable.send(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
         amountTextField.allFundsButton.addTarget(self, action: #selector(allFundsSelected), for: .touchUpInside)
@@ -177,7 +177,7 @@ class SendViewController: UIViewController {
     }
 
     private func updateNavigationTitle() {
-        title = "\(R.string.localizable.send()) \(transactionType.symbol)"
+        title = "\(R.string.localizable.send(preferredLanguages: Languages.preferred())) \(transactionType.symbol)"
     }
 
     @objc func allFundsSelected() {
@@ -295,8 +295,8 @@ class SendViewController: UIViewController {
         guard invalidTokenAlert == nil else { return }
 
         invalidTokenAlert = UIAlertController.alert(
-            message: R.string.localizable.sendInvalidToken(),
-            alertButtonTitles: [R.string.localizable.oK()],
+            message: R.string.localizable.sendInvalidToken(preferredLanguages: Languages.preferred()),
+            alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
             alertButtonStyles: [.cancel],
             viewController: self
         )

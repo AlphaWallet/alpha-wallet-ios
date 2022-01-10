@@ -151,8 +151,8 @@ extension EmptyView {
     static func tokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
         EmptyView()
             .configure(image: R.image.no_transactions_mascot())
-            .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle())
-            .configure(buttonTitle: R.string.localizable.refresh(), width: 240, buttonSelectionClosure: completion)
+            .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle(preferredLanguages: Languages.preferred()))
+            .configure(buttonTitle: R.string.localizable.refresh(preferredLanguages: Languages.preferred()), width: 240, buttonSelectionClosure: completion)
             .configure(spacing: 30)
             .configure(insets: .zero)
     }
@@ -162,14 +162,14 @@ extension EmptyView {
             .configure(spacing: 24)
             .configure(insets: .zero)
             .configure(image: R.image.iconsIllustrationsEmptyWalletConnect())
-            .configure(title: R.string.localizable.walletConnectSessionsEmpty())
-            .configure(buttonTitle: R.string.localizable.walletConnectSessionsScanQrCode(), width: 240, buttonSelectionClosure: completion)
+            .configure(title: R.string.localizable.walletConnectSessionsEmpty(preferredLanguages: Languages.preferred()))
+            .configure(buttonTitle: R.string.localizable.walletConnectSessionsScanQrCode(preferredLanguages: Languages.preferred()), width: 240, buttonSelectionClosure: completion)
     }
 
     static func transactionsEmptyView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.no_transactions_mascot())
-            .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle())
+            .configure(title: R.string.localizable.emptyViewNoTokensLabelTitle(preferredLanguages: Languages.preferred()))
             .configure(spacing: 30)
             .configure(insets: .zero)
     }
@@ -177,7 +177,7 @@ extension EmptyView {
     static func activitiesEmptyView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.activities_empty_list())
-            .configure(title: R.string.localizable.activityEmpty())
+            .configure(title: R.string.localizable.activityEmpty(preferredLanguages: Languages.preferred()))
             .configure(spacing: 30)
             .configure(insets: .zero)
     }
@@ -185,7 +185,7 @@ extension EmptyView {
     static func priceAlertsEmpryView() -> EmptyView {
         EmptyView()
             .configure(image: R.image.iconsIllustrationsAlert2())
-            .configure(title: R.string.localizable.activityEmpty())
+            .configure(title: R.string.localizable.activityEmpty(preferredLanguages: Languages.preferred()))
             .configure(spacing: 0)
             .configure(insets: .zero)
     }
@@ -193,8 +193,8 @@ extension EmptyView {
     static func filterTokensEmptyView(completion: @escaping () -> Void) -> EmptyView {
         EmptyView(placement: FilterTokensEmptyViewDefaultPlacement())
             .configure(image: R.image.iconsIllustrationsSearchResults())
-            .configure(title: R.string.localizable.seachTokenNoresultsTitle())
-            .configure(buttonTitle: R.string.localizable.addCustomTokenTitle(), width: 240, buttonSelectionClosure: completion)
+            .configure(title: R.string.localizable.seachTokenNoresultsTitle(preferredLanguages: Languages.preferred()))
+            .configure(buttonTitle: R.string.localizable.addCustomTokenTitle(preferredLanguages: Languages.preferred()), width: 240, buttonSelectionClosure: completion)
             .configure(spacing: 30)
             .configure(insets: .zero)
     }
@@ -202,7 +202,7 @@ extension EmptyView {
     static func filterTokenHoldersEmptyView() -> EmptyView {
         EmptyView(placement: FilterTokensHoldersEmptyViewDefaultPlacement(verticalOffset: -20))
             .configure(image: R.image.iconsIllustrationsSearchResults())
-            .configure(title: R.string.localizable.seachTokenNoresultsTitle())
+            .configure(title: R.string.localizable.seachTokenNoresultsTitle(preferredLanguages: Languages.preferred()))
             .configure(spacing: 30)
             .configure(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
     }

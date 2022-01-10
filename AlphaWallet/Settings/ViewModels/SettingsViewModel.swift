@@ -19,12 +19,12 @@ struct SettingsViewModel {
         case .faceID, .touchID:
             return R.string.localizable.settingsBiometricsEnabledLabelTitle(BiometryAuthenticationType.current.title)
         case .none:
-            return R.string.localizable.settingsBiometricsDisabledLabelTitle()
+            return R.string.localizable.settingsBiometricsDisabledLabelTitle(preferredLanguages: Languages.preferred())
         }
     }
 
     var localeTitle: String {
-        return R.string.localizable.settingsLanguageButtonTitle()
+        return R.string.localizable.settingsLanguageButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     let sections: [SettingsSection]
@@ -81,17 +81,17 @@ enum SettingsWalletRow: CaseIterable {
     var title: String {
         switch self {
         case .showMyWallet:
-            return R.string.localizable.settingsShowMyWalletTitle()
+            return R.string.localizable.settingsShowMyWalletTitle(preferredLanguages: Languages.preferred())
         case .changeWallet:
-            return R.string.localizable.settingsChangeWalletTitle()
+            return R.string.localizable.settingsChangeWalletTitle(preferredLanguages: Languages.preferred())
         case .backup:
-            return R.string.localizable.settingsBackupWalletButtonTitle()
+            return R.string.localizable.settingsBackupWalletButtonTitle(preferredLanguages: Languages.preferred())
         case .showSeedPhrase:
-            return R.string.localizable.settingsShowSeedPhraseButtonTitle()
+            return R.string.localizable.settingsShowSeedPhraseButtonTitle(preferredLanguages: Languages.preferred())
         case .walletConnect:
-            return R.string.localizable.settingsWalletConnectButtonTitle()
+            return R.string.localizable.settingsWalletConnectButtonTitle(preferredLanguages: Languages.preferred())
         case .nameWallet:
-            return R.string.localizable.settingsWalletRename()
+            return R.string.localizable.settingsWalletRename(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -122,13 +122,13 @@ enum SettingsSystemRow: CaseIterable {
     var title: String {
         switch self {
         case .notifications:
-            return R.string.localizable.settingsNotificationsTitle()
+            return R.string.localizable.settingsNotificationsTitle(preferredLanguages: Languages.preferred())
         case .passcode:
-            return R.string.localizable.settingsPasscodeTitle()
+            return R.string.localizable.settingsPasscodeTitle(preferredLanguages: Languages.preferred())
         case .selectActiveNetworks:
-            return R.string.localizable.settingsSelectActiveNetworksTitle()
+            return R.string.localizable.settingsSelectActiveNetworksTitle(preferredLanguages: Languages.preferred())
         case .advanced:
-            return R.string.localizable.advanced()
+            return R.string.localizable.advanced(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -156,15 +156,15 @@ enum SettingsSection {
     var title: String {
         switch self {
         case .wallet:
-            return R.string.localizable.settingsSectionWalletTitle().uppercased()
+            return R.string.localizable.settingsSectionWalletTitle(preferredLanguages: Languages.preferred()).uppercased()
         case .system:
-            return R.string.localizable.settingsSectionSystemTitle().uppercased()
+            return R.string.localizable.settingsSectionSystemTitle(preferredLanguages: Languages.preferred()).uppercased()
         case .help:
-            return R.string.localizable.settingsSectionHelpTitle().uppercased()
+            return R.string.localizable.settingsSectionHelpTitle(preferredLanguages: Languages.preferred()).uppercased()
         case .version:
-            return R.string.localizable.settingsVersionLabelTitle()
+            return R.string.localizable.settingsVersionLabelTitle(preferredLanguages: Languages.preferred())
         case .tokenStandard:
-            return R.string.localizable.settingsTokenScriptStandardTitle()
+            return R.string.localizable.settingsTokenScriptStandardTitle(preferredLanguages: Languages.preferred())
         }
     }
 

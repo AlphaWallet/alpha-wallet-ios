@@ -31,13 +31,13 @@ enum ScanQRCodeAction: CaseIterable {
     var title: String {
         switch self {
         case .sendToAddress:
-            return R.string.localizable.qrCodeSendToAddressTitle()
+            return R.string.localizable.qrCodeSendToAddressTitle(preferredLanguages: Languages.preferred())
         case .addCustomToken:
-            return R.string.localizable.qrCodeAddCustomTokenTitle()
+            return R.string.localizable.qrCodeAddCustomTokenTitle(preferredLanguages: Languages.preferred())
         case .watchWallet:
-            return R.string.localizable.qrCodeWatchWalletTitle()
+            return R.string.localizable.qrCodeWatchWalletTitle(preferredLanguages: Languages.preferred())
         case .openInEtherscan:
-            return R.string.localizable.qrCodeOpenInEtherscanTitle()
+            return R.string.localizable.qrCodeOpenInEtherscanTitle(preferredLanguages: Languages.preferred())
         }
     }
 }
@@ -203,7 +203,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             controller.addAction(alertAction)
         }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in
             cancelCompletion()
         }
 
@@ -216,11 +216,11 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         let preferredStyle: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: preferredStyle)
 
-        let alertAction = UIAlertAction(title: R.string.localizable.qrCodeOpenInBrowserTitle(), style: .default) { _ in
+        let alertAction = UIAlertAction(title: R.string.localizable.qrCodeOpenInBrowserTitle(preferredLanguages: Languages.preferred()), style: .default) { _ in
             completion()
         }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in
             cancelCompletion()
         }
 

@@ -64,7 +64,7 @@ class AdvancedSettingsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = R.string.localizable.aAdvancedSettingsNavigationTitle()
+        title = R.string.localizable.aAdvancedSettingsNavigationTitle(preferredLanguages: Languages.preferred())
         navigationItem.largeTitleDisplayMode = .never
     }
 

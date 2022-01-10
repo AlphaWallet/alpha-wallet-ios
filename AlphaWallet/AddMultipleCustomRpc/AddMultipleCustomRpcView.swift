@@ -64,7 +64,7 @@ class AddMultipleCustomRpcView: UIView {
 
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle(R.string.localizable.cancel(), for: .normal)
+        button.setTitle(R.string.localizable.cancel(preferredLanguages: Languages.preferred()), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -93,7 +93,7 @@ class AddMultipleCustomRpcView: UIView {
     }
 
     private func configureTitleLabel() {
-        titleLabel.text = R.string.localizable.addMultipleCustomRpcTitle()
+        titleLabel.text = R.string.localizable.addMultipleCustomRpcTitle(preferredLanguages: Languages.preferred())
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalToSystemSpacingBelow: topAnchor, multiplier: 1.0),

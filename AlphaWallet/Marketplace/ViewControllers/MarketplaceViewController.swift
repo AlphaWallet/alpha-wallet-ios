@@ -8,7 +8,7 @@ class MarketplaceViewController: UIViewController {
 	init() {
 		super.init(nibName: nil, bundle: nil)
 
-		title = R.string.localizable.aMarketplaceTabbarItemTitle()
+		title = R.string.localizable.aMarketplaceTabbarItemTitle(preferredLanguages: Languages.preferred())
 		view.backgroundColor = Colors.appBackground
 
 		comingSoonLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +31,6 @@ class MarketplaceViewController: UIViewController {
 		comingSoonLabel.textAlignment = .center
 		comingSoonLabel.textColor = Colors.appWhite
 		comingSoonLabel.font = Fonts.regular(size: 20)
-		comingSoonLabel.text = R.string.localizable.comingSoon()
+		comingSoonLabel.text = R.string.localizable.comingSoon(preferredLanguages: Languages.preferred())
 	}
 }

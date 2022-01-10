@@ -25,13 +25,13 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.collectionCreatedDateGeneralisedTimeValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0.formatAsShortDateString())
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesCreatedDate(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesCreatedDate(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
     var tokenIdViewModel: TokenInstanceAttributeViewModel? {
         return values?.tokenIdStringValue.flatMap { tokenId in
-            .init(title: R.string.localizable.semifungiblesTokenId(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId))
+            .init(title: R.string.localizable.semifungiblesTokenId(preferredLanguages: Languages.preferred()), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(tokenId))
         }
     }
 
@@ -39,7 +39,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.supplyModel.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeSupplyType(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeSupplyType(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -47,7 +47,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.transferable.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTransferable(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTransferable(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -55,7 +55,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.meltStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMelt(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMelt(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -63,7 +63,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.meltFeeRatio.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeRatio(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeRatio(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -71,7 +71,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.meltFeeMaxRatio.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeMaxRatio(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeMeltFeeMaxRatio(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -79,7 +79,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.totalSupplyStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTotalSupply(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTotalSupply(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -87,7 +87,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.circulatingSupplyStringValue.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeCirculatingSupply(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeCirculatingSupply(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -95,7 +95,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.reserve.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeReserve(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeReserve(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -103,7 +103,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.nonFungible.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeNonFungible(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeNonFungible(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -111,7 +111,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.mintableSupply.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeAvailableToMint(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeAvailableToMint(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -119,7 +119,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.issuer.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeIssuer(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeIssuer(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 
@@ -127,7 +127,7 @@ final class TokenInstanceViewConfigurationHelper {
         return values?.transferFee.flatMap {
             TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0))
         }.flatMap {
-            .init(title: R.string.localizable.semifungiblesAttributeTransferFee(), attributedValue: $0)
+            .init(title: R.string.localizable.semifungiblesAttributeTransferFee(preferredLanguages: Languages.preferred()), attributedValue: $0)
         }
     }
 

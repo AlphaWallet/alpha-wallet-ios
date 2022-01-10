@@ -245,32 +245,32 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
-        let reloadAction = UIAlertAction(title: R.string.localizable.reload(), style: .default) { [weak self] _ in
+        let reloadAction = UIAlertAction(title: R.string.localizable.reload(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.logReload()
             self?.browserViewController.reload()
         }
         reloadAction.isEnabled = hasWebPageLoaded
 
-        let myBookmarksAction = UIAlertAction(title: R.string.localizable.myBookmarks(), style: .default) { [weak self] _ in
+        let myBookmarksAction = UIAlertAction(title: R.string.localizable.myBookmarks(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.showMyDapps()
         }
 
-        let historyAction = UIAlertAction(title: R.string.localizable.browserHistory(), style: .default) { [weak self] _ in
+        let historyAction = UIAlertAction(title: R.string.localizable.browserHistory(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.showBrowserHistory()
         }
 
-        let setAsHomePageAction = UIAlertAction(title: R.string.localizable.setAsHomePage(), style: .default) { [weak self] _ in
+        let setAsHomePageAction = UIAlertAction(title: R.string.localizable.setAsHomePage(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.config.homePageURL = self?.currentUrl
             UINotificationFeedbackGenerator.show(feedbackType: .success)
         }
         setAsHomePageAction.isEnabled = hasWebPageLoaded
 
-        let shareAction = UIAlertAction(title: R.string.localizable.share(), style: .default) { [weak self] _ in
+        let shareAction = UIAlertAction(title: R.string.localizable.share(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.share(sender: sender)
         }
         shareAction.isEnabled = hasWebPageLoaded
 
-        let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(), style: .default) { [weak self] _ in
+        let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.addCurrentPageAsBookmark()
         }
         addBookmarkAction.isEnabled = hasWebPageLoaded
@@ -279,11 +279,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             self?.showServers()
         }
 
-        let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(), style: .default) { [weak self] _ in
+        let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(preferredLanguages: Languages.preferred()), style: .default) { [weak self] _ in
             self?.scanQrCode()
         }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in }
 
         let mappedAlertActionsToDisplay: [(action: UIAlertAction, flag: Bool)] = [
             (action: reloadAction, flag: true),
@@ -588,7 +588,7 @@ extension DappBrowserCoordinator: WKUIDelegate {
             style: .alert,
             in: navigationController
         )
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: { _ in
             completionHandler()
         }))
         navigationController.present(alertController, animated: true, completion: nil)
@@ -601,10 +601,10 @@ extension DappBrowserCoordinator: WKUIDelegate {
             style: .alert,
             in: navigationController
         )
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: { _ in
             completionHandler(true)
         }))
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .default, handler: { _ in
             completionHandler(false)
         }))
         navigationController.present(alertController, animated: true, completion: nil)
@@ -620,14 +620,14 @@ extension DappBrowserCoordinator: WKUIDelegate {
         alertController.addTextField { (textField) in
             textField.text = defaultText
         }
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: { _ in
             if let text = alertController.textFields?.first?.text {
                 completionHandler(text)
             } else {
                 completionHandler(defaultText)
             }
         }))
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .default, handler: { _ in
             completionHandler(nil)
         }))
         navigationController.present(alertController, animated: true, completion: nil)

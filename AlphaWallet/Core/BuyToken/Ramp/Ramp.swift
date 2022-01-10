@@ -10,7 +10,7 @@ import UIKit
 struct Ramp: TokenActionsProvider, BuyTokenURLProviderType {
 
     var action: String {
-        return R.string.localizable.aWalletTokenBuyTitle()
+        return R.string.localizable.aWalletTokenBuyTitle(preferredLanguages: Languages.preferred())
     }
 
     var account: Wallet

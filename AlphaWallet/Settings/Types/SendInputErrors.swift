@@ -9,9 +9,9 @@ enum SendInputErrors: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyClipBoard:
-            return R.string.localizable.sendErrorEmptyClipBoard()
+            return R.string.localizable.sendErrorEmptyClipBoard(preferredLanguages: Languages.preferred())
         case .wrongInput:
-            return R.string.localizable.sendErrorWrongInput()
+            return R.string.localizable.sendErrorWrongInput(preferredLanguages: Languages.preferred())
         }
     }
 }

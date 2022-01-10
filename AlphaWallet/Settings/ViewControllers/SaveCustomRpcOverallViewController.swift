@@ -23,9 +23,9 @@ enum SaveCustomRpcOverallTab {
     var title: String {
         switch self {
         case .browse:
-            return R.string.localizable.customRPCOverallTabBrowse()
+            return R.string.localizable.customRPCOverallTabBrowse(preferredLanguages: Languages.preferred())
         case .manual:
-            return R.string.localizable.customRPCOverallTabManual()
+            return R.string.localizable.customRPCOverallTabManual(preferredLanguages: Languages.preferred())
         }
     }
 

@@ -19,7 +19,7 @@ class SelectTokenViewModel {
     }
 
     var title: String {
-        return R.string.localizable.assetsSelectAssetTitle()
+        return R.string.localizable.assetsSelectAssetTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {

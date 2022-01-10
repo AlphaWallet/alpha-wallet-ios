@@ -333,7 +333,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
 
     func server(_ server: WalletConnectServer, didFail error: Error) {
         info("WalletConnect didFail error: \(error)")
-        let errorMessage = R.string.localizable.walletConnectFailureTitle()
+        let errorMessage = R.string.localizable.walletConnectFailureTitle(preferredLanguages: Languages.preferred())
         displayErrorMessage(errorMessage)
     }
 
@@ -341,7 +341,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         if Features.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections {
             info("WalletConnect app-enforced timeout for waiting for new connection")
             analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [Analytics.WalletConnectAction.bridgeUrl.rawValue: url.bridgeURL.absoluteString])
-            let errorMessage = R.string.localizable.walletConnectErrorConnectionTimeoutErrorMessage()
+            let errorMessage = R.string.localizable.walletConnectErrorConnectionTimeoutErrorMessage(preferredLanguages: Languages.preferred())
             displayConnectionTimeout(errorMessage)
         } else {
             info("WalletConnect app-enforced timeout for waiting for new connection. Disabled")
@@ -364,7 +364,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     private func sendRawTransaction(session: WalletSession, rawTransaction: String, callbackID id: WalletConnectRequestID, url: WalletConnectURL) -> Promise<WalletConnectServer.Callback> {
         info("WalletConnect sendRawTransaction: \(rawTransaction)")
         return firstly {
-            showSignRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(), message: rawTransaction)
+            showSignRawTransaction(title: R.string.localizable.walletConnectSendRawTransactionTitle(preferredLanguages: Languages.preferred()), message: rawTransaction)
         }.then { shouldSend -> Promise<ConfirmResult> in
             guard shouldSend else { return .init(error: DAppError.cancelled) }
 
@@ -402,11 +402,11 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             let style: UIAlertController.Style = UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
 
             let alertViewController = UIAlertController(title: title, message: message, preferredStyle: style)
-            let startAction = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+            let startAction = UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default) { _ in
                 seal.fulfill(true)
             }
 
-            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in
                 seal.fulfill(false)
             }
 

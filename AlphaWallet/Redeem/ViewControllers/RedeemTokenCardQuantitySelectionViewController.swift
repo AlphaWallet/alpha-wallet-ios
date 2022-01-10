@@ -116,7 +116,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
             let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenRedeemSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
-                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
@@ -149,7 +149,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 

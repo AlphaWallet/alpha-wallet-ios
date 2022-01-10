@@ -70,6 +70,6 @@ extension PromptBackupWalletViewModel {
 
     var backupButtonTitle: String {
         let firstFewCharactersOfWalletAddress = walletAddress.eip55String.substring(with: Range(uncheckedBounds: (0, 4)))
-        return "\(R.string.localizable.backupPromptBackupButtonTitle().uppercased()) \(firstFewCharactersOfWalletAddress)  "
+        return "\(R.string.localizable.backupPromptBackupButtonTitle(preferredLanguages: Languages.preferred()).uppercased()) \(firstFewCharactersOfWalletAddress)  "
     }
 }

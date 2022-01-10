@@ -80,14 +80,14 @@ class AddCustomChain {
             case PMKError.cancelled:
                 return
             default:
-                self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown()) — \($0)"), in: self)
+                self.delegate?.notifyAddCustomChainFailed(error: .others("\(R.string.localizable.addCustomChainErrorUnknown(preferredLanguages: Languages.preferred())) — \($0)"), in: self)
             }
         }
     }
 
     private func requestToUseFailedExplorerHostname(customChain: WalletAddEthereumChainObject, chainId: Int) -> Promise<CustomChainWithChainIdAndRPC> {
         guard let delegate = self.delegate else {
-            return .init(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
+            return .init(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl(preferredLanguages: Languages.preferred())))
         }
         return delegate.notifyAddExplorerApiHostnameFailure(customChain: customChain, chainId: chainId).map { continueWithoutExplorerURL -> CustomChainWithChainIdAndRPC in
             guard continueWithoutExplorerURL else {
@@ -96,7 +96,7 @@ class AddCustomChain {
             if let rpcUrl = customChain.rpcUrls?.first {
                 return (customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
             } else {
-                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl())
+                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl(preferredLanguages: Languages.preferred()))
             }
         }
     }
@@ -156,7 +156,7 @@ extension AddCustomChain.functional {
         //We need a check that the url is a valid URL (especially because it might contain markers like `${INFURA_API_KEY}` and `${ALCHEMY_API_KEY}` which we don't support. We can't support Infura keys because if we don't already support this chain in the app, then it must not have been enabled for our Infura account so it wouldn't work anyway.)
         guard let rpcUrl = customChain.rpcUrls?.first(where: { URL(string: $0) != nil }) else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
-            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoRpcNodeUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoRpcNodeUrl(preferredLanguages: Languages.preferred())))
         }
         return firstly {
             checkRpcServer(customChain: customChain, chainId: chainId, rpcUrl: rpcUrl)
@@ -182,7 +182,7 @@ extension AddCustomChain.functional {
 
     private static func checkBlockchainExplorerApiHostname(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String) -> Promise<(customChain: WalletAddEthereumChainObject, chainId: Int, rpcUrl: String)> {
         guard let urlString = customChain.blockExplorerUrls?.first else {
-            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorNoBlockchainExplorerUrl(preferredLanguages: Languages.preferred())))
         }
         return firstly {
             figureOutHostname(urlString)
@@ -232,7 +232,7 @@ extension AddCustomChain.functional {
                 .replacingOccurrences(of: "http://", with: "http://api.")
         //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
         guard let url = URL(string: "\(urlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
-            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
+            return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl(preferredLanguages: Languages.preferred())))
         }
         return firstly {
             isValidBlockchainExplorerApiRoot(url)
@@ -241,7 +241,7 @@ extension AddCustomChain.functional {
         }.recover { error -> Promise<String> in
             //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
             guard let url = URL(string: "\(originalUrlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
-                return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
+                return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl(preferredLanguages: Languages.preferred())))
             }
             return firstly {
                 isValidBlockchainExplorerApiRoot(url)
@@ -258,10 +258,10 @@ extension AddCustomChain.functional {
                 if json["result"] is [Any] {
                     return
                 } else {
-                    throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
+                    throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl(preferredLanguages: Languages.preferred()))
                 }
             } else {
-                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
+                throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl(preferredLanguages: Languages.preferred()))
             }
         }
     }

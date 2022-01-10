@@ -12,7 +12,7 @@ struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalle
     }
 
     var title: String {
-        return R.string.localizable.backupPromptAfterHittingThresholdTitle()
+        return R.string.localizable.backupPromptAfterHittingThresholdTitle(preferredLanguages: Languages.preferred())
     }
 
     var description: String {

@@ -17,11 +17,11 @@ enum ConfigureTransactionError: Error {
         case .gasFeeTooHigh:
             return R.string.localizable.configureTransactionErrorGasFeeTooHigh(EtherNumberFormatter.short.string(from: BigInt(ConfigureTransaction.gasFeeMax)))
         case .nonceNotPositiveNumber:
-            return R.string.localizable.configureTransactionErrorNonceNotPositiveNumber()
+            return R.string.localizable.configureTransactionErrorNonceNotPositiveNumber(preferredLanguages: Languages.preferred())
         case .gasPriceTooLow:
-            return R.string.localizable.configureTransactionErrorGasPriceTooLow()
+            return R.string.localizable.configureTransactionErrorGasPriceTooLow(preferredLanguages: Languages.preferred())
         case .leaveNonceEmpty:
-            return R.string.localizable.configureTransactionErrorLeaveNonceEmpty()
+            return R.string.localizable.configureTransactionErrorLeaveNonceEmpty(preferredLanguages: Languages.preferred())
         }
     }
 }

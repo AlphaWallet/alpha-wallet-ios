@@ -108,6 +108,6 @@ extension SignatureConfirmationDetailsViewController: TypedDataViewDelegate {
     func copySelected(in view: TypedDataView) {
         UIPasteboard.general.string = viewModel.valueToCopy
 
-        self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard(preferredLanguages: Languages.preferred()))
     }
 }

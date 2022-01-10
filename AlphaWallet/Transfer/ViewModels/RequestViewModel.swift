@@ -19,11 +19,11 @@ struct RequestViewModel {
 	}
 
 	var copyWalletText: String {
-		return R.string.localizable.requestCopyWalletButtonTitle()
+		return R.string.localizable.requestCopyWalletButtonTitle(preferredLanguages: Languages.preferred())
 	}
 
 	var addressCopiedText: String {
-		return R.string.localizable.requestAddressCopiedTitle()
+		return R.string.localizable.requestAddressCopiedTitle(preferredLanguages: Languages.preferred())
 	}
 
 	var backgroundColor: UIColor {
@@ -55,6 +55,6 @@ struct RequestViewModel {
 	}
 
 	var instructionText: String {
-		return R.string.localizable.aWalletAddressScanInstructions()
+		return R.string.localizable.aWalletAddressScanInstructions(preferredLanguages: Languages.preferred())
 	}
 }

@@ -124,11 +124,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         buttonsBar.configure()
 
         let generateMagicLinkButton = buttonsBar.buttons[0]
-        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTokenTransferModeMagicLinkButtonTitle(), for: .normal)
+        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTokenTransferModeMagicLinkButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
 
         let transferNowButton = buttonsBar.buttons[1]
-        transferNowButton.setTitle("    \(R.string.localizable.aWalletTokenTransferModeNowButtonTitle())    ", for: .normal)
+        transferNowButton.setTitle("    \(R.string.localizable.aWalletTokenTransferModeNowButtonTitle(preferredLanguages: Languages.preferred()))    ", for: .normal)
         transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
 
         //Button fonts have to be smaller because the button title is too long

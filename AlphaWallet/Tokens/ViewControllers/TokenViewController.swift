@@ -171,7 +171,7 @@ class TokenViewController: UIViewController {
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
         let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
         if tokenScriptStatusPromise.isPending {
-            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(preferredLanguages: Languages.preferred()), style: .plain, target: nil, action: nil)
             navigationItem.rightBarButtonItem = label
 
             tokenScriptStatusPromise.done { [weak self] _ in
@@ -245,7 +245,7 @@ class TokenViewController: UIViewController {
                     if let denialMessage = selection.denial {
                         UIAlertController.alert(
                                 message: denialMessage,
-                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                                 alertButtonStyles: [.default],
                                 viewController: self
                         )

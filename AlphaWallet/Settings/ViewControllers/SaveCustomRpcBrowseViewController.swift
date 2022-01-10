@@ -123,7 +123,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
 
     private func configureSearchBar() {
         searchBar.delegate = self
-        searchBar.placeholder = R.string.localizable.customRPCBrowseSearchPlaceholder()
+        searchBar.placeholder = R.string.localizable.customRPCBrowseSearchPlaceholder(preferredLanguages: Languages.preferred())
         browseView.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: browseView.topAnchor),
@@ -134,7 +134,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
 
     private func configureAddNetworkButton() {
         buttonsBar.configure()
-        buttonsBar.buttons[0].setTitle(R.string.localizable.addrpcServerSaveButtonTitle(preferredLanguages: nil), for: .normal)
+        buttonsBar.buttons[0].setTitle(R.string.localizable.addrpcServerSaveButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         addSaveButtonTarget(self, action: #selector(handleAddButtonAction(_:)))
         enableAddFunction(false)
         let background = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
@@ -245,11 +245,11 @@ extension SaveCustomRpcBrowseViewController: HandleAddMultipleCustomRpcViewContr
         tableViewController.tableView.reloadData()
         var errorMessage: String = ""
         if let failed: [CustomRPC] = failed as? [CustomRPC], !failed.isEmpty {
-            errorMessage = R.string.localizable.addMultipleCustomRpcError(preferredLanguages: nil)
+            errorMessage = R.string.localizable.addMultipleCustomRpcError(preferredLanguages: Languages.preferred())
             reportFailures(customRpcs: failed)
         }
         if let duplicates: [CustomRPC] = duplicates as? [CustomRPC], !duplicates.isEmpty {
-            errorMessage = R.string.localizable.addMultipleCustomRpcError(preferredLanguages: nil)
+            errorMessage = R.string.localizable.addMultipleCustomRpcError(preferredLanguages: Languages.preferred())
         }
         if !errorMessage.isEmpty {
             displayError(message: errorMessage)

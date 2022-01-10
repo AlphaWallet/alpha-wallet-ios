@@ -16,13 +16,13 @@ extension Error {
                 return error.errorDescription ?? error.description
             }
         case let error as LocalizedError:
-            return error.errorDescription ?? R.string.localizable.unknownError()
+            return error.errorDescription ?? R.string.localizable.unknownError(preferredLanguages: Languages.preferred())
         case let error as NSError:
             return error.localizedDescription
         case let error as APIKit.SessionTaskError:
             return generatePrettyError(forSessionTaskError: error)
         default:
-            return R.string.localizable.undefinedError()
+            return R.string.localizable.undefinedError(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -43,7 +43,7 @@ extension Error {
             case .responseError(_, let message, _):
                 return message
             case .responseNotFound, .resultObjectParseError, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
-                return R.string.localizable.undefinedError()
+                return R.string.localizable.undefinedError(preferredLanguages: Languages.preferred())
             }
         }
     }

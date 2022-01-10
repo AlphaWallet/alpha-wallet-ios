@@ -15,7 +15,7 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var navigationTitle: String {
-        return R.string.localizable.walletConnectTitle()
+        return R.string.localizable.walletConnectTitle(preferredLanguages: Languages.preferred())
     }
 
     var walletImageIcon: UIImage? {
@@ -28,8 +28,8 @@ struct WalletConnectSessionDetailsViewModel {
 
     var statusRowViewModel: WallerConnectRawViewModel {
         return .init(
-            text: R.string.localizable.walletConnectStatusPlaceholder(),
-            details: isOnline ? R.string.localizable.walletConnectStatusOnline() : R.string.localizable.walletConnectStatusOffline(),
+            text: R.string.localizable.walletConnectStatusPlaceholder(preferredLanguages: Languages.preferred()),
+            details: isOnline ? R.string.localizable.walletConnectStatusOnline(preferredLanguages: Languages.preferred()) : R.string.localizable.walletConnectStatusOffline(preferredLanguages: Languages.preferred()),
             detailsLabelFont: Fonts.semibold(size: 17),
             detailsLabelTextColor: isOnline ? R.color.green()! : R.color.danger()!,
             hideSeparatorOptions: .none
@@ -37,7 +37,7 @@ struct WalletConnectSessionDetailsViewModel {
     }
 
     var dappNameRowViewModel: WallerConnectRawViewModel {
-        return .init(text: R.string.localizable.walletConnectSessionName(), details: session.dappName, hideSeparatorOptions: .top)
+        return .init(text: R.string.localizable.walletConnectSessionName(preferredLanguages: Languages.preferred()), details: session.dappName, hideSeparatorOptions: .top)
     }
 
     var dappNameAttributedString: NSAttributedString {
@@ -49,7 +49,7 @@ struct WalletConnectSessionDetailsViewModel {
 
     var dappUrlRowViewModel: WallerConnectRawViewModel {
         return .init(
-            text: R.string.localizable.walletConnectSessionConnectedURL(),
+            text: R.string.localizable.walletConnectSessionConnectedURL(preferredLanguages: Languages.preferred()),
             details: session.dAppInfo.peerMeta.url.absoluteString,
             hideSeparatorOptions: .top
         )
@@ -57,19 +57,19 @@ struct WalletConnectSessionDetailsViewModel {
 
     var chainRowViewModel: WallerConnectRawViewModel {
         if let server = server.urlToServer[session.url] {
-            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: server.name, hideSeparatorOptions: .top)
+            return .init(text: R.string.localizable.settingsNetworkButtonTitle(preferredLanguages: Languages.preferred()), details: server.name, hideSeparatorOptions: .top)
         } else {
             // Displays for disconnected session
-            return .init(text: R.string.localizable.settingsNetworkButtonTitle(), details: "-", hideSeparatorOptions: .top)
+            return .init(text: R.string.localizable.settingsNetworkButtonTitle(preferredLanguages: Languages.preferred()), details: "-", hideSeparatorOptions: .top)
         }
     }
 
     var dissconnectButtonText: String {
-        return R.string.localizable.walletConnectSessionDisconnect()
+        return R.string.localizable.walletConnectSessionDisconnect(preferredLanguages: Languages.preferred())
     }
 
     var switchNetworkButtonText: String {
-        return  R.string.localizable.walletConnectSessionSwitchNetwork()
+        return  R.string.localizable.walletConnectSessionSwitchNetwork(preferredLanguages: Languages.preferred())
     }
 
     var isDisconnectAvailable: Bool {

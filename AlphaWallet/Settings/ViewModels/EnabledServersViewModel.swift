@@ -10,9 +10,9 @@ struct EnabledServersViewModel {
         var headerText: String {
             switch self {
             case .testnet:
-                return R.string.localizable.settingsEnabledNetworksTestnet().uppercased()
+                return R.string.localizable.settingsEnabledNetworksTestnet(preferredLanguages: Languages.preferred()).uppercased()
             case .mainnet:
-                return R.string.localizable.settingsEnabledNetworksMainnet().uppercased()
+                return R.string.localizable.settingsEnabledNetworksMainnet(preferredLanguages: Languages.preferred()).uppercased()
             }
         }
     }
@@ -34,7 +34,7 @@ struct EnabledServersViewModel {
     }
 
     var title: String {
-        return R.string.localizable.settingsEnabledNetworksButtonTitle()
+        return R.string.localizable.settingsEnabledNetworksButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     func server(for indexPath: IndexPath) -> RPCServer {

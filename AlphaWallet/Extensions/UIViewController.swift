@@ -27,7 +27,7 @@ extension UIViewController {
     @discardableResult func displaySuccess(title: String? = .none, message: String? = .none) -> UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         alertController.popoverPresentationController?.sourceView = view
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: nil))
         present(alertController, animated: true)
 
         return alertController
@@ -36,7 +36,7 @@ extension UIViewController {
     func displayError(message: String, completion: @escaping () -> Void = {}) {
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default) { _ in
             completion()
         })
 
@@ -54,7 +54,7 @@ extension UIViewController {
         }
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alertController.popoverPresentationController?.sourceView = view
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: nil))
         present(alertController, animated: true)
 
         return alertController
@@ -63,7 +63,7 @@ extension UIViewController {
     func confirm(
         title: String? = .none,
         message: String? = .none,
-        okTitle: String = R.string.localizable.oK(),
+        okTitle: String = R.string.localizable.oK(preferredLanguages: Languages.preferred()),
         okStyle: UIAlertAction.Style = .default,
         completion: @escaping (Result<Void, ConfirmationError>) -> Void
     ) {
@@ -72,14 +72,14 @@ extension UIViewController {
         alertController.addAction(UIAlertAction(title: okTitle, style: okStyle, handler: { _ in
             completion(.success(()))
         }))
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel, handler: { _ in
             completion(.failure(ConfirmationError.cancel))
         }))
         present(alertController, animated: true, completion: nil)
     }
 
     func displayLoading(
-        text: String = R.string.localizable.loadingDots(),
+        text: String = R.string.localizable.loadingDots(preferredLanguages: Languages.preferred()),
         animated: Bool = true
     ) {
         let hud = MBProgressHUD.showAdded(to: view, animated: animated)

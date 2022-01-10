@@ -14,7 +14,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     var dollarCost: String = ""
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTokenSellSelectQuantityTitle()
+		return R.string.localizable.aWalletTokenSellSelectQuantityTitle(preferredLanguages: Languages.preferred())
     }
 
     var maxValue: Int {
@@ -44,15 +44,15 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle(preferredLanguages: Languages.preferred())
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle(preferredLanguages: Languages.preferred())
     }
 
     var ethCostLabelLabelText: String {
-        return R.string.localizable.aWalletTokenSellTotalCostTitle()
+        return R.string.localizable.aWalletTokenSellTotalCostTitle(preferredLanguages: Languages.preferred())
     }
 
     var ethCostLabelLabelFont: UIFont {

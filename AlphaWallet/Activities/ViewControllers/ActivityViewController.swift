@@ -189,17 +189,17 @@ class ActivityViewController: UIViewController {
     }
 
     private func configureGoToTokenButton(_ button: BarButton) {
-        button.setTitle(R.string.localizable.activityGoToToken(), for: .normal)
+        button.setTitle(R.string.localizable.activityGoToToken(preferredLanguages: Languages.preferred()), for: .normal)
         button.addTarget(self, action: #selector(goToToken), for: .touchUpInside)
     }
 
     private func configureSpeedupButton(_ button: BarButton) {
-        button.setTitle(R.string.localizable.activitySpeedup(), for: .normal)
+        button.setTitle(R.string.localizable.activitySpeedup(preferredLanguages: Languages.preferred()), for: .normal)
         button.addTarget(self, action: #selector(speedup), for: .touchUpInside)
     }
 
     private func configureCancelButton(_ button: BarButton) {
-        button.setTitle(R.string.localizable.activityCancel(), for: .normal)
+        button.setTitle(R.string.localizable.activityCancel(preferredLanguages: Languages.preferred()), for: .normal)
         button.addTarget(self, action: #selector(cancel), for: .touchUpInside)
     }
 

@@ -66,7 +66,7 @@ class DiscoverDappsViewController: UIViewController {
     }
 
     private func resizeTableViewHeader() {
-        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.discoverDappsButtonImageLabel())
+        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.discoverDappsButtonImageLabel(preferredLanguages: Languages.preferred()))
         headerBoxView.view.configure(viewModel: headerViewModel)
         headerBoxView.backgroundColor = headerViewModel.backgroundColor
         headerBoxView.insets = .init(top: 50, left: 0, bottom: 50, right: 0)

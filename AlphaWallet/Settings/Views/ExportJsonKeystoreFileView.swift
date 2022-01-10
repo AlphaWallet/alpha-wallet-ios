@@ -15,7 +15,7 @@ class ExportJsonKeystoreFileView: UIView {
         label.backgroundColor = R.color.white()!
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: Fonts.regular(size: 13.0))
         label.textColor = R.color.dove()!
-        label.text = R.string.localizable.settingsAdvancedExportJSONKeystoreFileLabel()
+        label.text = R.string.localizable.settingsAdvancedExportJSONKeystoreFileLabel(preferredLanguages: Languages.preferred())
         label.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         return label
     }()

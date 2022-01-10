@@ -15,9 +15,9 @@ extension UIViewController {
     func promptUserOpenSettingsToChangeCameraPermission() {
         //TODO app will be killed by iOS after user changes camera permission. Ideally, we should note that the user has reached here and on app launch, prompt user if they want to resume
         confirm(
-                title: R.string.localizable.cameraQrCodeDeniedPromptTitle(),
-                message: R.string.localizable.cameraQrCodeDeniedPromptMessage(),
-                okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(),
+                title: R.string.localizable.cameraQrCodeDeniedPromptTitle(preferredLanguages: Languages.preferred()),
+                message: R.string.localizable.cameraQrCodeDeniedPromptMessage(preferredLanguages: Languages.preferred()),
+                okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(preferredLanguages: Languages.preferred()),
                 okStyle: .default
         ) { result in
             switch result {

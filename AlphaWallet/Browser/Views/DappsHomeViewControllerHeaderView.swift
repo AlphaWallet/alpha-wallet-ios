@@ -65,7 +65,7 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
 
         if viewModel.isEditing {
             exitEditingModeButton.isHidden = false
-            exitEditingModeButton.setTitle(R.string.localizable.done().localizedUppercase, for: .normal)
+            exitEditingModeButton.setTitle(R.string.localizable.done(preferredLanguages: Languages.preferred()).localizedUppercase, for: .normal)
             exitEditingModeButton.titleLabel?.font = Fonts.bold(size: 12)
 
             myDappsButton.isEnabled = false

@@ -6,7 +6,7 @@ import WalletCore
 
 struct MnemonicInWordListRule<T: Equatable>: RuleType {
     public init() {
-        self.validationError = ValidationError(msg: R.string.localizable.importWalletImportInvalidMnemonic())
+        self.validationError = ValidationError(msg: R.string.localizable.importWalletImportInvalidMnemonic(preferredLanguages: Languages.preferred()))
     }
 
     public var id: String?

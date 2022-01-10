@@ -192,7 +192,7 @@ class TokensViewController: UIViewController {
             } else {
                 consoleButton.titleLabel?.font = Fonts.light(size: 22)
                 consoleButton.setTitleColor(Colors.black, for: .normal)
-                consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
+                consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(preferredLanguages: Languages.preferred()), for: .normal)
                 consoleButton.bounds.size.height = 44
                 consoleButton.isHidden = false
             }
@@ -577,7 +577,7 @@ extension TokensViewController: UITableViewDataSource {
         case .rpcServer:
             return nil
         case .tokenObject(let token):
-            let title = R.string.localizable.walletsHideTokenTitle()
+            let title = R.string.localizable.walletsHideTokenTitle(preferredLanguages: Languages.preferred())
             let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
                 guard let strongSelf = self else { return }
 
@@ -802,7 +802,7 @@ extension UISearchBar {
         searchBar.layer.borderWidth = 1
         searchBar.layer.borderColor = UIColor.clear.cgColor
         searchBar.backgroundImage = UIImage()
-        searchBar.placeholder = R.string.localizable.tokensSearchbarPlaceholder()
+        searchBar.placeholder = R.string.localizable.tokensSearchbarPlaceholder(preferredLanguages: Languages.preferred())
         searchBar.backgroundColor = backgroundColor
     }
 }

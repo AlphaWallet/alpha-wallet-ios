@@ -100,7 +100,7 @@ class EnabledServersViewController: UIViewController {
     }
 
     private func confirmDelete(server: RPCServer) {
-        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(), okTitle: R.string.localizable.delete(), okStyle: .destructive) { [weak self] result in
+        confirm(title: R.string.localizable.settingsEnabledNetworksDeleteTitle(preferredLanguages: Languages.preferred()), message: R.string.localizable.settingsEnabledNetworksDeleteMessage(preferredLanguages: Languages.preferred()), okTitle: R.string.localizable.delete(preferredLanguages: Languages.preferred()), okStyle: .destructive) { [weak self] result in
             switch result {
             case .success:
                 self?.markForDeletion(server: server)
@@ -192,7 +192,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let server = viewModel.server(for: indexPath)
         guard server.isCustom else { return nil }
-        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.delete()) { _, _, complete in
+        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.delete(preferredLanguages: Languages.preferred())) { _, _, complete in
             self.confirmDelete(server: server)
             complete(true)
         }
@@ -200,7 +200,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
         deleteAction.backgroundColor = R.color.danger()
 
-        let editAction = UIContextualAction(style: .normal, title: R.string.localizable.editButtonTitle()) { _, _, complete
+        let editAction = UIContextualAction(style: .normal, title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred())) { _, _, complete
             in
             self.edit(server: server)
             complete(true)
@@ -228,7 +228,7 @@ extension EnabledServersViewController: EnableServersHeaderViewDelegate {
             tableView.reloadSections(sectionIndices, with: .automatic)
         case (.mainnet, false), (.testnet, true):
             let prompt = PromptViewController()
-            prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
+            prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(preferredLanguages: Languages.preferred()), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(preferredLanguages: Languages.preferred()), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle(preferredLanguages: Languages.preferred())))
 
             prompt._delegate = self
             present(prompt, animated: true)

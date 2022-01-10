@@ -9,7 +9,7 @@ struct CreateInitialViewModel {
     }
 
     var subtitle: String {
-        return R.string.localizable.gettingStartedSubtitle()
+        return R.string.localizable.gettingStartedSubtitle(preferredLanguages: Languages.preferred())
     }
 
     var subtitleColor: UIColor {
@@ -29,19 +29,19 @@ struct CreateInitialViewModel {
     }
 
     var createButtonTitle: String {
-        return R.string.localizable.gettingStartedNewWallet()
+        return R.string.localizable.gettingStartedNewWallet(preferredLanguages: Languages.preferred())
     }
 
     var watchButtonTitle: String {
-        return R.string.localizable.watch()
+        return R.string.localizable.watch(preferredLanguages: Languages.preferred())
     }
 
     var importButtonTitle: String {
-        return R.string.localizable.importWalletImportButtonTitle()
+        return R.string.localizable.importWalletImportButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var alreadyHaveWalletText: String {
-        return R.string.localizable.gettingStartedAlreadyHaveWallet()
+        return R.string.localizable.gettingStartedAlreadyHaveWallet(preferredLanguages: Languages.preferred())
     }
 
     var alreadyHaveWalletTextColor: UIColor {

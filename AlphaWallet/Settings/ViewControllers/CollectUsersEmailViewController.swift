@@ -13,10 +13,10 @@ protocol CollectUsersEmailViewControllerDelegate: class {
 }
 
 struct CollectUsersEmailViewModel {
-    let title: String = R.string.localizable.emailListPromptTitle()
-    let description: String = R.string.localizable.emailListPromptMessage()
-    let receiveEmailButtonTitle: String = R.string.localizable.emailListPromptSubscribeButtonTitle()
-    let emailTextFieldPlaceholder: String = R.string.localizable.emailListPromptEmailPlaceholder()
+    let title: String = R.string.localizable.emailListPromptTitle(preferredLanguages: Languages.preferred())
+    let description: String = R.string.localizable.emailListPromptMessage(preferredLanguages: Languages.preferred())
+    let receiveEmailButtonTitle: String = R.string.localizable.emailListPromptSubscribeButtonTitle(preferredLanguages: Languages.preferred())
+    let emailTextFieldPlaceholder: String = R.string.localizable.emailListPromptEmailPlaceholder(preferredLanguages: Languages.preferred())
 }
 
 class CollectUsersEmailViewController: ModalViewController {

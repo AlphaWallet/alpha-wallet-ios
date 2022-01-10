@@ -24,29 +24,29 @@ class TransactionConfigurator {
         var shortTitle: String {
             switch self {
             case .tooHighCustomGasPrice, .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighShort()
+                return R.string.localizable.transactionConfigurationGasPriceTooHighShort(preferredLanguages: Languages.preferred())
             case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowShort()
+                return R.string.localizable.transactionConfigurationGasPriceTooLowShort(preferredLanguages: Languages.preferred())
             }
         }
 
         var longTitle: String {
             switch self {
             case .tooHighCustomGasPrice, .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighLong()
+                return R.string.localizable.transactionConfigurationGasPriceTooHighLong(preferredLanguages: Languages.preferred())
             case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowLong()
+                return R.string.localizable.transactionConfigurationGasPriceTooLowLong(preferredLanguages: Languages.preferred())
             }
         }
 
         var description: String {
             switch self {
             case .tooHighCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()
+                return R.string.localizable.transactionConfigurationGasPriceTooHighDescription(preferredLanguages: Languages.preferred())
             case .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceCongestedDescription()
+                return R.string.localizable.transactionConfigurationGasPriceCongestedDescription(preferredLanguages: Languages.preferred())
             case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowDescription()
+                return R.string.localizable.transactionConfigurationGasPriceTooLowDescription(preferredLanguages: Languages.preferred())
             }
         }
     }

@@ -422,7 +422,7 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                     } else {
                         //no-op
                     }
@@ -452,7 +452,7 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                     } else {
                         //no-op
                     }
@@ -484,18 +484,18 @@ extension TransactionConfirmationViewController {
                     for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
                         switch row {
                         case .ens:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName))
+                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(preferredLanguages: Languages.preferred()), subtitle: viewModel.ensName))
                             view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
                             children.append(view)
                         case .address:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString))
+                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(preferredLanguages: Languages.preferred()), subtitle: viewModel.addressString))
                             view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
                             children.append(view)
                         }
                     }
                 case .gas:
                     if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                     } else {
                         //no-op
                     }
@@ -516,18 +516,18 @@ extension TransactionConfirmationViewController {
                     for (rowIndex, row) in RecipientResolver.Row.allCases.enumerated() {
                         switch row {
                         case .ens:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(), subtitle: viewModel.ensName))
+                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleEns(preferredLanguages: Languages.preferred()), subtitle: viewModel.ensName))
                             view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
                             children.append(view)
                         case .address:
-                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(), subtitle: viewModel.addressString))
+                            let view = TransactionConfirmationRowInfoView(viewModel: .init(title: R.string.localizable.transactionConfirmationRowTitleWallet(preferredLanguages: Languages.preferred()), subtitle: viewModel.addressString))
                             view.isHidden = viewModel.isSubviewsHidden(section: sectionIndex, row: rowIndex)
                             children.append(view)
                         }
                     }
                 case .gas:
                     if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                     } else {
                         //no-op
                     }
@@ -555,7 +555,7 @@ extension TransactionConfirmationViewController {
                 switch section {
                 case .gas:
                     if viewModel.server.canUserChangeGas {
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                     } else {
                         //no-op
                     }
@@ -573,7 +573,7 @@ extension TransactionConfirmationViewController {
                     if viewModel.server.canUserChangeGas {
                         let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                         header.delegate = self
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                         header.childrenStackView.addArrangedSubviews(children)
                         views.append(header)
                     } else {
@@ -593,7 +593,7 @@ extension TransactionConfirmationViewController {
                     if viewModel.server.canUserChangeGas {
                         let header = TransactionConfirmationHeaderView(viewModel: viewModel.headerViewModel(section: sectionIndex))
                         header.delegate = self
-                        header.enableTapAction(title: R.string.localizable.editButtonTitle())
+                        header.enableTapAction(title: R.string.localizable.editButtonTitle(preferredLanguages: Languages.preferred()))
                         header.childrenStackView.addArrangedSubviews(children)
                         views.append(header)
                     } else {

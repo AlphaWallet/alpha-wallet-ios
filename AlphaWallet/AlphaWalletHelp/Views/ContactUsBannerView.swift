@@ -20,7 +20,7 @@ class ContactUsBannerView: UIView {
         return """
                \n\n\n
 
-               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers(preferredLanguages: Languages.preferred()))
                \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
                \(R.string.localizable.aHelpContactEmailDeviceModel("\(UIDevice.type.rawValue) \(UIDevice.type == .unrecognized ? " - \(UIDevice.current.model)" : "")"))
                \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
@@ -60,7 +60,7 @@ class ContactUsBannerView: UIView {
 
         label.textColor = Colors.appText
         label.font = Fonts.light(size: 18)
-        label.text = R.string.localizable.aHelpContactFooterButtonTitle()
+        label.text = R.string.localizable.aHelpContactFooterButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     @objc func tapped() {
@@ -71,7 +71,7 @@ class ContactUsBannerView: UIView {
         let composerController = MFMailComposeViewController()
         composerController.mailComposeDelegate = self
         composerController.setToRecipients([Constants.supportEmail])
-        composerController.setSubject(R.string.localizable.aHelpContactEmailSubject())
+        composerController.setSubject(R.string.localizable.aHelpContactEmailSubject(preferredLanguages: Languages.preferred()))
         composerController.setMessageBody(emailTemplate, isHTML: false)
 
         if MFMailComposeViewController.canSendMail() {

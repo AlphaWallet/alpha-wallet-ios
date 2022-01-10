@@ -55,7 +55,7 @@ extension ElevateWalletSecurityCoordinator: ElevateWalletSecurityViewControllerD
             if keystore.isUserPresenceCheckPossible {
                 //do nothing. User cancelled
             } else {
-                viewController.displayError(error: Error(errorDescription: R.string.localizable.keystoreAccessKeyLockFail()))
+                viewController.displayError(error: Error(errorDescription: R.string.localizable.keystoreAccessKeyLockFail(preferredLanguages: Languages.preferred())))
             }
         }
     }

@@ -19,7 +19,7 @@ enum SwitchChainRequestResponse {
 }
 
 struct SwitchChainRequestViewModel {
-    let title: String = R.string.localizable.switchChainRequestTitle()
+    let title: String = R.string.localizable.switchChainRequestTitle(preferredLanguages: Languages.preferred())
     let configuration: SwitchChainRequestConfiguration
 
     var description: String {
@@ -27,7 +27,7 @@ struct SwitchChainRequestViewModel {
         case .promptAndSwitchToExistingServerInBrowser(let existingServer):
             return R.string.localizable.addCustomChainSwitchToExisting(existingServer.displayName, existingServer.chainID)
         case .promptAndAddAndActivateServer(let customChain, let customChainId):
-            return R.string.localizable.addCustomChainAddAndSwitch(customChain.chainName ?? R.string.localizable.addCustomChainUnnamed(), customChainId)
+            return R.string.localizable.addCustomChainAddAndSwitch(customChain.chainName ?? R.string.localizable.addCustomChainUnnamed(preferredLanguages: Languages.preferred()), customChainId)
         case .promptAndActivateExistingServer(let existingServer):
             return R.string.localizable.addCustomChainEnableExisting(existingServer.displayName, existingServer.chainID)
         }
@@ -37,17 +37,17 @@ struct SwitchChainRequestViewModel {
         switch configuration {
         case .promptAndSwitchToExistingServerInBrowser:
             // Switch & Reload
-            return R.string.localizable.switchChainRequestActionSwitchReload()
+            return R.string.localizable.switchChainRequestActionSwitchReload(preferredLanguages: Languages.preferred())
         case .promptAndAddAndActivateServer:
             // Add, Switch & Reload Mainnet
-            return R.string.localizable.switchChainRequestActionAddSwitchReload(R.string.localizable.settingsEnabledNetworksMainnet())
+            return R.string.localizable.switchChainRequestActionAddSwitchReload(R.string.localizable.settingsEnabledNetworksMainnet(preferredLanguages: Languages.preferred()))
         case .promptAndActivateExistingServer:
             // Enable, Switch & Reload
-            return R.string.localizable.switchChainRequestActionEnableSwitchReload()
+            return R.string.localizable.switchChainRequestActionEnableSwitchReload(preferredLanguages: Languages.preferred())
         }
     }
 
     var additionalButtonTitle: String {
-        R.string.localizable.switchChainRequestActionAddSwitchReload(R.string.localizable.settingsEnabledNetworksTestnet())
+        R.string.localizable.switchChainRequestActionAddSwitchReload(R.string.localizable.settingsEnabledNetworksTestnet(preferredLanguages: Languages.preferred()))
     }
 }

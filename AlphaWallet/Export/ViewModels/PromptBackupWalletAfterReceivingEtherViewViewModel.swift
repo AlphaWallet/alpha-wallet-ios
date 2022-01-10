@@ -19,7 +19,7 @@ struct PromptBackupWalletAfterReceivingNativeCryptoCurrencyViewViewModel: Prompt
     }
 
     var description: String {
-        return R.string.localizable.backupPromptDescriptionWithoutAmount()
+        return R.string.localizable.backupPromptDescriptionWithoutAmount(preferredLanguages: Languages.preferred())
     }
 
     var backupButtonBackgroundColor: UIColor {

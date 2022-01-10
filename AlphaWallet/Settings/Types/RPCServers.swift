@@ -409,7 +409,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var displayName: String {
         if isTestnet {
-            return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle()))"
+            return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle(preferredLanguages: Languages.preferred())))"
         } else {
             return name
         }
@@ -630,47 +630,47 @@ enum RPCServer: Hashable, CaseIterable {
     var blockChainName: String {
         switch self {
         case .xDai:
-            return R.string.localizable.blockchainXDAI()
+            return R.string.localizable.blockchainXDAI(preferredLanguages: Languages.preferred())
         case .artis_sigma1:
             return R.string.localizable.blockchainARTISSigma1()
         case .artis_tau1:
             return R.string.localizable.blockchainARTISTau1()
         case .binance_smart_chain:
-            return R.string.localizable.blockchainBinance()
+            return R.string.localizable.blockchainBinance(preferredLanguages: Languages.preferred())
         case .binance_smart_chain_testnet:
-            return R.string.localizable.blockchainBinanceTest()
+            return R.string.localizable.blockchainBinanceTest(preferredLanguages: Languages.preferred())
         case .heco:
-            return R.string.localizable.blockchainHeco()
+            return R.string.localizable.blockchainHeco(preferredLanguages: Languages.preferred())
         case .heco_testnet:
-            return R.string.localizable.blockchainHecoTest()
+            return R.string.localizable.blockchainHecoTest(preferredLanguages: Languages.preferred())
         case .main, .rinkeby, .ropsten, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
-            return R.string.localizable.blockchainEthereum()
+            return R.string.localizable.blockchainEthereum(preferredLanguages: Languages.preferred())
         case .fantom:
-            return R.string.localizable.blockchainFantom()
+            return R.string.localizable.blockchainFantom(preferredLanguages: Languages.preferred())
         case .fantom_testnet:
-            return R.string.localizable.blockchainFantomTest()
+            return R.string.localizable.blockchainFantomTest(preferredLanguages: Languages.preferred())
         case .avalanche:
-            return R.string.localizable.blockchainAvalanche()
+            return R.string.localizable.blockchainAvalanche(preferredLanguages: Languages.preferred())
         case .avalanche_testnet:
-            return R.string.localizable.blockchainAvalancheTest()
+            return R.string.localizable.blockchainAvalancheTest(preferredLanguages: Languages.preferred())
         case .polygon:
-            return R.string.localizable.blockchainPolygon()
+            return R.string.localizable.blockchainPolygon(preferredLanguages: Languages.preferred())
         case .mumbai_testnet:
-            return R.string.localizable.blockchainMumbai()
+            return R.string.localizable.blockchainMumbai(preferredLanguages: Languages.preferred())
         case .optimistic:
-            return R.string.localizable.blockchainOptimistic()
+            return R.string.localizable.blockchainOptimistic(preferredLanguages: Languages.preferred())
         case .optimisticKovan:
-            return R.string.localizable.blockchainOptimisticKovan()
+            return R.string.localizable.blockchainOptimisticKovan(preferredLanguages: Languages.preferred())
         case .cronosTestnet:
-            return R.string.localizable.blockchainCronosTestnet()
+            return R.string.localizable.blockchainCronosTestnet(preferredLanguages: Languages.preferred())
         case .custom(let custom):
             return custom.chainName
         case .arbitrum:
-            return R.string.localizable.blockchainArbitrum()
+            return R.string.localizable.blockchainArbitrum(preferredLanguages: Languages.preferred())
         case .palm:
-            return R.string.localizable.blockchainPalm()
+            return R.string.localizable.blockchainPalm(preferredLanguages: Languages.preferred())
         case .palmTestnet:
-            return R.string.localizable.blockchainPalmTestnet()
+            return R.string.localizable.blockchainPalmTestnet(preferredLanguages: Languages.preferred())
         }
     }
 

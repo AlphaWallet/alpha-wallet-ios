@@ -418,7 +418,7 @@ class InCoordinator: NSObject, Coordinator {
                 walletBalanceCoordinator: walletBalanceCoordinator
         )
 
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(preferredLanguages: Languages.preferred()), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -440,7 +440,7 @@ class InCoordinator: NSObject, Coordinator {
                 transactionsCollection: transactionsCollection,
                 dataCoordinator: transactionDataCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(preferredLanguages: Languages.preferred()), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -450,7 +450,7 @@ class InCoordinator: NSObject, Coordinator {
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
         let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, activitiesService: activitiesService)
         coordinator.delegate = self
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(preferredLanguages: Languages.preferred()), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.start()
         addCoordinator(coordinator)
         return coordinator
@@ -460,7 +460,7 @@ class InCoordinator: NSObject, Coordinator {
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(preferredLanguages: Languages.preferred()), image: R.image.tab_browser(), selectedImage: nil)
         addCoordinator(coordinator)
         return coordinator
     }
@@ -476,7 +476,7 @@ class InCoordinator: NSObject, Coordinator {
             walletConnectCoordinator: walletConnectCoordinator,
             walletBalanceCoordinator: walletBalanceCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(preferredLanguages: Languages.preferred()), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -674,7 +674,7 @@ class InCoordinator: NSObject, Coordinator {
     func show(openedURL filename: String) {
         let controller = UIAlertController(title: nil, message: "\(filename) file imported with no error", preferredStyle: .alert)
         controller.popoverPresentationController?.sourceView = presentationViewController.view
-        controller.addAction(.init(title: R.string.localizable.oK(), style: .default))
+        controller.addAction(.init(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default))
 
         presentationViewController.present(controller, animated: true)
     }

@@ -12,17 +12,17 @@ struct ElevateWalletSecurityViewModel {
 
     var title: String {
         if isHdWallet {
-            return R.string.localizable.keystoreLockWalletSeedButton()
+            return R.string.localizable.keystoreLockWalletSeedButton(preferredLanguages: Languages.preferred())
         } else {
-            return R.string.localizable.keystoreLockWalletPrivateKeyButton()
+            return R.string.localizable.keystoreLockWalletPrivateKeyButton(preferredLanguages: Languages.preferred())
         }
     }
 
     var subtitle: String {
         if isHdWallet {
-            return R.string.localizable.keystoreLockWalletSeedTitle()
+            return R.string.localizable.keystoreLockWalletSeedTitle(preferredLanguages: Languages.preferred())
         } else {
-            return R.string.localizable.keystoreLockWalletPrivateKeyTitle()
+            return R.string.localizable.keystoreLockWalletPrivateKeyTitle(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -32,9 +32,9 @@ struct ElevateWalletSecurityViewModel {
 
     var description: String {
         if isHdWallet {
-            return R.string.localizable.keystoreLockWalletSeedDescription()
+            return R.string.localizable.keystoreLockWalletSeedDescription(preferredLanguages: Languages.preferred())
         } else {
-            return R.string.localizable.keystoreLockWalletPrivateKeyDescription()
+            return R.string.localizable.keystoreLockWalletPrivateKeyDescription(preferredLanguages: Languages.preferred())
         }
     }
 

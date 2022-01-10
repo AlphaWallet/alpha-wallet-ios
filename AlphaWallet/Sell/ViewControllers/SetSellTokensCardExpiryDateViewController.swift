@@ -238,8 +238,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let expiryDate = linkExpiryDate
         guard expiryDate > Date() else {
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(),
-                    alertButtonTitles: [R.string.localizable.oK()],
+                    message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(preferredLanguages: Languages.preferred()),
+                    alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                     alertButtonStyles: [.cancel],
                     viewController: self,
                     completion: nil)
@@ -313,7 +313,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         buttonsBar.configure()
 
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 

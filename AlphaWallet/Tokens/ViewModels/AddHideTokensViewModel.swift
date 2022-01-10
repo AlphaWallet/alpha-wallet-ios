@@ -15,13 +15,13 @@ enum AddHideTokenSections: Int {
         case .sortingFilters:
             return String()
         case .availableNewTokens:
-            return R.string.localizable.addHideTokensSectionNewTokens()
+            return R.string.localizable.addHideTokensSectionNewTokens(preferredLanguages: Languages.preferred())
         case .displayedTokens:
-            return R.string.localizable.addHideTokensSectionDisplayedTokens()
+            return R.string.localizable.addHideTokensSectionDisplayedTokens(preferredLanguages: Languages.preferred())
         case .hiddenTokens:
-            return R.string.localizable.addHideTokensSectionHiddenTokens()
+            return R.string.localizable.addHideTokensSectionHiddenTokens(preferredLanguages: Languages.preferred())
         case .popularTokens:
-            return R.string.localizable.addHideTokensSectionPopularTokens()
+            return R.string.localizable.addHideTokensSectionPopularTokens(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -67,7 +67,7 @@ class AddHideTokensViewModel {
     }
 
     var title: String {
-        R.string.localizable.walletsAddHideTokensTitle()
+        R.string.localizable.walletsAddHideTokensTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {

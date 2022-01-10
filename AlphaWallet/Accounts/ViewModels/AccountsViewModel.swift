@@ -178,13 +178,13 @@ enum AccountsSectionType: Int, CaseIterable {
     var title: String {
         switch self {
         case .summary:
-            return R.string.localizable.walletTypesSummary().uppercased()
+            return R.string.localizable.walletTypesSummary(preferredLanguages: Languages.preferred()).uppercased()
         case .hdWallet:
-            return R.string.localizable.walletTypesHdWallets().uppercased()
+            return R.string.localizable.walletTypesHdWallets(preferredLanguages: Languages.preferred()).uppercased()
         case .keystoreWallet:
-            return R.string.localizable.walletTypesKeystoreWallets().uppercased()
+            return R.string.localizable.walletTypesKeystoreWallets(preferredLanguages: Languages.preferred()).uppercased()
         case .watchedWallet:
-            return R.string.localizable.walletTypesWatchedWallets().uppercased()
+            return R.string.localizable.walletTypesWatchedWallets(preferredLanguages: Languages.preferred()).uppercased()
         }
     }
 }

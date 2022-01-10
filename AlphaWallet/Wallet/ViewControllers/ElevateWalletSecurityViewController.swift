@@ -103,7 +103,7 @@ class ElevateWalletSecurityViewController: UIViewController {
         descriptionLabel.attributedText = viewModel.attributedDescription
 
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-        cancelButton.setTitle(R.string.localizable.skip(), for: .normal)
+        cancelButton.setTitle(R.string.localizable.skip(preferredLanguages: Languages.preferred()), for: .normal)
         cancelButton.titleLabel?.font = viewModel.cancelLockingButtonFont
         cancelButton.titleLabel?.adjustsFontSizeToFitWidth = true
         cancelButton.setTitleColor(viewModel.cancelLockingButtonTitleColor, for: .normal)

@@ -11,9 +11,9 @@ enum KeystoreExportReason {
     var prompt: String {
         switch self {
         case .backup:
-            return R.string.localizable.keystoreAccessKeyHdBackup()
+            return R.string.localizable.keystoreAccessKeyHdBackup(preferredLanguages: Languages.preferred())
         case .prepareForVerification:
-            return R.string.localizable.keystoreAccessKeyHdPrepareToVerify()
+            return R.string.localizable.keystoreAccessKeyHdPrepareToVerify(preferredLanguages: Languages.preferred())
         }
     }
 }

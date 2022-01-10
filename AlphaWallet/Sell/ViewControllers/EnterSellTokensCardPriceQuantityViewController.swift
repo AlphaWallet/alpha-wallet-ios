@@ -223,7 +223,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
-                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                     alertButtonStyles: [.cancel],
                     viewController: self,
                     completion: nil)
@@ -242,7 +242,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             let tokenTypeName = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellPriceProvideTitle(tokenTypeName),
-                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                     alertButtonStyles: [.cancel],
                     viewController: self,
                     completion: nil)
@@ -292,7 +292,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.textAlignment = .center
         dollarCostLabelLabel.textColor = viewModel.dollarCostLabelLabelColor
         dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
-        dollarCostLabelLabel.text = R.string.localizable.aWalletTokenSellDollarCostLabelTitle()
+        dollarCostLabelLabel.text = R.string.localizable.aWalletTokenSellDollarCostLabelTitle(preferredLanguages: Languages.preferred())
         dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
 
         dollarCostLabel.textAlignment = .center
@@ -315,7 +315,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         buttonsBar.configure()
 
         let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(preferredLanguages: Languages.preferred()), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 

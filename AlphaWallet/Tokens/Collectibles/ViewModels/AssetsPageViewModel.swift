@@ -14,7 +14,7 @@ class AssetsPageViewModel {
     }
     
     var navigationTitle: String {
-        return R.string.localizable.semifungiblesAssetsTitle()
+        return R.string.localizable.semifungiblesAssetsTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {

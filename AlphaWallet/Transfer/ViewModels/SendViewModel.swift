@@ -17,11 +17,11 @@ struct SendViewModel {
     }
 
     let amountViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendAmount().uppercased(),
+        text: R.string.localizable.sendAmount(preferredLanguages: Languages.preferred()).uppercased(),
         showTopSeparatorLine: true
     )
     let recipientViewModel = SendViewSectionHeaderViewModel(
-        text: R.string.localizable.sendRecipient().uppercased()
+        text: R.string.localizable.sendRecipient(preferredLanguages: Languages.preferred()).uppercased()
     )
 
     var destinationAddress: AlphaWallet.Address {
@@ -69,7 +69,7 @@ struct SendViewModel {
     }
 
     var recipientsAddress: String {
-        return R.string.localizable.sendRecipientsAddress()
+        return R.string.localizable.sendRecipientsAddress(preferredLanguages: Languages.preferred())
     }
 
     var selectCurrencyButtonHidden: Bool {

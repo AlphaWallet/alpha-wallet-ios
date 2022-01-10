@@ -32,7 +32,7 @@ struct TransactionDetailsViewModel {
     }
 
     var title: String {
-        return R.string.localizable.transactionNavigationTitle()
+        return R.string.localizable.transactionNavigationTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -44,7 +44,7 @@ struct TransactionDetailsViewModel {
     }
 
     var createdAtLabelTitle: String {
-        return R.string.localizable.transactionTimeLabelTitle()
+        return R.string.localizable.transactionTimeLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var detailsAvailable: Bool {
@@ -56,7 +56,7 @@ struct TransactionDetailsViewModel {
     }
 
     var addressCopiedText: String {
-        return R.string.localizable.requestAddressCopiedTitle()
+        return R.string.localizable.requestAddressCopiedTitle(preferredLanguages: Languages.preferred())
     }
 
     var detailsURL: URL? {
@@ -67,7 +67,7 @@ struct TransactionDetailsViewModel {
         if let name = ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.name {
             return R.string.localizable.viewIn(name)
         } else {
-            return R.string.localizable.moreDetails()
+            return R.string.localizable.moreDetails(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -76,7 +76,7 @@ struct TransactionDetailsViewModel {
     }
 
     var transactionIDLabelTitle: String {
-        return R.string.localizable.transactionIdLabelTitle()
+        return R.string.localizable.transactionIdLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var to: String {
@@ -95,7 +95,7 @@ struct TransactionDetailsViewModel {
     }
 
     var toLabelTitle: String {
-        return R.string.localizable.transactionToLabelTitle()
+        return R.string.localizable.transactionToLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var from: String {
@@ -103,7 +103,7 @@ struct TransactionDetailsViewModel {
     }
 
     var fromLabelTitle: String {
-        return R.string.localizable.transactionFromLabelTitle()
+        return R.string.localizable.transactionFromLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var gasViewModel: GasViewModel {
@@ -126,7 +126,7 @@ struct TransactionDetailsViewModel {
     }
 
     var gasFeeLabelTitle: String {
-        return R.string.localizable.transactionGasFeeLabelTitle()
+        return R.string.localizable.transactionGasFeeLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var confirmation: String {
@@ -137,7 +137,7 @@ struct TransactionDetailsViewModel {
     }
 
     var confirmationLabelTitle: String {
-        return R.string.localizable.transactionConfirmationLabelTitle()
+        return R.string.localizable.transactionConfirmationLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var blockNumber: String {
@@ -145,7 +145,7 @@ struct TransactionDetailsViewModel {
     }
 
     var blockNumberLabelTitle: String {
-        return R.string.localizable.transactionBlockNumberLabelTitle()
+        return R.string.localizable.transactionBlockNumberLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var nonce: String {
@@ -153,7 +153,7 @@ struct TransactionDetailsViewModel {
     }
 
     var nonceLabelTitle: String {
-        R.string.localizable.transactionNonceLabelTitle()
+        R.string.localizable.transactionNonceLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var amountAttributedString: NSAttributedString {

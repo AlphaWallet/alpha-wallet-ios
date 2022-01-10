@@ -12,7 +12,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     let tokenHolder: TokenHolder
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()
+		return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -28,11 +28,11 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle(preferredLanguages: Languages.preferred())
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle(preferredLanguages: Languages.preferred())
     }
 
     var tokenSaleDetailsLabelFont: UIFont {
@@ -77,7 +77,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteTitleLabelText: String {
-        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
+        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle(preferredLanguages: Languages.preferred())
     }
 
     var noteTitleLabelFont: UIFont {

@@ -22,7 +22,7 @@ enum OpenURLError: Error {
     var localizedDescription: String {
         switch self {
         case .unsupportedTokenScriptVersion:
-            return R.string.localizable.tokenScriptNotSupportedSchemaError()
+            return R.string.localizable.tokenScriptNotSupportedSchemaError(preferredLanguages: Languages.preferred())
         case .copyTokenScriptURL(let url, let destinationFileName, let error):
             return R.string.localizable.tokenScriptMoveFileError(url.path, destinationFileName.path, error.localizedDescription)
         }
@@ -83,7 +83,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
 
     func createOverridesViewController() -> AssetDefinitionsOverridesViewController {
         let vc = AssetDefinitionsOverridesViewController(fileExtension: AssetDefinitionDiskBackingStore.fileExtension)
-        vc.title = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
+        vc.title = R.string.localizable.aHelpAssetDefinitionOverridesTitle(preferredLanguages: Languages.preferred())
         vc.delegate = self
         vc.hidesBottomBarWhenPushed = true
         configure(overridesViewController: vc)

@@ -20,7 +20,7 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     lazy var selectionViewModel: SelectTokenCardAmountViewModel = .init(availableAmount: availableAmountInt, selectedAmount: selectedAmount)
     
     var navigationTitle: String {
-        R.string.localizable.send()
+        R.string.localizable.send(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -28,7 +28,7 @@ struct TransferTokenBatchCardsViaWalletAddressViewControllerViewModel {
     }
 
     var targetAddressAttributedString: NSAttributedString {
-        return .init(string: R.string.localizable.aSendRecipientAddressTitle(), attributes: [
+        return .init(string: R.string.localizable.aSendRecipientAddressTitle(preferredLanguages: Languages.preferred()), attributes: [
             .font: Fonts.regular(size: 13),
             .foregroundColor: R.color.dove()!
         ])

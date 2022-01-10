@@ -11,7 +11,7 @@ struct DappsHomeViewControllerHeaderViewViewModel {
     }
 
     var title: String {
-        return R.string.localizable.dappBrowserTitle()
+        return R.string.localizable.dappBrowserTitle(preferredLanguages: Languages.preferred())
     }
 
     var myDappsButtonImage: UIImage? {
@@ -19,7 +19,7 @@ struct DappsHomeViewControllerHeaderViewViewModel {
     }
 
     var myDappsButtonTitle: String {
-        return R.string.localizable.myDappsButtonImageLabel()
+        return R.string.localizable.myDappsButtonImageLabel(preferredLanguages: Languages.preferred())
     }
 
     var historyButtonImage: UIImage? {
@@ -27,6 +27,6 @@ struct DappsHomeViewControllerHeaderViewViewModel {
     }
 
     var historyButtonTitle: String {
-        return R.string.localizable.historyButtonImageLabel()
+        return R.string.localizable.historyButtonImageLabel(preferredLanguages: Languages.preferred())
     }
 }

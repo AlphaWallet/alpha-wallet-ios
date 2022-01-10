@@ -11,7 +11,7 @@ import BigInt
 struct TokenInstanceInfoPageViewModel {
 
     var tabTitle: String {
-        return R.string.localizable.tokenTabInfo()
+        return R.string.localizable.tokenTabInfo(preferredLanguages: Languages.preferred())
     }
 
     private let tokenObject: TokenObject
@@ -69,18 +69,18 @@ struct TokenInstanceInfoPageViewModel {
         let value: BigInt = tokenHolderHelper.values?.valueIntValue ?? 0
         let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))
         previewViewModels += [
-            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: attributedValue))
+            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(preferredLanguages: Languages.preferred()), attributedValue: attributedValue))
         ]
         if let description = tokenHolderHelper.values?.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
             let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left)
             previewViewModels += [
-                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription(preferredLanguages: Languages.preferred()))),
                 .field(viewModel: .init(title: nil, attributedValue: attributedValue, isSeparatorHidden: true))
             ]
         }
 
         return [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails(preferredLanguages: Languages.preferred())))
         ] + previewViewModels
     }
 }

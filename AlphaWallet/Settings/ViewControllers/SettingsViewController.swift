@@ -76,7 +76,7 @@ class SettingsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = R.string.localizable.aSettingsNavigationTitle()
+        title = R.string.localizable.aSettingsNavigationTitle(preferredLanguages: Languages.preferred())
         view.backgroundColor = GroupedTable.Color.background
         navigationItem.largeTitleDisplayMode = .automatic
         tableView.backgroundColor = GroupedTable.Color.background
@@ -216,7 +216,7 @@ extension SettingsViewController: UITableViewDataSource {
             }
         case .help:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(titleText: R.string.localizable.settingsSupportTitle(), icon: R.image.support()!))
+            cell.configure(viewModel: .init(titleText: R.string.localizable.settingsSupportTitle(preferredLanguages: Languages.preferred()), icon: R.image.support()!))
 
             return cell
         case .wallet(let rows):

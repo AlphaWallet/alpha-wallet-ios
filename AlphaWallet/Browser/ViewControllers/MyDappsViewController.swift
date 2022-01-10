@@ -39,8 +39,8 @@ class MyDappsViewController: UIViewController {
         tableView.allowsSelectionDuringEditing = true
         emptyView = {
             let emptyView = DappsHomeEmptyView()
-            let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.myDappsButtonImageLabel())
-            emptyView.configure(viewModel: .init(headerViewViewModel: headerViewModel, title: R.string.localizable.dappBrowserMyDappsEmpty()))
+            let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.myDappsButtonImageLabel(preferredLanguages: Languages.preferred()))
+            emptyView.configure(viewModel: .init(headerViewViewModel: headerViewModel, title: R.string.localizable.dappBrowserMyDappsEmpty(preferredLanguages: Languages.preferred())))
             return emptyView
         }()
         view.addSubview(tableView)
@@ -81,7 +81,7 @@ class MyDappsViewController: UIViewController {
 
     private func resizeTableViewHeader() {
         headerView.delegate = self
-        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.myDappsButtonImageLabel())
+        let headerViewModel = DappsHomeHeaderViewViewModel(title: R.string.localizable.myDappsButtonImageLabel(preferredLanguages: Languages.preferred()))
         headerView.configure(viewModel: headerViewModel)
         headerView.backgroundColor = headerViewModel.backgroundColor
         let fittingSize = headerView.systemLayoutSizeFitting(.init(width: tableView.frame.size.width, height: 1000))
@@ -149,9 +149,9 @@ extension MyDappsViewController: UITableViewDelegate {
         if editingStyle == .delete {
             let dapp = viewModel.dapp(atIndex: indexPath.row)
             confirm(
-                    title: R.string.localizable.dappBrowserClearMyDapps(),
+                    title: R.string.localizable.dappBrowserClearMyDapps(preferredLanguages: Languages.preferred()),
                     message: dapp.title,
-                    okTitle: R.string.localizable.removeButtonTitle(),
+                    okTitle: R.string.localizable.removeButtonTitle(preferredLanguages: Languages.preferred()),
                     okStyle: .destructive
             ) { [weak self] result in
                 switch result {

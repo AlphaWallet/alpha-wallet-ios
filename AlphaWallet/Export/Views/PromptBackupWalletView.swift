@@ -88,7 +88,7 @@ class PromptBackupWalletView: UIView {
     }
 
     @objc private func remindMeLater() {
-        delegate?.viewControllerToShowBackupLaterAlert(forView: self)?.confirm(message: R.string.localizable.backupPromptBackupRemindLater()) { result in
+        delegate?.viewControllerToShowBackupLaterAlert(forView: self)?.confirm(message: R.string.localizable.backupPromptBackupRemindLater(preferredLanguages: Languages.preferred())) { result in
             switch result {
             case .success:
                 self.delegate?.didChooseBackupLater(inView: self)

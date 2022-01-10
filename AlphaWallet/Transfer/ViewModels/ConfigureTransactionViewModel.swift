@@ -57,7 +57,7 @@ struct ConfigureTransactionViewModel {
     }
 
     var title: String {
-        return R.string.localizable.configureTransactionNavigationBarTitle()
+        return R.string.localizable.configureTransactionNavigationBarTitle(preferredLanguages: Languages.preferred())
     }
 
     var isDataInputHidden: Bool {
@@ -86,20 +86,20 @@ struct ConfigureTransactionViewModel {
     }
 
     var nonceViewModel: TextFieldTableViewCellViewModel {
-        let placeholder = R.string.localizable.configureTransactionNonceLabelTitle()
+        let placeholder = R.string.localizable.configureTransactionNonceLabelTitle(preferredLanguages: Languages.preferred())
         let value = configurationToEdit.nonceRawValue.flatMap { String($0) }
 
         return .init(placeholder: placeholder, value: value ?? "", keyboardType: .numberPad)
     }
 
     var dataViewModel: TextFieldTableViewCellViewModel {
-        let placeholder = R.string.localizable.configureTransactionDataLabelTitle()
+        let placeholder = R.string.localizable.configureTransactionDataLabelTitle(preferredLanguages: Languages.preferred())
 
         return .init(placeholder: placeholder, value: configurationToEdit.dataRawValue)
     }
 
     var totalFeeViewModel: TextFieldTableViewCellViewModel {
-        let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
+        let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle(preferredLanguages: Languages.preferred())
 
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
     }
@@ -128,11 +128,11 @@ struct ConfigureTransactionViewModel {
     }
 
     var gasPriceHeaderTitle: String {
-        return R.string.localizable.configureTransactionHeaderGasPrice()
+        return R.string.localizable.configureTransactionHeaderGasPrice(preferredLanguages: Languages.preferred())
     }
 
     var gasLimitHeaderTitle: String {
-        return R.string.localizable.configureTransactionHeaderGasLimit()
+        return R.string.localizable.configureTransactionHeaderGasLimit(preferredLanguages: Languages.preferred())
     }
 
     enum GasLimit {

@@ -62,7 +62,7 @@ extension UIBarButtonItem {
     }
 
     static func selectBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(title: R.string.localizable.aWalletTokenSelectTokens(), style: .plain, target: target, action: selector)
+        return .init(title: R.string.localizable.aWalletTokenSelectTokens(preferredLanguages: Languages.preferred()), style: .plain, target: target, action: selector)
     }
 
     static func cancelBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
@@ -98,7 +98,7 @@ extension UIBarButtonItem {
     }
 
     static func saveBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        .init(title: R.string.localizable.save(), style: .plain, target: target, action: selector)
+        .init(title: R.string.localizable.save(preferredLanguages: Languages.preferred()), style: .plain, target: target, action: selector)
     }
 
     static func backBarButton(selectionClosure: @escaping (UIBarButtonItem) -> Void) -> UIBarButtonItem {

@@ -9,7 +9,7 @@ struct ServersViewModel {
     let servers: [RPCServerOrAuto]
 
     var title: String {
-        return R.string.localizable.settingsNetworkButtonTitle()
+        return R.string.localizable.settingsNetworkButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var descriptionColor: UIColor {
@@ -25,7 +25,7 @@ struct ServersViewModel {
     }
 
     var descriptionText: String {
-        return R.string.localizable.browserSettingsNetworkDescriptionTitle()
+        return R.string.localizable.browserSettingsNetworkDescriptionTitle(preferredLanguages: Languages.preferred())
     }
     private var allowWarningFooter: Bool?
 

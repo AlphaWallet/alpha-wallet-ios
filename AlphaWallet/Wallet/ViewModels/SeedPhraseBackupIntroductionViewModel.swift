@@ -9,7 +9,7 @@ struct SeedPhraseBackupIntroductionViewModel {
     }
 
     var title: String {
-        return R.string.localizable.walletsBackupHdWalletIntroductionButtonTitle()
+        return R.string.localizable.walletsBackupHdWalletIntroductionButtonTitle(preferredLanguages: Languages.preferred())
     } 
 
     var imageViewImage: UIImage {
@@ -17,7 +17,7 @@ struct SeedPhraseBackupIntroductionViewModel {
     }
     
     var attributedSubtitle: NSAttributedString {
-        let subtitle = R.string.localizable.walletsBackupHdWalletIntroductionTitle()
+        let subtitle = R.string.localizable.walletsBackupHdWalletIntroductionTitle(preferredLanguages: Languages.preferred())
         let attributeString = NSMutableAttributedString(string: subtitle)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
@@ -33,7 +33,7 @@ struct SeedPhraseBackupIntroductionViewModel {
     }
     
     var attributedDescription: NSAttributedString {
-        let description = R.string.localizable.walletsShowSeedPhraseSubtitle()
+        let description = R.string.localizable.walletsShowSeedPhraseSubtitle(preferredLanguages: Languages.preferred())
         let attributeString = NSMutableAttributedString(string: description)
         let style = NSMutableParagraphStyle()
         style.alignment = .center

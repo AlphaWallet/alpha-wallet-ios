@@ -4,7 +4,7 @@ import UIKit
 
 struct NewTokenViewModel {
     var title: String {
-        return R.string.localizable.tokensNewtokenNavigationTitle()
+        return R.string.localizable.tokensNewtokenNavigationTitle(preferredLanguages: Languages.preferred())
     }
 
     var ERC875TokenBalance: [String] = []
@@ -32,22 +32,22 @@ struct NewTokenViewModel {
     }
 
     var addressLabel: String {
-        return R.string.localizable.contractAddress()
+        return R.string.localizable.contractAddress(preferredLanguages: Languages.preferred())
     }
 
     var symbolLabel: String {
-        return R.string.localizable.symbol()
+        return R.string.localizable.symbol(preferredLanguages: Languages.preferred())
     }
 
     var decimalsLabel: String {
-        return R.string.localizable.decimals()
+        return R.string.localizable.decimals(preferredLanguages: Languages.preferred())
     }
 
     var balanceLabel: String {
-        return R.string.localizable.balance()
+        return R.string.localizable.balance(preferredLanguages: Languages.preferred())
     }
 
     var nameLabel: String {
-        return R.string.localizable.name()
+        return R.string.localizable.name(preferredLanguages: Languages.preferred())
     }
 }

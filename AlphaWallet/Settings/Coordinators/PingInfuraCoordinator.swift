@@ -23,9 +23,9 @@ class PingInfuraCoordinator: Coordinator {
     }
 
     func start() {
-        UIAlertController.alert(title: "\(R.string.localizable.settingsPingInfuraTitle())?",
+        UIAlertController.alert(title: "\(R.string.localizable.settingsPingInfuraTitle(preferredLanguages: Languages.preferred()))?",
                 message: nil,
-                alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
+                alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred()), R.string.localizable.cancel(preferredLanguages: Languages.preferred())],
                 alertButtonStyles: [.default, .cancel],
                 viewController: viewController,
                 completion: { choice in
@@ -45,10 +45,10 @@ class PingInfuraCoordinator: Coordinator {
             Session.send(request)
         }.done { _ in
             UIAlertController.alert(
-                    title: R.string.localizable.settingsPingInfuraSuccessful(),
+                    title: R.string.localizable.settingsPingInfuraSuccessful(preferredLanguages: Languages.preferred()),
                     message: nil,
                     alertButtonTitles: [
-                        R.string.localizable.oK()
+                        R.string.localizable.oK(preferredLanguages: Languages.preferred())
                     ],
                     alertButtonStyles: [
                         .cancel
@@ -56,10 +56,10 @@ class PingInfuraCoordinator: Coordinator {
                     viewController: self.viewController,
                     style: .alert)
         }.catch { error in
-            UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(),
+            UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(preferredLanguages: Languages.preferred()),
                     message: "\(error)",
                     alertButtonTitles: [
-                        R.string.localizable.oK(),
+                        R.string.localizable.oK(preferredLanguages: Languages.preferred()),
                     ],
                     alertButtonStyles: [
                         .cancel

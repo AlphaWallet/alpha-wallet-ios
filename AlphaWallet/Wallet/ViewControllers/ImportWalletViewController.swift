@@ -332,7 +332,7 @@ class ImportWalletViewController: UIViewController {
         watchAddressTextField.configureOnce()
 
         importKeystoreJsonFromCloudButton.addTarget(self, action: #selector(importOptions), for: .touchUpInside)
-        importKeystoreJsonFromCloudButton.setTitle(R.string.localizable.importWalletImportFromCloudTitle(), for: .normal)
+        importKeystoreJsonFromCloudButton.setTitle(R.string.localizable.importWalletImportFromCloudTitle(preferredLanguages: Languages.preferred()), for: .normal)
         importKeystoreJsonFromCloudButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
         importKeystoreJsonFromCloudButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
@@ -341,7 +341,7 @@ class ImportWalletViewController: UIViewController {
         buttonsBar.configure()
         let importButton = buttonsBar.buttons[0]
         importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
-        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle(preferredLanguages: Languages.preferred()))
     }
 
     private func configureImportButtonTitle(_ title: String) {
@@ -388,11 +388,11 @@ class ImportWalletViewController: UIViewController {
     private func validateKeystore() -> Bool {
         keystoreJSONTextView.errorState = .none
         if keystoreJSONTextView.value.isEmpty {
-            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired())
+            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
             return false
         }
         if passwordTextField.value.isEmpty {
-            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired())
+            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired(preferredLanguages: Languages.preferred()))
             return false
         }
         return true
@@ -426,7 +426,7 @@ class ImportWalletViewController: UIViewController {
         let password = passwordTextField.value.trimmed
         let watchInput = watchAddressTextField.value.trimmed
 
-        displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
+        displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(preferredLanguages: Languages.preferred()), animated: false)
 
         let importTypeOptional: ImportType? = {
             guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return nil }
@@ -438,7 +438,7 @@ class ImportWalletViewController: UIViewController {
             case .privateKey:
                 guard let data = Data(hexString: privateKeyInput) else {
                     hideLoading(animated: false)
-                    privateKeyTextView.errorState = .error(R.string.localizable.importWalletImportInvalidPrivateKey())
+                    privateKeyTextView.errorState = .error(R.string.localizable.importWalletImportInvalidPrivateKey(preferredLanguages: Languages.preferred()))
                     return nil
                 }
                 privateKeyTextView.errorState = .none
@@ -446,7 +446,7 @@ class ImportWalletViewController: UIViewController {
             case .watch:
                 guard let address = AlphaWallet.Address(string: watchInput) else {
                     hideLoading(animated: false)
-                    watchAddressTextField.errorState = .error(R.string.localizable.importWalletImportInvalidAddress())
+                    watchAddressTextField.errorState = .error(R.string.localizable.importWalletImportInvalidAddress(preferredLanguages: Languages.preferred()))
                     return nil
                 }
 
@@ -475,19 +475,19 @@ class ImportWalletViewController: UIViewController {
 
     @objc func importOptions(sender: UIButton) {
         let alertController = UIAlertController(
-            title: R.string.localizable.importWalletImportAlertSheetTitle(),
+            title: R.string.localizable.importWalletImportAlertSheetTitle(preferredLanguages: Languages.preferred()),
             message: .none,
             preferredStyle: .actionSheet
         )
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.bounds
         alertController.addAction(UIAlertAction(
-            title: R.string.localizable.importWalletImportAlertSheetOptionTitle(),
+            title: R.string.localizable.importWalletImportAlertSheetOptionTitle(preferredLanguages: Languages.preferred()),
             style: .default
         ) {  [weak self] _ in
             self?.showDocumentPicker()
         })
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in })
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in })
         present(alertController, animated: true)
     }
 
@@ -543,7 +543,7 @@ class ImportWalletViewController: UIViewController {
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
-        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle(preferredLanguages: Languages.preferred()))
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = false
         let importButton = buttonsBar.buttons[0]
@@ -557,7 +557,7 @@ class ImportWalletViewController: UIViewController {
         keystoreJSONControlsStackView.isHidden = false
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
-        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle(preferredLanguages: Languages.preferred()))
         importKeystoreJsonFromCloudButton.isHidden = false
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]
@@ -571,7 +571,7 @@ class ImportWalletViewController: UIViewController {
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = false
         watchControlsStackView.isHidden = true
-        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle(preferredLanguages: Languages.preferred()))
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]
@@ -585,7 +585,7 @@ class ImportWalletViewController: UIViewController {
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = false
-        configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
+        configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle(preferredLanguages: Languages.preferred()))
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]

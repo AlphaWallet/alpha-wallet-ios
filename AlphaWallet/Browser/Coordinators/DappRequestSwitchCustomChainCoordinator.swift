@@ -47,7 +47,7 @@ class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
         }
         guard customChain.rpcUrls?.first != nil else {
             //Not to spec since RPC URLs are optional according to EIP3085, but it is so much easier to assume it's needed, and quite useless if it isn't provided
-            delegate?.failed(withErrorMessage: R.string.localizable.addCustomChainErrorNoRpcNodeUrl(), withCallbackId: callbackId, inCoordinator: self)
+            delegate?.failed(withErrorMessage: R.string.localizable.addCustomChainErrorNoRpcNodeUrl(preferredLanguages: Languages.preferred()), withCallbackId: callbackId, inCoordinator: self)
             return
         }
         if let existingServer = ServersCoordinator.serversOrdered.first(where: { $0.chainID == customChainId }) {
@@ -164,7 +164,7 @@ extension DappRequestSwitchCustomChainCoordinator: AddCustomChainDelegate {
             dAppError = .cancelled
         case .others(let message):
             dAppError = .nodeError(message)
-            UIAlertController.alert(title: nil, message: message, alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: viewController)
+            UIAlertController.alert(title: nil, message: message, alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())], alertButtonStyles: [.cancel], viewController: viewController)
         }
         delegate?.failed(withError: dAppError, withCallbackId: callbackId, inCoordinator: self)
     }

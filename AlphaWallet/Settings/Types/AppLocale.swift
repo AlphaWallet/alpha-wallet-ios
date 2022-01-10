@@ -49,7 +49,7 @@ enum AppLocale {
         //Only .system should be localized. The rest should each be in their own language
         switch self {
         case .system:
-            return R.string.localizable.settingsLanguageUseSystemTitle()
+            return R.string.localizable.settingsLanguageUseSystemTitle(preferredLanguages: Languages.preferred())
         case .english:
             return "English"
         case .simplifiedChinese:

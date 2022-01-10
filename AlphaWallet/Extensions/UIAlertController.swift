@@ -28,16 +28,16 @@ extension UIAlertController {
                 message: message,
                 preferredStyle: .alert
         )
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { _ -> Void in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: { _ -> Void in
             let textField = alertController.textFields![0] as UITextField
             let password = textField.text ?? ""
             completion(.success(password))
         }))
-        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel, handler: { _ in
             completion(.failure(ConfirmationError.cancel))
         }))
         alertController.addTextField(configurationHandler: { (textField: UITextField!) -> Void in
-            textField.placeholder = R.string.localizable.password()
+            textField.placeholder = R.string.localizable.password(preferredLanguages: Languages.preferred())
             textField.isSecureTextEntry = true
         })
         return alertController
@@ -103,12 +103,12 @@ extension UIAlertController {
 
 extension UIAlertController {
     static func showTransactionSent(transaction: SentTransaction, on target: UIViewController) {
-        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: .alert)
-        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertAction.Style.default, handler: { _ in
+        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(preferredLanguages: Languages.preferred()), message: R.string.localizable.sendActionTransactionSentWait(preferredLanguages: Languages.preferred()), preferredStyle: .alert)
+        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(preferredLanguages: Languages.preferred()), style: UIAlertAction.Style.default, handler: { _ in
             UIPasteboard.general.string = transaction.id
         })
         alertController.addAction(copyAction)
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default))
 
         target.present(alertController, animated: true)
     }
@@ -117,13 +117,13 @@ extension UIAlertController {
 extension UIAlertController {
     static func promptToUseUnresolvedExplorerURL(customChain: WalletAddEthereumChainObject, chainId: Int, viewController: UIViewController) -> Promise<Bool> {
         let (promise, seal) = Promise<Bool>.pending()
-        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl()
-        let alertController = UIAlertController.alertController(title: R.string.localizable.warning(), message: message, style: .alert, in: viewController)
-        let continueAction = UIAlertAction(title: R.string.localizable.continue(), style: .destructive, handler: { _ in
+        let message = R.string.localizable.addCustomChainWarningNoBlockchainExplorerUrl(preferredLanguages: Languages.preferred())
+        let alertController = UIAlertController.alertController(title: R.string.localizable.warning(preferredLanguages: Languages.preferred()), message: message, style: .alert, in: viewController)
+        let continueAction = UIAlertAction(title: R.string.localizable.continue(preferredLanguages: Languages.preferred()), style: .destructive, handler: { _ in
             seal.fulfill(true)
         })
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel, handler: { _ in
             seal.fulfill(false)
         })
 

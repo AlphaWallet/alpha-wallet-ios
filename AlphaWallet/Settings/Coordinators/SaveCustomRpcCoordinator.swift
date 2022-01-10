@@ -80,9 +80,9 @@ class SaveCustomRpcCoordinator: NSObject, Coordinator {
     private func setNavigationTitle(viewController: UIViewController) {
         switch operation {
         case .add:
-            viewController.navigationItem.title = R.string.localizable.addrpcServerNavigationTitle()
+            viewController.navigationItem.title = R.string.localizable.addrpcServerNavigationTitle(preferredLanguages: Languages.preferred())
         case .edit:
-            viewController.navigationItem.title = R.string.localizable.editCustomRPCNavigationTitle()
+            viewController.navigationItem.title = R.string.localizable.editCustomRPCNavigationTitle(preferredLanguages: Languages.preferred())
         }
     }
 
@@ -109,7 +109,7 @@ extension SaveCustomRpcCoordinator: SaveCustomRpcEntryViewControllerDataDelegate
             explorerEndpoints = nil
         }
 
-        let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
+        let customChain = WalletAddEthereumChainObject(nativeCurrency: .init(name: customRpc.nativeCryptoTokenName ?? R.string.localizable.addCustomChainUnnamed(preferredLanguages: Languages.preferred()), symbol: customRpc.symbol ?? "", decimals: defaultDecimals), blockExplorerUrls: explorerEndpoints, chainName: customRpc.chainName, chainId: String(customRpc.chainID), rpcUrls: [customRpc.rpcEndpoint])
         let saveCustomChain = AddCustomChain(customChain, isTestnet: customRpc.isTestnet, restartQueue: restartQueue, url: nil, operation: operation)
         saveCustomChain.delegate = self
         saveCustomChain.run()
@@ -147,8 +147,8 @@ extension SaveCustomRpcCoordinator: AddCustomChainDelegate {
     }
 
     func notifyAddCustomChainFailed(error: AddCustomChainError, in addCustomChain: AddCustomChain) {
-        let alertController = UIAlertController.alertController(title: R.string.localizable.error(), message: error.message, style: .alert, in: navigationController)
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
+        let alertController = UIAlertController.alertController(title: R.string.localizable.error(preferredLanguages: Languages.preferred()), message: error.message, style: .alert, in: navigationController)
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(preferredLanguages: Languages.preferred()), style: .default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
     }
 

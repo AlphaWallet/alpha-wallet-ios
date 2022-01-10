@@ -27,7 +27,7 @@ class ExportJsonKeystoreCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        startPasswordViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystorePasswordPasswordButtonPassword())
+        startPasswordViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystorePasswordPasswordButtonPassword(preferredLanguages: Languages.preferred()))
     }
 
     private func startFileViewController(buttonTitle: String, password: String) {
@@ -85,7 +85,7 @@ extension ExportJsonKeystoreCoordinator: ExportJsonKeystoreFileDelegate {
 
 extension ExportJsonKeystoreCoordinator: ExportJsonKeystorePasswordDelegate {
     func didRequestExportKeystore(with password: String) {
-        startFileViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystoreFilePasswordButtonPassword(), password: password)
+        startFileViewController(buttonTitle: R.string.localizable.settingsAdvancedExportJSONKeystoreFilePasswordButtonPassword(preferredLanguages: Languages.preferred()), password: password)
     }
 
     func didDismissPasswordController() {

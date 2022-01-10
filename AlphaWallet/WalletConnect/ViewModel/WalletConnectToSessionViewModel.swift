@@ -26,19 +26,19 @@ struct WalletConnectToSessionViewModel {
     }
 
     var navigationTitle: String {
-        return R.string.localizable.walletConnectConnectionTitle()
+        return R.string.localizable.walletConnectConnectionTitle(preferredLanguages: Languages.preferred())
     }
 
     var title: String {
-        return R.string.localizable.confirmPaymentConfirmButtonTitle()
+        return R.string.localizable.confirmPaymentConfirmButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var connectionButtonTitle: String {
-        return R.string.localizable.confirmPaymentConnectButtonTitle()
+        return R.string.localizable.confirmPaymentConnectButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var rejectionButtonTitle: String {
-        return R.string.localizable.confirmPaymentRejectButtonTitle()
+        return R.string.localizable.confirmPaymentRejectButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var backgroundColor: UIColor {
@@ -61,11 +61,11 @@ struct WalletConnectToSessionViewModel {
         var title: String {
             switch self {
             case .name:
-                return R.string.localizable.walletConnectConnectionNameTitle()
+                return R.string.localizable.walletConnectConnectionNameTitle(preferredLanguages: Languages.preferred())
             case .network:
-                return R.string.localizable.walletConnectConnectionNetworkTitle()
+                return R.string.localizable.walletConnectConnectionNetworkTitle(preferredLanguages: Languages.preferred())
             case .url:
-                return R.string.localizable.walletConnectConnectionUrlTitle()
+                return R.string.localizable.walletConnectConnectionUrlTitle(preferredLanguages: Languages.preferred())
             }
         }
     }

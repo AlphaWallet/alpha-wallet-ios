@@ -182,7 +182,7 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
                         UIAlertController.alert(
                                 title: nil,
                                 message: denialMessage,
-                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonTitles: [R.string.localizable.oK(preferredLanguages: Languages.preferred())],
                                 alertButtonStyles: [.default],
                                 viewController: self,
                                 completion: nil
@@ -236,7 +236,7 @@ extension Erc1155TokenInstanceViewController: TokenInstanceAttributeViewDelegate
         case .field(let viewModel) where self.viewModel.tokenIdViewModel == viewModel:
             UIPasteboard.general.string = viewModel.value
 
-            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard(preferredLanguages: Languages.preferred()))
         case .header, .field:
             break
         }

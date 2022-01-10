@@ -217,7 +217,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
                     delegate.didMark(token: result.token, in: strongSelf, isHidden: isTokenHidden)
                 }
             }.catch { _ in
-                self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure())
+                self.displayError(message: R.string.localizable.walletsHideTokenErrorAddTokenFailure(preferredLanguages: Languages.preferred()))
             }.finally {
                 tableView.reloadData()
 
@@ -227,7 +227,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let title = R.string.localizable.walletsHideTokenTitle()
+        let title = R.string.localizable.walletsHideTokenTitle(preferredLanguages: Languages.preferred())
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
             guard let strongSelf = self else { return }
 

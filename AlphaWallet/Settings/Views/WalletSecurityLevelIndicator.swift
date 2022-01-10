@@ -57,11 +57,11 @@ class WalletSecurityLevelIndicator: UIView {
     private static func convertLevelToTitle(_ level: WalletSecurityLevel) -> String {
         switch level {
         case .notBackedUp:
-            return R.string.localizable.walletSecurityLevelRed()
+            return R.string.localizable.walletSecurityLevelRed(preferredLanguages: Languages.preferred())
         case .backedUpButSecurityIsNotElevated:
-            return R.string.localizable.walletSecurityLevelOrange()
+            return R.string.localizable.walletSecurityLevelOrange(preferredLanguages: Languages.preferred())
         case .backedUpWithElevatedSecurity:
-            return R.string.localizable.walletSecurityLevelGreen()
+            return R.string.localizable.walletSecurityLevelGreen(preferredLanguages: Languages.preferred())
         }
     }
 }

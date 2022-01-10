@@ -39,7 +39,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var screenTitle: String {
-        return R.string.localizable.dappBrowserMyDappsEdit()
+        return R.string.localizable.dappBrowserMyDappsEdit(preferredLanguages: Languages.preferred())
     }
 
     var screenFont: UIFont {
@@ -55,7 +55,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var titleText: String {
-        return R.string.localizable.dappBrowserMyDappsEditTitleLabel()
+        return R.string.localizable.dappBrowserMyDappsEditTitleLabel(preferredLanguages: Languages.preferred())
     }
 
     var urlColor: UIColor {
@@ -67,7 +67,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var urlText: String {
-        return R.string.localizable.dappBrowserMyDappsEditUrlLabel()
+        return R.string.localizable.dappBrowserMyDappsEditUrlLabel(preferredLanguages: Languages.preferred())
     }
 
     var titleTextFieldTextAlignment: NSTextAlignment {
@@ -123,7 +123,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var saveButtonTitle: String {
-        return R.string.localizable.save()
+        return R.string.localizable.save(preferredLanguages: Languages.preferred())
     }
 
     var cancelButtonTitleColor: UIColor {
@@ -135,6 +135,6 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var cancelButtonTitle: String {
-        return R.string.localizable.cancel()
+        return R.string.localizable.cancel(preferredLanguages: Languages.preferred())
     }
 }

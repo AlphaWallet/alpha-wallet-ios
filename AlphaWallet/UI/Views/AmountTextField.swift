@@ -18,9 +18,9 @@ class AmountTextField: UIControl {
         fileprivate var buttonTitle: String {
             switch self {
             case .done:
-                return R.string.localizable.done()
+                return R.string.localizable.done(preferredLanguages: Languages.preferred())
             case .next:
-                return R.string.localizable.next()
+                return R.string.localizable.next(preferredLanguages: Languages.preferred())
             }
         }
     }
@@ -132,7 +132,7 @@ class AmountTextField: UIControl {
     var allFundsButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.sendAllFunds(), for: .normal)
+        button.setTitle(R.string.localizable.sendAllFunds(preferredLanguages: Languages.preferred()), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)

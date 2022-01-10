@@ -13,7 +13,7 @@ struct TestnetTokenInfoViewModel {
         style.alignment = .center
         style.lineSpacing = ScreenChecker().isNarrowScreen ? 6 : 12
         
-        return .init(string: R.string.localizable.tokenTestnetWarning(), attributes: [
+        return .init(string: R.string.localizable.tokenTestnetWarning(preferredLanguages: Languages.preferred()), attributes: [
             .font: Fonts.italic(size: 17),
             .foregroundColor: R.color.dove()!,
             .paragraphStyle: style

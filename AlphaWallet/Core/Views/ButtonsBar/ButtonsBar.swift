@@ -317,7 +317,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
             alertController.addAction(action)
         }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(preferredLanguages: Languages.preferred()), style: .cancel) { _ in }
         alertController.addAction(cancelAction)
 
         viewController?.present(alertController, animated: true)

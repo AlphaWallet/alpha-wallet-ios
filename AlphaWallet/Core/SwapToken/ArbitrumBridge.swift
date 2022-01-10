@@ -31,7 +31,7 @@ final class ArbitrumBridge: TokenActionsProvider, BridgeTokenURLProviderType {
     }
 
     var action: String {
-        return R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle()
+        return R.string.localizable.aWalletTokenArbitrumBridgeButtonTitle(preferredLanguages: Languages.preferred())
     }
 
     var analyticsName: String {
