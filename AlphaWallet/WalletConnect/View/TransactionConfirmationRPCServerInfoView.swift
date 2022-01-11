@@ -1,13 +1,13 @@
 //
-//  TransactionConfirmationRowInfoView.swift
+//  TransactionConfirmationRPCServerInfoView.swift
 //  AlphaWallet
 //
-//  Created by Vladyslav Shepitko on 17.07.2020.
+//  Created by Vladyslav Shepitko on 17.11.2021.
 //
 
 import UIKit
 
-class TransactionConfirmationRowInfoView: UIView {
+class TransactionConfirmationRPCServerInfoView: UIView {
 
     private let titleLabel: UILabel = {
         let titleLabel = UILabel(frame: .zero)
@@ -19,25 +19,19 @@ class TransactionConfirmationRowInfoView: UIView {
         return titleLabel
     }()
 
-    private let subTitleLabel: UILabel = {
-        let subTitleLabel = UILabel(frame: .zero)
-        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        subTitleLabel.textAlignment = .left
-        subTitleLabel.textColor = Colors.black
-        subTitleLabel.font = Fonts.light(size: ScreenChecker().isNarrowScreen ? 13 : 15)
-        subTitleLabel.numberOfLines = 0
-
-        return subTitleLabel
+    private let serverIconImageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 20, height: 20))
+        return imageView
     }()
 
-    init(viewModel: TransactionConfirmationRowInfoViewModel) {
+    init(viewModel: TransactionConfirmationRPCServerInfoViewModel) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
-            titleLabel,
-            subTitleLabel,
-        ].asStackView(axis: .vertical)
+            serverIconImageView,
+            titleLabel
+        ].asStackView(axis: .horizontal, spacing: 10)
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.isLayoutMarginsRelativeArrangement = true
@@ -55,15 +49,22 @@ class TransactionConfirmationRowInfoView: UIView {
         return nil
     }
 
-    private func configure(viewModel: TransactionConfirmationRowInfoViewModel) {
+    private func configure(viewModel: TransactionConfirmationRPCServerInfoViewModel) {
         titleLabel.text = viewModel.title
-        subTitleLabel.text = viewModel.subtitle
-        subTitleLabel.isHidden = viewModel.isSubtitleHidden
+        serverIconImageView.subscribable = viewModel.iconImage
     }
 }
 
-struct TransactionConfirmationRowInfoViewModel {
+struct TransactionConfirmationRPCServerInfoViewModel {
     let title: String
-    let subtitle: String?
-    var isSubtitleHidden: Bool { subtitle?.trimmed.isEmpty ?? true }
+    private let server: RPCServer
+
+    init(server: RPCServer) {
+        self.server = server
+        self.title = server.name
+    }
+
+    var iconImage: Subscribable<Image> {
+        server.walletConnectIconImage
+    }
 }

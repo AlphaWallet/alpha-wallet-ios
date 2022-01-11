@@ -16,39 +16,37 @@ protocol WalletConnectSessionCoordinatorDelegate: AnyObject {
 class WalletConnectSessionCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
-    private let server: WalletConnectServer
+    private let provider: WalletConnectServerProviderType
     private var viewController: WalletConnectSessionViewController
-    private let session: WalletConnectSession
+    private let session: AlphaWallet.WalletConnect.Session
 
     var coordinators: [Coordinator] = []
     weak var delegate: WalletConnectSessionCoordinatorDelegate?
     private let config = Config()
     
-    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, server: WalletConnectServer, session: WalletConnectSession) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, provider: WalletConnectServerProviderType, session: AlphaWallet.WalletConnect.Session) {
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
-        self.server = server
+        self.provider = provider
         self.session = session
 
-        viewController = WalletConnectSessionViewController(viewModel: .init(server: server, session: session))
+        viewController = WalletConnectSessionViewController(viewModel: .init(provider: provider, session: session), provider: provider)
         viewController.delegate = self
-
-        server.sessions.subscribe { [weak self] _ in
-            self?.viewController.reload()
-        }
+        viewController.navigationItem.hidesBackButton = true
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(backButtonSelected))
     }
 
     func start() {
         navigationController.pushViewController(viewController, animated: true)
     }
-}
 
-extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
-
-    func didDismiss(in controller: WalletConnectSessionViewController) {
+    @objc private func backButtonSelected(_ sender: UIBarButtonItem) {
         navigationController.popViewController(animated: true)
         delegate?.didDismiss(in: self)
     }
+}
+
+extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDelegate {
 
     private var serverChoices: [RPCServer] {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
@@ -57,27 +55,30 @@ extension WalletConnectSessionCoordinator: WalletConnectSessionViewControllerDel
     func controller(_ controller: WalletConnectSessionViewController, switchNetworkSelected sender: UIButton) {
         analyticsCoordinator.log(action: Analytics.Action.walletConnectSwitchNetwork)
 
-        let rpcServer = controller.rpcServer ?? .main
+        let selectedServers: [RPCServerOrAuto] = controller.rpcServers.map { return .server($0) }
         let servers = serverChoices.filter { config.enabledServers.contains($0) } .compactMap { RPCServerOrAuto.server($0) }
-        let viewModel = ServersViewModel(servers: servers, selectedServer: .server(rpcServer), displayWarningFooter: false)
+        var viewModel = ServersViewModel(servers: servers, selectedServers: selectedServers, displayWarningFooter: false)
+        viewModel.multipleSessionSelectionEnabled = session.isMultipleServersEnabled
 
         firstly {
             ServersCoordinator.promise(navigationController, viewModel: viewModel, coordinator: self)
-        }.done { server in
-            if let server = server {
-                self.analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
-
-                try? self.server.updateSession(session: self.session, server: server)
-            } else {
-                self.analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [Analytics.Properties.source.rawValue: "walletConnect"])
-            }
-        }.cauterize()
+        }.done { selection in
+            let servers = selection.asServersArray
+            self.analyticsCoordinator.log(action: Analytics.Action.switchedServer, properties: [
+                Analytics.Properties.source.rawValue: "walletConnect"
+            ])
+            try? self.provider.updateSession(session: self.session, servers: servers)
+        }.catch { _ in
+            self.analyticsCoordinator.log(action: Analytics.Action.cancelsSwitchServer, properties: [
+                Analytics.Properties.source.rawValue: "walletConnect"
+            ])
+        }
     }
 
     func controller(_ controller: WalletConnectSessionViewController, disconnectSelected sender: UIButton) {
         analyticsCoordinator.log(action: Analytics.Action.walletConnectDisconnect)
 
-        try? server.disconnect(session: session)
+        try? provider.disconnectSession(session: session)
         navigationController.popViewController(animated: true)
         delegate?.didDismiss(in: self)
     }

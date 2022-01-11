@@ -8,9 +8,26 @@
 import UIKit
 
 protocol StorageType {
-    func data(forKey: String) -> Data?
-    func setData(_ data: Data, forKey: String) -> Bool
-    func deleteEntry(forKey: String) -> Bool
+    @discardableResult func data(forKey: String) -> Data?
+    @discardableResult func setData(_ data: Data, forKey: String) -> Bool
+    @discardableResult func deleteEntry(forKey: String) -> Bool
+}
+
+extension StorageType {
+    func load<T: Codable>(forKey key: String, defaultValue: T) -> T {
+        guard let data = data(forKey: key) else {
+            return defaultValue
+        }
+
+        guard let result = try? JSONDecoder().decode(T.self, from: data) else {
+            //NOTE: in case if decoding error appears, remove existed file
+            deleteEntry(forKey: key)
+
+            return defaultValue
+        }
+
+        return result
+    }
 }
 
 struct FileStorage: StorageType {

@@ -42,7 +42,8 @@ target 'AlphaWallet' do
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
   pod 'Apollo' 
-  
+  pod 'MailchimpSDK'
+
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing
@@ -56,7 +57,15 @@ post_install do |installer|
     target.build_configurations.each do |config|
       #config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
       config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
-      config.build_settings["ARCHS[sdk=iphonesimulator*]"] = "x86_64"
+      config.build_settings['ENABLE_BITCODE'] = 'YES'
+      #config.build_settings["ARCHS[sdk=iphonesimulator*]"] = "x86_64"
+    end
+    
+    if ['MailchimpSDK'].include? target.name
+      target.build_configurations.each do |config|
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+        config.build_settings["ARCHS[sdk=iphonesimulator*]"] = "x86_64"
+      end
     end
 
     if ['TrustKeystore'].include? target.name

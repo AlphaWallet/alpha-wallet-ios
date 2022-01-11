@@ -5,10 +5,11 @@
 //  Created by Vladyslav Shepitko on 28.10.2020.
 //
 
-import Foundation
-import WalletConnectSwift
+import Foundation 
 
-extension WalletConnectServer {
+extension WalletConnectV1Request: PositionedJSONRPC_2_0_RequestType { }
+
+extension AlphaWallet.WalletConnect {
 
     enum Request {
 
@@ -16,7 +17,7 @@ extension WalletConnectServer {
             case invalid
         }
 
-        private enum Keys: String {
+        enum Keys: String, CaseIterable {
             case sign = "eth_sign"
             case personalSign = "personal_sign"
             case signTypedData = "eth_signTypedData"
@@ -36,7 +37,7 @@ extension WalletConnectServer {
         case getTransactionCount(_ filter: String)
         case unknown
 
-        init(request: WalletConnectSwift.Request) throws {
+        init(request: PositionedJSONRPC_2_0_RequestType) throws {
             switch Keys(rawValue: request.method) {
             case .personalSign:
                 let addressRawValue = try request.parameter(of: String.self, at: 1)

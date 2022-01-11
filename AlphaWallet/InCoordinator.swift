@@ -14,7 +14,7 @@ protocol InCoordinatorDelegate: AnyObject {
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
     func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator)
     func showWallets(in coordinator: InCoordinator)
-    func didRestart(in coordinator: InCoordinator, wallet: Wallet)
+    func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet)
 }
 
 enum Tabs {
@@ -137,7 +137,7 @@ class InCoordinator: NSObject, Coordinator {
         return service
     }()
 
-    private lazy var walletConnectCoordinator: WalletConnectCoordinator = createWalletConnectCoordinator()
+    private (set) lazy var walletConnectCoordinator: WalletConnectCoordinator = createWalletConnectCoordinator()
 
     private let promptBackupCoordinator: PromptBackupCoordinator
 
@@ -533,23 +533,10 @@ class InCoordinator: NSObject, Coordinator {
         }
 
         for controller in viewControllers {
-            if let nav = controller as? UINavigationController {
-                if nav.viewControllers[0].className == selectTab.className {
-                    tabBarController.selectedViewController = nav
-                    loadHomePageIfEmpty()
-                }
+            if let nav = controller as? UINavigationController, nav.viewControllers[0].className == selectTab.className {
+                tabBarController.selectedViewController = nav
+                loadHomePageIfEmpty()
             }
-        }
-    }
-
-    private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason) {
-        switch reason {
-        case .changeLocalization:
-            break //no op
-        case .serverChange:
-            walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
-        case .walletChange:
-            walletConnectCoordinator.disconnect(sessionsToDisconnect: .all)
         }
     }
 
@@ -698,7 +685,7 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
-    func openWalletConnectSession(url: WalletConnectURL) {
+    func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl) {
         walletConnectCoordinator.openSession(url: url)
     }
 
@@ -708,9 +695,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func restartUI(withReason reason: RestartReason, account: Wallet) {
-        OpenSea.resetInstances()
-        disconnectWalletConnectSessionsSelectively(for: reason)
-        delegate?.didRestart(in: self, wallet: account)
+        delegate?.didRestart(in: self, reason: reason, wallet: account)
     }
 
     private func processRestartQueueBeforeRestart(config: Config, restartQueue: RestartTaskQueue) {

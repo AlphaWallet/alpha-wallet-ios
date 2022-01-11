@@ -70,6 +70,25 @@ open class Subscribable<T>: Hashable {
         return key
     }
 
+    static func merge<T>(_ elements: [Subscribable<T>], on queue: DispatchQueue? = .none) -> Subscribable<[T]> {
+        let values = elements.compactMap { $0.value }
+        let notifier = Subscribable<[T]>(values)
+
+        for each in elements {
+            each.subscribe { _ in
+                if let queue = queue {
+                    queue.async {
+                        notifier.value = elements.compactMap { $0.value }
+                    }
+                } else {
+                    notifier.value = elements.compactMap { $0.value }
+                }
+            }
+        }
+
+        return notifier
+    }
+
     func map<V>(_ mapClosure: @escaping (T) -> V?, on queue: DispatchQueue? = .none) -> Subscribable<V> {
         let notifier = Subscribable<V>(nil)
 

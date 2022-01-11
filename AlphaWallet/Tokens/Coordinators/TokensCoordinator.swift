@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import PromiseKit
+import AlphaWalletAddress
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
@@ -149,10 +150,10 @@ class TokensCoordinator: Coordinator {
     @objc private func blockieButtonSelected(_ sender: UIButton) {
         delegate?.blockieSelected(in: self)
     }
-
+    
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
         if config.shouldReadClipboardForWalletConnectUrl {
-            if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = WalletConnectURL(s) {
+            if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = AlphaWallet.WalletConnect.ConnectionUrl(s) {
                 walletConnectCoordinator.openSession(url: url)
             }
         } else {
@@ -462,7 +463,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         delegate?.didPressOpenWebPage(url, in: tokensViewController)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: AlphaWallet.WalletConnect.ConnectionUrl) {
         removeCoordinator(coordinator)
         walletConnectCoordinator.openSession(url: url)
     }
