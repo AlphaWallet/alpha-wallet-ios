@@ -50,6 +50,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let tokensDatastore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let enjin: EnjinProvider
+    private var cachedErc1155TokenIdsFetchers: [AddressAndRPCServer: Erc1155TokenIdsFetcher] = [:]
 
     init(account: Wallet, tokensDatastore: TokensDataStore, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
         self.account = account
@@ -283,9 +284,21 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             results.compactMap { $0 }.flatMap { $0 }
         })
     }
+    //NOTE: avoid memory leak while creating a lot of `Erc1155TokenIdsFetcher` instances
+    private func createOrGetErc1155TokenIdsFetcher(address: AlphaWallet.Address, server: RPCServer) -> Erc1155TokenIdsFetcher {
+        let key = AddressAndRPCServer(address: address, server: server)
+        if let value = cachedErc1155TokenIdsFetchers[key] {
+            return value
+        } else {
+            let fetcher = Erc1155TokenIdsFetcher(address: account.address, server: server)
+            cachedErc1155TokenIdsFetchers[key] = fetcher
+
+            return fetcher
+        }
+    }
 
     private func filterAwayErc1155Tokens(contracts: [AlphaWallet.Address]) -> [AlphaWallet.Address] {
-        if let erc1155Contracts = Erc1155TokenIdsFetcher(address: account.address, server: server).knownErc1155Contracts() {
+        if let erc1155Contracts = createOrGetErc1155TokenIdsFetcher(address: account.address, server: server).knownErc1155Contracts() {
             return contracts.filter { !erc1155Contracts.contains($0) }
         } else {
             return contracts
@@ -316,8 +329,10 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let account = self.account
         let server = self.server
 
+        let fetcher = createOrGetErc1155TokenIdsFetcher(address: account.address, server: server)
+
         return firstly {
-            Erc1155TokenIdsFetcher(address: account.address, server: server).detectContractsAndTokenIds()
+            fetcher.detectContractsAndTokenIds()
         }.then { contractsAndTokenIds in
             self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens, tokens: tokens)
         }.then { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
