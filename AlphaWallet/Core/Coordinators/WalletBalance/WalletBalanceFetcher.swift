@@ -63,7 +63,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         self.coinTickersFetcher = coinTickersFetcher
 
         super.init()
-
         for each in servers {
             services[each] = createServices(wallet: wallet, server: each)
         }
@@ -189,7 +188,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         if let value = cache[addressAndRPCServer] {
             return value.1
         } else {
-            let subscribable = Subscribable<BalanceBaseViewModel>(nil)
+            let balance = balanceViewModel(key: tokenObject)
+            let subscribable = Subscribable<BalanceBaseViewModel>(balance)
 
             let observation = tokenObject.observe(on: queue) { [weak self] change in
                 guard let strongSelf = self else { return }
@@ -207,11 +207,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             }
 
             cache[addressAndRPCServer] = (observation, subscribable)
-            let balance = balanceViewModel(key: tokenObject)
-
-            queue.async {
-                subscribable.value = balance
-            }
 
             return subscribable
         }
