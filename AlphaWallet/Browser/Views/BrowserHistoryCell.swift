@@ -4,8 +4,15 @@ import Foundation
 import UIKit
 
 class BrowserHistoryCell: UITableViewCell {
-    private var viewModel: BrowserHistoryCellViewModel?
-    private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
+    private lazy var iconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+
+        return imageView
+    }()
+    private lazy var iconImageViewHolder = ContainerViewWithShadow(aroundView: iconImageView)
     private let titleLabel = UILabel()
     private let urlLabel = UILabel()
 
@@ -37,8 +44,6 @@ class BrowserHistoryCell: UITableViewCell {
     }
 
     func configure(viewModel: BrowserHistoryCellViewModel) {
-        self.viewModel = viewModel
-
         backgroundColor = viewModel.backgroundColor
         contentView.backgroundColor = viewModel.backgroundColor
 
@@ -46,9 +51,7 @@ class BrowserHistoryCell: UITableViewCell {
 
         let iconImageView = iconImageViewHolder.childView
         iconImageView.backgroundColor = viewModel.backgroundColor
-        iconImageView.contentMode = .scaleAspectFill
-        iconImageView.clipsToBounds = true
-        iconImageView.kf.setImage(with: viewModel.imageUrl, placeholder: viewModel.fallbackImage)
+        iconImageView.setImage(url: viewModel.imageUrl, placeholder: viewModel.fallbackImage)
 
         titleLabel.font = viewModel.nameFont
         titleLabel.textColor = viewModel.nameColor
