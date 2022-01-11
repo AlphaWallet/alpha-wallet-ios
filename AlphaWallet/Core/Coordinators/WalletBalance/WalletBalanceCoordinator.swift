@@ -176,8 +176,8 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     private func fetchTokenPrices() {
         firstly {
             availableTokenObjects
-        }.then(on: queue, { [weak coinTickersFetcher] values -> Promise<Void> in
-            coinTickersFetcher?.fetchPrices(forTokens: values.values.flatMap({ $0 }))
+        }.then(on: queue, { values -> Promise<Void> in
+            self.coinTickersFetcher.fetchPrices(forTokens: values.values.flatMap({ $0 }))
         }).done(on: queue, { _ in
             //no-op
         }).catch({ e in
