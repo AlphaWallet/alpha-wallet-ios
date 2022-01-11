@@ -7,6 +7,7 @@
 
 import UIKit
 import BigInt
+
 struct WalletTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
@@ -28,7 +29,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     var cryptoValueAttributedString: NSAttributedString {
-        return NSAttributedString(string: isVisible ? amount : String(), attributes: [
+        return NSAttributedString(string: String(), attributes: [
             .foregroundColor: Screen.TokenCard.Color.title,
             .font: Screen.TokenCard.Font.title
         ])
