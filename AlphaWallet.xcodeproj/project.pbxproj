@@ -977,6 +977,7 @@
 		87D5BBD72727D69E0053E6D2 /* EnjinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */; };
 		87D5BBD92727D9B20053E6D2 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD82727D9B20053E6D2 /* API.swift */; };
 		87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */; };
+		87D6E5D4278DBB7400B9DEE3 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5D3278DBB7400B9DEE3 /* Device.swift */; };
 		87D7326727636D7E00375C18 /* TransferCollectiblesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */; };
 		87D732692763E59700375C18 /* FungiblesTransactionAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */; };
 		87D847452744EFA300EDBA80 /* JSONRPC_2_0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */; };
@@ -2067,6 +2068,7 @@
 		87D5BBD82727D9B20053E6D2 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinToken.graphql; sourceTree = "<group>"; };
 		87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinBalances.graphql; sourceTree = "<group>"; };
+		87D6E5D3278DBB7400B9DEE3 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCollectiblesCoordinator.swift; sourceTree = "<group>"; };
 		87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FungiblesTransactionAmount.swift; sourceTree = "<group>"; };
 		87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
@@ -3360,6 +3362,7 @@
 		29FC9BC31F830880000209CD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				87D6E5D3278DBB7400B9DEE3 /* Device.swift */,
 				87D5BBD52727D68C0053E6D2 /* Enjin */,
 				874BD2B72669766C00E62E02 /* PopularTokens */,
 				87DB61BE264A94A6009FBDDE /* Ethereum */,
@@ -5480,7 +5483,6 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire-Synchronous/Alamofire_Synchronous.framework",
 				"${BUILT_PRODUCTS_DIR}/AlphaWalletAddress/AlphaWalletAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/Apollo/Apollo.framework",
-				"${BUILT_PRODUCTS_DIR}/AssistantKit/AssistantKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Base58Swift/Base58Swift.framework",
 				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
 				"${BUILT_PRODUCTS_DIR}/BlockiesSwift/BlockiesSwift.framework",
@@ -5530,7 +5532,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire_Synchronous.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlphaWalletAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Apollo.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AssistantKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Base58Swift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BlockiesSwift.framework",
@@ -6058,6 +6059,7 @@
 				5E7C74B5796FB59C8427C7A0 /* GenerateTransferMagicLinkViewController.swift in Sources */,
 				87620026266E07490059B05A /* ThreadSafeDictionary.swift in Sources */,
 				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
+				87D6E5D4278DBB7400B9DEE3 /* Device.swift in Sources */,
 				5E7C75E5C64619ABFD246183 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */,
 				5E7C7EAEBB435F3909DA36FB /* TransferTokensCardViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */,

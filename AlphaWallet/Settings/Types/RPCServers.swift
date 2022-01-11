@@ -717,7 +717,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .main:
             return R.image.eth()
         case .xDai:
-            return R.image.xDai()
+            return R.image.xdai()
         case .poa:
             return R.image.tokenPoa()
         case  .classic:

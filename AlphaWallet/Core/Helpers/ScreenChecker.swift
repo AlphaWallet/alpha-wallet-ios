@@ -1,12 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
-import AssistantKit
-
-extension AlphaWallet {
-    typealias Device = AssistantKit.Device
-    typealias Screen = AssistantKit.Screen
-}
+import UIKit 
 
 class ScreenChecker {
 	//Smaller width than iPhone 6 (i.e iPhone 5). Some text wouldn't fit nicely
@@ -28,6 +22,6 @@ extension ScreenChecker {
     ///- parameter medium: .inches_5_4, .inches_5_5, .inches_7_9, .inches_5_8, .inches_6_1, .inches_6_5, .inches_6_7
     ///- parameter big: .inches_9_7, .inches_10_2, .inches_10_5, .inches_10_9, .inches_11, .inches_12_9
     static func size(big: CGFloat, medium: CGFloat, small: CGFloat) -> CGFloat {
-        return Device.size(small: small, medium: medium, big: big)
+        return AlphaWallet.Device.size(small: small, medium: medium, big: big)
     }
 }
