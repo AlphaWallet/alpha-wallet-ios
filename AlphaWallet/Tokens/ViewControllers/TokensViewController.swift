@@ -760,7 +760,12 @@ extension TokensViewController {
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
         TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: viewModel.backgroundColor)
+        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
+    }
+
+    private func doNotDimTableViewToReuseTableForFilteringResult() {
+        searchController.obscuresBackgroundDuringPresentation = false
     }
 
     //Makes a difference where this is called from. Can't be too early

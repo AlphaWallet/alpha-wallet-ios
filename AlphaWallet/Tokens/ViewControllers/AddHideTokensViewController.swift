@@ -363,7 +363,12 @@ extension AddHideTokensViewController {
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
         fixTableViewBackgroundColor()
+        doNotDimTableViewToReuseTableForFilteringResult()
         makeSwitchToAnotherTabWorkWhileFiltering()
+    }
+
+    private func doNotDimTableViewToReuseTableForFilteringResult() {
+        searchController.obscuresBackgroundDuringPresentation = false
     }
 
     //Makes a difference where this is called from. Can't be too early
