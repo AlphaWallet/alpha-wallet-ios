@@ -173,18 +173,17 @@ extension AccountsViewController: UITableViewDataSource {
             }
 
             cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: subscribableBalance.value?.totalAmountString)
-            cell.balanceSubscribtionKey = subscribableBalance.subscribe { [weak cell] balance in
-                DispatchQueue.main.async {
-                    guard let cell = cell, let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
+            cell.balanceSubscribtionKey = subscribableBalance.subscribe { [weak cell, weak self] balance in
+                guard let strongSelf = self else { return }
+                guard let cell = cell, let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
 
-                    if self.viewModel.subscribeForBalanceUpdates {
-                        cell.apprecation24hourLabel.attributedText = cellViewModel.apprecation24hourAttributedString(for: balance)
-                    } else {
-                        cell.apprecation24hourLabel.attributedText = .init()
-                    }
-
-                    cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: balance?.totalAmountString)
+                if strongSelf.viewModel.subscribeForBalanceUpdates {
+                    cell.apprecation24hourLabel.attributedText = cellViewModel.apprecation24hourAttributedString(for: balance)
+                } else {
+                    cell.apprecation24hourLabel.attributedText = .init()
                 }
+
+                cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: balance?.totalAmountString)
             }
 
             return cell
@@ -198,9 +197,7 @@ extension AccountsViewController: UITableViewDataSource {
             }
 
             cell.walletSummarySubscriptionKey = walletBalanceCoordinator.subscribableWalletsSummary.subscribe { summary in
-                DispatchQueue.main.async {
-                    cell.configure(viewModel: .init(summary: summary, config: config))
-                }
+                cell.configure(viewModel: .init(summary: summary, config: config))
             }
 
             return cell
