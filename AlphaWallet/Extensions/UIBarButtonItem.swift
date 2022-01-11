@@ -54,7 +54,8 @@ extension UIBarButtonItem {
         sender.selection = selection
 
         sender.image = sender.selection?.image
-        sender.selectionClosure = { sender in
+        sender.selectionClosure = { [weak target] sender in
+            guard let target = target else { return }
             target.performSelector(onMainThread: selector, with: sender, waitUntilDone: false)
         }
 

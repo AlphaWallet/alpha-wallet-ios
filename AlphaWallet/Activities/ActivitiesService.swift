@@ -38,19 +38,18 @@ enum ActivitiesFilterStrategy {
     }
 
     private static func filterTransactionsForNativeCryptocurrency(transaction: TransactionInstance) -> Bool {
-        (transaction.state == .completed || transaction.state == .pending) && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
+        let isInCompletedOrPandingState: Bool = transaction.state == .completed || transaction.state == .pending
+        return isInCompletedOrPandingState && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
     }
 
     private static func filterTransactionsForERC20Token(transaction: TransactionInstance, contract: AlphaWallet.Address) -> Bool {
-        (transaction.state == .completed || transaction.state == .pending) && transaction.localizedOperations.contains(where: { op in
-            (op.operationType == .erc20TokenTransfer || op.operationType == .erc20TokenApprove) && (op.contract.flatMap({ contract.sameContract(as: $0) }) ?? false)
-        })
+        return filterTransactionsForCustomOperations(transaction: transaction, operationTypes: [.erc20TokenTransfer, .erc20TokenApprove], contract: contract)
     }
 
     private static func filterTransactionsForCustomOperations(transaction: TransactionInstance, operationTypes: [OperationType], contract: AlphaWallet.Address) -> Bool {
         let isInCompletedOrPandingState: Bool = transaction.state == .completed || transaction.state == .pending
         func hasValidOperationState(operationTypes: [OperationType], operationType: OperationType) -> Bool {
-            return operationTypes.contains(operationType)
+            return operationTypes.isEmpty ? true : operationTypes.contains(operationType)
         }
 
         return isInCompletedOrPandingState && transaction.localizedOperations.contains(where: { op in
@@ -71,7 +70,7 @@ extension TransactionType {
         case .erc875Token(let tokenObject, _), .erc875TokenOrder(let tokenObject, _):
             return .contract(contract: tokenObject.contractAddress)
         case .erc721Token(let tokenObject, _), .erc721ForTicketToken(let tokenObject, _), .erc1155Token(let tokenObject, _, _):
-            return .contract(contract: tokenObject.contractAddress)
+            return .operationTypes(operationTypes: [], contract: tokenObject.contractAddress)
         case .dapp, .claimPaidErc875MagicLink, .tokenScript:
             return .none
         }

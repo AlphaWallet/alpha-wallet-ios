@@ -15,12 +15,14 @@ import BigInt
 protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didCancel(in coordinator: TokensCardCoordinator)
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator)
+    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCoordinator)
+    func didTap(activity: Activity, in coordinator: TokensCardCoordinator)
 }
 
 class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
-    private lazy var rootViewController: TokensCardViewController = {
+    lazy var rootViewController: TokensCardViewController = {
         let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
@@ -60,13 +62,19 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
-    }
+    } 
 
     func start() {
         rootViewController.configure()
+        rootViewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(closeButtonSelected))
         navigationController.pushViewController(rootViewController, animated: true)
         refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
+    }
+
+    @objc private func closeButtonSelected(_ sender: UIBarButtonItem) {
+        navigationController.popViewController(animated: true)
+        delegate?.didCancel(in: self)
     }
 
     func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(type: PaymentFlow) {
@@ -91,19 +99,16 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func refreshUponEthereumEventChanges() {
         eventsDataStore.subscribe { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
+            self?.refreshScreen(forContract: contract)
         }
     }
 
     private func refreshUponAssetDefinitionChanges() {
         assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
+            self?.refreshScreen(forContract: contract)
         }
         assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
+            self?.refreshScreen(forContract: contract)
         }
     }
 
@@ -131,7 +136,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(session: session, tokensDataStore: tokensDataStore, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let controller = TokensCardViewController(session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -425,11 +430,11 @@ class TokensCardCoordinator: NSObject, Coordinator {
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
     
     func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
-
+        delegate?.didTap(transaction: transaction, in: self)
     }
 
     func didTap(activity: Activity, in viewController: TokensCardViewController) {
-
+        delegate?.didTap(activity: activity, in: self)
     }
 
     func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
@@ -488,11 +493,11 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
     
     func didTap(activity: Activity, in viewController: TokenInstanceViewController) {
-
+        delegate?.didTap(activity: activity, in: self)
     }
 
     func didTap(transaction: TransactionInstance, in viewController: TokenInstanceViewController) {
-
+        delegate?.didTap(transaction: transaction, in: self)
     }
 
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {

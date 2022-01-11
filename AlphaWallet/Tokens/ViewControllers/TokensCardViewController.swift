@@ -30,7 +30,6 @@ class TokensCardViewController: UIViewController {
     private (set) var viewModel: TokensCardViewModel
     private let tokenObject: TokenObject
     private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -41,8 +40,6 @@ class TokensCardViewController: UIViewController {
     private let tokensCardCollectionInfoPageView: TokensCardCollectionInfoPageView
     private var activitiesPageView: ActivitiesPageView
     private var assetsPageView: AssetsPageView
-
-    private let activitiesService: ActivitiesServiceType
     private let containerView: PagesContainerView
 
     private var selectedTokenHolder: TokenHolder? {
@@ -57,17 +54,15 @@ class TokensCardViewController: UIViewController {
         return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true, buttonsBarHeight: buttonsBarHeight)
     }()
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
+    init(session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
         self.account = session.account
         self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
-        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
-        self.activitiesService = activitiesService
         self.activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
         self.assetsPageView = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: .list))
 
@@ -90,10 +85,10 @@ class TokensCardViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
-            guard let strongSelf = self, let viewModel = viewModel else { return }
+        activitiesService.subscribableViewModel.subscribe { [weak activitiesPageView] viewModel in
+            guard let view = activitiesPageView, let viewModel = viewModel else { return }
 
-            strongSelf.activitiesPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
+            view.configure(viewModel: .init(activitiesViewModel: viewModel))
         }
         assetsPageView.rightBarButtonItem = UIBarButtonItem.switchGridToListViewBarButton(
             selection: assetsPageView.viewModel.selection.inverted,
@@ -103,7 +98,7 @@ class TokensCardViewController: UIViewController {
         assetsPageView.searchBar.delegate = self
         assetsPageView.collectionView.refreshControl = refreshControl
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
-    }
+    } 
 
     required init?(coder aDecoder: NSCoder) {
         return nil
@@ -231,7 +226,6 @@ class TokensCardViewController: UIViewController {
                     //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
                 }
             } else {
-
                 delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
             }
         }
