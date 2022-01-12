@@ -34,7 +34,6 @@ target 'AlphaWallet' do
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'
-  pod 'AssistantKit'
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'

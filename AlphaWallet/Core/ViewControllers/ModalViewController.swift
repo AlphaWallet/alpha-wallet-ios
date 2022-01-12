@@ -148,13 +148,23 @@ private class _ModalViewController: UIViewController {
         view.addSubview(backgroundView)
         view.addSubview(containerView)
 
+        var fixContentHeightIphone8Constraint: [NSLayoutConstraint] = []
+        switch AlphaWallet.Device.version {
+        case .phone8Plus, .phone8:
+            fixContentHeightIphone8Constraint = [scrollableContainerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)]
+        case .simulator where AlphaWallet.Device.screen == .inches_4_7: //NOTE: Iphone8 simulator
+            fixContentHeightIphone8Constraint = [scrollableContainerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)]
+        default:
+            break
+        }
+
         NSLayoutConstraint.activate([
             backgroundView.anchorsConstraint(to: view),
             heightConstraint,
             bottomConstraint,
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-        ])
+        ] + fixContentHeightIphone8Constraint)
         headerView.closeButton.addTarget(self, action: #selector(closeButtonSelected), for: .touchUpInside)
 
         contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
@@ -168,6 +178,10 @@ private class _ModalViewController: UIViewController {
             let newHeight = min(UIScreen.main.bounds.height - statusBarHeight, contentHeight)
 
             let fillScreenPercentage = strongSelf.heightConstraint.constant / strongSelf.view.bounds.height
+            //NOTE: for iphone 8, phone8Plus for some reasons ScrollableStackView doesn't validate with its content height. only faced with `WhatsNewListingViewController`. Force set contentSize.height as constraints height.
+            for each in fixContentHeightIphone8Constraint {
+                each.constant = scrollView.contentSize.height
+            }
 
             if fillScreenPercentage >= 0.9 {
                 strongSelf.heightConstraint.constant = strongSelf.containerView.bounds.height
