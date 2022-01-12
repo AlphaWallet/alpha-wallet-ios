@@ -375,18 +375,6 @@ extension AddHideTokensViewController {
     private func configureSearchBarOnce() {
         guard !isSearchBarConfigured else { return }
         isSearchBarConfigured = true
-
-        if let placeholderLabel = searchController.searchBar.firstSubview(ofType: UILabel.self) {
-            placeholderLabel.textColor = Colors.lightGray
-        }
-        if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
-            textField.textColor = Colors.appText
-            if let imageView = textField.leftView as? UIImageView {
-                imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-                imageView.tintColor = Colors.appText
-            }
-        }
-        //Hack to hide the horizontal separator below the search bar
-        searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
+        UISearchBar.configure(searchBar: searchController.searchBar)
     }
 }
