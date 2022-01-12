@@ -14,7 +14,6 @@ import BigInt
 
 protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didCancel(in coordinator: TokensCardCoordinator)
-    func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCardCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator)
 }
 
