@@ -613,12 +613,19 @@ class SingleChainTokenCoordinator: Coordinator {
 // swiftlint:enable type_body_length
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
+    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCoordinator) {
+        delegate?.didTap(transaction: transaction, inViewController: coordinator.rootViewController, in: self)
+    }
+
+    func didTap(activity: Activity, in coordinator: TokensCardCoordinator) {
+        delegate?.didTap(activity: activity, inViewController: coordinator.rootViewController, in: self)
+    }
+
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator) {
         delegate?.didPress(for: type, inViewController: viewController, in: self)
     }
 
     func didCancel(in coordinator: TokensCardCoordinator) {
-        coordinator.navigationController.popToRootViewController(animated: true)
         removeCoordinator(coordinator)
     }
 

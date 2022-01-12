@@ -74,7 +74,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         navigationController.pushViewController(rootViewController, animated: true)
         refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
-    }
+    } 
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: PaymentFlow, target: IsReadOnlyViewController) {
         switch (type, session.account.type) {
