@@ -1,4 +1,4 @@
-platform :ios, '12.0'
+platform :ios, '13.0'
 inhibit_all_warnings!
 source 'https://cdn.cocoapods.org/'
 
@@ -11,13 +11,11 @@ target 'AlphaWallet' do
   pod 'Eureka', :git=> 'https://github.com/xmartlabs/Eureka.git', :commit => '5c54e2607632ce586010e50e91d9adcb6bb3909e'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
-
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :commit=> 'b797d40a9d08ec509db4335140cf2259b226e6a2'
   pod 'SwiftLint', '0.40.3'
   pod 'RealmSwift', '5.5.1'
   pod 'Moya', '~> 10.0.1'
-  pod 'JavaScriptKit'
   pod 'CryptoSwift', '~> 1.4'
   pod 'Kingfisher', '5.15.7'
   pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870'
@@ -37,7 +35,6 @@ target 'AlphaWallet' do
   pod 'PaperTrailLumberjack/Swift'
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'
   pod 'AssistantKit'
-  # pod 'AWSCognito'
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
@@ -55,10 +52,8 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      #config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
       config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
       config.build_settings['ENABLE_BITCODE'] = 'YES'
-      #config.build_settings["ARCHS[sdk=iphonesimulator*]"] = "x86_64"
     end
     
     if ['MailchimpSDK'].include? target.name
