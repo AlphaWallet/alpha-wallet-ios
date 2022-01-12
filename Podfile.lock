@@ -41,7 +41,6 @@ PODS:
   - iOSSnapshotTestCase/Core (6.2.0)
   - iOSSnapshotTestCase/SwiftSupport (6.2.0):
     - iOSSnapshotTestCase/Core
-  - JavaScriptKit (2.0.1)
   - JSONRPCKit (2.0.3):
     - Result (~> 3.0)
   - Kanna (5.0.0)
@@ -137,7 +136,6 @@ DEPENDENCIES:
   - CryptoSwift (~> 1.4)
   - Eureka (from `https://github.com/xmartlabs/Eureka.git`, commit `5c54e2607632ce586010e50e91d9adcb6bb3909e`)
   - iOSSnapshotTestCase (= 6.2.0)
-  - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, commit `b797d40a9d08ec509db4335140cf2259b226e6a2`)
@@ -182,7 +180,6 @@ SPEC REPOS:
     - EthereumABI
     - EthereumAddress
     - iOSSnapshotTestCase
-    - JavaScriptKit
     - JSONRPCKit
     - Kingfisher
     - libsodium
@@ -288,7 +285,6 @@ SPEC CHECKSUMS:
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
   Eureka: c883105488e05bc65539f583246ecf9657cabbfe
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
-  JavaScriptKit: 33a7abbd6e03bf12e3f19f0f8ee753e748a361c1
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
@@ -321,6 +317,6 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
 
-PODFILE CHECKSUM: 8f7dd4b310b869945b5fe400102f7f945783c8cf
+PODFILE CHECKSUM: d0a91bf4840ae7bc5b4342f417e76be9bdebf40b
 
 COCOAPODS: 1.11.2

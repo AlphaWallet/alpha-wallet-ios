@@ -5306,7 +5306,7 @@
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
-				877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
+				877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2.git" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -5492,7 +5492,6 @@
 				"${BUILT_PRODUCTS_DIR}/EthereumAddress/EthereumAddress.framework",
 				"${BUILT_PRODUCTS_DIR}/Eureka/Eureka.framework",
 				"${BUILT_PRODUCTS_DIR}/JSONRPCKit/JSONRPCKit.framework",
-				"${BUILT_PRODUCTS_DIR}/JavaScriptKit/JavaScriptKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Kanna/Kanna.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
@@ -5543,7 +5542,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EthereumAddress.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Eureka.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JSONRPCKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JavaScriptKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kanna.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
@@ -7223,7 +7221,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
+		877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect-Labs/WalletConnectSwiftV2.git";
 			requirement = {
@@ -7236,7 +7234,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		877115CF27562CB40090154A /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			package = 877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2.git" */;
 			productName = WalletConnect;
 		};
 /* End XCSwiftPackageProductDependency section */
