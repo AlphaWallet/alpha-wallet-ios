@@ -774,4 +774,4 @@
 "add.multiple.customRpc.failed" = "%@ entries failed to add. ";
 "add.multiple.customRpc.duplicates" = "%@ duplicate entries not added. ";
 "add.multiple.customRpc.removed" = "These entries have been temporarily removed. ";
-
+"tokens.wallet.renameThisWallet" = "Rename This Wallet";
