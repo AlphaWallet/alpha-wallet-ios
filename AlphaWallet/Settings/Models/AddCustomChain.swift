@@ -202,9 +202,10 @@ extension AddCustomChain.functional {
         guard let urlString = customChain.blockExplorerUrls?.first else {
             return .value(.unknown)
         }
-        guard let url = URL(string: "\(urlString)/api?module=account&action=tokennfttx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
+        guard let url = EtherscanURLBuilder(host: urlString).buildWithTokennfttx() else {
             return .value(.unknown)
         }
+
         return firstly {
             Alamofire.request(url, method: .get).responseJSON()
         }.map { json, _ in
@@ -231,7 +232,7 @@ extension AddCustomChain.functional {
                 .replacingOccurrences(of: "https://", with: "https://api.")
                 .replacingOccurrences(of: "http://", with: "http://api.")
         //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
-        guard let url = URL(string: "\(urlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
+        guard let url =  EtherscanURLBuilder(host: urlString).buildWithTokentx() else {
             return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
         }
         return firstly {
@@ -240,9 +241,10 @@ extension AddCustomChain.functional {
             urlString
         }.recover { error -> Promise<String> in
             //Careful to use `action=tokentx` and not `action=tokennfttx` because only the former works with both Etherscan and Blockscout
-            guard let url = URL(string: "\(originalUrlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3") else {
+            guard let url = EtherscanURLBuilder(host: originalUrlString).buildWithTokentx() else {
                 return Promise(error: AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl()))
             }
+
             return firstly {
                 isValidBlockchainExplorerApiRoot(url)
             }.map {
@@ -264,5 +266,51 @@ extension AddCustomChain.functional {
                 throw AddCustomChainError.others(R.string.localizable.addCustomChainErrorInvalidBlockchainExplorerUrl())
             }
         }
+    }
+}
+
+private struct EtherscanURLBuilder {
+    private let host: String
+
+    init(host: String) {
+        self.host = host
+    }
+
+    func build(parameters: [String: String]) -> URL? {
+        guard var url = URL(string: host) else { return nil }
+        url.appendPathComponent("api")
+
+        guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return nil }
+        urlComponents.queryItems = parameters.map { key, value -> URLQueryItem in
+            URLQueryItem(name: key, value: value)
+        }
+
+        return urlComponents.url
+    }
+
+    /// "\(urlString)/api?module=account&action=tokennfttx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3"
+    func buildWithTokennfttx() -> URL? {
+        build(parameters: EtherscanURLBuilder.withTokennfttxParameters)
+    }
+
+    /// "\(urlString)/api?module=account&action=tokentx&address=0x007bEe82BDd9e866b2bd114780a47f2261C684E3"
+    func buildWithTokentx() -> URL? {
+        build(parameters: EtherscanURLBuilder.withTokentxParameters)
+    }
+
+    static var withTokennfttxParameters: [String: String] {
+        return [
+            "module": "account",
+            "action": "tokennfttx",
+            "address": "0x007bEe82BDd9e866b2bd114780a47f2261C684E3"
+        ]
+    }
+
+    static var withTokentxParameters: [String: String] {
+        return [
+            "module": "account",
+            "action": "tokentx",
+            "address": "0x007bEe82BDd9e866b2bd114780a47f2261C684E3"
+        ]
     }
 }
