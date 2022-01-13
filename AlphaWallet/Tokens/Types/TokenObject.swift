@@ -96,9 +96,6 @@ extension Activity {
             hasher.combine(contractAddress)
             hasher.combine(symbol)
             hasher.combine(decimals)
-            if let image = icon.value?.image {
-                hasher.combine(image.hashValue)
-            }
             hasher.combine(type.rawValue)
         }
 
