@@ -14,11 +14,13 @@ protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
     func handle(walletConnectUrl url: AlphaWallet.WalletConnect.ConnectionUrl, in coordinator: UniversalLinkCoordinator)
     func handle(eip681Url url: URL, in coordinator: UniversalLinkCoordinator)
+    func handle(embeddedUrl url: URL, server: RPCServer, in coordinator: UniversalLinkCoordinator)
 }
 
-enum MagicLinkURL {
+enum MagicLinkUrl {
     static let walletConnectPath = "/wc"
     static let eip681Path = "/ethereum:"
+    static let openUrlPath = "/openurl"
 
     enum WalletConnectSource {
         case mobileLinking
@@ -27,42 +29,68 @@ enum MagicLinkURL {
 
     case eip681(URL)
     case walletConnect(url: AlphaWallet.WalletConnect.ConnectionUrl, source: WalletConnectSource)
+    case embeddedUrl(RPCServer, URL)
 
-    init?(url: URL) {
-        if let eip681Url = Self.hasEip681Path(in: url) {
+    init?(url: URL, supportedServers: [RPCServer] = [.main]) {
+        if let eip681Url = Self.functional.hasEip681Path(in: url, supportedServers: supportedServers) {
             self  = .eip681(eip681Url)
         } else if let (wcUrl, source) = Self.functional.hasWalletConnectPath(in: url) {
             self = .walletConnect(url: wcUrl, source: source)
+        } else if let (server, url) = Self.functional.hasEmbeddedUrlPath(in: url, supportedServers: supportedServers) {
+            self = .embeddedUrl(server, url)
         } else {
             return nil
         }
     }
-
-    //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
-    private static func hasEip681Path(in url: URL) -> URL? {
-        guard let magicLink = RPCServer(withMagicLink: url), url.path.starts(with: Self.eip681Path) else { return nil }
-        let eip681Url = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
-        switch QRCodeValueParser.from(string: eip681Url) {
-        case .address:
-            return nil
-        case .eip681:
-            return URL(string: eip681Url)
-        case .none:
-            return nil
-        }
-    }
 }
 
-extension MagicLinkURL {
+extension MagicLinkUrl {
     class functional {}
 }
 
-extension MagicLinkURL.functional {
+extension MagicLinkUrl.functional {
+    private static func validateSupportingServerAndPath(url: URL, supportedServers: [RPCServer], path: String) -> (path: String, server: RPCServer)? {
+        func isServerSupported(server: RPCServer) -> Bool {
+            guard !supportedServers.isEmpty else { return true }
+            return supportedServers.contains(server)
+        }
+
+        guard let magicLinkServer = RPCServer(withMagicLink: url), url.path.starts(with: path) else { return nil }
+        let eip681Url = url.absoluteString.replacingOccurrences(of: magicLinkServer.magicLinkPrefix.absoluteString, with: "")
+        return (eip681Url, magicLinkServer)
+    }
+
+    //E.g. https://aw.app/ethereum:0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7/transfer?address=0x8e23ee67d1332ad560396262c48ffbb01f93d052&uint256=1
+    static func hasEip681Path(in url: URL, supportedServers: [RPCServer]) -> URL? {
+        guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: MagicLinkUrl.eip681Path) else {
+            return nil
+        }
+        let eip681Url = result.path
+        switch QRCodeValueParser.from(string: eip681Url) {
+        case .address, .none:
+            return nil
+        case .eip681:
+            return URL(string: eip681Url)
+        }
+    }
+
+    static func hasEmbeddedUrlPath(in url: URL, supportedServers: [RPCServer]) -> (RPCServer, URL)? {
+        guard let result = validateSupportingServerAndPath(url: url, supportedServers: supportedServers, path: MagicLinkUrl.openUrlPath) else {
+            return nil
+        }
+
+        guard let components = URLComponents(string: result.path) else { return nil }
+        let queryItems = components.queryItems ?? []
+        guard let urlToOpen = queryItems.first(where: { $0.name == "url" })?.value.flatMap({ URL(string: $0) }) else { return nil }
+
+        return (result.server, urlToOpen)
+    }
+
     //Multiple formats:
     //From WalletConnect mobile linking: e.g. https://aw.app/wc?uri=wc%3A588422fd-929d-438a-b337-31c3c9184d9b%401%3Fbridge%3Dhttps%253A%252F%252Fbridge.walletconnect.org%26key%3D8f9459f72aed0790282c47fe45f37ed5cb121bc17795f8f2a229a910bc447202
     //From AlphaWallet iOS Safari extension's rewriting: eg. https://aw.app/wc:f607884e-63a5-4fa3-8e7d-af6f6fa9b51f@1?bridge=https%3A%2F%2Fn.bridge.walletconnect.org&key=cff9abba23cb9f843e9d623b891a5f8948b41f7d4afc7f7155aa252504cd8264
-    static func hasWalletConnectPath(in url: URL) -> (url: AlphaWallet.WalletConnect.ConnectionUrl, source: MagicLinkURL.WalletConnectSource)? {
-        guard url.path.starts(with: MagicLinkURL.walletConnectPath) else { return nil }
+    static func hasWalletConnectPath(in url: URL) -> (url: AlphaWallet.WalletConnect.ConnectionUrl, source: MagicLinkUrl.WalletConnectSource)? {
+        guard url.path.starts(with: MagicLinkUrl.walletConnectPath) else { return nil }
         if let url = extractWalletConnectUrlFromSafariExtensionRewrittenUrl(url) {
             return (url, .safariExtension)
         } else if let url = extractWalletConnectUrlFromWalletConnectMobileLinking(url) {
@@ -73,8 +101,8 @@ extension MagicLinkURL.functional {
     }
 
     private static func extractWalletConnectUrlFromSafariExtensionRewrittenUrl(_ url: URL) -> AlphaWallet.WalletConnect.ConnectionUrl? {
-        guard let magicLink = RPCServer(withMagicLink: url) else { return nil }
-        let wcUrl = url.absoluteString.replacingOccurrences(of: magicLink.magicLinkPrefix.absoluteString, with: "")
+        guard let magicLinkServer = RPCServer(withMagicLink: url) else { return nil }
+        let wcUrl = url.absoluteString.replacingOccurrences(of: magicLinkServer.magicLinkPrefix.absoluteString, with: "")
         return AlphaWallet.WalletConnect.ConnectionUrl(wcUrl)
     }
 
@@ -179,10 +207,6 @@ class UniversalLinkCoordinator: Coordinator {
 
 	func start() {
 	}
-
-    deinit {
-        debug("\(self).deinit")
-    }
 
     private func createHTTPParametersForCurrencyLinksToPaymentServer(
             signedOrder: SignedOrder,
@@ -403,7 +427,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     //Returns true if handled
     func handleUniversalLink() -> Bool {
-        if let value = MagicLinkURL(url: url) {
+        if let value = MagicLinkUrl(url: url) {
             switch value {
             case .eip681(let eip681Url):
                 analyticsCoordinator.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [Analytics.Properties.type.rawValue: "eip681"])
@@ -416,6 +440,8 @@ class UniversalLinkCoordinator: Coordinator {
                     break
                 }
                 delegate?.handle(walletConnectUrl: wcUrl, in: self)
+            case .embeddedUrl(let server, let url):
+                delegate?.handle(embeddedUrl: url, server: server, in: self)
             }
             //NOTE: returns false to make sure coordinator wasn't added to list. delegate cases only
             return false

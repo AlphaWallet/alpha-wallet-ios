@@ -409,6 +409,12 @@ extension AppCoordinator: InCoordinatorDelegate {
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+
+    func handle(embeddedUrl url: URL, server: RPCServer, in coordinator: UniversalLinkCoordinator) {
+        removeCoordinator(coordinator)
+        inCoordinator?.openURLInBrowser(url: url)
+    }
+
     func handle(walletConnectUrl url: AlphaWallet.WalletConnect.ConnectionUrl, in coordinator: UniversalLinkCoordinator) {
         removeCoordinator(coordinator)
         inCoordinator?.openWalletConnectSession(url: url)
