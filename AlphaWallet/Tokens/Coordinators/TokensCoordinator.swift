@@ -288,6 +288,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
         alertController.addAction(addHideTokensAction)
 
+        let renameThisWalletAction = UIAlertAction(title: R.string.localizable.tokensWalletRenameThisWallet(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.didPressRenameThisWallet()
+        }
+        alertController.addAction(renameThisWalletAction)
+
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
         alertController.addAction(cancelAction)
 
@@ -296,6 +302,17 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     func walletConnectSelected(in viewController: UIViewController) {
         walletConnectCoordinator.showSessionDetails(in: navigationController)
+    }
+
+    private func didPressRenameThisWallet() {
+        let viewModel = RenameWalletViewModel(account: sessions.anyValue.account.address)
+
+        let viewController = RenameWalletViewController(viewModel: viewModel, analyticsCoordinator: analyticsCoordinator, config: config)
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.hidesBottomBarWhenPushed = true
+
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     private func didPressAddHideTokens(viewModel: TokensViewModel) {
@@ -343,6 +360,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
     func didTapOpenConsole(in viewController: UIViewController) {
         delegate?.openConsole(inCoordinator: self)
+    }
+}
+
+extension TokensCoordinator: RenameWalletViewControllerDelegate {
+
+    func didFinish(in viewController: RenameWalletViewController) {
+        navigationController.popViewController(animated: true)
     }
 }
 
