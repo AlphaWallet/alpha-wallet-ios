@@ -33,6 +33,9 @@ class ContainerViewWithShadow<T: UIView>: UIView {
     }
 
     func configureShadow(color: UIColor, offset: CGSize, opacity: Float, radius: CGFloat, cornerRadius: CGFloat) {
+        setNeedsDisplay()
+        layoutIfNeeded()
+        
         layer.cornerRadius = cornerRadius
         childView.cornerRadius = cornerRadius
 
