@@ -122,13 +122,25 @@ class TokensViewController: UIViewController {
     }()
     private (set) lazy var blockieImageView: BlockieImageView = .defaultBlockieImageView
     private let searchController: UISearchController
-    private lazy var searchBar: UISearchBar = {
-        let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.delegate = self
-        UISearchBar.configure(searchBar: searchBar)
+    private lazy var searchBar: DymmySearchView = {
+        return DymmySearchView(closure: { [weak self] in
+            guard let strongSelf = self else { return }
 
-        return searchBar
+            let searchController = strongSelf.searchController
+            strongSelf.navigationItem.searchController = searchController
+
+            strongSelf.viewModel.isSearchActive = true
+            strongSelf.viewModel.filter = strongSelf.viewModel.filter
+            strongSelf.tableView.reloadData()
+
+            DispatchQueue.main.async {
+                searchController.isActive = true
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    searchController.searchBar.becomeFirstResponder()
+                }
+            }
+        }) 
     }()
 
     private var consoleButton: UIButton {
@@ -179,7 +191,7 @@ class TokensViewController: UIViewController {
         if !isConsoleButtonHidden || !isPromptBackupWalletViewHolderHidden {
             adjustTableViewHeaderHeightToFitContents()
         } else {
-            tableView.tableHeaderView = nil
+            //tableView.tableHeaderView = nil
         }
     }
 
@@ -217,8 +229,8 @@ class TokensViewController: UIViewController {
     private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
     private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
     private let walletSummarySubscription: Subscribable<WalletBalance>
-    private lazy var searchBarHeader: TokensViewController.ContainerView<UISearchBar> = {
-        let header: TokensViewController.ContainerView<UISearchBar> = .init(subview: searchBar)
+    private lazy var searchBarHeader: TokensViewController.ContainerView<DymmySearchView> = {
+        let header: TokensViewController.ContainerView<DymmySearchView> = .init(subview: searchBar)
         header.useSeparatorLine = false
 
         return header
@@ -253,6 +265,8 @@ class TokensViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
         searchController.delegate = self
+        searchController.hidesNavigationBarDuringPresentation = false
+
         view.backgroundColor = viewModel.backgroundColor
 
         tableViewFilterView.delegate = self
@@ -298,10 +312,8 @@ class TokensViewController: UIViewController {
 
         TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value, config: config)
         subscriptionKey = walletSummarySubscription.subscribe { [weak walletSummaryView] balance in
-            DispatchQueue.main.async {
-                guard let view = walletSummaryView else { return }
-                TokensViewController.reloadWalletSummaryView(view, with: balance, config: config)
-            }
+            guard let view = walletSummaryView else { return }
+            TokensViewController.reloadWalletSummaryView(view, with: balance, config: config)
         }
         navigationItem.largeTitleDisplayMode = .never
     }
@@ -641,23 +653,16 @@ extension TokensViewController: SegmentedControlDelegate {
 }
 
 extension TokensViewController: UISearchControllerDelegate {
-    func willPresentSearchController(_ searchController: UISearchController) {
-        viewModel.isSearchActive = true
-    }
 
-    func willDismissSearchController(_ searchController: UISearchController) {
+    func didDismissSearchController(_ searchController: UISearchController) {
+        guard viewModel.isSearchActive else { return }
+
+        navigationItem.searchController = nil
+
         viewModel.isSearchActive = false
+        viewModel.filter = viewModel.filter
 
-        resetTableHeaderViewWithSubview()
-
-        UIView.animate(withDuration: 0.3, delay: 0, options: [], animations: {
-            searchController.searchBar.alpha = 0
-
-            self.navigationController?.view.setNeedsLayout()
-            self.navigationController?.view.layoutSubviews()
-        }, completion: { _ in
-            //no-op
-        })
+        tableView.reloadData()
     }
 }
 
@@ -696,25 +701,40 @@ extension TokensViewController: UISearchResultsUpdating {
     }
 }
 
-extension TokensViewController: UISearchBarDelegate {
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        let searchController = self.searchController
-        tableView.tableHeaderView = searchController.searchBar
+fileprivate class DymmySearchView: UIView {
 
-        DispatchQueue.main.async {
-            searchController.isActive = true
+    private let searchBar: UISearchBar = {
+        let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.isUserInteractionEnabled = false
+        UISearchBar.configure(searchBar: searchBar)
 
-            UIView.animate(withDuration: 0.2, delay: 0.1, options: [.curveLinear], animations: {
-                searchController.searchBar.alpha = 1
+        return searchBar
+    }()
 
-                self.navigationController?.view.setNeedsLayout()
-                self.navigationController?.view.layoutSubviews()
-            }, completion: { _ in
-                searchController.searchBar.becomeFirstResponder()
-            })
-        }
+    private var overlayView: UIView = {
+        let view = UIView()
+        view.isUserInteractionEnabled = true
+        view.backgroundColor = .clear
+        view.translatesAutoresizingMaskIntoConstraints = false
 
-        return false
+        return view
+    }()
+
+    init(closure: @escaping () -> Void) {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(searchBar)
+        addSubview(overlayView)
+
+        NSLayoutConstraint.activate(searchBar.anchorsConstraint(to: self) + overlayView.anchorsConstraint(to: self))
+
+        UITapGestureRecognizer(addToView: overlayView, closure: closure)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -758,6 +778,7 @@ extension TokensViewController {
     }
 
     private func setupFilteringWithKeyword() {
+        navigationItem.hidesSearchBarWhenScrolling = false
         wireUpSearchController()
         TokensViewController.functional.fixTableViewBackgroundColor(tableView: tableView, backgroundColor: viewModel.backgroundColor)
         doNotDimTableViewToReuseTableForFilteringResult()
