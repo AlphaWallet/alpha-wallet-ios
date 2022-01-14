@@ -120,6 +120,7 @@ PODS:
     - PromiseKit (~> 6.3.0)
     - Result (~> 3.1)
     - secp256k1_ios (~> 0.1.3)
+  - xcbeautify (0.11.0)
 
 DEPENDENCIES:
   - AlphaWalletAddress (from `modules/AlphaWalletAddress`)
@@ -158,6 +159,7 @@ DEPENDENCIES:
   - UnstoppableDomainsResolution (= 0.1.6)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift.git`)
   - web3swift (from `https://github.com/AlphaWallet/web3swift.git`, commit `cce12b1c421f18b5768e5249a8343932737a51fe`)
+  - xcbeautify
 
 SPEC REPOS:
   trunk:
@@ -201,6 +203,7 @@ SPEC REPOS:
     - SwiftyJSON
     - TrustWalletCore
     - UnstoppableDomainsResolution
+    - xcbeautify
 
 EXTERNAL SOURCES:
   AlphaWalletAddress:
@@ -312,7 +315,8 @@ SPEC CHECKSUMS:
   UnstoppableDomainsResolution: dc89a8d9e51f3786b46274b457875a231d5bdbb8
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
+  xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 55314a8fe27f92edabe3776f1b464acd1b69a74c
+PODFILE CHECKSUM: ac0d75ecef47e62bb6f8ae8890b5500ff99cefce
 
 COCOAPODS: 1.11.2

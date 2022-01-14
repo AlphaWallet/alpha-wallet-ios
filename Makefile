@@ -3,6 +3,7 @@ bundle_cmd = ./vendor/bundle/gems/bundler-2.2.33/exe/bundle
 gem_cmd = gem
 bundle_gem = "bundler:2.2.33"
 vendor_path = ./vendor/bundle
+beautify_cmd = ./Pods/xcbeautify/xcbeautify
 
 all: target
 	@echo "Please specify a target. Please use 'make target' to show targets."
@@ -14,6 +15,10 @@ target:
 	@echo "install_all   : install gems then pods."
 	@echo "check_gems    : check to see if all the gems in the Gemfile are installed in the vendor directory."
 	@echo "bootstrap     : install bundle followed by install all."
+	@echo "test14        : run tests for iOS 14.5."
+	@echo "test15        : run tests for iOS 15.2."
+	@echo "test          : run the tests for latest iOS (15.2)."
+	@echo "clean         : Remove all the pods and gems."
 
 check_brew:
 	@$(brew_cmd) --version 1>/dev/null 2>/dev/null; \
@@ -81,3 +86,11 @@ setup_path:
 
 install_bundle:
 	@$(gem_cmd) install --install-dir=$(vendor_path) $(bundle_gem)
+
+test15:
+	@xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.2' test | $(beautify_cmd)
+
+test14:
+	@xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' test | $(beautify_cmd)
+
+test: test15
