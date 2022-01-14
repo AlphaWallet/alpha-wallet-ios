@@ -39,7 +39,8 @@ target 'AlphaWallet' do
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
   pod 'Apollo' 
   pod 'MailchimpSDK'
-
+  pod 'xcbeautify'
+  
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing
