@@ -80,6 +80,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func start() {
         if isRunningTests() {
+            try! RealmConfiguration.removeWalletsFolderForTests()
             startImpl()
         } else {
             DispatchQueue.main.async {
