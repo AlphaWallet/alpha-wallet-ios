@@ -775,3 +775,6 @@
 "add.multiple.customRpc.duplicates" = "%@ duplicate entries not added. ";
 "add.multiple.customRpc.removed" = "These entries have been temporarily removed. ";
 "tokens.wallet.renameThisWallet" = "Rename This Wallet";
+"emptyTableView.wallet.title" = "You don't have any %@ yet";
+"emptyTableView.search.title" = "No results";
+"emptyTableView.all.title" = "Items";
