@@ -37,8 +37,8 @@ class LiveLocaleSwitcherBundle: Bundle {
             objc_setAssociatedObject(Bundle.main, &liveLocaleSwitcherBundleKey, bundle, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         } else {
             //Switch to the system defined locale until app is restarted, at which point app will use the system locale anyway. If our app doesn't support the system-defined locale, we will fallback to "en" (which we do support) instead
-            if fallbackToPreferredLocale {
-                switchLocale(to: Locale.preferredLanguages[0], fallbackToPreferredLocale: false)
+            if let localizationString = Bundle.main.preferredLocalizations.first, fallbackToPreferredLocale {
+                switchLocale(to: localizationString, fallbackToPreferredLocale: false)
             } else {
                 switchLocale(to: "en", fallbackToPreferredLocale: false)
             }
