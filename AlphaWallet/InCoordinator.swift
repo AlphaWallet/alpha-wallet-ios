@@ -109,33 +109,7 @@ class InCoordinator: NSObject, Coordinator {
     private let walletBalanceCoordinator: WalletBalanceCoordinatorType
 
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
-    private lazy var oneInchSwapService = Oneinch()
-    private lazy var rampBuyService = Ramp(account: wallet)
-    private lazy var tokenActionsService: TokenActionsServiceType = {
-        let service = TokenActionsService()
-        service.register(service: rampBuyService)
-        service.register(service: oneInchSwapService)
-
-        let honeySwapService = HoneySwap()
-        honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
-        service.register(service: honeySwapService)
-
-        //NOTE: Disable uniswap swap provider
-
-        //var uniswap = Uniswap()
-        //uniswap.theme = navigationController.traitCollection.uniswapTheme
-
-        //service.register(service: uniswap)
-
-        var quickSwap = QuickSwap()
-        quickSwap.theme = navigationController.traitCollection.uniswapTheme
-
-        service.register(service: quickSwap)
-        service.register(service: ArbitrumBridge())
-        service.register(service: xDaiBridge())
-
-        return service
-    }()
+    private var tokenActionsService: TokenActionsServiceType
 
     private (set) lazy var walletConnectCoordinator: WalletConnectCoordinator = createWalletConnectCoordinator()
 
@@ -163,7 +137,8 @@ class InCoordinator: NSObject, Coordinator {
             promptBackupCoordinator: PromptBackupCoordinator,
             accountsCoordinator: AccountsCoordinator,
             walletBalanceCoordinator: WalletBalanceCoordinatorType,
-            coinTickersFetcher: CoinTickersFetcherType
+            coinTickersFetcher: CoinTickersFetcherType,
+            tokenActionsService: TokenActionsServiceType
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
@@ -178,9 +153,11 @@ class InCoordinator: NSObject, Coordinator {
         self.accountsCoordinator = accountsCoordinator
         self.walletBalanceCoordinator = walletBalanceCoordinator
         self.coinTickersFetcher = coinTickersFetcher
+        self.tokenActionsService = tokenActionsService
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
         super.init()
+
     }
 
     deinit {
@@ -202,8 +179,6 @@ class InCoordinator: NSObject, Coordinator {
         setupWatchingTokenScriptFileChangesToFetchEvents()
 
         urlSchemeCoordinator.processPendingURL(in: self)
-        oneInchSwapService.fetchSupportedTokens()
-        rampBuyService.fetchSupportedTokens()
 
         processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
 
@@ -363,7 +338,11 @@ class InCoordinator: NSObject, Coordinator {
 
     func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
-        rampBuyService.account = account
+
+        if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
+            service.configure(account: account)
+        }
+
         wallet = account
         setupResourcesOnMultiChain()
         walletConnectCoordinator = createWalletConnectCoordinator()

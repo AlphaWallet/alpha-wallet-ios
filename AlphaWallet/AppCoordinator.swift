@@ -63,6 +63,34 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
 
+    private lazy var oneInchSwapService = Oneinch()
+    private lazy var rampBuyService = Ramp()
+    private lazy var tokenActionsService: TokenActionsServiceType = {
+        let service = TokenActionsService()
+        service.register(service: rampBuyService)
+        service.register(service: oneInchSwapService)
+
+        let honeySwapService = HoneySwap()
+        honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
+        service.register(service: honeySwapService)
+
+        //NOTE: Disable uniswap swap provider
+
+        //var uniswap = Uniswap()
+        //uniswap.theme = navigationController.traitCollection.uniswapTheme
+
+        //service.register(service: uniswap)
+
+        var quickSwap = QuickSwap()
+        quickSwap.theme = navigationController.traitCollection.uniswapTheme
+
+        service.register(service: quickSwap)
+        service.register(service: ArbitrumBridge())
+        service.register(service: xDaiBridge())
+
+        return service
+    }()
+
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = UINavigationController()) throws {
         self.navigationController = navigationController
         self.window = window
@@ -128,7 +156,9 @@ class AppCoordinator: NSObject, Coordinator {
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
         walletBalanceCoordinator.start()
-
+        oneInchSwapService.fetchSupportedTokens()
+        rampBuyService.fetchSupportedTokens()
+        
         if keystore.hasWallets {
             showTransactions(for: keystore.currentWallet, animated: false)
         } else {
@@ -204,7 +234,8 @@ class AppCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 accountsCoordinator: accountsCoordinator,
                 walletBalanceCoordinator: walletBalanceCoordinator,
-                coinTickersFetcher: coinTickersFetcher
+                coinTickersFetcher: coinTickersFetcher,
+                tokenActionsService: tokenActionsService
         )
 
         coordinator.delegate = self

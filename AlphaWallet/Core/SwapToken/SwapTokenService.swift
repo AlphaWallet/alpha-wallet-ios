@@ -26,7 +26,7 @@ struct TokenActionsServiceKey {
 protocol TokenActionsProvider {
     func isSupport(token: TokenActionsServiceKey) -> Bool
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction]
-}
+} 
 
 protocol SwapTokenURLProviderType {
     var action: String { get }
@@ -38,14 +38,19 @@ protocol SwapTokenURLProviderType {
 
 protocol TokenActionsServiceType: TokenActionsProvider {
     func register(service: TokenActionsProvider)
+    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider?
 }
 
 class TokenActionsService: TokenActionsServiceType {
-
+    
     private var services: [TokenActionsProvider] = []
 
     func register(service: TokenActionsProvider) {
         services.append(service)
+    }
+
+    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider? {
+        return services.first(where: { type(of: $0) == ofType })
     }
 
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {

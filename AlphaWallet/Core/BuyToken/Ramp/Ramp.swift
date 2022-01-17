@@ -7,16 +7,26 @@
 
 import UIKit
 
-struct Ramp: TokenActionsProvider, BuyTokenURLProviderType {
+class Ramp: TokenActionsProvider, BuyTokenURLProviderType {
 
     var action: String {
         return R.string.localizable.aWalletTokenBuyTitle()
     }
 
-    var account: Wallet
+    private var account: Wallet?
+
+    init(account: Wallet? = nil) {
+        self.account = account
+    }
+    func configure(account: Wallet) {
+        self.account = account
+    }
+
     private let queue: DispatchQueue = .global()
 
     func url(token: TokenActionsServiceKey) -> URL? {
+        guard let account = account else { return nil }
+        
         switch token.server {
         case .xDai:
             return URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(account.address.eip55String)")
