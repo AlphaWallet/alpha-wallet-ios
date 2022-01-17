@@ -8,6 +8,10 @@ class FakeSwapTokenService: TokenActionsServiceType {
 
     }
 
+    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider? {
+        return nil
+    }
+
     func isSupport(token: TokenActionsServiceKey) -> Bool {
         false
     }

@@ -42,7 +42,8 @@ class InCoordinatorTests: XCTestCase {
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-            coinTickersFetcher: FakeCoinTickersFetcher()
+            coinTickersFetcher: FakeCoinTickersFetcher(),
+            tokenActionsService: FakeSwapTokenService()
         )
 
         coordinator.start(animated: false)
@@ -87,7 +88,8 @@ class InCoordinatorTests: XCTestCase {
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-            coinTickersFetcher: FakeCoinTickersFetcher()
+            coinTickersFetcher: FakeCoinTickersFetcher(),
+            tokenActionsService: FakeSwapTokenService()
         )
 
         coordinator.showTabBar(for: account1, animated: false)
@@ -119,7 +121,8 @@ class InCoordinatorTests: XCTestCase {
                 promptBackupCoordinator: pbc,
                 accountsCoordinator: ac,
                 walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-                coinTickersFetcher: FakeCoinTickersFetcher()
+                coinTickersFetcher: FakeCoinTickersFetcher(),
+                tokenActionsService: FakeSwapTokenService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
@@ -148,7 +151,8 @@ class InCoordinatorTests: XCTestCase {
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-            coinTickersFetcher: FakeCoinTickersFetcher()
+            coinTickersFetcher: FakeCoinTickersFetcher(),
+            tokenActionsService: FakeSwapTokenService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
 
@@ -178,7 +182,8 @@ class InCoordinatorTests: XCTestCase {
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-            coinTickersFetcher: FakeCoinTickersFetcher()
+            coinTickersFetcher: FakeCoinTickersFetcher(),
+            tokenActionsService: FakeSwapTokenService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
 
@@ -226,7 +231,8 @@ class InCoordinatorTests: XCTestCase {
                     promptBackupCoordinator: pbc,
                     accountsCoordinator: ac,
                     walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
-                    coinTickersFetcher: FakeCoinTickersFetcher()
+                    coinTickersFetcher: FakeCoinTickersFetcher(),
+                    tokenActionsService: FakeSwapTokenService()
             )
             coordinator.showTabBar(for: wallet, animated: false)
 
