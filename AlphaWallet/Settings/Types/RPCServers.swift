@@ -107,7 +107,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .sokol: return "Sokol"
         case .classic: return "Ethereum Classic"
         case .callisto: return "Callisto"
-        case .xDai: return "xDai"
+        case .xDai: return "Gnosis"
         case .goerli: return "Goerli"
         case .artis_sigma1: return "ARTIS sigma1"
         case .artis_tau1: return "ARTIS tau1"
