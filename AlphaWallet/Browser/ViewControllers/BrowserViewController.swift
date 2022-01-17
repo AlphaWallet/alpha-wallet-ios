@@ -230,7 +230,7 @@ extension BrowserViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
             return
         }
-        if MagicLinkURL(url: url) != nil {
+        if MagicLinkUrl(url: url) != nil {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             decisionHandler(.cancel)
             return
