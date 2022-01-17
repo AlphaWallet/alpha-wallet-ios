@@ -613,11 +613,12 @@ extension TokensViewController: UITableViewDataSource {
             let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completion) in
                 guard let strongSelf = self else { return }
 
+                let deletedIndexPathArray = strongSelf.viewModel.indexPathArrayForDeletingAt(indexPath: indexPath)
                 strongSelf.delegate?.didHide(token: token, in: strongSelf)
 
                 let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
                 if didHideToken {
-                    strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    strongSelf.tableView.deleteRows(at: deletedIndexPathArray, with: .automatic)
                 } else {
                     strongSelf.reloadTableData()
                 }

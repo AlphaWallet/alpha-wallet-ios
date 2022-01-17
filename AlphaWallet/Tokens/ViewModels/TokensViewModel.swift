@@ -234,7 +234,54 @@ class TokensViewModel {
             return nil
         }
     }
+
+    func indexPathArrayForDeletingAt(indexPath current: IndexPath) -> [IndexPath] {
+        let canRemoveCurrentItem: Bool  = item(for: current.row, section: current.section).isRemovable
+        let canRemovePreviousItem: Bool = current.row > 0 ? item(for: current.row - 1, section: current.section).isRemovable : false
+        let canRemoveNextItem: Bool = {
+            guard (current.row + 1) < filteredTokens.count else { return false }
+            return item(for: current.row + 1, section: current.section).isRemovable
+        }()
+        switch (canRemovePreviousItem, canRemoveCurrentItem, canRemoveNextItem) {
+            // Truth table for deletion
+            // previous, current, next
+            // 0, 0, 0
+            // return []
+            // 0, 0, 1
+            // return []
+            // 0, 1, 0
+            // return [current.previous, current]
+            // 0, 1, 1
+            // return [current]
+            // 1, 0, 0
+            // return []
+            // 1, 0, 1
+            // return []
+            // 1, 1, 0
+            // return [current]
+            // 1, 1, 1
+            // return [current]
+        case (_, false, _):
+            return []
+        case (false, true, false):
+            return [current.previous, current]
+        default:
+            return [current]
+        }
+    }
 }
+
+fileprivate extension TokenObjectOrRpcServerPair {
+    var isRemovable: Bool {
+        switch self {
+        case .rpcServer:
+            return false
+        case .tokenObject:
+            return true
+        }
+    }
+}
+
 
 fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
@@ -306,5 +353,11 @@ extension TokensViewModel.functional {
                 return true
             }
         }
+    }
+}
+
+fileprivate extension IndexPath {
+    var previous: IndexPath {
+        IndexPath(row: row - 1, section: section)
     }
 }
