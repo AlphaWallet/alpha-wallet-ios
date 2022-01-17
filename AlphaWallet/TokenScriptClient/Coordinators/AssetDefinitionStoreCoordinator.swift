@@ -127,7 +127,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     }
 
     /// Return true if handled
-    func handleOpen(url: URL) -> Bool {
+    @discardableResult func handleOpen(url: URL) -> Bool {
         guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return false }
         //Guard against replacing the indices file. This shouldn't be possible because we should have configured the app to only accept AirDrops for files with known extensions. This is purely defensive
         guard url.lastPathComponent != TokenScript.indicesFileName else {

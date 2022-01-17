@@ -4,18 +4,13 @@ import XCTest
 @testable import AlphaWallet
 import TrustKeystore
 
-class FakeUrlSchemeCoordinator: UrlSchemeCoordinatorType {
+class FakeUniversalLinkCoordinator: UniversalLinkCoordinatorType {
+    func handleUniversalLinkOpen(url: URL) -> Bool { return false }
+    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {}
+    func handleUniversalLinkInPasteboard() {}
 
-    static func make() -> FakeUrlSchemeCoordinator {
+    static func make() -> FakeUniversalLinkCoordinator {
         return .init()
-    }
-
-    func handleOpen(url: URL) -> Bool {
-        return false
-    }
-
-    func processPendingURL(in inCoordinator: UrlSchemeResolver) {
-        //no op
     }
 }
 
@@ -38,7 +33,7 @@ class InCoordinatorTests: XCTestCase {
             config: config,
             analyticsCoordinator: FakeAnalyticsService(),
             restartQueue: .init(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
@@ -84,7 +79,7 @@ class InCoordinatorTests: XCTestCase {
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
             restartQueue: .init(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
@@ -117,7 +112,7 @@ class InCoordinatorTests: XCTestCase {
                 config: .make(),
                 analyticsCoordinator: FakeAnalyticsService(),
                 restartQueue: .init(),
-                urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+                universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                 promptBackupCoordinator: pbc,
                 accountsCoordinator: ac,
                 walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
@@ -147,7 +142,7 @@ class InCoordinatorTests: XCTestCase {
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
             restartQueue: .init(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
@@ -178,7 +173,7 @@ class InCoordinatorTests: XCTestCase {
             config: .make(),
             analyticsCoordinator: FakeAnalyticsService(),
             restartQueue: .init(),
-            urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+            universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
             promptBackupCoordinator: pbc,
             accountsCoordinator: ac,
             walletBalanceCoordinator: FakeWalletBalanceCoordinator(),
@@ -227,7 +222,7 @@ class InCoordinatorTests: XCTestCase {
                     config: .make(),
                     analyticsCoordinator: FakeAnalyticsService(),
                     restartQueue: .init(),
-                    urlSchemeCoordinator: FakeUrlSchemeCoordinator.make(),
+                    universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
                     promptBackupCoordinator: pbc,
                     accountsCoordinator: ac,
                     walletBalanceCoordinator: FakeWalletBalanceCoordinator(),

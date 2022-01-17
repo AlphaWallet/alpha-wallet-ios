@@ -10,9 +10,7 @@ protocol InCoordinatorDelegate: AnyObject {
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
-    func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
-    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator)
     func showWallets(in coordinator: InCoordinator)
     func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet)
 }
@@ -103,7 +101,7 @@ class InCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var keystore: Keystore
-    var urlSchemeCoordinator: UrlSchemeCoordinatorType
+    var universalLinkCoordinator: UniversalLinkCoordinatorType
     weak var delegate: InCoordinatorDelegate?
 
     private let walletBalanceCoordinator: WalletBalanceCoordinatorType
@@ -124,6 +122,18 @@ class InCoordinator: NSObject, Coordinator {
     }()
     private let accountsCoordinator: AccountsCoordinator
 
+    var presentationNavigationController: UINavigationController {
+        if let nc = tabBarController.viewControllers?.first as? UINavigationController {
+            if let nc = nc.presentedViewController as? UINavigationController {
+                return nc
+            } else {
+                return nc
+            }
+        } else {
+            return navigationController
+        }
+    }
+
     init(
             navigationController: UINavigationController = UINavigationController(),
             wallet: Wallet,
@@ -133,7 +143,7 @@ class InCoordinator: NSObject, Coordinator {
             appTracker: AppTracker = AppTracker(),
             analyticsCoordinator: AnalyticsCoordinator,
             restartQueue: RestartTaskQueue,
-            urlSchemeCoordinator: UrlSchemeCoordinatorType,
+            universalLinkCoordinator: UniversalLinkCoordinatorType,
             promptBackupCoordinator: PromptBackupCoordinator,
             accountsCoordinator: AccountsCoordinator,
             walletBalanceCoordinator: WalletBalanceCoordinatorType,
@@ -148,7 +158,7 @@ class InCoordinator: NSObject, Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
-        self.urlSchemeCoordinator = urlSchemeCoordinator
+        self.universalLinkCoordinator = universalLinkCoordinator
         self.promptBackupCoordinator = promptBackupCoordinator
         self.accountsCoordinator = accountsCoordinator
         self.walletBalanceCoordinator = walletBalanceCoordinator
@@ -177,8 +187,6 @@ class InCoordinator: NSObject, Coordinator {
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
         setupWatchingTokenScriptFileChangesToFetchEvents()
-
-        urlSchemeCoordinator.processPendingURL(in: self)
 
         processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
 
@@ -366,6 +374,8 @@ class InCoordinator: NSObject, Coordinator {
         logWallets()
         logDynamicTypeSetting()
         promptBackupCoordinator.start()
+
+        universalLinkCoordinator.handlePendingUniversalLink(in: self)
     }
 
     private lazy var tokenCollection: TokenCollection = {
@@ -730,12 +740,11 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func switchBrowserServer(awayFrom server: CustomRPC, config: Config) {
-        if Config.getChainId() == server.chainID {
-            //To be safe, we find a network that is either mainnet/testnet depending on the chain that was removed
-            let isTestnet = server.isTestnet
-            if let targetServer = config.enabledServers.first(where: { $0.isTestnet == isTestnet }) {
-                Config.setChainId(targetServer.chainID)
-            }
+        guard Config.getChainId() == server.chainID else { return }
+        //To be safe, we find a network that is either mainnet/testnet depending on the chain that was removed
+        let isTestnet = server.isTestnet
+        if let targetServer = config.enabledServers.first(where: { $0.isTestnet == isTestnet }) {
+            Config.setChainId(targetServer.chainID)
         }
     }
 
@@ -1121,17 +1130,9 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
         handlePendingTransaction(transaction: transaction)
     }
 
-    func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
-        delegate?.importUniversalLink(url: url, forCoordinator: self)
-    }
-
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
-    }
-
-    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
-        delegate?.handleCustomUrlScheme(url, forCoordinator: self)
-    }
+    } 
 
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
