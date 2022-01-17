@@ -845,7 +845,10 @@ enum RPCServer: Hashable, CaseIterable {
         case .optimistic:
             //These not allow range more than 10000
             return .blockNumber(fromBlockNumber + 9999)
-        case .polygon, .mumbai_testnet, .cronosTestnet, .arbitrum:
+        case .polygon:
+            //These not allow range more than 3500
+            return .blockNumber(fromBlockNumber + 3499)
+        case .mumbai_testnet, .cronosTestnet, .arbitrum:
             //These not allow range more than 100000
             return .blockNumber(fromBlockNumber + 99990)
         case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
