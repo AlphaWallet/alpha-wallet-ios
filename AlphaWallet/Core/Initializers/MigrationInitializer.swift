@@ -92,8 +92,8 @@ extension MigrationInitializer {
 
     //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
     static var hasRealmDatabasesForWallet: Bool {
-        let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-        if let contents = (try? FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil))?.filter({ $0.lastPathComponent.starts(with: "0") }) {
+        let directory = RealmConfiguration.defaultRealmFolderUrl
+        if let contents = (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil))?.filter({ $0.lastPathComponent.starts(with: "0") }) {
             return !contents.isEmpty
         } else {
             //No reason why it should come here
