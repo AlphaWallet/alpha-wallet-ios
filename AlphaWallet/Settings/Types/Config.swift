@@ -158,9 +158,32 @@ struct Config {
         static let privateNetworkProvider = "privateNetworkProvider"
         static let customRpcServers = "customRpcServers"
         static let homePageURL = "homePageURL"
+        static let sendAnalyticsEnabled = "sendAnalyticsEnabled"
     }
 
     let defaults: UserDefaults
+    var isSendAnalyticsEnabled: Bool {
+        sendAnalyticsEnabled ?? false
+    }
+
+    var sendAnalyticsEnabled: Bool? {
+        get {
+            guard Features.isAnalyticsUIEnabled else { return nil }
+            guard let value = defaults.value(forKey: Keys.sendAnalyticsEnabled) as? Bool else {
+                return nil
+            }
+
+            return value
+        }
+        set {
+            guard Features.isAnalyticsUIEnabled else {
+                defaults.removeObject(forKey: Keys.sendAnalyticsEnabled)
+                return
+            }
+
+            defaults.set(newValue, forKey: Keys.sendAnalyticsEnabled)
+        }
+    }
 
     var sendPrivateTransactionsProvider: SendPrivateTransactionsProvider? {
         get {

@@ -2,7 +2,7 @@
 
 import Foundation
 
-    /// Helper enum representing feature enable state, provides ability to set configured enabled state value
+/// Helper enum representing feature enable state, provides ability to set configured enabled state value
 enum FeaturesState<T> {
     case enabled(value: T)
     case disabled
@@ -27,4 +27,5 @@ enum Features {
     static let isPalmEnabled = true
     static let isExportJsonKeystoreEnabled = true
     static let is24SeedWordPhraseAllowed = false
+    static let isAnalyticsUIEnabled = true
 }

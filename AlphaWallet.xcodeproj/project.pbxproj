@@ -977,6 +977,8 @@
 		87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */; };
 		87D6E5D4278DBB7400B9DEE3 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5D3278DBB7400B9DEE3 /* Device.swift */; };
 		87D6E5DF2791934D00B9DEE3 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5DE2791934D00B9DEE3 /* DeepLink.swift */; };
+		87D6E5DB27901A0200B9DEE3 /* AnalyticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5DA27901A0200B9DEE3 /* AnalyticsViewController.swift */; };
+		87D6E5DD2790320500B9DEE3 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5DC2790320500B9DEE3 /* AnalyticsViewModel.swift */; };
 		87D7326727636D7E00375C18 /* TransferCollectiblesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */; };
 		87D732692763E59700375C18 /* FungiblesTransactionAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */; };
 		87D847452744EFA300EDBA80 /* JSONRPC_2_0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */; };
@@ -2068,6 +2070,8 @@
 		87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinBalances.graphql; sourceTree = "<group>"; };
 		87D6E5D3278DBB7400B9DEE3 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		87D6E5DE2791934D00B9DEE3 /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
+		87D6E5DA27901A0200B9DEE3 /* AnalyticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewController.swift; sourceTree = "<group>"; };
+		87D6E5DC2790320500B9DEE3 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
 		87D7326627636D7E00375C18 /* TransferCollectiblesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCollectiblesCoordinator.swift; sourceTree = "<group>"; };
 		87D732682763E59700375C18 /* FungiblesTransactionAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FungiblesTransactionAmount.swift; sourceTree = "<group>"; };
 		87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPC_2_0.swift; sourceTree = "<group>"; };
@@ -2927,6 +2931,7 @@
 				025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */,
 				021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */,
 				02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */,
+				87D6E5DC2790320500B9DEE3 /* AnalyticsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3401,6 +3406,7 @@
 		29FC9BC71F83144D000209CD /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				87D6E5DA27901A0200B9DEE3 /* AnalyticsViewController.swift */,
 				29F1C85C2003698A003780D8 /* WellDoneViewController.swift */,
 				5E7C74C0C1803DD17FE9EBA7 /* ServersViewController.swift */,
 				5E7C7BF09AD68C113D58344C /* LocalesViewController.swift */,
@@ -6070,6 +6076,7 @@
 				5E7C7488D5CAE24B7462815A /* LiveLocaleSwitcherBundle.swift in Sources */,
 				02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */,
 				02F4E8C027717A5200D89C19 /* SaveCustomRpcBrowseView.swift in Sources */,
+				87D6E5DB27901A0200B9DEE3 /* AnalyticsViewController.swift in Sources */,
 				5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */,
 				5E7C7788984F7ADCFE5B4DE0 /* AddressTextField.swift in Sources */,
 				5E7C7E47C3C412A52DED7380 /* TextView.swift in Sources */,
@@ -6090,6 +6097,7 @@
 				8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */,
 				5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */,
 				8728FFD927428F43008E5524 /* NonFungibleRowViewModel.swift in Sources */,
+				87D6E5DD2790320500B9DEE3 /* AnalyticsViewModel.swift in Sources */,
 				5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */,
 				87E2554E24F52E1D00F025F7 /* TextFieldTableViewCellViewModel.swift in Sources */,
 				5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */,

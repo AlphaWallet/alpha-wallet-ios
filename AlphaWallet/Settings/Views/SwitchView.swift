@@ -35,12 +35,12 @@ class SwitchView: UIView {
 
     weak var delegate: SwitchViewDelegate?
 
-    override init(frame: CGRect) {
-        super.init(frame: CGRect())
+    init(edgeInsets: UIEdgeInsets = .zero, height: CGFloat = 40) {
+        super.init(frame: .zero)
 
         toggle.addTarget(self, action: #selector(toggled), for: .valueChanged)
 
-        let stackView = [label, .spacer(), toggle].asStackView(axis: .horizontal, alignment: .center)
+        let stackView = [.spacerWidth(edgeInsets.left), label, .spacer(), toggle, .spacerWidth(edgeInsets.right)].asStackView(axis: .horizontal, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
@@ -50,7 +50,7 @@ class SwitchView: UIView {
             stackView.topAnchor.constraint(lessThanOrEqualTo: topAnchor),
             stackView.bottomAnchor.constraint(greaterThanOrEqualTo: bottomAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            heightAnchor.constraint(equalToConstant: 40)
+            heightAnchor.constraint(equalToConstant: height)
         ])
     }
 

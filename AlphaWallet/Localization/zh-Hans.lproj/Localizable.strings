@@ -778,3 +778,6 @@
 "emptyTableView.wallet.title" = "You don't have any %@ yet";
 "emptyTableView.search.title" = "No results";
 "emptyTableView.all.title" = "Items";
+"analytics.navigationTitle" = "Analytics";
+"analytics.description" = "Help us to improve AlphaWallet by sharing anonymous data with us. This does not include any financial information.";
+"analytics.shareAnonymousData" = "Share Anonymous Data?";
