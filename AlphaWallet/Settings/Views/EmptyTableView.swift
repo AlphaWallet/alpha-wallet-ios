@@ -10,7 +10,6 @@ import UIKit
 class EmptyTableView: UIView {
 
     private var imageView: UIImageView?
-    private let title: String
     private let image: UIImage
     private let heightAdjustment: CGFloat
     private lazy var label: UILabel = {
@@ -22,15 +21,21 @@ class EmptyTableView: UIView {
         return label
     }()
 
+    lazy var title: String = "" {
+        didSet {
+            label.text = title
+        }
+    }
+
     convenience init(title: String, image: UIImage, heightAdjustment: CGFloat) {
         self.init(frame: .zero, title: title, image: image, heightAdjustment: heightAdjustment)
     }
 
     init(frame: CGRect, title: String, image: UIImage, heightAdjustment: CGFloat) {
-        self.title = title
         self.image = image
         self.heightAdjustment = heightAdjustment
         super.init(frame: frame)
+        label.text = title
         configureView()
     }
 

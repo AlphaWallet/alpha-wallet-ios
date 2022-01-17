@@ -91,6 +91,13 @@ class TokensViewController: UIViewController {
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
     lazy private var tableViewFilterView = ScrollableSegmentedControlAdapter.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
+    private lazy var emptyTableView: EmptyTableView = {
+        let view = EmptyTableView(title: "", image: R.image.activities_empty_list()!, heightAdjustment: 0)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
+    }()
+    private var emptyTableViewHeightConstraint: NSLayoutConstraint?
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -284,6 +291,14 @@ class TokensViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             bottomConstraint
+        ])
+
+        tableView.addSubview(emptyTableView)
+        let heightConstraint = emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: 0)
+        emptyTableViewHeightConstraint = heightConstraint
+        NSLayoutConstraint.activate([
+            emptyTableView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            heightConstraint
         ])
 
         errorView = ErrorView(onRetry: { [weak self] in
@@ -566,7 +581,12 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems(for: section)
+        let rowCount = viewModel.numberOfItems(for: section)
+        let mode = viewModel.sections[section]
+        if mode == .tokens || mode == .collectiblePairs {
+            handleTokensCountChange(rows: rowCount)
+        }
+        return rowCount
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -612,6 +632,49 @@ extension TokensViewController: UITableViewDataSource {
 
             return configuration
         }
+    }
+
+    private func handleTokensCountChange(rows: Int) {
+        let isEmpty = rows == 0
+        let title: String
+        switch viewModel.filter {
+        case .assetsOnly:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterAssetsOnlyTitle())
+        case .collectiblesOnly:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle())
+        case .currencyOnly:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle())
+        case .keyword:
+            title = R.string.localizable.emptyTableViewSearchTitle()
+        case .all:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.emptyTableViewAllTitle())
+        default:
+            title = ""
+        }
+        if isEmpty {
+            if let height = tableHeight() {
+                emptyTableViewHeightConstraint?.constant = height/2.0
+            } else {
+                emptyTableViewHeightConstraint?.constant = 0
+            }
+            emptyTableView.title = title
+        }
+        emptyTableView.isHidden = !isEmpty
+    }
+
+    private func tableHeight() -> CGFloat? {
+        guard let delegate = tableView.delegate else { return nil }
+        let sectionCount = viewModel.sections.count
+        var height: CGFloat = 0
+        for sectionIndex in 0..<sectionCount {
+            let rows = viewModel.numberOfItems(for: sectionIndex)
+            for rowIndex in 0..<rows {
+                height += (delegate.tableView?(tableView, heightForRowAt: IndexPath(row: rowIndex, section: sectionIndex))) ?? 0
+            }
+            height += (delegate.tableView?(tableView, heightForHeaderInSection: sectionIndex)) ?? 0
+            height += (delegate.tableView?(tableView, heightForFooterInSection: sectionIndex)) ?? 0
+        }
+        return height
     }
 }
 
