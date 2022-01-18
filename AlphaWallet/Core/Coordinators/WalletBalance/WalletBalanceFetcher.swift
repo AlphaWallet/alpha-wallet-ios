@@ -122,6 +122,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         for each in deletedServers {
             services.remove(at: each)
         }
+
+        queue.async { [weak self] in 
+            guard let strongSelf = self else { return }
+
+            strongSelf.notifyUpdateBalance()
+            strongSelf.notifyUpdateTokenBalancesSubscribers()
+        }
     }
 
     private func notifyUpdateTokenBalancesSubscribers() {
