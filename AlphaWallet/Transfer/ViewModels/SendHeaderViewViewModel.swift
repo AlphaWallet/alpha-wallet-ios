@@ -110,7 +110,7 @@ struct TokenInfoPageViewModel {
 
     private var maxSupplyViewModel: TickerFieldValueViewModel {
         let value: String = {
-            if let max_supply = ticker?.max_supply, let value = NumberFormatter.usd.string(from: max_supply) {
+            if let max_supply = ticker?.max_supply, let value = Formatter.usd.string(from: max_supply) {
                 return String(value)
             } else {
                 return "-"
@@ -127,7 +127,7 @@ struct TokenInfoPageViewModel {
     private var yearLowViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
-            if let min = HistoryHelper(history: history).minMax?.min, let value = NumberFormatter.usd.string(from: min) {
+            if let min = HistoryHelper(history: history).minMax?.min, let value = Formatter.usd.string(from: min) {
                 return value
             } else {
                 return "-"
@@ -144,7 +144,7 @@ struct TokenInfoPageViewModel {
     private var yearHighViewModel: TickerFieldValueViewModel {
         let value: String = {
             let history = values[safe: ChartHistoryPeriod.year.index]
-            if let max = HistoryHelper(history: history).minMax?.max, let value = NumberFormatter.usd.string(from: max) {
+            if let max = HistoryHelper(history: history).minMax?.max, let value = Formatter.usd.string(from: max) {
                 return value
             } else {
                 return "-"
@@ -184,13 +184,13 @@ struct TokenInfoPageViewModel {
 
             switch result.change {
             case .appreciate(let percentage, let value):
-                let p = NumberFormatter.percent.string(from: percentage) ?? "-"
-                let v = NumberFormatter.usd.string(from: value) ?? "-"
+                let p = Formatter.percent.string(from: percentage) ?? "-"
+                let v = Formatter.usd.string(from: value) ?? "-"
 
                 return ("\(v) (\(p)%)", Colors.appActionButtonGreen)
             case .depreciate(let percentage, let value):
-                let p = NumberFormatter.percent.string(from: percentage) ?? "-"
-                let v = NumberFormatter.usd.string(from: value) ?? "-"
+                let p = Formatter.percent.string(from: percentage) ?? "-"
+                let v = Formatter.usd.string(from: value) ?? "-"
 
                 return ("\(v) (\(p)%)", Colors.appRed)
             case .none:
@@ -286,7 +286,7 @@ struct TokenInfoPageViewModel {
 
     private var marketPriceValue: String? {
         if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
-            return NumberFormatter.usd.string(from: value)
+            return Formatter.usd.string(from: value)
         } else {
             return nil
         }

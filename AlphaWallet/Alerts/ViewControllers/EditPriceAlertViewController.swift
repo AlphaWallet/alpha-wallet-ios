@@ -126,7 +126,7 @@ class EditPriceAlertViewController: UIViewController {
     }
 
     @objc private func saveAlertSelected(_ sender: UIButton) {
-        guard let value = amountTextField.value.flatMap({ NumberFormatter().number(from: $0) }), let marketPrice = viewModel.marketPrice else { return }
+        guard let value = amountTextField.value.flatMap({ Formatter.default.number(from: $0) }), let marketPrice = viewModel.marketPrice else { return }
 
         switch viewModel.configuration {
         case .create:

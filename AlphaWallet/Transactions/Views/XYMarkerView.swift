@@ -11,7 +11,6 @@ import Charts
 #endif
 
 open class XYMarkerView: BalloonMarker {
-    fileprivate var yFormatter = NumberFormatter()
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM-dd-yyyy HH:mm"
@@ -21,7 +20,7 @@ open class XYMarkerView: BalloonMarker {
 
     open override func refreshContent(entry: ChartDataEntry, highlight: Highlight) {
         let date = Date(timeIntervalSince1970: TimeInterval(entry.x))
-        let usdValue = NumberFormatter.usd.string(from: entry.y) ?? "-"
+        let usdValue = Formatter.usd.string(from: entry.y) ?? "-"
         let dateValue = XYMarkerView.dateFormatter.string(from: date)
 
         setLabel("\(dateValue)\n\(usdValue)")

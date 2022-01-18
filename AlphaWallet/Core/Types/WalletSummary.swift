@@ -17,9 +17,9 @@ struct WalletSummary: Equatable {
     }
 
     var totalAmount: String {
-        if let amount = totalAmountDouble, let value = NumberFormatter.usd(format: .fiatFormat).string(from: amount) {
+        if let amount = totalAmountDouble, let value = Formatter.fiat.string(from: amount) {
             return value
-        } else if let amount = etherTotalAmountDouble, let value = NumberFormatter.shortCrypto.string(from: amount.doubleValue) {
+        } else if let amount = etherTotalAmountDouble, let value = Formatter.shortCrypto.string(from: amount.doubleValue) {
             return "\(value) \(RPCServer.main.symbol)"
         } else {
             return "--"

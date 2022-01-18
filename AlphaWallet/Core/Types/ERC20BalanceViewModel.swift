@@ -39,7 +39,7 @@ struct ERC20BalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmount: String? {
         guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return NumberFormatter.usd.string(from: totalAmount)
+        return Formatter.usd.string(from: totalAmount)
     }
 
     var currencyAmountWithoutSymbol: Double? {

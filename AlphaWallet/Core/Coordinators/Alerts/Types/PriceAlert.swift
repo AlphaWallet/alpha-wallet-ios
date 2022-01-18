@@ -68,7 +68,7 @@ enum AlertType: Codable {
     var title: String {
         switch self {
         case .price(let priceTarget, let value):
-            let result = NumberFormatter.usd(format: .fiatFormat).string(from: value) ?? "-"
+            let result = Formatter.fiat.string(from: value) ?? "-"
             return "\(priceTarget.title) \(result)"
         }
     }

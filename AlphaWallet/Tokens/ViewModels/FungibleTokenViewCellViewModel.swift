@@ -102,7 +102,7 @@ struct FungibleTokenViewCellViewModel {
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? UiTweaks.noPriceMarker
+            return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
         }
@@ -117,7 +117,7 @@ struct FungibleTokenViewCellViewModel {
 
     private var fiatValue: String {
         if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .fiatFormat).string(from: fiatValue) ?? UiTweaks.noPriceMarker
+            return Formatter.fiat.string(from: fiatValue) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
         }

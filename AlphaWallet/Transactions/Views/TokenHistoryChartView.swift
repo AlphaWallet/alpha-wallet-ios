@@ -37,7 +37,7 @@ class TokenHistoryChartView: UIView {
     private class YMinMaxOnlyAxisValueFormatter: IAxisValueFormatter {
         //NOTE: helper index for determining right label position
         private var index: Int = 0
-        private let formatter = NumberFormatter.usd(format: .fiatFormat)
+        private let formatter = Formatter.fiat
 
         func stringForValue(_ value: Double, axis: AxisBase?) -> String {
             guard let axis = axis else { return "" }

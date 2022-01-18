@@ -3,29 +3,6 @@
 import UIKit
 
 final class StringFormatter {
-    /// currencyFormatter of a `StringFormatter` to represent current locale.
-    private lazy var currencyFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.currencySymbol = ""
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        formatter.roundingMode = .down
-        formatter.numberStyle = .currencyAccounting
-        formatter.isLenient = true
-        return formatter
-    }()
-
-    private let alternateAmountFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.currencySymbol = ""
-        formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
-        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
-        formatter.roundingMode = .down
-        formatter.numberStyle = .currency
-
-        return formatter
-    }()
-
     /// Converts a Double to a `currency String`.
     ///
     /// - Parameters:
@@ -33,7 +10,7 @@ final class StringFormatter {
     ///   - currencyCode: code of the currency.
     /// - Returns: Currency `String` representation.
     func currency(with value: Double, and currencyCode: String = "") -> String {
-        let formatter = currencyFormatter
+        let formatter = Formatter.currencyAccounting
         formatter.currencyCode = currencyCode
         //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
         return (formatter.string(from: NSNumber(value: value))?.trimmed ?? "\(value)").droppedTrailingZeros
@@ -45,7 +22,7 @@ final class StringFormatter {
     ///   - currencyCode: code of the currency.
     /// - Returns: Currency `String` representation.
     func currency(with value: NSDecimalNumber, and currencyCode: String = "", usesGroupingSeparator: Bool = true) -> String {
-        let formatter = currencyFormatter
+        let formatter = Formatter.currencyAccounting
         formatter.currencyCode = currencyCode
         formatter.usesGroupingSeparator = usesGroupingSeparator
 
@@ -71,10 +48,11 @@ final class StringFormatter {
     }
 
     func alternateAmount(value: NSDecimalNumber, usesGroupingSeparator: Bool = false) -> String {
-        alternateAmountFormatter.usesGroupingSeparator = usesGroupingSeparator
+        let formatter = Formatter.alternateAmount
+        formatter.usesGroupingSeparator = usesGroupingSeparator
 
         //For some reasons formatter adds trailing whitespace
-        if let value = alternateAmountFormatter.string(from: value) {
+        if let value = formatter.string(from: value) {
             return value.trimmingCharacters(in: .whitespacesAndNewlines).droppedTrailingZeros
         } else {
             return value.stringValue.droppedTrailingZeros
