@@ -3,7 +3,7 @@
 import UIKit
 
 protocol UniversalLinkInPasteboardCoordinatorDelegate: AnyObject {
-    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator)
+    func importUniversalLink(url: DeepLink, for coordinator: UniversalLinkInPasteboardCoordinator)
 }
 
 class UniversalLinkInPasteboardCoordinator: Coordinator {
@@ -13,9 +13,9 @@ class UniversalLinkInPasteboardCoordinator: Coordinator {
     func start() {
         if UIPasteboard.general.hasURLs {
             guard let url = UIPasteboard.general.url else { return }
-            guard RPCServer(withMagicLink: url) != nil else { return }
+            guard let deepLink = DeepLink(url: url) else { return }
             UIPasteboard.general.string = ""
-            delegate?.importUniversalLink(url: url, for: self)
+            delegate?.importUniversalLink(url: deepLink, for: self)
         }
     }
 }

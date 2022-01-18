@@ -1,36 +1,52 @@
 //
-//  UrlSchemeCoordinator.swift
+//  UniversalLinkCoordinator.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 11.11.2020.
 //
 
 import Foundation
+import BigInt
 
 protocol UrlSchemeResolver: AnyObject {
+    var tokensStorages: ServerDictionary<TokensDataStore> { get }
+    var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
+    var nativeCryptoCurrencyBalances: ServerDictionary<Subscribable<BigInt>> { get }
+    var presentationNavigationController: UINavigationController { get }
+
     func openURLInBrowser(url: URL)
+    func openWalletConnectSession(url: AlphaWallet.WalletConnect.ConnectionUrl)
+    func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController)
+} 
+
+protocol UniversalLinkCoordinatorDelegate: AnyObject {
+    func handle(url: DeepLink, for resolver: UrlSchemeResolver)
+    func resolve(for coordinator: UniversalLinkCoordinator) -> UrlSchemeResolver?
 }
 
-protocol UrlSchemeCoordinatorDelegate: AnyObject {
-    func resolve(for coordinator: UrlSchemeCoordinator) -> UrlSchemeResolver?
+protocol UniversalLinkCoordinatorType {
+    func handleUniversalLinkOpen(url: URL) -> Bool
+    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver)
+    func handleUniversalLinkInPasteboard()
 }
 
-protocol UrlSchemeCoordinatorType {
-    func handleOpen(url: URL) -> Bool
-    func processPendingURL(in inCoordinator: UrlSchemeResolver)
-}
+class UniversalLinkCoordinator: UniversalLinkCoordinatorType {
+    private var pendingUniversalUrl: DeepLink? = .none
 
-class UrlSchemeCoordinator: UrlSchemeCoordinatorType {
-    var pendingUrl: URL?
+    weak var delegate: UniversalLinkCoordinatorDelegate?
 
-    weak var delegate: UrlSchemeCoordinatorDelegate?
+    func handleUniversalLinkInPasteboard() {
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
+        universalLinkPasteboardCoordinator.delegate = self
+        universalLinkPasteboardCoordinator.start()
+    }
 
-    @discardableResult func handleOpen(url: URL) -> Bool {
-        if canHandle(url: url) {
-            if let inCoordinator = delegate?.resolve(for: self) {
-                self.process(url: url, with: inCoordinator)
+    @discardableResult func handleUniversalLinkOpen(url: URL) -> Bool {
+        if let magicLink = DeepLink(url: url) {
+            if let coordinator = delegate?.resolve(for: self) {
+                handle(url: magicLink, with: coordinator)
             } else {
-                pendingUrl = url
+                pendingUniversalUrl = magicLink
             }
 
             return true
@@ -39,27 +55,25 @@ class UrlSchemeCoordinator: UrlSchemeCoordinatorType {
         }
     }
 
-    func processPendingURL(in inCoordinator: UrlSchemeResolver) {
-        guard let url = pendingUrl else { return }
+    func handlePendingUniversalLink(in coordinator: UrlSchemeResolver) {
+        guard let url = pendingUniversalUrl else { return }
 
-        process(url: url, with: inCoordinator)
+        handle(url: url, with: coordinator)
     }
 
-    private func process(url: URL, with inCoordinator: UrlSchemeResolver) {
-        switch ShareContentAction(url) {
-        case .none, .string:
-            break //NOTE: here we can add parsing Addresses from string
-        case .url(let url):
-            inCoordinator.openURLInBrowser(url: url)
-        case .openApp:
-            //No-op. Just switching to the app
-            break
+    private func handle(url: DeepLink, with coordinator: UrlSchemeResolver) {
+        delegate?.handle(url: url, for: coordinator)
+        
+        pendingUniversalUrl = .none
+    }
+}
+
+extension UniversalLinkCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
+    func importUniversalLink(url: DeepLink, for coordinator: UniversalLinkInPasteboardCoordinator) {
+        if let coordinator = delegate?.resolve(for: self) {
+            self.handle(url: url, with: coordinator)
+        } else {
+            pendingUniversalUrl = url
         }
-
-        pendingUrl = .none
-    }
-
-    private func canHandle(url: URL) -> Bool {
-        return ShareContentAction(url) != nil
     }
 }

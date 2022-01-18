@@ -95,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // URI scheme links and AirDrop
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-        return appCoordinator.handleOpen(url: url)
+        return appCoordinator.handleUniversalLink(url: url)
     }
 
     func application(_ application: UIApplication,

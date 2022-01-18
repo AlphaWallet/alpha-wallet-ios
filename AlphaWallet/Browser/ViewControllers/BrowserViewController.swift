@@ -12,7 +12,6 @@ protocol BrowserViewControllerDelegate: AnyObject {
     func dismissKeyboard(inBrowserViewController viewController: BrowserViewController)
     func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController)
     func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController)
-    func handleCustomUrlScheme(_ url: URL, inBrowserViewController viewController: BrowserViewController)
 }
 
 final class BrowserViewController: UIViewController {
@@ -230,16 +229,11 @@ extension BrowserViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
             return
         }
-        if MagicLinkUrl(url: url) != nil {
+        if DeepLink.supports(url: url) {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             decisionHandler(.cancel)
             return
-        }
-        if url.scheme == ShareContentAction.scheme {
-            delegate?.handleCustomUrlScheme(url, inBrowserViewController: self)
-            decisionHandler(.cancel)
-            return
-        }
+        } 
 
         decisionHandler(.allow)
     }

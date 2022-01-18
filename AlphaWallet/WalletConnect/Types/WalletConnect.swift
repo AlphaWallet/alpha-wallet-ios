@@ -71,7 +71,7 @@ extension AlphaWallet {
                 }
             }
             private static let valueKey = "value"
-
+            
             init?(_ string: String) {
                 if let v2 = WalletConnectV2URI(string) {
                     self = .v2(uri: v2)

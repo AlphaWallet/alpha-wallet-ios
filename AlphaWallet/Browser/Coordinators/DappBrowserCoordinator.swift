@@ -11,9 +11,7 @@ import Result
 
 protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
-    func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
-    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
     func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
@@ -198,7 +196,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     func open(url: URL, animated: Bool = true, forceReload: Bool = false) {
         //If users tap on the verified button in the import MagicLink UI, we don't want to treat it as a MagicLink to import and show the UI again. Just open in browser. This check means when we tap MagicLinks in browserOnly mode, the import UI doesn't show up; which is probably acceptable
         if !browserOnly && isMagicLink(url) {
-            delegate?.importUniversalLink(url: url, forCoordinator: self)
+            delegate?.handleUniversalLink(url, forCoordinator: self)
             return
         }
 
@@ -550,10 +548,6 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
 
     func handleUniversalLink(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
-    }
-
-    func handleCustomUrlScheme(_ url: URL, inBrowserViewController viewController: BrowserViewController) {
-        delegate?.handleCustomUrlScheme(url, forCoordinator: self)
     }
 }
 

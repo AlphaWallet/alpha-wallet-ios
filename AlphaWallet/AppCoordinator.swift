@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit 
+import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -17,20 +18,15 @@ class AppCoordinator: NSObject, Coordinator {
     private var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
     }
-    private var universalLinkCoordinator: UniversalLinkCoordinator? {
-        return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
-    }
-
     private var initialWalletCreationCoordinator: InitialWalletCreationCoordinator? {
         return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
-
     var promptBackupCoordinator: PromptBackupCoordinator? {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
 
-    private lazy var urlSchemeCoordinator: UrlSchemeCoordinatorType = {
-        let coordinator = UrlSchemeCoordinator()
+    private lazy var universalLinkCoordinator: UniversalLinkCoordinatorType = {
+        let coordinator = UniversalLinkCoordinator()
         coordinator.delegate = self
 
         return coordinator
@@ -173,34 +169,6 @@ class AppCoordinator: NSObject, Coordinator {
         legacyFileBasedKeystore.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
-    /// Return true if handled
-    @discardableResult func handleOpen(url: URL) -> Bool {
-        let handled = urlSchemeCoordinator.handleOpen(url: url)
-        if handled {
-            return true
-        }
-        //TODO clean up handling of custom URL schemes:
-        if url.scheme == "wc", let wcUrl = AlphaWallet.WalletConnect.ConnectionUrl(url.absoluteString), let inCoordinator = inCoordinator {
-            inCoordinator.openWalletConnectSession(url: wcUrl)
-            return true
-        }
-
-        let shouldBeHandledByCustomUrlSchemeCoordinator = CustomUrlSchemeCoordinator.canHandleOpen(url: url) && inCoordinator != nil
-        //NOTE: avoid displaying error from `assetDefinitionStoreCoordinator.handleOpen(url` while handling eip681 url
-        if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator, !shouldBeHandledByCustomUrlSchemeCoordinator {
-            let handled = assetDefinitionStoreCoordinator.handleOpen(url: url)
-            if handled {
-                return true
-            }
-        }
-
-        guard let inCoordinator = inCoordinator else { return false }
-
-        let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages, assetDefinitionStore: assetDefinitionStore)
-        urlSchemeHandler.delegate = self
-        return urlSchemeHandler.handleOpen(url: url)
-    }
-
     private func setupAssetDefinitionStoreCoordinator() {
         let coordinator = AssetDefinitionStoreCoordinator(assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
@@ -230,7 +198,7 @@ class AppCoordinator: NSObject, Coordinator {
                 appTracker: appTracker,
                 analyticsCoordinator: analyticsService,
                 restartQueue: restartQueue,
-                urlSchemeCoordinator: urlSchemeCoordinator,
+                universalLinkCoordinator: universalLinkCoordinator,
                 promptBackupCoordinator: promptBackupCoordinator,
                 accountsCoordinator: accountsCoordinator,
                 walletBalanceCoordinator: walletBalanceCoordinator,
@@ -246,14 +214,6 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.start(animated: animated)
 
         return coordinator
-    }
-
-    @discardableResult private func showTransactionsIfNeeded() -> InCoordinator {
-        if let coordinator = inCoordinator {
-            return coordinator
-        } else {
-            return showTransactions(for: keystore.currentWallet, animated: false)
-        }
     }
 
     private func initializers() {
@@ -296,50 +256,33 @@ class AppCoordinator: NSObject, Coordinator {
         WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService).createInitialWalletIfMissing()
     }
 
-    @discardableResult func handleUniversalLink(url: URL) -> Bool {
-        createInitialWalletIfMissing()
-        let inCoordinator = showTransactionsIfNeeded()
+    private func showTransactionsIfNeeded() {
+        if inCoordinator != nil {
+            //no-op
+        } else if let pendingCoordinator = pendingInCoordinator {
+            addCoordinator(pendingCoordinator)
+            pendingCoordinator.showTabBar(animated: false)
 
-        guard let server = RPCServer(withMagicLink: url) else { return false }
-
-        if config.enabledServers.contains(server) {
-            let universalLinkCoordinator = UniversalLinkCoordinator(
-                analyticsCoordinator: analyticsService,
-                wallet: keystore.currentWallet,
-                config: config,
-                ethPrice: inCoordinator.nativeCryptoCurrencyPrices[server],
-                ethBalance: inCoordinator.nativeCryptoCurrencyBalances[server],
-                tokensDatastore: inCoordinator.tokensStorages[server],
-                assetDefinitionStore: assetDefinitionStore,
-                url: url,
-                server: server
-            )
-
-            universalLinkCoordinator.delegate = self
-            universalLinkCoordinator.start()
-
-            let handled = universalLinkCoordinator.handleUniversalLink()
-            if handled {
-                addCoordinator(universalLinkCoordinator)
-            }
-            return handled
+            pendingInCoordinator = .none
         } else {
-            let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server], coordinator: self)
-            coordinator.start().done { _ in
-                //no-op
-            }.cauterize()
-
-            return false
+            //NOTE: wait until presented
         }
     }
 
+    /// Return true if handled
+    @discardableResult func handleUniversalLink(url: URL) -> Bool {
+        createInitialWalletIfMissing()
+        showTransactionsIfNeeded()
+
+        return universalLinkCoordinator.handleUniversalLinkOpen(url: url)
+    }
+
     func handleUniversalLinkInPasteboard() {
-        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
-        universalLinkPasteboardCoordinator.delegate = self
-        universalLinkPasteboardCoordinator.start()
+        universalLinkCoordinator.handleUniversalLinkInPasteboard()
     }
 
     func launchUniversalScanner() {
+        showTransactionsIfNeeded()
         inCoordinator?.launchUniversalScanner()
     }
 
@@ -358,7 +301,9 @@ class AppCoordinator: NSObject, Coordinator {
     func handleIntent(userActivity: NSUserActivity) -> Bool {
         guard #available(iOS 12.0, *) else { return false }
         if let type = userActivity.userInfo?[WalletQrCodeDonation.userInfoType.key] as? String, type == WalletQrCodeDonation.userInfoType.value {
-            analyticsService.log(navigation: Analytics.Navigation.openShortcut, properties: [Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue])
+            analyticsService.log(navigation: Analytics.Navigation.openShortcut, properties: [
+                Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue
+            ])
             inCoordinator?.showWalletQrCode()
             return true
         } else {
@@ -425,39 +370,14 @@ extension AppCoordinator: InCoordinatorDelegate {
         return assetDefinitionStoreCoordinator?.createOverridesViewController()
     }
 
-    func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator) {
-        guard universalLinkCoordinator == nil else { return }
-        handleUniversalLink(url: url)
-    }
-
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator) {
-        guard universalLinkCoordinator == nil else { return }
         handleUniversalLink(url: url)
-    }
-
-    func handleCustomUrlScheme(_ url: URL, forCoordinator coordinator: InCoordinator) {
-        handleOpen(url: url)
     }
 }
 
-extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+extension AppCoordinator: ImportMagicLinkCoordinatorDelegate {
 
-    func handle(embeddedUrl url: URL, server: RPCServer, in coordinator: UniversalLinkCoordinator) {
-        removeCoordinator(coordinator)
-        inCoordinator?.openURLInBrowser(url: url)
-    }
-
-    func handle(walletConnectUrl url: AlphaWallet.WalletConnect.ConnectionUrl, in coordinator: UniversalLinkCoordinator) {
-        removeCoordinator(coordinator)
-        inCoordinator?.openWalletConnectSession(url: url)
-    }
-
-    func handle(eip681Url url: URL, in coordinator: UniversalLinkCoordinator) {
-        removeCoordinator(coordinator)
-        handleOpen(url: url)
-    }
-
-    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
+    func viewControllerForPresenting(in coordinator: ImportMagicLinkCoordinator) -> UIViewController? {
         if var top = window.rootViewController {
             while let vc = top.presentedViewController {
                 top = vc
@@ -472,25 +392,12 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
         inCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, inViewController: viewController, completion: completion)
     }
 
-    func completed(in coordinator: UniversalLinkCoordinator) {
+    func completed(in coordinator: ImportMagicLinkCoordinator) {
         removeCoordinator(coordinator)
     }
 
-    func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator) {
+    func didImported(contract: AlphaWallet.Address, in coordinator: ImportMagicLinkCoordinator) {
         inCoordinator?.addImported(contract: contract, forServer: coordinator.server)
-    }
-}
-
-extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
-    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
-        guard universalLinkCoordinator == nil else { return }
-        handleUniversalLink(url: url)
-    }
-}
-
-extension AppCoordinator: CustomUrlSchemeCoordinatorResolver {
-    func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
-        inCoordinator?.showPaymentFlow(for: paymentFlow, server: server, navigationController: navigationController)
     }
 }
 
@@ -515,8 +422,76 @@ extension AppCoordinator: AssetDefinitionStoreDelegate {
     }
 }
 
-extension AppCoordinator: UrlSchemeCoordinatorDelegate {
-    func resolve(for coordinator: UrlSchemeCoordinator) -> UrlSchemeResolver? {
+extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+
+    private var hasImportMagicLinkCoordinator: ImportMagicLinkCoordinator? {
+        return coordinators.compactMap { $0 as? ImportMagicLinkCoordinator }.first
+    }
+
+    func handle(url: DeepLink, for resolver: UrlSchemeResolver) {
+        switch url {
+        case .maybeFileUrl(let url):
+            guard let coordinator = assetDefinitionStoreCoordinator else { return }
+            coordinator.handleOpen(url: url)
+        case .eip681(let url):
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDatastores: resolver.tokensStorages, assetDefinitionStore: assetDefinitionStore, config: config)
+            guard let promise = paymentFlowResolver.resolve(url: url) else { return }
+            firstly {
+                promise
+            }.done { (paymentFlow: PaymentFlow, server: RPCServer) in
+                resolver.showPaymentFlow(for: paymentFlow, server: server, navigationController: resolver.presentationNavigationController)
+            }.cauterize()
+        case .walletConnect(let url, let source):
+            switch source {
+            case .safariExtension:
+                analyticsService.log(action: Analytics.Action.tapSafariExtensionRewrittenUrl, properties: [
+                    Analytics.Properties.type.rawValue: "walletConnect"
+                ])
+            case .mobileLinking:
+                break
+            }
+            resolver.openWalletConnectSession(url: url)
+        case .embeddedUrl(_, let url):
+            resolver.openURLInBrowser(url: url)
+        case .shareContentAction(let action):
+            switch action {
+            case .string, .openApp:
+                break //NOTE: here we can add parsing Addresses from string
+            case .url(let url):
+                resolver.openURLInBrowser(url: url)
+            }
+        case .magicLink(_, let server, let url):
+            guard hasImportMagicLinkCoordinator == nil else { return }
+
+            if config.enabledServers.contains(server) {
+                let coordinator = ImportMagicLinkCoordinator(
+                    analyticsCoordinator: analyticsService,
+                    wallet: keystore.currentWallet,
+                    config: config,
+                    ethPrice: resolver.nativeCryptoCurrencyPrices[server],
+                    ethBalance: resolver.nativeCryptoCurrencyBalances[server],
+                    tokensDatastore: resolver.tokensStorages[server],
+                    assetDefinitionStore: assetDefinitionStore,
+                    url: url,
+                    server: server
+                )
+
+                coordinator.delegate = self
+                let handled = coordinator.start(url: url)
+
+                if handled {
+                    addCoordinator(coordinator)
+                }
+            } else {
+                let coordinator = ServerUnavailableCoordinator(navigationController: navigationController, servers: [server], coordinator: self)
+                coordinator.start().done { _ in
+                    //no-op
+                }.cauterize()
+            }
+        }
+    }
+
+    func resolve(for coordinator: UniversalLinkCoordinator) -> UrlSchemeResolver? {
         return inCoordinator
     }
 }
