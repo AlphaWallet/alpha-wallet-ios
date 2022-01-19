@@ -103,27 +103,28 @@ final class ContactUsEmailResolver: NSObject {
                """
     }
 
-    private lazy var mailComposer: MFMailComposeViewController = {
-        let mailComposer = MFMailComposeViewController()
-
-        mailComposer.setToRecipients([Constants.supportEmail])
-        mailComposer.setSubject(R.string.localizable.aHelpContactEmailSubject())
-        mailComposer.setMessageBody(emailTemplate, isHTML: false)
-        mailComposer.makePresentationFullScreenForiOS13Migration()
-
-        return mailComposer
-    }()
-
     func present(from viewController: UIViewController, attachments: [EmailAttachment]) {
         if MFMailComposeViewController.canSendMail() {
-            mailComposer.mailComposeDelegate = self
+            let mc = getMFMailComposeViewController()
+            mc.mailComposeDelegate = self
 
             for attachment in attachments {
-                mailComposer.addAttachmentData(attachment.data, mimeType: attachment.mimeType, fileName: attachment.fileName)
+                mc.addAttachmentData(attachment.data, mimeType: attachment.mimeType, fileName: attachment.fileName)
             }
 
-            viewController.present(mailComposer, animated: true)
+            viewController.present(mc, animated: true)
         }
+    }
+
+    private func getMFMailComposeViewController() -> MFMailComposeViewController {
+        let mc = MFMailComposeViewController()
+
+        mc.setToRecipients([Constants.supportEmail])
+        mc.setSubject(R.string.localizable.aHelpContactEmailSubject())
+        mc.setMessageBody(emailTemplate, isHTML: false)
+        mc.makePresentationFullScreenForiOS13Migration()
+
+        return mc
     }
 }
 
