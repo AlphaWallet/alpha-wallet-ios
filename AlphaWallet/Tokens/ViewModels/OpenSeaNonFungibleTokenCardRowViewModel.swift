@@ -4,7 +4,6 @@ import UIKit
 import PromiseKit
 
 struct OpenSeaNonFungibleTokenCardRowViewModel {
-    //private static var imageGenerator = ConvertSVGToPNG()
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
 

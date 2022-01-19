@@ -716,6 +716,9 @@
 "semifungibles.assetsCount" = "%d Assets";
 "semifungibles.details" = "Details";
 "semifungibles.description" = "Description";
+"semifungibles.attributes" = "Attributes";
+"semifungibles.rankings" = "Rankings";
+"semifungibles.stats" = "Stats";
 "semifungibles.selectedTokens" = "Selected Tokens";
 "semifungibles.createdDate" = "Created";
 "semifungibles.value" = "Value";

@@ -10,10 +10,12 @@ import UIKit
 final class TokenInstanceViewConfigurationHelper {
     private let tokenId: TokenId
     private let tokenHolder: TokenHolder
-
+    private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
+    
     init(tokenId: TokenId, tokenHolder: TokenHolder) {
         self.tokenId = tokenId
         self.tokenHolder = tokenHolder
+        self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
     }
 
     var values: [AttributeId: AssetAttributeSyntaxValue]? {
@@ -129,6 +131,30 @@ final class TokenInstanceViewConfigurationHelper {
         }.flatMap {
             .init(title: R.string.localizable.semifungiblesAttributeTransferFee(), attributedValue: $0)
         }
+    }
+
+    var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
+        let traitsToDisplay = traits.filter { displayHelper.shouldDisplayAttribute(name: $0.type) }
+        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
+    }
+
+    var rankings: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
+        let traitsToDisplay = traits.filter { displayHelper.shouldDisplayRanking(name: $0.type) }
+        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
+    }
+
+    var stats: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
+        let traitsToDisplay = traits.filter { displayHelper.shouldDisplayStat(name: $0.type) }
+        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
+    }
+
+    private func mapTraitsToProperName(name: String, value: String) -> OpenSeaNonFungibleTokenAttributeCellViewModel {
+        let displayName = displayHelper.mapTraitsToDisplayName(name: name)
+        let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value)
+        return OpenSeaNonFungibleTokenAttributeCellViewModel(name: displayName, value: displayValue)
     }
 
 }

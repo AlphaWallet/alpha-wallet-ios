@@ -79,8 +79,30 @@ struct TokenInstanceInfoPageViewModel {
             ]
         }
 
+        if !tokenHolderHelper.attributes.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.attributes))
+            ]
+        }
+
+        if !tokenHolderHelper.stats.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.stats))
+            ]
+        }
+
+        if !tokenHolderHelper.rankings.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.rankings))
+            ]
+        }
+
         return [
             .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
         ] + previewViewModels
     }
+
 }
