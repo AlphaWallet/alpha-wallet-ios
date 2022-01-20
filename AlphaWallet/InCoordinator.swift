@@ -114,7 +114,7 @@ class InCoordinator: NSObject, Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
 
     lazy var tabBarController: UITabBarController = {
-        let tabBarController = TabBarController()
+        let tabBarController = UITabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.delegate = self
 

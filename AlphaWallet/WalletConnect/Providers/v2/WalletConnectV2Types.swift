@@ -121,7 +121,7 @@ extension WalletConnectV2Request {
         guard let chainId = chainId else { return nil }
         if let server = eip155URLCoder.decodeRPC(from: chainId) {
             return server
-        } else if let value = Int(string: chainId) {
+        } else if let value = Int(chainId, radix: 10) {
             return RPCServer(chainID: value)
         } else {
             return nil

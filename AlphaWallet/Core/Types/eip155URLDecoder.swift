@@ -45,7 +45,7 @@ extension RPCServer {
         return values.compactMap { str in
             if let server = eip155URLCoder.decodeRPC(from: str) {
                 return server
-            } else if let value = Int(string: str) {
+            } else if let value = Int(str, radix: 10) {
                 return RPCServer(chainID: value)
             } else {
                 return nil
@@ -53,3 +53,4 @@ extension RPCServer {
         }
     }
 }
+

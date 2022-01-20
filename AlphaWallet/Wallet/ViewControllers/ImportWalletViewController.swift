@@ -384,12 +384,12 @@ class ImportWalletViewController: UIViewController {
     private func validateMnemonic() -> Bool {
         mnemonicTextView.errorState = .none
 
-        if let validationError = MnemonicLengthRule().isValid(value: mnemonicInputString) {
+        if let validationError = MnemonicLengthValidator().isValid(value: mnemonicInputString) {
             mnemonicTextView.errorState = .error(validationError.msg)
 
             return false
         }
-        if let validationError = MnemonicInWordListRule().isValid(value: mnemonicInputString) {
+        if let validationError = MnemonicInWordListValidator().isValid(value: mnemonicInputString) {
             mnemonicTextView.errorState = .error(validationError.msg)
             return false
         }
@@ -413,7 +413,7 @@ class ImportWalletViewController: UIViewController {
     ///Returns true only if valid
     private func validatePrivateKey() -> Bool {
         privateKeyTextView.errorState = .none
-        if let validationError = PrivateKeyRule().isValid(value: privateKeyTextView.value.trimmed) {
+        if let validationError = PrivateKeyValidator().isValid(value: privateKeyTextView.value.trimmed) {
             privateKeyTextView.errorState = .error(validationError.msg)
             return false
         }
@@ -423,7 +423,7 @@ class ImportWalletViewController: UIViewController {
     ///Returns true only if valid
     private func validateWatch() -> Bool {
         watchAddressTextField.errorState = .none
-        if let validationError = EthereumAddressRule().isValid(value: watchAddressTextField.value) {
+        if let validationError = EthereumAddressValidator().isValid(value: watchAddressTextField.value) {
             watchAddressTextField.errorState = .error(validationError.msg)
             return false
         }

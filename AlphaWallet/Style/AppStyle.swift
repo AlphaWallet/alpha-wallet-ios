@@ -36,7 +36,7 @@ func applyStyle() {
         UINavigationBar.appearance().compactAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
         UINavigationBar.appearance().scrollEdgeAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
 
-    //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
+    //We could have set the backBarButtonItem with an empty title for every view controller. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
     UIBarButtonItem.appearance().tintColor = Colors.navigationButtonTintColor
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.navigationButtonTintColor

@@ -44,8 +44,8 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
                 .flatMap { navigationController.popToViewController($0, animated: animated) }
     }
 
-    func createEnterPasswordController() -> EnterPasswordViewController {
-        let controller = EnterPasswordViewController(account: account)
+    func createEnterPasswordController() -> EnterKeystorePasswordViewController {
+        let controller = EnterKeystorePasswordViewController(viewModel: EnterKeystorePasswordViewModel())
         controller.delegate = self
         return controller
     }
@@ -59,8 +59,9 @@ extension EnterPasswordCoordinator: KeystoreBackupIntroductionViewControllerDele
     }
 }
 
-extension EnterPasswordCoordinator: EnterPasswordViewControllerDelegate {
-    func didEnterPassword(password: String, for account: AlphaWallet.Address, inViewController viewController: EnterPasswordViewController) {
+extension EnterPasswordCoordinator: EnterKeystorePasswordViewControllerDelegate {
+
+    func didEnterPassword(password: String, in viewController: EnterKeystorePasswordViewController) {
         delegate?.didEnterPassword(password: password, account: account, in: self)
     }
 }
