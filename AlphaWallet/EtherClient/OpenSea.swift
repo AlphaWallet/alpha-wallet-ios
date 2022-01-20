@@ -8,13 +8,6 @@ import Result
 import SwiftyJSON
 
 class OpenSea {
-    private class WeakRef<T: AnyObject> {
-        weak var object: T?
-        init(object: T) {
-            self.object = object
-        }
-    }
-
     typealias PromiseResult = Promise<[AlphaWallet.Address: [OpenSeaNonFungible]]>
 
     //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests

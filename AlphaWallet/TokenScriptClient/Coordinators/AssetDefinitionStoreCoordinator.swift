@@ -30,12 +30,6 @@ enum OpenURLError: Error {
 }
 
 class AssetDefinitionStoreCoordinator: Coordinator {
-    private class WeakRef<T: AnyObject> {
-        weak var object: T?
-        init(object: T) {
-            self.object = object
-        }
-    }
 
     private static var inboxDirectory: URL? {
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }

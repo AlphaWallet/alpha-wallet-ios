@@ -13,26 +13,27 @@ struct EnjinError: Error {
     var localizedDescription: String
 }
 
-class EnjinProvider {
-
-    private class WeakRef<T: AnyObject> {
-        weak var object: T?
-        init(object: T) {
-            self.object = object
-        }
+class WeakRef<T: AnyObject> {
+    weak var object: T?
+    init(object: T) {
+        self.object = object
     }
+}
 
+class EnjinProvider {
     typealias PromiseResult = Promise<[AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]>
 
     private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
     private static let minimumSecondsBetweenRequests = TimeInterval(60)
 
-    private(set) lazy var graphqlClient: ApolloClient = {
-        let client = URLSessionClient()
-        let cache = InMemoryNormalizedCache()
-        let store = ApolloStore(cache: cache)
+    static let client = URLSessionClient()
+    static let cache = InMemoryNormalizedCache()
+    static let store = ApolloStore(cache: cache)
+
+    private static var graphqlClient: ApolloClient = {
         let provider = NetworkInterceptorProvider(store: store, client: client)
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.enjinApiUrl)
+        
         return ApolloClient(networkTransport: transport, store: store)
     }()
 
@@ -109,7 +110,7 @@ class EnjinProvider {
                 }
             }.then({ balances -> Promise<[AlphaWallet.Address: [GetEnjinTokenQuery.Data.EnjinToken]]> in
                 let ids = (balances[owner] ?? []).compactMap { $0.token?.id }
-                return EnjinProvider.functional.getTokens(graphqlClient: self.graphqlClient, ids: ids, owner: owner)
+                return EnjinProvider.functional.getTokens(graphqlClient: EnjinProvider.graphqlClient, ids: ids, owner: owner)
             })
         }
         return fetch
@@ -119,7 +120,7 @@ class EnjinProvider {
     typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
 
     private func fetchPage(forOwner owner: AlphaWallet.Address, offset: Int, completion: @escaping (Swift.Result<MappedEnjinBalances, EnjinError>) -> Void) {
-        EnjinProvider.functional.fetchPage(graphqlClient: graphqlClient, forOwner: owner, offset: offset) { [weak self] response in
+        EnjinProvider.functional.fetchPage(graphqlClient: EnjinProvider.graphqlClient, forOwner: owner, offset: offset) { [weak self] response in
             switch response {
             case .success(let result):
                 self?.cachePromise(withTokenIdCount: result.tokenIdCount, forOwner: result.owner)
@@ -268,7 +269,7 @@ extension EnjinProvider.functional {
     }
 }
 
-final class NetworkInterceptorProvider: InterceptorProvider {
+final private class NetworkInterceptorProvider: InterceptorProvider {
     // These properties will remain the same throughout the life of the `InterceptorProvider`, even though they
     // will be handed to different interceptors.
     private let store: ApolloStore
@@ -283,7 +284,7 @@ final class NetworkInterceptorProvider: InterceptorProvider {
         return [
             MaxRetryInterceptor(),
             CacheReadInterceptor(store: self.store),
-            UserManagementInterceptor(),
+            EnjinUserManagementInterceptor(),
             NetworkFetchInterceptor(client: self.client),
             ResponseCodeInterceptor(),
             JSONResponseParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),

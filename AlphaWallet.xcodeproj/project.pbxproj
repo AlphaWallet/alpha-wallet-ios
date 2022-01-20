@@ -1013,7 +1013,7 @@
 		87FB0A8226D8D307000EC15F /* TokenProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FB0A8126D8D307000EC15F /* TokenProviderType.swift */; };
 		87FBAE0124A1EE67005EF293 /* AddressOrEnsNameLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */; };
 		87FF2E422567F0A3002350EB /* BlockieGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF2E412567F0A3002350EB /* BlockieGenerator.swift */; };
-		87FF649927355FDD00D59E20 /* EnjinAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF649827355FDD00D59E20 /* EnjinAuthorization.swift */; };
+		87FF649927355FDD00D59E20 /* EnjinUserManagementInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */; };
 		AA26C61F20412A1E00318B9B /* TokensCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
@@ -2105,7 +2105,7 @@
 		87FB0A8126D8D307000EC15F /* TokenProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenProviderType.swift; sourceTree = "<group>"; };
 		87FBAE0024A1EE67005EF293 /* AddressOrEnsNameLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOrEnsNameLabel.swift; sourceTree = "<group>"; };
 		87FF2E412567F0A3002350EB /* BlockieGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieGenerator.swift; sourceTree = "<group>"; };
-		87FF649827355FDD00D59E20 /* EnjinAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjinAuthorization.swift; sourceTree = "<group>"; };
+		87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjinUserManagementInterceptor.swift; sourceTree = "<group>"; };
 		AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewController.swift; sourceTree = "<group>"; };
 		AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewInspectableEnhancements.swift; sourceTree = "<group>"; };
 		AA26C62220412A4100318B9B /* Double.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
@@ -5000,7 +5000,7 @@
 				87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */,
 				87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */,
 				87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */,
-				87FF649827355FDD00D59E20 /* EnjinAuthorization.swift */,
+				87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */,
 			);
 			path = Enjin;
 			sourceTree = "<group>";
@@ -5672,7 +5672,7 @@
 				29F114F21FA7966300114A29 /* PrivateKeyRule.swift in Sources */,
 				29E2E33A1F7A008C000CF94A /* UIView.swift in Sources */,
 				87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */,
-				87FF649927355FDD00D59E20 /* EnjinAuthorization.swift in Sources */,
+				87FF649927355FDD00D59E20 /* EnjinUserManagementInterceptor.swift in Sources */,
 				87A0C93225AEF1E400E73F60 /* EventInstanceValue.swift in Sources */,
 				299B5E491FD2C8900051361C /* ConfigureTransaction.swift in Sources */,
 				77872D25202505B70032D687 /* EnterPasswordViewController.swift in Sources */,
