@@ -118,7 +118,7 @@
 "settings.support.title" = "支持";
 "settings.notifications.title" = "通知设置";
 "settings.passcode.title" = "密码 / Touch ID";
-"settings.selectActiveNetworks.title" = "Select Active Networks:";
+"settings.selectActiveNetworks.title" = "Select Active Networks";
 "settings.section.help.title" = "帮助";
 "settings.section.system.title" = "系统";
 "settings.section.wallet.title" = "我的钱包";
