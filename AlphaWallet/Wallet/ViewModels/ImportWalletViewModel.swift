@@ -49,10 +49,10 @@ struct ImportWalletViewModel {
         ])
     }
 
-    func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> ImportWalletTab? {
+    func convertSegmentedControlSelectionToFilter(_ selection: ControlSelection) -> ImportWalletTab? {
         switch selection {
         case .selected(let index):
-            return ImportWalletTab.filter(fromIndex: index)
+            return ImportWalletTab.filter(fromIndex: UInt(index))
         case .unselected:
             return nil
         }

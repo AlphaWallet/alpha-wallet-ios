@@ -177,7 +177,7 @@ class TokenHistoryChartView: UIView {
 }
 
 extension TokenHistoryChartView: TokenHistoryPeriodSelectorViewDelegate {
-    func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: SegmentedControl.Selection) {
+    func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: ControlSelection) {
         switch selection {
         case .selected(let index):
             viewModel.selectedHistoryIndex = Int(index)

@@ -8,7 +8,7 @@
 import UIKit
 
 protocol DropDownViewDelegate: class {
-    func filterDropDownViewDidChange(selection: SegmentedControl.Selection)
+    func filterDropDownViewDidChange(selection: ControlSelection)
 }
 
 final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewType, UIPickerViewDelegate, UIPickerViewDataSource {
@@ -29,7 +29,7 @@ final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewTy
         return viewModel.attributedString(item: viewModel.selectionItems[row])
     }
 
-    private var selected: SegmentedControl.Selection
+    private var selected: ControlSelection
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selected = .selected(UInt(row))
     }
@@ -109,13 +109,13 @@ final class DropDownView<T: DropDownItemType>: UIView, ReusableTableHeaderViewTy
         delegate?.filterDropDownViewDidChange(selection: viewModel.selected)
     }
 
-    private func configure(selection: SegmentedControl.Selection) {
+    private func configure(selection: ControlSelection) {
         let placeholder = viewModel.placeholder(for: selection)
         selectionButton.setTitle(placeholder, for: .normal)
         selectionButton.semanticContentAttribute = .forceRightToLeft
     }
 
-    func value(from selection: SegmentedControl.Selection) -> T? {
+    func value(from selection: ControlSelection) -> T? {
         switch selection {
         case .unselected:
             return nil

@@ -310,7 +310,7 @@ extension AddHideTokensViewController: UITableViewDelegate {
 }
 
 extension AddHideTokensViewController: DropDownViewDelegate {
-    func filterDropDownViewDidChange(selection: SegmentedControl.Selection) {
+    func filterDropDownViewDidChange(selection: ControlSelection) {
         guard let filterParam = tokenFilterView.value(from: selection) else { return }
 
         viewModel.sortTokensParam = filterParam

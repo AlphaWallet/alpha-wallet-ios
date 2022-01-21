@@ -41,6 +41,7 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
     private var browseViewController: SaveCustomRpcBrowseViewController
     private var containerConstraints: [NSLayoutConstraint] = [NSLayoutConstraint]()
     private var entryViewController: SaveCustomRpcManualEntryViewController
+    private var selection: ControlSelection = .selected(UInt(SaveCustomRpcOverallTab.browse.position))
 
     // MARK: Public
 
@@ -116,7 +117,8 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
     // MARK: - Configuration
 
     private func configureViewController() {
-        overallView.delegate = self
+        overallView.segmentedControl.addTarget(self, action: #selector(handleTap(_:)), for: .touchUpInside)
+        overallView.segmentedControl.setSelection(cellIndex: SaveCustomRpcOverallTab.browse.position)
         browseViewController.searchDelegate = self
         searchController.searchResultsUpdater = browseViewController
         searchController.delegate = self
@@ -128,7 +130,7 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
     }
 
     private func activateCurrentViewController() {
-        switch overallView.segmentedControl.selection {
+        switch selection {
         case .selected(let tab) where tab == SaveCustomRpcOverallTab.browse.position:
             activateBrowseViewController()
         case .selected(let tab) where tab == SaveCustomRpcOverallTab.manual.position:
@@ -239,6 +241,18 @@ class SaveCustomRpcOverallViewController: UIViewController, SaveCustomRpcHandleU
         }.startAnimation()
     }
 
+    // MARK: - ObjC handlers
+
+    @objc func handleTap(_ sender: ScrollableSegmentedControl) {
+        switch sender.selectedSegment {
+        case .unselected:
+            selection = .unselected
+        case .selected(let index):
+            selection = .selected(UInt(index))
+        }
+        activateCurrentViewController()
+    }
+
 }
 
 // MARK: - Passthrough to manualViewController
@@ -247,18 +261,6 @@ extension SaveCustomRpcOverallViewController {
 
     func handleRpcUrlFailure() {
         entryViewController.handleRpcUrlFailure()
-    }
-
-}
-
-// MARK: - SegmentedControlDelegate
-
-extension SaveCustomRpcOverallViewController: SegmentedControlDelegate {
-
-    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
-        guard segmentedControl.selection != selection else { return }
-        segmentedControl.selection = selection
-        activateCurrentViewController()
     }
 
 }

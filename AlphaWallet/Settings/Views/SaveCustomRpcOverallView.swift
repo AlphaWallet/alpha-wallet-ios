@@ -11,16 +11,15 @@ class SaveCustomRpcOverallView: UIView {
 
     let titles: [String]
 
-    weak var delegate: SegmentedControlDelegate? {
-        didSet {
-            segmentedControl.delegate = self.delegate
-        }
-    }
-
     var bottomConstraint: NSLayoutConstraint?
 
-    lazy var segmentedControl: SegmentedControl = {
-        let segmentedControl = SegmentedControl(titles: titles, alignment: .center, distribution: .fillEqually)
+    lazy var segmentedControl: ScrollableSegmentedControl = {
+        let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
+        let controlConfiguration = Style.ScrollableSegmentedControl.configuration
+        let cells = titles.map { title in
+            ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
+        }
+        let segmentedControl = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
         return segmentedControl

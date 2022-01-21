@@ -25,7 +25,16 @@ class ImportWalletViewController: UIViewController {
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let tabBar = SegmentedControl(titles: ImportWalletViewModel.segmentedControlTitles)
+    private let tabBar: ScrollableSegmentedControl = {
+        let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
+        let controlConfiguration = Style.ScrollableSegmentedControl.configuration
+        let cells = ImportWalletViewModel.segmentedControlTitles.map { title in
+            ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
+        }
+        let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
+        control.setSelection(cellIndex: 0)
+        return control
+    }()
     private let mnemonicCountLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -176,7 +185,7 @@ class ImportWalletViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        tabBar.delegate = self
+        tabBar.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tabBar)
 
@@ -283,8 +292,12 @@ class ImportWalletViewController: UIViewController {
         keyboardChecker.viewWillDisappear()
     }
 
+    @objc func didTapSegment(_ control: ScrollableSegmentedControl) {
+        showCorrectTab()
+    }
+
     private func showCorrectTab() {
-        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) else { return }
         switch tab {
         case .mnemonic:
             showMnemonicControlsOnly()
@@ -298,8 +311,7 @@ class ImportWalletViewController: UIViewController {
     }
 
     func showWatchTab() {
-        //TODO shouldn't this be done in a view model?
-        tabBar.selection = .selected(ImportWalletTab.watch.selectionIndex)
+        tabBar.setSelection(cellIndex: Int(ImportWalletTab.watch.selectionIndex))
         showCorrectTab()
     }
 
@@ -355,7 +367,7 @@ class ImportWalletViewController: UIViewController {
 
     ///Returns true only if valid
     private func validate() -> Bool {
-        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return false }
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) else { return false }
         switch tab {
         case .mnemonic:
             return validateMnemonic()
@@ -429,7 +441,7 @@ class ImportWalletViewController: UIViewController {
         displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
 
         let importTypeOptional: ImportType? = {
-            guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return nil }
+            guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) else { return nil }
             switch tab {
             case .mnemonic:
                 return .mnemonic(words: mnemonicInput, password: "")
@@ -514,11 +526,11 @@ class ImportWalletViewController: UIViewController {
     }
 
     func set(tabSelection selection: ImportWalletTab) {
-        tabBar.selection = .selected(selection.selectionIndex)
+        tabBar.setSelection(cellIndex: Int(selection.selectionIndex))
     }
 
     func setValueForCurrentField(string: String) {
-        switch viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) {
+        switch viewModel.convertSegmentedControlSelectionToFilter(tabBar.selectedSegment) {
         case .mnemonic:
             mnemonicTextView.value = string
         case .keystore:
@@ -713,13 +725,6 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
-        showCorrectTab()
-    }
-}
-
-extension ImportWalletViewController: SegmentedControlDelegate {
-    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
-        tabBar.selection = selection
         showCorrectTab()
     }
 }

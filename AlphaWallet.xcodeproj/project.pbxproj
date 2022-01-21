@@ -13,7 +13,6 @@
 		022CED7E277B01E10043287F /* ScrollableSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */; };
 		022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */; };
 		022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */; };
-		022CED82277B04010043287F /* ScrollableSegmentedControlAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED81277B04010043287F /* ScrollableSegmentedControlAdapter.swift */; };
 		023286E0277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286DF277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift */; };
 		023286E2277D7960007D33C5 /* AddMultipleCustomRpcView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286E1277D7960007D33C5 /* AddMultipleCustomRpcView.swift */; };
 		023286E4277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023286E3277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift */; };
@@ -581,7 +580,6 @@
 		5E7C7C5C350376B83D23154F /* MixpanelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C758EB5C7B77A0EE6BC9E /* MixpanelCoordinator.swift */; };
 		5E7C7C60BAF11B0BD135FC1E /* GroupActivityViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E58DD0CF4E2B35B6ED2 /* GroupActivityViewCell.swift */; };
 		5E7C7C869A09FD09DCE77EE6 /* ActivityCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */; };
-		5E7C7C91C5FF48F51134A7DA /* SegmentedControlViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */; };
 		5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* NonFungibleTokenViewCell.swift */; };
 		5E7C7CA66F3086000BA3E72C /* GasEstimates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B19FDDF5D0535243682 /* GasEstimates.swift */; };
 		5E7C7CA7562FD8352967EFBD /* PromptBackupWalletAfterReceivingEtherViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F6C71DDC98D7DF754B2 /* PromptBackupWalletAfterReceivingEtherViewViewModel.swift */; };
@@ -632,7 +630,6 @@
 		5E7C7E68425E20834B898D06 /* AppLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B29A9E728402D144C05 /* AppLocale.swift */; };
 		5E7C7E747797C72C67BBDFF4 /* ABIEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7185AA9F93D4F0B67AF7 /* ABIEncoder.swift */; };
 		5E7C7E7AEF01B9D170228342 /* TimeEntryField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73EFA9494B31C683A287 /* TimeEntryField.swift */; };
-		5E7C7E7B095F9824FFA244FB /* SegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */; };
 		5E7C7E83AD74AFB0C717EAC0 /* DappsHomeViewControllerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C799D2B7D91072FC0050B /* DappsHomeViewControllerHeaderView.swift */; };
 		5E7C7E8E89279EB6DB805620 /* SuccessOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FF2EF77D5004A600DDB /* SuccessOverlayView.swift */; };
 		5E7C7EAAF2BD4D12987968E4 /* MyDappCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7324C9AC776E3A7B43D1 /* MyDappCellViewModel.swift */; };
@@ -1098,7 +1095,6 @@
 		022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControl.swift; sourceTree = "<group>"; };
 		022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlHighlightableLineView.swift; sourceTree = "<group>"; };
 		022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlCell.swift; sourceTree = "<group>"; };
-		022CED81277B04010043287F /* ScrollableSegmentedControlAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlAdapter.swift; sourceTree = "<group>"; };
 		023286DF277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewController.swift; sourceTree = "<group>"; };
 		023286E1277D7960007D33C5 /* AddMultipleCustomRpcView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcView.swift; sourceTree = "<group>"; };
 		023286E3277E79DE007D33C5 /* AddMultipleCustomRpcPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcPresentationController.swift; sourceTree = "<group>"; };
@@ -1413,7 +1409,6 @@
 		5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Constants+Credentials.swift"; sourceTree = "<group>"; };
 		5E7C739774984CDE1D3D7555 /* VerifySeedPhraseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifySeedPhraseViewModel.swift; sourceTree = "<group>"; };
 		5E7C73BA4FF25754ACB41255 /* CreateInitialWalletViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateInitialWalletViewModel.swift; sourceTree = "<group>"; };
-		5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedControl.swift; sourceTree = "<group>"; };
 		5E7C73BF5CE15E6D7AFC3F0C /* ChooseSendPrivateTransactionsProviderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseSendPrivateTransactionsProviderViewModel.swift; sourceTree = "<group>"; };
 		5E7C73BFE30E0D43E97806EF /* SelectionTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectionTableViewCell.swift; sourceTree = "<group>"; };
 		5E7C73CC82B9877AF4A42333 /* ShowSeedPhraseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseViewController.swift; sourceTree = "<group>"; };
@@ -1585,7 +1580,6 @@
 		5E7C7977C40B6A4855DBB4A9 /* Activity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		5E7C7981AB6584B25C72D46B /* LockEnterPasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeCoordinator.swift; sourceTree = "<group>"; };
 		5E7C799836611BEE66000EE1 /* DappsHomeHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderViewViewModel.swift; sourceTree = "<group>"; };
-		5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedControlViewModel.swift; sourceTree = "<group>"; };
 		5E7C799D2B7D91072FC0050B /* DappsHomeViewControllerHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewControllerHeaderView.swift; sourceTree = "<group>"; };
 		5E7C799E4784815CB0202820 /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		5E7C79C0C9631E4DFC4A40DF /* TokenScriptCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptCard.swift; sourceTree = "<group>"; };
@@ -2193,7 +2187,6 @@
 				022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */,
 				022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */,
 				022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */,
-				022CED81277B04010043287F /* ScrollableSegmentedControlAdapter.swift */,
 			);
 			path = ScrollableSegmentedControl;
 			sourceTree = "<group>";
@@ -2808,7 +2801,6 @@
 				5E7C7BEDC786FB048A1DD9A8 /* WKWebViewExtension.swift */,
 				5E7C78402B975F69A72E8C04 /* TokensViewControllerTableViewHeader.swift */,
 				5E7C7FB7C3FB2A9CC0CC51D7 /* TokensViewControllerTableViewSectionHeader.swift */,
-				5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */,
 				5E7C78FF8A5682C27E15B488 /* UITableViewCell+TokenCell.swift */,
 				87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */,
 				87620027266E14A80059B05A /* PopularTokenViewCell.swift */,
@@ -2859,7 +2851,6 @@
 				5E7C76B386CFE74302944BB0 /* TokenViewControllerViewModel.swift */,
 				5E7C7B5838E12930000D5029 /* TokenViewControllerTransactionCellViewModel.swift */,
 				5E7C75506A766DF9B746E62F /* TokenInstanceViewModel.swift */,
-				5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */,
 				8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */,
 				87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */,
 				87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */,
@@ -5666,7 +5657,6 @@
 			files = (
 				29C70C7F20199AEB0072E454 /* WKWebViewConfiguration.swift in Sources */,
 				73ACEF0120163ED4003DD71D /* LockViewModel.swift in Sources */,
-				022CED82277B04010043287F /* ScrollableSegmentedControlAdapter.swift in Sources */,
 				29AD8A041F93D6CD008E10E7 /* Constants.swift in Sources */,
 				2963B6B11F9891F5003063C1 /* UIButton.swift in Sources */,
 				29F114F21FA7966300114A29 /* PrivateKeyRule.swift in Sources */,
@@ -6433,8 +6423,6 @@
 				5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */,
 				5E7C70D06F3264745222BEA9 /* ENSReverseLookupCoordinator.swift in Sources */,
 				5E7C7C006370184D1E15C788 /* ENSReverseLookupEncode.swift in Sources */,
-				5E7C7E7B095F9824FFA244FB /* SegmentedControl.swift in Sources */,
-				5E7C7C91C5FF48F51134A7DA /* SegmentedControlViewModel.swift in Sources */,
 				5E7C7F3CB1F280E6795A479C /* EventOrigin.swift in Sources */,
 				5E7C7A2DBFF7FB3B8B5DEB1B /* EventInstance.swift in Sources */,
 				5E7C7D918B514B4C2F8DF296 /* EventSourceCoordinator.swift in Sources */,

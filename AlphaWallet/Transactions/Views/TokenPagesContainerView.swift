@@ -18,12 +18,17 @@ protocol PagesContainerViewDelegate: class {
 
 class PagesContainerView: RoundedBackground {
 
-    private lazy var tabBar: SegmentedControl = {
+    private lazy var tabBar: ScrollableSegmentedControl = {
         let titles = pages.map { $0.title }
-        let control = SegmentedControl(titles: titles, alignment: .center, distribution: .fillEqually)
+        let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
+        let controlConfiguration = Style.ScrollableSegmentedControl.configuration
+        let cells = titles.map { title in
+            ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
+        }
+        let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
+        control.setSelection(cellIndex: 0)
         control.translatesAutoresizingMaskIntoConstraints = false
-        control.delegate = self
-
+        control.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
         return control
     }()
 
@@ -47,8 +52,8 @@ class PagesContainerView: RoundedBackground {
     let pages: [PageViewType]
     weak var delegate: PagesContainerViewDelegate?
 
-    var selection: SegmentedControl.Selection {
-        return tabBar.selection
+    var selection: ControlSelection {
+        return tabBar.selectedSegment
     }
     private (set) var bottomAnchorConstraints: [NSLayoutConstraint] = []
 
@@ -94,14 +99,10 @@ class PagesContainerView: RoundedBackground {
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
-}
 
-extension PagesContainerView: SegmentedControlDelegate {
-
-    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
-        tabBar.selection = selection
+    @objc func didTapSegment(_ control: ScrollableSegmentedControl) {
         let index: Int
-        switch selection {
+        switch control.selectedSegment {
         case .selected(let value):
             index = Int(value)
         case .unselected:

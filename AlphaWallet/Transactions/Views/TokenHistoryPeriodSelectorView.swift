@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TokenHistoryPeriodSelectorViewDelegate: class {
-    func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: SegmentedControl.Selection)
+    func view(_ view: TokenHistoryPeriodSelectorView, didChangeSelection selection: ControlSelection)
 }
 
 struct TokenHistoryPeriodSelectorViewModel {
@@ -23,7 +23,7 @@ struct TokenHistoryPeriodSelectorViewModel {
 class TokenHistoryPeriodSelectorView: UIView {
     private let controls: [UIButton]
 
-    var selectedIndex: SegmentedControl.Selection {
+    var selectedIndex: ControlSelection {
         if let index = controls.firstIndex(where: { $0.isSelected }) {
             return .selected(UInt(index))
         } else {
