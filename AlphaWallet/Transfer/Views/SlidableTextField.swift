@@ -1,5 +1,5 @@
 //
-//  SliderTableViewCell.swift
+//  SlidableTextField.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 25.08.2020.
@@ -7,15 +7,15 @@
 
 import UIKit
 
-protocol SliderTableViewCellDelegate: AnyObject {
-    func cell(_ cell: SliderTableViewCell, textDidChange value: Int)
-    func cell(_ cell: SliderTableViewCell, valueDidChange value: Int)
+protocol SlidableTextFieldDelegate: AnyObject {
+    func textField(_ textField: SlidableTextField, textDidChange value: Int)
+    func textField(_ textField: SlidableTextField, valueDidChange value: Int)
     func shouldReturn(in textField: TextField) -> Bool
     func doneButtonTapped(for textField: TextField)
     func nextButtonTapped(for textField: TextField)
 }
 
-class SliderTableViewCell: UITableViewCell {
+class SlidableTextField: UIView {
 
     static let contentInsets: UIEdgeInsets = {
         let topBottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
@@ -44,24 +44,24 @@ class SliderTableViewCell: UITableViewCell {
     var value: Int {
         return Int(slider.value)
     }
-    weak var delegate: SliderTableViewCellDelegate?
+    weak var delegate: SlidableTextFieldDelegate?
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
+    init() {
+        super.init(frame: .zero)
 
-        let row0 = [slider, textField].asStackView(axis: .horizontal, spacing: ScreenChecker().isNarrowScreen ? 8 : 16)
+        let spacing: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
+        let row0 = [slider, textField].asStackView(axis: .horizontal, spacing: spacing)
         let row1 = textField.statusLabel
         let stackView = [
             row0,
             row1
-        ].asStackView(axis: .vertical, spacing: ScreenChecker().isNarrowScreen ? 8 : 16)
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(stackView)
+        addSubview(stackView)
 
         NSLayoutConstraint.activate([
             textField.widthAnchor.constraint(equalToConstant: 100),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: SliderTableViewCell.contentInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: SlidableTextField.contentInsets)
         ])
 
         textField.configureOnce()
@@ -72,13 +72,13 @@ class SliderTableViewCell: UITableViewCell {
         return nil
     }
 
-    func configureSliderRange(viewModel: SliderTableViewCellViewModel) {
+    func configureSliderRange(viewModel: SlidableTextFieldViewModel) {
         slider.minimumValue = Float(viewModel.minimumValue)
         slider.maximumValue = Float(viewModel.maximumValue)
         slider.setValue(Float(viewModel.value), animated: false)
     }
 
-    func configure(viewModel: SliderTableViewCellViewModel) {
+    func configure(viewModel: SlidableTextFieldViewModel) {
         configureSliderRange(viewModel: viewModel)
 
         textField.value = String(viewModel.value)
@@ -90,11 +90,11 @@ class SliderTableViewCell: UITableViewCell {
     }
 
     private func notifyValueDidChange(value: Int) {
-        delegate?.cell(self, valueDidChange: value)
+        delegate?.textField(self, valueDidChange: value)
     }
 }
 
-extension SliderTableViewCell: TextFieldDelegate {
+extension SlidableTextField: TextFieldDelegate {
 
     func shouldReturn(in textField: TextField) -> Bool {
         return delegate?.shouldReturn(in: textField) ?? true
@@ -117,7 +117,7 @@ extension SliderTableViewCell: TextFieldDelegate {
             guard let value = Int(newString), let delegate = delegate else { return false }
 
             slider.setValue(Float(value), animated: false)
-            delegate.cell(self, textDidChange: value)
+            delegate.textField(self, textDidChange: value)
 
             return true
         }

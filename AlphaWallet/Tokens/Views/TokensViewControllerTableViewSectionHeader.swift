@@ -132,14 +132,14 @@ extension TokensViewController {
 
         private let stackView: UIStackView = [].asStackView(axis: .vertical)
 
-        init(subview: T) {
+        init(subview: T, isBottomSeparatorHidden: Bool = true, isTopSeparatorHidden: Bool = true) {
             self.subview = subview
 
             super.init(frame: .zero)
             stackView.translatesAutoresizingMaskIntoConstraints = false
             backgroundColor = Colors.appWhite
-            bottomSeparator.isHidden = true
-            topSeparator.isHidden = true
+            bottomSeparator.isHidden = isBottomSeparatorHidden
+            topSeparator.isHidden = isTopSeparatorHidden
 
             bottomSeparator.backgroundColor = GroupedTable.Color.cellSeparator
             topSeparator.backgroundColor = GroupedTable.Color.cellSeparator

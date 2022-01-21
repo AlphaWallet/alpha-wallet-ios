@@ -1,5 +1,5 @@
 //
-//  TextFieldTableViewCell.swift
+//  TextFieldView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 25.08.2020.
@@ -7,13 +7,13 @@
 
 import UIKit
 
-class TextFieldTableViewCell: UITableViewCell {
+class TextFieldView: UIView {
 
     static let contentInsets: UIEdgeInsets = {
         let bottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
         let sideInset: CGFloat = ScreenChecker().isNarrowScreen ? 8 : 16
 
-        return .init(top: 0, left: sideInset, bottom: bottomInset, right: sideInset)
+        return .init(top: 5, left: sideInset, bottom: bottomInset, right: sideInset)
     }()
 
     lazy var textField: TextField = {
@@ -32,10 +32,8 @@ class TextFieldTableViewCell: UITableViewCell {
         }
     }
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
-
+    init() {
+        super.init(frame: .zero)
         textField.statusLabel.setContentHuggingPriority(.required, for: .vertical)
         textField.statusLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
@@ -48,10 +46,10 @@ class TextFieldTableViewCell: UITableViewCell {
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView.addSubview(stackView)
+        addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: TextFieldTableViewCell.contentInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: TextFieldView.contentInsets)
         ])
 
         textField.configureOnce()
@@ -61,7 +59,7 @@ class TextFieldTableViewCell: UITableViewCell {
         return nil
     }
 
-    func configure(viewModel: TextFieldTableViewCellViewModel) {
+    func configure(viewModel: TextFieldViewViewModel) {
         textField.isUserInteractionEnabled = viewModel.allowEditing
         textField.value = viewModel.value
         textField.label.attributedText = viewModel.attributedPlaceholder

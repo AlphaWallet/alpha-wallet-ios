@@ -69,7 +69,7 @@ struct ConfigureTransactionViewModel {
         }
     }
 
-    var gasLimitSliderViewModel: SliderTableViewCellViewModel {
+    var gasLimitSliderViewModel: SlidableTextFieldViewModel {
         return .init(
             value: configurationToEdit.gasLimitRawValue,
             minimumValue: configurationToEdit.defaultMinGasLimit,
@@ -77,7 +77,7 @@ struct ConfigureTransactionViewModel {
         )
     }
 
-    var gasPriceSliderViewModel: SliderTableViewCellViewModel {
+    var gasPriceSliderViewModel: SlidableTextFieldViewModel {
         return .init(
             value: configurationToEdit.gasPriceRawValue,
             minimumValue: configurationToEdit.defaultMinGasPrice,
@@ -85,20 +85,20 @@ struct ConfigureTransactionViewModel {
         )
     }
 
-    var nonceViewModel: TextFieldTableViewCellViewModel {
+    var nonceViewModel: TextFieldViewViewModel {
         let placeholder = R.string.localizable.configureTransactionNonceLabelTitle()
         let value = configurationToEdit.nonceRawValue.flatMap { String($0) }
 
         return .init(placeholder: placeholder, value: value ?? "", keyboardType: .numberPad)
     }
 
-    var dataViewModel: TextFieldTableViewCellViewModel {
+    var dataViewModel: TextFieldViewViewModel {
         let placeholder = R.string.localizable.configureTransactionDataLabelTitle()
 
         return .init(placeholder: placeholder, value: configurationToEdit.dataRawValue)
     }
 
-    var totalFeeViewModel: TextFieldTableViewCellViewModel {
+    var totalFeeViewModel: TextFieldViewViewModel {
         let placeholder = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
 
         return .init(placeholder: placeholder, value: gasViewModel.feeText, allowEditing: false)
@@ -151,7 +151,7 @@ struct ConfigureTransactionViewModel {
         self.configurator = configurator
         self.configurations = configurations
         transactionType = configurator.transaction.transactionType
-        self.recoveryMode  = recoveryMode
+        self.recoveryMode = recoveryMode
         switch recoveryMode {
         case .invalidNonce:
             selectedConfigurationType = .custom
@@ -167,8 +167,15 @@ struct ConfigureTransactionViewModel {
         return all.filter { available.contains($0) }
     }
 
-    func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedTableViewCellViewModel {
+    func gasSpeedViewModel(indexPath: IndexPath) -> GasSpeedViewModel {
         let configurationType = configurationTypes[indexPath.row]
+        let isSelected = selectedConfigurationType == configurationType
+        let configuration = configurations[configurationType]!
+        //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
+        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+    }
+
+    func gasSpeedViewModel(configurationType: TransactionConfigurationType) -> GasSpeedViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
@@ -184,5 +191,14 @@ struct ConfigureTransactionViewModel {
         case .gasLimit:
             return gasLimitRows.count
         }
+    }
+
+    var indexPaths: [IndexPath] {
+        return sections.indices.map { section -> [IndexPath] in
+            guard numberOfRowsInSections(in: section) > 0 else { return [] }
+            return (0 ..< numberOfRowsInSections(in: section)).map { row in
+                IndexPath(row: row, section: section)
+            }
+        }.flatMap { $0 }
     }
 }

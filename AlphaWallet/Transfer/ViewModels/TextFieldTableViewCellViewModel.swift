@@ -1,5 +1,5 @@
 //
-//  TextFieldTableViewCellViewModel.swift
+//  TextFieldViewViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 25.08.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct TextFieldTableViewCellViewModel {
+struct TextFieldViewViewModel {
 
     let placeholder: String?
     let value: String

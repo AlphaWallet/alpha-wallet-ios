@@ -1,5 +1,5 @@
 //
-//  GasSpeedTableViewCellViewModel.swift
+//  GasSpeedViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 25.08.2020.
@@ -8,7 +8,7 @@
 import UIKit
 import BigInt
 
-struct GasSpeedTableViewCellViewModel {
+struct GasSpeedViewModel {
     let configuration: TransactionConfiguration
     let configurationType: TransactionConfigurationType
     let cryptoToDollarRate: Double?
@@ -42,8 +42,8 @@ struct GasSpeedTableViewCellViewModel {
         }
     }
 
-    var accessoryType: UITableViewCell.AccessoryType {
-        return isSelected ? .checkmark : .none
+    var accessoryIcon: UIImage? {
+        return isSelected ? R.image.iconsCheckmark() : .none
     }
 
     var titleAttributedString: NSAttributedString? {
@@ -84,6 +84,6 @@ struct GasSpeedTableViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return .clear
     }
 }
