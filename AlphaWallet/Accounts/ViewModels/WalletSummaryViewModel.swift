@@ -74,7 +74,7 @@ extension WalletSummaryViewModel {
         static func todaysApprecationColorAndStringValuePair(summary: WalletSummary?) -> (String, UIColor) {
             let valueChangeValue: String = {
                 if let value = summary?.changeDouble {
-                    return NumberFormatter.usd(format: .priceChangeFormat).string(from: value) ?? "-"
+                    return Formatter.priceChange.string(from: value) ?? "-"
                 } else {
                     return "-"
                 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */; };
 		02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */; };
+		0224D26727980664003D022A /* FormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0224D26627980664003D022A /* FormatterTests.swift */; };
 		022CED7E277B01E10043287F /* ScrollableSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */; };
 		022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */; };
 		022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */; };
@@ -35,6 +36,7 @@
 		02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */; };
 		02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */; };
 		02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */; };
+		02E7B6782795352E00311218 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E7B6772795352E00311218 /* Formatter.swift */; };
 		02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */; };
 		02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */; };
 		02F4E8BC2771763800D89C19 /* SaveCustomRpcOverallModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */; };
@@ -91,7 +93,6 @@
 		2959961C1FAE3EDF00DB66A8 /* AlphaWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2959961B1FAE3EDF00DB66A8 /* AlphaWalletService.swift */; };
 		2959961F1FAE759700DB66A8 /* RawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2959961E1FAE759700DB66A8 /* RawTransaction.swift */; };
 		295A59381F71C1B90092F0FC /* AccountsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A59371F71C1B90092F0FC /* AccountsCoordinator.swift */; };
-		295B61D41FE7D5B500642E60 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295B61D31FE7D5B500642E60 /* CurrencyFormatter.swift */; };
 		295B61D61FE7FC8300642E60 /* FakeTokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295B61D51FE7FC8300642E60 /* FakeTokensDataStore.swift */; };
 		296105931FA2AA2100292494 /* UnsignedTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296105921FA2AA2100292494 /* UnsignedTransaction.swift */; };
 		296105951FA2DEF000292494 /* TransactionDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296105941FA2DEF000292494 /* TransactionDirection.swift */; };
@@ -700,8 +701,6 @@
 		73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C41C70201B46AD00243C6C /* LockEnterPasscodeViewModel.swift */; };
 		73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C41C72201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift */; };
 		73CBC761202139FB00374666 /* FakeGetBalanceCoordinator(.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73CBC760202139FB00374666 /* FakeGetBalanceCoordinator(.swift */; };
-		73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D26836202E827E009777A1 /* DecimalFormatter.swift */; };
-		73D2683B202E8411009777A1 /* DecimalNumberFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */; };
 		73ED85A520349BE400593BF3 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A420349BE400593BF3 /* StringFormatter.swift */; };
 		73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */; };
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
@@ -1093,6 +1092,7 @@
 /* Begin PBXFileReference section */
 		021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewModel.swift; sourceTree = "<group>"; };
 		02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcCoordinator.swift; sourceTree = "<group>"; };
+		0224D26627980664003D022A /* FormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterTests.swift; sourceTree = "<group>"; };
 		022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControl.swift; sourceTree = "<group>"; };
 		022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlHighlightableLineView.swift; sourceTree = "<group>"; };
 		022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlCell.swift; sourceTree = "<group>"; };
@@ -1119,6 +1119,7 @@
 		02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewModel.swift; sourceTree = "<group>"; };
 		02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewController.swift; sourceTree = "<group>"; };
 		02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryView.swift; sourceTree = "<group>"; };
+		02E7B6772795352E00311218 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
 		02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallViewController.swift; sourceTree = "<group>"; };
 		02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallView.swift; sourceTree = "<group>"; };
 		02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallModel.swift; sourceTree = "<group>"; };
@@ -1180,7 +1181,6 @@
 		2959961B1FAE3EDF00DB66A8 /* AlphaWalletService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaWalletService.swift; sourceTree = "<group>"; };
 		2959961E1FAE759700DB66A8 /* RawTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawTransaction.swift; sourceTree = "<group>"; };
 		295A59371F71C1B90092F0FC /* AccountsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsCoordinator.swift; sourceTree = "<group>"; };
-		295B61D31FE7D5B500642E60 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		295B61D51FE7FC8300642E60 /* FakeTokensDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTokensDataStore.swift; sourceTree = "<group>"; };
 		296105921FA2AA2100292494 /* UnsignedTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsignedTransaction.swift; sourceTree = "<group>"; };
 		296105941FA2DEF000292494 /* TransactionDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDirection.swift; sourceTree = "<group>"; };
@@ -1790,8 +1790,6 @@
 		73C41C70201B46AD00243C6C /* LockEnterPasscodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeViewModel.swift; sourceTree = "<group>"; };
 		73C41C72201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewModel.swift; sourceTree = "<group>"; };
 		73CBC760202139FB00374666 /* FakeGetBalanceCoordinator(.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FakeGetBalanceCoordinator(.swift"; sourceTree = "<group>"; };
-		73D26836202E827E009777A1 /* DecimalFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalFormatter.swift; sourceTree = "<group>"; };
-		73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatterTest.swift; sourceTree = "<group>"; };
 		73ED85A420349BE400593BF3 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 		73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldAdditions.swift; sourceTree = "<group>"; };
 		73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatterTest.swift; sourceTree = "<group>"; };
@@ -2577,14 +2575,6 @@
 			path = TrustClient;
 			sourceTree = "<group>";
 		};
-		295B61D21FE7D5AB00642E60 /* Formatters */ = {
-			isa = PBXGroup;
-			children = (
-				295B61D31FE7D5B500642E60 /* CurrencyFormatter.swift */,
-			);
-			path = Formatters;
-			sourceTree = "<group>";
-		};
 		296106C01F7640240006164B /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -2936,8 +2926,8 @@
 			children = (
 				299573A11FA1F369006F17FD /* QRCodeValueParserTests.swift */,
 				61FC5ED01FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift */,
-				73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */,
 				73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */,
+				0224D26627980664003D022A /* FormatterTests.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3069,7 +3059,6 @@
 		29AD8A0A1F93FBB7008E10E7 /* Foundation */ = {
 			isa = PBXGroup;
 			children = (
-				73D26836202E827E009777A1 /* DecimalFormatter.swift */,
 				29FC0CB71F8299510036089F /* Coordinator.swift */,
 				29AD8A0B1F93FBBF008E10E7 /* Subscribable.swift */,
 				2995739E1FA1F294006F17FD /* QRCodeValueParser.swift */,
@@ -3079,6 +3068,7 @@
 				5E7C762E8065342D6B80BE56 /* CoordinatorThatEnds.swift */,
 				5E7C7AE608A39793F8BA3911 /* Eip681Parser.swift */,
 				5E7C7C4A58D1A4361E4F66E0 /* AddressOrEnsName.swift */,
+				02E7B6772795352E00311218 /* Formatter.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3368,7 +3358,6 @@
 				879599482604A5A2006722B2 /* CoinTicker */,
 				87584B4225EFAFB60070063B /* BuyToken */,
 				87B65268256FBF22000EF927 /* SwapToken */,
-				295B61D21FE7D5AB00642E60 /* Formatters */,
 				29E9CFD01FE737EE00017744 /* Types */,
 				CCA4FE341FD427CA00749AE4 /* Helpers */,
 				CCCD74FF1FD2D95F004A087D /* Coordinators */,
@@ -5752,13 +5741,11 @@
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
 				87D732692763E59700375C18 /* FungiblesTransactionAmount.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
-				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
 				879F184426E73BFF000602F2 /* SingleTokenCardSelectionView.swift in Sources */,
 				2996F14D1F6CA743005C33AE /* UIViewController.swift in Sources */,
 				2959961F1FAE759700DB66A8 /* RawTransaction.swift in Sources */,
 				87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */,
 				025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */,
-				295B61D41FE7D5B500642E60 /* CurrencyFormatter.swift in Sources */,
 				296421991F70C1F900EB363B /* EmptyView.swift in Sources */,
 				8728FFE527429967008E5524 /* TokensCardCollectionViewControllerViewModel.swift in Sources */,
 				8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */,
@@ -6277,6 +6264,7 @@
 				5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */,
 				5E7C78FF93B0DD68700FAFB6 /* NativeCryptoCurrencyBalanceView.swift in Sources */,
 				5E7C751D847B47B2BA67F6B5 /* PaymentFlowFromEip681UrlResolver.swift in Sources */,
+				02E7B6782795352E00311218 /* Formatter.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
 				8712A38526F475A20009C376 /* PriceAlertDataStore.swift in Sources */,
@@ -6577,7 +6565,6 @@
 				29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */,
 				2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */,
 				29F1C865200384FE003780D8 /* Wallet.swift in Sources */,
-				73D2683B202E8411009777A1 /* DecimalNumberFormatterTest.swift in Sources */,
 				29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */,
 				61DCE17D2001A7A20053939F /* RLPTests.swift in Sources */,
 				299573A41FA27A15006F17FD /* TestKeyStore.swift in Sources */,
@@ -6625,6 +6612,7 @@
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
 				76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */,
 				76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */,
+				0224D26727980664003D022A /* FormatterTests.swift in Sources */,
 				76F1DD10DF9A6C844E5F57D6 /* CreateRedeemTests.swift in Sources */,
 				87F9972824E155280092D262 /* SeedPhraseBackupIntroductionViewControllerTests.swift in Sources */,
 				442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */,

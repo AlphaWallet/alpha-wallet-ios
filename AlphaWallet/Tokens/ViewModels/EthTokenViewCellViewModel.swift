@@ -98,7 +98,7 @@ struct EthTokenViewCellViewModel {
 
     private var priceChangeUSDValue: String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd(format: .priceChangeFormat).string(from: result) ?? UiTweaks.noPriceMarker
+            return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
         }
@@ -115,7 +115,7 @@ struct EthTokenViewCellViewModel {
         if token.server.isTestnet {
             return UiTweaks.noPriceMarker
         } else {
-            return currencyAmount.flatMap { NumberFormatter.usd(format: .fiatFormat).string(from: $0) ?? UiTweaks.noPriceMarker }
+            return currencyAmount.flatMap { Formatter.fiat.string(from: $0) ?? UiTweaks.noPriceMarker }
         }
     }
 
@@ -155,7 +155,7 @@ struct EthTokenViewCellViewModel {
 
     private func priceChangeUSDValue(ticker: CoinTicker?) -> String {
         if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
-            return NumberFormatter.usd.string(from: result) ?? "-"
+            return Formatter.usd.string(from: result) ?? "-"
         } else {
             return "-"
         }

@@ -16,7 +16,7 @@ struct PromptBackupWalletAfterExceedingThresholdViewViewModel: PromptBackupWalle
     }
 
     var description: String {
-        let prettyAmount = NumberFormatter.currency.string(from: dollarValueInUsd) ?? "-"
+        let prettyAmount = Formatter.currency.string(from: dollarValueInUsd) ?? "-"
         return R.string.localizable.backupPromptAfterHittingThresholdDescription(prettyAmount)
     }
 

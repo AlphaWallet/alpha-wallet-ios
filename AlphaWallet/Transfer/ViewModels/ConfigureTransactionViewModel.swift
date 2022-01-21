@@ -186,16 +186,3 @@ struct ConfigureTransactionViewModel {
         }
     }
 }
-
-private let numberValueFormatter: NumberFormatter = {
-    let formatter = NumberFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-
-    return formatter
-}()
-
-extension String {
-    var numberValue: NSNumber? {
-        return numberValueFormatter.number(from: self)
-    }
-}

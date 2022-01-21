@@ -57,7 +57,7 @@ struct EditPriceAlertViewModel {
     var marketPriceString: String {
         let value: String = {
             guard let value = marketPrice else { return "-" }
-            return NumberFormatter.usd(format: .fiatFormat).string(from: value) ?? "-"
+            return Formatter.fiat.string(from: value) ?? "-"
         }()
 
         return "Current price: \(value)"
@@ -65,6 +65,6 @@ struct EditPriceAlertViewModel {
 
     var isEditingAvailable: Bool {
         guard let value = marketPrice else { return false }
-        return NumberFormatter.usd(format: .fiatFormat).string(from: value) != nil
+        return Formatter.fiat.string(from: value) != nil
     }
 }
