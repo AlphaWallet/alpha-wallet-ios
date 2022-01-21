@@ -10,12 +10,15 @@ import UIKit
 
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow] = {
-        let privateNerworkRow: [AdvancedSettingsRow] = Features.isUsingPrivateNetwork ? [.usePrivateNetwork] : []
-        if Features.isLanguageSwitcherDisabled {
-            return [.console, .clearBrowserCache, .tokenScript, .pingInfura] + privateNerworkRow
-        } else {
-            return [.console, .clearBrowserCache, .tokenScript, .changeLanguage, .pingInfura] + privateNerworkRow
-        }
+        return [
+            .console,
+            .clearBrowserCache,
+            .tokenScript,
+            .pingInfura,
+            Features.isUsingPrivateNetwork ? .usePrivateNetwork : nil,
+            Features.isAnalyticsUIEnabled ? .analytics : nil,
+            Features.isLanguageSwitcherDisabled ? nil : .changeLanguage,
+        ].compactMap { $0 }
     }()
 
     func numberOfRows() -> Int {

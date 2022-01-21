@@ -20,9 +20,15 @@ protocol AnalyticsServiceType: AnalyticsCoordinator {
 
 class AnalyticsService: NSObject, AnalyticsServiceType {
     private var mixpanelService: MixpanelCoordinator?
+    private var config: Config
 
-    override init() {
+    init(config: Config = .init()) {
+        self.config = config
         super.init()
+        //NOTE: set default state of sending analytics events
+        if self.config.sendAnalyticsEnabled == nil {
+            self.config.sendAnalyticsEnabled = Features.isAnalyticsUIEnabled
+        }
         if Constants.Credentials.analyticsKey.nonEmpty && !Environment.isTestFlight {
             mixpanelService = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
         }
@@ -53,26 +59,32 @@ class AnalyticsService: NSObject, AnalyticsServiceType {
     }
 
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.log(navigation: navigation, properties: properties)
     }
 
     func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.log(action: action, properties: properties)
     }
 
     func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.log(error: error, properties: properties)
     }
 
     func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.setUser(property: property, value: value)
     }
 
     func incrementUser(property: AnalyticsUserProperty, by value: Int) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.incrementUser(property: property, by: value)
     }
 
     func incrementUser(property: AnalyticsUserProperty, by value: Double) {
+        guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.incrementUser(property: property, by: value)
     }
 }

@@ -303,7 +303,8 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController) {
-
+        let controller = AnalyticsViewController(viewModel: .init(isSendAnalyticsEnabled: config.isSendAnalyticsEnabled), config: config)
+        navigationController.pushViewController(controller, animated: true)
     }
 
     func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController) {
