@@ -272,7 +272,7 @@ class ImportWalletViewController: UIViewController {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem.qrCodeBarButton(self, selector: #selector(openReader))
 
-        if UserDefaults.standard.bool(forKey: "FASTLANE_SNAPSHOT") {
+        if UserDefaults.standardOrForTests.bool(forKey: "FASTLANE_SNAPSHOT") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.demo()

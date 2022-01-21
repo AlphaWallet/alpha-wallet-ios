@@ -4,7 +4,7 @@ import Foundation
 import RealmSwift
 
 struct RealmConfiguration {
-    private static let walletsFolderForTests = "testSuiteWallets"
+    private static let walletsFolderForTests = "testSuiteWalletsForRealm"
     static func configuration(for account: Wallet, server: RPCServer) -> Realm.Configuration {
         var config = realmConfiguration()
         config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased())-\(server.chainID).realm")
@@ -58,4 +58,26 @@ struct RealmConfiguration {
         return config
     }
 
+}
+
+extension FileManager {
+    
+    func removeAllItems(directory: URL) {
+        do {
+            let urls = try contentsOfDirectory(at: directory, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            for url in urls {
+                try removeItem(at: url)
+            }
+        } catch {
+            //no-op
+        }
+    }
+
+    @discardableResult func createSubDirectoryIfNotExists(name: String, directory root: URL) throws -> URL {
+        let directory = root.appendingPathComponent(name)
+        guard !fileExists(atPath: directory.absoluteString) else { return directory }
+        try createDirectory(atPath: directory.path, withIntermediateDirectories: true, attributes: nil)
+
+        return directory
+    }
 }

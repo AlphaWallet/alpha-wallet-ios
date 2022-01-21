@@ -123,7 +123,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let tokenInfo = String(format: "%02.2hhx", arguments: [deviceToken[i]])
             token.append(tokenInfo)
         }
-        UserDefaults.standard.set(token, forKey: "deviceTokenForSNS")
+        UserDefaults.standardOrForTests.set(token, forKey: "deviceTokenForSNS")
         /// Create a platform endpoint. In this case, the endpoint is a
         /// device endpoint ARN
         cognitoRegistration()
@@ -140,7 +140,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             if task.error == nil {
                 let createEndpointResponse = task.result! as AWSSNSCreateEndpointResponse
                 if let endpointArnForSNS = createEndpointResponse.endpointArn {
-                    UserDefaults.standard.set(endpointArnForSNS, forKey: "endpointArnForSNS")
+                    UserDefaults.standardOrForTests.set(endpointArnForSNS, forKey: "endpointArnForSNS")
                     //every user should subscribe to the security topic
                     self.subscribeToTopicSNS(token: token, topicEndpoint: self.SNSSecurityTopicEndpoint)
 //                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {

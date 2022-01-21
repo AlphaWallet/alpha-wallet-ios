@@ -28,4 +28,5 @@ enum Features {
     static let isExportJsonKeystoreEnabled = true
     static let is24SeedWordPhraseAllowed = true
     static let isAnalyticsUIEnabled = true
+    static let isJsonFileBasedStorageForWalletAddressesEnabled = true
 }

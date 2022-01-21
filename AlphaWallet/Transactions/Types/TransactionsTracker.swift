@@ -27,7 +27,7 @@ class TransactionsTracker {
 
     init(
         sessionID: String,
-        defaults: UserDefaults = .standard
+        defaults: UserDefaults = .standardOrForTests
     ) {
         self.sessionID = sessionID
         self.defaults = defaults
