@@ -359,6 +359,9 @@ enum Style {
     enum Wallet {
         enum Header {
             static let height = 60.0
+            static let backgroundColor = R.color.alabaster()
+            static let textColor = R.color.dove()
+            static let font = R.font.sourceSansProSemibold(size: 15.0)
         }
         enum Row {
             static let height = 80.0
