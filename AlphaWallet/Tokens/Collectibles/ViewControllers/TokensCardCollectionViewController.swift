@@ -121,11 +121,13 @@ class TokensCardCollectionViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         keyboardChecker.viewWillAppear()
+        hideNavigationBarTopSeparatorLine()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         keyboardChecker.viewWillDisappear()
+        showNavigationBarTopSeparatorLine()
     }
 
     func configure(viewModel value: TokensCardCollectionViewControllerViewModel? = .none) {
