@@ -93,7 +93,7 @@ struct Colors {
     static let navigationTitleColor = UIColor.black
     static let navigationButtonTintColor = R.color.mine()!
     static let appWhite = UIColor.white
-    static let appText = UIColor(red: 47, green: 47, blue: 47)
+    static let appText = R.color.black()!
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
     static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
     static let appActionButtonGreen = UIColor(red: 105, green: 200, blue: 0)
@@ -311,7 +311,7 @@ enum Screen {
             static let blockChainName = Fonts.semibold(size: 12)
             static let valueChangeLabel = Fonts.regular(size: 15)
             static let placeholderLabel = Fonts.regular(size: 17)
-            static let valueChangeValue = Fonts.semibold(size: 17)
+            static let valueChangeValue = Fonts.semibold(size: 20)
         }
 
         enum Color {
