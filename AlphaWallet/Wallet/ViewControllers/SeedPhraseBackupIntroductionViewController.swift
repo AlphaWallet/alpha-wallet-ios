@@ -106,14 +106,39 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
 extension UIViewController {
     func hideNavigationBarTopSeparatorLine() {
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.layoutIfNeeded()
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.standardAppearance = appearance
     }
 
     func showNavigationBarTopSeparatorLine() {
-        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-        navigationController?.navigationBar.shadowImage = nil
-        navigationController?.navigationBar.layoutIfNeeded()
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.standardAppearance = appearance
     }
+
+    func hideNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+
+    func showNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+
 }

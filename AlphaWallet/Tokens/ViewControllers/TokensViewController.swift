@@ -347,11 +347,13 @@ class TokensViewController: UIViewController {
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
         delegate?.viewWillAppear(in: self)
+        hideNavigationBarTopSeparatorLine()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         keyboardChecker.viewWillDisappear()
+        showNavigationBarTopSeparatorLine()
     }
 
     @objc func pullToRefresh() {
@@ -490,6 +492,17 @@ extension TokensViewController: UITableViewDelegate {
             return nil
         }
     }
+
+    // UIScrollViewDelegate calls
+
+    func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
+        hideNavigationBarTopSeparatorLineInScrollEdgeAppearance()
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        scrollView.contentOffset.y == 0 ? hideNavigationBarTopSeparatorLineInScrollEdgeAppearance() : showNavigationBarTopSeparatorLineInScrollEdgeAppearance()
+    }
+
 }
 
 extension TokensViewController: ActiveWalletSessionViewDelegate {
