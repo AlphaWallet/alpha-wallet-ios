@@ -118,6 +118,24 @@ class InCoordinator: NSObject, Coordinator {
         tabBarController.tabBar.isTranslucent = false
         tabBarController.delegate = self
 
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarController.tabBar.tintColor = Colors.appTint
+        tabBarAppearance.shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
+        tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
+        let tabBarItemAppearance = UITabBarItemAppearance()
+
+        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal ]
+        tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected]
+
+        tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
+
+        tabBarController.tabBar.standardAppearance = tabBarAppearance
+        if #available(iOS 15.0, *) {
+            tabBarController.tabBar.scrollEdgeAppearance = tabBarAppearance
+        } else {
+            // Fallback on earlier versions
+        }
+
         return tabBarController
     }()
     private let accountsCoordinator: AccountsCoordinator

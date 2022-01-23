@@ -404,6 +404,14 @@ enum Style {
         enum Separator {
             static let color: UIColor = R.color.mercury()!
         }
+        enum Font {
+            static let normal: UIFont = R.font.sourceSansProRegular(size: 13.0)!
+            static let selected: UIFont = R.font.sourceSansProSemibold(size: 13.0)!
+            enum Color {
+                static let selected: UIColor = R.color.azure()!
+                static let normal: UIColor = R.color.dove()!
+            }
+        }
     }
     enum SegmentedControl {
         enum Separator {
