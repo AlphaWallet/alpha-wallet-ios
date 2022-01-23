@@ -298,4 +298,20 @@ extension SettingsViewController: UITableViewDelegate {
             break
         }
     }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let height = tableView.rowHeight
+        switch viewModel.sections[indexPath.section] {
+        case .wallet(let rows):
+            let row = rows[indexPath.row]
+            switch row {
+            case .changeWallet:
+                return Style.TableView.ChangeWalletCell.height
+            default:
+                return height
+            }
+        default:
+            return height
+        }
+    }
 }
