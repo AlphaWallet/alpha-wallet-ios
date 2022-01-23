@@ -50,7 +50,6 @@ class SettingTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        accessoryType = .disclosureIndicator
 
         let col1 = [
             titleLabel,
@@ -87,5 +86,6 @@ class SettingTableViewCell: UITableViewCell {
         subTitleLabel.isHidden = viewModel.subTitleHidden
         subTitleLabel.font = viewModel.subTitleFont
         subTitleLabel.textColor = viewModel.subTitleTextColor
+        accessoryView = Style.AccessoryView.chevron
     }
 }
