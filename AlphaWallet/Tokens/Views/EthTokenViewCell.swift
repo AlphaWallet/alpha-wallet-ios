@@ -117,7 +117,7 @@ class EthTokenViewCell: UITableViewCell {
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             row1.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 20, bottom: 16, right: 12)),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 12, left: 16, bottom: 15, right: 16)),
             background.anchorsConstraint(to: contentView)
         ])
     }
