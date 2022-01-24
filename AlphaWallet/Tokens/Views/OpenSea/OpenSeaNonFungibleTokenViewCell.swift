@@ -40,8 +40,7 @@ class OpenSeaNonFungibleTokenView: UIView {
             background.anchorsConstraint(to: self, edgeInsets: .zero),
 
             stackView.anchorsConstraint(to: background),
-            imageView.anchorsConstraint(to: imageHolder),
-            textsStackView.heightAnchor.constraint(equalToConstant: 40)
+            imageView.anchorsConstraint(to: imageHolder)
         ])
         translatesAutoresizingMaskIntoConstraints = false
     }
@@ -79,8 +78,6 @@ class OpenSeaNonFungibleTokenView: UIView {
             imageView.subscribable = viewModel.tokenIcon
         }
 
-        imageView.subscribable = viewModel.tokenIcon
-
         label.textAlignment = .center
         label.attributedText = viewModel.tickersTitleAttributedString
 
@@ -102,11 +99,11 @@ protocol OpenSeaNonFungibleTokenPairTableCellDelegate: class {
 
 class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
     private lazy var left: OpenSeaNonFungibleTokenView = {
-        return OpenSeaNonFungibleTokenView.init(frame: .zero)
+        return OpenSeaNonFungibleTokenView(frame: .zero)
     }()
 
     private lazy var right: OpenSeaNonFungibleTokenView = {
-        return OpenSeaNonFungibleTokenView.init(frame: .zero)
+        return OpenSeaNonFungibleTokenView(frame: .zero)
     }()
     private let background = UIView()
 
@@ -114,18 +111,13 @@ class OpenSeaNonFungibleTokenPairTableCell: UITableViewCell {
         return 16
     }
 
-    var edgeInsets: UIEdgeInsets {
+    private var edgeInsets: UIEdgeInsets {
         return .init(top: 16, left: 16, bottom: 0, right: 16)
     }
 
-    private var cellWidth: CGFloat {
+    private var cellSize: CGSize {
         let width = UIScreen.main.bounds.size.width - edgeInsets.left - edgeInsets.right - spacing
-        return width / 2
-    }
-
-    var cellSize: CGSize {
-        let width = UIScreen.main.bounds.size.width - edgeInsets.left - edgeInsets.right - spacing
-        return .init(width: width / 2, height: UICollectionViewFlowLayout.collectiblesItemSize.height - edgeInsets.bottom - edgeInsets.top)
+        return .init(width: width / 2, height: 0)
     }
     weak var delegate: OpenSeaNonFungibleTokenPairTableCellDelegate?
 
