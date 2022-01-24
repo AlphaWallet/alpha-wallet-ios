@@ -138,10 +138,7 @@ struct TransactionRowCellViewModel {
         switch transactionRow.state {
         case .error, .unknown, .failed: return R.image.transaction_error()
         case .completed:
-            switch transactionRowViewModel.direction {
-            case .incoming: return R.image.received()
-            case .outgoing: return R.image.sent()
-            }
+            return nil
         case .pending:
             return R.image.transaction_pending()
         }
