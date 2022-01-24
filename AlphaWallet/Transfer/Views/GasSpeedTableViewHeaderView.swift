@@ -7,7 +7,7 @@
 
 import UIKit
 
-class GasSpeedTableViewHeaderView: UITableViewHeaderFooterView {
+class GasSpeedTableViewHeaderView: UIView {
 
     static let height = CGFloat(50)
     static let contentInsets: UIEdgeInsets = {
@@ -24,8 +24,8 @@ class GasSpeedTableViewHeaderView: UITableViewHeaderFooterView {
         return label
     }()
 
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
+    init() {
+        super.init(frame: .zero)
 
         let stackView = [
             titleLabel,
@@ -33,10 +33,10 @@ class GasSpeedTableViewHeaderView: UITableViewHeaderFooterView {
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView.addSubview(stackView)
+        addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.anchorsConstraint(to: contentView, edgeInsets: GasSpeedTableViewHeaderView.contentInsets)
+            stackView.anchorsConstraint(to: self, edgeInsets: GasSpeedTableViewHeaderView.contentInsets)
         ])
     }
 
@@ -46,6 +46,6 @@ class GasSpeedTableViewHeaderView: UITableViewHeaderFooterView {
 
     func configure(viewModel: GasSpeedTableViewHeaderViewModel) {
         titleLabel.attributedText = viewModel.titleAttributedString
-        contentView.backgroundColor = viewModel.backgroundColor
+        backgroundColor = viewModel.backgroundColor
     }
 }

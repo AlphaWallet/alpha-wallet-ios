@@ -7,13 +7,13 @@
 
 import UIKit
 
-class GasSpeedTableViewCell: UITableViewCell {
+class GasSpeedView: UIView {
     static let height: CGFloat = CGFloat(100)
 
     private let estimatedTimeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0 
+        label.numberOfLines = 1
 
         return label
     }()
@@ -21,7 +21,7 @@ class GasSpeedTableViewCell: UITableViewCell {
     private let speedLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
 
         return label
     }()
@@ -29,7 +29,7 @@ class GasSpeedTableViewCell: UITableViewCell {
     private let detailsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
 
         return label
     }()
@@ -37,22 +37,28 @@ class GasSpeedTableViewCell: UITableViewCell {
     private let gasPriceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 1
 
         return label
     }()
+    private lazy var selectionImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        return imageView
+    }()
+
+    init() {
+        super.init(frame: .zero)
 
         let col0 = [
             speedLabel,
             detailsLabel,
             gasPriceLabel,
         ].asStackView(axis: .vertical, alignment: .leading)
-        let col1 = [estimatedTimeLabel].asStackView(axis: .vertical)
 
-        let row = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), col0, col1, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal)
+        let row = [.spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16), col0, estimatedTimeLabel, .spacerWidth(ScreenChecker().isNarrowScreen ? 8 : 16)].asStackView(axis: .horizontal)
 
         let stackView = [
             .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 20),
@@ -62,15 +68,18 @@ class GasSpeedTableViewCell: UITableViewCell {
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView.addSubview(stackView)
+        addSubview(stackView)
+        addSubview(selectionImageView)
 
         NSLayoutConstraint.activate([
-            col1.widthAnchor.constraint(equalToConstant: 100),
+            estimatedTimeLabel.widthAnchor.constraint(equalToConstant: 100),
 
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 1)
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 1),
+            selectionImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            selectionImageView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 
@@ -78,7 +87,7 @@ class GasSpeedTableViewCell: UITableViewCell {
         return nil
     }
 
-    func configure(viewModel: GasSpeedTableViewCellViewModel) {
+    func configure(viewModel: GasSpeedViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         speedLabel.attributedText = viewModel.titleAttributedString
@@ -93,7 +102,7 @@ class GasSpeedTableViewCell: UITableViewCell {
         gasPriceLabel.attributedText = viewModel.gasPriceAttributedString
         gasPriceLabel.isHidden = gasPriceLabel.attributedText == nil
 
-        accessoryType = viewModel.accessoryType
+        selectionImageView.image = viewModel.accessoryIcon
     }
 }
 
