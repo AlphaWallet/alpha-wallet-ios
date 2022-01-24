@@ -19,7 +19,7 @@
 "Google" = "Google";
 "error" = "Error";
 "warning" = "Warning";
-"configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
+"configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas Limit too high. Max available: %d";
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
