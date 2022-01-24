@@ -187,12 +187,12 @@ struct TokenInfoPageViewModel {
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.appActionButtonGreen)
+                return ("\(v) (\(p)%)", Style.value.appreciated)
             case .depreciate(let percentage, let value):
                 let p = Formatter.percent.string(from: percentage) ?? "-"
                 let v = Formatter.usd.string(from: value) ?? "-"
 
-                return ("\(v) (\(p)%)", Colors.appRed)
+                return ("\(v) (\(p)%)", Style.value.depreciated)
             case .none:
                 return ("-", Colors.black)
             }

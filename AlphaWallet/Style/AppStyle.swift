@@ -445,4 +445,8 @@ enum Style {
     enum ScrollableSegmentedControlCell {
         static let configuration = ScrollableSegmentedControlCellConfiguration(backgroundColor: .white, highlightedTextColor: R.color.azure()!, nonHighlightedTextColor: R.color.dove()!, highlightedFont: R.font.sourceSansProSemibold(size: 15.0)!, nonHighlightedFont: R.font.sourceSansProRegular(size: 15.0)!, cellPadding: 8.0, textBottomPadding: 12.0)
     }
+    enum value {
+        static let appreciated: UIColor = R.color.green()!
+        static let depreciated: UIColor = R.color.danger()!
+    }
 }
