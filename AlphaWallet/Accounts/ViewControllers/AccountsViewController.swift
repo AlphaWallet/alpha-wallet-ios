@@ -132,6 +132,8 @@ class AccountsViewController: UIViewController {
     }
 }
 
+// MARK: - TableView Data Source
+
 extension AccountsViewController: UITableViewDataSource {
 
     public func numberOfSections(in tableView: UITableView) -> Int {
@@ -215,6 +217,8 @@ extension AccountsViewController: UITableViewDataSource {
         delegate?.didSelectInfoForAccount(account: account, sender: cell, in: self)
     }
 }
+
+// MARK: - TableView Delegate
 
 extension AccountsViewController: UITableViewDelegate {
 
