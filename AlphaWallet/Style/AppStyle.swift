@@ -351,7 +351,6 @@ enum Style {
     enum SearchBar {
         static let height = 50.0
     }
-
     enum Animation {
         static let duration = 0.5
         static let curve: UIView.AnimationCurve = .easeInOut
@@ -387,6 +386,9 @@ enum Style {
     enum TableView {
         enum Separator {
             static let color: UIColor = R.color.mercury()!
+        }
+        enum ChangeWalletCell {
+            static let height: CGFloat = 80.0
         }
     }
     enum TabBar {
