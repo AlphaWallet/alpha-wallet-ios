@@ -9,23 +9,12 @@ func applyStyle() {
     UITabBar.appearance().tintColor = Colors.appTint
     UITabBar.appearance().shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     UITabBar.appearance().backgroundImage = UIImage(color: Style.TabBar.Background.color)
-    UINavigationBar.appearance().barTintColor = R.color.white()!
-    UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
-    UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
-    UINavigationBar.appearance().titleTextAttributes = [
-        .foregroundColor: Colors.navigationTitleColor,
-        .font: Fonts.semibold(size: 17) as Any
-    ]
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-        .foregroundColor: Colors.navigationTitleColor,
-        .font: Fonts.bold(size: 36) as Any,
-    ]
     UINavigationBar.appearance().shadowImage = UIImage(color: Style.NavigationBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
-    // NOTE: Fixes iOS 15 navigation bar black background
-    if #available(iOS 15.0, *) {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = R.color.white()!
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
         appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
         appearance.titleTextAttributes = [
             .foregroundColor: R.color.black()!,
@@ -35,13 +24,10 @@ func applyStyle() {
             .foregroundColor: R.color.black()!,
             .font: Fonts.bold(size: 36) as Any,
         ]
+        UINavigationBar.appearance().compactAppearance = appearance
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    } else {
-        // Fallback on earlier versions
-    }
 
-    if #available(iOS 13.0, *) {
         //NOTE: Hides back button text
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.clear
@@ -49,9 +35,6 @@ func applyStyle() {
         UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
         UINavigationBar.appearance().compactAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
         UINavigationBar.appearance().scrollEdgeAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
-    } else {
-        // Fallback on earlier versions
-    }
 
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
