@@ -44,8 +44,7 @@ class AssetsPageView: UIView, PageViewType {
         collectionView.register(TokenCardContainerCollectionViewCell.self)
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.contentInset = .init(top: 0, left: 0, bottom: 16, right: 0)
-        
+
         return collectionView
     }()
     private lazy var factory: TokenCardTableViewCellFactory = {
@@ -74,7 +73,7 @@ class AssetsPageView: UIView, PageViewType {
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Colors.appBackground
+        backgroundColor = viewModel.backgroundColor
 
         addSubview(collectionView)
         addSubview(searchBar)
@@ -92,12 +91,7 @@ class AssetsPageView: UIView, PageViewType {
         ])
         fixCollectionViewBackgroundColor()
 
-        switch viewModel.selection {
-        case .grid:
-            collectionView.collectionViewLayout = gridLayout
-        case .list:
-            collectionView.collectionViewLayout = listLayout
-        }
+        applyLayout(viewModel.selection)
 
         emptyView = EmptyView.filterTokenHoldersEmptyView()
         configureDataSource()
@@ -149,12 +143,21 @@ class AssetsPageView: UIView, PageViewType {
     private func configureLayout(selection: GridOrListSelectionState, prevSelection: GridOrListSelectionState, animated: Bool = false) {
         guard selection.rawValue != prevSelection.rawValue else { return }
 
-        let layout = selection == .list ? listLayout : gridLayout
-
-        collectionView.setCollectionViewLayout(layout, animated: animated)
+        applyLayout(selection)
         invalidateLayout()
 
         NotificationCenter.default.post(name: .invalidateLayout, object: collectionView, userInfo: ["selection": selection])
+    }
+
+    private func applyLayout(_ selection: GridOrListSelectionState) {
+        switch selection {
+        case .grid:
+            collectionView.collectionViewLayout = gridLayout
+            collectionView.contentInset = .init(top: 0, left: 0, bottom: 16, right: 0)
+        case .list:
+            collectionView.collectionViewLayout = listLayout
+            collectionView.contentInset = .zero
+        }
     }
 
     private func invalidateLayout() {

@@ -18,7 +18,7 @@ class AssetsPageViewModel {
     }
 
     var backgroundColor: UIColor {
-        GroupedTable.Color.background
+        Colors.appBackground
     }
 
     private let tokenHolders: [TokenHolder]
