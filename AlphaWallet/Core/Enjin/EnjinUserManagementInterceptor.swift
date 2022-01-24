@@ -25,23 +25,21 @@ extension Config {
     }
 }
 
-class UserManager {
-    static let shared = UserManager()
+private class EnjinUserManager {
+    static let shared = EnjinUserManager()
+
     private init() {
     }
+
     private var config = Config()
-
     private let graphqlClient: ApolloClient = {
-        let client = URLSessionClient()
-        let cache = InMemoryNormalizedCache()
-        let store = ApolloStore(cache: cache)
-        let provider = InterceptorProviderForAuthorization(client: client, store: store)
-
+        let provider = InterceptorProviderForAuthorization(client: EnjinProvider.client, store: EnjinProvider.store)
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.enjinApiUrl)
-        return ApolloClient(networkTransport: transport, store: store)
+
+        return ApolloClient(networkTransport: transport, store: EnjinProvider.store)
     }()
 
-    enum UserManagerError: Error {
+    enum EnjinUserManagerError: Error {
         case fetchAccessTokenFailure
     }
 
@@ -59,7 +57,7 @@ class UserManager {
             if let accessToken = oauth.accessTokens?.compactMap({ $0 }).first {
                 return accessToken
             } else {
-                throw UserManagerError.fetchAccessTokenFailure
+                throw EnjinUserManagerError.fetchAccessTokenFailure
             }
         }.get { accessToken in
             self.config.accessToken = accessToken
@@ -165,7 +163,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
     private func parseResult<Data>(from response: GraphQLResponse<Data>, cachePolicy: CachePolicy) throws -> GraphQLResult<Data> {
         switch cachePolicy {
         case .fetchIgnoringCacheCompletely:
-                // There is no cache, so we don't need to get any info on dependencies. Use fast parsing.
+            // There is no cache, so we don't need to get any info on dependencies. Use fast parsing.
             return try response.parseResultFast()
         default:
             let (parsedResult, _) = try response.parseResult(cacheKeyForObject: self.cacheKeyForObject)
@@ -175,7 +173,7 @@ struct FallbackJSONResponseParsingInterceptor: ApolloInterceptor {
 
 }
 
-class UserManagementInterceptor: ApolloInterceptor {
+class EnjinUserManagementInterceptor: ApolloInterceptor {
 
     enum UserError: Error {
         case noUserLoggedIn
@@ -193,7 +191,7 @@ class UserManagementInterceptor: ApolloInterceptor {
         }
 
         let performAuthorizeEnjinUser: () -> Void = {
-            let promise = UserManager.shared.enjinAuthorize()
+            let promise = EnjinUserManager.shared.enjinAuthorize()
             promise.done { accessToken in
                 addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
             }.catch { error in
@@ -211,9 +209,9 @@ class UserManagementInterceptor: ApolloInterceptor {
                 if let accessToken = promise.value {
                     addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
                 } else if promise.isPending {
-                     //NOTE: wait until access token resolved
+                    //NOTE: wait until access token resolved
                     let block: () -> Void = {
-                        guard let accessToken = UserManager.shared.accessToken else { return }
+                        guard let accessToken = EnjinUserManager.shared.accessToken else { return }
                         addTokenAndProceed(accessToken, to: request, chain: chain, response: response, completion: completion)
                     }
                     Self.pending.append(block)
@@ -245,7 +243,7 @@ class UserManagementInterceptor: ApolloInterceptor {
             }
         }
 
-        guard let token = UserManager.shared.accessToken else {
+        guard let token = EnjinUserManager.shared.accessToken else {
             authorizeEnjinUser()
             return
         }

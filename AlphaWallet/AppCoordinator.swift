@@ -331,7 +331,6 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 extension AppCoordinator: InCoordinatorDelegate {
 
     func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet) {
-        OpenSea.resetInstances()
         disconnectWalletConnectSessionsSelectively(for: reason, walletConnectCoordinator: coordinator.walletConnectCoordinator)
 
         keystore.recentlyUsedWallet = wallet
@@ -530,7 +529,6 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
             pendingCoordinator.showTabBar(animated: true)
         } else {
             if let coordinator = pendingInCoordinator {
-                OpenSea.resetInstances()
                 disconnectWalletConnectSessionsSelectively(for: .walletChange, walletConnectCoordinator: coordinator.walletConnectCoordinator)
             }
 
