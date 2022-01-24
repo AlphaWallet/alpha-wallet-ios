@@ -13,10 +13,10 @@ protocol DropDownItemType: Equatable {
 
 struct DropDownViewModel<T: DropDownItemType> {
     let selectionItems: [T]
-    var selected: SegmentedControl.Selection
+    var selected: ControlSelection
     var placeholder: String = R.string.localizable.sortTokensSortBy("-")
 
-    func placeholder(for selection: SegmentedControl.Selection) -> String {
+    func placeholder(for selection: ControlSelection) -> String {
         switch selection {
         case .unselected:
             return placeholder
@@ -37,7 +37,7 @@ struct DropDownViewModel<T: DropDownItemType> {
         ])
     }
 
-    static func elementSelection(of selected: T, in selectionItems: [T]) -> SegmentedControl.Selection {
+    static func elementSelection(of selected: T, in selectionItems: [T]) -> ControlSelection {
         guard let index = selectionItems.firstIndex(where: { $0 == selected }) else {
             return .unselected
         }

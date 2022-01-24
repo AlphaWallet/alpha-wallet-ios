@@ -226,7 +226,7 @@ class TokensViewModel {
         return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: server).primaryKey })
     }
 
-    func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> WalletFilter? {
+    func convertSegmentedControlSelectionToFilter(_ selection: ControlSelection) -> WalletFilter? {
         switch selection {
         case .selected(let index):
             return WalletFilter.filter(fromIndex: index)

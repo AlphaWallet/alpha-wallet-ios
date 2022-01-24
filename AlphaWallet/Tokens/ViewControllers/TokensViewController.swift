@@ -90,7 +90,16 @@ class TokensViewController: UIViewController {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
-    lazy private var tableViewFilterView = ScrollableSegmentedControlAdapter.tokensSegmentControl(titles: TokensViewModel.segmentedControlTitles)
+    lazy private var tableViewFilterView: ScrollableSegmentedControl = {
+        let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
+        let controlConfiguration = Style.ScrollableSegmentedControl.configuration
+        let cells = TokensViewModel.segmentedControlTitles.map { title in
+            ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
+        }
+        let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
+        control.setSelection(cellIndex: 0)
+        return control
+    }()
     private lazy var emptyTableView: EmptyTableView = {
         let view = EmptyTableView(title: "", image: R.image.activities_empty_list()!, heightAdjustment: 0)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -107,7 +116,7 @@ class TokensViewController: UIViewController {
         tableView.register(OpenSeaNonFungibleTokenPairTableCell.self)
 
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<UISearchBar>.self)
-        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<ScrollableSegmentedControlAdapter>.self)
+        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<ScrollableSegmentedControl>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
@@ -276,7 +285,7 @@ class TokensViewController: UIViewController {
 
         view.backgroundColor = viewModel.backgroundColor
 
-        tableViewFilterView.delegate = self
+        tableViewFilterView.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
         tableViewFilterView.translatesAutoresizingMaskIntoConstraints = false
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
@@ -466,7 +475,7 @@ extension TokensViewController: UITableViewDelegate {
 
             return header
         case .filters:
-            let header: TokensViewController.GeneralTableViewSectionHeader<ScrollableSegmentedControlAdapter> = tableView.dequeueReusableHeaderFooterView()
+            let header: TokensViewController.GeneralTableViewSectionHeader<ScrollableSegmentedControl> = tableView.dequeueReusableHeaderFooterView()
             header.subview = tableViewFilterView
             header.useSeparatorLine = false
 
@@ -686,20 +695,20 @@ extension TokensViewController: AddHideTokensViewDelegate {
     }
 }
 
-extension TokensViewController: SegmentedControlDelegate {
-    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
-        guard let filter = viewModel.convertSegmentedControlSelectionToFilter(selection) else { return }
-        apply(filter: filter, withSegmentAtSelection: selection)
+extension TokensViewController {
+    @objc func didTapSegment(_ control: ScrollableSegmentedControl) {
+        guard let filter = viewModel.convertSegmentedControlSelectionToFilter(control.selectedSegment) else { return }
+        apply(filter: filter, withSegmentAtSelection: control.selectedSegment)
     }
 
-    private func apply(filter: WalletFilter, withSegmentAtSelection selection: SegmentedControl.Selection?) {
+    private func apply(filter: WalletFilter, withSegmentAtSelection selection: ControlSelection?) {
         let previousFilter = viewModel.filter
         viewModel.filter = filter
         reload()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
-            if let selection = selection {
-                self.tableViewFilterView.selection = selection
+            if let selection = selection, case let ControlSelection.selected(index) = selection {
+                self.tableViewFilterView.setSelection(cellIndex: Int(index))
             }
         }
         //Exit search if user tapped on the wallet filter. Careful to not trigger an infinite recursion between changing the filter by "category" and search keywords which are all based on filters
@@ -756,7 +765,7 @@ extension TokensViewController: UISearchResultsUpdating {
     }
 
     private func updateResults(withKeyword keyword: String) {
-        tableViewFilterView.selection = .unselected
+        tableViewFilterView.unselect()
         apply(filter: .keyword(keyword), withSegmentAtSelection: nil)
     }
 

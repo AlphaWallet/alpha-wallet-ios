@@ -18,14 +18,12 @@ struct ScrollableSegmentedControlConfiguration {
 
 }
 
-class ScrollableSegmentedControl: UIControl {
+enum ControlSelection: Equatable {
+    case selected(UInt)
+    case unselected
+}
 
-    enum Selection {
-        case unselected
-        case selected(Int)
-    }
-
-    // Only if not scrollable (total cells width + spacing < control width).
+class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
 
     enum Alignment {
         case leading
@@ -44,12 +42,11 @@ class ScrollableSegmentedControl: UIControl {
     private var previousWidth: CGFloat = 0.0
     private var scrollViewHeightConstraint: NSLayoutConstraint?
     private var scrollViewPositionConstraints: [NSLayoutConstraint] = []
-    private var _selectedSegment: Selection = .unselected
+    private var _selectedSegment: ControlSelection = .unselected
 
     // MARK: Public
-
-    var selectedSegment: Selection {
-        return _selectedSegment
+    var selectedSegment: ControlSelection {
+        _selectedSegment
     }
 
     // MARK: - UI Elements
@@ -129,13 +126,13 @@ class ScrollableSegmentedControl: UIControl {
 
     func setSelection(cellIndex: Int) {
         guard cellIndex < cells.count, cellIndex >= 0 else { return }
-        _selectedSegment = .selected(cellIndex)
+        _selectedSegment = .selected(UInt(cellIndex))
         highlightCell(cellIndex: cellIndex)
     }
 
     func setSelection(cell: ScrollableSegmentedControlCell) {
         guard let cellIndex = cells.firstIndex(of: cell) else { return }
-        _selectedSegment = .selected(cellIndex)
+        _selectedSegment = .selected(UInt(cellIndex))
         highlightCell(cellIndex: cellIndex)
     }
 
