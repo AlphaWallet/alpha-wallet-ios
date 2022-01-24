@@ -105,14 +105,10 @@ class HoneySwap: TokenActionsProvider, SwapTokenURLProviderType {
 
 extension UITraitCollection {
     var honeyswapTheme: HoneySwap.Theme {
-        if #available(iOS 12.0, *) {
-            switch userInterfaceStyle {
-            case .dark:
-                return .dark
-            case .light, .unspecified:
-                return .light
-            }
-        } else {
+        switch userInterfaceStyle {
+        case .dark:
+            return .dark
+        case .light, .unspecified:
             return .light
         }
     }

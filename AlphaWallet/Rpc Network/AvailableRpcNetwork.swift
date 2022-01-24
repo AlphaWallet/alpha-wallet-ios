@@ -81,12 +81,8 @@ fileprivate func readFileIntoMemory(url: URL) -> Data? {
 
 fileprivate func uncompressData(data: Data) -> Data? {
     do {
-        if #available(iOS 13.0, *) {
-            let uncompressedData = try (data as NSData).decompressed(using: selectedCompressionAlgorithm)
-            return uncompressedData as Data
-        } else {
-            return nil
-        }
+        let uncompressedData = try (data as NSData).decompressed(using: selectedCompressionAlgorithm)
+        return uncompressedData as Data
     } catch {
         return nil
     }

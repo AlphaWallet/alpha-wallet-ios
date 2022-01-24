@@ -232,8 +232,6 @@ extension UIDevice {
     }
 
     static public var isSafeAreaDevice: Bool {
-        // above iOS11 dont have safe area
-        guard #available(iOS 11.0, *) else { return false }
         guard let safeAreaInsets = UIApplication.shared.firstKeyWindow?.safeAreaInsets else {
             return false
         }

@@ -112,14 +112,10 @@ struct Uniswap: TokenActionsProvider, SwapTokenURLProviderType {
 
 extension UITraitCollection {
     var uniswapTheme: Uniswap.Theme {
-        if #available(iOS 12.0, *) {
-            switch userInterfaceStyle {
-            case .dark:
-                return .dark
-            case .light, .unspecified:
-                return .light
-            }
-        } else {
+        switch userInterfaceStyle {
+        case .dark:
+            return .dark
+        case .light, .unspecified:
             return .light
         }
     }

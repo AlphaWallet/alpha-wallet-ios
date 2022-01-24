@@ -27,7 +27,6 @@ class WalletQrCodeDonation {
     }
 
     func donate() {
-        guard #available(iOS 12.0, *) else { return }
         let activity = NSUserActivity(activityType: Self.activityType)
         activity.title = R.string.localizable.donateShortcutsWalletQrCode()
         let walletKey = "wallet"
@@ -41,7 +40,6 @@ class WalletQrCodeDonation {
     }
 
     func delete() {
-        guard #available(iOS 12.0, *) else { return }
         info("Deleting donated shortcut: \(Self.persistentIdentifier)…")
         CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: [Self.persistentIdentifier])
         NSUserActivity.deleteSavedUserActivities(withPersistentIdentifiers: [Self.persistentIdentifier]) {

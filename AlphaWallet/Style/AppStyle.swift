@@ -377,11 +377,7 @@ enum Style {
     enum TabBar {
         enum Background {
             static let color: UIColor = {
-                if #available(iOS 13.0, *) {
-                    return UIColor.systemBackground
-                } else {
-                    return R.color.white()!
-                }
+                return UIColor.systemBackground
             }()
         }
         enum Separator {

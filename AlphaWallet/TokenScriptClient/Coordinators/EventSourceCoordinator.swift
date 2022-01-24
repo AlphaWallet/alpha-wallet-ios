@@ -18,7 +18,7 @@ extension PromiseKit.Result {
 
 protocol EventSourceCoordinatorType: class {
     func fetchEthereumEvents()
-    func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
+    @discardableResult func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
 }
 
 //TODO rename this generic name to reflect that it's for event instances, not for event activity

@@ -188,12 +188,7 @@ extension AssetsPageView: StatefulViewController {
 extension UICollectionViewLayout {
     static func createGridLayout(spacing: CGFloat = 16, heightDimension: CGFloat = 220) -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { _, _ -> NSCollectionLayoutSection? in
-            let iosVersionRelatedFractionalWidthForGrid: CGFloat
-            if #available(iOS 13.0, *) {
-                iosVersionRelatedFractionalWidthForGrid = 1.0
-            } else {
-                iosVersionRelatedFractionalWidthForGrid = 0.92
-            }
+            let iosVersionRelatedFractionalWidthForGrid: CGFloat = 1.0
 
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
