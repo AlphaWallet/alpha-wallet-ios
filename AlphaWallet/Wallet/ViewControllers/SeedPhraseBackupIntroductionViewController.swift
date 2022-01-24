@@ -124,4 +124,21 @@ extension UIViewController {
         navigationBar.compactAppearance = appearance
         navigationBar.standardAppearance = appearance
     }
+
+    func hideNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+
+    func showNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+
 }
