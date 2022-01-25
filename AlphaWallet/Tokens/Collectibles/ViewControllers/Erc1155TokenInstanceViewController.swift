@@ -110,6 +110,11 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
                 view.delegate = self
 
                 subviews.append(view)
+            case .attributeCollection(let viewModel):
+                let view = OpenSeaAttributeCollectionView(viewModel: viewModel)
+                view.configure(viewModel: viewModel)
+
+                subviews.append(view)
             }
         }
 
@@ -219,12 +224,6 @@ extension Erc1155TokenInstanceViewController: BaseTokenCardTableViewCellDelegate
     }
 }
 
-extension Erc1155TokenInstanceViewController: TokenCardsViewControllerHeaderDelegate {
-    func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
-        showContractWebPage()
-    }
-}
-
 // Implemented as part of implementing BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate
 extension Erc1155TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegate {
 
@@ -237,7 +236,7 @@ extension Erc1155TokenInstanceViewController: TokenInstanceAttributeViewDelegate
             UIPasteboard.general.string = viewModel.value
 
             self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
-        case .header, .field:
+        case .header, .field, .attributeCollection:
             break
         }
     }

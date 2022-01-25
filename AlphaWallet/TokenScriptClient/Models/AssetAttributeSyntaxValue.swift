@@ -44,7 +44,9 @@ struct AssetAttributeSyntaxValue: Hashable {
     }
 
     init(openSeaTraits: [OpenSeaNonFungibleTrait]) {
-        self.init(syntax: .directoryString, value: .openSeaNonFungibleTraits(openSeaTraits))
+        self.syntax = .directoryString
+        self._value = .openSeaNonFungibleTraits(openSeaTraits)
+        self.value = .openSeaNonFungibleTraits(openSeaTraits)
     }
 
     init(defaultValueWithSyntax: AssetAttributeSyntax) {

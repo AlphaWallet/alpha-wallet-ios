@@ -73,6 +73,11 @@ class TokenInstanceInfoPageView: UIView, PageViewType {
                 view.configure(viewModel: viewModel)
                 view.delegate = self
                 stackView.addArrangedSubview(view)
+            case .attributeCollection(let viewModel):
+                let view = OpenSeaAttributeCollectionView(viewModel: viewModel)
+                view.configure(viewModel: viewModel)
+
+                stackView.addArrangedSubview(view)
             }
         }
     }

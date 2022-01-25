@@ -11,6 +11,7 @@ import BigInt
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
     case field(viewModel: TokenInstanceAttributeViewModel)
+    case attributeCollection(viewModel: OpenSeaOpenSeaAttributeCollectionViewModel)
 }
 
 enum TokenInstanceViewMode {
@@ -74,7 +75,7 @@ struct Erc1155TokenInstanceViewModel {
         guard let values = tokenHolderHelper.values else { return [] }
 
         var previewViewModels: [TokenInstanceViewConfiguration] = []
-        if let viewModel = tokenHolderHelper.tokenIdViewModel {
+        if let viewModel = tokenIdViewModel {
             previewViewModels += [
                 .field(viewModel: viewModel)
             ]
@@ -98,13 +99,37 @@ struct Erc1155TokenInstanceViewModel {
         } 
 
         let value: BigInt = values.valueIntValue ?? 0
+        let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))
         previewViewModels += [
-            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))))
+            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: attributedValue))
         ]
+
         if let description = values.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
+            let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left)
             previewViewModels += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
-                .field(viewModel: .init(title: nil, attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left), isSeparatorHidden: true))
+                .field(viewModel: .init(title: nil, attributedValue: attributedValue, isSeparatorHidden: true))
+            ]
+        }
+
+        if !tokenHolderHelper.attributes.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.attributes))
+            ]
+        }
+
+        if !tokenHolderHelper.stats.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.stats))
+            ]
+        }
+
+        if !tokenHolderHelper.rankings.isEmpty {
+            previewViewModels += [
+                .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
+                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.rankings))
             ]
         }
 
@@ -120,15 +145,5 @@ struct Erc1155TokenInstanceViewModel {
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
         }
-    }
-
-    func toggleSelection(for indexPath: IndexPath) {
-        if tokenHolder.areDetailsVisible {
-            tokenHolder.areDetailsVisible = false
-            tokenHolder.isSelected = false
-        } else {
-            tokenHolder.areDetailsVisible = true
-            tokenHolder.isSelected = true
-        }
-    }
+    } 
 }
