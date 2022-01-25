@@ -35,6 +35,7 @@ class EmptyTableView: UIView {
         self.image = image
         self.heightAdjustment = heightAdjustment
         super.init(frame: frame)
+        self.title = title
         label.text = title
         configureView()
     }
