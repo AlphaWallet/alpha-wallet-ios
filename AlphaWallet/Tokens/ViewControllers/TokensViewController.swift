@@ -13,32 +13,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
 }
-
-extension UISearchBar: ReusableTableHeaderViewType {}
-extension UICollectionViewFlowLayout {
-    static var heightForLabel: CGFloat {
-        return CGFloat(25) * 2 + (8 + 8)
-    }
-
-    static var itemsInOneLine: CGFloat {
-        return 2
-    }
-
-    static var itemSpacing: CGFloat {
-        return 0
-    }
-
-    static var collectiblesItemSize: CGSize = {
-        let width = UIScreen.main.bounds.size.width - itemSpacing * CGFloat(itemsInOneLine - 1)
-        let dimension = width / itemsInOneLine
-        return CGSize(width: floor(dimension), height: dimension + heightForLabel)
-    }()
-
-    static var collectiblesItemImageSize: CGSize {
-        return CGSize(width: collectiblesItemSize.width, height: collectiblesItemSize.height - heightForLabel)
-    }
-}
-
+ 
 class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
@@ -115,7 +90,6 @@ class TokensViewController: UIViewController {
         tableView.register(ServerTableViewCell.self)
         tableView.register(OpenSeaNonFungibleTokenPairTableCell.self)
 
-        tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<UISearchBar>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<ScrollableSegmentedControl>.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<AddHideTokensView>.self)
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
@@ -203,14 +177,6 @@ class TokensViewController: UIViewController {
         }
     }
 
-    private func resetTableHeaderViewWithSubview() {
-        if !isConsoleButtonHidden || !isPromptBackupWalletViewHolderHidden {
-            adjustTableViewHeaderHeightToFitContents()
-        } else {
-            //tableView.tableHeaderView = nil
-        }
-    }
-
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init() {
@@ -251,7 +217,6 @@ class TokensViewController: UIViewController {
 
         return header
     }()
-    private var cachedCollectiblePairCells: [CollectiblePairs: OpenSeaNonFungibleTokenPairTableCell] = [:]
     
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -570,16 +535,8 @@ extension TokensViewController: UITableViewDataSource {
         case .collectiblePairs:
             let pair = viewModel.collectiblePairs[indexPath.row]
 
-            let cell: OpenSeaNonFungibleTokenPairTableCell
-            //NOTE: lets keep for now approach with caching cells for pairs, to
-            if let value = cachedCollectiblePairCells[pair] {
-                cell = value
-            } else {
-                cell = tableView.dequeueReusableCell(for: indexPath)
-                cell.delegate = self
-
-                cachedCollectiblePairCells[pair] = cell
-            }
+            let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.delegate = self
 
             let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(token: pair.left)
             let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in
