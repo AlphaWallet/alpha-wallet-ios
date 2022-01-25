@@ -571,7 +571,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
             case .custom(let custom): return custom.rpcEndpoint
-            case .fantom: return "https://rpcapi.fantom.network"
+            case .fantom: return "https://rpc.ftm.tools"
             case .fantom_testnet: return "https://rpc.testnet.fantom.network/"
             case .avalanche: return "https://api.avax.network/ext/bc/C/rpc"
             case .avalanche_testnet: return "https://api.avax-test.network/ext/bc/C/rpc"
