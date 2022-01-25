@@ -299,7 +299,6 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func handleIntent(userActivity: NSUserActivity) -> Bool {
-        guard #available(iOS 12.0, *) else { return false }
         if let type = userActivity.userInfo?[WalletQrCodeDonation.userInfoType.key] as? String, type == WalletQrCodeDonation.userInfoType.value {
             analyticsService.log(navigation: Analytics.Navigation.openShortcut, properties: [
                 Analytics.Properties.type.rawValue: Analytics.ShortcutType.walletQrCode.rawValue

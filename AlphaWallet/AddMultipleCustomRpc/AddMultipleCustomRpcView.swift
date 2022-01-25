@@ -28,11 +28,7 @@ class AddMultipleCustomRpcView: UIView {
 
     private lazy var activityIndicatorView: UIActivityIndicatorView = {
         let view: UIActivityIndicatorView
-        if #available(iOS 13.0, *) {
-            view = UIActivityIndicatorView(style: .medium)
-        } else {
-            view = UIActivityIndicatorView(style: .white)
-        }
+        view = UIActivityIndicatorView(style: .medium)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.hidesWhenStopped = false
         return view
