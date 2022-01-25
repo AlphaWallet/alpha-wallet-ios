@@ -8,7 +8,7 @@ class DefaultActivityItemViewCell: UITableViewCell {
     private let stateView: ActivityStateView = {
         let view = ActivityStateView()
         view.translatesAutoresizingMaskIntoConstraints = false
-
+        
         return view
     }()
 
