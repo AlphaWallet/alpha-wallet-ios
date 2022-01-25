@@ -38,7 +38,7 @@ class SaveCustomRpcManualEntryView: UIView {
 
     var chainIDTextField: TextField = {
         let textField = defaultTextField(
-            .decimalPad,
+            .numberPad,
             placeHolder: R.string.localizable.chainID(),
             label: R.string.localizable.chainID())
         return textField

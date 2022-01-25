@@ -171,6 +171,12 @@ extension SaveCustomRpcManualEntryViewController: TextFieldDelegate {
         //no-op
     }
 
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
+        if textField == editView.chainIDTextField {
+            return string.isNumeric()
+        }
+        return true
+    }
 }
 
 extension SaveCustomRpcManualEntryViewController: HandleAddMultipleCustomRpcViewControllerResponse {
