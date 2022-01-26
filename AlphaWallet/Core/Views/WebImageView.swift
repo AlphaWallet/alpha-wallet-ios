@@ -106,13 +106,13 @@ class WebImageView: UIView {
         }
 
         func loadHtmlForImage(url: String) {
-            webView.setImage(url: url, handlePageEventClosure: { action in
+            webView.setImage(url: url, handlePageEventClosure: { [weak self] action in
                 switch action {
                 case .pageDidLoad:
                     break
                 case .imageDidLoad, .imageAlreadyLoaded:
-                    self.imageView.image = nil
-                    self.setIsLoadingImageFromURL(true)
+                    self?.imageView.image = nil
+                    self?.setIsLoadingImageFromURL(true)
                 case .imageLoadFailure:
                     resetToDisplayPlaceholder()
                     verbose("Loading token icon URL: \(url) error")
@@ -125,6 +125,10 @@ class WebImageView: UIView {
         } 
 
         loadHtmlForImage(url: imageURL)
+    }
+
+    deinit {
+        webView.invalidate()
     }
 
     required init?(coder: NSCoder) {
@@ -182,7 +186,8 @@ private class _WebImageView: UIView {
     init(scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
         super.init(frame: .zero)
 
-        webView.configuration.userContentController.add(self, name: "WebImage")
+        webView.configuration.userContentController.add(ScriptMessageProxy(delegate: self), name: "WebImage")
+
         translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
 
@@ -260,7 +265,13 @@ private class _WebImageView: UIView {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
+    }
+
+    func invalidate() {
+        webView.stopLoading()
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "WebImage")
+        frameObservation.flatMap { $0.invalidate() }
     }
 
     private func generateBaseHtmlPage(scale: WebImageView.Scale, align: WebImageView.Align) -> String {
@@ -317,4 +328,3 @@ extension _WebImageView: WKScriptMessageHandler {
         privateHandlePageEventClosure?(action)
     }
 }
-
