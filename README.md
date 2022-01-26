@@ -60,7 +60,7 @@ We want to give businesses the whitelabel tools they need to develop their ether
 1. [Download  Xcode 13](https://developer.apple.com/download/more/)
 2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
-4. Open the AlphaWallet.xcworkspace file to begin.
+4. Open the `AlphaWallet.xcworkspace` file (not `AlphaWallet.xcodeproj`) to begin.
 
 If you get a "Bundle does not exist. Please install bundle." error, please consult with your macOS guru because a vital part of your system is missing.
 
