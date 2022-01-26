@@ -8,7 +8,6 @@ target 'AlphaWallet' do
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit', '5.1.0'
-  pod 'Eureka', :git=> 'https://github.com/xmartlabs/Eureka.git', :commit => '5c54e2607632ce586010e50e91d9adcb6bb3909e'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'

@@ -323,7 +323,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                                   linkExpiryDate: Date,
                                   ethCost: Ether,
                                   server: RPCServer) -> String {
-        let ethCostRoundedTo5dp = String(format: "%.5f", Float(string: String(ethCost))!)
+        let ethCostRoundedTo5dp = String(format: "%.5f", Float(String(ethCost))!)
         let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
         let order = Order(

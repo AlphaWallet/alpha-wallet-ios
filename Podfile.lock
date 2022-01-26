@@ -34,7 +34,6 @@ PODS:
     - EthereumAddress (~> 1.3)
   - EthereumAddress (1.3.0):
     - CryptoSwift (~> 1.0)
-  - Eureka (5.2.1)
   - iOSSnapshotTestCase (6.2.0):
     - iOSSnapshotTestCase/SwiftSupport (= 6.2.0)
   - iOSSnapshotTestCase/Core (6.2.0)
@@ -133,7 +132,6 @@ DEPENDENCIES:
   - Charts
   - CocoaLumberjack (= 3.7.0)
   - CryptoSwift (~> 1.4)
-  - Eureka (from `https://github.com/xmartlabs/Eureka.git`, commit `5c54e2607632ce586010e50e91d9adcb6bb3909e`)
   - iOSSnapshotTestCase (= 6.2.0)
   - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
@@ -211,9 +209,6 @@ EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
-  Eureka:
-    :commit: 5c54e2607632ce586010e50e91d9adcb6bb3909e
-    :git: https://github.com/xmartlabs/Eureka.git
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -239,9 +234,6 @@ CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
-  Eureka:
-    :commit: 5c54e2607632ce586010e50e91d9adcb6bb3909e
-    :git: https://github.com/xmartlabs/Eureka.git
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -282,7 +274,6 @@ SPEC CHECKSUMS:
   CryptoSwift: a532e74ed010f8c95f611d00b8bbae42e9fe7c17
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
-  Eureka: c883105488e05bc65539f583246ecf9657cabbfe
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
@@ -317,6 +308,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 5ddda047ae815e9850697b160e363e6c6b03f510
+PODFILE CHECKSUM: a75b66ff6cf51a9487bb31b6f07aec10f5299243
 
 COCOAPODS: 1.11.2
