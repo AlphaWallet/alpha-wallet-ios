@@ -218,7 +218,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let account = keystore.currentWallet
         let address = account.address
         let server = server
-
+        let storage = storage
         return contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
             contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
@@ -234,7 +234,7 @@ class SingleChainTokenCoordinator: Coordinator {
                                 if balance.isEmpty {
                                     return .value(.none)
                                 } else {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
                                 }
                             }.recover { _ -> Guarantee<BatchObject> in
                                 return .value(.none)
@@ -243,7 +243,7 @@ class SingleChainTokenCoordinator: Coordinator {
                             let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
                             return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
                                 if balance > 0 {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
                                 } else {
                                     return .value(.none)
                                 }
@@ -257,12 +257,12 @@ class SingleChainTokenCoordinator: Coordinator {
                     }
             }
         }).then(on: queue, { promises -> Promise<Bool> in
-            return when(resolved: promises).then(on: .main, { [weak self] results -> Promise<Bool> in
-                guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
+            return when(resolved: promises).then(on: .main, { results -> Promise<Bool> in
+                let values = results
+                    .compactMap { $0.optionalValue }
+                    .filter { $0.nonEmptyAction }
 
-                let values = results.compactMap { $0.optionalValue }.filter { $0.nonEmptyAction }
-
-                strongSelf.storage.addBatchObjects(values: values)
+                storage.addBatchObjects(values: values)
 
                 return .value(!values.isEmpty)
             })

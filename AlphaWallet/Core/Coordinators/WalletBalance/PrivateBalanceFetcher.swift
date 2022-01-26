@@ -428,7 +428,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
         return firstly {
             //Must not use `SessionManager.default.request` or `Alamofire.request` which uses the former. See comment in var
-            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData()
+            sessionManagerWithDefaultHttpHeaders.request(uri, method: .get).responseData(queue: queue)
         }.map(on: queue, { (data, _) -> String in
             if let json = try? JSON(data: data) {
                 if let errorMessage = json["error"].string {
