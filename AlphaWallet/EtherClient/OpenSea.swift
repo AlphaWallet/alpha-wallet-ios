@@ -88,6 +88,7 @@ class OpenSea {
 
                         seal.fulfill(result)
                     case .failure(let error):
+                        verbose("[OpenSea] fetch failed: \(error) owner: \(owner.eip55String) offset: \(offset)")
                         seal.reject(error)
                     }
                 }
@@ -201,6 +202,7 @@ class OpenSea {
             }
 
             let fetchedCount = json["assets"].count
+            verbose("[OpenSea] fetch page count: \(fetchedCount) owner: \(owner.eip55String) offset: \(offset)")
             if fetchedCount > 0 {
                 strongSelf.fetchPage(forOwner: owner, offset: offset + fetchedCount, sum: results) { results in
                     completion(results)
