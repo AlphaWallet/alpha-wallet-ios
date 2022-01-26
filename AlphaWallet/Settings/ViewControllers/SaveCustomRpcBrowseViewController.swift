@@ -137,14 +137,12 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         buttonsBar.buttons[0].setTitle(R.string.localizable.addrpcServerSaveButtonTitle(preferredLanguages: nil), for: .normal)
         addSaveButtonTarget(self, action: #selector(handleAddButtonAction(_:)))
         enableAddFunction(false)
-        let background = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
-        background.translatesAutoresizingMaskIntoConstraints = false
-        browseView.addSubview(background)
+        browseView.addSubview(buttonsBar)
         NSLayoutConstraint.activate([
-            background.bottomAnchor.constraint(equalTo: browseView.bottomAnchor),
-            background.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
-            background.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
-            background.topAnchor.constraint(equalTo: tableViewController.tableView.bottomAnchor)
+            buttonsBar.bottomAnchor.constraint(equalTo: browseView.safeAreaLayoutGuide.bottomAnchor, constant: -4.0),
+            buttonsBar.leadingAnchor.constraint(equalTo: browseView.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: browseView.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: tableViewController.tableView.bottomAnchor, constant: 4.0)
         ])
     }
 

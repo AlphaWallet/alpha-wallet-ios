@@ -19,7 +19,6 @@ class SaveCustomRpcBrowseView: UIView {
     }
 
     private func configureView() {
-        backgroundColor = .yellow
         translatesAutoresizingMaskIntoConstraints = false
     }
 
