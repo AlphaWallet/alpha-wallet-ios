@@ -37,7 +37,7 @@ extension Session {
     }
 
     private static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
-        info("convertToUserFriendlyError error: \(error)")
+        info("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
         case .connectionError(let e):
             let message = e.localizedDescription
