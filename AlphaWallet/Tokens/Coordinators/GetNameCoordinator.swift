@@ -3,6 +3,7 @@
 import Foundation
 import Result
 import web3swift
+import PromiseKit
 
 class GetNameCoordinator {
     private let server: RPCServer
@@ -11,19 +12,14 @@ class GetNameCoordinator {
         self.server = server
     }
 
-    func getName(
-        for contract: AlphaWallet.Address,
-        completion: @escaping (Result<String, AnyError>) -> Void
-    ) {
+    func getName(for contract: AlphaWallet.Address) -> Promise<String> {
         let functionName = "name"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).done { nameResult in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).map { nameResult -> String in
             if let name = nameResult["0"] as? String {
-                completion(.success(name))
+                return name
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
             }
-        }.catch {
-            completion(.failure(AnyError($0)))
         }
     }
 }

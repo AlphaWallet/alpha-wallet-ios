@@ -3,8 +3,7 @@
 import Foundation
 import Result
 import web3swift
-
-typealias AWResult = Result
+import PromiseKit
 
 class GetSymbolCoordinator {
     private let server: RPCServer
@@ -13,19 +12,14 @@ class GetSymbolCoordinator {
         self.server = server
     }
 
-    func getSymbol(
-        for contract: AlphaWallet.Address,
-        completion: @escaping (Result<String, AnyError>) -> Void
-    ) {
+    func getSymbol(for contract: AlphaWallet.Address) -> Promise<String> {
         let functionName = "symbol"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).done { symbolsResult in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).map { symbolsResult -> String in
             if let symbol = symbolsResult["0"] as? String {
-                completion(.success(symbol))
+                return symbol
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
             }
-        }.catch {
-            completion(.failure(AnyError($0)))
         }
     }
 }

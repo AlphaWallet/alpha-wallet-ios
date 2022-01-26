@@ -3,6 +3,7 @@
 import Foundation
 import Result
 import BigInt
+import PromiseKit
 
 class GetERC721ForTicketsBalanceCoordinator: CallbackQueueProvider {
     var queue: DispatchQueue?
@@ -14,17 +15,14 @@ class GetERC721ForTicketsBalanceCoordinator: CallbackQueueProvider {
         self.queue = queue
     }
 
-    func getERC721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address, completion: @escaping (Result<[String], AnyError>) -> Void) {
+    func getERC721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
         let function = GetERC721ForTicketsBalance()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done(on: queue, { balanceResult in
-            let balances = self.adapt(balanceResult["0"])
-            completion(.success(balances))
-        }).catch(on: queue, {
-            completion(.failure(AnyError($0)))
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).map(on: queue, { balanceResult in
+            return GetERC721ForTicketsBalanceCoordinator.adapt(balanceResult["0"])
         })
     }
 
-    private func adapt(_ values: Any?) -> [String] {
+    private static func adapt(_ values: Any?) -> [String] {
         guard let array = values as? [BigUInt] else { return [] }
         return array.filter({ $0 != BigUInt(0) }).map { each in
             let value = each.serialize().hex()

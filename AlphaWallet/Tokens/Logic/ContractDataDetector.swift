@@ -68,52 +68,40 @@ class ContractDataDetector {
         }.done { tokenType in
             switch tokenType {
             case .erc875:
-                self.tokenProvider.getERC875Balance(for: self.address) { result in
-                    switch result {
-                    case .success(let balance):
-                        self.nonFungibleBalanceSeal.fulfill(balance)
-                        self.completionOfPartialData(.balance(balance: balance, tokenType: .erc875))
-                    case .failure(let error):
-                        self.nonFungibleBalanceSeal.reject(error)
-                        self.callCompletionFailed()
-                    }
+                self.tokenProvider.getERC875Balance(for: self.address).done { balance in
+                    self.nonFungibleBalanceSeal.fulfill(balance)
+                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc875))
+                }.catch { error in
+                    self.nonFungibleBalanceSeal.reject(error)
+                    self.callCompletionFailed()
                 }
             case .erc721:
-                self.tokenProvider.getERC721Balance(for: self.address) { result in
-                    switch result {
-                    case .success(let balance):
-                        self.nonFungibleBalanceSeal.fulfill(balance)
-                        self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721))
-                    case .failure(let error):
-                        self.nonFungibleBalanceSeal.reject(error)
-                        self.callCompletionFailed()
-                    }
+                self.tokenProvider.getERC721Balance(for: self.address).done { balance in
+                    self.nonFungibleBalanceSeal.fulfill(balance)
+                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721))
+                }.catch { error in
+                    self.nonFungibleBalanceSeal.reject(error)
+                    self.callCompletionFailed()
                 }
             case .erc721ForTickets:
-                self.tokenProvider.getERC721ForTicketsBalance(for: self.address) { result in
-                    switch result {
-                    case .success(let balance):
-                        self.nonFungibleBalanceSeal.fulfill(balance)
-                        self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721ForTickets))
-                    case .failure(let error):
-                        self.nonFungibleBalanceSeal.reject(error)
-                        self.callCompletionFailed()
-                    }
+                self.tokenProvider.getERC721ForTicketsBalance(for: self.address).done { balance in
+                    self.nonFungibleBalanceSeal.fulfill(balance)
+                    self.completionOfPartialData(.balance(balance: balance, tokenType: .erc721ForTickets))
+                }.catch { error in
+                    self.nonFungibleBalanceSeal.reject(error)
+                    self.callCompletionFailed()
                 }
             case .erc1155:
                 let balance: [String] = .init()
                 self.nonFungibleBalanceSeal.fulfill(balance)
                 self.completionOfPartialData(.balance(balance: balance, tokenType: .erc1155))
             case .erc20:
-                self.tokenProvider.getDecimals(for: self.address) { result in
-                    switch result {
-                    case .success(let decimal):
-                        self.decimalsSeal.fulfill(decimal)
-                        self.completionOfPartialData(.decimals(decimal))
-                    case .failure(let error):
-                        self.decimalsSeal.reject(error)
-                        self.callCompletionFailed()
-                    }
+                self.tokenProvider.getDecimals(for: self.address).done { decimal in
+                    self.decimalsSeal.fulfill(decimal)
+                    self.completionOfPartialData(.decimals(decimal))
+                }.catch { error in
+                    self.decimalsSeal.reject(error)
+                    self.callCompletionFailed()
                 }
             case .nativeCryptocurrency:
                 break

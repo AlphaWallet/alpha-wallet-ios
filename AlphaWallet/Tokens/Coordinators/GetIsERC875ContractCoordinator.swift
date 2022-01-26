@@ -2,6 +2,7 @@
 
 import Foundation
 import Result
+import PromiseKit
 
 class GetIsERC875ContractCoordinator {
     private let server: RPCServer
@@ -10,19 +11,14 @@ class GetIsERC875ContractCoordinator {
         self.server = server
     }
 
-    func getIsERC875Contract(
-        for contract: AlphaWallet.Address,
-        completion: @escaping (Result<Bool, AnyError>) -> Void
-    ) {
+    func getIsERC875Contract(for contract: AlphaWallet.Address) -> Promise<Bool> {
         let function = GetIsERC875()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, timeout: TokensDataStore.fetchContractDataTimeout).done { dictionary in
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, timeout: TokensDataStore.fetchContractDataTimeout).map { dictionary -> Bool in
             if let isERC875 = dictionary["0"] as? Bool {
-                completion(.success(isERC875))
+                return isERC875
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
+                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))
             }
-        }.catch {
-            completion(.failure(AnyError($0)))
         }
     }
 }

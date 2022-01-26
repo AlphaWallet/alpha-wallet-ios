@@ -16,37 +16,18 @@ class GetERC20BalanceCoordinator: CallbackQueueProvider {
     }
 
     func getBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
-        return Promise { seal in
-            getBalance(for: address, contract: contract) { result in
-                switch result {
-                case .success(let value):
-                    seal.fulfill(value)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
-    }
-
-    func getBalance(
-            for address: AlphaWallet.Address,
-            contract: AlphaWallet.Address,
-            completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void
-    ) {
         let functionName = "balanceOf"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done(on: queue, { balanceResult in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).map(on: queue, { balanceResult in
             if let balanceWithUnknownType = balanceResult["0"] {
                 let string = String(describing: balanceWithUnknownType)
                 if let balance = BigInt(string) {
-                    completion(.success(balance))
+                    return balance
                 } else {
-                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                    throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
             }
-        }).catch(on: queue, {
-            completion(.failure(AnyError($0)))
         })
     }
 }
