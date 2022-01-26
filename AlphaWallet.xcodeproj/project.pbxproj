@@ -2114,6 +2114,14 @@
 		CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeJailbreakChecker.swift; sourceTree = "<group>"; };
 		CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinator.swift; sourceTree = "<group>"; };
 		E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAC6758527A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/privacyPolicy.html; sourceTree = "<group>"; };
+		EAC6758627A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/termsOfService.html; sourceTree = "<group>"; };
+		EAC6758727A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/howDoIGetMyMoneyInfo.html; sourceTree = "<group>"; };
+		EAC6758827A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/howDoITransferETHIntoMyWalletInfo.html; sourceTree = "<group>"; };
+		EAC6758927A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/whatIsEthereumInfo.html; sourceTree = "<group>"; };
+		EAC6758A27A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/sellInfo.html; sourceTree = "<group>"; };
+		EAC6758B27A096EC009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fi; path = fi.lproj/redeemInfo.html; sourceTree = "<group>"; };
+		EAC6758C27A096ED009C3344 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5245,6 +5253,7 @@
 				vi,
 				ja,
 				ko,
+				fi,
 				Base,
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
@@ -6631,6 +6640,7 @@
 				7721A6BF202B1D3E004DB16C /* zh-Hans */,
 				B1CCA9D1215B615A0000FBF7 /* ja */,
 				B1CCA9D2215B61620000FBF7 /* ko */,
+				EAC6758C27A096ED009C3344 /* fi */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -6639,6 +6649,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C868C535205409160059672B /* en */,
+				EAC6758B27A096EC009C3344 /* fi */,
 			);
 			name = redeemInfo.html;
 			sourceTree = "<group>";
@@ -6647,6 +6658,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C88033112055034E00D73D6F /* en */,
+				EAC6758A27A096EC009C3344 /* fi */,
 			);
 			name = sellInfo.html;
 			sourceTree = "<group>";
@@ -6655,6 +6667,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331720551DF700D73D6F /* en */,
+				EAC6758827A096EC009C3344 /* fi */,
 			);
 			name = howDoITransferETHIntoMyWalletInfo.html;
 			sourceTree = "<group>";
@@ -6663,6 +6676,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331920551DF700D73D6F /* en */,
+				EAC6758727A096EC009C3344 /* fi */,
 			);
 			name = howDoIGetMyMoneyInfo.html;
 			sourceTree = "<group>";
@@ -6671,6 +6685,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331D20551DF700D73D6F /* en */,
+				EAC6758927A096EC009C3344 /* fi */,
 			);
 			name = whatIsEthereumInfo.html;
 			sourceTree = "<group>";
@@ -6679,6 +6694,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C887C5362057B703005ACF81 /* en */,
+				EAC6758527A096EC009C3344 /* fi */,
 			);
 			name = privacyPolicy.html;
 			sourceTree = "<group>";
@@ -6687,6 +6703,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				C887C5382057B703005ACF81 /* en */,
+				EAC6758627A096EC009C3344 /* fi */,
 			);
 			name = termsOfService.html;
 			sourceTree = "<group>";

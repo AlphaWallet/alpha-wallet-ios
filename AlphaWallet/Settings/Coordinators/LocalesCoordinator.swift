@@ -16,7 +16,8 @@ class LocalesCoordinator: Coordinator {
             .simplifiedChinese,
             .spanish,
             .korean,
-            .japanese
+            .japanese,
+            .finnish,
         ]
         let controller = LocalesViewController()
         controller.configure(viewModel: LocalesViewModel(locales: locales, selectedLocale: AppLocale(id: Config.getLocale())))
