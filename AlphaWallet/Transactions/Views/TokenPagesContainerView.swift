@@ -76,8 +76,8 @@ class PagesContainerView: RoundedBackground {
             ]
         }
         bottomAnchorConstraints = [
-            scrollView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-            stackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ]
 
         NSLayoutConstraint.activate([
