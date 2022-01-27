@@ -76,6 +76,16 @@ class TokenInstanceViewController: UIViewController {
         return nil
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        hideNavigationBarTopSeparatorLine()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showNavigationBarTopSeparatorLine()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
