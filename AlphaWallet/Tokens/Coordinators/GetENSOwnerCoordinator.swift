@@ -5,6 +5,7 @@ import Foundation
 import CryptoSwift
 import Result
 import web3swift
+import PromiseKit
 
 //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
 extension String {
@@ -20,90 +21,64 @@ extension String {
     }
 }
 
-class GetENSAddressCoordinator {
-    private struct ENSLookupKey: Hashable {
-        let name: String
-        let server: RPCServer
-    }
+class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
 
-    private static var resultsCache = [ENSLookupKey: AlphaWallet.Address]()
-    private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
-
-    private var toStartResolvingEnsNameTimer: Timer?
+    private static var resultsCache: [ENSLookupKey: AlphaWallet.Address] = [:]
     private (set) var server: RPCServer
 
     init(server: RPCServer) {
         self.server = server
     }
 
-    func getENSAddressFromResolver(
-            for input: String,
-            completion: @escaping (Result<AlphaWallet.Address, AnyError>) -> Void
-    ) {
+    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
+        let node = input.lowercased().nameHash
+        return cachedResult(forNode: node)
+    }
 
+    func getENSAddressFromResolver(for input: String) -> Promise<AlphaWallet.Address> {
         //if already an address, send back the address
         if let ethAddress = AlphaWallet.Address(string: input) {
-            completion(.success(ethAddress))
-            return
+            return .value(ethAddress)
         }
 
         //if it does not contain .eth, then it is not a valid ens name
         if !input.contains(".") {
-            completion(.failure(AnyError(Web3Error(description: "Invalid ENS Name"))))
-            return
+            return .init(error: AnyError(Web3Error(description: "Invalid ENS Name")))
         }
 
         let node = input.lowercased().nameHash
         if let cachedResult = cachedResult(forNode: node) {
-            completion(.success(cachedResult))
-            return
+            return .value(cachedResult)
         }
 
         let function = GetENSResolverEncode()
-        callSmartContract(withServer: server, contract: server.ensRegistrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject]).done { result in
+        let server = server
+        return callSmartContract(withServer: server, contract: server.ensRegistrarContract, functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject]).then { result -> Promise<AlphaWallet.Address> in
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let resolver = result["0"] as? EthereumAddress {
                 if Constants.nullAddress.sameContract(as: resolver) {
-                    completion(.failure(AnyError(Web3Error(description: "Null address returned"))))
+                    return .init(error: AnyError(Web3Error(description: "Null address returned")))
                 } else {
                     let function = GetENSRecordFromResolverEncode()
-                    callSmartContract(withServer: self.server, contract: AlphaWallet.Address(address: resolver), functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject]).done { result in
+                    return callSmartContract(withServer: server, contract: AlphaWallet.Address(address: resolver), functionName: function.name, abiString: function.abi, parameters: [node] as [AnyObject]).map { result in
                         if let ensAddress = result["0"] as? EthereumAddress {
                             if Constants.nullAddress.sameContract(as: ensAddress) {
-                                completion(.failure(AnyError(Web3Error(description: "Null address returned"))))
+                                throw AnyError(Web3Error(description: "Null address returned"))
                             } else {
                                 //Retain self because it's useful to cache the results even if we don't immediately need it now
                                 let adress = AlphaWallet.Address(address: ensAddress)
                                 
-                                self.cache(forNode: node, result: adress)
-                                completion(.success(adress))
+                                GetENSAddressCoordinator.cache(forNode: node, result: adress, server: server)
+                                return adress
                             }
                         } else {
-                            completion(.failure(AnyError(Web3Error(description: "Incorrect data output from ENS resolver"))))
+                            throw AnyError(Web3Error(description: "Incorrect data output from ENS resolver"))
                         }
-                    }.cauterize()
+                    }
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(self.server.ensRegistrarContract).\(function.name)()"))))
-            }
-        }.catch {
-            completion(.failure(AnyError($0)))
-        }
-    }
-
-    func queueGetENSOwner(for input: String, completion: @escaping (Result<AlphaWallet.Address, AnyError>) -> Void) {
-        let node = input.lowercased().nameHash
-        if let cachedResult = cachedResult(forNode: node) {
-            completion(.success(cachedResult))
-            return
-        }
-
-        toStartResolvingEnsNameTimer?.invalidate()
-        toStartResolvingEnsNameTimer = Timer.scheduledTimer(withTimeInterval: GetENSAddressCoordinator.DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME, repeats: false) { _ in
-            //Retain self because it's useful to cache the results even if we don't immediately need it now
-            self.getENSAddressFromResolver(for: input) { result in
-                completion(result)
+                return .init(error: AnyError(Web3Error(description: "Error extracting result from \(server.ensRegistrarContract).\(function.name)()")))
             }
         }
     }
@@ -112,7 +87,7 @@ class GetENSAddressCoordinator {
         return GetENSAddressCoordinator.resultsCache[ENSLookupKey(name: node, server: server)]
     }
 
-    private func cache(forNode node: String, result: AlphaWallet.Address) {
+    private static func cache(forNode node: String, result: AlphaWallet.Address, server: RPCServer) {
         GetENSAddressCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
     }
 }

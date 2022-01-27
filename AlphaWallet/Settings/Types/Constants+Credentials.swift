@@ -16,5 +16,6 @@ extension Constants {
         static let enjinUserName = "vlad_shepitko@outlook.com"
         static let enjinUserPassword: String = "wf@qJPz75CL9Tw$"
         static let walletConnectApiKey = "6eb1175ea3e57209d8f8f39bd4213691"
+        static let unstoppableDomainsV2ApiKey = "Bearer rLuujk_dLBN-JDE6Xl8QSCg-FeIouRKM"
     }
 }

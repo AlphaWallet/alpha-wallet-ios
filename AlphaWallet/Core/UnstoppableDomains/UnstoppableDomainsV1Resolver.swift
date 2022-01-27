@@ -1,5 +1,5 @@
 //
-//  DomainResolver.swift
+//  UnstoppableDomainsV1Resolver.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 02.11.2020.
@@ -8,7 +8,6 @@
 import Foundation
 import UnstoppableDomainsResolution
 import PromiseKit
-import web3swift
 
 extension Resolution {
     convenience init?(server: RPCServer) {
@@ -17,13 +16,7 @@ extension Resolution {
     }
 }
 
-class DomainResolver {
-
-    private struct ENSLookupKey: Hashable {
-        let name: String
-        let server: RPCServer
-    }
-
+class UnstoppableDomainsV1Resolver: CachebleAddressResolutionServiceType {
     private enum AnyError: Error {
         case failureToResolve
         case invalidAddress
@@ -40,7 +33,12 @@ class DomainResolver {
         self.resolution = Resolution(server: server)
     }
 
-    func resolveAddress(_ input: String) -> Promise<AlphaWallet.Address> {
+    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
+        let node = input.lowercased().nameHash
+        return cachedResult(forNode: node)
+    }
+
+    func resolveAddress(for input: String) -> Promise<AlphaWallet.Address> {
         //if already an address, send back the address
         if let value = AlphaWallet.Address(string: input) {
             return .value(value)
@@ -68,7 +66,6 @@ class DomainResolver {
                 switch result {
                 case .success(let value):
                     if let address = AlphaWallet.Address(string: value) {
-
                         seal.fulfill(address)
                     } else {
                         seal.reject(AnyError.invalidAddress)
@@ -81,27 +78,11 @@ class DomainResolver {
     }
 
     private func cachedResult(forNode node: String) -> AlphaWallet.Address? {
-        return DomainResolver.cache[ENSLookupKey(name: node, server: server)]
+        return UnstoppableDomainsV1Resolver.cache[ENSLookupKey(name: node, server: server)]
     }
 
     private func cache(forNode node: String, result: AlphaWallet.Address) {
-        DomainResolver.cache[ENSLookupKey(name: node, server: server)] = result
-    }
-}
-
-extension GetENSAddressCoordinator {
-
-    func getENSAddressFromResolverPromise(value: String) -> Promise<AlphaWallet.Address> {
-        return Promise { seal in
-            GetENSAddressCoordinator(server: server).getENSAddressFromResolver(for: value) { result in
-                switch result {
-                case .success(let address):
-                    seal.fulfill(address)
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
+        UnstoppableDomainsV1Resolver.cache[ENSLookupKey(name: node, server: server)] = result
     }
 }
 

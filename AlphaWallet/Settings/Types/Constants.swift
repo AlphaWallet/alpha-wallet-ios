@@ -82,6 +82,8 @@ public struct Constants {
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
 
+    public static let unstoppableDomainsV2API = "https://unstoppabledomains.g.alchemy.com"
+    public static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"

@@ -128,11 +128,10 @@ class RenameWalletViewController: UIViewController {
     }
 
     private func fulfillTextField(account: AlphaWallet.Address) {
-        let serverToResolveEns = RPCServer.main
-        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: account) { result in
-            guard let ensName = result.value else { return }
-            self.nameTextField.textField.placeholder = ensName
-        }
+        let resolver: DomainResolutionServiceType = DomainResolutionService()
+        resolver.resolveEns(address: account).done { resolution in
+            self.nameTextField.textField.placeholder = resolution.resolution.value
+        }.cauterize()
 
         let walletNames = config.walletNames
         nameTextField.textField.text = walletNames[account]

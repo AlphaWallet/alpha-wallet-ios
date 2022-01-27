@@ -11,11 +11,6 @@ import CryptoSwift
 
 class AddressOrEnsNameLabel: UILabel {
 
-    enum AddressOrEnsResolution {
-        case invalidInput
-        case resolved(AddressOrEnsName?)
-    }
-
     enum AddressFormat {
         case full
         case truncateMiddle
@@ -120,7 +115,6 @@ class AddressOrEnsNameLabel: UILabel {
         }
     }
 
-    typealias BlockieAndAddressOrEnsResolution = (image: BlockiesImage?, resolution: AddressOrEnsResolution)
     // NOTE: caching ids for call `func resolve(_ value: String)` function, for verifying activity state
     // adds a new id once function get called, and removes once resolve a value.
     private var requestsIdsStore: Set<String> = .init()
@@ -134,38 +128,26 @@ class AddressOrEnsNameLabel: UILabel {
             if let address = AlphaWallet.Address(string: value) {
                 inResolvingState = true
 
-                firstly {
-                    ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address)
-                }.then { ens -> Promise<BlockieAndAddressOrEnsResolution> in
-                    return BlockiesGenerator().promise(address: address, ens: ens).map { image -> BlockieAndAddressOrEnsResolution in
-                        return (image, .resolved(.ensName(ens)))
-                    }.recover { _ -> Promise<BlockieAndAddressOrEnsResolution> in
-                        return .value((nil, .resolved(.ensName(ens))))
+                DomainResolutionService()
+                    .resolveEns(address: address)
+                    .done { value in
+                        // NOTE: improve loading indicator hidding
+                        self.requestsIdsStore.removeAll()
+                        seal.fulfill(value)
+                    }.catch { _ in
+                        seal.fulfill((nil, .resolved(.none)))
                     }
-                }.done { value in
-                    // NOTE: improve loading indicator hidding
-                    self.requestsIdsStore.removeAll()
-                    seal.fulfill(value)
-                }.catch { _ in
-                    seal.fulfill((nil, .resolved(.none)))
-                }
             } else if value.contains(".") {
                 inResolvingState = true
 
-                GetENSAddressCoordinator(server: .forResolvingEns).getENSAddressFromResolverPromise(value: value).recover { _ -> Promise<AlphaWallet.Address> in
-                    DomainResolver(server: .forResolvingEns).resolveAddress(value)
-                }.then { addr -> Promise<BlockieAndAddressOrEnsResolution> in
-                    return BlockiesGenerator().promise(address: addr).map { image -> BlockieAndAddressOrEnsResolution in
-                        return (image, .resolved(.address(addr)))
-                    }.recover { _ -> Promise<BlockieAndAddressOrEnsResolution> in
-                        return .value((nil, .resolved(.address(addr))))
+                DomainResolutionService()
+                    .resolveAddress(string: value)
+                    .done { value in
+                        self.requestsIdsStore.removeAll()
+                        seal.fulfill(value)
+                    }.catch { _ in
+                        seal.fulfill((nil, .resolved(.none)))
                     }
-                }.done { value in
-                    self.requestsIdsStore.removeAll()
-                    seal.fulfill(value)
-                }.catch { _ in
-                    seal.fulfill((nil, .resolved(.none)))
-                }
             } else {
                 seal.fulfill((nil, .resolved(.none)))
             }

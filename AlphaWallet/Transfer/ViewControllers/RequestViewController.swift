@@ -174,17 +174,24 @@ class RequestViewController: UIViewController {
 
 	private func resolveEns() {
 		let address = viewModel.myAddress
-		ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
-			guard let strongSelf = self else { return }
-			if let ensName = result.value {
+        let resolver: DomainResolutionServiceType = DomainResolutionService()
+        resolver.resolveEns(address: address).done { [weak self] result in
+            guard let strongSelf = self else { return }
+
+            if let ensName = result.resolution.value {
                 strongSelf.ensLabel.text = ensName
-				strongSelf.ensContainerView.isHidden = false
-				strongSelf.ensContainerView.cornerRadius = strongSelf.ensContainerView.frame.size.height / 2
-			} else {
-				strongSelf.ensLabel.text = nil
-				strongSelf.ensContainerView.isHidden = true
-			}
-		}
+                strongSelf.ensContainerView.isHidden = false
+                strongSelf.ensContainerView.cornerRadius = strongSelf.ensContainerView.frame.size.height / 2
+            } else {
+                strongSelf.ensLabel.text = nil
+                strongSelf.ensContainerView.isHidden = true
+            }
+        }.catch { [weak self] _ in
+            guard let strongSelf = self else { return }
+
+            strongSelf.ensLabel.text = nil
+            strongSelf.ensContainerView.isHidden = true
+        }
 	}
 
 	@objc func textFieldDidChange(_ textField: UITextField) {
