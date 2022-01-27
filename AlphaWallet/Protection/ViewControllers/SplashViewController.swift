@@ -13,9 +13,3 @@ func SplashViewController() -> UIViewController {
     }
     return splashViewController!
 }
-
-extension UIViewController {
-    var isSplashScreen: Bool {
-        self == SplashViewController()
-    }
-}

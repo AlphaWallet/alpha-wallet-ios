@@ -91,9 +91,3 @@ extension ExportJsonKeystoreCoordinator: ExportJsonKeystorePasswordDelegate {
     func didDismissPasswordController() {
     }
 }
-
-extension UIViewController {
-    func isStillInNavigationStack() -> Bool {
-        return navigationController?.viewControllers.contains(self) ?? false
-    }
-}

@@ -101,25 +101,6 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: CanOpenURL {
     }
 }
 
-extension UIViewController {
-
-    func displayErrorPromise(message: String) -> Promise<Void> {
-        let (promise, seal) = Promise<Void>.pending()
-
-        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
-        alertController.popoverPresentationController?.sourceView = view
-        let action = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
-            seal.fulfill(())
-        }
-
-        alertController.addAction(action)
-
-        present(alertController, animated: true)
-
-        return promise
-    }
-}
-
 extension TransactionConfirmationCoordinator {
     static func promise(_ navigationController: UINavigationController, session: WalletSession, coordinator: Coordinator & CanOpenURL, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator, source: Analytics.TransactionConfirmationSource, delegate: SendTransactionAndFiatOnRampDelegate?) -> Promise<ConfirmResult> {
         let bridge = TransactionConfirmationCoordinatorBridgeToPromise(navigationController, session: session, coordinator: coordinator, analyticsCoordinator: analyticsCoordinator, delegate: delegate)
