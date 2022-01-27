@@ -84,11 +84,13 @@ class Erc1155TokenInstanceViewController: UIViewController, TokenVerifiableStatu
     override func viewWillAppear(_ animated: Bool) {
         title = viewModel.navigationTitle
         super.viewWillAppear(animated)
+        hideNavigationBarTopSeparatorLine()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         title = ""
         super.viewWillDisappear(animated)
+        showNavigationBarTopSeparatorLine()
     }
 
     private func generateSubviews(viewModel: Erc1155TokenInstanceViewModel) {
