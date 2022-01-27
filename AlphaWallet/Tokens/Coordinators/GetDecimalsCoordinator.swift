@@ -3,6 +3,7 @@
 import Foundation
 import Result
 import web3swift
+import PromiseKit
 
 class GetDecimalsCoordinator {
     private let server: RPCServer
@@ -11,24 +12,19 @@ class GetDecimalsCoordinator {
         self.server = server
     }
 
-    func getDecimals(
-        for contract: AlphaWallet.Address,
-        completion: @escaping (Result<UInt8, AnyError>) -> Void
-    ) {
+    func getDecimals(for contract: AlphaWallet.Address) -> Promise<UInt8> {
         let functionName = "decimals"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).done { dictionary in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).map { dictionary -> UInt8 in
             if let decimalsWithUnknownType = dictionary["0"] {
                 let string = String(describing: decimalsWithUnknownType)
                 if let decimals = UInt8(string) {
-                    completion(.success(decimals))
+                    return decimals
                 } else {
-                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                    throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+                throw AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))
             }
-        }.catch {
-            completion(.failure(AnyError($0)))
         }
     }
 }

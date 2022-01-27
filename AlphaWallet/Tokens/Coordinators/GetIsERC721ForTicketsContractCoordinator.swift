@@ -2,6 +2,7 @@
 
 import Foundation
 import Result
+import PromiseKit
 
 class GetIsERC721ForTicketsContractCoordinator {
     private let server: RPCServer
@@ -10,13 +11,8 @@ class GetIsERC721ForTicketsContractCoordinator {
         self.server = server
     }
 
-    func getIsERC721ForTicketContract(for contract: AlphaWallet.Address, completion: @escaping (Result<Bool, AnyError>) -> Void) {
-        GetInterfaceSupported165Coordinator(forServer: server).getInterfaceSupported165(hash: Constants.balances165Hash721Ticket, contract: contract) { result in
-            if let value = result.value {
-                completion(.success(value))
-            } else {
-                completion(.success(false))
-            }
-        }
+    func getIsERC721ForTicketContract(for contract: AlphaWallet.Address) -> Promise<Bool> {
+        return GetInterfaceSupported165Coordinator(forServer: server)
+            .getInterfaceSupported165(hash: Constants.balances165Hash721Ticket, contract: contract)
     }
 }

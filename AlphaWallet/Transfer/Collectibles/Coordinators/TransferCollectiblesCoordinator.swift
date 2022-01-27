@@ -9,6 +9,8 @@ import UIKit
 import BigInt
 import Result
 
+typealias AWResult = Result
+
 protocol TransferCollectiblesCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransferCollectiblesCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)

@@ -44,7 +44,6 @@ class SingleChainTokenCoordinator: Coordinator {
     let session: WalletSession
     weak var delegate: SingleChainTokenCoordinatorDelegate?
     var coordinators: [Coordinator] = []
-    private lazy var tokenProvider: TokenProviderType = TokenProvider(account: storage.account, server: storage.server)
 
     var server: RPCServer {
         session.server
@@ -219,41 +218,46 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<Void> {
-        let address = keystore.currentWallet.address
+        let account = keystore.currentWallet
+        let address = account.address
+        let server = server
+
         return contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
             contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
-                return strongSelf.tokenProvider.getTokenType(for: each).then { tokenType -> Promise<BatchObject> in
-                    switch tokenType {
-                    case .erc875:
-                        //TODO long and very similar code below. Extract function
-                        let balanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
-                        return balanceCoordinator.getERC875TokenBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
-                            if balance.isEmpty {
-                                return .value(.none)
-                            } else {
-                                return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
-                            }
-                        }.recover { _ -> Guarantee<BatchObject> in
-                            return .value(.none)
-                        }
-                    case .erc20:
-                        let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
-                        return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
-                            if balance > 0 {
-                                return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
-                            } else {
+                return TokenProvider(account: account, server: server)
+                    .getTokenType(for: each)
+                    .then { tokenType -> Promise<BatchObject> in
+                        switch tokenType {
+                        case .erc875:
+                            //TODO long and very similar code below. Extract function
+                            let balanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
+                            return balanceCoordinator.getERC875TokenBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
+                                if balance.isEmpty {
+                                    return .value(.none)
+                                } else {
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                }
+                            }.recover { _ -> Guarantee<BatchObject> in
                                 return .value(.none)
                             }
-                        }.recover { _ -> Guarantee<BatchObject> in
+                        case .erc20:
+                            let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
+                            return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
+                                if balance > 0 {
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                } else {
+                                    return .value(.none)
+                                }
+                            }.recover { _ -> Guarantee<BatchObject> in
+                                return .value(.none)
+                            }
+                        case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
+                            //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
                             return .value(.none)
                         }
-                    case .erc721, .erc721ForTickets, .erc1155, .nativeCryptocurrency:
-                        //Handled in PrivateBalanceFetcher.refreshBalanceForErc721Or1155Tokens()
-                        return .value(.none)
                     }
-                }
             }
         }).then(on: queue, { promises -> Promise<Bool> in
             return when(resolved: promises).then(on: .main, { [weak self] results -> Promise<Bool> in
