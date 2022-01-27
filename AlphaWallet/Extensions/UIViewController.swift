@@ -1,10 +1,12 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
+import AVFoundation
+import class PromiseKit.Promise
 import Foundation
-import UIKit
-import Result
 import MBProgressHUD
+import Result
 import SafariServices
+import UIKit
 
 enum ConfirmationError: LocalizedError {
     case cancel
@@ -24,6 +26,12 @@ extension UIView {
 }
 
 extension UIViewController {
+#if DEBUG
+    var isSplashScreen: Bool {
+        self == SplashViewController()
+    }
+#endif
+
     @discardableResult func displaySuccess(title: String? = .none, message: String? = .none) -> UIViewController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         alertController.popoverPresentationController?.sourceView = view
@@ -140,4 +148,89 @@ extension UIViewController {
     func makePresentationFullScreenForiOS13Migration() {
         modalPresentationStyle = .fullScreen
     }
+
+    func displayErrorPromise(message: String) -> Promise<Void> {
+        let (promise, seal) = Promise<Void>.pending()
+
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alertController.popoverPresentationController?.sourceView = view
+        let action = UIAlertAction(title: R.string.localizable.oK(), style: .default) { _ in
+            seal.fulfill(())
+        }
+
+        alertController.addAction(action)
+
+        present(alertController, animated: true)
+
+        return promise
+    }
+
+    func ensureHasDeviceAuthorization() -> Bool {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return false
+        }
+        return true
+    }
+
+    func promptUserOpenSettingsToChangeCameraPermission() {
+        //TODO app will be killed by iOS after user changes camera permission. Ideally, we should note that the user has reached here and on app launch, prompt user if they want to resume
+        confirm(
+            title: R.string.localizable.cameraQrCodeDeniedPromptTitle(),
+            message: R.string.localizable.cameraQrCodeDeniedPromptMessage(),
+            okTitle: R.string.localizable.cameraQrCodeDeniedPromptButton(),
+            okStyle: .default
+        ) { result in
+            switch result {
+            case .success:
+                UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+            case .failure:
+                break
+            }
+        }
+    }
+
+    func isStillInNavigationStack() -> Bool {
+        return navigationController?.viewControllers.contains(self) ?? false
+    }
+
+    func hideNavigationBarTopSeparatorLine() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.standardAppearance = appearance
+    }
+
+    func showNavigationBarTopSeparatorLine() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+        navigationBar.compactAppearance = appearance
+        navigationBar.standardAppearance = appearance
+    }
+
+    func hideNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+
+    func showNavigationBarTopSeparatorLineInScrollEdgeAppearance() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let appearance = navigationBar.standardAppearance
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        navigationBar.scrollEdgeAppearance = appearance
+    }
+}
+
+private func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+    return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value) })
 }
