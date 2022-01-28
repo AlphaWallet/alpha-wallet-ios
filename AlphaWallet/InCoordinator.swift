@@ -1101,6 +1101,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
         openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
+
+    func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
+        guard keystore.currentWallet != account else { return }
+        restartUI(withReason: .walletChange, account: account)
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {

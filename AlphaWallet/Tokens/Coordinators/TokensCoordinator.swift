@@ -17,6 +17,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
+    func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
 }
 
 private struct NoContractDetailsDetected: Error {
@@ -514,6 +515,7 @@ extension TokensCoordinator: WalletCoordinatorDelegate {
         removeCoordinator(coordinator)
 
         coordinator.navigationController.dismiss(animated: true)
+        delegate?.didSelectAccount(account: account, in: self)
     }
 
     func didCancel(in coordinator: WalletCoordinator) {
