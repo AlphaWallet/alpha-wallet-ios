@@ -5634,7 +5634,6 @@
 				87A0C93225AEF1E400E73F60 /* EventInstanceValue.swift in Sources */,
 				299B5E491FD2C8900051361C /* ConfigureTransaction.swift in Sources */,
 				77872D25202505B70032D687 /* EnterKeystorePasswordViewController.swift in Sources */,
-				77872D25202505B70032D687 /* EnterKeystorePasswordViewController.swift in Sources */,
 				29C80D511FB67A110037B1E0 /* ArrayResponse.swift in Sources */,
 				290B2B5F1F9177860053C83E /* UIImage.swift in Sources */,
 				8703F687261461E50082EE25 /* RenameWalletViewModel.swift in Sources */,
