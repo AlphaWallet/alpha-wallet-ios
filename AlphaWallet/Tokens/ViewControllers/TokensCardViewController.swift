@@ -69,7 +69,7 @@ class TokensCardViewController: UIViewController {
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         tokensCardCollectionInfoPageView = TokensCardCollectionInfoPageView(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
         let pageWithFooter = PageViewWithFooter(pageView: tokensCardCollectionInfoPageView, footerBar: footerBar)
-        containerView = PagesContainerView(pages: [pageWithFooter, assetsPageView, activitiesPageView])
+        containerView = PagesContainerView(pages: [pageWithFooter, assetsPageView, activitiesPageView], selectedIndex: viewModel.initiallySelectedTabIndex)
 
         super.init(nibName: nil, bundle: nil)
 
