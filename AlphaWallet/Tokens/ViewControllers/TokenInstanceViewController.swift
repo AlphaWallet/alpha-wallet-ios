@@ -1,6 +1,10 @@
-// Copyright © 2018 Stormbird PTE. LTD.
+//
+//  TokenInstanceViewController2.swift
+//  AlphaWallet
+//
+//  Created by Vladyslav Shepitko on 07.09.2021.
+//
 
-import Foundation
 import UIKit
 
 protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
@@ -8,89 +12,29 @@ protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
     func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController)
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController)
     func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController)
+    func didTapURL(url: URL, in viewController: TokenInstanceViewController)
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController)
-    func didTap(activity: Activity, in viewController: TokenInstanceViewController)
-    func didTap(transaction: TransactionInstance, in viewController: TokenInstanceViewController)
 }
 
-class TokenInstanceViewController: UIViewController {
-    private (set) var viewModel: TokenInstanceViewModel
-    private let tokenObject: TokenObject
-    private let session: WalletSession
-    private let tokensDataStore: TokensDataStore
+class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController, IsReadOnlyViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
-    private let tokenScriptFileStatusHandler: XMLHandler
-    weak var delegate: TokenInstanceViewControllerDelegate?
-
-    private let tokenInstanceInfoPageView: TokenInstanceInfoPageView
-    private var activitiesPageView: ActivitiesPageView
-
-    private let activitiesService: ActivitiesServiceType
-    private let containerView: PagesContainerView
+    private let tokenObject: TokenObject
+    private var viewModel: TokenInstanceViewModel
     private let account: Wallet
+    private let bigImageView = WebImageView()
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
 
     var tokenHolder: TokenHolder {
-        viewModel.tokenHolder
+        return viewModel.tokenHolder
     }
-
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenInstanceViewModel, activitiesService: ActivitiesServiceType) {
-        self.tokenObject = token
-        self.viewModel = viewModel
-        self.session = session
-        self.account = session.account
-        self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
-        self.tokensDataStore = tokensDataStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.activitiesService = activitiesService
-        self.activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
-
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
-        tokenInstanceInfoPageView = TokenInstanceInfoPageView(viewModel: .init(tokenObject: tokenObject, tokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId))
-        let pageWithFooter = PageViewWithFooter(pageView: tokenInstanceInfoPageView, footerBar: footerBar)
-        containerView = PagesContainerView(pages: [pageWithFooter, activitiesPageView])
-
-        super.init(nibName: nil, bundle: nil)
-
-        hidesBottomBarWhenPushed = true
-
-        activitiesPageView.delegate = self
-        containerView.delegate = self
-
-        view.addSubview(containerView)
-
-        NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: view)
-        ])
-
-        navigationItem.largeTitleDisplayMode = .never
-
-        activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
-            guard let strongSelf = self, let viewModel = viewModel else { return }
-
-            strongSelf.activitiesPageView.configure(viewModel: .init(activitiesViewModel: viewModel))
-        }
+    var server: RPCServer {
+        return tokenObject.server
     }
-
-    required init?(coder aDecoder: NSCoder) {
-        return nil
+    var contract: AlphaWallet.Address {
+        return tokenObject.contractAddress
     }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        hideNavigationBarTopSeparatorLine()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        showNavigationBarTopSeparatorLine()
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        configure(viewModel: viewModel)
-    }
+    let assetDefinitionStore: AssetDefinitionStore
+    weak var delegate: TokenInstanceViewControllerDelegate?
 
     var isReadOnly = false {
         didSet {
@@ -98,102 +42,168 @@ class TokenInstanceViewController: UIViewController {
         }
     }
 
+    private lazy var containerView: ScrollableStackView = {
+        let view = ScrollableStackView()
+        return view
+    }()
+    private let mode: TokenInstanceViewMode
+
+    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, tokenId: TokenId, account: Wallet, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode) {
+        self.analyticsCoordinator = analyticsCoordinator
+        self.tokenObject = tokenObject
+        self.account = account
+        self.assetDefinitionStore = assetDefinitionStore
+        self.mode = mode
+        self.viewModel = .init(tokenId: tokenId, token: tokenObject, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        super.init(nibName: nil, bundle: nil)
+
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
+        let stackView = [containerView, footerBar].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view),
+            bigImageView.heightAnchor.constraint(equalToConstant: 250),
+        ])
+
+        configure(viewModel: viewModel)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    //NOTE: Blank out the title before pushing the send screen because longer (not even very long ones) titles will overlay the Send screen's back button
+    override func viewWillAppear(_ animated: Bool) {
+        title = viewModel.navigationTitle
+        super.viewWillAppear(animated)
+        hideNavigationBarTopSeparatorLine()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        title = ""
+        super.viewWillDisappear(animated)
+        showNavigationBarTopSeparatorLine()
+    }
+
+    private func generateSubviews(viewModel: TokenInstanceViewModel) {
+        let stackView = containerView.stackView
+        stackView.removeAllArrangedSubviews()
+
+        var subviews: [UIView] = [bigImageView]
+
+        for (index, each) in viewModel.configurations.enumerated() {
+            switch each {
+            case .header(let viewModel):
+                let header = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
+                header.configure(viewModel: viewModel)
+
+                subviews.append(header)
+            case .field(let viewModel):
+                let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
+                view.configure(viewModel: viewModel)
+                view.delegate = self
+
+                subviews.append(view)
+            case .attributeCollection(let viewModel):
+                let view = OpenSeaAttributeCollectionView(viewModel: viewModel)
+                view.configure(viewModel: viewModel)
+
+                subviews.append(view)
+            }
+        }
+
+        stackView.addArrangedSubviews(subviews)
+    }
+
+    func configure(viewModel newViewModel: TokenInstanceViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
+
+        view.backgroundColor = viewModel.backgroundColor
+        containerView.backgroundColor = viewModel.backgroundColor
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
+        title = viewModel.navigationTitle
+
+        switch mode {
+        case .preview:
+            buttonsBar.configure(.empty)
+        case .interactive:
+            buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+            buttonsBar.viewController = self
+
+            for (index, button) in buttonsBar.buttons.enumerated() {
+                let action = viewModel.actions[index]
+                button.setTitle(action.name, for: .normal)
+                button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+                switch account.type {
+                case .real:
+                    if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                        if selection.denial == nil {
+                            button.displayButton = false
+                        }
+                    }
+                case .watch:
+                    button.isEnabled = false 
+                }
+            }
+        }
+
+        let url = tokenHolder.values.imageUrlUrlValue ?? tokenHolder.values.thumbnailUrlUrlValue
+        bigImageView.setImage(url: url, placeholder: viewModel.tokenImagePlaceholder)
+
+        generateSubviews(viewModel: viewModel)
+    }
+
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == viewModel.tokenId }
     }
 
-    func configure(viewModel value: TokenInstanceViewModel? = .none) {
-        if let viewModel = value {
-            self.viewModel = viewModel
-        }
-
-        view.backgroundColor = viewModel.backgroundColor
-        title = viewModel.navigationTitle
-        updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
-
-        tokenInstanceInfoPageView.configure(viewModel: .init(tokenObject: tokenObject, tokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId))
-
-        let actions = viewModel.actions
-        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-        buttonsBar.viewController = self
-
-        for (action, button) in zip(actions, buttonsBar.buttons) {
-            button.setTitle(action.name, for: .normal)
-            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-            switch session.account.type {
-            case .real:
-                if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: session.account.address, fungibleBalance: nil) {
-                    if selection.denial == nil {
-                        button.displayButton = false
-                    }
-                }
-            case .watch:
-                button.isEnabled = false
-            }
-        }
+    func isMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
+        return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == viewModel.tokenId }) }).flatMap { ($0, viewModel.tokenId) }
     }
 
-    private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
-        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
-        if tokenScriptStatusPromise.isPending {
-            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
-            tokenInstanceInfoPageView.rightBarButtonItem = label
+    private func transfer() {
+        let transactionType = TransactionType(token: tokenObject)
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
 
-            tokenScriptStatusPromise.done { [weak self] _ in
-                self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
-            }.cauterize()
-        }
-
-        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
-            switch status {
-            case .type0NoTokenScript:
-                tokenInstanceInfoPageView.rightBarButtonItem = nil
-            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
-                let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
-                tokenInstanceInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
-            }
-        } else {
-            tokenInstanceInfoPageView.rightBarButtonItem = nil
-        }
+        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            handle(action: action)
-            break
-        }
-    }
-
-    private func handle(action: TokenInstanceAction) {
-        let tokenHolder = viewModel.tokenHolder
-
-        switch action.type {
-        case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
-            break
-        case .nftRedeem:
-            redeem()
-        case .nftSell:
-            sell()
-        case .nonFungibleTransfer:
-            transfer()
-        case .tokenScript:
-            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                if let denialMessage = selection.denial {
-                    UIAlertController.alert(
-                            title: nil,
-                            message: denialMessage,
-                            alertButtonTitles: [R.string.localizable.oK()],
-                            alertButtonStyles: [.default],
-                            viewController: self,
-                            completion: nil
-                    )
+            switch action.type {
+            case .nftRedeem:
+                redeem()
+            case .nftSell:
+                sell()
+            case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
+                //TODO when we support TokenScript views for ERC20s, we need to perform the action here
+                break
+            case .nonFungibleTransfer:
+                transfer()
+            case .tokenScript:
+                if let selection = action.activeExcludingSelection(selectedTokenHolder: tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: account.address) {
+                    if let denialMessage = selection.denial {
+                        UIAlertController.alert(
+                                title: nil,
+                                message: denialMessage,
+                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonStyles: [.default],
+                                viewController: self,
+                                completion: nil
+                        )
+                    } else {
+                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    }
                 } else {
-                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
                 }
-            } else {
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
             }
+            break
         }
     }
 
@@ -207,33 +217,6 @@ class TokenInstanceViewController: UIViewController {
         delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 
-    func transfer() {
-        let tokenHolder = viewModel.tokenHolder
-        let transactionType = TransactionType(token: viewModel.token, tokenHolders: [tokenHolder])
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
-    }
-}
-
-extension TokenInstanceViewController: PagesContainerViewDelegate {
-    func containerView(_ containerView: PagesContainerView, didSelectPage index: Int) {
-        navigationItem.rightBarButtonItem = containerView.pages[index].rightBarButtonItem
-    }
-}
-
-extension TokenInstanceViewController: TokensCardCollectionInfoPageViewDelegate {
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView) {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
-    }
-}
-
-extension TokenInstanceViewController: ActivitiesPageViewDelegate {
-    func didTap(activity: Activity, in view: ActivitiesPageView) {
-        delegate?.didTap(activity: activity, in: self)
-    }
-
-    func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
-        delegate?.didTap(transaction: transaction, in: self)
-    }
 }
 
 extension TokenInstanceViewController: VerifiableStatusViewController {
@@ -242,10 +225,23 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: session.server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
     }
 
     func open(url: URL) {
         delegate?.didPressViewContractWebPage(url, in: self)
+    }
+} 
+
+extension TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
+    func didSelect(in view: TokenInstanceAttributeView) {
+        switch viewModel.configurations[view.indexPath.row] {
+        case .field(let viewModel) where self.viewModel.tokenIdViewModel == viewModel:
+            UIPasteboard.general.string = viewModel.value
+
+            self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        case .header, .field, .attributeCollection:
+            break
+        }
     }
 }

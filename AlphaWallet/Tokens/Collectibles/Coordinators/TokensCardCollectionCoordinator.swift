@@ -122,10 +122,10 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
             case let vc as TokensCardCollectionViewController:
                 let viewModel = TokensCardCollectionViewControllerViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
                 vc.configure(viewModel: viewModel)
-            case let vc as Erc1155TokenInstanceViewController:
+            case let vc as TokenInstanceViewController:
                 let updatedTokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: session.account)
                 if let selection = vc.isMatchingTokenHolder(fromTokenHolders: updatedTokenHolders) {
-                    let viewModel: Erc1155TokenInstanceViewModel = .init(tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                    let viewModel: TokenInstanceViewModel = .init(tokenId: selection.tokenId, token: token, tokenHolder: selection.tokenHolder, assetDefinitionStore: assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
                 }
             default:
@@ -164,8 +164,8 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         session.stop()
     }
 
-    private func makeTokenInstanceViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode) -> Erc1155TokenInstanceViewController {
-        let vc = Erc1155TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, tokenId: tokenId, account: session.account, assetDefinitionStore: assetDefinitionStore, mode: mode)
+    private func makeTokenInstanceViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode) -> TokenInstanceViewController {
+        let vc = TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, tokenId: tokenId, account: session.account, assetDefinitionStore: assetDefinitionStore, mode: mode)
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -230,6 +230,19 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
     @objc private func didCloseTokenInstanceSelected(_ sender: UIBarButtonItem) {
         navigationController.popViewController(animated: true)
     }
+
+    private func showViewRedemptionInfo(in viewController: UIViewController) {
+        let controller = TokenCardRedemptionInfoViewController(delegate: self)
+        controller.navigationItem.largeTitleDisplayMode = .never
+
+        viewController.navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension TokensCardCollectionCoordinator: TokenCardRedemptionViewControllerDelegate {
+}
+
+extension TokensCardCollectionCoordinator: StaticHTMLViewControllerDelegate {
 }
 
 extension TokensCardCollectionCoordinator: TokenCardListViewControllerDelegate {
@@ -259,21 +272,32 @@ extension TokensCardCollectionCoordinator: TokenCardSelectionCoordinatorDelegate
     }
 }
 
-extension TokensCardCollectionCoordinator: Erc1155TokenInstanceViewControllerDelegate {
+extension TokensCardCollectionCoordinator: TokenInstanceViewControllerDelegate {
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController) {
+        showViewRedemptionInfo(in: viewController)
+    }
 
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: Erc1155TokenInstanceViewController) {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {
+        //no-op
+    }
+
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
+        //no-op
+    }
+
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
         let transactionType: TransactionType = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [tokenHolder])
         delegate?.didTap(for: .send(type: .transaction(transactionType)), in: self, viewController: viewController)
     }
 
-    func didTapURL(url: URL, in viewController: Erc1155TokenInstanceViewController) {
+    func didTapURL(url: URL, in viewController: TokenInstanceViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         controller.makePresentationFullScreenForiOS13Migration()
         viewController.present(controller, animated: true)
     }
 
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: Erc1155TokenInstanceViewController) {
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController) {
         showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
     }
 }

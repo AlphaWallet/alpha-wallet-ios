@@ -412,9 +412,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func showTokenInstanceViewController(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
-        let viewModel = TokenInstanceViewModel(tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = TokenInstanceViewController(session: session, tokensDataStore: tokensDataStore, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService)
 
+        let vc = TokenInstanceViewController(analyticsCoordinator: analyticsCoordinator, tokenObject: token, tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, account: session.account, assetDefinitionStore: assetDefinitionStore, mode: .interactive)
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -491,22 +490,6 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
-    
-    func didTap(activity: Activity, in viewController: TokenInstanceViewController) {
-        delegate?.didTap(activity: activity, in: self)
-    }
-
-    func didTap(transaction: TransactionInstance, in viewController: TokenInstanceViewController) {
-        delegate?.didTap(transaction: transaction, in: self)
-    }
-
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {
-        showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
-    }
-
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
-        showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
-    }
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
         switch token.type {
@@ -519,10 +502,6 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
         }
     }
 
-    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController) {
-        showViewRedemptionInfo(in: viewController)
-    }
-
     func didTapURL(url: URL, in viewController: TokenInstanceViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
@@ -532,6 +511,18 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
 
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController) {
         showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
+    }
+
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {
+        showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
+    }
+
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
+        showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
+    }
+
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController) {
+        showViewRedemptionInfo(in: viewController)
     }
 }
 
