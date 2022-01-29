@@ -784,3 +784,4 @@
 "analytics.navigationTitle" = "Analytics";
 "analytics.description" = "Help us to improve AlphaWallet by sharing anonymous data with us. This does not include any financial information.";
 "analytics.shareAnonymousData" = "Share Anonymous Data?";
+"email.not.configured" = "Your device isn't configured to send email";
