@@ -72,10 +72,6 @@ extension SupportViewController: UITableViewDataSource {
     }
 }
 
-extension SupportViewController: HelpViewControllerDelegate {
-
-}
-
 extension SupportViewController: CanOpenURL {
 
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
