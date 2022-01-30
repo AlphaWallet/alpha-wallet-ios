@@ -113,6 +113,8 @@ final class ContactUsEmailResolver: NSObject {
             }
 
             viewController.present(mc, animated: true)
+        } else {
+            viewController.displayError(message: R.string.localizable.emailNotConfigured())
         }
     }
 
