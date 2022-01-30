@@ -26,7 +26,7 @@ class PagesContainerView: RoundedBackground {
             ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
         }
         let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
-        control.setSelection(cellIndex: 0)
+        control.setSelection(cellIndex: selectedIndex)
         control.translatesAutoresizingMaskIntoConstraints = false
         control.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
         return control
@@ -56,9 +56,11 @@ class PagesContainerView: RoundedBackground {
         return tabBar.selectedSegment
     }
     private (set) var bottomAnchorConstraints: [NSLayoutConstraint] = []
+    private let selectedIndex: Int
 
-    init(pages: [PageViewType]) {
+    init(pages: [PageViewType], selectedIndex: Int = 0) {
         self.pages = pages
+        self.selectedIndex = selectedIndex
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 

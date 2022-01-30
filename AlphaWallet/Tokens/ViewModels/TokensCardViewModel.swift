@@ -17,6 +17,10 @@ struct TokensCardViewModel {
         return nil
     }
 
+    var initiallySelectedTabIndex: Int {
+        return 1
+    }
+
     private let assetDefinitionStore: AssetDefinitionStore
     let token: TokenObject
     var tokenHolders: [TokenHolder]
