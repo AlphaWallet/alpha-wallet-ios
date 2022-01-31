@@ -8,6 +8,7 @@
 import UIKit
 
 protocol TokensCardCollectionInfoPageViewDelegate: class {
+    func didPressOpenWebPage(_ url: URL, in view: TokensCardCollectionInfoPageView)
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView)
 }
 
@@ -36,9 +37,11 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     private (set) var viewModel: TokensCardCollectionInfoPageViewModel
     weak var delegate: TokensCardCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
-
-    init(viewModel: TokensCardCollectionInfoPageViewModel) {
+    private let session: WalletSession
+    
+    init(viewModel: TokensCardCollectionInfoPageViewModel, session: WalletSession) {
         self.viewModel = viewModel
+        self.session = session
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -62,7 +65,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         stackView.addArrangedSubview(UIView.spacer(height: 10))
         stackView.addArrangedSubview(tokenIconImageView)
         stackView.addArrangedSubview(UIView.spacer(height: 20))
-
+        
         for (index, each) in viewModel.configurations.enumerated() {
             switch each {
             case .header(let viewModel):
@@ -76,6 +79,18 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
                 view.delegate = self
                 stackView.addArrangedSubview(view)
             }
+        }
+    }
+
+    func viewDidLoad() {
+        let values = viewModel.tokenHolders[0].values
+
+        if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
+            var viewModel = viewModel
+            OpenSea.collectionStats(slug: openSeaSlug).done { stats in
+                viewModel.configure(overiddenOpenSeaStats: stats)
+                self.configure(viewModel: viewModel)
+            }.cauterize()
         }
     }
 
@@ -97,6 +112,26 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
 
 extension TokensCardCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
-        //no-op
+        let url: URL? = {
+            switch viewModel.configurations[view.indexPath.row] {
+            case .field(let vm) where viewModel.wikiUrlViewModel == vm:
+                return viewModel.wikiUrl
+            case .field(let vm) where viewModel.instagramUsernameViewModel == vm:
+                return viewModel.instagramUrl
+            case .field(let vm) where viewModel.twitterUsernameViewModel == vm:
+                return viewModel.twitterUrl
+            case .field(let vm) where viewModel.discordUrlViewModel == vm:
+                return viewModel.discordUrl
+            case .field(let vm) where viewModel.telegramUrlViewModel == vm:
+                return viewModel.telegramUrl
+            case .field(let vm) where viewModel.externalUrlViewModel == vm:
+                return viewModel.externalUrl
+            case .header, .field:
+                return .none
+            }
+        }()
+
+        guard let url = url else { return }
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 }

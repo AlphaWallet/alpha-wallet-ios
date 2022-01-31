@@ -59,7 +59,7 @@ final class StringFormatter {
         }
     }
 
-    func largeNumberFormatter(for double: Double, currency: String) -> String {
+    func largeNumberFormatter(for double: Double, currency: String, decimals: Int = 1) -> String {
         let suffix = ["", "K", "M", "B", "T", "P", "E"]
 
         func formatNumber(_ number: Double) -> (value: Double, suffix: String) {
@@ -73,6 +73,6 @@ final class StringFormatter {
         }
 
         let result = formatNumber(double)
-        return String(format: "%.1f%@ %@", result.value, result.suffix, currency)
+        return String(format: "%.\(decimals)f%@ %@", result.value, result.suffix, currency)
     }
 }

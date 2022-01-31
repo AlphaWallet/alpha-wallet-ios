@@ -62,7 +62,7 @@ class ActivitiesPageView: UIView, PageViewType {
         activitiesView.applySearch(keyword: nil)
 
         activitiesView.endLoading()
-    }
+    } 
 }
 
 extension ActivitiesPageView: ActivitiesViewDelegate {

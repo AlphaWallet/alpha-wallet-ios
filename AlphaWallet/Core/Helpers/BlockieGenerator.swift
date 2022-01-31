@@ -105,7 +105,7 @@ class BlockiesGenerator {
             promise
         }.then { url -> Promise<BlockiesImage> in
             return Self.decodeEip155URL(url: url).then { value -> Promise<BlockiesImage> in
-                Self.fetchOpenSeaAssetAssetURL(from: value).then { url -> Promise<BlockiesImage> in
+                Self.fetchOpenSeaAssetImageUrl(from: value).then { url -> Promise<BlockiesImage> in
                     return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
                 }
             }.recover { _ -> Promise<BlockiesImage> in
@@ -115,8 +115,8 @@ class BlockiesGenerator {
         }
     }
 
-    private static func fetchOpenSeaAssetAssetURL(from value: Eip155URL) -> Promise<URL> {
-        return OpenSea.fetchAsset(for: value)
+    private static func fetchOpenSeaAssetImageUrl(from value: Eip155URL) -> Promise<URL> {
+        return OpenSea.fetchAssetImageUrl(for: value)
     }
 
     private static func decodeEip155URL(url: String) -> Promise<Eip155URL> {

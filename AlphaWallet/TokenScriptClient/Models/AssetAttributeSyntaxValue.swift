@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
+import BigInt 
 
 struct AssetAttributeSyntaxValue: Hashable {
     static func == (lhs: AssetAttributeSyntaxValue, rhs: AssetAttributeSyntaxValue) -> Bool {
@@ -325,8 +325,12 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["supplyModel"]?.stringValue
     }
 
-    var issuer: String? {
-        return self["issuer"]?.stringValue
+    var enjinIssuer: String? {
+        let rawValue = self["enjin.issuer"]?.stringValue
+        guard let maybeAddress = rawValue.flatMap({ AlphaWallet.Address(string: $0) }) else {
+            return rawValue
+        }
+        return maybeAddress.truncateMiddle
     }
 
     var created: String? {
@@ -337,12 +341,30 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         return self["transferFee"]?.stringValue
     }
 
-    mutating func setTraits(value: [OpenSeaNonFungibleTrait]) {
-        self["traits"] = .init(openSeaTraits: value)
-    }
-
     var descriptionAssetInternalValue: AssetInternalValue? {
         self["description"]?.value
+    }
+
+    var slug: String? {
+        self["slug"]?.stringValue
+    }
+
+    var collectionValue: OpenSea.Collection? {
+        return self["collection"]?.stringValue.flatMap { rawValue -> OpenSea.Collection? in
+            guard let data = rawValue.data(using: .utf8) else { return nil }
+            return try? JSONDecoder().decode(OpenSea.Collection.self, from: data)
+        }
+    }
+
+    var creatorValue: OpenSea.AssetCreator? {
+        return self["creator"]?.stringValue.flatMap { rawValue -> OpenSea.AssetCreator? in
+            guard let data = rawValue.data(using: .utf8) else { return nil }
+            return try? JSONDecoder().decode(OpenSea.AssetCreator.self, from: data)
+        }
+    }
+
+    mutating func setTraits(value: [OpenSeaNonFungibleTrait]) {
+        self["traits"] = .init(openSeaTraits: value)
     }
 
     mutating func setDecimals(int: Int) {
@@ -398,7 +420,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
     }
 
     mutating func setIssuer(string: String?) {
-        self["issuer"] = string.flatMap { .init(directoryString: $0) }
+        self["enjin.issuer"] = string.flatMap { .init(directoryString: $0) }
     }
 
     mutating func setCreated(string: String?) {
@@ -407,5 +429,27 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
 
     mutating func setTransferFee(string: String?) {
         self["transferFee"] = string.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setCollection(collection: OpenSea.Collection?) {
+        self["collection"] = collection.flatMap { collection -> String? in
+            let data = try? JSONEncoder().encode(collection)
+            return data.flatMap { data in
+                String(data: data, encoding: .utf8)
+            }
+        }.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setCreator(creator: OpenSea.AssetCreator?) {
+        self["creator"] = creator.flatMap { creator -> String? in
+            let data = try? JSONEncoder().encode(creator)
+            return data.flatMap { data in
+                String(data: data, encoding: .utf8)
+            }
+        }.flatMap { .init(directoryString: $0) }
+    }
+
+    mutating func setSlug(string: String?) {
+        self["slug"] = string.flatMap { .init(directoryString: $0) }
     }
 }

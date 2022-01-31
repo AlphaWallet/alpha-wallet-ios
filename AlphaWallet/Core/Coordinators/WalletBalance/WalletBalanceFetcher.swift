@@ -42,26 +42,25 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let assetDefinitionStore: AssetDefinitionStore
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
     private var services: ServerDictionary<WalletBalanceFetcherSubServices> = .init()
-
-    var tokenObjects: [Activity.AssignedToken] {
-        //NOTE: replace with more clear solution
-        tokensDatastore
-            .enabledTokenObjects(forServers: Array(services.keys))
-            .map { Activity.AssignedToken(tokenObject: $0) }
-    }
-
     private let queue: DispatchQueue
     private var cache: ThreadSafeDictionary<AddressAndRPCServer, (NotificationToken, Subscribable<BalanceBaseViewModel>)> = .init()
     private let coinTickersFetcher: CoinTickersFetcherType
     private lazy var tokensDatastore: TokensDataStore = {
         return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: Config().enabledServers)
     }()
-    weak var delegate: WalletBalanceFetcherDelegate?
-
+    private let keystore: Keystore
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
 
-    required init(wallet: Wallet, servers: [RPCServer], assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    weak var delegate: WalletBalanceFetcherDelegate?
+    var tokenObjects: [Activity.AssignedToken] {
+        tokensDatastore
+            .enabledTokenObjects(forServers: Array(services.keys))
+            .map { Activity.AssignedToken(tokenObject: $0) }
+    }
+
+    required init(wallet: Wallet, keystore: Keystore, servers: [RPCServer], assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
+        self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.queue = queue
         self.coinTickersFetcher = coinTickersFetcher
@@ -94,7 +93,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func createServices(wallet: Wallet, server: RPCServer) -> WalletBalanceFetcherSubServices {
         let transactionsStorage = TransactionsStorage(realm: realm, server: server, delegate: nil)
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, keystore: keystore, tokensDataStore: tokensDatastore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 

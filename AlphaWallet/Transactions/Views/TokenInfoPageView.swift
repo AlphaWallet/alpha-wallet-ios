@@ -129,7 +129,7 @@ class TokenInfoPageView: UIView, PageViewType {
     @objc private func refreshHeaderView() {
         viewModel.isShowingValue.toggle()
         headerView.configure(viewModel: viewModel)
-    }
+    } 
 }
 
 extension TokenInfoPageView: SendHeaderViewDelegate {

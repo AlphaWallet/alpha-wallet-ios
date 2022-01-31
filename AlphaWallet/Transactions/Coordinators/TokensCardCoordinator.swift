@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import Result
 import SafariServices
 import MessageUI
 import BigInt
@@ -411,9 +410,14 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
         delegate?.didPress(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), inViewController: viewController, in: self)
     }
-}
+    
+} 
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
+
+    func didSelectAssetSelection(in viewController: TokensCardViewController) {
+        //no-op
+    }
 
     func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
         delegate?.didTap(transaction: transaction, in: self)

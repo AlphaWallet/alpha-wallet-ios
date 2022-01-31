@@ -130,7 +130,7 @@ class PagesContainerView: RoundedBackground {
         }
 
         let offset = CGPoint(x: CGFloat(index) * scrollView.bounds.width, y: 0)
-        scrollView.setContentOffset(offset, animated: false)
+        scrollView.setContentOffset(offset, animated: animated)
 
         delegate?.containerView(self, didSelectPage: index)
     }
@@ -176,5 +176,5 @@ class PageViewWithFooter: UIView, PageViewType {
 
     required init?(coder: NSCoder) {
         return nil
-    }
+    } 
 }

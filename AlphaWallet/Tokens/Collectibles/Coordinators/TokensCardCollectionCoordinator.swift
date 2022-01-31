@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import Result
 import SafariServices
 import MessageUI
 import BigInt
@@ -23,7 +22,7 @@ protocol TokensCardCollectionCoordinatorDelegate: class, CanOpenURL {
 class TokensCardCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
-    private (set) lazy var rootViewController: TokensCardCollectionViewController = {
+    private (set) lazy var rootViewController: TokensCardViewController = {
         return makeTokensCardCollectionViewController()
     }()
 
@@ -69,7 +68,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        let viewModel = TokensCardCollectionViewControllerViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         rootViewController.configure(viewModel: viewModel)
         navigationController.pushViewController(rootViewController, animated: true)
         refreshUponAssetDefinitionChanges()
@@ -102,8 +101,8 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
 
         for each in navigationController.viewControllers {
             switch each {
-            case let vc as TokensCardCollectionViewController:
-                let viewModel = TokensCardCollectionViewControllerViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+            case let vc as TokensCardViewController:
+                let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
                 vc.configure(viewModel: viewModel)
             case let vc as TokenInstanceViewController:
                 let updatedTokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: session.account)
@@ -121,12 +120,12 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         return .filter(transactionsStorage: transactionsStorage, strategy: strategy, tokenObject: tokenObject)
     }
 
-    private func makeTokensCardCollectionViewController() -> TokensCardCollectionViewController {
-        let viewModel = TokensCardCollectionViewControllerViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+    private func makeTokensCardCollectionViewController() -> TokensCardViewController {
+        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         let activitiesFilterStrategy: ActivitiesFilterStrategy = .operationTypes(operationTypes: [.erc1155TokenTransfer], contract: token.contractAddress)
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
 
-        let controller = TokensCardCollectionViewController(session: session, tokensDataStore: tokensStorage, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let controller = TokensCardViewController(session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         controller.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(didCloseSelected))
@@ -159,21 +158,17 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
 
 }
 
-extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDelegate {
+extension TokensCardCollectionCoordinator: TokensCardViewControllerDelegate {
 
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokensCardCollectionViewController) {
-        delegate?.didTap(for: paymentFlow, in: self, viewController: viewController)
-    }
-
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardCollectionViewController) {
-        showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
+    func didCancel(in viewController: TokensCardViewController) {
+        delegate?.didClose(in: self)
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
         delegate?.didTap(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), in: self, viewController: viewController)
     }
 
-    func didSelectTokenHolder(in viewController: TokensCardCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
+    func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
         switch tokenHolder.type {
         case .collectible:
             let viewModel = TokenCardListViewControllerViewModel(tokenHolder: tokenHolder)
@@ -186,15 +181,15 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
         }
     }
 
-    func didTap(transaction: TransactionInstance, in viewController: TokensCardCollectionViewController) {
+    func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
         delegate?.didTap(transaction: transaction, in: self)
     }
 
-    func didTap(activity: Activity, in viewController: TokensCardCollectionViewController) {
+    func didTap(activity: Activity, in viewController: TokensCardViewController) {
         delegate?.didTap(activity: activity, in: self)
     }
 
-    func didSelectAssetSelection(in viewController: TokensCardCollectionViewController) {
+    func didSelectAssetSelection(in viewController: TokensCardViewController) {
         showTokenCardSelection(tokenHolders: viewController.viewModel.tokenHolders)
     }
 

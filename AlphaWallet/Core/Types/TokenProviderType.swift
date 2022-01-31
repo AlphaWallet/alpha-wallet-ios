@@ -23,7 +23,6 @@ protocol TokenProviderType: class {
 }
 
 class TokenProvider: TokenProviderType {
-    static let fetchContractDataTimeout = TimeInterval(4)
     private let account: Wallet
     private let numberOfTimesToRetryFetchContractData = 2
     private let server: RPCServer

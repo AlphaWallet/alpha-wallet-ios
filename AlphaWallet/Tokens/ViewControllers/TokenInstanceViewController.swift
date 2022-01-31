@@ -81,6 +81,19 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         showNavigationBarTopSeparatorLine()
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let values = viewModel.tokenHolder.values
+        if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
+            var viewModel = viewModel
+            OpenSea.collectionStats(slug: openSeaSlug).done { stats in
+                viewModel.configure(overiddenOpenSeaStats: stats)
+                self.configure(viewModel: viewModel)
+            }.cauterize()
+        }
+    }
+
     private func generateSubviews(viewModel: TokenInstanceViewModel) {
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
@@ -100,11 +113,13 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 view.delegate = self
 
                 subviews.append(view)
-            case .attributeCollection(let viewModel):
-                let view = OpenSeaAttributeCollectionView(viewModel: viewModel)
-                view.configure(viewModel: viewModel)
+            case .attributeCollection(let attributes):
+                for (row, attribute) in attributes.enumerated() {
+                    let view = NonFungibleTraitView(indexPath: IndexPath(row: row, section: index))
+                    view.configure(viewModel: attribute)
 
-                subviews.append(view)
+                    subviews.append(view)
+                }
             }
         }
 
@@ -167,13 +182,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == viewModel.tokenId }) }).flatMap { ($0, viewModel.tokenId) }
     }
 
-    private func transfer() {
-        let transactionType = TransactionType(nonFungibleToken: tokenObject, tokenHolders: [tokenHolder])
-        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-
-        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
-    }
-
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
@@ -209,16 +217,23 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         }
     }
 
-    func redeem() {
+    private func transfer() {
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+        let transactionType = TransactionType(nonFungibleToken: tokenObject, tokenHolders: [tokenHolder])
+
+        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
+    }
+
+    private func redeem() {
         delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
     }
 
-    func sell() {
-        let tokenHolder = viewModel.tokenHolder
+    private func sell() {
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [tokenHolder])
+
         delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
-
 }
 
 extension TokenInstanceViewController: VerifiableStatusViewController {
@@ -238,10 +253,18 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
 extension TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
         switch viewModel.configurations[view.indexPath.row] {
-        case .field(let viewModel) where self.viewModel.tokenIdViewModel == viewModel:
-            UIPasteboard.general.string = viewModel.value
+        case .field(let vm) where viewModel.tokenIdViewModel == vm:
+            UIPasteboard.general.string = vm.value
 
             self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
+        case .field(let vm) where viewModel.creatorViewModel == vm:
+            guard let url = viewModel.creatorOnOpenSeaUrl else { return }
+            
+            delegate?.didPressViewContractWebPage(url, in: self)
+        case .field(let vm) where viewModel.contractViewModel == vm:
+            guard let url = viewModel.contractOnExplorerUrl else { return }
+
+            delegate?.didPressViewContractWebPage(url, in: self)
         case .header, .field, .attributeCollection:
             break
         }

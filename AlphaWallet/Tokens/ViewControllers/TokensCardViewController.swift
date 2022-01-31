@@ -8,20 +8,13 @@
 
 import Foundation
 import UIKit
-import Result
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
+    func didSelectAssetSelection(in viewController: TokensCardViewController)
     func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController)
     func didTap(activity: Activity, in viewController: TokensCardViewController)
     func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder)
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
-    func didPressViewRedemptionInfo(in viewController: TokensCardViewController)
-    func didTapURL(url: URL, in viewController: TokensCardViewController)
-    func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController)
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardViewController)
 }
 
 class TokensCardViewController: UIViewController {
@@ -33,26 +26,51 @@ class TokensCardViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
+    private lazy var buttonsBar: ButtonsBar = {
+        let buttonsBar = ButtonsBar(configuration: .empty)
+        buttonsBar.viewController = self
+
+        return buttonsBar
+    }()
     private let tokenScriptFileStatusHandler: XMLHandler
     weak var delegate: TokensCardViewControllerDelegate?
 
-    private let tokensCardCollectionInfoPageView: TokensCardCollectionInfoPageView
-    private var activitiesPageView: ActivitiesPageView
-    private var assetsPageView: AssetsPageView
-    private let containerView: PagesContainerView
+    private lazy var collectionInfoPageView: TokensCardCollectionInfoPageView = {
+        let viewModel: TokensCardCollectionInfoPageViewModel = .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
+        let view = TokensCardCollectionInfoPageView(viewModel: viewModel, session: session)
+        view.delegate = self
 
-    private var selectedTokenHolder: TokenHolder? {
-        let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
-        return selectedTokenHolders.first
-    }
+        return view
+    }()
 
+    private lazy var activitiesPageView: ActivitiesPageView = {
+        let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
+        let view = ActivitiesPageView(viewModel: viewModel, sessions: activitiesService.sessions)
+        view.delegate = self
+
+        return view
+    }()
+
+    private lazy var assetsPageView: AssetsPageView = {
+        let viewModel: AssetsPageViewModel = .init(tokenHolders: viewModel.tokenHolders, selection: .list)
+        let view = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
+        view.delegate = self
+        view.rightBarButtonItem = UIBarButtonItem.switchGridToListViewBarButton(
+            selection: viewModel.selection.inverted,
+            self,
+            selector: #selector(assetSelectionSelected)
+        )
+        view.searchBar.delegate = self
+        view.collectionView.refreshControl = refreshControl
+
+        return view
+    }()
     private let account: Wallet
     private let refreshControl = UIRefreshControl()
     private lazy var keyboardChecker: KeyboardChecker = {
-        let buttonsBarHeight: CGFloat = UIApplication.shared.bottomSafeAreaHeight > 0 ? -UIApplication.shared.bottomSafeAreaHeight : 0
-        return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true, buttonsBarHeight: buttonsBarHeight)
+        return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     }()
+    private let activitiesService: ActivitiesServiceType
 
     init(session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
         self.tokenObject = token
@@ -63,24 +81,19 @@ class TokensCardViewController: UIViewController {
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
-        self.activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
-        self.assetsPageView = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: .list))
-
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
-        tokensCardCollectionInfoPageView = TokensCardCollectionInfoPageView(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
-        let pageWithFooter = PageViewWithFooter(pageView: tokensCardCollectionInfoPageView, footerBar: footerBar)
-        containerView = PagesContainerView(pages: [pageWithFooter, assetsPageView, activitiesPageView], selectedIndex: viewModel.initiallySelectedTabIndex)
+        self.activitiesService = activitiesService
 
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
 
-        activitiesPageView.delegate = self
-        assetsPageView.delegate = self
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
+        let pageWithFooter = PageViewWithFooter(pageView: collectionInfoPageView, footerBar: footerBar)
+        let pages: [PageViewType] = [pageWithFooter, assetsPageView, activitiesPageView]
+
+        let containerView = PagesContainerView(pages: pages, selectedIndex: viewModel.initiallySelectedTabIndex)
         containerView.delegate = self
-
         view.addSubview(containerView)
-
         NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
         navigationItem.largeTitleDisplayMode = .never
@@ -90,14 +103,31 @@ class TokensCardViewController: UIViewController {
 
             view.configure(viewModel: .init(activitiesViewModel: viewModel))
         }
-        assetsPageView.rightBarButtonItem = UIBarButtonItem.switchGridToListViewBarButton(
-            selection: assetsPageView.viewModel.selection.inverted,
-            self,
-            selector: #selector(assetSelectionSelected)
-        )
-        assetsPageView.searchBar.delegate = self
-        assetsPageView.collectionView.refreshControl = refreshControl
+
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
+        configure(assetsPageView: assetsPageView, viewModel: viewModel)
+    }
+
+    private func configure(assetsPageView: AssetsPageView, viewModel: TokensCardViewModel) {
+        switch viewModel.token.type {
+        case .erc1155:
+            //TODO disabled until we support batch transfers. Selection doesn't work correctly too
+            assetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
+
+            switch session.account.type {
+            case .real:
+                assetsPageView.rightBarButtonItem?.isEnabled = true
+            case .watch:
+                assetsPageView.rightBarButtonItem?.isEnabled = false
+            }
+        case .erc721, .erc721ForTickets:
+            let selection = assetsPageView.viewModel.selection.inverted
+            let buttonItem = UIBarButtonItem.switchGridToListViewBarButton(selection: selection, self, selector: #selector(assetsDisplayTypeSelected))
+
+            assetsPageView.rightBarButtonItem = buttonItem
+        case .erc20, .nativeCryptocurrency, .erc875:
+            break
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -106,6 +136,7 @@ class TokensCardViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         hideNavigationBarTopSeparatorLine()
     }
 
@@ -117,6 +148,7 @@ class TokensCardViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
         keyboardChecker.viewWillDisappear()
         showNavigationBarTopSeparatorLine()
     }
@@ -126,6 +158,8 @@ class TokensCardViewController: UIViewController {
 
         configure(viewModel: viewModel)
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
+
+        collectionInfoPageView.viewDidLoad()
     }
 
     @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
@@ -143,35 +177,16 @@ class TokensCardViewController: UIViewController {
         title = viewModel.navigationTitle
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        tokensCardCollectionInfoPageView.configure(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
+        collectionInfoPageView.configure(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
         assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: assetsPageView.viewModel.selection))
 
-        let actions = viewModel.actions
-        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-        buttonsBar.viewController = self
-
-        func _configButton(action: TokenInstanceAction, button: BarButton) {
-            if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolders[0], tokenId: viewModel.tokenHolders[0].tokenId, forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
-                if selection.denial == nil {
-                    button.displayButton = false
-                }
-            }
-        }
-
-        for (action, button) in zip(actions, buttonsBar.buttons) {
-            button.setTitle(action.name, for: .normal)
+        if collectionInfoPageView.viewModel.openInUrl != nil {
+            buttonsBar.configure(.secondary(buttons: 1))
+            let button = buttonsBar.buttons[0]
+            button.setTitle(R.string.localizable.openOnOpenSea(), for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-            switch session.account.type {
-            case .real:
-                _configButton(action: action, button: button)
-            case .watch:
-                //TODO pass in a Config instance instead
-                if Config().development.shouldPretendIsRealWallet {
-                    _configButton(action: action, button: button)
-                } else {
-                    button.isEnabled = false
-                }
-            }
+        } else {
+            buttonsBar.configure(.empty)
         }
     }
 
@@ -179,7 +194,7 @@ class TokensCardViewController: UIViewController {
         let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
         if tokenScriptStatusPromise.isPending {
             let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
-            tokensCardCollectionInfoPageView.rightBarButtonItem = label
+            collectionInfoPageView.rightBarButtonItem = label
 
             tokenScriptStatusPromise.done { [weak self] _ in
                 self?.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
@@ -189,75 +204,20 @@ class TokensCardViewController: UIViewController {
         if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
             switch status {
             case .type0NoTokenScript:
-                tokensCardCollectionInfoPageView.rightBarButtonItem = nil
+                collectionInfoPageView.rightBarButtonItem = nil
             case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
                 let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
-                tokensCardCollectionInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
+                collectionInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
             }
         } else {
-            tokensCardCollectionInfoPageView.rightBarButtonItem = nil
+            collectionInfoPageView.rightBarButtonItem = nil
         }
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
-        let actions = viewModel.actions
-        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            handle(action: action)
-            break
-        }
+        guard let url = collectionInfoPageView.viewModel.openInUrl else { return }
+        delegate?.didPressOpenWebPage(url, in: self)
     }
-
-    private func handle(action: TokenInstanceAction) {
-        viewModel.markHolderSelected()
-
-        guard let tokenHolder = selectedTokenHolder else { return }
-
-        switch action.type {
-        case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
-            break
-        case .nftRedeem:
-            redeem()
-        case .nftSell:
-            sell()
-        case .nonFungibleTransfer:
-            transfer()
-        case .tokenScript:
-            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                if let denialMessage = selection.denial {
-                    UIAlertController.alert(
-                            title: nil,
-                            message: denialMessage,
-                            alertButtonTitles: [R.string.localizable.oK()],
-                            alertButtonStyles: [.default],
-                            viewController: self,
-                            completion: nil
-                    )
-                } else {
-                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                }
-            } else {
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-            }
-        }
-    }
-
-    func redeem() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: selectedTokenHolder, in: self)
-    }
-
-    func sell() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [selectedTokenHolder])
-        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
-    }
-
-    func transfer() {
-        guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType(nonFungibleToken: viewModel.token, tokenHolders: [selectedTokenHolder])
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
-    }
-
 }
 
 extension TokensCardViewController: UISearchBarDelegate {
@@ -274,6 +234,10 @@ extension TokensCardViewController: PagesContainerViewDelegate {
     }
 
     @objc private func assetSelectionSelected(_ sender: UIBarButtonItem) {
+        delegate?.didSelectAssetSelection(in: self)
+    }
+
+    @objc private func assetsDisplayTypeSelected(_ sender: UIBarButtonItem) {
         let selection = assetsPageView.viewModel.selection
         assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: sender.selection ?? selection))
         sender.toggleSelection()
@@ -287,6 +251,11 @@ extension TokensCardViewController: CanOpenURL2 {
 }
 
 extension TokensCardViewController: TokensCardCollectionInfoPageViewDelegate {
+
+    func didPressOpenWebPage(_ url: URL, in view: TokensCardCollectionInfoPageView) {
+        delegate?.didPressOpenWebPage(url, in: self)
+    }
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }

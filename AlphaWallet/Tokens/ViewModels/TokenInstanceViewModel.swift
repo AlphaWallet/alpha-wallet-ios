@@ -11,7 +11,7 @@ import BigInt
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
     case field(viewModel: TokenInstanceAttributeViewModel)
-    case attributeCollection(viewModel: OpenSeaOpenSeaAttributeCollectionViewModel)
+    case attributeCollection(viewModel: [NonFungibleTraitViewModel])
 }
 
 enum TokenInstanceViewMode {
@@ -35,6 +35,11 @@ struct TokenInstanceViewModel {
         self.assetDefinitionStore = assetDefinitionStore
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
+        self.contractViewModel = TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
+    }
+
+    mutating func configure(overiddenOpenSeaStats: OpenSea.Stats?) {
+        self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
     }
 
     var actions: [TokenInstanceAction] {
@@ -44,17 +49,13 @@ struct TokenInstanceViewModel {
             return actionsFromTokenScript
         } else {
             switch token.type {
-            case .erc1155:
+            case .erc1155, .erc721:
                 return [
                     .init(type: .nonFungibleTransfer)
                 ]
             case .erc875, .erc721ForTickets:
                 return [
                     .init(type: .nftSell),
-                    .init(type: .nonFungibleTransfer)
-                ]
-            case .erc721:
-                return [
                     .init(type: .nonFungibleTransfer)
                 ]
             case .nativeCryptocurrency, .erc20:
@@ -67,21 +68,31 @@ struct TokenInstanceViewModel {
         tokenHolderHelper.tokenIdViewModel
     }
 
+    var creatorOnOpenSeaUrl: URL? {
+        return tokenHolder.values.creatorValue
+            .flatMap { URL(string: "https://opensea.io/\($0.contractAddress)?tab=created") }
+    }
+
+    var contractOnExplorerUrl: URL? {
+        ConfigExplorer(server: token.server)
+            .contractUrl(address: token.contractAddress)?.url
+    }
+
+    var creatorViewModel: TokenInstanceAttributeViewModel? {
+        tokenHolderHelper.creator
+    }
+
+    var contractViewModel: TokenInstanceAttributeViewModel
+
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
     }
 
     var configurations: [TokenInstanceViewConfiguration] {
-        guard let values = tokenHolderHelper.values else { return [] }
+        var configurations: [TokenInstanceViewConfiguration] = []
 
-        var previewViewModels: [TokenInstanceViewConfiguration] = []
-        if let viewModel = tokenIdViewModel {
-            previewViewModels += [
-                .field(viewModel: viewModel)
-            ]
-        }
-
-        previewViewModels += [
+        configurations += [
+            tokenHolderHelper.valueModelViewModel,
             tokenHolderHelper.issuerViewModel,
             tokenHolderHelper.transferFeeViewModel,
             tokenHolderHelper.createdDateViewModel,
@@ -95,50 +106,65 @@ struct TokenInstanceViewModel {
             tokenHolderHelper.availableToMintViewModel,
             tokenHolderHelper.transferableViewModel,
         ].compactMap { each -> TokenInstanceViewConfiguration? in
-            return each.flatMap { TokenInstanceViewConfiguration.field(viewModel: $0) }
-        } 
+            return each.flatMap { .field(viewModel: $0) }
+        }
 
-        let value: BigInt = values.valueIntValue ?? 0
-        let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(String(value))
-        previewViewModels += [
-            .field(viewModel: .init(title: R.string.localizable.semifungiblesValue(), attributedValue: attributedValue))
-        ]
+        configurations += [
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails())),
+        ] + [
+            tokenHolderHelper.creator,
+            tokenHolderHelper.tokenIdViewModel,
+            contractViewModel,
+            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueBlockchain(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.server.blockChainName)),
+            TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueTokenStandard(), attributedValue: TokenInstanceAttributeViewModel.defaultValueAttributedString(token.type.rawValue))
+        ].compactMap { each -> TokenInstanceViewConfiguration? in
+            return each.flatMap { .field(viewModel: $0) }
+        }
 
-        if let description = values.descriptionAssetInternalValue?.resolvedValue?.stringValue.nilIfEmpty {
-            let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(description, alignment: .left)
-            previewViewModels += [
+        configurations += [
+            tokenHolderHelper.itemsCount,
+            tokenHolderHelper.totalVolume,
+            tokenHolderHelper.totalSales,
+            tokenHolderHelper.totalSupply,
+            tokenHolderHelper.owners,
+            tokenHolderHelper.averagePrice,
+            tokenHolderHelper.floorPrice
+        ].compactMap { viewModel -> TokenInstanceViewConfiguration? in
+            return viewModel.flatMap { .field(viewModel: $0) }
+        }
+
+        if let viewModel = tokenHolderHelper.descriptionViewModel {
+            configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
-                .field(viewModel: .init(title: nil, attributedValue: attributedValue, isSeparatorHidden: true))
-            ]
+                .field(viewModel: viewModel)
+            ] 
         }
 
         if !tokenHolderHelper.attributes.isEmpty {
-            previewViewModels += [
+            configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.attributes))
+                .attributeCollection(viewModel: tokenHolderHelper.attributes)
             ]
         }
 
         if !tokenHolderHelper.stats.isEmpty {
-            previewViewModels += [
+            configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
-                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.stats))
+                .attributeCollection(viewModel: tokenHolderHelper.stats)
             ]
         }
 
         if !tokenHolderHelper.rankings.isEmpty {
-            previewViewModels += [
+            configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
-                .attributeCollection(viewModel: .init(attributes: tokenHolderHelper.rankings))
+                .attributeCollection(viewModel: tokenHolderHelper.rankings)
             ]
         }
 
-        return [
-            .header(viewModel: .init(title: R.string.localizable.semifungiblesDetails()))
-        ] + previewViewModels
+        return configurations
     }
 
-    var navigationTitle: String? {
+    var navigationTitle: String {
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
             return name
