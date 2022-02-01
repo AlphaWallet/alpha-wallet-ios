@@ -102,9 +102,27 @@ class PagesContainerView: RoundedBackground {
         return nil
     }
 
+    //NOTE: need to triggle initial selection state when view layout its subviews for first time
+    private var didLayoutSubviewsAtFirstTime: Bool = true
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        guard scrollView.bounds.width != .zero && didLayoutSubviewsAtFirstTime else {
+            return
+        }
+
+        didLayoutSubviewsAtFirstTime = false
+        selectTab(selection: tabBar.selectedSegment, animated: false)
+    }
+
     @objc func didTapSegment(_ control: ScrollableSegmentedControl) {
+        selectTab(selection: control.selectedSegment, animated: true)
+    }
+
+    private func selectTab(selection: ControlSelection, animated: Bool) {
         let index: Int
-        switch control.selectedSegment {
+        switch selection {
         case .selected(let value):
             index = Int(value)
         case .unselected:
@@ -112,7 +130,7 @@ class PagesContainerView: RoundedBackground {
         }
 
         let offset = CGPoint(x: CGFloat(index) * scrollView.bounds.width, y: 0)
-        scrollView.setContentOffset(offset, animated: true)
+        scrollView.setContentOffset(offset, animated: false)
 
         delegate?.containerView(self, didSelectPage: index)
     }
