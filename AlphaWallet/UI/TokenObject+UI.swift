@@ -1,10 +1,13 @@
 // Copyright © 2020 Stormbird PTE. LTD.
-
 import UIKit
 import PromiseKit
 
 typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
 typealias Image = UIImage
+//hhh remove
+struct hhh {
+    static let ENJIN_CONTRACT = "0xfaafdc07907ff5120a76b34b731b278c38d6043c"
+}
 
 private func programmaticallyGeneratedIconImage(for contractAddress: AlphaWallet.Address, server: RPCServer) -> UIImage {
     let backgroundColor = symbolBackgroundColor(for: contractAddress, server: server)
@@ -149,6 +152,9 @@ class TokenImageFetcher {
     }
 
     private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: String?) -> Subscribable<TokenImage> {
+        if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+            NSLog("xxx image for Enjin!")
+        }
         let queue = self.queue
         let subscribable: Subscribable<TokenImage>
         let key = "\(contractAddress.eip55String)-\(server.chainID)"
@@ -198,15 +204,37 @@ class TokenImageFetcher {
                 }
             }
 
-            Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
-            }).catch(on: queue) { _ in
-                Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
-                    subscribable.value = (image: .image($0), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
-                }).catch(on: .main, { _ in
+            //hhh1 original. We switch the order now
+            //Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
+            //    if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+            //        NSLog("xxx fetchFromOpenSea image for Enjin!")
+            //    }
+            //    subscribable.value = (image: $0, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+            //}).catch(on: queue) { _ in
+            //    Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
+            //        subscribable.value = (image: .image($0), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
+            //    }).catch(on: .main, { _ in
+            //        subscribable.value = generatedImage
+            //    })
+            //}
+
+            Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
+                if contractAddress.sameContract(as: "0xfaafdc07907ff5120a76b34b731b278c38d6043c") {
+                    NSLog("fetched from GitHub image for Enjin OK!")
+                }
+                subscribable.value = (image: .image($0), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
+            }).catch(on: .main, { e in
+                NSLog("xxx error from github: \(e)")
+                //hhh1 we check github first, but must skip third party…
+                Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
+                    if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+                        NSLog("xxx fetchFromOpenSea image for Enjin!")
+                    }
+                    subscribable.value = (image: $0, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+                }).catch(on: .main) { _ in
                     subscribable.value = generatedImage
-                })
-            }
+                }
+            })
         }
 
         return subscribable
@@ -233,15 +261,30 @@ class TokenImageFetcher {
     }
 
     private static func fetchFromAssetGitHubRepo(_ githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
-        firstly {
+        if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+            NSLog("xxx fetchFromAssetGitHubRepo 1 image for Enjin!")
+        }
+        //hhh remove return
+        return firstly {
             GithubAssetsURLResolver().resolve(for: githubAssetsSource, contractAddress: contractAddress)
         }.then(on: queue, { request -> Promise<UIImage> in
-            fetch(request: request, queue: queue)
+            //hhh restore
+            //fetch(request: request, queue: queue)
+            if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+                NSLog("xxx force return image")
+                return .value(UIImage(contentsOfFile: "/Users/hboon/Desktop/151553758-8a74766e-0e2c-4395-8f46-cd0bfac059ba.png")!)
+            } else {
+                return fetch(request: request, queue: queue)
+            }
         })
     }
 
     private static func fetchFromAssetGitHubRepo(contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
-        firstly {
+        if contractAddress.sameContract(as: hhh.ENJIN_CONTRACT) {
+            NSLog("xxx fetchFromAssetGitHubRepo 2 image for Enjin!")
+        }
+        //hhh1 remove "return"
+        return firstly {
             fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress, queue: queue)
         }.recover(on: queue, { _ -> Promise<UIImage> in
             fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)
@@ -249,7 +292,7 @@ class TokenImageFetcher {
     }
 
     private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
-        Alamofire.request(request).responseData().map(on: queue) { response -> UIImage in
+        return Alamofire.request(request).responseData().map(on: queue) { response -> UIImage in
             if let img = UIImage(data: response.data) {
                 return img
             } else {
