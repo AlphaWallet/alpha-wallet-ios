@@ -160,13 +160,13 @@ extension AccountsViewController: UITableViewDataSource {
             cell.addGestureRecognizer(gesture)
 
             let address = cellViewModel.address
-            ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { result in
-                guard let ensName = result.value else { return }
-                //Cell might have been reused. Check
+            let resolver: DomainResolutionServiceType = DomainResolutionService()
+            resolver.resolveEns(address: address).done { resolution in
                 guard let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
-                cellViewModel.ensName = ensName
+
+                cellViewModel.ensName = resolution.resolution.value
                 cell.configure(viewModel: cellViewModel)
-            }
+            }.cauterize()
 
             let subscribableBalance = walletBalanceCoordinator.subscribableWalletBalance(wallet: cellViewModel.wallet)
             if let key = cell.balanceSubscribtionKey {

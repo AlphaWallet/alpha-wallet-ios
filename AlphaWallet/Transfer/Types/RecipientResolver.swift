@@ -16,23 +16,29 @@ class RecipientResolver {
     let address: AlphaWallet.Address?
     var ensName: String?
 
-    var hasResolvedESNName: Bool {
+    var hasResolvedEnsName: Bool {
         if let value = ensName {
             return !value.trimmed.isEmpty
         }
         return false
     }
-
+    private let resolver: DomainResolutionServiceType = DomainResolutionService()
+    
     init(address: AlphaWallet.Address?) {
         self.address = address
     }
 
     func resolve(completion: @escaping () -> Void) {
         guard let address = address else { return }
-        ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+        resolver.resolveEns(address: address).done { [weak self] result in
             guard let strongSelf = self else { return }
 
-            strongSelf.ensName = result.value
+            strongSelf.ensName = result.resolution.value
+            completion()
+        }.catch { [weak self] _ in
+            guard let strongSelf = self else { return }
+
+            strongSelf.ensName = nil
             completion()
         }
     }

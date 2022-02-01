@@ -222,10 +222,10 @@ class AccountsCoordinator: Coordinator {
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
         alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
             guard let strongSelf = self else { return }
-            ENSReverseLookupCoordinator(server: .forResolvingEns).getENSNameFromResolver(forAddress: account) { result in
-                guard let ensName = result.value else { return }
-                textField.placeholder = ensName
-            }
+            let resolver: DomainResolutionServiceType = DomainResolutionService()
+            resolver.resolveEns(address: account).done { resolution in
+                textField.placeholder = resolution.resolution.value
+            }.cauterize()
             let walletNames = strongSelf.config.walletNames
             textField.text = walletNames[account]
         })

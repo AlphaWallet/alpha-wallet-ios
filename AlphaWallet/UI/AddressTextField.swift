@@ -365,7 +365,7 @@ extension AddressTextField: UITextFieldDelegate {
         }.cauterize()
     }
 
-    private func addressOrEnsNameDidResolve(_ response: AddressOrEnsNameLabel.BlockieAndAddressOrEnsResolution, whileTextWasPaste: Bool) {
+    private func addressOrEnsNameDidResolve(_ response: BlockieAndAddressOrEnsResolution, whileTextWasPaste: Bool) {
         guard value == textField.text?.trimmed else {
             return
         }
