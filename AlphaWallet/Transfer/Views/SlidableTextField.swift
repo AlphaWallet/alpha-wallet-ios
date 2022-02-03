@@ -35,7 +35,7 @@ class SlidableTextField: UIView {
     lazy var textField: TextField = {
         let textField = TextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.keyboardType = .decimalPad
+        textField.keyboardType = .numberPad
         textField.delegate = self
 
         return textField
@@ -109,16 +109,15 @@ extension SlidableTextField: TextFieldDelegate {
     }
 
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
-        guard let newString: String = (textField.value as NSString?)?.replacingCharacters(in: range, with: string) else { return false }
-
+        guard string.isNumeric() || string.isEmpty else { return false }
+        let convertedNSString = textField.value as NSString
+        let newString: String = convertedNSString.replacingCharacters(in: range, with: string)
         if newString.isEmpty {
             return true
         } else {
             guard let value = Int(newString), let delegate = delegate else { return false }
-
             slider.setValue(Float(value), animated: false)
             delegate.textField(self, textDidChange: value)
-
             return true
         }
     }

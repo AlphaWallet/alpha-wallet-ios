@@ -14,7 +14,6 @@ class ConfigureTransactionViewController: UIViewController {
         let editGasLimitView = SlidableTextField()
         editGasLimitView.delegate = self
         editGasLimitView.textField.inputAccessoryButtonType = .next
-        editGasPriceView.textField.keyboardType = .numberPad
 
         return editGasLimitView
     }()
@@ -46,7 +45,6 @@ class ConfigureTransactionViewController: UIViewController {
     private lazy var editGasPriceView: SlidableTextField = {
         let editGasPriceView = SlidableTextField()
         editGasPriceView.delegate = self
-        editGasPriceView.textField.keyboardType = .numberPad
         editGasPriceView.textField.inputAccessoryButtonType = .next
 
         return editGasPriceView
