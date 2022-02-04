@@ -73,6 +73,7 @@ struct Formatter {
         let formatter = Formatter.default
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
+        formatter.locale = Locale(identifier: "en_US")
         return formatter
     }()
 
