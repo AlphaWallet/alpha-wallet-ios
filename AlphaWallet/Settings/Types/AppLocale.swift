@@ -9,6 +9,7 @@ enum AppLocale {
     case spanish
     case korean
     case japanese
+    case finnish
 
     var id: String? {
         //Other than .system, the returned values must match the locale bundle names — eg. zh-Hans.lproj — included in the app
@@ -24,7 +25,9 @@ enum AppLocale {
         case .korean:
             return "ko"
         case .japanese:
-             return "ja"
+            return "ja"
+        case .finnish:
+            return "fi"
         }
     }
 
@@ -41,7 +44,9 @@ enum AppLocale {
         case .korean:
             return "ko"
         case .japanese:
-             return "ja_JP"
+            return "ja_JP"
+        case .finnish:
+            return "fi_FI"
         }
     }
 
@@ -60,6 +65,8 @@ enum AppLocale {
             return "한국어"
         case .japanese:
             return "日本語"
+        case .finnish:
+            return "Suomi"
         }
     }
 
@@ -78,6 +85,8 @@ enum AppLocale {
                 return .korean
             } else if id == AppLocale.japanese.id {
                 return .japanese
+            } else if id == AppLocale.finnish.id {
+                return .finnish
             } else {
                 return .system
             }
