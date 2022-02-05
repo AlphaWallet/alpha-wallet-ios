@@ -106,8 +106,13 @@ class TokensCardViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        keyboardChecker.viewWillAppear()
         hideNavigationBarTopSeparatorLine()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        //NOTE: Calling keyboardCheckers `viewWillAppear` in viewWillAppear brakes layout
+        keyboardChecker.viewWillAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
