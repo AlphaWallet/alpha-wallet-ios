@@ -6038,7 +6038,6 @@
 				87CC3853273E7980005BE9B8 /* eip155URLDecoder.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,
 				874D2F8027A2B1D1005459DA /* UnstoppableDomainsV2Resolver.swift in Sources */,
-				879F184826E73CF4000602F2 /* Erc1155TokenInstanceViewController.swift in Sources */,
 				879F184826E73CF4000602F2 /* TokenInstanceViewController.swift in Sources */,
 				8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */,
 				5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */,
