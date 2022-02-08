@@ -271,9 +271,7 @@ class GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {
-        //TODO switch back to loading from `master` after both iOS and Android is capable of overlaying the chain icon to token icons and we have updated `master` to remove the preprocessed overlay icons
-        //case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
-        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/with-chain-overlay-removed/"
+        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
         case thirdParty = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
     }
 
