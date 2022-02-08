@@ -24,13 +24,11 @@ class DomainResolutionService: DomainResolutionServiceType {
         }
 
         let getEnsAddressCoordinator = GetENSAddressCoordinator(server: server)
-        let unstoppableDomainsV1Resolver = UnstoppableDomainsV1Resolver(server: server)
         let unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server)
 
         let services: [CachebleAddressResolutionServiceType] = [
             getEnsAddressCoordinator,
-            unstoppableDomainsV2Resolver,
-            unstoppableDomainsV1Resolver
+            unstoppableDomainsV2Resolver
         ]
 
         if let cached = services.compactMap({ $0.cachedAddressValue(for: value) }).first {
@@ -42,10 +40,6 @@ class DomainResolutionService: DomainResolutionServiceType {
             .recover { _ -> Promise<AlphaWallet.Address> in
                 unstoppableDomainsV2Resolver
                     .resolveAddress(for: value)
-                    .recover { _ -> Promise<AlphaWallet.Address> in
-                        unstoppableDomainsV1Resolver
-                            .resolveAddress(for: value)
-                    }
             }.then { addr -> Promise<BlockieAndAddressOrEnsResolution> in
                 resolveBlockieImage(addr: addr)
             }
