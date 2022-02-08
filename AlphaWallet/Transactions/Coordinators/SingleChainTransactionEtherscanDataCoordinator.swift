@@ -60,7 +60,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     deinit {
-        debug("\(self).deinit")
+        debugLog("\(self).deinit")
     }
 
     func stopTimers() {
@@ -550,5 +550,5 @@ func error(value e: Error, pref: String = "", function f: String = #function, rp
     description += rpcServer.flatMap { " server: \($0)" } ?? ""
     description += address.flatMap { " address: \($0.eip55String)" } ?? ""
     description += " \(e)"
-    error(description, callerFunctionName: f)
+    errorLog(description, callerFunctionName: f)
 }

@@ -147,7 +147,7 @@ final class BrowserViewController: UIViewController {
 
     func goTo(url: URL) {
         hideErrorView()
-        verbose("Loading URL: \(url.absoluteString)…")
+        verboseLog("Loading URL: \(url.absoluteString)…")
         webView.load(URLRequest(url: url))
     }
 
@@ -209,12 +209,12 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        info("[Browser] navigation with error: \(error)")
+        infoLog("[Browser] navigation with error: \(error)")
         handleError(error: error)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        info("[Browser] provisional navigation with error: \(error)")
+        infoLog("[Browser] provisional navigation with error: \(error)")
         handleError(error: error)
     }
 
@@ -233,7 +233,7 @@ extension BrowserViewController: WKNavigationDelegate {
             delegate?.handleUniversalLink(url, inBrowserViewController: self)
             decisionHandler(.cancel)
             return
-        } 
+        }
 
         decisionHandler(.allow)
     }
@@ -247,12 +247,12 @@ extension BrowserViewController: WKScriptMessageHandler {
             }
             return
         }
-        info("[Browser] dapp command: \(command)")
+        infoLog("[Browser] dapp command: \(command)")
         let requester = DAppRequester(title: webView.title, url: webView.url)
         let token = TokensDataStore.token(forServer: server)
         let action = DappAction.fromCommand(command, server: server, transactionType: .dapp(token, requester))
 
-        info("[Browser] dapp action: \(action)")
+        infoLog("[Browser] dapp action: \(action)")
         delegate?.didCall(action: action, callbackID: command.id, inBrowserViewController: self)
     }
 }

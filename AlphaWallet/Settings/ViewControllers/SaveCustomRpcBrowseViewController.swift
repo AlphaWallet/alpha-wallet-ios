@@ -256,7 +256,7 @@ extension SaveCustomRpcBrowseViewController: HandleAddMultipleCustomRpcViewContr
 
     private func reportFailures(customRpcs: [CustomRPC]) {
         customRpcs.forEach { customRpc in
-            info("[Custom chains] Failed to add: \(customRpc.chainName) chainID: \(customRpc.chainID) endPoint: \(customRpc.rpcEndpoint)")
+            infoLog("[Custom chains] Failed to add: \(customRpc.chainName) chainID: \(customRpc.chainID) endPoint: \(customRpc.rpcEndpoint)")
         }
     }
 

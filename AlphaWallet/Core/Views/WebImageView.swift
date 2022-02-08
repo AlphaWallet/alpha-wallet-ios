@@ -115,14 +115,14 @@ class WebImageView: UIView {
                     self?.setIsLoadingImageFromURL(true)
                 case .imageLoadFailure:
                     resetToDisplayPlaceholder()
-                    verbose("Loading token icon URL: \(url) error")
+                    verboseLog("Loading token icon URL: \(url) error")
                 }
             })
         }
 
         guard let imageURL = url.flatMap({ $0.rewrittenIfIpfs }).flatMap({ $0.absoluteString }) else {
             return resetToDisplayPlaceholder()
-        } 
+        }
 
         loadHtmlForImage(url: imageURL)
     }
@@ -208,7 +208,7 @@ private class _WebImageView: UIView {
             case .pageDidLoad:
                 guard !strongSelf.pageDidLoad else { return }
                 strongSelf.pageDidLoad = true
-                
+
                 strongSelf.subscribeForFrameChange(completion: {
                     if let url = strongSelf.pendingToLoadURL {
                         strongSelf.pendingToLoadURL = .none
@@ -279,7 +279,7 @@ private class _WebImageView: UIView {
         guard var html = try? String(contentsOfFile: filePath, encoding: .utf8) else { return "" }
         html = html.replacingOccurrences(of: "<scale>", with: scale.rawValue)
         html = html.replacingOccurrences(of: "<align>", with: align.rawValue)
-        
+
         return html
     }
 

@@ -21,11 +21,11 @@ class CreateRedeemTests: XCTestCase {
         do {
             let signature = try keyStore.signMessageData(data!, for: account.dematerialize())
             //message and signature is to go in qr code
-            debug("message: " + message)
-            debug(try "signature: " + signature.dematerialize().hexString)
+            debugLog("message: " + message)
+            debugLog(try "signature: " + signature.dematerialize().hexString)
             //TODO no test?
         } catch {
-            debug(error)
+            debugLog(error)
         }
     }
 }

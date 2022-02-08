@@ -23,22 +23,22 @@ public final class DASNameLookupCoordinator {
 
     func resolve(rpcURL: URL, value: String) -> Promise<AlphaWallet.Address> {
         guard DASNameLookupCoordinator.isValid(value: value) else {
-            debug("[DAS] Invalid lookup: \(value)")
+            debugLog("[DAS] Invalid lookup: \(value)")
             return .init(error: DASNameLookupError.invalidInput)
         }
 
         let request = EtherServiceRequest(rpcURL: rpcURL, batch: BatchFactory().create(DASLookupRequest(value: value)))
-        debug("[DAS] Looking up value \(value)")
+        debugLog("[DAS] Looking up value \(value)")
         return Session.send(request).map { response -> AlphaWallet.Address in
-            debug("[DAS] response for value: \(value) response : \(response)")
+            debugLog("[DAS] response for value: \(value) response : \(response)")
             if let record = response.records.first(where: { $0.key == DASNameLookupCoordinator.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
-                info("[DAS] resolve value: \(value) to address: \(address)")
+                infoLog("[DAS] resolve value: \(value) to address: \(address)")
                 return address
             } else if response.records.isEmpty, let ownerAddress = response.ownerAddress {
-                info("[DAS] No records fallback value: \(value) to ownerAddress: \(ownerAddress)")
+                infoLog("[DAS] No records fallback value: \(value) to ownerAddress: \(ownerAddress)")
                 return ownerAddress
             } else {
-                info("[DAS] Can't resolve value: \(value)")
+                infoLog("[DAS] Can't resolve value: \(value)")
             }
             throw DASNameLookupError.ethRecordNotFound
         }

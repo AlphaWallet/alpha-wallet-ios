@@ -37,7 +37,7 @@ extension Session {
     }
 
     private static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
-        info("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
+        infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
         case .connectionError(let e):
             let message = e.localizedDescription
@@ -105,7 +105,7 @@ extension Session {
                     RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.nonHTTPURLResponse", url: baseUrl.absoluteString)
                 case .unacceptableStatusCode(let statusCode):
                     if statusCode == 429 {
-                        warn("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
+                        warnLog("[API] Rate limited by baseURL: \(baseUrl.absoluteString)")
                         return SendTransactionRetryableError.rateLimited
                     } else {
                         RemoteLogger.instance.logRpcOrOtherWebError("APIKit.ResponseError.unacceptableStatusCode | status: \(statusCode)", url: baseUrl.absoluteString)
