@@ -111,7 +111,7 @@ class OpenSea {
     static func fetchAsset(for value: Eip155URL) -> Promise<URL> {
         let baseURL = getBaseURLForOpensea(for: .main)
         guard let url = URL(string: "\(baseURL)api/v1/asset/\(value.path)") else {
-            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
+            return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")))
         }
 
         return Promise<URL> { seal in
@@ -135,7 +135,7 @@ class OpenSea {
         let baseURL = Self.getBaseURLForOpensea(for: key.server)
         //Careful to `order_by` with a valid value otherwise OpenSea will return 0 results
         guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner.eip55String)&order_by=pk&order_direction=asc&limit=50&offset=\(offset)") else {
-            completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
+            completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))))
             return
         }
 
