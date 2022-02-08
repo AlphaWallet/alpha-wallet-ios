@@ -52,7 +52,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
         }
     }
 
-    private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: URL(string: Constants.website)!)
+    private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [Constants.iconUrl], url: URL(string: Constants.website)!)
     private let wallet: AlphaWallet.Address
     private var connectionTimeoutTimers: [WalletConnectV1URL: Timer] = .init()
     private lazy var server: Server = {

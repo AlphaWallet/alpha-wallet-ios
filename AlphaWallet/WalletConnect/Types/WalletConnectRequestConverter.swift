@@ -67,7 +67,7 @@ protocol PositionedJSONRPC_2_0_RequestType {
     func parameter<T: Decodable>(of type: T.Type, at position: Int) throws -> T
 }
 
-extension AlphaWallet.WalletConnect.Request {
+fileprivate extension AlphaWallet.WalletConnect.Request {
     /// Bridge wrapper for  json rpc request, implemented in same way as for v1 of wallet connect
     struct PositionedJSONRPC_2_0_Request: PositionedJSONRPC_2_0_RequestType {
         let method: String
@@ -76,12 +76,12 @@ extension AlphaWallet.WalletConnect.Request {
         private let request: WalletConnectV2Request
 
         init(request: WalletConnectV2Request) throws {
-            let data = try JSONEncoder().encode(request.request.params)
+            let data = try JSONEncoder().encode(request.params)
             let values = try JSONDecoder().decode([JSONRPC_2_0.ValueType].self, from: data)
             let parameters = JSONRPC_2_0.Request.Params.positional(values)
 
-            self.method = request.request.method
-            self.payload = JSONRPC_2_0.Request(method: request.request.method, params: parameters, id: JSONRPC_2_0.IDType.int(request.request.id))
+            self.method = request.method
+            self.payload = JSONRPC_2_0.Request(method: request.method, params: parameters, id: JSONRPC_2_0.IDType.int(request.id))
             self.request = request
         }
 

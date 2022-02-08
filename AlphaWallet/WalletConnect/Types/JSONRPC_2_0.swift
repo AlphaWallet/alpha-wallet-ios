@@ -22,6 +22,11 @@ internal extension JSONRPC_2_0.ValueType {
     }
 }
 
+enum DataConversionError: Error {
+    case stringToDataFailed
+    case dataToStringFailed
+}
+
 internal enum JSONRPC_2_0 {
     struct JSON: Equatable, ExpressibleByStringInterpolation {
         var string: String

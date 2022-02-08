@@ -10,27 +10,21 @@ import WalletConnect
 
 class WalletConnectV2Provider: WalletConnectServerType {
 
-    private static var client: WalletConnectClient?
-    private var pendingSessionProposal: SessionProposal?
-    private var client: WalletConnectClient {
-        if let client = WalletConnectV2Provider.client {
-            return client
-        } else {
-            let metadata = AppMetadata(
-                name: WalletConnectV1Provider.Keys.server,
-                description: nil,
-                url: Constants.website,
-                icons: ["https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"])
-            let projectId = Constants.Credentials.walletConnectApiKey
-            let relayHost = Constants.walletConnectRelayURL.host!
+    private var pendingSessionProposal: Session.Proposal?
+    private lazy var client: WalletConnectClient = {
+        let metadata = AppMetadata(
+            name: WalletConnectV1Provider.Keys.server,
+            description: nil,
+            url: Constants.website,
+            icons: [Constants.iconUrl.absoluteString])
+        let projectId = Constants.Credentials.walletConnectProjectId
+        let relayHost = Constants.walletConnectRelayURL.host!
 
-            let client = WalletConnectClient(metadata: metadata, projectId: projectId, isController: true, relayHost: relayHost)
-            WalletConnectV2Provider.client = client
+        let client = WalletConnectClient(metadata: metadata, projectId: projectId, isController: true, relayHost: relayHost)
 
-            return client
-        }
-    }
-    private var pendingSessinonStack: [SessionProposal] = []
+        return client
+    }()
+    private var pendingSessinonStack: [Session.Proposal] = []
 
     lazy var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> = {
         storage.valueSubscribable.map { sessions -> [AlphaWallet.WalletConnect.Session] in
@@ -74,7 +68,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
         session.servers = servers
         storage.value[index] = session
 
-        client.upgrade(topic: topic, permissions: session.permissions)
+        try client.upgrade(topic: topic, permissions: session.permissions)
     }
 
     func reconnectSession(session: AlphaWallet.WalletConnect.Session) throws {
@@ -94,12 +88,12 @@ class WalletConnectV2Provider: WalletConnectServerType {
             if Set(session.servers) == Set(each.serversToDisconnect) {
                 storage.value.remove(at: index)
 
-                client.disconnect(topic: session.identifier.description, reason: SessionType.Reason(code: 0, message: "disconnect"))
+                client.disconnect(topic: session.identifier.description, reason: .init(code: 0, message: "disconnect"))
             } else {
                 let leftServers = session.servers.filter { !each.serversToDisconnect.contains($0) }
                 storage.value[index].servers = leftServers
 
-                client.upgrade(topic: session.identifier.description, permissions: storage.value[index].permissions)
+                try client.upgrade(topic: session.identifier.description, permissions: storage.value[index].permissions)
             }
         }
     }
@@ -107,7 +101,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
     func disconnectSession(session: AlphaWallet.WalletConnect.Session) throws {
         guard let index = storage.value.firstIndex(where: { $0.identifier == session.identifier }) else { return }
 
-        client.disconnect(topic: storage.value[index].identifier.description, reason: SessionType.Reason(code: 0, message: "disconnect"))
+        client.disconnect(topic: storage.value[index].identifier.description, reason: .init(code: 0, message: "disconnect"))
         storage.value.remove(at: index)
     }
 
@@ -136,7 +130,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
 
 extension AlphaWallet.WalletConnect.SessionProposal {
 
-    init(sessionProposal: SessionProposal) {
+    init(sessionProposal: Session.Proposal) {
         let appMetadata = sessionProposal.proposer
 
         self.name = appMetadata.name ?? ""
@@ -151,38 +145,125 @@ extension AlphaWallet.WalletConnect.SessionProposal {
 
 extension WalletConnectV2Provider: WalletConnectClientDelegate {
 
-    func didReceive(notification: SessionNotification, sessionTopic: String) {
-        debugLog("[RESPONDER] WC: Did receive notification")
+    func didReceive(sessionProposal: Session.Proposal) {
+        guard pendingSessionProposal == nil else {
+            return pendingSessinonStack.append(sessionProposal)
+        }
+
+        didReceivePrivate(sessionProposal: sessionProposal, completion: { [weak self] in
+            guard let strongSelf = self, let nextPensingSessionProposal = strongSelf.pendingSessinonStack.popLast() else {
+                return
+            }
+
+            strongSelf.didReceive(sessionProposal: nextPensingSessionProposal)
+        })
+    }
+
+    func didReceive(sessionRequest: Request) {
+        debugLog("[RESPONDER] WC: Did receive session request")
+
+        func reject(sessionRequest: Request) {
+            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionRequest)")
+            client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .requestRejected))
+        }
+        //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
+        //FIXME: update with ability ask user for enabled disaled server
+        guard let server = sessionRequest.rpcServer, config.enabledServers.contains(server) else {
+            return client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .invalidRequest))
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            guard let session = strongSelf.storage.value.first(where: { $0.identifier == .topic(string: sessionRequest.topic) }) else {
+                return reject(sessionRequest: sessionRequest)
+            }
+
+            let request: AlphaWallet.WalletConnect.Session.Request = .v2(request: sessionRequest)
+            WalletConnectRequestConverter()
+                .convert(request: request, requester: session.requester)
+                .map { type -> AlphaWallet.WalletConnect.Action in
+                    return .init(type: type)
+                }.done { action in
+                    strongSelf.delegate?.server(strongSelf, action: action, request: request, session: .init(multiServerSession: session))
+                }.catch { error in
+                    strongSelf.delegate?.server(strongSelf, didFail: error)
+                    //NOTE: we need to reject request if there is some arrays
+                    reject(sessionRequest: sessionRequest)
+                }
+        }
+    }
+
+    func didReceive(sessionResponse: Response) {
+        debugLog("[RESPONDER] WC: Did receive session response")
+    }
+
+    func didDelete(sessionTopic: String, reason: Reason) {
+        debugLog("[RESPONDER] WC: Did receive session delete")
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
+                strongSelf.storage.value.remove(at: index)
+            }
+        }
+    }
+
+    func didUpgrade(sessionTopic: String, permissions: Session.Permissions) {
+        debugLog("[RESPONDER] WC: Did receive session upgrate")
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
+                strongSelf.storage.value[index].update(permissions: permissions)
+            }
+        }
+    }
+
+    func didUpdate(sessionTopic: String, accounts: Set<String>) {
+        debugLog("[RESPONDER] WC: Did receive session update")
+    }
+
+    func didSettle(session: Session) {
+        debugLog("[RESPONDER] WC: Did settle session")
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            for each in strongSelf.client.getSettledSessions() {
+                if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: each.topic) }) {
+                    strongSelf.storage.value[index].update(session: each)
+                } else {
+                    //NOTE: this case shouldn't happend as we passing through connect method and save all needed data
+                    strongSelf.storage.value.append(.init(session: each))
+                }
+            }
+        }
     }
 
     func didSettle(pairing: Pairing) {
         debugLog("[RESPONDER] WC: Did sattle pairing topic")
     }
 
+    func didReceive(notification: Session.Notification, sessionTopic: String) {
+        debugLog("[RESPONDER] WC: Did receive notification")
+    }
+
+    func didReject(pendingSessionTopic: String, reason: Reason) {
+        debugLog("[RESPONDER] WC: Did reject session reason: \(reason)")
+    }
+
     func didUpdate(pairingTopic: String, appMetadata: AppMetadata) {
         debugLog("[RESPONDER] WC: Did update pairing topic")
     }
 
-    func didReceive(sessionProposal: SessionProposal) {
-        guard pendingSessionProposal == nil else {
-            return pendingSessinonStack.append(sessionProposal)
-        }
-
-        _didReceive(sessionProposal: sessionProposal, completion: { [weak self] in
-            guard let strongSelf = self, let nextPensingSessionproposal = strongSelf.pendingSessinonStack.popLast() else {
-                return
-            }
-
-            strongSelf.didReceive(sessionProposal: nextPensingSessionproposal)
-        })
-    }
-
-    private func _didReceive(sessionProposal: SessionProposal, completion: @escaping () -> Void) {
+    private func didReceivePrivate(sessionProposal: Session.Proposal, completion: @escaping () -> Void) {
         debugLog("[RESPONDER] WC: Did receive session proposal")
 
-        func reject(sessionProposal: SessionProposal) {
+        func reject(sessionProposal: Session.Proposal) {
             debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionProposal)")
-            client.reject(proposal: sessionProposal, reason: SessionType.Reason(code: 0, message: "reject"))
+            client.reject(proposal: sessionProposal, reason: Reason(code: 0, message: "reject"))
             completion()
         }
 
@@ -212,20 +293,10 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                     }
 
                     debugLog("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(Set(accounts))")
-                    strongSelf.client.approve(proposal: sessionProposal, accounts: Set(accounts), completion: { response in
-                        DispatchQueue.main.async {
-                            strongSelf.pendingSessionProposal = .none
+                    strongSelf.client.approve(proposal: sessionProposal, accounts: Set(accounts))
+                    strongSelf.pendingSessionProposal = .none
 
-                            switch response {
-                            case .success:
-                                //NOTE: here we do nothing as we a expecting to receive a new session in `func didSettle(session: Session)` callback
-                                break
-                            case .failure(let error):
-                                delegate.server(strongSelf, didFail: error)
-                            }
-                            completion()
-                        }
-                    })
+                    completion()
                 }
             } catch {
                 delegate.server(strongSelf, didFail: error)
@@ -236,7 +307,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     //NOTE: Throws an error in case when `sessionProposal` contains mainnets as well as testnets
-    private func validatePendingProposal(_ sessionProposal: SessionProposal) throws {
+    private func validatePendingProposal(_ sessionProposal: Session.Proposal) throws {
         struct MixedMainnetsOrTestnetsError: Error {}
 
         let servers = RPCServer.decodeEip155Array(values: sessionProposal.permissions.blockchains)
@@ -249,91 +320,6 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                 //no-op
             } else {
                 throw MixedMainnetsOrTestnetsError()
-            }
-        }
-    }
-
-    func didReceive(sessionRequest: SessionRequest) {
-        debugLog("[RESPONDER] WC: Did receive session request")
-
-        func reject(sessionRequest: SessionRequest) {
-            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionRequest)")
-            client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .requestRejected))
-        }
-        //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
-        //FIXME: update with ability ask user for enabled disaled server
-        guard let server = sessionRequest.rpcServer, config.enabledServers.contains(server) else {
-            return client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .invalidRequest))
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            guard let session = strongSelf.storage.value.first(where: { $0.identifier == .topic(string: sessionRequest.topic) }) else {
-                return reject(sessionRequest: sessionRequest)
-            }
-
-            let request: AlphaWallet.WalletConnect.Session.Request = .v2(request: sessionRequest)
-            WalletConnectRequestConverter().convert(request: request, requester: session.requester).map { type -> AlphaWallet.WalletConnect.Action in
-                return .init(type: type)
-            }.done { action in
-                strongSelf.delegate?.server(strongSelf, action: action, request: request, session: .init(multiServerSession: session))
-            }.catch { error in
-                strongSelf.delegate?.server(strongSelf, didFail: error)
-                //NOTE: we need to reject request if there is some arrays
-                reject(sessionRequest: sessionRequest)
-            }
-        }
-    }
-
-    func didSettle(pairing: PairingType.Settled) {
-        debugLog("[RESPONDER] WC: Did settle pairing")
-    }
-
-    func didReject(sessionPendingTopic: String, reason: SessionType.Reason) {
-        debugLog("[RESPONDER] WC: Did reject session reason: \(reason)")
-    }
-
-    func didSettle(session: Session) {
-        debugLog("[RESPONDER] WC: Did settle session")
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            for each in strongSelf.client.getSettledSessions() {
-                if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: each.topic) }) {
-                    strongSelf.storage.value[index].update(session: each)
-                } else {
-                    //NOTE: this case shouldn't happend as we passing through connect method and save all needed data
-                    strongSelf.storage.value.append(.init(session: each))
-                }
-            }
-        }
-    }
-
-    func didUpgrade(sessionTopic: String, permissions: SessionType.Permissions) {
-        debugLog("[RESPONDER] WC: Did receive session upgrate")
-
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
-                strongSelf.storage.value[index].update(permissions: permissions)
-            }
-        }
-    }
-
-    func didUpdate(sessionTopic: String, accounts: Set<String>) {
-        debugLog("[RESPONDER] WC: Did receive session update")
-    }
-
-    func didDelete(sessionTopic: String, reason: SessionType.Reason) {
-        debugLog("[RESPONDER] WC: Did receive session delete")
-
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
-                strongSelf.storage.value.remove(at: index)
             }
         }
     }
