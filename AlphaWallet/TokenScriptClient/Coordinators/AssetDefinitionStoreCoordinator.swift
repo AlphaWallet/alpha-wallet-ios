@@ -114,9 +114,9 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     ///For development
     private func printInboxContents() {
         guard let contents = inboxContents else { return }
-        verbose("Contents of inbox:")
+        verboseLog("Contents of inbox:")
         for each in contents {
-            verbose("  In inbox: \(each)")
+            verboseLog("  In inbox: \(each)")
         }
     }
 

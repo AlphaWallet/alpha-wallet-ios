@@ -57,7 +57,7 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let resolver = result["0"] as? EthereumAddress {
-                verbose("[ENS] fetched resolver: \(resolver) for: \(input) arg: \(node)")
+                verboseLog("[ENS] fetched resolver: \(resolver) for: \(input) arg: \(node)")
                 if Constants.nullAddress.sameContract(as: resolver) {
                     return .init(error: AnyError(Web3Error(description: "Null address returned")))
                 } else {

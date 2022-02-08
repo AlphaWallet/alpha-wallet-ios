@@ -312,9 +312,9 @@ class TransactionsStorage: Hashable {
         do {
             let data = try functional.generateJsonForTransactions(transactionStorage: self, toUrl: url)
             try data.write(to: url)
-            verbose("Written transactions for \(server) to JSON to: \(url.absoluteString)")
+            verboseLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
         } catch {
-            verbose("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
+            verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
     }
 

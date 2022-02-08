@@ -40,10 +40,10 @@ class WalletQrCodeDonation {
     }
 
     func delete() {
-        info("Deleting donated shortcut: \(Self.persistentIdentifier)…")
+        infoLog("Deleting donated shortcut: \(Self.persistentIdentifier)…")
         CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: [Self.persistentIdentifier])
         NSUserActivity.deleteSavedUserActivities(withPersistentIdentifiers: [Self.persistentIdentifier]) {
-            info("Deleted donated shortcut: \(Self.persistentIdentifier)")
+            infoLog("Deleted donated shortcut: \(Self.persistentIdentifier)")
         }
     }
 }

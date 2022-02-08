@@ -332,10 +332,10 @@ extension TransactionConfirmationCoordinator {
         ]
         if let provider = privateNetworkProvider {
             analyticsProperties[Analytics.Properties.sendPrivateTransactionsProvider.rawValue] = provider.rawValue
-            info("Sent transaction with send private transactions provider: \(provider.rawValue)")
+            infoLog("Sent transaction with send private transactions provider: \(provider.rawValue)")
         } else {
             //no-op
-            info("Sent transaction publicly")
+            infoLog("Sent transaction publicly")
         }
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount, _):

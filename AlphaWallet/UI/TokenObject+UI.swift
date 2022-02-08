@@ -258,9 +258,9 @@ class TokenImageFetcher {
         }.recover { error -> Promise<UIImage> in
             //This is expected. Some tokens will not have icons
             if let url = request.url?.absoluteString {
-                verbose("Loading token icon URL: \(url) error")
+                verboseLog("Loading token icon URL: \(url) error")
             } else {
-                verbose("Loading token icon URL: nil error")
+                verboseLog("Loading token icon URL: nil error")
             }
             throw error
         }
@@ -285,7 +285,7 @@ class GithubAssetsURLResolver {
         let value = githubAssetsSource.rawValue + contractAddress.eip55String + "/" + GithubAssetsURLResolver.file
 
         guard let url = URL(string: value) else {
-            verbose("Loading token icon URL: \(value) error")
+            verboseLog("Loading token icon URL: \(value) error")
             return .init(error: AnyError.case1)
         }
         let request = URLRequest(url: url)

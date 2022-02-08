@@ -4,23 +4,23 @@ import Foundation
 import PaperTrailLumberjack
 import CocoaLumberjack
 
-func debug(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+func debugLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
     logger.debug("\(message) from: \(callerFunctionName)")
 }
 
-func info(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+func infoLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
     logger.info("\(message) from: \(callerFunctionName)")
 }
 
-func warn(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+func warnLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
     logger.warn("\(message) from: \(callerFunctionName)")
 }
 
-func verbose(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+func verboseLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
     logger.verbose("\(message) from: \(callerFunctionName)")
 }
 
-func error(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
+func errorLog(_ message: Any, _ logger: Logger = DDLogger.instance, callerFunctionName: String = #function) {
     logger.error("\(message) from: \(callerFunctionName)")
 }
 

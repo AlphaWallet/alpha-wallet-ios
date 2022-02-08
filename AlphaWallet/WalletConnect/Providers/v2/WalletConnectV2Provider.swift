@@ -58,7 +58,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
         switch url {
         case .v2(let uri):
-            debug("[RESPONDER] Pairing to: \(uri.absoluteString)")
+            debugLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
 
             try client.pair(uri: uri.absoluteString)
         case .v1:
@@ -68,7 +68,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
 
     func updateSession(session: AlphaWallet.WalletConnect.Session, servers: [RPCServer]) throws {
         guard let index = storage.value.firstIndex(where: { $0.identifier == session.identifier }) else { return }
-        
+
         var session = storage.value[index]
         let topic = session.identifier.description
         session.servers = servers
@@ -152,15 +152,15 @@ extension AlphaWallet.WalletConnect.SessionProposal {
 extension WalletConnectV2Provider: WalletConnectClientDelegate {
 
     func didReceive(notification: SessionNotification, sessionTopic: String) {
-        debug("[RESPONDER] WC: Did receive notification")
+        debugLog("[RESPONDER] WC: Did receive notification")
     }
 
     func didSettle(pairing: Pairing) {
-        debug("[RESPONDER] WC: Did sattle pairing topic")
+        debugLog("[RESPONDER] WC: Did sattle pairing topic")
     }
 
     func didUpdate(pairingTopic: String, appMetadata: AppMetadata) {
-        debug("[RESPONDER] WC: Did update pairing topic")
+        debugLog("[RESPONDER] WC: Did update pairing topic")
     }
 
     func didReceive(sessionProposal: SessionProposal) {
@@ -178,10 +178,10 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     private func _didReceive(sessionProposal: SessionProposal, completion: @escaping () -> Void) {
-        debug("[RESPONDER] WC: Did receive session proposal")
+        debugLog("[RESPONDER] WC: Did receive session proposal")
 
         func reject(sessionProposal: SessionProposal) {
-            debug("[RESPONDER] WC: Did reject session proposal: \(sessionProposal)")
+            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionProposal)")
             client.reject(proposal: sessionProposal, reason: SessionType.Reason(code: 0, message: "reject"))
             completion()
         }
@@ -211,7 +211,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                         eip155URLCoder.encode(rpcServer: $0.server, address: $0.account.address)
                     }
 
-                    debug("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(Set(accounts))")
+                    debugLog("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(Set(accounts))")
                     strongSelf.client.approve(proposal: sessionProposal, accounts: Set(accounts), completion: { response in
                         DispatchQueue.main.async {
                             strongSelf.pendingSessionProposal = .none
@@ -254,10 +254,10 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     func didReceive(sessionRequest: SessionRequest) {
-        debug("[RESPONDER] WC: Did receive session request")
+        debugLog("[RESPONDER] WC: Did receive session request")
 
         func reject(sessionRequest: SessionRequest) {
-            debug("[RESPONDER] WC: Did reject session proposal: \(sessionRequest)")
+            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionRequest)")
             client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .requestRejected))
         }
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
@@ -287,15 +287,15 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     func didSettle(pairing: PairingType.Settled) {
-        debug("[RESPONDER] WC: Did settle pairing")
+        debugLog("[RESPONDER] WC: Did settle pairing")
     }
 
     func didReject(sessionPendingTopic: String, reason: SessionType.Reason) {
-        debug("[RESPONDER] WC: Did reject session reason: \(reason)")
+        debugLog("[RESPONDER] WC: Did reject session reason: \(reason)")
     }
 
     func didSettle(session: Session) {
-        debug("[RESPONDER] WC: Did settle session")
+        debugLog("[RESPONDER] WC: Did settle session")
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
 
@@ -311,7 +311,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     func didUpgrade(sessionTopic: String, permissions: SessionType.Permissions) {
-        debug("[RESPONDER] WC: Did receive session upgrate")
+        debugLog("[RESPONDER] WC: Did receive session upgrate")
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -323,11 +323,11 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     }
 
     func didUpdate(sessionTopic: String, accounts: Set<String>) {
-        debug("[RESPONDER] WC: Did receive session update")
+        debugLog("[RESPONDER] WC: Did receive session update")
     }
 
     func didDelete(sessionTopic: String, reason: SessionType.Reason) {
-        debug("[RESPONDER] WC: Did receive session delete")
+        debugLog("[RESPONDER] WC: Did receive session delete")
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }

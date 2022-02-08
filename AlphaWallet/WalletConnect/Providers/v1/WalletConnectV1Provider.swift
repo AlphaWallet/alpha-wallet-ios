@@ -82,7 +82,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
     }
 
     deinit {
-        debug("[WalletConnect] WalletConnectServer.deinit")
+        debugLog("[WalletConnect] WalletConnectServer.deinit")
         server.unregister(handler: requestHandler)
     }
 
@@ -91,7 +91,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
         case .v1(let wcUrl):
             let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { _ in
                 let isStillWatching = self.connectionTimeoutTimers[wcUrl] != nil
-                debug("WalletConnect app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
+                debugLog("WalletConnect app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
                 if isStillWatching {
                     //TODO be good if we can do `server.communicator.disconnect(from: url)` here on in the delegate. But `communicator` is not accessible
                     self.delegate?.server(self, tookTooLongToConnectToUrl: url)
@@ -108,7 +108,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
     }
 
     func session(forIdentifier identifier: AlphaWallet.WalletConnect.SessionIdentifier) -> AlphaWallet.WalletConnect.Session? {
-        return storage.value.first(where: { $0.identifier == identifier }).flatMap { .init(session: $0) } 
+        return storage.value.first(where: { $0.identifier == identifier }).flatMap { .init(session: $0) }
     }
 
     func updateSession(session: AlphaWallet.WalletConnect.Session, servers: [RPCServer]) throws {
@@ -187,7 +187,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
 extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, request: WalletConnectV1Request) {
-        debug("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
+        debugLog("WalletConnect handler request: \(request.method) url: \(request.url.absoluteString)")
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -209,7 +209,7 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
     }
 
     func handler(_ handler: RequestHandlerToAvoidMemoryLeak, canHandle request: WalletConnectV1Request) -> Bool {
-        debug("WalletConnect canHandle: \(request.method) url: \(request.url.absoluteString)")
+        debugLog("WalletConnect canHandle: \(request.method) url: \(request.url.absoluteString)")
         return true
     }
 }
@@ -221,7 +221,7 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, didFailToConnect url: WalletConnectV1URL) {
-        debug("WalletConnect didFailToConnect: \(url)")
+        debugLog("WalletConnect didFailToConnect: \(url)")
         DispatchQueue.main.async {
             self.connectionTimeoutTimers[url] = nil
             self.removeSession(for: url)
@@ -272,14 +272,14 @@ extension WalletConnectV1Provider: ServerDelegate {
     }
 
     func server(_ server: Server, didUpdate session: Session) {
-        debug("WalletConnect didUpdate: \(session.url.absoluteString)")
+        debugLog("WalletConnect didUpdate: \(session.url.absoluteString)")
         DispatchQueue.main.async {
             self.addOrUpdateSession(session: session)
         }
     }
 
     func server(_ server: Server, didConnect session: Session) {
-        debug("WalletConnect didConnect: \(session.url.absoluteString)")
+        debugLog("WalletConnect didConnect: \(session.url.absoluteString)")
         DispatchQueue.main.async {
             let nativeSession: SingleServerWalletConnectSession = self.addOrUpdateSession(session: session)
             if let delegate = self.delegate {
