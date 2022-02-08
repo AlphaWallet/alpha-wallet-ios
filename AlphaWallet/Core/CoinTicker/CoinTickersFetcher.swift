@@ -263,7 +263,7 @@ fileprivate struct Ticker: Codable {
     let id: String
     let symbol: String
     let name: String
-    let platforms: [String: AlphaWallet.Address]
+    let platforms: [String: String]
 
     func matches(tokenObject: TokenMappedToTicker) -> Bool {
         //We just filter out those that we don't think are supported by the API. One problem this helps to alleviate is in the API output, certain tickers have a non-empty platform yet the platform list might not be complete, eg. Ether on Ethereum mainnet:
@@ -277,8 +277,26 @@ fileprivate struct Ticker: Codable {
         //   }
         //},
         //This means we can only match solely by symbol, ignoring platform matches. But this means it's easy to match the wrong ticker (by symbol only). Hence, we at least remove those chains we don't think are supported
+        //NOTE maybe its need to handle values like: `"0x270DE58F54649608D316fAa795a9941b355A2Bd0/token-transfers"`
+
         guard isServerSupported(tokenObject.server) else { return false }
-        if let (_, contract) = platforms.first(where: { platformMatches($0.key, server: tokenObject.server) }) {
+        if let (_, maybeContractValue) = platforms.first(where: { platformMatches($0.key, server: tokenObject.server) }) {
+            func maybeAddressValue(from str: String) -> AlphaWallet.Address? {
+                let rawValue = str.trimmed
+                if rawValue.isEmpty {
+                    //CoinGecko returns nullAddress as the value (contract) in `platforms` for tokens is sometimes an empty string: `"platforms" : { "ethereum" : "" }`, so we use the 0x0..0 address to represent them
+                    return Constants.nullAddress
+                } else if let value = AlphaWallet.Address(string: rawValue) {
+                    //NOTE: trimmed to avoid values like `"0xFbdd194376de19a88118e84E279b977f165d01b8 "`
+                    return value
+                } else {
+                    return nil
+                }
+            }
+            guard let contract = maybeAddressValue(from: maybeContractValue) else {
+                return false
+            }
+
             if contract.sameContract(as: Constants.nullAddress) {
                 return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
             } else if contract.sameContract(as: tokenObject.contractAddress) {
@@ -303,14 +321,8 @@ fileprivate struct Ticker: Codable {
         id = try container.decode(String.self, forKey: .id)
         symbol = try container.decode(String.self, forKey: .symbol)
         name = try container.decode(String.self, forKey: .name)
-        platforms = container.decode([String: String].self, forKey: .platforms, defaultValue: [:]).compactMapValues { str in
-            if str.isEmpty {
-                //CoinGecko returns nullAddress as the value (contract) in `platforms` for tokens is sometimes an empty string: `"platforms" : { "ethereum" : "" }`, so we use the 0x0..0 address to represent them
-                return Constants.nullAddress
-            } else {
-                return AlphaWallet.Address(string: str)
-            }
-        }
+        //NOTE: Don't want to store Addresses, as creating address instance takes a lot of resources, its easier to check for an address when `func matches(tokenObject: TokenMappedToTicker) -> Bool {` is called
+        platforms = container.decode([String: String].self, forKey: .platforms, defaultValue: [:])
     }
 
     //Mapping created by examining CoinGecko API output empirically
