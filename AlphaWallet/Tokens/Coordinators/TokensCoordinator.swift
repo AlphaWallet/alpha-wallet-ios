@@ -151,7 +151,7 @@ class TokensCoordinator: Coordinator {
     @objc private func blockieButtonSelected(_ sender: UIButton) {
         delegate?.blockieSelected(in: self)
     }
-    
+
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
         if config.shouldReadClipboardForWalletConnectUrl {
             if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = AlphaWallet.WalletConnect.ConnectionUrl(s) {
@@ -239,7 +239,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             GetWalletNameCoordinator(config: config).getName(forAddress: sessions.anyValue.account.address)
         }.done { [weak self] name in
             self?.tokensViewController.navigationItem.title = name ?? viewModel.walletDefaultTitle
-        }.cauterize()
+            //Don't `cauterize` here because we don't want to PromiseKit to show the error messages from UnstoppableDomains API, suggesting there's an API error when the reason could be that the address being looked up simply does not have a registered name
+            //eg.: PromiseKit:cauterized-error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling https://unstoppabledomains.g.alchemy.com API true")
+        }.catch { _ in }
     }
 
     private func getWalletBlockie() {
