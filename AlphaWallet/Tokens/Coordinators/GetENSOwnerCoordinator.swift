@@ -57,6 +57,7 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let resolver = result["0"] as? EthereumAddress {
+                verbose("[ENS] fetched resolver: \(resolver) for: \(input) arg: \(node)")
                 if Constants.nullAddress.sameContract(as: resolver) {
                     return .init(error: AnyError(Web3Error(description: "Null address returned")))
                 } else {
@@ -68,7 +69,7 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
                             } else {
                                 //Retain self because it's useful to cache the results even if we don't immediately need it now
                                 let adress = AlphaWallet.Address(address: ensAddress)
-                                
+
                                 GetENSAddressCoordinator.cache(forNode: node, result: adress, server: server)
                                 return adress
                             }
