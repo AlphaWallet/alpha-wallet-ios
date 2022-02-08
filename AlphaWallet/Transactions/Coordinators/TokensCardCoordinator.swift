@@ -417,8 +417,12 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
-
+        vc.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(tokenInstanceViewControllerDidCloseSelected))
         viewController.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    @objc private func tokenInstanceViewControllerDidCloseSelected(_ sender: UIBarButtonItem) {
+        navigationController.popViewController(animated: true)
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
