@@ -52,21 +52,21 @@ class UnstoppableDomainsV2Resolver {
 
         let baseURL = Constants.unstoppableDomainsV2API
         guard let url = URL(string: "\(baseURL)/domains/\(input)") else {
-            return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
+            return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))
         }
 
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
             .responseJSON(queue: .main, options: .allowFragments).map { response -> AlphaWallet.Address in
                 guard let data = response.response.data, let json = try? JSON(data: data) else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")
+                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
 
                 let value = try AddressResolution.Response(json: json)
                 if let owner = value.meta.owner {
                     return owner
                 } else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")
+                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
             }.get { address in
                 UnstoppableDomainsV2Resolver.cache(forNode: node, address: address, server: server)
@@ -82,21 +82,21 @@ class UnstoppableDomainsV2Resolver {
 
         let baseURL = Constants.unstoppableDomainsV2API
         guard let url = URL(string: "\(baseURL)/domains/?owners=\(address.eip55String)&sortBy=id&sortDirection=DESC&perPage=50") else {
-            return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))
+            return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))
         }
 
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
             .responseJSON(queue: .main, options: .allowFragments).map { response -> String in
                 guard let data = response.response.data, let json = try? JSON(data: data) else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")
+                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
 
                 let value = try DomainResolution.Response(json: json)
                 if let record = value.data.first {
                     return record.id
                 } else {
-                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")
+                    throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
             }.get { domain in
                 UnstoppableDomainsV2Resolver.cache(forNode: node, domain: domain, server: server)
