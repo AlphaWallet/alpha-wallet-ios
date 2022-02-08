@@ -47,11 +47,10 @@ struct GeneralisedTime: Codable {
         self.date = date
         self.timeZone = timeZone
     }
-
+    private static let regex = try? NSRegularExpression(pattern: "([+-])(\\d\\d)(\\d\\d)$", options: [])
     /// Given "20180619210000+0300", extract "+0300" and convert to seconds
     private static func extractTimeZoneSecondsFromGMT(string: String) -> Int? {
-        let pattern = "([+-])(\\d\\d)(\\d\\d)$"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        guard let regex = GeneralisedTime.regex else { return nil }
         let matches = regex.matches(in: string, options: [], range: NSRange(location: 0, length: string.count))
         guard matches.count == 1 else { return nil }
         guard matches[0].numberOfRanges == 4 else { return nil }

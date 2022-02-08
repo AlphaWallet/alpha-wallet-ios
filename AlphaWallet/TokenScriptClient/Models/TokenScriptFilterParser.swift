@@ -452,12 +452,12 @@ struct TokenScriptFilterParser {
             guard let interpolatedValue = interpolate(value: value) else { return nil }
             return op.isTrueFor(attributeValue: attributeValue, value: interpolatedValue)
         }
-
+        private static let regex = try? NSRegularExpression(pattern: "\\$\\{(?<attribute>[a-zA-Z][a-zA-Z0-9]*)\\}", options: [])
         //TODO replace the very dumb regex for now. And also recursively interpolates (not good). Should involve parser
         private func interpolate(value: String) -> String? {
             var value = value
             repeat {
-                guard let regex = try? NSRegularExpression(pattern: "\\$\\{(?<attribute>[a-zA-Z][a-zA-Z0-9]*)\\}", options: []) else { return nil }
+                guard let regex = Parser.regex else { return nil }
                 let range = NSRange(value.startIndex ..< value.endIndex, in: value)
                 let matches = regex.matches(in: value, options: [], range: range)
                 guard matches.count >= 1 else { return value }

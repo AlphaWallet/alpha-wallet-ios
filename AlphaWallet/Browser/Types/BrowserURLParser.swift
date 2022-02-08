@@ -3,7 +3,7 @@
 import Foundation
 
 final class BrowserURLParser {
-    private let urlRegEx = try! NSRegularExpression(pattern: "^(http(s)?://)?[a-z0-9-_]+(\\.[a-z0-9-_]+)+(/)?", options: .caseInsensitive)
+    private static let urlRegEx = try? NSRegularExpression(pattern: "^(http(s)?://)?[a-z0-9-_]+(\\.[a-z0-9-_]+)+(/)?", options: .caseInsensitive)
     private let validSchemes = ["http", "https"]
     let engine: SearchEngine
 
@@ -15,8 +15,9 @@ final class BrowserURLParser {
 
     /// Determines if a string is an address or a search query and returns the appropriate URL.
     func url(from string: String) -> URL? {
+        guard let regex = BrowserURLParser.urlRegEx else { return nil }
         let range = NSRange(string.startIndex ..< string.endIndex, in: string)
-        if urlRegEx.firstMatch(in: string, options: .anchored, range: range) != nil {
+        if regex.firstMatch(in: string, options: .anchored, range: range) != nil {
             if !validSchemes.contains(where: { string.hasPrefix("\($0)://") }) {
                 return URL(string: "http://" + string)
             } else {
