@@ -169,10 +169,16 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
+        vc.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(tokenInstanceViewControllerDidCloseSelected))
         makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: paymantFlow, target: vc)
 
         return vc
     }
+
+    @objc private func tokenInstanceViewControllerDidCloseSelected(_ sender: UIBarButtonItem) {
+        navigationController.popViewController(animated: true)
+    }
+
 }
 
 extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDelegate {
