@@ -6,7 +6,8 @@ import XCTest
 import BigInt
 
 class EtherTests: XCTestCase {
-    func testEtherRepresentation() {
+    func testEtherRepresentationEnglishLocale() {
+        Config.setLocale(AppLocale.english)
         let e = Ether(string: "1.2")!
         XCTAssertEqual("\(e)", "1.2")
         XCTAssertEqual(e.description, "1.2")
@@ -15,7 +16,9 @@ class EtherTests: XCTestCase {
         XCTAssertEqual(String(e / 10), "0.12")
     }
 
-    func testDescriptionShouldNotIncludeFormatting() {
+    func testDescriptionShouldNotIncludeFormattingEnglishLocale() {
+        Config.setLocale(AppLocale.english)
+
         let e = Ether(string: "1000")!
         XCTAssertEqual(String(e), "1000")
     }
