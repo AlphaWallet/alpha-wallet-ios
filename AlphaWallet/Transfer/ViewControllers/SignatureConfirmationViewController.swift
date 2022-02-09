@@ -231,7 +231,7 @@ class SignatureConfirmationViewController: UIViewController {
         navigationItem.title = viewModel.title
 
         headerView.iconImageView.setImage(url: viewModel.dappIconUrl, placeholder: viewModel.placeholderIcon)
-        buttonsBar.configure(.custom(types: [.white, .green]))
+        buttonsBar.configure(.custom(types: [.secondary, .primary]))
 
         let button1 = buttonsBar.buttons[1]
         button1.shrinkBorderColor = Colors.loadingIndicatorBorder

@@ -30,6 +30,7 @@
 		02645122277206C0009260DC /* TableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645121277206C0009260DC /* TableViewSection.swift */; };
 		02645124277217D9009260DC /* CustomRpcTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02645123277217D9009260DC /* CustomRpcTableViewSection.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
+		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */; };
 		02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */; };
@@ -1097,6 +1098,7 @@
 		02645121277206C0009260DC /* TableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewSection.swift; sourceTree = "<group>"; };
 		02645123277217D9009260DC /* CustomRpcTableViewSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRpcTableViewSection.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
+		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableRpcNetwork.swift; sourceTree = "<group>"; };
 		02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewModel.swift; sourceTree = "<group>"; };
@@ -4815,6 +4817,7 @@
 				879F185B26E74507000602F2 /* ButtonsBar.swift */,
 				879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */,
 				879F185F26E74543000602F2 /* ToolButtonsBarView.swift */,
+				02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */,
 			);
 			path = ButtonsBar;
 			sourceTree = "<group>";
@@ -5789,6 +5792,7 @@
 				732086B9201508690047F605 /* SplashCoordinator.swift in Sources */,
 				AA26C62420412A4100318B9B /* Double.swift in Sources */,
 				298542FB1FBEA03300CB5081 /* SendInputErrors.swift in Sources */,
+				02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */,
 				29EB102A1F6CBD23000907A4 /* UIAlertController.swift in Sources */,
 				296AF9A51F736BA20058AF78 /* Config.swift in Sources */,
 				7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */,

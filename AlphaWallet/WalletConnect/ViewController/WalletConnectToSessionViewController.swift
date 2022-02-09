@@ -230,7 +230,7 @@ class WalletConnectToSessionViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
 
-        buttonsBar.configure(.custom(types: [.white, .green]))
+        buttonsBar.configure(.custom(types: [.secondary, .primary]))
         headerView.iconImageView.setImage(url: viewModel.connectionIconUrl, placeholder: R.image.walletConnectIcon())
 
         let button1 = buttonsBar.buttons[1]

@@ -76,7 +76,6 @@ class BackupSeedPhraseCoordinator: Coordinator {
 
     private func createVerifySeedPhraseViewController() -> VerifySeedPhraseViewController {
         let controller = VerifySeedPhraseViewController(keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
-        controller.configure()
         controller.delegate = self
         return controller
     }

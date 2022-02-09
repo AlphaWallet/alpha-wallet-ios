@@ -14,7 +14,7 @@ class EditMyDappViewController: UIViewController {
     private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleTextField = TextField()
     private let urlTextField = TextField()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: EditMyDappViewControllerViewModel?
 
     weak var delegate: EditMyDappViewControllerDelegate?

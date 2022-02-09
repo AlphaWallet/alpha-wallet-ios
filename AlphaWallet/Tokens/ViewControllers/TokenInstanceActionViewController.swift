@@ -30,7 +30,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     }()
 
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var isFungible: Bool {
         switch tokenObject.type {
         case .nativeCryptocurrency:

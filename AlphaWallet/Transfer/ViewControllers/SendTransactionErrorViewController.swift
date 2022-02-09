@@ -14,7 +14,7 @@ class SendTransactionErrorViewController: UIViewController {
     private let error: SendTransactionNotRetryableError
     private lazy var viewModel = SendTransactionErrorViewModel(server: server, error: error)
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: "", isMinimalMode: true))
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
 
     private var titleLabel: UILabel = {
         let v = UILabel()

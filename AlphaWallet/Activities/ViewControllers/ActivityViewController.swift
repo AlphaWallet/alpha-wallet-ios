@@ -16,7 +16,7 @@ class ActivityViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private let tokenImageView = TokenImageView()
     private let stateView = ActivityStateView()
     private let titleLabel = UILabel()
@@ -183,7 +183,7 @@ class ActivityViewController: UIViewController {
             configureCancelButton(buttonsBar.buttons[1])
             configureGoToTokenButton(buttonsBar.buttons[2])
         } else {
-            buttonsBar.configure(.green(buttons: 1))
+            buttonsBar.configure(.primary(buttons: 1))
             configureGoToTokenButton(buttonsBar.buttons[0])
         }
     }

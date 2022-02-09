@@ -15,7 +15,7 @@ import UIKit
 
 class SaveCustomRpcManualEntryView: UIView {
 
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var scrollViewBottomConstraint: NSLayoutConstraint!
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()

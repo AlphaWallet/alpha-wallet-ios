@@ -15,10 +15,10 @@ class CreateInitialWalletViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
-    private let createWalletButtonBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let createWalletButtonBar = ButtonsBar(configuration: .primary(buttons: 1))
     private let separator = UIView.spacer(height: 1)
     private let haveWalletLabel = UILabel()
-    private let buttonsBar = ButtonsBar(configuration: .white(buttons: 2))
+    private let buttonsBar = ButtonsBar(configuration: .secondary(buttons: 2))
 
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {

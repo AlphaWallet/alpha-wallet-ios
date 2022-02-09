@@ -44,7 +44,7 @@ class SwitchChainRequestViewController: ModalViewController {
     }()
 
     private lazy var buttonsBar: ButtonsBar = {
-        let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+        let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
         return buttonsBar
     }()
 

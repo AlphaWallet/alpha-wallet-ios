@@ -141,7 +141,7 @@ class ImportWalletViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
     private var mnemonicSuggestions: [String] = .init() {

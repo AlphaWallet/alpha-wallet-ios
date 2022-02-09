@@ -6,26 +6,26 @@ import UIKit
 enum ButtonsBarConfiguration {
     case empty
     case combined(buttons: Int)
-    case green(buttons: Int)
-    case white(buttons: Int)
+    case primary(buttons: Int)
+    case secondary(buttons: Int)
     case custom(types: [ButtonsBarButtonType])
 
     static let maxCombinedButtons: Int = 2
 
     var barButtonTypes: [ButtonsBarButtonType] {
         switch self {
-        case .green(let buttons):
-            return (0..<buttons).compactMap { _ in .green }
-        case .white(let buttons):
-            return (0..<buttons).compactMap { _ in .white }
+        case .primary(let buttons):
+            return (0..<buttons).compactMap { _ in .primary }
+        case .secondary(let buttons):
+            return (0..<buttons).compactMap { _ in .secondary }
         case .custom(let types):
             return types
         case .combined(let buttons):
-            let buttonsToShow: [ButtonsBarButtonType] = [.green, .white]
+            let buttonsToShow: [ButtonsBarButtonType] = [.primary, .secondary]
             if buttons > ButtonsBarConfiguration.maxCombinedButtons {
                 let hiddenButtonsCount = buttons - buttonsToShow.count
 
-                return buttonsToShow + [ButtonsBarButtonType].init(repeating: .white, count: hiddenButtonsCount)
+                return buttonsToShow + [ButtonsBarButtonType].init(repeating: .secondary, count: hiddenButtonsCount)
             } else {
                 return [ButtonsBarButtonType](buttonsToShow.prefix(buttons))
             }
@@ -36,7 +36,7 @@ enum ButtonsBarConfiguration {
 
     func shouldHideButton(at index: Int) -> Bool {
         switch self {
-        case .green, .white:
+        case .primary, .secondary:
             return false
         case .custom:
             return false
@@ -49,7 +49,7 @@ enum ButtonsBarConfiguration {
 
     var showMoreButton: Bool {
         switch self {
-        case .green, .white:
+        case .primary, .secondary:
             return false
         case .custom:
             return false
@@ -62,8 +62,8 @@ enum ButtonsBarConfiguration {
 }
 
 enum ButtonsBarButtonType {
-    case green
-    case white
+    case primary
+    case secondary
     case system
 }
 
@@ -139,7 +139,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
     weak var viewController: UIViewController?
 
-    init(configuration: ButtonsBarConfiguration = .green(buttons: 1)) {
+    init(configuration: ButtonsBarConfiguration = .primary(buttons: 1)) {
         buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 7)
         innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
 
@@ -269,10 +269,10 @@ class ButtonsBar: UIView, ButtonsBarViewType {
             combined.1.childView.isHidden = configuration.shouldHideButton(at: index)
 
             switch combined.0 {
-            case .green:
-                setup(viewModel: .greenButton, view: combined.1)
-            case .white:
-                setup(viewModel: .whiteButton, view: combined.1)
+            case .primary:
+                setup(viewModel: .primaryButton, view: combined.1)
+            case .secondary:
+                setup(viewModel: .secondaryButton, view: combined.1)
             case .system:
                 setup(viewModel: .systemButton, view: combined.1)
             }
@@ -335,20 +335,20 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
 struct ButtonsBarViewModel {
 
-    static let greenButton = ButtonsBarViewModel(
-        buttonBackgroundColor: Colors.appActionButtonGreen,
-        disabledButtonBackgroundColor: Colors.appActionButtonGreen.withAlphaComponent(0.3),
-        disabledButtonBorderColor: Colors.appActionButtonGreen,
-        buttonTitleColor: Colors.appWhite,
-        buttonBorderColor: Colors.appActionButtonGreen,
-        buttonBorderWidth: 0
+    static let primaryButton = ButtonsBarViewModel(
+        buttonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundActive,
+        disabledButtonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundInactive,
+        disabledButtonBorderColor: ButtonsBarStyle.Colors.primaryBorderInactive,
+        buttonTitleColor: ButtonsBarStyle.Colors.primaryTextActive,
+        buttonBorderColor: ButtonsBarStyle.Colors.primaryBorderActive
     )
 
-    static let whiteButton = ButtonsBarViewModel(
-        buttonBackgroundColor: Colors.appWhite,
-        disabledButtonBackgroundColor: Colors.appWhite,
-        disabledButtonBorderColor: R.color.azure()!.withAlphaComponent(0.3),
-        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3)
+    static let secondaryButton = ButtonsBarViewModel(
+        buttonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundActive,
+        disabledButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundInactive,
+        disabledButtonBorderColor: ButtonsBarStyle.Colors.secondaryBorderInactive,
+        buttonTitleColor: ButtonsBarStyle.Colors.secondaryTextActive,
+        buttonBorderColor: ButtonsBarStyle.Colors.secondaryBorderActive
     )
 
     static let systemButton = ButtonsBarViewModel(
