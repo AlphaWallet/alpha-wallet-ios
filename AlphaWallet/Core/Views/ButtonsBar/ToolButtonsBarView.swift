@@ -88,7 +88,7 @@ class ToolButtonsBarView: UIView, ButtonsBarViewType {
                     let button = buttonsBar.buttons[index]
 
                     if index == moreButtonIndex {
-                        button.setTitle("More", for: .normal)
+                        button.setTitle(R.string.localizable.more(), for: .normal)
                         button.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
                     } else {
                         buttons += [button]

@@ -85,7 +85,7 @@ class CollectUsersEmailViewController: ModalViewController {
     @objc private func receiveEmailSelected(_ sender: UIButton) {
         let email = textField.value
         guard email.isValidAsEmail || email.isEmpty else {
-            textField.status = .error("Email is not valid")
+            textField.status = .error(R.string.localizable.emailListEmailInvalid())
             return
         }
 

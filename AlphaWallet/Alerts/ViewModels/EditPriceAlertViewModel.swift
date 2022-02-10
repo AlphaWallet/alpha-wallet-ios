@@ -14,9 +14,9 @@ enum EdiPricetAlertViewModelConfiguration {
     var navigationTitle: String {
         switch self {
         case .create:
-            return "Set New Alert"
+            return R.string.localizable.priceAlertSetNewAlert()
         case .edit:
-            return "Edit Alert"
+            return R.string.localizable.priceAlertEdit()
         }
     }
 
@@ -52,8 +52,8 @@ struct EditPriceAlertViewModel {
         self.marketPrice = marketPrice
     }
 
-    var headerTitle: String = "Enter target price".uppercased()
-    var setAlertTitle: String = "Set Alert"
+    var headerTitle: String = R.string.localizable.priceAlertEnterTargetPrice().uppercased()
+    var setAlertTitle: String = R.string.localizable.priceAlertSet()
     var marketPriceString: String {
         let value: String = {
             guard let value = marketPrice else { return "-" }

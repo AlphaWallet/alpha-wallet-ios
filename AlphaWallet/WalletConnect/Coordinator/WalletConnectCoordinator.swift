@@ -210,7 +210,7 @@ private extension WalletType {
 extension WalletConnectCoordinator: WalletConnectServerDelegate {
     struct RequestCanceledDueToWatchWalletError: Error {
         var localizedDescription: String {
-            return "Request Rejected! Switch to non watched wallet"
+            return R.string.localizable.walletConnectFailureMustNotBeWatchedWallet()
         }
     }
 
