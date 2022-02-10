@@ -7,24 +7,31 @@
 
 import Foundation
 import WalletConnect
+import WalletConnectUtils
+
+protocol NativeCryptoCurrencyPricesProvider: class {
+    var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
+}
+
+protocol WalletSessionListProvider: class {
+    var walletSessions: ServerDictionary<WalletSession> { get }
+}
 
 class WalletConnectV2Provider: WalletConnectServerType {
 
     private var pendingSessionProposal: Session.Proposal?
-    private lazy var client: WalletConnectClient = {
+    private var client: WalletConnectClient = {
         let metadata = AppMetadata(
-            name: WalletConnectV1Provider.Keys.server,
+            name: Constants.WalletConnect.server,
             description: nil,
-            url: Constants.website,
-            icons: [Constants.iconUrl.absoluteString])
+            url: Constants.WalletConnect.websiteUrl.absoluteString,
+            icons: Constants.WalletConnect.icons)
         let projectId = Constants.Credentials.walletConnectProjectId
-        let relayHost = Constants.walletConnectRelayURL.host!
+        let relayHost = Constants.WalletConnect.relayURL.host!
 
-        let client = WalletConnectClient(metadata: metadata, projectId: projectId, isController: true, relayHost: relayHost)
-
-        return client
+        return WalletConnectClient(metadata: metadata, projectId: projectId, isController: true, relayHost: relayHost)
     }()
-    private var pendingSessinonStack: [Session.Proposal] = []
+    private var pendingSessionStack: [Session.Proposal] = []
 
     lazy var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> = {
         storage.valueSubscribable.map { sessions -> [AlphaWallet.WalletConnect.Session] in
@@ -35,29 +42,37 @@ class WalletConnectV2Provider: WalletConnectServerType {
     }()
     private let storage: SubscribableFileStorage<[MultiServerWalletConnectSession]>
     weak var delegate: WalletConnectServerDelegate?
+    weak var sessionProvider: WalletSessionListProvider?
 
     enum Keys {
         static let storageFileKey = "walletConnectSessions-v2"
     }
-    private let sessions: ServerDictionary<WalletSession>
+
     private let config: Config = Config()
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
-    init(sessions: ServerDictionary<WalletSession>) {
-        self.sessions = sessions
+    private let keystore: Keystore
+    private var subscription: Subscribable<Set<Wallet>>.SubscribableKey!
+
+    init(keystore: Keystore) {
+        self.keystore = keystore
         self.storage = .init(fileName: Keys.storageFileKey, defaultValue: [])
         client.delegate = self
+
+        subscription = keystore.subscribableWallets.subscribe { [weak self] wallets in
+            guard let strongSelf = self, let values = wallets else { return }
+
+            let wallets = Set(values.map { $0.address.eip55String })
+            for each in strongSelf.storage.value {
+                strongSelf.client.update(topic: each.identifier.description, accounts: wallets)
+            }
+        }
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
-        switch url {
-        case .v2(let uri):
-            debugLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
-
-            try client.pair(uri: uri.absoluteString)
-        case .v1:
-            break
-        }
+        guard case .v2(let uri) = url else { return }
+        debugLog("[RESPONDER] Pairing to: \(uri.absoluteString)")
+        try client.pair(uri: uri.absoluteString)
     }
 
     func updateSession(session: AlphaWallet.WalletConnect.Session, servers: [RPCServer]) throws {
@@ -100,8 +115,8 @@ class WalletConnectV2Provider: WalletConnectServerType {
 
     func disconnectSession(session: AlphaWallet.WalletConnect.Session) throws {
         guard let index = storage.value.firstIndex(where: { $0.identifier == session.identifier }) else { return }
-
-        client.disconnect(topic: storage.value[index].identifier.description, reason: .init(code: 0, message: "disconnect"))
+        let topic = storage.value[index].identifier.description
+        client.disconnect(topic: topic, reason: .init(code: 0, message: "disconnect"))
         storage.value.remove(at: index)
     }
 
@@ -109,26 +124,22 @@ class WalletConnectV2Provider: WalletConnectServerType {
         return client.getSettledSessions().contains(where: { $0.topic == session.identifier.description })
     }
 
-    func fulfill(_ callback: AlphaWallet.WalletConnect.Callback, request: AlphaWallet.WalletConnect.Session.Request) throws {
-        switch request {
-        case .v2(let request):
-            client.respond(topic: request.topic, response: request.value(data: callback.value))
-        case .v1:
-            break
-        }
-    }
+    func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {
+        guard case .v2(let request) = request else { return }
+        switch response {
+        case .value(let value):
+            let payload = JSONRPCResponse<AnyCodable>(id: request.id, result: .init(value?.hexEncoded))
 
-    func reject(_ request: AlphaWallet.WalletConnect.Session.Request) {
-        switch request {
-        case .v2(let request):
-            return client.respond(topic: request.topic, response: request.rejected(error: .requestRejected))
-        case .v1:
-            break
+            client.respond(topic: request.topic, response: .response(payload))
+        case .error(let code, let message):
+            let response = JSONRPCErrorResponse(id: request.id, error: .init(code: code, message: message))
+
+            client.respond(topic: request.topic, response: .error(response))
         }
-    }
+    } 
 }
 
-extension AlphaWallet.WalletConnect.SessionProposal {
+fileprivate extension AlphaWallet.WalletConnect.SessionProposal {
 
     init(sessionProposal: Session.Proposal) {
         let appMetadata = sessionProposal.proposer
@@ -147,36 +158,38 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
 
     func didReceive(sessionProposal: Session.Proposal) {
         guard pendingSessionProposal == nil else {
-            return pendingSessinonStack.append(sessionProposal)
+            return pendingSessionStack.append(sessionProposal)
         }
 
         didReceivePrivate(sessionProposal: sessionProposal, completion: { [weak self] in
-            guard let strongSelf = self, let nextPensingSessionProposal = strongSelf.pendingSessinonStack.popLast() else {
+            guard let strongSelf = self, let nextPendingSessionProposal = strongSelf.pendingSessionStack.popLast() else {
                 return
             }
 
-            strongSelf.didReceive(sessionProposal: nextPensingSessionProposal)
+            strongSelf.didReceive(sessionProposal: nextPendingSessionProposal)
         })
     }
 
     func didReceive(sessionRequest: Request) {
         debugLog("[RESPONDER] WC: Did receive session request")
 
-        func reject(sessionRequest: Request) {
-            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionRequest)")
-            client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .requestRejected))
+        func reject(sessionRequest: Request, error: AlphaWallet.WalletConnect.ResponseError) {
+            debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionRequest) with error: \(error.message)")
+
+            let response = JSONRPCErrorResponse(id: sessionRequest.id, error: .init(code: error.code, message: error.message))
+            client.respond(topic: sessionRequest.topic, response: .error(response))
         }
         //NOTE: guard check to avoid passing unacceptable rpc server,(when requested server is disabled)
         //FIXME: update with ability ask user for enabled disaled server
         guard let server = sessionRequest.rpcServer, config.enabledServers.contains(server) else {
-            return client.respond(topic: sessionRequest.topic, response: sessionRequest.rejected(error: .invalidRequest))
+            return reject(sessionRequest: sessionRequest, error: .internalError)
         }
 
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
 
             guard let session = strongSelf.storage.value.first(where: { $0.identifier == .topic(string: sessionRequest.topic) }) else {
-                return reject(sessionRequest: sessionRequest)
+                return reject(sessionRequest: sessionRequest, error: .requestRejected)
             }
 
             let request: AlphaWallet.WalletConnect.Session.Request = .v2(request: sessionRequest)
@@ -189,7 +202,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                 }.catch { error in
                     strongSelf.delegate?.server(strongSelf, didFail: error)
                     //NOTE: we need to reject request if there is some arrays
-                    reject(sessionRequest: sessionRequest)
+                    reject(sessionRequest: sessionRequest, error: .requestRejected)
                 }
         }
     }
@@ -271,11 +284,12 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
             guard let strongSelf = self else { return }
 
             guard let delegate = strongSelf.delegate else {
-                return reject(sessionProposal: sessionProposal)
+                reject(sessionProposal: sessionProposal)
+                return
             }
 
             do {
-                try strongSelf.validatePendingProposal(sessionProposal)
+                try WalletConnectV2Provider.validatePendingProposal(sessionProposal)
 
                 strongSelf.pendingSessionProposal = sessionProposal
 
@@ -283,13 +297,15 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                 delegate.server(strongSelf, shouldConnectFor: sessionRequest) { response in
                     guard response.shouldProceed else {
                         strongSelf.pendingSessionProposal = .none
-                        return reject(sessionProposal: sessionProposal)
+                        reject(sessionProposal: sessionProposal)
+                        return
                     }
 
-                    let accounts = strongSelf.sessions.values.filter {
-                        sessionRequest.servers.contains($0.server)
-                    }.map {
-                        eip155URLCoder.encode(rpcServer: $0.server, address: $0.account.address)
+                    let accounts = strongSelf.allAccountsInEip155(request: sessionRequest)
+                    guard !accounts.isEmpty else {
+                        strongSelf.pendingSessionProposal = .none
+                        reject(sessionProposal: sessionProposal)
+                        return
                     }
 
                     debugLog("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(Set(accounts))")
@@ -301,16 +317,31 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
             } catch {
                 delegate.server(strongSelf, didFail: error)
                 //NOTE: for now we dont throw any error, just rejecting connection proposal
-                return reject(sessionProposal: sessionProposal)
+                reject(sessionProposal: sessionProposal)
+                return
             }
         }
     }
 
+    private func allAccountsInEip155(request: AlphaWallet.WalletConnect.SessionProposal) -> [String] {
+        let sessions: [WalletSession] = sessionProvider.flatMap {
+            $0.walletSessions.values.filter {
+                request.servers.contains($0.server)
+            }
+        } ?? []
+
+        return keystore.wallets.map { wallet -> [String] in
+            sessions.map {
+                eip155URLCoder.encode(rpcServer: $0.server, address: wallet.address)
+            }
+        }.flatMap { $0 }
+    }
+
     //NOTE: Throws an error in case when `sessionProposal` contains mainnets as well as testnets
-    private func validatePendingProposal(_ sessionProposal: Session.Proposal) throws {
+    private static func validatePendingProposal(_ proposal: Session.Proposal) throws {
         struct MixedMainnetsOrTestnetsError: Error {}
 
-        let servers = RPCServer.decodeEip155Array(values: sessionProposal.permissions.blockchains)
+        let servers = RPCServer.decodeEip155Array(values: proposal.permissions.blockchains)
         let allAreTestnets = servers.allSatisfy { $0.isTestnet }
         if allAreTestnets {
             //no-op

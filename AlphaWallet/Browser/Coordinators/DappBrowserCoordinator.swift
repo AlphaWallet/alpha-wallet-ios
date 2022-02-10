@@ -9,11 +9,9 @@ import PromiseKit
 import RealmSwift
 import Result
 
-protocol DappBrowserCoordinatorDelegate: class, CanOpenURL {
+protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
-    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
 }
 
@@ -393,17 +391,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
-        let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackID, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start()
+        delegate?.requestAddCustomChain(server: server, callbackId: .dappRequestId(callbackID), customChain: customChain)
     }
 
     private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject, inViewController viewController: UIViewController) {
-        let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: viewController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start()
+        delegate?.requestSwitchChain(server: server, currentUrl: currentUrl, callbackID: .dappRequestId(callbackID), targetChain: targetChain)
     }
 }
 
@@ -423,6 +415,10 @@ extension DappBrowserCoordinator: TransactionConfirmationCoordinatorDelegate {
             strongSelf.removeCoordinator(coordinator)
             strongSelf.navigationController.dismiss(animated: true)
         }
+    }
+
+    func notifyFinish(callbackID: Int, value: AWResult<DappCallback, DAppError>) {
+        browserViewController.notifyFinish(callbackID: callbackID, value: value)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
@@ -905,77 +901,6 @@ extension DappBrowserCoordinator {
 
     private func logEnterUrl() {
         analyticsCoordinator.log(action: Analytics.Action.enterUrl)
-    }
-}
-
-extension DappBrowserCoordinator: DappRequestSwitchCustomChainCoordinatorDelegate {
-    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
-        browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
-        removeCoordinator(coordinator)
-    }
-
-    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        `switch`(toServer: server, url: url)
-        removeCoordinator(coordinator)
-    }
-
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
-        removeCoordinator(coordinator)
-    }
-
-    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        delegate?.restartToAddEnableAndSwitchBrowserToServer(inCoordinator: self)
-        removeCoordinator(coordinator)
-    }
-
-    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        let error = DAppError.nodeError(errorMessage)
-        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withError error: DAppError, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
-        removeCoordinator(coordinator)
-    }
-
-    func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator) {
-        removeCoordinator(coordinator)
-    }
-}
-
-extension DappBrowserCoordinator: DappRequestSwitchExistingChainCoordinatorDelegate {
-    func notifySuccessful(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
-        browserViewController.notifyFinish(callbackID: callbackId, value: .success(callback))
-        removeCoordinator(coordinator)
-    }
-
-    func switchBrowserToExistingServer(_ server: RPCServer, url: URL?, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        `switch`(toServer: server, url: url)
-        removeCoordinator(coordinator)
-    }
-
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        delegate?.restartToEnableAndSwitchBrowserToServer(inCoordinator: self)
-        removeCoordinator(coordinator)
-    }
-    func userCancelled(withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: Int, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        let error = DAppError.nodeError(errorMessage)
-        browserViewController.notifyFinish(callbackID: callbackId, value: .failure(error))
-        removeCoordinator(coordinator)
     }
 }
 

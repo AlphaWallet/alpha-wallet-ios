@@ -7,7 +7,7 @@
 
 import Foundation 
 
-protocol WalletConnectServerProviderType {
+protocol WalletConnectServerProviderType: WalletConnectResponder {
     var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> { get }
 
     func register(service: WalletConnectServerType)
@@ -53,6 +53,12 @@ class WalletConnectServerProvider: WalletConnectServerProviderType {
         return services.compactMap {
             $0.session(forIdentifier: identifier)
         }.first
+    }
+
+    func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {
+        for each in services {
+            try each.respond(response, request: request)
+        }
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {

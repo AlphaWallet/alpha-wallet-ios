@@ -135,11 +135,15 @@ struct DappCommandObjectValue: Decodable {
     }
 }
 
-struct WalletAddEthereumChainObject: Decodable {
-    struct NativeCurrency: Decodable {
+struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
+    struct NativeCurrency: Decodable, CustomStringConvertible {
         let name: String
         let symbol: String
         let decimals: Int
+
+        var description: String {
+            return "{name: \(name), symbol: \(symbol), decimals:\(decimals) }"
+        }
     }
 
     let nativeCurrency: NativeCurrency?
@@ -147,6 +151,10 @@ struct WalletAddEthereumChainObject: Decodable {
     let chainName: String?
     let chainId: String
     let rpcUrls: [String]?
+
+    var description: String {
+        return "{ blockExplorerUrls: \(blockExplorerUrls), chainName: \(chainName), chainId: \(chainId), rpcUrls: \(rpcUrls), nativeCurrency: \(nativeCurrency) }"
+    }
 }
 
 extension CustomRPC {
@@ -155,6 +163,13 @@ extension CustomRPC {
     }
 }
 
-struct WalletSwitchEthereumChainObject: Decodable {
+struct WalletSwitchEthereumChainObject: Decodable, CustomStringConvertible {
     let chainId: String
+    var server: RPCServer? {
+        return Int(chainId0xString: chainId).flatMap { RPCServer(chainIdOptional: $0) }
+    }
+
+    var description: String {
+        return "chainId: \(chainId)"
+    }
 }

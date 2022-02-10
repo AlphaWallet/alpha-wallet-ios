@@ -779,6 +779,13 @@ enum RPCServer: Hashable, CaseIterable {
         self = Self.availableServers.first { $0.chainID == chainID } ?? .main
     }
 
+    init?(chainIdOptional chainID: Int) {
+        guard let server = Self.availableServers.first(where: { $0.chainID == chainID }) else {
+            return nil
+        }
+        self = server
+    }
+
     init?(withMagicLinkHost magicLinkHost: String) {
         var server: RPCServer?
         //Special case to support legacy host name

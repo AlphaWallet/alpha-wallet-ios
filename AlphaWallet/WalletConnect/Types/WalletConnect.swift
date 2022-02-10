@@ -14,7 +14,7 @@ protocol SessionIdentifiable {
 }
 
 extension AlphaWallet.WalletConnect.Session {
-    enum Request {
+    enum Request: CustomStringConvertible {
         case v1(request: WalletConnectV1Request, server: RPCServer)
         case v2(request: WalletConnectV2Request)
 
@@ -36,12 +36,16 @@ extension AlphaWallet.WalletConnect.Session {
             }
         }
 
-        var topicOrURLString: String {
+        var description: String {
+            sessionId.description
+        }
+
+        var sessionId: AlphaWallet.WalletConnect.SessionIdentifier {
             switch self {
             case .v1(let request, _):
-                return request.url.absoluteString
+                return .url(url: request.url)
             case .v2(let request):
-                return request.topic
+                return .topic(string: request.topic)
             }
         }
     }

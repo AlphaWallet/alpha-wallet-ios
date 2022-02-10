@@ -87,7 +87,14 @@ class AppCoordinator: NSObject, Coordinator {
         return service
     }()
 
+    private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config)
+
+        return coordinator
+    }()
+
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
+
         self.navigationController = navigationController
         self.window = window
         self.analyticsService = analyticsService
@@ -155,6 +162,8 @@ class AppCoordinator: NSObject, Coordinator {
         oneInchSwapService.fetchSupportedTokens()
         rampBuyService.fetchSupportedTokens()
 
+        addCoordinator(walletConnectCoordinator)
+
         if keystore.hasWallets {
             showTransactions(for: keystore.currentWallet, animated: false)
         } else {
@@ -203,7 +212,8 @@ class AppCoordinator: NSObject, Coordinator {
                 accountsCoordinator: accountsCoordinator,
                 walletBalanceCoordinator: walletBalanceCoordinator,
                 coinTickersFetcher: coinTickersFetcher,
-                tokenActionsService: tokenActionsService
+                tokenActionsService: tokenActionsService,
+                walletConnectCoordinator: walletConnectCoordinator
         )
 
         coordinator.delegate = self
@@ -330,7 +340,7 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 extension AppCoordinator: InCoordinatorDelegate {
 
     func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet) {
-        disconnectWalletConnectSessionsSelectively(for: reason, walletConnectCoordinator: coordinator.walletConnectCoordinator)
+        disconnectWalletConnectSessionsSelectively(for: reason, walletConnectCoordinator: walletConnectCoordinator)
 
         keystore.recentlyUsedWallet = wallet
 
@@ -498,12 +508,10 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
         switch reason {
-        case .changeLocalization:
+        case .changeLocalization, .walletChange:
             break //no op
         case .serverChange:
             walletConnectCoordinator.disconnect(sessionsToDisconnect: .allExcept(config.enabledServers))
-        case .walletChange:
-            walletConnectCoordinator.disconnect(sessionsToDisconnect: .all)
         }
     }
 
@@ -527,10 +535,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
             pendingCoordinator.showTabBar(animated: true)
         } else {
-            if let coordinator = pendingInCoordinator {
-                disconnectWalletConnectSessionsSelectively(for: .walletChange, walletConnectCoordinator: coordinator.walletConnectCoordinator)
-            }
-
+            disconnectWalletConnectSessionsSelectively(for: .walletChange, walletConnectCoordinator: walletConnectCoordinator)
             showTransactions(for: account, animated: true)
         }
 

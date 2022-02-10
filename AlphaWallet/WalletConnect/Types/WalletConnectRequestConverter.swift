@@ -15,18 +15,12 @@ struct WalletConnectRequestConverter {
         guard let rpcServer: RPCServer = request.server else {
             return .init(error: WalletConnectRequestConverter.sessionRequestRPCServerMissing)
         }
-        debugLog("WalletConnect convert request: \(request.method) url: \(request.topicOrURLString)")
+        debugLog("WalletConnect convert request: \(request.method) url: \(request.description)")
 
         let token = MultipleChainsTokensDataStore.functional.token(forServer: rpcServer)
         let data: AlphaWallet.WalletConnect.Request
-        do {
-            switch request {
-            case .v2(let request):
-                let bridgePayload = try AlphaWallet.WalletConnect.Request.PositionedJSONRPC_2_0_Request(request: request)
-                data = try AlphaWallet.WalletConnect.Request(request: bridgePayload)
-            case .v1(let request, _):
-                data = try AlphaWallet.WalletConnect.Request(request: request)
-            }
+        do { 
+            data = try AlphaWallet.WalletConnect.Request(request: request)
         } catch let error {
             return .init(error: error)
         }
@@ -42,7 +36,6 @@ struct WalletConnectRequestConverter {
         case .signTypedMessage(let data):
             return .value(.typedMessage(data))
         case .signTypedData(_, let data):
-
             return .value(.signTypedMessageV3(data))
         case .sendTransaction(let data):
             let data = UnconfirmedTransaction(transactionType: .dapp(token, requester), bridge: data)
@@ -53,11 +46,18 @@ struct WalletConnectRequestConverter {
             return .value(.unknown)
         case .getTransactionCount(let filter):
             return .value(.getTransactionCount(filter))
+        case .walletSwitchEthereumChain(let data):
+            return .value(.walletSwitchEthereumChain(data))
+        case .walletAddEthereumChain(let data):
+            return .value(.walletAddEthereumChain(data))
+        case .custom:
+            return .init(error: WalletConnectRequestConverter.unsupportedMethod)
         }
     }
 
     enum WalletConnectRequestConverter: Error {
         case sessionRequestRPCServerMissing
+        case unsupportedMethod
     }
 }
 
@@ -67,9 +67,20 @@ protocol PositionedJSONRPC_2_0_RequestType {
     func parameter<T: Decodable>(of type: T.Type, at position: Int) throws -> T
 }
 
-fileprivate extension AlphaWallet.WalletConnect.Request {
+extension AlphaWallet.WalletConnect.Request {
+
+    init(request: AlphaWallet.WalletConnect.Session.Request) throws {
+        switch request {
+        case .v2(let request):
+            let bridgePayload = try AlphaWallet.WalletConnect.Request.PositionedJSONRPC_2_0_Request(request: request)
+            self = try AlphaWallet.WalletConnect.RequestDecoder.decode(from: bridgePayload)
+        case .v1(let request, _):
+            self = try AlphaWallet.WalletConnect.RequestDecoder.decode(from: request)
+        }
+    }
+
     /// Bridge wrapper for  json rpc request, implemented in same way as for v1 of wallet connect
-    struct PositionedJSONRPC_2_0_Request: PositionedJSONRPC_2_0_RequestType {
+    private struct PositionedJSONRPC_2_0_Request: PositionedJSONRPC_2_0_RequestType {
         let method: String
 
         private let payload: JSONRPC_2_0.Request
@@ -98,6 +109,6 @@ fileprivate extension AlphaWallet.WalletConnect.Request {
                 }
                 return try values[position].decode(to: type)
             }
-        }
+        } 
     }
 }

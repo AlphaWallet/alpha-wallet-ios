@@ -191,7 +191,6 @@ public struct Constants {
     static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
 
     static let enjinApiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
-    static let walletConnectRelayURL = URL(string: "https://relay.walletconnect.com")!
 
     enum BlockscanChat {
         static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!
@@ -199,6 +198,15 @@ public struct Constants {
     }
 
     static let statHatEndPoint = URL(string: "https://api.stathat.com/ez")!
+
+    enum WalletConnect {
+        static let relayURL = URL(string: "https://relay.walletconnect.com")!
+        static let server = "AlphaWallet"
+        static let websiteUrl = URL(string: Constants.website)!
+        static let icons = [
+            "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
+        ]
+    }
 
     //CurrencyFormatter
     static let formatterFractionDigits = 2

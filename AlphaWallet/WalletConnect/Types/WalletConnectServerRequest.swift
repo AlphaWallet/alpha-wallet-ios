@@ -11,22 +11,47 @@ extension WalletConnectV1Request: PositionedJSONRPC_2_0_RequestType { }
 
 extension AlphaWallet.WalletConnect {
 
+    enum ResponseError: Error {
+        case invalidJSON
+        case invalidRequest
+        case methodNotFound
+        case invalidParams
+        case internalError
+        case errorResponse
+        case requestRejected
+        case unsupportedChain(chainId: String)
+        case custom(code: Int, message: String)
+
+        public var code: Int {
+            switch self {
+            case .invalidJSON: return -32700
+            case .invalidRequest: return -32600
+            case .methodNotFound: return -32601
+            case .invalidParams: return -32602
+            case .internalError: return -32603
+            case .errorResponse: return -32010
+            case .requestRejected: return -32050
+            case .unsupportedChain: return 4902
+            case .custom(let code, _): return code
+            }
+        }
+
+        public var message: String {
+            switch self {
+            case .invalidJSON: return "Parse error"
+            case .invalidRequest: return "Invalid Request"
+            case .methodNotFound: return "Method not found"
+            case .invalidParams: return "Invalid params"
+            case .internalError: return "Internal error"
+            case .errorResponse: return "Error response"
+            case .requestRejected: return "Request rejected"
+            case .unsupportedChain(let chainId): return "Unrecognized chain ID \(chainId). Try adding the chain using wallet_addEthereumChain first."
+            case .custom(_, let message): return message
+            }
+        }
+    }
+
     enum Request {
-
-        enum AnyError: Error {
-            case invalid
-        }
-
-        enum Keys: String, CaseIterable {
-            case sign = "eth_sign"
-            case personalSign = "personal_sign"
-            case signTypedData = "eth_signTypedData"
-            case signTransaction = "eth_signTransaction"
-            case sendTransaction = "eth_sendTransaction"
-            case sendRawTransaction = "eth_sendRawTransaction"
-            case getTransactionCount = "eth_getTransactionCount"
-        }
-
         case signTransaction(_ transaction: RawTransactionBridge)
         case sign(address: AlphaWallet.Address, message: String)
         case signPersonalMessage(address: AlphaWallet.Address, message: String)
@@ -35,58 +60,84 @@ extension AlphaWallet.WalletConnect {
         case sendTransaction(_ transaction: RawTransactionBridge)
         case sendRawTransaction(_ value: String)
         case getTransactionCount(_ filter: String)
+        case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
+        case walletAddEthereumChain(WalletAddEthereumChainObject)
+        case custom(request: PositionedJSONRPC_2_0_RequestType)
         case unknown
+    }
+}
 
-        init(request: PositionedJSONRPC_2_0_RequestType) throws {
+extension AlphaWallet.WalletConnect {
+    
+    struct RequestDecoder {
+        enum Keys: String, CaseIterable {
+            case sign = "eth_sign"
+            case personalSign = "personal_sign"
+            case signTypedData = "eth_signTypedData"
+            case signTransaction = "eth_signTransaction"
+            case sendTransaction = "eth_sendTransaction"
+            case sendRawTransaction = "eth_sendRawTransaction"
+            case getTransactionCount = "eth_getTransactionCount"
+            case walletSwitchEthereumChain = "wallet_switchEthereumChain"
+            case walletAddEthereumChain = "wallet_addEthereumChain"
+        }
+
+        static func decode(from request: PositionedJSONRPC_2_0_RequestType) throws -> AlphaWallet.WalletConnect.Request {
             switch Keys(rawValue: request.method) {
             case .personalSign:
                 let addressRawValue = try request.parameter(of: String.self, at: 1)
                 let data = try request.parameter(of: String.self, at: 0)
 
-                guard let address = AlphaWallet.Address(string: addressRawValue) else { throw AnyError.invalid }
+                guard let address = AlphaWallet.Address(string: addressRawValue) else { throw ResponseError.invalidRequest }
 
-                self = .signPersonalMessage(address: address, message: data)
+                return .signPersonalMessage(address: address, message: data)
             case .sign:
                 let addressRawValue = try request.parameter(of: String.self, at: 0)
                 let data = try request.parameter(of: String.self, at: 1)
 
-                guard let address = AlphaWallet.Address(string: addressRawValue) else { throw AnyError.invalid }
+                guard let address = AlphaWallet.Address(string: addressRawValue) else { throw ResponseError.invalidRequest }
 
-                self = .sign(address: address, message: data)
+                return .sign(address: address, message: data)
             case .signTransaction:
                 let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
 
-                self = .signTransaction(data)
+                return .signTransaction(data)
             case .signTypedData:
                 do {
                     let addressRawValue = try request.parameter(of: String.self, at: 0)
                     let rawValue = try request.parameter(of: String.self, at: 1)
 
-                    guard let address = AlphaWallet.Address(string: addressRawValue), let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
+                    guard let address = AlphaWallet.Address(string: addressRawValue), let data = rawValue.data(using: .utf8) else { throw ResponseError.invalidRequest }
 
                     let typed = try JSONDecoder().decode(EIP712TypedData.self, from: data)
-                    self = .signTypedData(address: address, data: typed)
+                    return .signTypedData(address: address, data: typed)
                 } catch {
                     let rawValue = try request.parameter(of: String.self, at: 1)
-                    guard let data = rawValue.data(using: .utf8) else { throw AnyError.invalid }
+                    guard let data = rawValue.data(using: .utf8) else { throw ResponseError.invalidRequest }
 
                     let typed = try JSONDecoder().decode([EthTypedData].self, from: data)
-                    self = .signTypedMessage(data: typed)
+                    return .signTypedMessage(data: typed)
                 }
             case .sendTransaction:
                 let data = try request.parameter(of: RawTransactionBridge.self, at: 0)
 
-                self = .sendTransaction(data)
+                return .sendTransaction(data)
             case .sendRawTransaction:
                 let data = try request.parameter(of: String.self, at: 0)
 
-                self = .sendRawTransaction(data)
+                return .sendRawTransaction(data)
             case .getTransactionCount:
                 let data = try request.parameter(of: String.self, at: 0)
 
-                self = .getTransactionCount(data)
+                return .getTransactionCount(data)
+            case .walletSwitchEthereumChain:
+                let data = try request.parameter(of: WalletSwitchEthereumChainObject.self, at: 0)
+                return .walletSwitchEthereumChain(data)
+            case .walletAddEthereumChain:
+                let data = try request.parameter(of: WalletAddEthereumChainObject.self, at: 0)
+                return .walletAddEthereumChain(data)
             case .none:
-                self = .unknown
+                return .custom(request: request)
             }
         }
     }

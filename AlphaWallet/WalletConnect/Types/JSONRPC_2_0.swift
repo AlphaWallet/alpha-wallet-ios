@@ -5,7 +5,49 @@
 //  Created by Vladyslav Shepitko on 17.11.2021.
 //
 
-import Foundation 
+import Foundation
+import WalletConnectSwift
+
+extension Int64: RequestID {}
+
+extension JSONRPC_2_0.IDType {
+    init(_ value: RequestID?) {
+        switch value {
+        case .none: self = .null
+        case .some(let wrapped):
+            if let value = wrapped as? String {
+                self = .string(value)
+            } else if let value = wrapped as? Int64 {
+                self = .int(value)
+            } else if let value = wrapped as? Int {
+                self = .int(Int64(value))
+            } else if let value = wrapped as? Double {
+                self = .double(value)
+            } else {
+                preconditionFailure("Unknown Request ID IDType")
+            }
+        }
+    }
+
+    var requestID: RequestID? {
+        switch self {
+        case .string(let value): return value
+        case .int(let value): return value
+        case .double(let value): return value
+        case .null: return nil
+        }
+    }
+}
+
+extension Response {
+    public convenience init<T: Encodable>(url: WCURL, value: T?, id: RequestID) throws {
+        let result = try JSONRPC_2_0.Response.Payload.value(JSONRPC_2_0.ValueType(value))
+        let response = JSONRPC_2_0.Response(result: result, id: JSONRPC_2_0.IDType(id))
+        let jsonString = try response.json().string
+
+        try self.init(url: url, jsonString: jsonString)
+    }
+}
 
 internal extension JSONRPC_2_0.ValueType {
     init<T: Encodable>(_ value: T) throws {
@@ -261,7 +303,135 @@ internal enum JSONRPC_2_0 {
             }
             return JSONRPC_2_0.JSON(string)
         }
-    } 
+    }
+
+    struct Response: Hashable, Codable {
+        var jsonrpc = "2.0"
+        var result: Payload
+        var id: IDType
+
+        init(result: Payload, id: IDType) {
+            self.result = result
+            self.id = id
+        }
+
+        enum Payload: Hashable, Codable {
+            case value(ValueType)
+            case error(ErrorPayload)
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                if let error = try? container.decode(ErrorPayload.self) {
+                    self = .error(error)
+                } else if let value = try? container.decode(ValueType.self) {
+                    self = .value(value)
+                } else if container.decodeNil() {
+                    self = .value(.null)
+                } else {
+                    let context = DecodingError.Context(codingPath: decoder.codingPath,
+                                                        debugDescription: "Payload is neither error, nor JSON value")
+                    throw DecodingError.typeMismatch(ValueType.self, context)
+                }
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                switch self {
+                case .value(let value):
+                    try container.encode(value)
+                case .error(let value):
+                    try container.encode(value)
+                }
+            }
+
+            /// https://www.jsonrpc.org/specification#error_object
+            struct ErrorPayload: Hashable, Codable {
+
+                var code: Code
+                var message: String
+                var data: ValueType?
+
+                init(code: Code, message: String, data: ValueType?) {
+                    self.code = code
+                    self.message = message
+                    self.data = data
+                }
+
+                struct Code: Hashable, Codable {
+
+                    var code: Int
+
+                    enum InitializationError: String, Error {
+                        case codeAlreadyReservedForPredefinedErrors
+                    }
+
+                    static let invalidJSON = Code(code: -32_700)
+                    static let invalidRequest = Code(code: -32_600)
+                    static let methodNotFound = Code(code: -32_601)
+                    static let invalidParams = Code(code: -32_602)
+                    static let internalError = Code(code: -32_603)
+
+                    init(_ code: Int) throws {
+                        let forbiddenPredefinedRange = (-32768 ... -32000)
+                        let allowedServerErrorsRange = (-32099 ... -32000)
+                        let allowedPredefinedErrors = [-32700, -32600, -32601, -32602, -32603]
+
+                        if forbiddenPredefinedRange.contains(code) &&
+                            !(allowedServerErrorsRange.contains(code) || allowedPredefinedErrors.contains(code)) {
+                            throw InitializationError.codeAlreadyReservedForPredefinedErrors
+                        }
+                        self.init(code: code)
+                    }
+
+                    init(code: Int) {
+                        self.code = code
+                    }
+
+                    init(from decoder: Decoder) throws {
+                        let container = try decoder.singleValueContainer()
+                        code = try container.decode(Int.self)
+                    }
+
+                    func encode(to encoder: Encoder) throws {
+                        var container = encoder.singleValueContainer()
+                        try container.encode(code)
+                    }
+                }
+
+            }
+        }
+
+        static func create(from json: JSONRPC_2_0.JSON) throws -> JSONRPC_2_0.Response {
+            guard let data = json.string.data(using: .utf8) else {
+                throw DataConversionError.stringToDataFailed
+            }
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .custom { codingKeys in
+                let lastKey = codingKeys.last!
+                guard lastKey.intValue == nil else { return lastKey }
+                let stringValue = lastKey.stringValue == "error" ? "result" : lastKey.stringValue
+                return JSONRPC_2_0.KeyType(stringValue: stringValue)!
+            }
+            return try decoder.decode(JSONRPC_2_0.Response.self, from: data)
+        }
+
+        func json() throws -> JSONRPC_2_0.JSON {
+            let encoder = JSONEncoder.encoder()
+            if case Payload.error(_) = result {
+                encoder.keyEncodingStrategy = .custom { codingKeys in
+                    let lastKey = codingKeys.last!
+                    guard lastKey.intValue == nil else { return lastKey }
+                    let stringValue = lastKey.stringValue == "result" ? "error" : lastKey.stringValue
+                    return JSONRPC_2_0.KeyType(stringValue: stringValue)!
+                }
+            }
+            let data = try encoder.encode(self)
+            guard let string = String(data: data, encoding: .utf8) else {
+                throw DataConversionError.dataToStringFailed
+            }
+            return JSONRPC_2_0.JSON(string)
+        }
+    }
 }
 
 extension JSONEncoder {

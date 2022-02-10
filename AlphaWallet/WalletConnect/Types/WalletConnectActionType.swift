@@ -20,13 +20,37 @@ extension AlphaWallet.WalletConnect {
             case typedMessage([EthTypedData])
             case sendRawTransaction(String)
             case getTransactionCount(String)
+            case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
+            case walletAddEthereumChain(WalletAddEthereumChainObject)
             case unknown
         }
 
         let type: ActionType
     }
 
-    struct Callback {
-        let value: Data
+    enum Response: CustomStringConvertible {
+        case value(Data?)
+        case error(code: Int, message: String)
+
+        init(data: Data?) {
+            self = .value(data)
+        }
+
+        init(code: Int, message: String) {
+            self = .error(code: code, message: message)
+        }
+
+        init(error: AlphaWallet.WalletConnect.ResponseError) {
+            self = .error(code: error.code, message: error.message)
+        }
+
+        var description: String {
+            switch self {
+            case .value(let data):
+                return "{value: {data: \(data)}}"
+            case .error(let code, let message):
+                return "{error: {code: \(code), message: \(message)}}"
+            }
+        }
     }
 }
