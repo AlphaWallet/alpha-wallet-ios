@@ -152,17 +152,17 @@ class TokenImageFetcher {
         let queue = self.queue
         let subscribable: Subscribable<TokenImage>
         let key = "\(contractAddress.eip55String)-\(server.chainID)"
-        if let sub = Self.subscribables[key] {
+        if let sub = TokenImageFetcher.subscribables[key] {
             subscribable = sub
             if let value = sub.value, value.isFinal {
                 return subscribable
             }
         } else {
             let sub = Subscribable<TokenImage>(getDefaultOrGenerateIcon())
-            Self.subscribables[key] = sub
+            TokenImageFetcher.subscribables[key] = sub
             subscribable = sub
         }
-
+        
         func getDefaultOrGenerateIcon() -> TokenImage? {
             switch type {
             case .nativeCryptocurrency:
@@ -175,7 +175,7 @@ class TokenImageFetcher {
                 }
             }
 
-            return Self.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
+            return TokenImageFetcher.programmaticallyGenerateIcon(for: contractAddress, type: type, server: server, symbol: name)
         }
 
         if contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
@@ -198,37 +198,51 @@ class TokenImageFetcher {
                 }
             }
 
-            Self.fetchFromOpenSea(type, balance: balance, queue: queue).done(on: .main, {
-                subscribable.value = (image: $0, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
-            }).catch(on: queue) { _ in
-                Self.fetchFromAssetGitHubRepo(contractAddress: contractAddress, queue: queue).done(on: .main, {
-                    subscribable.value = (image: .image($0), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
-                }).catch(on: .main, { _ in
-                    subscribable.value = generatedImage
-                })
-            }
+            if let image = generatedImage, image.isFinal {
+                return
+            } 
+
+            firstly {
+                TokenImageFetcher
+                    .fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress, queue: queue)
+                    .map(on: queue, { image -> TokenImage in
+                        return (image: .image(image), symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+                    })
+            }.recover(on: queue, { _ -> Promise<TokenImage> in
+                return TokenImageFetcher
+                    .fetchFromOpenSea(type, balance: balance, queue: queue)
+                    .map(on: queue, { url -> TokenImage in
+                        return (image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
+                    }) 
+            }).recover(on: queue, { _ -> Promise<TokenImage> in
+                return TokenImageFetcher
+                    .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)
+                    .map(on: queue, { image -> TokenImage in
+                        return (image: .image(image), symbol: "", isFinal: false, overlayServerIcon: server.staticOverlayIcon)
+                    })
+            }).done(on: .main, { value in
+                subscribable.value = value
+            }).catch(on: .main, { _ in
+                subscribable.value = generatedImage
+            })
         }
 
         return subscribable
     }
 
     private static func fetchFromOpenSea(_ type: TokenType, balance: String?, queue: DispatchQueue) -> Promise<WebImageViewImage> {
-        Promise { seal in
-            queue.async {
-                switch type {
-                case .erc721, .erc1155:
-                    if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data) {
-                        guard let url = URL(string: openSeaNonFungible.contractImageUrl) ?? URL(string: openSeaNonFungible.thumbnailUrl) else {
-                            return seal.reject(ImageAvailabilityError.notAvailable)
-                        }
-                        return seal.fulfill(.url(url))
-                    } else {
-                        seal.reject(ImageAvailabilityError.notAvailable)
-                    }
-                case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-                    seal.reject(ImageAvailabilityError.notAvailable)
+        switch type {
+        case .erc721, .erc1155:
+            if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data) {
+                guard let url = URL(string: openSeaNonFungible.contractImageUrl) ?? URL(string: openSeaNonFungible.thumbnailUrl) else {
+                    return .init(error: ImageAvailabilityError.notAvailable)
                 }
+                return .value(.url(url))
+            } else {
+                return .init(error: ImageAvailabilityError.notAvailable)
             }
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+            return .init(error: ImageAvailabilityError.notAvailable)
         }
     }
 
@@ -240,22 +254,14 @@ class TokenImageFetcher {
         })
     }
 
-    private static func fetchFromAssetGitHubRepo(contractAddress: AlphaWallet.Address, queue: DispatchQueue) -> Promise<UIImage> {
-        firstly {
-            fetchFromAssetGitHubRepo(.alphaWallet, contractAddress: contractAddress, queue: queue)
-        }.recover(on: queue, { _ -> Promise<UIImage> in
-            fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)
-        })
-    }
-
     private static func fetch(request: URLRequest, queue: DispatchQueue) -> Promise<UIImage> {
-        Alamofire.request(request).responseData().map(on: queue) { response -> UIImage in
+        return Alamofire.request(request).responseData(queue: queue).map(on: queue, { response -> UIImage in
             if let img = UIImage(data: response.data) {
                 return img
             } else {
                 throw ImageAvailabilityError.notAvailable
             }
-        }.recover { error -> Promise<UIImage> in
+        }).recover(on: queue, { error -> Promise<UIImage> in
             //This is expected. Some tokens will not have icons
             if let url = request.url?.absoluteString {
                 verboseLog("Loading token icon URL: \(url) error")
@@ -263,7 +269,7 @@ class TokenImageFetcher {
                 verboseLog("Loading token icon URL: nil error")
             }
             throw error
-        }
+        })
     }
 }
 

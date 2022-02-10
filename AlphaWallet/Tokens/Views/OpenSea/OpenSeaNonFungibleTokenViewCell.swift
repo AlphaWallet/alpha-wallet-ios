@@ -5,11 +5,30 @@ import UIKit
 
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
-    private let imageView = TokenImageView(scale: .bestFill)
+    private let imageView: TokenImageView = {
+        let imageView: TokenImageView = TokenImageView(scale: .bestFill)
+        imageView.isRoundingEnabled = false
+        imageView.isChainOverlayHidden = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+
+        return imageView
+    }()
     //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
-    private let label = UILabel()
-    private let countLabel = UILabel()
+    private let label: UILabel = {
+        let label = UILabel()
+        label.setContentHuggingPriority(.required, for: .vertical)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        return label
+    }()
+    private let countLabel: UILabel = {
+        let countLabel = UILabel()
+        countLabel.setContentHuggingPriority(.required, for: .vertical)
+        countLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        return countLabel
+    }()
     private var tokenAddress: AlphaWallet.Address?
 
     override init(frame: CGRect) {
@@ -17,6 +36,7 @@ class OpenSeaNonFungibleTokenView: UIView {
 
         background.translatesAutoresizingMaskIntoConstraints = false
         addSubview(background)
+
         let textsStackView = [
             label,
             countLabel,
@@ -29,11 +49,8 @@ class OpenSeaNonFungibleTokenView: UIView {
             .spacer(height: 8),
         ].asStackView(axis: .vertical, spacing: 0, alignment: .fill)
         stackView.translatesAutoresizingMaskIntoConstraints = false
+
         background.addSubview(stackView)
-        imageView.isRoundingEnabled = false
-        imageView.isChainOverlayHidden = true
-        
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageHolder.addSubview(imageView)
 
         NSLayoutConstraint.activate([
@@ -42,6 +59,7 @@ class OpenSeaNonFungibleTokenView: UIView {
             stackView.anchorsConstraint(to: background),
             imageView.anchorsConstraint(to: imageHolder)
         ])
+
         translatesAutoresizingMaskIntoConstraints = false
     }
 
