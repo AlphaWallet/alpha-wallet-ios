@@ -4,6 +4,7 @@
 "Done" = "Valmis";
 "Cancel" = "Peru";
 "Continue" = "Jatka";
+"More" = "More";
 "Skip" = "Ohita";
 "Save" = "Tallenna";
 "Delete" = "Poista";
@@ -630,6 +631,7 @@
 "walletConnect.session.signedTransactions" = "Allekirjoitetut tapahtumat";
 "walletConnect.start" = "%@\n\nAloita WalletConnect-kytkentä verkossa:";
 "walletConnect.failure.title" = "WalletConnect-kytkentävirhe";
+"walletConnect.failure.mustNotBeWatchedWallet" = "Request Rejected! Switch to non watched wallet";
 "walletConnect.sendRawTransaction.title" = "Lähetä raaka (raw) tilitapahtuma";
 "walletConnect.activeSessions" = "Kytkentä Dapps-sovellukseen";
 "walletConnect.activeSessions.plural" = "Kytkennät Dapps-sovelluksiin";
@@ -684,6 +686,7 @@
 "customRPC.overall.tab.manual" = "Siirry";
 "customRPC.browse.search.placeholder" = "Etsi verkkoa";
 "emailList.prompt.title" = "Tilaa uutiset";
+"emailList.email.invalid" = "Email is not valid";
 "emailList.prompt.message" = "Lähetämme sähköpostia, kun esittelemme uusia ominaisuuksia. Haluatko liittyä sähköpostilistallemme?\n\n(Korkeintaan 1 sähköposti viikossa)";
 "emailList.prompt.subscribeButtonTitle" = "Liity sähköpostilistalle";
 "emailList.prompt.email.placeholder" = "Sähköposti";
@@ -730,11 +733,19 @@
 "url.facebook" = "Facebook";
 "url.faq" = "UKK (FAQ)";
 "url.github" = "Github (raportoi ohjelmistovirheestä)";
+"support.blog.title" = "Blog";
+"support.email.title" = "Email";
 "walletConnect.sessions.empty" = "WalletConnect-kytkentöjä ei ole yhtään käytössä";
 "walletConnect.sessions.scanQrCode" = "Lue QR-koodi";
 "priceAlert.emptyList" = "Hälytykset löytyvät täältä";
 "priceAlert.navigationTitle" = "Hälytykset";
 "priceAlert.newAlert" = "Aseta uusi hintahälytys";
+"priceAlert.setNewAlert" = "Set New Alert";
+"priceAlert.edit" = "Edit Alert";
+"priceAlert.set" = "Set Alert";
+"priceAlert.enterTargetPrice" = "Enter target price";
+"priceAlert.above" = "Above";
+"priceAlert.below" = "Below";
 "walletConnect.error.connectionTimeout.title" = "Aikaraja ylittyi. Yritä uudestaan";
 "walletConnect.error.connectionTimeout.errorMessage" = "Yritit kytkeä WalletConnect-toiminnolla.\nValitettavasti tämä kesti liian pitkään. Luo uusi\nQR-koodi ja yritä uudestaan.";
 "walletConnect.scanQRCodeAgain" = "Lue QR-koodi uudestaan";

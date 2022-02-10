@@ -47,7 +47,7 @@ class TokensCardCollectionViewController: UIViewController {
     }()
     private let refreshControl = UIRefreshControl()
     private let account: Wallet
-    
+
     init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardCollectionViewControllerViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
         self.tokenObject = token
         self.viewModel = viewModel
@@ -162,7 +162,7 @@ class TokensCardCollectionViewController: UIViewController {
                     }
                 }
             case .watch:
-                button.isEnabled = false 
+                button.isEnabled = false
             }
         }
     }
@@ -227,12 +227,12 @@ class TokensCardCollectionViewController: UIViewController {
                 delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
             }
         }
-    } 
+    }
 
     private func transfer(tokenHolder: TokenHolder) {
         let transactionType = TransactionType(token: tokenObject, tokenHolders: [tokenHolder])
         let paymentFlow: PaymentFlow = .send(type: .transaction(transactionType))
-        
+
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: self)
     }
 }

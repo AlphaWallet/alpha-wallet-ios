@@ -63,7 +63,7 @@ class AddressTextField: UIControl {
     var clearButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Clear", for: .normal)
+        button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)

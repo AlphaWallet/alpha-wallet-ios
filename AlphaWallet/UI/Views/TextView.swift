@@ -93,14 +93,14 @@ class TextView: UIControl {
         button.contentHorizontalAlignment = .right
         button.heightConstraint.flatMap { NSLayoutConstraint.deactivate([$0]) }
         button.contentEdgeInsets = .zero
-        
+
         return button
     }()
 
     var clearButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Clear", for: .normal)
+        button.setTitle(R.string.localizable.clearButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.setBackgroundColor(.clear, forState: .normal)

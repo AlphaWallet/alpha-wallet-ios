@@ -27,6 +27,7 @@ enum SupportRow {
     case twitter
     case reddit
     case facebook
+    //TODO remove if unused
     case blog
     case faq
     case github
@@ -68,9 +69,9 @@ enum SupportRow {
         case .faq:
             return URLServiceProvider.faq.title
         case .blog:
-            return "Blog"
+            return R.string.localizable.supportBlogTitle()
         case .email:
-            return "Email"
+            return R.string.localizable.supportEmailTitle()
         case .github:
             return URLServiceProvider.github.title
         }

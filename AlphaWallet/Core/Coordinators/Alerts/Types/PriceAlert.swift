@@ -14,9 +14,9 @@ enum PriceTarget: String, Codable {
     var title: String {
         switch self {
         case .above:
-            return "Above"
+            return R.string.localizable.priceAlertAbove()
         case .below:
-            return "Below"
+            return R.string.localizable.priceAlertBelow()
         }
     }
 }

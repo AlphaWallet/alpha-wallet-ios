@@ -4,6 +4,7 @@
 "Done" = "Done";
 "Cancel" = "Cancel";
 "Continue" = "Continue";
+"More" = "More";
 "Skip" = "Skip";
 "Save" = "Save";
 "Delete" = "Delete";
@@ -630,6 +631,7 @@
 "walletConnect.session.signedTransactions" = "Signed Transactions";
 "walletConnect.start" = "%@\n\nStart WalletConnect session on:";
 "walletConnect.failure.title" = "WalletConnect Error";
+"walletConnect.failure.mustNotBeWatchedWallet" = "Request Rejected! Switch to non watched wallet";
 "walletConnect.sendRawTransaction.title" = "Send raw transaction";
 "walletConnect.activeSessions" = "Active connection to Dapps";
 "walletConnect.activeSessions.plural" = "Active connections to Dapps";
@@ -684,6 +686,7 @@
 "customRPC.overall.tab.manual" = "Enter";
 "customRPC.browse.search.placeholder" = "Search for Network";
 "emailList.prompt.title" = "Stay Updated";
+"emailList.email.invalid" = "Email is not valid";
 "emailList.prompt.message" = "We send an email announcing major features. Would you like to receive such emails?\n\n(max 1 email per week)";
 "emailList.prompt.subscribeButtonTitle" = "I want to receive such emails";
 "emailList.prompt.email.placeholder" = "Email";
@@ -730,11 +733,19 @@
 "url.facebook" = "Facebook";
 "url.faq" = "faq";
 "url.github" = "Github (File an issue)";
+"support.blog.title" = "Blog";
+"support.email.title" = "Email";
 "walletConnect.sessions.empty" = "No active WalletConnect sessions";
 "walletConnect.sessions.scanQrCode" = "Scan QR Code";
 "priceAlert.emptyList" = "Alerts will appear here";
 "priceAlert.navigationTitle" = "Alerts";
 "priceAlert.newAlert" = "Add New Price Alert";
+"priceAlert.setNewAlert" = "Set New Alert";
+"priceAlert.edit" = "Edit Alert";
+"priceAlert.set" = "Set Alert";
+"priceAlert.enterTargetPrice" = "Enter target price";
+"priceAlert.above" = "Above";
+"priceAlert.below" = "Below";
 "walletConnect.error.connectionTimeout.title" = "Try WalletConnect again";
 "walletConnect.error.connectionTimeout.errorMessage" = "You tried to connect with WalletConnect.\nWell.. It takes too long. Please generate\na fresh QR code and try again.";
 "walletConnect.scanQRCodeAgain" = "Scan QR Code again";
