@@ -282,7 +282,6 @@ fileprivate extension TokenObjectOrRpcServerPair {
     }
 }
 
-
 fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
