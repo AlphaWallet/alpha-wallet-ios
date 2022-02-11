@@ -746,6 +746,7 @@
 		8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */; };
 		8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */; };
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
+		8717D37327B2947000FB789D /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 8717D37227B2947000FB789D /* WalletConnect */; };
 		8717DA37273A714E002D3D66 /* WalletConnectServerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */; };
 		8717DA39273A7E83002D3D66 /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA38273A7E83002D3D66 /* WalletConnect.swift */; };
 		8717DA3B273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */; };
@@ -835,7 +836,6 @@
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
 		876C80CD2673940B00B16595 /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CC2673940B00B16595 /* SwitchView.swift */; };
-		877115D027562CB40090154A /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 877115CF27562CB40090154A /* WalletConnect */; };
 		87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */; };
 		87713EB0264BAB2500B1B9CB /* TokenPagesContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */; };
 		87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */; };
@@ -2129,8 +2129,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8717D37327B2947000FB789D /* WalletConnect in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
-				877115D027562CB40090154A /* WalletConnect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5140,7 +5140,7 @@
 			);
 			name = AlphaWallet;
 			packageProductDependencies = (
-				877115CF27562CB40090154A /* WalletConnect */,
+				8717D37227B2947000FB789D /* WalletConnect */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -5266,7 +5266,7 @@
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
-				877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
+				8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
 			projectDirPath = "";
@@ -7164,20 +7164,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
+		8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/WalletConnect-Labs/WalletConnectSwiftV2.git";
+			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		877115CF27562CB40090154A /* WalletConnect */ = {
+		8717D37227B2947000FB789D /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 877115CE27562CB40090154A /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			package = 8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
 			productName = WalletConnect;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -9,6 +9,8 @@ import Foundation
 import WalletConnect
 import WalletConnectUtils
 
+typealias WalletConnectV2URI = WalletConnectURI
+
 struct MultiServerWalletConnectSession: Codable, SessionIdentifiable {
     var dapp: AppMetadata
     private (set) var blockchains: Set<String>
@@ -19,7 +21,7 @@ struct MultiServerWalletConnectSession: Codable, SessionIdentifiable {
         return .init(title: dapp.name, url: dapp.url.flatMap({ URL(string: $0) }))
     }
 
-    var permissions: SessionPermissions {
+    var permissions: Session.Permissions {
         return .init(blockchains: blockchains, methods: methods)
     }
 
@@ -45,47 +47,9 @@ struct MultiServerWalletConnectSession: Codable, SessionIdentifiable {
         self.methods = session.permissions.methods
     }
 
-    mutating func update(permissions: SessionType.Permissions) {
-        let permissions = permissions.decodedValue
-
-        self.blockchains = permissions.blockchain.chains
-        self.methods = permissions.jsonrpc.methods
-    }
-}
-
-private extension SessionType.Permissions {
-    //NOTE: Bridge to WalletConnectV2 permissions as the are internal
-    struct PermissionsBridge: Codable {
-        public struct Blockchain: Codable, Equatable {
-            fileprivate(set) var chains: Set<String>
-
-            public init(chains: Set<String>) {
-                self.chains = chains
-            }
-        }
-
-        public struct JSONRPC: Codable, Equatable {
-            fileprivate(set) var methods: Set<String>
-
-            public init(methods: Set<String>) {
-                self.methods = methods
-            }
-        }
-
-        let blockchain: Blockchain
-        let jsonrpc: JSONRPC
-
-        static var empty: PermissionsBridge = .init(blockchain: Blockchain(chains: []), jsonrpc: JSONRPC(methods: []))
-    }
-
-    var decodedValue: PermissionsBridge {
-        guard let data = try? JSONEncoder().encode(self) else {
-            return .empty
-        }
-        guard let decoded = try? JSONDecoder().decode(PermissionsBridge.self, from: data) else {
-            return .empty
-        }
-        return decoded
+    mutating func update(permissions: Session.Permissions) {
+        self.blockchains = permissions.blockchains
+        self.methods = permissions.methods
     }
 }
 
@@ -114,7 +78,7 @@ enum WalletConnectV2ProviderError: Error {
     case connectionIsAlreadyPending
 }
 
-typealias WalletConnectV2Request = SessionRequest
+typealias WalletConnectV2Request = Request
 
 extension WalletConnectV2Request {
     var rpcServer: RPCServer? {
@@ -152,15 +116,15 @@ public enum ResponseError: Int, Error {
     }
 }
 
-extension SessionRequest {
+extension WalletConnectV2Request {
 
-    func rejected(error: ResponseError) -> JsonRpcResponseTypes {
-        let response = JSONRPCErrorResponse(id: request.id, error: .init(code: error.code, message: error.message))
+    func rejected(error: ResponseError) -> JsonRpcResult {
+        let response = JSONRPCErrorResponse(id: id, error: .init(code: error.code, message: error.message))
         return .error(response)
     }
 
-    func value(data value: Data) -> JsonRpcResponseTypes {
-        let response = JSONRPCResponse<AnyCodable>(id: request.id, result: .init(value.hexEncoded))
+    func value(data value: Data) -> JsonRpcResult {
+        let response = JSONRPCResponse<AnyCodable>(id: id, result: .init(value.hexEncoded))
 
         return .response(response)
     }

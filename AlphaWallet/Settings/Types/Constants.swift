@@ -55,6 +55,7 @@ public struct Constants {
     public static let currencyDropServer = "https://paymaster.stormbird.sg/api/claimFreeCurrency"
 
     // social
+    public static let iconUrl: URL = URL(string: "https://avatars.githubusercontent.com/u/36216689?s=88&v=4")!
     public static let website = "https://alphawallet.com/"
     public static let twitterUsername = "AlphaWallet"
     public static let redditGroupName = "r/AlphaWallet/"

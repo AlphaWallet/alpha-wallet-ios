@@ -32,7 +32,7 @@ extension AlphaWallet.WalletConnect.Session {
             case .v1(let request, _):
                 return request.method
             case .v2(let request):
-                return request.request.method
+                return request.method
             }
         }
 
@@ -58,7 +58,7 @@ extension AlphaWallet {
             struct ConnectionUrlError: Error {}
 
             private enum Keys: CodingKey {
-                case wcUrl
+                case url
                 case uri
             }
             
@@ -70,10 +70,9 @@ extension AlphaWallet {
                     return uri.absoluteString
                 }
             }
-            private static let valueKey = "value"
-            
+
             init?(_ string: String) {
-                if let v2 = WalletConnectV2URI(string) {
+                if let v2 = WalletConnectV2URI(string: string) {
                     self = .v2(uri: v2)
                 } else if let v1 = WalletConnectV1URL(string) {
                     self = .v1(wcUrl: v1)
@@ -84,10 +83,8 @@ extension AlphaWallet {
             
             init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: Keys.self)
-                if let wcUrl = try? container.decode([String: WalletConnectV1URL].self, forKey: .wcUrl), let value = wcUrl[ConnectionUrl.valueKey] {
-                    self = .v1(wcUrl: value)
-                } else if let uri = try? container.decode([String: WalletConnectV2URI].self, forKey: .uri), let value = uri[ConnectionUrl.valueKey] {
-                    self = .v2(uri: value)
+                if let rawValue = try? container.decode(String.self, forKey: .url), let value = ConnectionUrl(rawValue) {
+                    self = value
                 } else {
                     throw ConnectionUrlError()
                 }
@@ -95,12 +92,7 @@ extension AlphaWallet {
 
             func encode(to encoder: Encoder) throws {
                 var container = encoder.container(keyedBy: Keys.self)
-                switch self {
-                case .v1(let string):
-                    try container.encode([ConnectionUrl.valueKey: string], forKey: .wcUrl)
-                case .v2(let url):
-                    try container.encode([ConnectionUrl.valueKey: url], forKey: .uri)
-                }
+                try container.encode(absoluteString, forKey: .url)
             }
         }
 
