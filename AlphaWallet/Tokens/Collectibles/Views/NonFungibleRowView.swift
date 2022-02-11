@@ -133,7 +133,7 @@ class NonFungibleRowView: TokenCardViewType {
 protocol NonFungibleRowViewModelType {
     var contentsBackgroundColor: UIColor { get }
     var title: String { get }
-    var imageUrl: URL? { get }
+    var imageUrl: WebImageURL? { get }
 
     var descriptionTextFont: UIFont { get }
     var descriptionTextForegroundColor: UIColor { get }

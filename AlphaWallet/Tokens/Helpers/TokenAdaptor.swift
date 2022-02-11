@@ -70,8 +70,7 @@ class TokenAdaptor {
         let balance = token.balance
         var tokens = [Token]()
         for item in balance {
-            let jsonString = item.balance
-            if let token = getTokenForNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
+            if let nonFungibleBalance = item.nonFungibleBalance, let token = getTokenForNonFungible(nonFungible: nonFungibleBalance, inWallet: account, server: self.token.server, isSourcedFromEvents: isSourcedFromEvents, tokenType: self.token.type) {
                 tokens.append(token)
             }
         }
@@ -156,8 +155,7 @@ class TokenAdaptor {
         XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
-        guard let data = jsonString.data(using: .utf8), let nonFungible = nonFungible(fromJsonData: data) else { return nil }
+    private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
         switch nonFungible.tokenType {
         case .erc721:
             break

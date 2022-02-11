@@ -203,6 +203,10 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         }
     }
 
+    var contractImageUrlUrlValue: URL? {
+        self["contractImageUrl"]?.stringValue.flatMap { URL(string: $0) }
+    }
+
     var contractImageUrlStringValue: String? {
         self["contractImageUrl"]?.stringValue
     }

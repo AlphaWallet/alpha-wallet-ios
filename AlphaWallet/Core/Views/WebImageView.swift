@@ -4,7 +4,7 @@ import UIKit
 import WebKit
 
 enum WebImageViewImage: Hashable, Equatable {
-    case url(URL)
+    case url(WebImageURL)
     case image(UIImage)
 
     static func == (lhs: WebImageViewImage, rhs: WebImageViewImage) -> Bool {
@@ -55,7 +55,7 @@ class WebImageView: UIView {
         setImage(rawUIImage: image)
     }
 
-    func setImage(url: URL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+    func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         self.placeholder = placeholder
 
         if let url = url {
@@ -99,7 +99,7 @@ class WebImageView: UIView {
         setWebViewURL(url: nil)
     }
 
-    private func setWebViewURL(url: URL?) {
+    private func setWebViewURL(url: WebImageURL?) {
         func resetToDisplayPlaceholder() {
             imageView.image = placeholder
             setIsLoadingImageFromURL(false)
@@ -120,7 +120,7 @@ class WebImageView: UIView {
             })
         }
 
-        guard let imageURL = url.flatMap({ $0.rewrittenIfIpfs }).flatMap({ $0.absoluteString }) else {
+        guard let imageURL = url.flatMap({ $0.absoluteString }) else {
             return resetToDisplayPlaceholder()
         }
 

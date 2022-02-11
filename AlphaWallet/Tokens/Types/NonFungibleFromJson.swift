@@ -38,6 +38,13 @@ protocol NonFungibleFromJson: Codable {
     var transferFee: String? { get }
 }
 
+extension NonFungibleFromJson {
+    
+    var nonFungibleImageUrl: WebImageURL? {
+        return WebImageURL(string: contractImageUrl) ?? WebImageURL(string: thumbnailUrl) ?? WebImageURL(string: imageUrl)
+    }
+}
+
 func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {
     if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: jsonData) {
         return nonFungible

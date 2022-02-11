@@ -33,8 +33,8 @@ struct TokenInstanceInfoPageViewModel {
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
     }
 
-    var imageUrl: URL? {
-        tokenHolderHelper.values?.imageUrlUrlValue ?? tokenHolderHelper.values?.thumbnailUrlUrlValue
+    var imageUrl: WebImageURL? {
+        tokenHolder.imageUrl(tokenId: tokenId)
     }
 
     var backgroundColor: UIColor {
