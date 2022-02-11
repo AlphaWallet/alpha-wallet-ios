@@ -36,9 +36,10 @@ class TransactionCoordinator: NSObject, Coordinator {
         self.dataCoordinator = dataCoordinator
 
         super.init()
-
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
 
+        //NOTE: Reduce copies of unused transaction instances, `TransactionsViewController` isn't using when activities enabled.
+        guard !Features.isActivityEnabled else { return }
         let subscription = transactionsCollection.subscribableFor(filter: .all)
         subscriptionKey = subscription.subscribe { [weak self] txs in
             guard let strongSelf = self else { return }
