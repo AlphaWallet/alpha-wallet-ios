@@ -44,10 +44,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return HistoryStore(realm: sharedRealm)
     }()
 
-    private lazy var preferences: PreferencesController = {
-        return PreferencesController()
-    }()
-
     private var urlParser: BrowserURLParser {
         return BrowserURLParser()
     }
