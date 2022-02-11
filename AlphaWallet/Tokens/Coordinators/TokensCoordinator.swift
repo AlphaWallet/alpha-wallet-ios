@@ -153,7 +153,7 @@ class TokensCoordinator: Coordinator {
     }
 
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
-        if config.shouldReadClipboardForWalletConnectUrl {
+        if config.development.shouldReadClipboardForWalletConnectUrl {
             if let s = UIPasteboard.general.string ?? UIPasteboard.general.url?.absoluteString, let url = AlphaWallet.WalletConnect.ConnectionUrl(s) {
                 walletConnectCoordinator.openSession(url: url)
             }

@@ -1,10 +1,18 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright Stormbird PTE. LTD.
 
 import Foundation
 import ObjectiveC
 import web3swift
 
 struct Config {
+    struct Development {
+        let shouldReadClipboardForWalletConnectUrl = false
+        ///Useful to reduce network calls
+        let isAutoFetchingDisabled = false
+    }
+
+    let development = Development()
+
     //TODO `currency` was originally a instance-side property, but was refactored out. Maybe better if it it's moved elsewhere
     static func getCurrency() -> Currency {
         let defaults = UserDefaults.standard
@@ -267,11 +275,6 @@ struct Config {
             return []
         }
     }
-
-    ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
-    let isAutoFetchingDisabled = false
-
-    let shouldReadClipboardForWalletConnectUrl = false
 
     func addToWalletAddressesAlreadyPromptedForBackup(address: AlphaWallet.Address) {
         var addresses: [String]

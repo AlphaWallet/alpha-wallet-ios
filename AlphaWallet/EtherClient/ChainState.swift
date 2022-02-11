@@ -32,7 +32,7 @@ class ChainState {
     init(config: Config, server: RPCServer) {
         self.server = server
         self.defaults = config.defaults
-        if config.isAutoFetchingDisabled {
+        if config.development.isAutoFetchingDisabled {
             //No-op
         } else {
             self.updateLatestBlock = Timer.scheduledTimer(withTimeInterval: 6, repeats: true) { [weak self] _ in
