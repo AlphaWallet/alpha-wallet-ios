@@ -141,7 +141,6 @@ struct Config {
     struct Keys {
         static let chainID = "chainID"
         static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"
-        static let isDebugEnabled = "isDebugEnabled"
         static let currencyID = "currencyID"
         static let dAppBrowser = "dAppBrowser"
         //There *is* a trailing space in the key
