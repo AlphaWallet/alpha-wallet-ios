@@ -117,7 +117,7 @@ class PaymentCoordinator: Coordinator {
             coordinator.start()
             addCoordinator(coordinator)
         case (.send, .watch):
-            // This case should be returning an error inCoordinator. Improve this logic into single piece.
+            //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
             break
         }
     }
