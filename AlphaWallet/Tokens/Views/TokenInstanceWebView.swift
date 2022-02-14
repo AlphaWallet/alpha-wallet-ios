@@ -15,6 +15,7 @@ protocol TokenInstanceWebViewDelegate: AnyObject {
 }
 
 class TokenInstanceWebView: UIView {
+    var coordinators: [Coordinator] = []
     enum SetProperties {
         static let setActionProps = "setActionProps"
         //Values ought to be typed. But it's just much easier to keep them as `Any` and convert them to the correct types when accessed (based on TokenScript syntax and XML tag). We don't know what those are here
@@ -478,7 +479,8 @@ extension TokenInstanceWebView: WKUIDelegate {
 }
 
 //TODO this contains functions duplicated and modified from DappBrowserCoordinator. Clean this up. Or move it somewhere, to a coordinator?
-extension TokenInstanceWebView {
+extension TokenInstanceWebView: Coordinator {
+    
     //allow the message to be passed in as a pure string, if it is then we convert it to hex
     private func convertMessageToHex(msg: String) -> String {
         if msg.hasPrefix("0x") {
@@ -492,7 +494,7 @@ extension TokenInstanceWebView {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
         let keystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         firstly {
-            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, signType: type, account: account, source: .tokenScript, walletConnectDappRequesterViewModel: nil)
+            SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .tokenScript, walletConnectDappRequesterViewModel: nil)
         }.done { data in
             let callback: DappCallback
             switch type {
