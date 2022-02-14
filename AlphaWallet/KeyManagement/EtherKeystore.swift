@@ -12,6 +12,19 @@ enum EtherKeystoreError: LocalizedError {
     case protectionDisabled
 }
 
+extension UserDefaults {
+    //NOTE: its quite important to use single instance of user defaults, otherwise the data will be written in different suites
+    private static let testSuiteDefaults = UserDefaults(suiteName: NSUUID().uuidString)!
+
+    static var standardOrForTests: UserDefaults {
+        if isRunningTests() {
+            return testSuiteDefaults
+        } else {
+            return .standard
+        }
+    }
+}
+
 // swiftlint:disable type_body_length
 ///We use ECDSA keys (created and stored in the Secure Enclave), achieving symmetric encryption based on Diffie-Hellman to encrypt the HD wallet seed (actually entropy) and raw private keys and store the ciphertext in the keychain.
 ///
@@ -23,10 +36,6 @@ enum EtherKeystoreError: LocalizedError {
 open class EtherKeystore: NSObject, Keystore {
     private struct Keys {
         static let recentlyUsedAddress: String = "recentlyUsedAddress"
-        static let watchAddresses = "watchAddresses"
-        static let ethereumAddressesWithPrivateKeys = "ethereumAddressesWithPrivateKeys"
-        static let ethereumAddressesWithSeed = "ethereumAddressesWithSeed"
-        static let ethereumAddressesProtectedByUserPresence = "ethereumAddressesProtectedByUserPresence"
         static let ethereumRawPrivateKeyUserPresenceNotRequiredPrefix = "ethereumRawPrivateKeyUserPresenceNotRequired-"
         static let ethereumSeedUserPresenceNotRequiredPrefix = "ethereumSeedUserPresenceNotRequired-"
         static let ethereumRawPrivateKeyUserPresenceRequiredPrefix = "ethereumRawPrivateKeyUserPresenceRequired-"
@@ -51,59 +60,7 @@ open class EtherKeystore: NSObject, Keystore {
     private let keychain: KeychainSwift
     private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
-    private let userDefaults: UserDefaults
-    private var watchAddresses: [String] {
-        get {
-            guard let data = userDefaults.data(forKey: Keys.watchAddresses) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
-        }
-        set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
-            return userDefaults.set(data, forKey: Keys.watchAddresses)
-        }
-    }
-
-    private var ethereumAddressesWithPrivateKeys: [String] {
-        get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithPrivateKeys) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
-        }
-        set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
-            return userDefaults.set(data, forKey: Keys.ethereumAddressesWithPrivateKeys)
-        }
-    }
-
-    private var ethereumAddressesWithSeed: [String] {
-        get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithSeed) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
-        }
-        set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
-            return userDefaults.set(data, forKey: Keys.ethereumAddressesWithSeed)
-        }
-    }
-
-    private var ethereumAddressesProtectedByUserPresence: [String] {
-        get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesProtectedByUserPresence) else {
-                return []
-            }
-
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
-        }
-        set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
-            return userDefaults.set(data, forKey: Keys.ethereumAddressesProtectedByUserPresence)
-        }
-    }
+    private var walletAddressesStore: WalletAddressesStoreType
 
     private var analyticsCoordinator: AnalyticsCoordinator
 
@@ -127,16 +84,13 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     var wallets: [Wallet] {
-        let watchAddresses = self.watchAddresses.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
-        let addressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
-        let addressesWithSeed = ethereumAddressesWithSeed.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
-        return addressesWithSeed + addressesWithPrivateKeys + watchAddresses
+        walletAddressesStore.wallets
     }
 
     var subscribableWallets: Subscribable<Set<Wallet>> = .init(nil)
 
     var hasMigratedFromKeystoreFiles: Bool {
-        return userDefaults.data(forKey: Keys.ethereumAddressesWithPrivateKeys) != nil
+        return walletAddressesStore.hasMigratedFromKeystoreFiles
     }
 
     var recentlyUsedWallet: Wallet? {
@@ -171,20 +125,19 @@ open class EtherKeystore: NSObject, Keystore {
         (try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())).currentWallet
     }
 
-    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standard, analyticsCoordinator: AnalyticsCoordinator) throws {
+    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standardOrForTests, analyticsCoordinator: AnalyticsCoordinator) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
         }
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.analyticsCoordinator = analyticsCoordinator
-        self.userDefaults = userDefaults
+        self.walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: userDefaults)
         super.init()
 
         subscribableWallets.value = Set<Wallet>(wallets)
     }
 
-    // Async
     func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let strongSelf = self else {
@@ -266,7 +219,7 @@ open class EtherKeystore: NSObject, Keystore {
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
-            watchAddresses = [watchAddresses, [address.eip55String]].flatMap {
+            walletAddressesStore.watchAddresses = [walletAddressesStore.watchAddresses, [address.eip55String]].flatMap {
                 $0
             }
 
@@ -289,22 +242,22 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
-        let updatedOwnedAddresses = Array(Set(ethereumAddressesWithPrivateKeys + [address.eip55String]))
-        ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
+        let updatedOwnedAddresses = Array(Set(walletAddressesStore.ethereumAddressesWithPrivateKeys + [address.eip55String]))
+        walletAddressesStore.ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
 
         notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
-        let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
-        ethereumAddressesWithSeed = updated
+        let updated = Array(Set(walletAddressesStore.ethereumAddressesWithSeed + [address.eip55String]))
+        walletAddressesStore.ethereumAddressesWithSeed = updated
 
         notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
-        let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
-        ethereumAddressesProtectedByUserPresence = updated
+        let updated = Array(Set(walletAddressesStore.ethereumAddressesProtectedByUserPresence + [address.eip55String]))
+        walletAddressesStore.ethereumAddressesProtectedByUserPresence = updated
 
         notifyWalletUpdated()
     }
@@ -476,22 +429,22 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func removeAccountFromBookkeeping(_ account: AlphaWallet.Address) {
-        ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter { $0 != account.eip55String }
-        ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.eip55String }
-        ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
-        watchAddresses = watchAddresses.filter { $0 != account.eip55String }
+        walletAddressesStore.ethereumAddressesWithPrivateKeys = walletAddressesStore.ethereumAddressesWithPrivateKeys.filter { $0 != account.eip55String }
+        walletAddressesStore.ethereumAddressesWithSeed = walletAddressesStore.ethereumAddressesWithSeed.filter { $0 != account.eip55String }
+        walletAddressesStore.ethereumAddressesProtectedByUserPresence = walletAddressesStore.ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
+        walletAddressesStore.watchAddresses = walletAddressesStore.watchAddresses.filter { $0 != account.eip55String }
 
         notifyWalletUpdated()
     }
 
     func isHdWallet(account: AlphaWallet.Address) -> Bool {
-        return ethereumAddressesWithSeed.contains(account.eip55String)
+        return walletAddressesStore.ethereumAddressesWithSeed.contains(account.eip55String)
     }
 
     func isHdWallet(wallet: Wallet) -> Bool {
         switch wallet.type {
         case .real(let account):
-            return ethereumAddressesWithSeed.contains(account.eip55String)
+            return walletAddressesStore.ethereumAddressesWithSeed.contains(account.eip55String)
         case .watch:
             return false
         }
@@ -500,7 +453,7 @@ open class EtherKeystore: NSObject, Keystore {
     func isKeystore(wallet: Wallet) -> Bool {
         switch wallet.type {
         case .real(let account):
-            return ethereumAddressesWithPrivateKeys.contains(account.eip55String)
+            return walletAddressesStore.ethereumAddressesWithPrivateKeys.contains(account.eip55String)
         case .watch:
             return false
         }
@@ -511,12 +464,12 @@ open class EtherKeystore: NSObject, Keystore {
         case .real:
             return false
         case .watch(let address):
-            return watchAddresses.contains(address.eip55String)
+            return walletAddressesStore.watchAddresses.contains(address.eip55String)
         }
     }
 
     func isProtectedByUserPresence(account: AlphaWallet.Address) -> Bool {
-        return ethereumAddressesProtectedByUserPresence.contains(account.eip55String)
+        return walletAddressesStore.ethereumAddressesProtectedByUserPresence.contains(account.eip55String)
     }
 
     func signPersonalMessage(_ message: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {

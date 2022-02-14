@@ -822,6 +822,9 @@
 		87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */; };
 		87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4325EFAFEC0070063B /* BuyTokenService.swift */; };
 		87584B4725EFB0950070063B /* Ramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4625EFB0950070063B /* Ramp.swift */; };
+		8759C9E7279ADEFC00FE361F /* WalletAddressesStoreType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */; };
+		8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */; };
+		8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */; };
 		8759C9ED279E9D6100FE361F /* TextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EC279E9D6100FE361F /* TextFieldView.swift */; };
 		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		87620024266E00F70059B05A /* known_contract.json in Resources */ = {isa = PBXBuildFile; fileRef = 87620023266E00F60059B05A /* known_contract.json */; };
@@ -1895,6 +1898,9 @@
 		87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		87584B4325EFAFEC0070063B /* BuyTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenService.swift; sourceTree = "<group>"; };
 		87584B4625EFB0950070063B /* Ramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ramp.swift; sourceTree = "<group>"; };
+		8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressesStoreType.swift; sourceTree = "<group>"; };
+		8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsWalletAddressesStore.swift; sourceTree = "<group>"; };
+		8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonWalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9EC279E9D6100FE361F /* TextFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldView.swift; sourceTree = "<group>"; };
 		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		87620023266E00F60059B05A /* known_contract.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = known_contract.json; sourceTree = "<group>"; };
@@ -3683,6 +3689,9 @@
 				5E7C7DD409C330DA4033F504 /* Keystore.swift */,
 				5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */,
 				5E7C7778166E01A0D483C58D /* SecureEnclave.swift */,
+				8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */,
+				8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */,
+				8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */,
 			);
 			path = KeyManagement;
 			sourceTree = "<group>";
@@ -5667,6 +5676,7 @@
 				29F1C85820036926003780D8 /* AppTracker.swift in Sources */,
 				293E62711FA2F63500CB0A66 /* InitialWalletCreationCoordinator.swift in Sources */,
 				874527D9270B3A45008DB272 /* xDaiBridge.swift in Sources */,
+				8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */,
 				291D73C61F7F500D00A8AB56 /* TransactionItemState.swift in Sources */,
 				29BE3FD21F707DC300F6BFC2 /* TransactionDataCoordinator.swift in Sources */,
 				29F1C85120032688003780D8 /* Address.swift in Sources */,
@@ -5800,6 +5810,7 @@
 				879F184A26E73D14000602F2 /* TokenInstanceAttributeView.swift in Sources */,
 				2912CCF91F6A830700C6CBE3 /* AppDelegate.swift in Sources */,
 				29A0E1851F706B8C00BAAAED /* String.swift in Sources */,
+				8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */,
 				296AF9A71F736EC70058AF78 /* RPCServers.swift in Sources */,
 				87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */,
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
@@ -6335,6 +6346,7 @@
 				5E7C7F53A21D1D0FE576DD8F /* ElevateWalletSecurityViewController.swift in Sources */,
 				5E7C743467F5D428AF4E4F0F /* ElevateWalletSecurityViewModel.swift in Sources */,
 				5E7C7751F57FE1B8A563A79B /* WalletSecurityLevelIndicator.swift in Sources */,
+				8759C9E7279ADEFC00FE361F /* WalletAddressesStoreType.swift in Sources */,
 				5E7C70CF44075CF73F03AD4B /* TokensViewControllerTableViewHeader.swift in Sources */,
 				5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */,
 				87C65F532660DD2E00919819 /* WalletBalanceFetcher.swift in Sources */,

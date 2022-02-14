@@ -15,7 +15,7 @@ struct Config {
 
     //TODO `currency` was originally a instance-side property, but was refactored out. Maybe better if it it's moved elsewhere
     static func getCurrency() -> Currency {
-        let defaults = UserDefaults.standard
+        let defaults = UserDefaults.standardOrForTests
 
         //If it is saved currency
         if let currency = defaults.string(forKey: Keys.currencyID) {
@@ -33,13 +33,13 @@ struct Config {
     }
 
     static func setCurrency(_ currency: Currency) {
-        let defaults = UserDefaults.standard
+        let defaults = UserDefaults.standardOrForTests
         defaults.set(currency.rawValue, forKey: Keys.currencyID)
     }
 
     //TODO `locale` was originally a instance-side property, but was refactored out. Maybe better if it it's moved elsewhere
     static func getLocale() -> String? {
-        let defaults = UserDefaults.standard
+        let defaults = UserDefaults.standardOrForTests
         return defaults.string(forKey: Keys.locale)
     }
 
@@ -61,7 +61,7 @@ struct Config {
     }
 
     static func setLocale(_ locale: String?) {
-        let defaults = UserDefaults.standard
+        let defaults = UserDefaults.standardOrForTests
         let preferenceKeyForOverridingInAppLanguage = "AppleLanguages"
         if let locale = locale {
             defaults.set(locale, forKey: Keys.locale)
@@ -75,12 +75,12 @@ struct Config {
     }
 
     //TODO Only Dapp browser uses this. Shall we move it?
-    static func setChainId(_ chainId: Int, defaults: UserDefaults = UserDefaults.standard) {
+    static func setChainId(_ chainId: Int, defaults: UserDefaults = UserDefaults.standardOrForTests) {
         defaults.set(chainId, forKey: Keys.chainID)
     }
 
     //TODO Only Dapp browser uses this
-    static func getChainId(defaults: UserDefaults = UserDefaults.standard) -> Int {
+    static func getChainId(defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int {
         let id = defaults.integer(forKey: Keys.chainID)
         guard id > 0 else { return RPCServer.main.chainID }
         return id
@@ -108,40 +108,40 @@ struct Config {
         defaults.set(dictionary, forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet))
     }
 
-    static func getLastFetchedErc20InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+    static func getLastFetchedErc20InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
 
-    static func setLastFetchedErc721InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+    static func setLastFetchedErc721InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) {
         var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
         dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
         defaults.set(dictionary, forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet))
     }
 
-    static func getLastFetchedErc721InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+    static func getLastFetchedErc721InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedErc721InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
 
-    static func setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+    static func setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) {
         var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
         dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
         defaults.set(dictionary, forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet))
     }
 
-    static func getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+    static func getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
 
-    static func setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+    static func setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) {
         var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
         dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
         defaults.set(dictionary, forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet))
     }
 
-    static func getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+    static func getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) -> Int? {
         guard let dictionary = defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
@@ -259,7 +259,7 @@ struct Config {
 
     var subscribableEnabledServers: Subscribable<[RPCServer]>
 
-    init(defaults: UserDefaults = UserDefaults.standard) {
+    init(defaults: UserDefaults = UserDefaults.standardOrForTests) {
         self.defaults = defaults
         subscribableEnabledServers = .init(nil)
     }

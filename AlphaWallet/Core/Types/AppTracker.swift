@@ -39,7 +39,7 @@ class AppTracker {
     }
 
     init(
-        defaults: UserDefaults = .standard
+        defaults: UserDefaults = .standardOrForTests
     ) {
         self.defaults = defaults
     }

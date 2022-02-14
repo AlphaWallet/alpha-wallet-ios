@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import UIKit 
+import UIKit
 import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
@@ -105,6 +105,7 @@ class AppCoordinator: NSObject, Coordinator {
     func start() {
         if isRunningTests() {
             try! RealmConfiguration.removeWalletsFolderForTests()
+            JsonWalletAddressesStore.removeWalletsFolderForTests()
             startImpl()
         } else {
             DispatchQueue.main.async {
@@ -154,7 +155,7 @@ class AppCoordinator: NSObject, Coordinator {
         walletBalanceCoordinator.start()
         oneInchSwapService.fetchSupportedTokens()
         rampBuyService.fetchSupportedTokens()
-        
+
         if keystore.hasWallets {
             showTransactions(for: keystore.currentWallet, animated: false)
         } else {
@@ -495,7 +496,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
 }
 
 extension AppCoordinator: AccountsCoordinatorDelegate {
-    
+
     private func disconnectWalletConnectSessionsSelectively(for reason: RestartReason, walletConnectCoordinator: WalletConnectCoordinator) {
         switch reason {
         case .changeLocalization:

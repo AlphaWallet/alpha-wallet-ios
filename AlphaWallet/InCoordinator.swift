@@ -88,7 +88,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     private lazy var whatsNewExperimentCoordinator: WhatsNewExperimentCoordinator = {
-        let coordinator = WhatsNewExperimentCoordinator(navigationController: navigationController, userDefaults: UserDefaults.standard, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = WhatsNewExperimentCoordinator(navigationController: navigationController, userDefaults: UserDefaults.standardOrForTests, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         return coordinator
     }()

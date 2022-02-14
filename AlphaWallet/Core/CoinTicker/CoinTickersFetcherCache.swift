@@ -25,7 +25,7 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
 
     private (set) lazy var tickersJsonPath: URL = documentDirectory.appendingPathComponent("tickers.json")
     private (set) lazy var historyJsonPath: URL = documentDirectory.appendingPathComponent("history.json")
-    private let defaults: UserDefaults = .standard
+    private let defaults: UserDefaults = .standardOrForTests
 
     private enum Keys {
         static let lastFetchedDateKey = "lastFetchedDateKey"

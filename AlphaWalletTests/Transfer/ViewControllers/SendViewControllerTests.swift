@@ -94,7 +94,7 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertEqual(vc.amountTextField.value, "")
 
         vc.allFundsSelected()
-
+        
         XCTAssertEqual(vc.amountTextField.value, "0,002")
         XCTAssertNotNil(vc.shortValueForAllFunds)
         XCTAssertTrue((vc.shortValueForAllFunds ?? "").nonEmpty)
