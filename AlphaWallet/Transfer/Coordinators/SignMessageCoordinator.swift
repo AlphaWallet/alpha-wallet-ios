@@ -49,7 +49,12 @@ class SignMessageCoordinator: Coordinator {
         return controller
     }()
     private let walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?
-    
+
+    //hhh remove
+    deinit {
+        //hhh1 shouldn't trigger immediately after `Confirm` is tapped
+        NSLog("xxx deinit \(self)")
+    }
     init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, keystore: Keystore, account: AlphaWallet.Address, message: SignMessageType, source: Analytics.SignMessageRequestSource, walletConnectDappRequesterViewModel: WalletConnectDappRequesterViewModel?) {
         self.analyticsCoordinator = analyticsCoordinator
         self.presentationNavigationController = navigationController

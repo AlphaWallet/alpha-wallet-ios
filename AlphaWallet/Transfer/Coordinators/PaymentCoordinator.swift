@@ -95,7 +95,10 @@ class PaymentCoordinator: Coordinator {
         }
 
         switch (flow, session.account.type) {
-        case (.send(let transactionType), .real):
+        //hhh restore
+        //case (.send(let transactionType), .real):
+        //hhh remove
+        case (.send(let transactionType), _):
             switch transactionType {
             case .transaction(let transactionType):
                 switch transactionType {

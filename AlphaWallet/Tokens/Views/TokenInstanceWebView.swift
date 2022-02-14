@@ -454,7 +454,19 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
                 return
             }
-        case .watch:
+        //hhh restore
+        //case .watch:
+        //hhh remove
+        case .watch(let account):
+            switch action {
+            case .signPersonalMessage(let hexMessage):
+                let msg = convertMessageToHex(msg: hexMessage)
+                let callbackID = command.id
+                signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
+                return
+            }
+
             break
         }
     }

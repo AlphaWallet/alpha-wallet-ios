@@ -138,16 +138,17 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 let action = viewModel.actions[index]
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-                switch account.type {
-                case .real:
+                //hhh restore
+                //switch account.type {
+                //case .real:
                     if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                         if selection.denial == nil {
                             button.displayButton = false
                         }
                     }
-                case .watch:
-                    button.isEnabled = false 
-                }
+                //case .watch:
+                //    button.isEnabled = false
+                //}
             }
         }
 
@@ -231,7 +232,7 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
     func open(url: URL) {
         delegate?.didPressViewContractWebPage(url, in: self)
     }
-} 
+}
 
 extension TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {

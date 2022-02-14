@@ -563,8 +563,9 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func showPaymentFlow(for type: PaymentFlow, server: RPCServer, navigationController: UINavigationController) {
-        switch (type, walletSessions[server].account.type) {
-        case (.send, .real), (.request, _):
+        //hhh restore
+        //switch (type, walletSessions[server].account.type) {
+        //case (.send, .real), (.request, _):
             let coordinator = PaymentCoordinator(
                     navigationController: navigationController,
                     flow: type,
@@ -580,13 +581,13 @@ class InCoordinator: NSObject, Coordinator {
             coordinator.start()
 
             addCoordinator(coordinator)
-        case (_, _):
-            if let topVC = navigationController.presentedViewController {
-                topVC.displayError(error: InCoordinatorError.onlyWatchAccount)
-            } else {
-                navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
-            }
-        }
+        //case (_, _):
+        //    if let topVC = navigationController.presentedViewController {
+        //        topVC.displayError(error: InCoordinatorError.onlyWatchAccount)
+        //    } else {
+        //        navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+        //    }
+        //}
     }
 
     private func handlePendingTransaction(transaction: SentTransaction) {
@@ -809,7 +810,7 @@ extension InCoordinator: WalletConnectCoordinatorDelegate {
 
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
         openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: .transactionActionSheetInsufficientFunds)
-    } 
+    }
 }
 
 extension InCoordinator: CanOpenURL {
@@ -1155,7 +1156,7 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
-    } 
+    }
 
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
