@@ -666,7 +666,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func show(openedURL filename: String) {
-        let controller = UIAlertController(title: nil, message: "\(filename) file imported with no error", preferredStyle: .alert)
+        let controller = UIAlertController(title: nil, message: R.string.localizable.tokenscriptImportOk(filename), preferredStyle: .alert)
         controller.popoverPresentationController?.sourceView = presentationViewController.view
         controller.addAction(.init(title: R.string.localizable.oK(), style: .default))
 
@@ -809,7 +809,7 @@ extension InCoordinator: WalletConnectCoordinatorDelegate {
 
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TransactionConfirmationCoordinator, viewController: UIViewController) {
         openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: .transactionActionSheetInsufficientFunds)
-    } 
+    }
 }
 
 extension InCoordinator: CanOpenURL {
@@ -1155,7 +1155,7 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
         delegate?.handleUniversalLink(url, forCoordinator: self)
-    } 
+    }
 
     func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappBrowserCoordinator) {
         processRestartQueueAndRestartUI()
