@@ -98,7 +98,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private func autoDetectTransactedTokens() {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         guard !isRunningTests() else { return }
-        guard !session.config.isAutoFetchingDisabled else { return }
+        guard !session.config.development.isAutoFetchingDisabled else { return }
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
@@ -171,7 +171,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func autoDetectPartnerTokens() {
-        guard !session.config.isAutoFetchingDisabled else { return }
+        guard !session.config.development.isAutoFetchingDisabled else { return }
         switch server {
         case .main:
             autoDetectMainnetPartnerTokens()

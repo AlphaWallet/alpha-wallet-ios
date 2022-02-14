@@ -78,7 +78,7 @@ class TransactionDataCoordinator: Coordinator {
     }
 
     @objc private func restartTimers() {
-        guard !config.isAutoFetchingDisabled else { return }
+        guard !config.development.isAutoFetchingDisabled else { return }
 
         for each in singleChainTransactionDataCoordinators {
             each.runScheduledTimers()
@@ -86,7 +86,7 @@ class TransactionDataCoordinator: Coordinator {
     }
 
     func fetch() {
-        guard !config.isAutoFetchingDisabled else { return }
+        guard !config.development.isAutoFetchingDisabled else { return }
 
         for each in singleChainTransactionDataCoordinators {
             each.fetch()

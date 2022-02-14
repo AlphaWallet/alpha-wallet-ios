@@ -30,7 +30,7 @@ class WalletSession {
         self.chainState = ChainState(config: config, server: server)
         self.balanceCoordinator = balanceCoordinator
 
-        if config.isAutoFetchingDisabled {
+        if config.development.isAutoFetchingDisabled {
             //no-op
         } else {
             self.chainState.start()
