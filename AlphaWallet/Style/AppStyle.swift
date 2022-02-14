@@ -9,32 +9,11 @@ func applyStyle() {
     UITabBar.appearance().tintColor = Colors.appTint
     UITabBar.appearance().shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
     UITabBar.appearance().backgroundImage = UIImage(color: Style.TabBar.Background.color)
+    
     UINavigationBar.appearance().shadowImage = UIImage(color: Style.NavigationBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = R.color.white()!
-        appearance.shadowColor = Style.NavigationBar.Separator.color
-        appearance.shadowImage = nil
-        appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
-        appearance.titleTextAttributes = [
-            .foregroundColor: R.color.black()!,
-            .font: Fonts.semibold(size: 17) as Any
-        ]
-        appearance.largeTitleTextAttributes = [
-            .foregroundColor: R.color.black()!,
-            .font: Fonts.bold(size: 36) as Any,
-        ]
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-
-        //NOTE: Hides back button text
-        let titleTextAttributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.clear
-        ]
-        UINavigationBar.appearance().standardAppearance.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
-        UINavigationBar.appearance().compactAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
-        UINavigationBar.appearance().scrollEdgeAppearance?.backButtonAppearance.normal.titleTextAttributes = titleTextAttributes
+    UINavigationBar.appearance().compactAppearance = UINavigationBarAppearance.defaultAppearence
+    UINavigationBar.appearance().standardAppearance = UINavigationBarAppearance.defaultAppearence
+    UINavigationBar.appearance().scrollEdgeAppearance = UINavigationBarAppearance.defaultAppearence
 
     //We could have set the backBarButtonItem with an empty title for every view controller. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
@@ -57,9 +36,40 @@ func applyStyle() {
     UITableView.appearance().separatorColor = Style.TableView.Separator.color
 }
 
-func applyStyle(viewController: UIViewController) {
-// See use of setBackButtonTitlePositionAdjustment(:for:) above
-//    viewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+extension UINavigationBarAppearance {
+    static var defaultAppearence: UINavigationBarAppearance {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = R.color.white()!
+        appearance.shadowColor = Style.NavigationBar.Separator.color
+        appearance.shadowImage = nil
+        appearance.setBackIndicatorImage(R.image.backWhite(), transitionMaskImage: R.image.backWhite())
+        appearance.titleTextAttributes = [
+            .foregroundColor: R.color.black()!,
+            .font: Fonts.semibold(size: 17) as Any
+        ]
+        appearance.largeTitleTextAttributes = [
+            .foregroundColor: R.color.black()!,
+            .font: Fonts.bold(size: 36) as Any,
+        ]
+        //NOTE: Hides back button text
+        appearance.backButtonAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.clear
+        ]
+
+        return appearance
+    }
+}
+
+extension UINavigationController {
+    static func withOverridenBarAppearence(appearence: UINavigationBarAppearance = .defaultAppearence) -> UINavigationController {
+        let instance = UINavigationController()
+        instance.navigationBar.compactAppearance = appearence
+        instance.navigationBar.standardAppearance = appearence
+        instance.navigationBar.scrollEdgeAppearance = appearence
+
+        return instance
+    }
 }
 
 struct Colors {

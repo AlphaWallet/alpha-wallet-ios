@@ -27,7 +27,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     init(
         analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = UINavigationController(),
+        navigationController: UINavigationController = .withOverridenBarAppearence(),
         tokensStorages: ServerDictionary<TokensDataStore>,
         assetDefinitionStore: AssetDefinitionStore,
         activitiesService: ActivitiesServiceType

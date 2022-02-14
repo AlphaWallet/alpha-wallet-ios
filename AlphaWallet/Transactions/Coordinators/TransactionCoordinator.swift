@@ -25,7 +25,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     init(
         analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
-        navigationController: UINavigationController = UINavigationController(),
+        navigationController: UINavigationController = .withOverridenBarAppearence(),
         transactionsCollection: TransactionCollection,
         dataCoordinator: TransactionDataCoordinator
     ) {

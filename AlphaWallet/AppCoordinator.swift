@@ -87,7 +87,7 @@ class AppCoordinator: NSObject, Coordinator {
         return service
     }()
 
-    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = UINavigationController()) throws {
+    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
         self.window = window
         self.analyticsService = analyticsService
@@ -95,7 +95,6 @@ class AppCoordinator: NSObject, Coordinator {
         self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(analyticsCoordinator: analyticsService)
 
         super.init()
-
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
 

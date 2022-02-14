@@ -124,7 +124,7 @@ class InCoordinator: NSObject, Coordinator {
         tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
         let tabBarItemAppearance = UITabBarItemAppearance()
 
-        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal ]
+        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal]
         tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
@@ -383,7 +383,7 @@ class InCoordinator: NSObject, Coordinator {
         navigationController.setViewControllers([accountsCoordinator.accountsViewController], animated: false)
         navigationController.pushViewController(tabBarController, animated: animated)
 
-        navigationController.setNavigationBarHidden(true, animated: true)
+        navigationController.setNavigationBarHidden(true, animated: false)
 
         let inCoordinatorViewModel = InCoordinatorViewModel()
         showTab(inCoordinatorViewModel.initialTab)
