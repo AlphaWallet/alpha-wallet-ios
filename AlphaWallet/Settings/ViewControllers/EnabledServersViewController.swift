@@ -82,14 +82,14 @@ class EnabledServersViewController: UIViewController {
     }
 
     @objc private func done() {
-        pushReloadServersIfNeeded()
+        guard pushReloadServersIfNeeded() else { return }
         delegate?.notifyReloadServersQueued(in: self)
     }
 
-    func pushReloadServersIfNeeded() {
+    @discardableResult func pushReloadServersIfNeeded() -> Bool {
         let servers = viewModel.selectedServers
         //Defensive. Shouldn't allow no server to be selected
-        guard !servers.isEmpty else { return }
+        guard !servers.isEmpty else { return false }
 
         let isUnchanged = Set(config.enabledServers) == Set(servers)
         if isUnchanged {
@@ -97,6 +97,7 @@ class EnabledServersViewController: UIViewController {
         } else {
             restartQueue.add(.reloadServers(servers))
         }
+        return !isUnchanged
     }
 
     private func confirmDelete(server: RPCServer) {
