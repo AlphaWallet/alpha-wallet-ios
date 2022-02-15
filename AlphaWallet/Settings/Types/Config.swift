@@ -102,7 +102,7 @@ struct Config {
         "\(Keys.lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber)-\(wallet.eip55String)"
     }
 
-    static func setLastFetchedErc20InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+    static func setLastFetchedErc20InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standardOrForTests) {
         var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
         dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
         defaults.set(dictionary, forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet))
