@@ -239,6 +239,8 @@ class TransactionConfigurator {
         let estimator = EtherscanGasPriceEstimator()
         return firstly {
             estimator.fetch(server: server)
+        }.get { estimates in
+            infoLog("Estimated gas price with gas price estimator API: \(estimates)")
         }.map { estimates in
             GasEstimates(standard: BigInt(estimates.standard), others: [
                 TransactionConfigurationType.slow: BigInt(estimates.slow),
