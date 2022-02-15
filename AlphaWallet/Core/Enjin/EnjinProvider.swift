@@ -7,7 +7,7 @@
 
 import Foundation
 import Apollo
-import PromiseKit 
+import PromiseKit
 
 struct EnjinError: Error {
     var localizedDescription: String
@@ -33,7 +33,7 @@ class EnjinProvider {
     private static var graphqlClient: ApolloClient = {
         let provider = NetworkInterceptorProvider(store: store, client: client)
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.enjinApiUrl)
-        
+
         return ApolloClient(networkTransport: transport, store: store)
     }()
 
@@ -69,7 +69,7 @@ class EnjinProvider {
         switch server {
         case .main:
             return true
-        case .rinkeby, .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .rinkeby, .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return false
         }
     }
@@ -243,7 +243,7 @@ extension EnjinProvider.functional {
         if ids.isEmpty {
             return .value([owner: []])
         }
-        
+
         let promises = ids.compactMap({ tokenId in
             return Promise<GetEnjinTokenQuery.Data.EnjinToken> { seal in
                 graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId)) { response in

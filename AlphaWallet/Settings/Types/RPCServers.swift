@@ -48,6 +48,7 @@ enum RPCServer: Hashable, CaseIterable {
     case cronosTestnet
     case custom(CustomRPC)
     case arbitrum
+    case arbitrumRinkeby
     case palm
     case palmTestnet
 
@@ -92,6 +93,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .optimisticKovan: return 69
         case .cronosTestnet: return 338
         case .arbitrum: return 42161
+        case .arbitrumRinkeby: return 421611
         case .palm: return 11297108109
         case .palmTestnet: return 11297108099
         }
@@ -126,6 +128,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .optimisticKovan: return "Optimistic Kovan"
         case .cronosTestnet: return "Cronos Testnet"
         case .arbitrum: return "Arbitrum One"
+        case .arbitrumRinkeby: return "Arbitrum Rinkeby"
         case .palm: return "Palm"
         case .palmTestnet: return "Palm (Testnet)"
         }
@@ -135,7 +138,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon, .optimistic, .arbitrum, .palm:
             return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan, .cronosTestnet, .palmTestnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby:
             return true
         case .custom(let custom):
             return custom.isTestnet
@@ -144,7 +147,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var customRpc: CustomRPC? {
         switch self {
-        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon, .optimistic, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .artis_sigma1, .heco, .fantom, .avalanche, .polygon, .optimistic, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return nil
         case .custom(let custom):
             return custom
@@ -157,7 +160,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var etherscanURLForGeneralTransactionHistory: URL? {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet:
+        case .main, .ropsten, .rinkeby, .kovan, .poa, .classic, .goerli, .xDai, .artis_sigma1, .artis_tau1, .polygon, .binance_smart_chain, .binance_smart_chain_testnet, .sokol, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return etherscanApiRoot?.appendingQueryString("module=account&action=txlist")
         case .heco: return nil
         case .heco_testnet: return nil
@@ -208,6 +211,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .custom: return nil
             case .fantom_testnet, .avalanche, .avalanche_testnet: return nil
             case .arbitrum: return "https://arbiscan.io"
+            case .arbitrumRinkeby: return "https://testnet.arbiscan.io"
             case .palm: return "https://explorer.palm.io"
             case .palmTestnet: return "https://explorer.palm-uat.xyz"
             }
@@ -251,6 +255,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .optimisticKovan: return "https://api-kovan-optimistic.etherscan.io/api"
             case .cronosTestnet: return "https://cronos-explorer.crypto.org/api"
             case .arbitrum: return "https://api.arbiscan.io/api"
+            case .arbitrumRinkeby: return "https://testnet.arbiscan.io/api"
             case .palm: return "https://explorer.palm.io/api"
             case .palmTestnet: return "https://explorer.palm-uat.xyz/api"
             }
@@ -272,7 +277,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     private var etherscanCompatibleType: EtherscanCompatibleType {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .arbitrum:
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .optimistic, .optimisticKovan, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .arbitrum, .arbitrumRinkeby:
             return .etherscan
         case .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .palm, .palmTestnet:
             return .blockscout
@@ -285,7 +290,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var etherscanApiKey: String? {
         switch self {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan, .arbitrum:
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .optimistic, .optimisticKovan, .arbitrum, .arbitrumRinkeby:
             return Constants.Credentials.etherscanKey
         case .binance_smart_chain:
             //Key not needed for testnet (empirically)
@@ -304,7 +309,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .optimistic, .optimisticKovan:
             return AlphaWallet.Address(string: "0x4200000000000000000000000000000000000006")!
-        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom, .arbitrum, .palm, .palmTestnet:
+        case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return nil
         }
     }
@@ -314,7 +319,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .goerli, .fantom, .heco, .heco_testnet, .binance_smart_chain, .binance_smart_chain_testnet, .polygon, .poa, .sokol, .classic, .xDai, .artis_sigma1, .artis_tau1, .mumbai_testnet, .callisto, .cronosTestnet, .fantom_testnet, .avalanche, .avalanche_testnet, .custom, .arbitrum, .palm, .palmTestnet:
             return true
-        case .optimistic, .optimisticKovan:
+        case .optimistic, .optimisticKovan, .arbitrumRinkeby:
             return false
         }
     }
@@ -389,14 +394,14 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main:
             return etherscanWebpageRoot?.appendingPathComponent("token").appendingPathComponent(address.eip55String)
-        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return etherscanContractDetailsWebPageURL(for: address)
         }
     }
 
     var priceID: AlphaWallet.Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -435,6 +440,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .optimisticKovan: return "ETH"
         case .cronosTestnet: return "tCRO"
         case .arbitrum: return "AETH"
+        case .arbitrumRinkeby: return "ARETH"
         case .palm: return "PALM"
         case .palmTestnet: return "PALM"
         }
@@ -463,6 +469,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .custom(let custom):
             return custom.nativeCryptoTokenName ?? "Ether"
         case .arbitrum: return "AETH"
+        case .arbitrumRinkeby: return "ARETH"
         case .palm: return "PALM"
         case .palmTestnet: return "PALM"
         }
@@ -478,7 +485,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .custom, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .custom, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return .Custom(networkID: BigUInt(chainID))
         }
     }
@@ -544,6 +551,8 @@ enum RPCServer: Hashable, CaseIterable {
             return Constants.cronosTestMagicLinkHost
         case .arbitrum:
             return Constants.arbitrumMagicLinkHost
+        case .arbitrumRinkeby:
+            return Constants.arbitrumRinkebyMagicLinkHost
         case .palm:
             return Constants.palmMagicLinkHost
         case .palmTestnet:
@@ -581,6 +590,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .optimisticKovan: return "https://kovan.optimism.io"
             case .cronosTestnet: return "https://cronos-testnet.crypto.org:8545"
             case .arbitrum: return "https://arbitrum-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
+            case .arbitrumRinkeby: return "https://arbitrum-rinkeby.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palm: return "https://palm-mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .palmTestnet: return "https://palm-testnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             }
@@ -590,7 +600,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var transactionInfoEndpoints: URL? {
         switch self {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .mumbai_testnet, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .palm, .palmTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .goerli, .classic, .poa, .xDai, .sokol, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .fantom, .polygon, .mumbai_testnet, .heco, .heco_testnet, .callisto, .optimistic, .optimisticKovan, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return etherscanApiRoot
         case .fantom_testnet: return URL(string: "https://explorer.testnet.fantom.network/tx/")
         case .avalanche: return URL(string: "https://cchain.explorer.avax.network/tx/")
@@ -604,14 +614,14 @@ enum RPCServer: Hashable, CaseIterable {
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
         case .goerli: return Constants.ENSRegistrarGoerli
-        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .xDai, .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return Constants.ENSRegistrarAddress
         }
     }
 
     var endRecordsContract: AlphaWallet.Address {
         switch self {
-        case .main, .xDai, .kovan, .ropsten, .rinkeby, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .main, .xDai, .kovan, .ropsten, .rinkeby, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return Constants.ENSRecordsContractAddress
         case .poa:
             return Constants.ENSRecordsContractAddressPOA
@@ -622,7 +632,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return .low
         }
     }
@@ -667,6 +677,8 @@ enum RPCServer: Hashable, CaseIterable {
             return custom.chainName
         case .arbitrum:
             return R.string.localizable.blockchainArbitrum()
+        case .arbitrumRinkeby:
+            return R.string.localizable.blockchainArbitrumRinkeby()
         case .palm:
             return R.string.localizable.blockchainPalm()
         case .palmTestnet:
@@ -700,6 +712,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .optimisticKovan: return .red
         case .cronosTestnet: return .red
         case .arbitrum: return .red
+        case .arbitrumRinkeby: return .red
         case .palm: return .red
         case .palmTestnet: return .red
         }
@@ -707,7 +720,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var transactionDataCoordinatorType: SingleChainTransactionDataCoordinator.Type {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .palm, .palmTestnet:
+        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return SingleChainTransactionEtherscanDataCoordinator.self
         }
     }
@@ -748,6 +761,8 @@ enum RPCServer: Hashable, CaseIterable {
             return R.image.iconsTokensOptimisticKovan()
         case .arbitrum:
             return R.image.arbitrum()
+        case .arbitrumRinkeby:
+            return nil
         case .palm:
             return R.image.iconsTokensPalm()
         case .palmTestnet:
@@ -812,6 +827,7 @@ enum RPCServer: Hashable, CaseIterable {
             .optimisticKovan,
             .cronosTestnet,
             .arbitrum,
+            .arbitrumRinkeby,
         ]
         if Features.isPalmEnabled {
             return all + [.palm, .palmTestnet]
@@ -848,7 +864,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .polygon:
             //These not allow range more than 3500
             return .blockNumber(fromBlockNumber + 3499)
-        case .mumbai_testnet, .cronosTestnet, .arbitrum:
+        case .mumbai_testnet, .cronosTestnet, .arbitrum, .arbitrumRinkeby:
             //These not allow range more than 100000
             return .blockNumber(fromBlockNumber + 99990)
         case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
