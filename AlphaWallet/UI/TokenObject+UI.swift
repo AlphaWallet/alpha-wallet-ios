@@ -66,6 +66,8 @@ extension RPCServer {
             return nil
         case .arbitrum:
             return R.image.iconsNetworkArbitrum()
+        case .arbitrumRinkeby:
+            return nil
         case .palm, .palmTestnet:
             return R.image.iconsTokensPalm()
         }
@@ -162,7 +164,7 @@ class TokenImageFetcher {
             TokenImageFetcher.subscribables[key] = sub
             subscribable = sub
         }
-        
+
         func getDefaultOrGenerateIcon() -> TokenImage? {
             switch type {
             case .nativeCryptocurrency:
@@ -200,7 +202,7 @@ class TokenImageFetcher {
 
             if let image = generatedImage, image.isFinal {
                 return
-            } 
+            }
 
             firstly {
                 TokenImageFetcher
@@ -213,7 +215,7 @@ class TokenImageFetcher {
                     .fetchFromOpenSea(type, balance: balance, queue: queue)
                     .map(on: queue, { url -> TokenImage in
                         return (image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
-                    }) 
+                    })
             }).recover(on: queue, { _ -> Promise<TokenImage> in
                 return TokenImageFetcher
                     .fetchFromAssetGitHubRepo(.thirdParty, contractAddress: contractAddress, queue: queue)

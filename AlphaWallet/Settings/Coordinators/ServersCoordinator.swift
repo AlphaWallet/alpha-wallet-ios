@@ -38,6 +38,7 @@ class ServersCoordinator: Coordinator {
             .optimisticKovan,
             .cronosTestnet,
             .arbitrum,
+            .arbitrumRinkeby,
         ] + RPCServer.customServers
         if Features.isPalmEnabled {
             return all + [.palm, .palmTestnet]
