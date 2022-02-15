@@ -96,7 +96,7 @@ class TokensCoordinator: Coordinator {
     }()
 
     init(
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: UINavigationController = .withOverridenBarAppearence(),
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
             config: Config,
@@ -116,7 +116,6 @@ class TokensCoordinator: Coordinator {
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.sessions = sessions
         self.keystore = keystore
         self.config = config

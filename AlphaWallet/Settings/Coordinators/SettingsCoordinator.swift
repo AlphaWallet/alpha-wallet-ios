@@ -42,12 +42,11 @@ class SettingsCoordinator: Coordinator {
 	lazy var rootViewController: SettingsViewController = {
 		let controller = SettingsViewController(config: config, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
 		controller.delegate = self
-		controller.modalPresentationStyle = .pageSheet
 		return controller
 	}()
 
     init(
-        navigationController: UINavigationController = UINavigationController(),
+        navigationController: UINavigationController = .withOverridenBarAppearence(),
         keystore: Keystore,
         config: Config,
         sessions: ServerDictionary<WalletSession>,
@@ -58,8 +57,8 @@ class SettingsCoordinator: Coordinator {
         walletBalanceCoordinator: WalletBalanceCoordinatorType
 	) {
 		self.navigationController = navigationController
-		self.navigationController.modalPresentationStyle = .formSheet
-		self.keystore = keystore
+
+        self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
         self.restartQueue = restartQueue
