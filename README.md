@@ -66,6 +66,8 @@ If you get a "Bundle does not exist. Please install bundle." error, please consu
 
 This makefile has been tested to run on "Monterey"-12.0.1. It will not work on "Catalina" or "Big Sur".
 
+Read [INTRODUCTION-CODE.md](docs/INTRODUCTION-CODE.md).
+
 ### Updating GemFile or Podfile
 
 After the Gemfile is updated, run `make install_gems` to update the gems in the vendor/bundle directory.
