@@ -16,7 +16,7 @@ protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
     func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController)
 }
 
-class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController, IsReadOnlyViewController {
+class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenObject: TokenObject
     private var viewModel: TokenInstanceViewModel
@@ -35,12 +35,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenInstanceViewControllerDelegate?
-
-    var isReadOnly = false {
-        didSet {
-            configure()
-        }
-    }
 
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()

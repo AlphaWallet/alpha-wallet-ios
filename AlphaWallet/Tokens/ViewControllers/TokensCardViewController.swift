@@ -128,12 +128,6 @@ class TokensCardViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
     }
 
-    var isReadOnly = false {
-        didSet {
-            configure()
-        }
-    }
-
     @objc private func didPullToRefresh(_ sender: UIRefreshControl) {
         viewModel.invalidateTokenHolders()
         configure()

@@ -464,7 +464,6 @@ class SingleChainTokenCoordinator: Coordinator {
         addCoordinator(tokensCardCoordinator)
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
-        tokensCardCoordinator.makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(type: type)
     }
 
     private func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {

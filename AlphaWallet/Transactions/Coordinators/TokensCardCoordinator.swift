@@ -77,26 +77,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         delegate?.didCancel(in: self)
     }
 
-    func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(type: PaymentFlow) {
-        switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
-            switch token.type {
-            case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-                break
-            case .erc721, .erc1155:
-                //TODO is this check still necessary?
-                switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-                case .backedByOpenSea:
-                    break
-                case .notBackedByOpenSea:
-                    rootViewController.isReadOnly = true
-                }
-            }
-        case (.send, .watch):
-            rootViewController.isReadOnly = true
-        }
-    }
-
     private func refreshUponEthereumEventChanges() {
         eventsDataStore.subscribe { [weak self] contract in
             self?.refreshScreen(forContract: contract)

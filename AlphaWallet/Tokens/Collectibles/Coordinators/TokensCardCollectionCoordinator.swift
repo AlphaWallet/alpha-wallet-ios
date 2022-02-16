@@ -76,26 +76,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         refreshUponEthereumEventChanges()
     }
 
-    private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: PaymentFlow, target: IsReadOnlyViewController) {
-        switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
-            switch token.type {
-            case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-                break
-            case .erc721, .erc1155:
-                //TODO is this check still necessary?
-                switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-                case .backedByOpenSea:
-                    break
-                case .notBackedByOpenSea:
-                    target.isReadOnly = true
-                }
-            }
-        case (.send, .watch):
-            target.isReadOnly = true
-        }
-    }
-
     private func refreshUponEthereumEventChanges() {
         eventsDataStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
@@ -170,7 +150,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         vc.configure()
         vc.navigationItem.largeTitleDisplayMode = .never
         vc.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(tokenInstanceViewControllerDidCloseSelected))
-        makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: paymantFlow, target: vc)
 
         return vc
     }
@@ -330,10 +309,6 @@ extension Collection where Element == TokenHolder {
         }
         return valuesAll
     }
-}
-
-protocol IsReadOnlyViewController: class {
-    var isReadOnly: Bool { get set }
 }
 
 extension Collection where Element == UnconfirmedTransaction.TokenIdAndValue {
