@@ -4,9 +4,8 @@ import Foundation
 import Result
 import PromiseKit
 
-class GetERC875BalanceCoordinator: CallbackQueueProvider {
-    var queue: DispatchQueue?
-
+class GetERC875BalanceCoordinator {
+    private let queue: DispatchQueue?
     private let server: RPCServer
 
     init(forServer server: RPCServer, queue: DispatchQueue? = nil) {
