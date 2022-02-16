@@ -202,7 +202,12 @@ private extension WalletType {
         case .real:
             return .value(())
         case .watch:
-            return .init(error: WalletConnectCoordinator.RequestCanceledDueToWatchWalletError())
+            //TODO pass in Config instance instead
+            if Config().development.shouldPretendIsRealWallet {
+                return .value(())
+            } else {
+                return .init(error: WalletConnectCoordinator.RequestCanceledDueToWatchWalletError())
+            }
         }
     }
 }

@@ -114,16 +114,25 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         case .erc721, .erc721ForTickets:
             redeemData = redeem.redeemMessage(tokenIds: viewModel.tokenHolder.tokens.map({ $0.id }))
         }
-        switch session.account.type {
-        case .real(let account):
+        func _generateQr(account: AlphaWallet.Address) {
             do {
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, analyticsCoordinator: analyticsCoordinator) else { break }
+                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, analyticsCoordinator: analyticsCoordinator) else { return }
                 let qrCodeInfo = redeemData.qrCode + decimalSignature
                 imageView.image = qrCodeInfo.toQRCode()
             } catch {
-                break
+                //no-op
             }
-        case .watch: break
+        }
+        switch session.account.type {
+        case .real(let account):
+            _generateQr(account: account)
+        case .watch(let account):
+            //TODO should pass in a Config instance instead
+            if Config().development.shouldPretendIsRealWallet {
+                _generateQr(account: account)
+            } else {
+                //no-op
+            }
         }
     }
 

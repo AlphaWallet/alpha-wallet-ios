@@ -134,19 +134,28 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             buttonsBar.configure(.combined(buttons: viewModel.actions.count))
             buttonsBar.viewController = self
 
+            func _configButton(action: TokenInstanceAction, button: BarButton) {
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                    if selection.denial == nil {
+                        button.displayButton = false
+                    }
+                }
+            }
+
             for (index, button) in buttonsBar.buttons.enumerated() {
                 let action = viewModel.actions[index]
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
                 switch account.type {
                 case .real:
-                    if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                        if selection.denial == nil {
-                            button.displayButton = false
-                        }
-                    }
+                    _configButton(action: action, button: button)
                 case .watch:
-                    button.isEnabled = false 
+                    //TODO pass in a Config instance instead
+                    if Config().development.shouldPretendIsRealWallet {
+                        _configButton(action: action, button: button)
+                    } else {
+                        button.isEnabled = false
+                    }
                 }
             }
         }
@@ -231,7 +240,7 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
     func open(url: URL) {
         delegate?.didPressViewContractWebPage(url, in: self)
     }
-} 
+}
 
 extension TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {

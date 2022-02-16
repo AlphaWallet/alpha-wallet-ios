@@ -137,18 +137,27 @@ class TokenViewController: UIViewController {
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
 
+        func _configButton(action: TokenInstanceAction, viewModel: TokenViewControllerViewModel, button: BarButton) {
+            if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                if selection.denial == nil {
+                    button.displayButton = false
+                }
+            }
+        }
+
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             switch session.account.type {
             case .real:
-                if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
-                    if selection.denial == nil {
-                        button.displayButton = false
-                    }
-                }
+                _configButton(action: action, viewModel: viewModel, button: button)
             case .watch:
-                button.isEnabled = false
+                //TODO pass in Config instance instead
+                if Config().development.shouldPretendIsRealWallet {
+                    _configButton(action: action, viewModel: viewModel, button: button)
+                } else {
+                    button.isEnabled = false
+                }
             }
         }
     }
