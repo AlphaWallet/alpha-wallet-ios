@@ -2,7 +2,9 @@
 
 import UIKit
 import PromiseKit
+import AlphaWalletCore
 
+typealias WebImageURL = AlphaWalletCore.WebImageURL
 typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
 typealias Image = UIImage
 
@@ -142,7 +144,7 @@ class TokenImageFetcher {
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
     func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
-        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.balance)
+        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.nonFungibleBalance)
     }
 
     func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
@@ -150,7 +152,7 @@ class TokenImageFetcher {
         return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil)
     }
 
-    private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: String?) -> Subscribable<TokenImage> {
+    private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?) -> Subscribable<TokenImage> {
         let queue = self.queue
         let subscribable: Subscribable<TokenImage>
         let key = "\(contractAddress.eip55String)-\(server.chainID)"
@@ -232,17 +234,13 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    private static func fetchFromOpenSea(_ type: TokenType, balance: String?, queue: DispatchQueue) -> Promise<WebImageViewImage> {
+    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, queue: DispatchQueue) -> Promise<WebImageViewImage> {
         switch type {
         case .erc721, .erc1155:
-            if let json = balance, let data = json.data(using: .utf8), let openSeaNonFungible = nonFungible(fromJsonData: data) {
-                guard let url = URL(string: openSeaNonFungible.contractImageUrl) ?? URL(string: openSeaNonFungible.thumbnailUrl) else {
-                    return .init(error: ImageAvailabilityError.notAvailable)
-                }
-                return .value(.url(url))
-            } else {
+            guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl else {
                 return .init(error: ImageAvailabilityError.notAvailable)
             }
+            return .value(.url(url))
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return .init(error: ImageAvailabilityError.notAvailable)
         }

@@ -174,12 +174,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         return convertDescriptionToAttributedString(asHTML: false)
     }
 
-    var thumbnailImageUrl: URL? {
-        return tokenHolder.values.thumbnailUrlUrlValue
-    }
-
-    var imageUrl: URL? {
-        return tokenHolder.values.imageUrlUrlValue
+    var imageUrl: WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
     }
 
     var externalLink: URL? {

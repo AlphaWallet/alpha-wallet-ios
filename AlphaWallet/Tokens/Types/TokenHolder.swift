@@ -177,11 +177,10 @@ class TokenHolder: Hashable {
     }
 
     var openSeaNonFungibleTraits: [OpenSeaNonFungibleTrait]? {
-        guard let traitsValue = values.traitsAssetInternalValueValue else { return nil }
-        switch traitsValue {
+        switch values.traitsAssetInternalValueValue {
         case .openSeaNonFungibleTraits(let traits):
             return traits
-        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes:
+        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
             return nil
         }
     }
@@ -203,27 +202,33 @@ class TokenHolder: Hashable {
     }
 
     func tokenType(tokenId: TokenId) -> TokenType? {
-        token(tokenId: tokenId).flatMap { $0.tokenType }
+        token(tokenId: tokenId)
+            .flatMap { $0.tokenType }
     }
 
     func name(tokenId: TokenId) -> String? {
-        token(tokenId: tokenId).flatMap { $0.name }
+        token(tokenId: tokenId)
+            .flatMap { $0.name }
     }
 
     func symbol(tokenId: TokenId) -> String? {
-        token(tokenId: tokenId).flatMap { $0.symbol }
+        token(tokenId: tokenId)
+            .flatMap { $0.symbol }
     }
 
     func values(tokenId: TokenId) -> [AttributeId: AssetAttributeSyntaxValue]? {
-        token(tokenId: tokenId).flatMap { $0.values }
+        token(tokenId: tokenId)
+            .flatMap { $0.values }
     }
 
     func status(tokenId: TokenId) -> Token.Status? {
-        token(tokenId: tokenId).flatMap { $0.status }
+        token(tokenId: tokenId)
+            .flatMap { $0.status }
     }
 
     func isSpawnableMeetupContract(tokenId: TokenId) -> Bool? {
-        token(tokenId: tokenId).flatMap { $0.isSpawnableMeetupContract }
+        token(tokenId: tokenId)
+            .flatMap { $0.isSpawnableMeetupContract }
     }
 
     func openSeaNonFungibleTraits(tokenId: TokenId) -> [OpenSeaNonFungibleTrait]? {
@@ -233,5 +238,17 @@ class TokenHolder: Hashable {
         case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
             return nil
         }
+    }
+
+    func imageUrl(tokenId: TokenId) -> WebImageURL? {
+        token(tokenId: tokenId)
+            .flatMap { ($0.values.contractImageUrlUrlValue ?? $0.values.thumbnailUrlUrlValue ?? $0.values.imageUrlUrlValue) }
+            .flatMap { WebImageURL(url: $0) }
+    }
+
+    func assetImageUrl(tokenId: TokenId) -> WebImageURL? {
+        token(tokenId: tokenId)
+            .flatMap { ($0.values.imageUrlUrlValue ?? $0.values.thumbnailUrlUrlValue ?? $0.values.contractImageUrlUrlValue) }
+            .flatMap { WebImageURL(url: $0) }
     }
 }

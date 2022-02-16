@@ -12,7 +12,7 @@ import UIKit.UIImage
 
 enum BlockiesImage {
     case image(image: UIImage, isEnsAvatar: Bool)
-    case url(url: URL, isEnsAvatar: Bool)
+    case url(url: WebImageURL, isEnsAvatar: Bool)
 
     var isEnsAvatar: Bool {
         switch self {
@@ -138,7 +138,7 @@ class BlockiesGenerator {
                 }
 
                 if url.pathExtension == "svg" {
-                    return seal.fulfill(.url(url: url, isEnsAvatar: true))
+                    return seal.fulfill(.url(url: WebImageURL(url: url), isEnsAvatar: true))
                 }
 
                 let task = URLSession.shared.dataTask(with: request) { data, _, _ in

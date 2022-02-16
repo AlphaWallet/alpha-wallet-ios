@@ -151,8 +151,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }
         }
 
-        let url = tokenHolder.values.imageUrlUrlValue ?? tokenHolder.values.thumbnailUrlUrlValue
-        bigImageView.setImage(url: url, placeholder: viewModel.tokenImagePlaceholder)
+        bigImageView.setImage(url: tokenHolder.assetImageUrl(tokenId: viewModel.tokenId), placeholder: viewModel.tokenImagePlaceholder)
 
         generateSubviews(viewModel: viewModel)
     }

@@ -212,22 +212,10 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
     //This is needed because conversion from HTML to NSAttributedString is problematic if we do it while we are animating UI (force touch + peek as of writing this
     var descriptionWithoutConvertingHtml: NSAttributedString {
         return convertDescriptionToAttributedString(asHTML: false)
-    }
+    } 
 
-    var thumbnailImageUrl: URL? {
-        return tokenHolder.values.thumbnailUrlUrlValue
-    }
-
-    var imageUrl: URL? {
-        return tokenHolder.values.imageUrlUrlValue
-    }
-
-    var externalLink: URL? {
-        return tokenHolder.values.externalLinkUrlValue
-    }
-
-    var externalLinkButtonHidden: Bool {
-        return externalLink == nil
+    var imageUrl: WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
     }
 
     var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
@@ -524,20 +512,8 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
         return convertDescriptionToAttributedString(asHTML: false)
     }
 
-    var thumbnailImageUrl: URL? {
-        return tokenHolder.values.thumbnailUrlUrlValue
-    }
-
-    var imageUrl: URL? {
-        return tokenHolder.values.imageUrlUrlValue
-    }
-
-    var externalLink: URL? {
-        return tokenHolder.values.externalLinkUrlValue
-    }
-
-    var externalLinkButtonHidden: Bool {
-        return externalLink == nil
+    var imageUrl: WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
     }
 
     var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {

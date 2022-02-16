@@ -37,6 +37,7 @@ target 'AlphaWallet' do
   pod 'Charts'
   pod 'CocoaLumberjack', '3.7.0'
   pod 'AlphaWalletAddress', :path => 'modules/AlphaWalletAddress'
+  pod 'AlphaWalletCore', :path => 'modules/AlphaWalletCore'
   pod 'Apollo' 
   pod 'MailchimpSDK'
   pod 'xcbeautify'
