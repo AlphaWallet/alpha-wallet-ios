@@ -272,8 +272,13 @@ extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValu
         self["street"]?.subscribableStringValue
     }
 
-    var traitsAssetInternalValueValue: AssetInternalValue? {
-        self["traits"]?.value
+    var traitsValue: [OpenSeaNonFungibleTrait]? {
+        switch self["traits"]?.value {
+        case .openSeaNonFungibleTraits(let traits):
+            return traits
+        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
+            return nil
+        }
     }
 
     var meltStringValue: String? {
