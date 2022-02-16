@@ -419,7 +419,6 @@ enum RPCServer: Hashable, CaseIterable {
             return name
         }
     }
-
     var symbol: String {
         switch self {
         case .main: return "ETH"
