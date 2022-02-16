@@ -109,7 +109,7 @@ public struct Constants {
     static let ENSRegistrarRinkeby = ENSRegistrarAddress
     static let ENSRegistrarGoerli = ENSRegistrarAddress
 
-    static let highStandardGasThresholdGwei = BigInt(55)
+    static let highStandardGasThresholdGwei = BigInt(130)
     //DAS
     static let dasLookupURL = URL(string: "https://indexer.da.systems/")!
 
