@@ -18,12 +18,12 @@ public enum GoogleContentSize: Equatable {
 
     var rawValue: String {
         switch self {
-        case .s120: return "s120"
-        case .s128: return "s128"
-        case .s250: return "s250"
-        case .s300: return "s300"
-        case .s750: return "s750"
-        case .s2500: return "s2500"
+        case .s120: return "=s120"
+        case .s128: return "=s128"
+        case .s250: return "=s250"
+        case .s300: return "=s300"
+        case .s750: return "=s750"
+        case .s2500: return "=s2500"
         case .custom(let string): return string
         }
     }
@@ -33,12 +33,12 @@ public enum GoogleContentSize: Equatable {
         let string = rawValue.rawValue.lowercased()
 
         switch string {
-        case "s120": self = .s120
-        case "s128": self = .s128
-        case "s250": self = .s250
-        case "s300": self = .s300
-        case "s750": self = .s750
-        case "s2500": self = .s2500
+        case "=s120": self = .s120
+        case "=s128": self = .s128
+        case "=s250": self = .s250
+        case "=s300": self = .s300
+        case "=s750": self = .s750
+        case "=s2500": self = .s2500
         default: self = .custom(string: string)
         }
     }
@@ -113,7 +113,7 @@ extension URL {
 extension WebImageURL.functional {
 
     private static let googleImageSizeInUrlRegex: NSRegularExpression = {
-        return try! NSRegularExpression(pattern: "(s|S).*[0-9]", options: .init())
+        return try! NSRegularExpression(pattern: "(=s|=S).*[0-9]", options: .init())
     }()
 
     static func googleContentSizeRawValue(for string: String) -> (rawValue: String, range: Range<String.Index>)? {
