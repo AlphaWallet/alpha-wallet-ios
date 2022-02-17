@@ -104,30 +104,37 @@ extension EventSourceCoordinator.functional {
         return Promise<Void> { seal in
             queue.async {
                 let (filterName, filterValue) = eventOrigin.eventFilter
-                let filterParam = eventOrigin.parameters
-                        .filter { $0.isIndexed }
+                let filterParam = eventOrigin
+                    .parameters
+                    .filter { $0.isIndexed }
                     .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
-                eventsDataStore.getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName).map(on: queue, { oldEvent -> EventFilter.Block in
-                    if let newestEvent = oldEvent {
-                        return .blockNumber(UInt64(newestEvent.blockNumber + 1))
-                    } else {
-                        return .blockNumber(0)
-                    }
-                }).map(on: queue, { fromBlock -> EventFilter in
-                    EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: [EthereumAddress(address: eventOrigin.contract)], parameterFilters: filterParam.map { $0?.filter })
-                }).then(on: queue, { eventFilter in
-                    getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-                }).map(on: queue, { result -> [EventInstanceValue] in
-                    result.compactMap {
-                        Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
-                    }
-                }).done(on: .main, { events in
-                    eventsDataStore.add(events: events, forTokenContract: contractAddress)
-                    seal.fulfill(())
-                }).catch(on: queue, { e in
-                    error(value: e, rpcServer: tokenServer, address: contractAddress)
-                    seal.reject(e)
-                })
+
+                eventsDataStore
+                    .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName)
+                    .map(on: queue, { oldEvent -> EventFilter in
+                        let fromBlock: EventFilter.Block
+                        if let newestEvent = oldEvent {
+                            fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
+                        } else {
+                            fromBlock = .blockNumber(0)
+                        }
+                        let addresses = [EthereumAddress(address: eventOrigin.contract)]
+                        let parameterFilters = filterParam.map { $0?.filter }
+
+                        return EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
+                    }).then(on: queue, { eventFilter in
+                        getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+                    }).map(on: queue, { result -> [EventInstanceValue] in
+                        result.compactMap {
+                            Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
+                        }
+                    }).done(on: .main, { events in
+                        eventsDataStore.add(events: events, forTokenContract: contractAddress)
+                        seal.fulfill(())
+                    }).catch(on: queue, { e in
+                        error(value: e, rpcServer: tokenServer, address: contractAddress)
+                        seal.reject(e)
+                    })
             }
         }
     }
