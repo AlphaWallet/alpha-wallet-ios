@@ -58,12 +58,6 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenInstanceActionViewControllerDelegate?
 
-    var isReadOnly = false {
-        didSet {
-            configure()
-        }
-    }
-
     var canPeekToken: Bool {
         let tokenType = NonFungibleFromJsonSupportedTokenHandling(token: tokenObject)
         switch tokenType {
