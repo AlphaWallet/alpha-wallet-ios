@@ -9,7 +9,7 @@ protocol EventsActivityDataStoreProtocol {
     func removeSubscription(subscription: Subscribable<Void>)
 
     func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity>
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address)
 }
 
@@ -57,7 +57,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             .sorted(byKeyPath: "blockNumber", ascending: false)
     }
 
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
 
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
