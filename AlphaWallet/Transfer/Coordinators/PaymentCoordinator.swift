@@ -94,8 +94,7 @@ class PaymentCoordinator: Coordinator {
             self.navigationController.setNavigationBarHidden(false, animated: true)
         }
 
-        switch (flow, session.account.type) {
-        case (.send(let transactionType), .real):
+        func _startPaymentFlow(transactionType: PaymentFlowType) {
             switch transactionType {
             case .transaction(let transactionType):
                 switch transactionType {
@@ -111,14 +110,23 @@ class PaymentCoordinator: Coordinator {
             case .tokenScript(let action, let tokenObject, let tokenHolder):
                 startWithTokenScriptCoordinator(action: action, tokenObject: tokenObject, tokenHolder: tokenHolder)
             }
+        }
+
+        switch (flow, session.account.type) {
+        case (.send(let transactionType), .real):
+            _startPaymentFlow(transactionType: transactionType)
         case (.request, _):
             let coordinator = RequestCoordinator(navigationController: navigationController, account: session.account)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)
-        case (.send, .watch):
-            //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
-            break
+        case (.send(let transactionType), .watch):
+            //TODO pass in a config instance instead
+            if Config().development.shouldPretendIsRealWallet {
+                _startPaymentFlow(transactionType: transactionType)
+            } else {
+                //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
+            }
         }
     }
 

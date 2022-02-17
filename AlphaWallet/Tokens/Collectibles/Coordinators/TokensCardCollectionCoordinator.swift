@@ -74,7 +74,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         navigationController.pushViewController(rootViewController, animated: true)
         refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
-    } 
+    }
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC1155(type: PaymentFlow, target: IsReadOnlyViewController) {
         switch (type, session.account.type) {
@@ -194,7 +194,7 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
         delegate?.didTap(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), in: self, viewController: viewController)
     }
-    
+
     func didSelectTokenHolder(in viewController: TokensCardCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
         switch tokenHolder.type {
         case .collectible:
@@ -232,7 +232,7 @@ extension TokensCardCollectionCoordinator: TokensCardCollectionViewControllerDel
         viewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(didCloseTokenInstanceSelected))
         navigationController.pushViewController(viewController, animated: true)
     }
-    
+
     @objc private func didCloseTokenInstanceSelected(_ sender: UIBarButtonItem) {
         navigationController.popViewController(animated: true)
     }

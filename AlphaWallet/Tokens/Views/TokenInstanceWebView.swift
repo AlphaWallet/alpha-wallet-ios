@@ -445,18 +445,27 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         let token = TokensDataStore.token(forServer: server)
         let action = DappAction.fromCommand(.eth(command), server: server, transactionType: .dapp(token, requester))
 
-        switch wallet.type {
-        case .real(let account):
+        func _sign(action: DappAction, command: DappCommand, account: AlphaWallet.Address) {
             switch action {
             case .signPersonalMessage(let hexMessage):
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
                 signMessage(with: .personalMessage(Data(_hex: msg)), account: account, callbackID: callbackID)
             case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction, .signTypedMessageV3, .ethCall, .walletAddEthereumChain, .walletSwitchEthereumChain:
-                return
+                break
             }
-        case .watch:
-            break
+        }
+
+        switch wallet.type {
+        case .real(let account):
+            _sign(action: action, command: command, account: account)
+        case .watch(let account):
+            //TODO pass in Config instance instead
+            if Config().development.shouldPretendIsRealWallet {
+                _sign(action: action, command: command, account: account)
+            } else {
+                //no-op
+            }
         }
     }
 }

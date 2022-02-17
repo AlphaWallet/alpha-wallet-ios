@@ -98,7 +98,7 @@ class TokensCardViewController: UIViewController {
         assetsPageView.searchBar.delegate = self
         assetsPageView.collectionView.refreshControl = refreshControl
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
-    } 
+    }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
@@ -156,18 +156,27 @@ class TokensCardViewController: UIViewController {
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
 
+        func _configButton(action: TokenInstanceAction, button: BarButton) {
+            if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolders[0], tokenId: viewModel.tokenHolders[0].tokenId, forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                if selection.denial == nil {
+                    button.displayButton = false
+                }
+            }
+        }
+
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             switch session.account.type {
             case .real:
-                if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolders[0], tokenId: viewModel.tokenHolders[0].tokenId, forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
-                    if selection.denial == nil {
-                        button.displayButton = false
-                    }
-                }
+                _configButton(action: action, button: button)
             case .watch:
-                button.isEnabled = false
+                //TODO pass in a Config instance instead
+                if Config().development.shouldPretendIsRealWallet {
+                    _configButton(action: action, button: button)
+                } else {
+                    button.isEnabled = false
+                }
             }
         }
     }
@@ -208,7 +217,7 @@ class TokensCardViewController: UIViewController {
         viewModel.markHolderSelected()
 
         guard let tokenHolder = selectedTokenHolder else { return }
-        
+
         switch action.type {
         case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
             break

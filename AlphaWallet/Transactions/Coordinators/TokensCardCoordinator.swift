@@ -62,7 +62,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
-    } 
+    }
 
     func start() {
         rootViewController.configure()
@@ -431,7 +431,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 }
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
-    
+
     func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
         delegate?.didTap(transaction: transaction, in: self)
     }

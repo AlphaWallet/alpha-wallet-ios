@@ -517,11 +517,15 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         case .real(let account):
             return performDappAction(account: account)
         case .watch(let account):
-            switch action {
-            case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signTypedMessageV3, .unknown, .sendRawTransaction:
-                return rejectDappAction()
-            case .walletAddEthereumChain, .walletSwitchEthereumChain, .ethCall:
+            if config.development.shouldPretendIsRealWallet {
                 return performDappAction(account: account)
+            } else {
+                switch action {
+                case .signTransaction, .sendTransaction, .signMessage, .signPersonalMessage, .signTypedMessage, .signTypedMessageV3, .unknown, .sendRawTransaction:
+                    return rejectDappAction()
+                case .walletAddEthereumChain, .walletSwitchEthereumChain, .ethCall:
+                    return performDappAction(account: account)
+                }
             }
         }
     }
