@@ -7,48 +7,43 @@ enum Erc1155TokenTransactionType {
 }
 
 enum TransactionType {
-    init(token: TokenObject, tokenHolders: [TokenHolder]) {
-        self = {
-            switch token.type {
-            case .nativeCryptocurrency:
-                return .nativeCryptocurrency(token, destination: nil, amount: nil)
-            case .erc20:
-                //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
-                return .erc20Token(token, destination: nil, amount: nil)
-            case .erc875:
-                return .erc875Token(token, tokenHolders: tokenHolders)
-            case .erc721:
-                //NOTE: here we got only one token, using array to avoid optional
-                return .erc721Token(token, tokenHolders: tokenHolders)
-            case .erc721ForTickets:
-                return .erc721ForTicketToken(token, tokenHolders: tokenHolders)
-            case .erc1155:
-                return .erc1155Token(token, transferType: .singleTransfer, tokenHolders: tokenHolders)
-            }
-        }()
+    init(nonFungibleToken token: TokenObject, tokenHolders: [TokenHolder]) {
+        switch token.type {
+        case .nativeCryptocurrency:
+            self = .nativeCryptocurrency(token, destination: nil, amount: nil)
+        case .erc20:
+            //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
+            self = .erc20Token(token, destination: nil, amount: nil)
+        case .erc875:
+            self = .erc875Token(token, tokenHolders: tokenHolders)
+        case .erc721:
+            //NOTE: here we got only one token, using array to avoid optional
+            self = .erc721Token(token, tokenHolders: tokenHolders)
+        case .erc721ForTickets:
+            self = .erc721ForTicketToken(token, tokenHolders: tokenHolders)
+        case .erc1155:
+            self = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: tokenHolders)
+        }
     }
 
-    init(token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
-        self = {
-            switch token.type {
-            case .nativeCryptocurrency:
-                return .nativeCryptocurrency(token, destination: recipient, amount: amount.flatMap {
-                    EtherNumberFormatter().number(from: $0, units: .ether)
-                })
-            case .erc20:
-                //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
-                return .erc20Token(token, destination: recipient, amount: amount)
-            case .erc875:
-                return .erc875Token(token, tokenHolders: [])
-            case .erc721:
-                //NOTE: here we got only one token, using array to avoid optional
-                return .erc721Token(token, tokenHolders: [])
-            case .erc721ForTickets:
-                return .erc721ForTicketToken(token, tokenHolders: [])
-            case .erc1155:
-                return .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])
-            }
-        }()
+    init(fungibleToken token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
+        switch token.type {
+        case .nativeCryptocurrency:
+            let amount = amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) }
+            self = .nativeCryptocurrency(token, destination: recipient, amount: amount)
+        case .erc20:
+            //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
+            self = .erc20Token(token, destination: recipient, amount: amount)
+        case .erc875:
+            self = .erc875Token(token, tokenHolders: [])
+        case .erc721:
+            //NOTE: here we got only one token, using array to avoid optional
+            self = .erc721Token(token, tokenHolders: [])
+        case .erc721ForTickets:
+            self = .erc721ForTicketToken(token, tokenHolders: [])
+        case .erc1155:
+            self = .erc1155Token(token, transferType: .singleTransfer, tokenHolders: [])
+        }
     }
 
     case nativeCryptocurrency(TokenObject, destination: AddressOrEnsName?, amount: BigInt?)

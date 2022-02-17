@@ -247,7 +247,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                     EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                 }
-                let transactionType = TransactionType(token: token, recipient: recipient, amount: amount)
+                let transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
@@ -268,7 +268,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                             let amount = maybeScientificAmountString.scientificAmountToBigInt.flatMap {
                                 EtherNumberFormatter.full.string(from: $0, decimals: token.decimals)
                             }
-                            let transactionType = TransactionType(token: token, recipient: recipient, amount: amount)
+                            let transactionType = TransactionType(fungibleToken: token, recipient: recipient, amount: amount)
 
                             resolver.fulfill((transactionType, token))
                         }

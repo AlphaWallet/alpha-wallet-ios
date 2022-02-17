@@ -379,7 +379,7 @@ extension TokensCoordinator: SelectTokenCoordinatorDelegate {
 
         switch sendToAddress {
         case .some(let address):
-            let paymentFlow = PaymentFlow.send(type: .transaction(.init(token: token, recipient: .address(address), amount: nil)))
+            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: .address(address), amount: nil)))
 
             delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
         case .none:

@@ -359,15 +359,15 @@ class SendViewController: UIViewController {
         let amount = amount.flatMap { EtherNumberFormatter.plain.string(from: $0, decimals: tokenObject.decimals) }
         let transactionType: TransactionType
         if let amount = amount, amount != "0" {
-            transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
+            transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
         } else {
             switch viewModel.transactionType {
             case .nativeCryptocurrency(_, _, let amount):
-                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
+                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .erc20Token(_, _, let amount):
-                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: amount)
+                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                transactionType = TransactionType(token: tokenObject, recipient: recipient, amount: nil)
+                transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: nil)
             }
         }
 
