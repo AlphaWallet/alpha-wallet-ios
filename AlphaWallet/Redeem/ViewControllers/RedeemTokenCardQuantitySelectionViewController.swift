@@ -21,7 +21,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 	private let subtitleLabel = UILabel()
     private let quantityStepper = NumberStepper()
     private let tokenRowView: TokenRowView & UIView
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: RedeemTokenCardQuantitySelectionViewModel
 
     var contract: AlphaWallet.Address {

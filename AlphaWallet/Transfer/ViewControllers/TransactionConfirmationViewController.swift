@@ -19,7 +19,7 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransactionConfirmationViewModel
     private var timerToReenableConfirmButton: Timer?
 

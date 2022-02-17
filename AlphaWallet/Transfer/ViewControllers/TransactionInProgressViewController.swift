@@ -22,7 +22,7 @@ class TransactionInProgressViewController: UIViewController {
         view.addSubview(buttonsBar)
         return view
     }()
-    private lazy var buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private lazy var buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

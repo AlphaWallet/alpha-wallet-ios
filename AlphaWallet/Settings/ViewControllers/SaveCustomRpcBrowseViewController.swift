@@ -64,7 +64,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
     }()
 
     private lazy var buttonsBar: ButtonsBar = {
-        let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+        let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
         buttonsBar.translatesAutoresizingMaskIntoConstraints = false
         return buttonsBar
     }()

@@ -39,7 +39,7 @@ class EditPriceAlertViewController: UIViewController {
         return view
     }()
 
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view

@@ -22,7 +22,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
     private let tokenRowView: TokenRowView & UIView
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
     private let ethPrice: Subscribable<Double>
     private var totalEthCost: Ether {

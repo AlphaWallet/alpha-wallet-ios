@@ -40,7 +40,7 @@ class ExportJsonKeystorePasswordView: UIView {
         textField.autocorrectionType = .no
         return textField
     }()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
 
     var bottomConstraint: NSLayoutConstraint!
 

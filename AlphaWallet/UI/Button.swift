@@ -34,7 +34,7 @@ enum ButtonStyle {
         case .border, .borderless: return .white
         case .system: return .clear
         case .special: return R.color.concrete()!
-        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
+        case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
     }
 
@@ -45,7 +45,7 @@ enum ButtonStyle {
         case .borderless: return .white
         case .system: return .clear
         case .special: return R.color.concrete()!
-        case .green: return ButtonsBarViewModel.greenButton.buttonBackgroundColor
+        case .green: return ButtonsBarViewModel.primaryButton.buttonBackgroundColor
         }
     }
 
@@ -54,7 +54,7 @@ enum ButtonStyle {
         case .solid, .border: return 5
         case .squared, .borderless, .system: return 0
         case .special: return 12
-        case .green: return ButtonsBarViewModel.greenButton.buttonCornerRadius
+        case .green: return ButtonsBarViewModel.primaryButton.buttonCornerRadius
         }
     }
 
@@ -65,7 +65,7 @@ enum ButtonStyle {
              .border,
              .borderless, .system, .special:
             return Fonts.semibold(size: 16)
-        case .green: return ButtonsBarViewModel.greenButton.buttonFont
+        case .green: return ButtonsBarViewModel.primaryButton.buttonFont
         }
     }
 
@@ -73,7 +73,7 @@ enum ButtonStyle {
         switch self {
         case .solid, .squared: return Colors.appWhite
         case .border, .borderless, .system, .special: return Colors.appTint
-        case .green: return ButtonsBarViewModel.greenButton.buttonTitleColor
+        case .green: return ButtonsBarViewModel.primaryButton.buttonTitleColor
         }
     }
 
@@ -90,7 +90,7 @@ enum ButtonStyle {
         switch self {
         case .solid, .squared, .border: return GroupedTable.Color.background
         case .borderless, .system, .special: return .clear
-        case .green: return ButtonsBarViewModel.greenButton.buttonBorderColor
+        case .green: return ButtonsBarViewModel.primaryButton.buttonBorderColor
         }
     }
 
@@ -98,7 +98,7 @@ enum ButtonStyle {
         switch self {
         case .solid, .squared, .borderless, .system, .special: return 0
         case .border: return 1
-        case .green: return ButtonsBarViewModel.greenButton.buttonBorderWidth
+        case .green: return ButtonsBarViewModel.primaryButton.buttonBorderWidth
         }
     }
 }

@@ -40,7 +40,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
     private let clearChooseSeedPhraseButton = UIButton(type: .system)
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var state: State {
         didSet {
             switch state {
@@ -176,6 +176,11 @@ class VerifySeedPhraseViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configure()
     }
 
     override func viewDidDisappear(_ animated: Bool) {

@@ -20,7 +20,7 @@ class TransactionViewController: UIViewController {
     }()
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private let session: WalletSession
     private let transactionRow: TransactionRow
 
