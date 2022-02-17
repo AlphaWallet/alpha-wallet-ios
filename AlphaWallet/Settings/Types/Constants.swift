@@ -205,9 +205,3 @@ public struct Constants {
         .byField(field: .value, direction: .descending)
     ]
 }
-
-extension URL {
-    static var forResolvingDAS: URL {
-        return Constants.dasLookupURL
-    }
-}
