@@ -258,17 +258,8 @@ class ImportMagicLinkCoordinator: Coordinator {
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
         getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
-        getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
+        getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress).done({ [weak self] balance in
             guard let strongSelf = self else { return }
-            guard let balance = try? result.dematerialize() else {
-                if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
-                } else {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                }
-                return
-            }
-
             let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
                     indices: signedOrder.order.indices,
                     balance: balance
@@ -284,7 +275,13 @@ class ImportMagicLinkCoordinator: Coordinator {
             )
 
             strongSelf.completeOrderHandling(signedOrder: signedOrder)
-        }
+        }).catch({ [weak self]  _ in
+            if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
+                self?.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+            } else {
+                self?.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            }
+        })
     }
 
     static func isOrderExpired(_ signedOrder: SignedOrder) -> Bool {

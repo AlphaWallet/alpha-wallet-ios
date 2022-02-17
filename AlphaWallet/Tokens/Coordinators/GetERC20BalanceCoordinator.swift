@@ -6,9 +6,9 @@ import Result
 import web3swift
 import PromiseKit
 
-class GetERC20BalanceCoordinator: CallbackQueueProvider {
+class GetERC20BalanceCoordinator {
     private let server: RPCServer
-    internal let queue: DispatchQueue?
+    private let queue: DispatchQueue?
 
     init(forServer server: RPCServer, queue: DispatchQueue? = nil) {
         self.server = server

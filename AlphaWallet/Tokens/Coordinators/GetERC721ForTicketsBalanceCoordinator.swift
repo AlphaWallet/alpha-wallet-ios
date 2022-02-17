@@ -5,9 +5,8 @@ import Result
 import BigInt
 import PromiseKit
 
-class GetERC721ForTicketsBalanceCoordinator: CallbackQueueProvider {
-    var queue: DispatchQueue?
-
+class GetERC721ForTicketsBalanceCoordinator {
+    private let queue: DispatchQueue?
     private let server: RPCServer
 
     init(forServer server: RPCServer, queue: DispatchQueue? = nil) {
