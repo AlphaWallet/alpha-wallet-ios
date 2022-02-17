@@ -655,11 +655,11 @@ private class PrivateXMLHandler {
         ]
         return .init(namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
     }
-
+    private static let regex = try? NSRegularExpression(pattern: "<\\!ENTITY\\s+(.*)\\s+SYSTEM\\s+\"(.*)\">", options: [])
     fileprivate static func getEntities(inXml xml: String) -> [TokenScriptFileIndices.Entity] {
         var entities = [TokenScriptFileIndices.Entity]()
-        let pattern = "<\\!ENTITY\\s+(.*)\\s+SYSTEM\\s+\"(.*)\">"
-        if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+
+        if let regex = Self.regex {
             regex.enumerateMatches(in: xml, options: [], range: .init(xml.startIndex..<xml.endIndex, in: xml)) { match, _, _ in
                 guard let match = match else { return }
                 guard match.numberOfRanges == 3 else { return }

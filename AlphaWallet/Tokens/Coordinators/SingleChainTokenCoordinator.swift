@@ -153,18 +153,7 @@ class SingleChainTokenCoordinator: Coordinator {
                     return .value(!values.isEmpty)
                 })
             })
-        }.get(on: .main, { [weak self] didUpdateObjects in
-            guard let strongSelf = self else { return }
-
-            if didUpdateObjects {
-                strongSelf.notifyTokensDidChange()
-            }
-        }).asVoid()
-    }
-
-    private func notifyTokensDidChange() {
-        //NOTE: as UI is going to get updated from realm notification not sure if we still need it here
-        // delegate?.tokensDidChange(inCoordinator: self)
+        }.asVoid()
     }
 
     private func autoDetectPartnerTokens() {
@@ -202,7 +191,7 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], storage: TokensDataStore) -> Promise<[AlphaWallet.Address]> {
+    private static func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], storage: TokensDataStore) -> Promise<[AlphaWallet.Address]> {
         return Promise { seal in
             DispatchQueue.main.async {
                 let alreadyAddedContracts = storage.enabledObjectAddresses
@@ -218,8 +207,8 @@ class SingleChainTokenCoordinator: Coordinator {
         let account = keystore.currentWallet
         let address = account.address
         let server = server
-
-        return contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
+        let storage = storage
+        return Self.contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
             contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -234,7 +223,7 @@ class SingleChainTokenCoordinator: Coordinator {
                                 if balance.isEmpty {
                                     return .value(.none)
                                 } else {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
                                 }
                             }.recover { _ -> Guarantee<BatchObject> in
                                 return .value(.none)
@@ -243,7 +232,7 @@ class SingleChainTokenCoordinator: Coordinator {
                             let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
                             return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
                                 if balance > 0 {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: strongSelf.storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
                                 } else {
                                     return .value(.none)
                                 }
@@ -257,21 +246,15 @@ class SingleChainTokenCoordinator: Coordinator {
                     }
             }
         }).then(on: queue, { promises -> Promise<Bool> in
-            return when(resolved: promises).then(on: .main, { [weak self] results -> Promise<Bool> in
-                guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
+            return when(resolved: promises).then(on: .main, { results -> Promise<Bool> in
+                let values = results
+                    .compactMap { $0.optionalValue }
+                    .filter { $0.nonEmptyAction }
 
-                let values = results.compactMap { $0.optionalValue }.filter { $0.nonEmptyAction }
-
-                strongSelf.storage.addBatchObjects(values: values)
+                storage.addBatchObjects(values: values)
 
                 return .value(!values.isEmpty)
             })
-        }).get(on: .main, { [weak self] didUpdate in
-            guard let strongSelf = self else { return }
-
-            if didUpdate {
-                strongSelf.notifyTokensDidChange()
-            }
         }).asVoid()
     }
 
@@ -314,20 +297,22 @@ class SingleChainTokenCoordinator: Coordinator {
                         seal.fulfill(.ercToken(token))
                     case .fungibleTokenComplete(let name, let symbol, let decimals):
                         //We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
-                        storage.tokenPromise(forContract: contract).done { tokenObject in
-                            let value = tokenObject?.value ?? "0"
-                            guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else { return seal.fulfill(.none) }
-                            let token = TokenObject(
-                                    contract: contract,
-                                    server: server,
-                                    name: name,
-                                    symbol: symbol,
-                                    decimals: Int(decimals),
-                                    value: value,
-                                    type: .erc20
-                            )
-                            seal.fulfill(.tokenObject(token))
-                        }.cauterize()
+                        let tokenObject = storage.token(forContract: contract)
+
+                        let value = tokenObject?.value ?? "0"
+                        guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
+                            return seal.fulfill(.none)
+                        }
+                        let token = TokenObject(
+                                contract: contract,
+                                server: server,
+                                name: name,
+                                symbol: symbol,
+                                decimals: Int(decimals),
+                                value: value,
+                                type: .erc20
+                        )
+                        seal.fulfill(.tokenObject(token))
                     case .delegateTokenComplete:
                         seal.fulfill(.delegateContracts([DelegateContract(contractAddress: contract, server: server)]))
                     case .failed(let networkReachable):
@@ -371,10 +356,6 @@ class SingleChainTokenCoordinator: Coordinator {
                     throw ImportTokenError()
                 }
             })
-        }).get(on: .main, { [weak self] _ in
-            guard let strongSelf = self else { return }
-
-            strongSelf.notifyTokensDidChange()
         })
     }
 
@@ -499,14 +480,10 @@ class SingleChainTokenCoordinator: Coordinator {
         assetDefinitionStore.contractDeleted(token.contractAddress)
         storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: server)])
         storage.delete(tokens: [token])
-
-        notifyTokensDidChange()
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
         storage.updateOrderedTokens(with: orderedTokens)
-
-        notifyTokensDidChange()
     }
 
     func mark(token: TokenObject, isHidden: Bool) {
@@ -515,7 +492,6 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func add(token: ERCToken) -> TokenObject {
         let tokenObject = storage.addCustom(token: token, shouldUpdateBalance: true)
-        notifyTokensDidChange()
 
         return tokenObject
     }

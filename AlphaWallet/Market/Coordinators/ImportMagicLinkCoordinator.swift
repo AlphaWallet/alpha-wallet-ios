@@ -380,7 +380,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
         let web3Instance = web3swift.web3(provider: provider)
 
-        return web3swift.web3.Personal(provider: provider, web3: web3Instance).ecrecover(
+        return web3swift.web3.Personal(provider: web3Instance.provider, web3: web3Instance).ecrecover(
             hash: messageHash,
             signature: Data(bytes: signature.hexToBytes)
         )
