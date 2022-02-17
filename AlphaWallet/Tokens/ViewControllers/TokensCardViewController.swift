@@ -254,7 +254,7 @@ class TokensCardViewController: UIViewController {
 
     func transfer() {
         guard let selectedTokenHolder = selectedTokenHolder else { return }
-        let transactionType = TransactionType(token: viewModel.token, tokenHolders: [selectedTokenHolder])
+        let transactionType = TransactionType(nonFungibleToken: viewModel.token, tokenHolders: [selectedTokenHolder])
         delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: .transaction(transactionType)), in: self)
     }
 

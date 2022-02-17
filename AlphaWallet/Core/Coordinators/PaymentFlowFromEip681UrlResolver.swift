@@ -96,6 +96,6 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
             amountConsideringDecimals = ""
         }
 
-        return TransactionType(token: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
+        return TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
     }
 }

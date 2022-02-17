@@ -239,7 +239,7 @@ class TokensCardCollectionViewController: UIViewController {
     }
 
     private func transfer(tokenHolder: TokenHolder) {
-        let transactionType = TransactionType(token: tokenObject, tokenHolders: [tokenHolder])
+        let transactionType = TransactionType(nonFungibleToken: tokenObject, tokenHolders: [tokenHolder])
         let paymentFlow: PaymentFlow = .send(type: .transaction(transactionType))
 
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: self)

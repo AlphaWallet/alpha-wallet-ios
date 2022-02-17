@@ -568,7 +568,7 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
     }
 
     func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
-        let transactionType: TransactionType = .init(token: token, tokenHolders: [tokenHolder])
+        let transactionType: TransactionType = .init(nonFungibleToken: token, tokenHolders: [tokenHolder])
         delegate?.didPress(for: .send(type: .transaction(transactionType)), inViewController: viewController, in: self)
     }
 
