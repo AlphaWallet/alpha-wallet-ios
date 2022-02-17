@@ -90,67 +90,68 @@ extension EventSourceCoordinatorForActivities {
 }
 
 extension EventSourceCoordinatorForActivities.functional {
-    static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void>? {
-        return Promise { seal in
-            queue.async {
-                let eventOrigin = card.eventOrigin
-                let (filterName, filterValue) = eventOrigin.eventFilter
-                typealias functional = EventSourceCoordinatorForActivities.functional
-                let filterParam = eventOrigin.parameters
-                    .filter { $0.isIndexed }
-                    .map { functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: wallet) }
+    static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
+        let (promise, seal) = Promise<Void>.pending()
 
-                if filterParam.allSatisfy({ $0 == nil }) {
-                    //TODO log to console as diagnostic
-                    seal.fulfill(())
-                    return
-                }
+        queue.async {
+            let eventOrigin = card.eventOrigin
+            let (filterName, filterValue) = eventOrigin.eventFilter
+            typealias functional = EventSourceCoordinatorForActivities.functional
+            let filterParam = eventOrigin.parameters
+                .filter { $0.isIndexed }
+                .map { functional.formFilterFrom(fromParameter: $0, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
-                eventsDataStore
-                    .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
-                    .map(on: queue, { oldEvent -> EventFilter in
-                        let fromBlock: (EventFilter.Block, UInt64)
-                        if let newestEvent = oldEvent {
-                            let value = UInt64(newestEvent.blockNumber + 1)
-                            fromBlock = (.blockNumber(value), value)
-                        } else {
-                            fromBlock = (.blockNumber(0), 0)
-                        }
-                        let parameterFilters = filterParam.map { $0?.filter }
-                        let addresses = [EthereumAddress(address: eventOrigin.contract)]
-                        let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
-                        return EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
-                    }).then(on: queue, { eventFilter in
-                        getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-                    }).then(on: queue, { events -> Promise<[EventActivityInstance]> in
-                        let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
-                            guard let blockNumber = event.eventLog?.blockNumber else {
-                                return .value(nil)
-                            }
-
-                            return GetBlockTimestampCoordinator()
-                                .getBlockTimestamp(blockNumber, onServer: server)
-                                .map(on: queue, { date in
-                                    Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
-                                }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
-                                    return .value(nil)
-                                })
-                        }
-
-                        return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
-                            values.compactMap { $0.optionalValue }.compactMap { $0 }
-                        })
-                    }).done(on: .main, { events in
-                        eventsDataStore.add(events: events, forTokenContract: tokenContract)
-                        seal.fulfill(())
-    // swiftlint:disable closure_end_indentation
-                    }).catch { e in
-    // swiftlint:enable closure_end_indentation
-                        error(value: e, rpcServer: server, address: tokenContract)
-                        seal.reject(e)
-                    }
+            if filterParam.allSatisfy({ $0 == nil }) {
+                //TODO log to console as diagnostic
+                seal.fulfill(())
+                return
             }
+
+            eventsDataStore
+                .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
+                .map(on: queue, { oldEvent -> EventFilter in
+                    let fromBlock: (EventFilter.Block, UInt64)
+                    if let newestEvent = oldEvent {
+                        let value = UInt64(newestEvent.blockNumber + 1)
+                        fromBlock = (.blockNumber(value), value)
+                    } else {
+                        fromBlock = (.blockNumber(0), 0)
+                    }
+                    let parameterFilters = filterParam.map { $0?.filter }
+                    let addresses = [EthereumAddress(address: eventOrigin.contract)]
+                    let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
+                    return EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
+                }).then(on: queue, { eventFilter in
+                    getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+                }).then(on: queue, { events -> Promise<[EventActivityInstance]> in
+                    let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
+                        guard let blockNumber = event.eventLog?.blockNumber else {
+                            return .value(nil)
+                        }
+
+                        return GetBlockTimestampCoordinator()
+                            .getBlockTimestamp(blockNumber, onServer: server)
+                            .map(on: queue, { date in
+                                Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)
+                            }).recover(on: queue, { _ -> Promise<EventActivityInstance?> in
+                                return .value(nil)
+                            })
+                    }
+
+                    return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
+                        values.compactMap { $0.optionalValue }.compactMap { $0 }
+                    })
+                }).done(on: .main, { events in
+                    eventsDataStore.add(events: events, forTokenContract: tokenContract)
+                    seal.fulfill(())
+// swiftlint:disable closure_end_indentation
+                }).catch { e in
+// swiftlint:enable closure_end_indentation
+                    error(value: e, rpcServer: server, address: tokenContract)
+                    seal.reject(e)
+                }
         }
+        return promise
     }
 
     private static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, date: Date, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, tokenContract: AlphaWallet.Address, server: RPCServer) -> EventActivityInstance? {
