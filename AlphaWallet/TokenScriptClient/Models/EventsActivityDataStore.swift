@@ -8,7 +8,7 @@ protocol EventsActivityDataStoreProtocol {
     var recentEventsSubscribable: Subscribable<Void> { get }
     func removeSubscription(subscription: Subscribable<Void>)
 
-    func getRecentEvents() -> Promise<[EventActivity]>
+    func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity>
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
     func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
 }
@@ -48,6 +48,15 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         cachedRecentEventsSubscribable[subscription] = nil
     }
 
+    func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity> {
+        return realm.objects(EventActivity.self)
+            .filter("contract = '\(contract.eip55String)'")
+            .filter("chainId = \(server.chainID)")
+            .filter("eventName = '\(eventName)'")
+            .filter("filter = '\(interpolatedFilter)'")
+            .sorted(byKeyPath: "blockNumber", ascending: false)
+    }
+
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise <EventActivityInstance?> {
 
         return Promise { seal in
@@ -64,20 +73,6 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
                     .map { EventActivityInstance(event: $0) }
 
                 seal.fulfill(objects)
-            }
-        }
-    }
-
-    func getRecentEvents() -> Promise<[EventActivity]> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                let values = Array(strongSelf.realm.objects(EventActivity.self)
-                    .sorted(byKeyPath: "date", ascending: false)
-                    .prefix(Self.numberOfActivitiesToUse))
-
-                seal.fulfill(values)
             }
         }
     }

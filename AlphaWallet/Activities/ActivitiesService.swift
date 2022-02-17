@@ -310,7 +310,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
         contractsAndCardsPromise = promise
 
-        promise.done(on: queue, { [weak self] contractsAndCards in
+        promise.done(on: .main, { [weak self] contractsAndCards in
             guard let strongSelf = self else { return }
 
             strongSelf.fetchAndRefreshActivities(contractsAndCards: contractsAndCards, reloadImmediately: reloadImmediately)
@@ -318,19 +318,15 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     private func fetchAndRefreshActivities(contractsAndCards: ContractsAndCards, reloadImmediately: Bool) {
-        firstly {
-            eventsActivityDataStore.getRecentEvents()
-        }.map(on: .main, { [weak self] recentEvents -> [ActivitiesService.ActivityTokenObjectTokenHolder] in
-            guard let strongSelf = self else { return [] }
-
+        Promise<[ActivityTokenObjectTokenHolder]> { seal in
             var activitiesAndTokens: [ActivityTokenObjectTokenHolder] = .init()
             //NOTE: here is a lot of calculations, `contractsAndCards` could reach up of 1000 items, as well as recentEvents could reach 1000.Simply it call inner function 1 000 000 times
             for (eachContract, eachServer, card, interpolatedFilter) in contractsAndCards {
-                let activities = strongSelf.getActivities(recentEvents, forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
+                let activities = getActivities(forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
                 activitiesAndTokens.append(contentsOf: activities)
             }
-            return activitiesAndTokens
-        }).done(on: queue, { [weak self] activitiesAndTokens in
+            seal.fulfill(activitiesAndTokens)
+        }.done(on: queue, { [weak self] activitiesAndTokens in
             guard let strongSelf = self else { return }
 
             let activitiesAndTokens = Self.filter(activities: activitiesAndTokens, strategy: strongSelf.activitiesFilterStrategy)
@@ -362,13 +358,10 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
     }
 
-    private func getActivities(_ allActivities: [EventActivity], forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [ActivityTokenObjectTokenHolder] {
-        let events = allActivities.filter {
-            $0.contract == card.eventOrigin.contract.eip55String
-                    && $0.server == server
-                    && $0.eventName == card.eventOrigin.eventName
-                    && $0.filter == interpolatedFilter
-        }
+    private func getActivities(forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [ActivityTokenObjectTokenHolder] {
+        //NOTE: eventsActivityDataStore. getRecentEvents() returns only 100 events, that could cause error with creating activities (missing events)
+        //replace with fetching only filtered event instances, 
+        let events = eventsActivityDataStore.getRecentEventsSortedByBlockNumber(forContract: card.eventOrigin.contract, server: server, eventName: card.eventOrigin.eventName, interpolatedFilter: interpolatedFilter)
 
         let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent in
             let token: Activity.AssignedToken
