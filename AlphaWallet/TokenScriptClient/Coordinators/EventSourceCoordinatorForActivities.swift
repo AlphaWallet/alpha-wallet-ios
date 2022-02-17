@@ -140,18 +140,11 @@ extension EventSourceCoordinatorForActivities.functional {
                         return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
                             values.compactMap { $0.optionalValue }.compactMap { $0 }
                         })
-                    }).then(on: queue, { events -> Promise<Void> in
-                        if events.isEmpty {
-                            return .value(())
-                        } else {
-                            return eventsDataStore.add(events: events, forTokenContract: tokenContract).then(on: queue, { _ -> Promise<Void> in
-                                return .value(())
-                            })
-                        }
-                    }).done { _ in
+                    }).done(on: .main, { events in
+                        eventsDataStore.add(events: events, forTokenContract: tokenContract)
                         seal.fulfill(())
     // swiftlint:disable closure_end_indentation
-                    }.catch { e in
+                    }).catch { e in
     // swiftlint:enable closure_end_indentation
                         error(value: e, rpcServer: server, address: tokenContract)
                         seal.reject(e)

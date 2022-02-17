@@ -10,8 +10,8 @@ class FakeEventsDataStore: EventsDataStoreProtocol {
         return .value(nil)
     }
 
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        return .init()
+    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) {
+        //no-op
     }
 
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {
