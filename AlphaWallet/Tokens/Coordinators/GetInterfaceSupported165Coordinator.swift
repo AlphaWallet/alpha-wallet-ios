@@ -13,23 +13,6 @@ class GetInterfaceSupported165Coordinator {
         self.server = server
     }
 
-    func getInterfaceSupported165(
-            hash: String,
-            contract: AlphaWallet.Address,
-            completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void
-    ) {
-        let function = GetInterfaceSupported165Encode()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done { result in
-            if let supported = result["0"] as? Bool {
-                completion(.success(supported))
-            } else {
-                completion(.failure(AnyError(ABIError.invalidArgumentType)))
-            }
-        }.catch {
-            completion(.failure(AnyError($0)))
-        }
-    }
-
     func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) -> Promise<Bool> {
         let function = GetInterfaceSupported165Encode()
         return firstly {
