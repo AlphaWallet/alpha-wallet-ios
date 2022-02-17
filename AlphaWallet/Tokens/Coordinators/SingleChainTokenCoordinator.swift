@@ -29,7 +29,6 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let storage: TokensDataStore
-    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -54,7 +53,6 @@ class SingleChainTokenCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
-            ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
             analyticsCoordinator: AnalyticsCoordinator,
@@ -69,7 +67,6 @@ class SingleChainTokenCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
-        self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -427,7 +424,6 @@ class SingleChainTokenCoordinator: Coordinator {
                 navigationController: navigationController,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: ethPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -453,7 +449,6 @@ class SingleChainTokenCoordinator: Coordinator {
                 navigationController: navigationController,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: ethPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,

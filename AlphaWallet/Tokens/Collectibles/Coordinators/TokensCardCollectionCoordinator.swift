@@ -28,7 +28,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
 
     private let session: WalletSession
     private let tokensStorage: TokensDataStore
-    private (set) var ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let transactionsStorage: TransactionsStorage
@@ -44,7 +43,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
-            ethPrice: Subscribable<Double>,
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
@@ -58,7 +56,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.navigationController = navigationController
         self.tokensStorage = tokensStorage
-        self.ethPrice = ethPrice
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore

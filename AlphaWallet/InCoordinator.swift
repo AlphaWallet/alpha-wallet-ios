@@ -411,7 +411,6 @@ class InCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 config: config,
                 tokenCollection: tokenCollection,
-                nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,

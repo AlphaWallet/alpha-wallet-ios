@@ -24,7 +24,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
-    private let ethPrice: Subscribable<Double>
     private var totalEthCost: Ether {
         if let ethCostPerToken = Ether(string: pricePerTokenField.ethCost) {
             let quantity = Int(quantityStepper.value)
@@ -54,20 +53,20 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     lazy var pricePerTokenField = AmountTextField(tokenObject: viewModel.ethToken)
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
-
+    private let walletSession: WalletSession
 // swiftlint:disable function_body_length
     init(
             analyticsCoordinator: AnalyticsCoordinator,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
-            cryptoPrice: Subscribable<Double>,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            walletSession: WalletSession
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.storage = storage
         self.paymentFlow = paymentFlow
-        self.ethPrice = cryptoPrice
+        self.walletSession = walletSession
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
@@ -98,9 +97,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        cryptoPrice.subscribe { [weak self] value in
-            if let value = value {
-                self?.pricePerTokenField.cryptoToDollarRate = NSDecimalNumber(value: value)
+        walletSession.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] value in
+            if let value = value?.ticker.flatMap({ NSDecimalNumber(value: $0.price_usd) }) {
+                self?.pricePerTokenField.cryptoToDollarRate = value
             }
         }
         pricePerTokenField.delegate = self
