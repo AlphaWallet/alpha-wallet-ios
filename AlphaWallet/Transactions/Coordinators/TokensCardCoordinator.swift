@@ -29,7 +29,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
-    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
@@ -44,7 +43,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
-            ethPrice: Subscribable<Double>,
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
@@ -56,7 +54,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.navigationController = navigationController
         self.tokensDataStore = tokensStorage
-        self.ethPrice = ethPrice
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
@@ -233,7 +230,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session)
         controller.configure()
         controller.delegate = self
         return controller

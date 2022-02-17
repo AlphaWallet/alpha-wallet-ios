@@ -28,7 +28,6 @@ class TokensCoordinator: Coordinator {
     private let keystore: Keystore
     private let config: Config
     private let tokenCollection: TokenCollection
-    private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let promptBackupCoordinator: PromptBackupCoordinator
@@ -101,7 +100,6 @@ class TokensCoordinator: Coordinator {
             keystore: Keystore,
             config: Config,
             tokenCollection: TokenCollection,
-            nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
             promptBackupCoordinator: PromptBackupCoordinator,
@@ -120,7 +118,6 @@ class TokensCoordinator: Coordinator {
         self.keystore = keystore
         self.config = config
         self.tokenCollection = tokenCollection
-        self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
@@ -179,9 +176,8 @@ class TokensCoordinator: Coordinator {
         for each in tokenCollection.tokenDataStores {
             let server = each.server
             let session = sessions[server]
-            let price = nativeCryptoCurrencyPrices[server]
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, ethPrice: price, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
