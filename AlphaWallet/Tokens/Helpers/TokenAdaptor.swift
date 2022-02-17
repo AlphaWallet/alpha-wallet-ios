@@ -13,6 +13,7 @@ class TokenAdaptor {
     private let token: TokenObject
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
+    private lazy var xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
 
     init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.token = token
@@ -76,7 +77,7 @@ class TokenAdaptor {
         }
         return bundle(tokens: tokens)
     }
-
+    //NOTE: internal for testing purposes
     func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875:
@@ -152,7 +153,7 @@ class TokenAdaptor {
 
     //TODO pass lang into here
     private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
-        XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
+        xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
     private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
@@ -163,7 +164,6 @@ class TokenAdaptor {
             guard !nonFungible.value.isZero else { return nil }
         }
 
-        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let event: EventInstance?
         if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
@@ -180,8 +180,7 @@ class TokenAdaptor {
             } else {
                 filterValue = eventFilter.value
             }
-            let eventsFromDatabase = eventsDataStore.getMatchingEvents(forContract: eventContract, tokenContract: token.contractAddress, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
-            event = eventsFromDatabase.first
+            event = eventsDataStore.getMatchingEvent(forContract: eventContract, tokenContract: token.contractAddress, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
         } else {
             event = nil
         }
@@ -250,7 +249,7 @@ class TokenAdaptor {
         return TokenHolder(
                 tokens: tokens,
                 contractAddress: token.contractAddress,
-                hasAssetDefinition: XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).hasAssetDefinition
+                hasAssetDefinition: xmlHandler.hasAssetDefinition
         )
     }
 

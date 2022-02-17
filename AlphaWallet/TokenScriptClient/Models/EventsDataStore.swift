@@ -8,7 +8,7 @@ protocol EventsDataStoreProtocol {
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
     func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
-    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance]
+    func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance?
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void)
 }
 
@@ -29,14 +29,15 @@ class EventsDataStore: EventsDataStoreProtocol {
         subscribers.forEach { $0(contract) }
     }
 
-    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance] {
-        Array(realm.objects(EventInstance.self)
-                .filter("contract = '\(contract.eip55String)'")
-                .filter("tokenContract = '\(tokenContract.eip55String)'")
-                .filter("chainId = \(server.chainID)")
-                .filter("eventName = '\(eventName)'")
-                //Filter stored as string, so we do a string comparison
-                .filter("filter = '\(filterName)=\(filterValue)'"))
+    func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
+        return realm.objects(EventInstance.self)
+            .filter("contract = '\(contract.eip55String)'")
+            .filter("tokenContract = '\(tokenContract.eip55String)'")
+            .filter("chainId = \(server.chainID)")
+            .filter("eventName = '\(eventName)'")
+            //Filter stored as string, so we do a string comparison
+            .filter("filter = '\(filterName)=\(filterValue)'")
+            .first
     }
 
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {

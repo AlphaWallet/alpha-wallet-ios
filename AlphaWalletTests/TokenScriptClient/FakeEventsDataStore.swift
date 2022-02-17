@@ -17,8 +17,8 @@ class FakeEventsDataStore: EventsDataStoreProtocol {
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {
     }
 
-    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance] {
-        .init()
+    func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
+        return nil
     }
 
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
