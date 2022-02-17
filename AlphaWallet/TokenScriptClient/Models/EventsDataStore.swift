@@ -6,7 +6,7 @@ import PromiseKit
 
 protocol EventsDataStoreProtocol {
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
+    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address)
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance?
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void)
@@ -75,30 +75,12 @@ class EventsDataStore: EventsDataStoreProtocol {
         }
     }
 
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) {
+        let eventsToSave = events.map { EventInstance(event: $0) }
 
-                if events.isEmpty {
-                    return seal.fulfill(())
-                } else {
-                    do {
-                        let realm = strongSelf.realm
-                        let eventsToSave = events.map { EventInstance(event: $0) }
-
-                        realm.beginWrite()
-                        realm.add(eventsToSave, update: .all)
-                        try realm.commitWrite()
-
-                        seal.fulfill(())
-                    } catch {
-                        seal.reject(error)
-                    }
-
-                    strongSelf.triggerSubscribers(forContract: contract)
-                }
-            }
-        }
+        realm.beginWrite()
+        realm.add(eventsToSave, update: .all)
+        try? realm.commitWrite()
+        triggerSubscribers(forContract: contract)
     }
 }

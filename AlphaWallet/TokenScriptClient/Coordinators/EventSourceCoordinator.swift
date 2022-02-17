@@ -121,9 +121,8 @@ extension EventSourceCoordinator.functional {
                     result.compactMap {
                         Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
                     }
-                }).then(on: queue, { events -> Promise<Void> in
+                }).done(on: .main, { events in
                     eventsDataStore.add(events: events, forTokenContract: contractAddress)
-                }).done(on: queue, { _ in
                     seal.fulfill(())
                 }).catch(on: queue, { e in
                     error(value: e, rpcServer: tokenServer, address: contractAddress)

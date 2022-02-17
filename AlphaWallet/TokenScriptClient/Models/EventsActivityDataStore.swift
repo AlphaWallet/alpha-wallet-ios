@@ -10,7 +10,7 @@ protocol EventsActivityDataStoreProtocol {
 
     func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity>
     func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
-    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void>
+    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address)
 }
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
@@ -83,28 +83,11 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         }
     }
 
-    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) {
+        let eventsToSave = events.map { EventActivity(value: $0) }
 
-                if events.isEmpty {
-                    seal.fulfill(())
-                } else {
-                    let realm = strongSelf.realm
-                    let eventsToSave = events.map { EventActivity(value: $0) }
-
-                    do {
-                        realm.beginWrite()
-                        realm.add(eventsToSave, update: .all)
-                        try realm.commitWrite()
-
-                        seal.fulfill(())
-                    } catch {
-                        seal.reject(error)
-                    }
-                }
-            }
-        }
+        realm.beginWrite()
+        realm.add(eventsToSave, update: .all)
+        try? realm.commitWrite()
     }
 }
