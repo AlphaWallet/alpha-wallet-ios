@@ -58,39 +58,6 @@ class ImportMagicLinkCoordinator: Coordinator {
     let server: RPCServer
     weak var delegate: ImportMagicLinkCoordinatorDelegate?
 
-    //no need to localise as the labels are universal
-    private var labelForCurrencyDrops: String {
-        switch server {
-        case .xDai:
-            return "xDAI"
-        case .binance_smart_chain, .binance_smart_chain_testnet:
-            return "BNB"
-        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .optimistic, .optimisticKovan:
-            return "ETH"
-        case .heco, .heco_testnet:
-            return "HT"
-        case .fantom, .fantom_testnet:
-            return "FTM"
-        case .avalanche, .avalanche_testnet:
-            return "AVAX"
-        case .polygon, .mumbai_testnet:
-            return "MATIC"
-        case .cronosTestnet:
-            return "tCRO"
-        case .custom(let custom):
-            //TODO better defaults or handling for when properties of custom chain is not provided by user
-            return custom.symbol ?? "ETH"
-        case .arbitrum:
-            return "AETH"
-        case .arbitrumRinkeby:
-            return "ARETH"
-        case .palm:
-            return "PALM"
-        case .palmTestnet:
-            return "PALM"
-        }
-    }
-
     init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer) {
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
@@ -269,7 +236,7 @@ class ImportMagicLinkCoordinator: Coordinator {
                 tokenIdOrEvent: .tokenId(tokenId: 0),
                 tokenType: TokenType.nativeCryptocurrency,
                 index: 0,
-                name: labelForCurrencyDrops,
+                name: server.symbol,
                 symbol: "",
                 status: .available,
                 values: [:]
