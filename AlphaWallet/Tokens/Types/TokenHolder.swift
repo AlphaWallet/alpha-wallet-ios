@@ -177,12 +177,7 @@ class TokenHolder: Hashable {
     }
 
     var openSeaNonFungibleTraits: [OpenSeaNonFungibleTrait]? {
-        switch values.traitsAssetInternalValueValue {
-        case .openSeaNonFungibleTraits(let traits):
-            return traits
-        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
-            return nil
-        }
+        return values.traitsValue
     }
 
     var status: Token.Status {
@@ -232,12 +227,7 @@ class TokenHolder: Hashable {
     }
 
     func openSeaNonFungibleTraits(tokenId: TokenId) -> [OpenSeaNonFungibleTrait]? {
-        switch token(tokenId: tokenId).flatMap({ $0.values.traitsAssetInternalValueValue }) {
-        case .openSeaNonFungibleTraits(let traits):
-            return traits
-        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes, .none:
-            return nil
-        }
+        return token(tokenId: tokenId)?.values.traitsValue
     }
 
     func imageUrl(tokenId: TokenId) -> WebImageURL? {
