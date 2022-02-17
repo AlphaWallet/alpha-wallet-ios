@@ -455,7 +455,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
-        let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: walletSessions, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, activitiesService: activitiesService)
+        let coordinator = ActivitiesCoordinator(sessions: walletSessions, activitiesService: activitiesService)
         coordinator.delegate = self
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.start()

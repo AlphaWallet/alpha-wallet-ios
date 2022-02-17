@@ -8,11 +8,7 @@ protocol ActivitiesCoordinatorDelegate: AnyObject {
 }
 
 class ActivitiesCoordinator: NSObject, Coordinator {
-    private let analyticsCoordinator: AnalyticsCoordinator
     private let sessions: ServerDictionary<WalletSession>
-    private let tokensStorages: ServerDictionary<TokensDataStore>
-    private let assetDefinitionStore: AssetDefinitionStore
-
     private let activitiesService: ActivitiesServiceType
     weak var delegate: ActivitiesCoordinatorDelegate?
 
@@ -25,19 +21,13 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey!
 
     init(
-        analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
-        tokensStorages: ServerDictionary<TokensDataStore>,
-        assetDefinitionStore: AssetDefinitionStore,
         activitiesService: ActivitiesServiceType
     ) {
         self.activitiesService = activitiesService
-        self.analyticsCoordinator = analyticsCoordinator
         self.sessions = sessions
         self.navigationController = navigationController
-        self.tokensStorages = tokensStorages
-        self.assetDefinitionStore = assetDefinitionStore
         super.init()
 
         subscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
