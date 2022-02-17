@@ -412,20 +412,20 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             }
             //NOTE: using `tokenHolders[0]` i received crash with out of range exception
             guard let tokenHolder = tokenHolders.first else { return nil }
+            //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
+            let isNativeCryptoAddress = tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase)
+            if card.name == "aETHMinted" && isNativeCryptoAddress && cardAttributes["amount"]?.uintValue == 0 {
+                return nil
+            } else {
+                //no-op
+            }
 
             let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: tokenObject, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
 
             return (activity: activity, tokenObject: tokenObject, tokenHolder: tokenHolder)
         }
 
-        //TODO fix for activities: special fix to filter out the event we don't want - need to doc this and have to handle with TokenScript design
-        return activitiesForThisCard.filter {
-            if $0.activity.name == "aETHMinted" && $0.activity.tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.activity.values.card["amount"]?.uintValue == 0 {
-                return false
-            } else {
-                return true
-            }
-        }
+        return activitiesForThisCard
     }
 
     private func reloadViewController(reloadImmediately: Bool) {
