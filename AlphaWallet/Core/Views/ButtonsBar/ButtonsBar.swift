@@ -340,6 +340,7 @@ struct ButtonsBarViewModel {
         disabledButtonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundInactive,
         disabledButtonBorderColor: ButtonsBarStyle.Colors.primaryBorderInactive,
         buttonTitleColor: ButtonsBarStyle.Colors.primaryTextActive,
+        disabledButtonTitleColor: ButtonsBarStyle.Colors.primaryTextInactive,
         buttonBorderColor: ButtonsBarStyle.Colors.primaryBorderActive
     )
 
@@ -348,6 +349,7 @@ struct ButtonsBarViewModel {
         disabledButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundInactive,
         disabledButtonBorderColor: ButtonsBarStyle.Colors.secondaryBorderInactive,
         buttonTitleColor: ButtonsBarStyle.Colors.secondaryTextActive,
+        disabledButtonTitleColor: ButtonsBarStyle.Colors.secondaryTextInactive,
         buttonBorderColor: ButtonsBarStyle.Colors.secondaryBorderActive
     )
 
