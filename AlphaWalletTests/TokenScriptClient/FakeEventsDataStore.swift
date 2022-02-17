@@ -2,15 +2,21 @@
 
 import Foundation
 import PromiseKit
+import Combine
+import RealmSwift
+
 @testable import AlphaWallet
 
 class FakeEventsDataStore: EventsDataStoreProtocol {
+    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never> {
+        fatalError()
+    }
 
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstance?> {
         return .value(nil)
     }
 
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) {
+    func add(events: [EventInstanceValue]) {
         //no-op
     }
 
@@ -19,9 +25,6 @@ class FakeEventsDataStore: EventsDataStoreProtocol {
 
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
         return nil
-    }
-
-    func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
     }
 
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?> {

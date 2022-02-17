@@ -3,14 +3,14 @@
 import Foundation
 import RealmSwift
 import PromiseKit
+import Combine
 
 protocol EventsActivityDataStoreProtocol {
-    var recentEventsSubscribable: Subscribable<Void> { get }
-    func removeSubscription(subscription: Subscribable<Void>)
+    var recentEventsPublisher: AnyPublisher<RealmCollectionChange<Results<EventActivity>>, Never> { get }
 
     func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity>
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?>
-    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address)
+    func add(events: [EventActivityInstance])
 }
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
@@ -18,34 +18,16 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     static let numberOfActivitiesToUse = 100
 
     private let realm: Realm
-    private let queue: DispatchQueue
 
-    init(realm: Realm, queue: DispatchQueue) {
+    init(realm: Realm) {
         self.realm = realm
-        self.queue = queue
     }
 
-    private var cachedRecentEventsSubscribable: [Subscribable<Void>: NotificationToken] = [:]
-    //NOTE: we are need only fact that we got events,
-    //its easier way to determiene that events got updated
-    var recentEventsSubscribable: Subscribable<Void> {
-        let notifier = Subscribable<Void>(nil)
-        let recentEvents = realm.objects(EventActivity.self)
+    var recentEventsPublisher: AnyPublisher<RealmCollectionChange<Results<EventActivity>>, Never> {
+        return realm.objects(EventActivity.self)
             .sorted(byKeyPath: "date", ascending: false)
-
-        let subscription = recentEvents.observe(on: queue) { _ in
-            self.queue.async {
-                notifier.value = ()
-            }
-        }
-
-        cachedRecentEventsSubscribable[notifier] = subscription
-
-        return notifier
-    }
-
-    func removeSubscription(subscription: Subscribable<Void>) {
-        cachedRecentEventsSubscribable[subscription] = nil
+            .changesetPublisher
+            .eraseToAnyPublisher()
     }
 
     func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> Results<EventActivity> {
@@ -84,7 +66,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         }
     }
 
-    func add(events: [EventActivityInstance], forTokenContract contract: AlphaWallet.Address) {
+    func add(events: [EventActivityInstance]) {
         guard !events.isEmpty else { return }
         let eventsToSave = events.map { EventActivity(value: $0) }
 

@@ -11,6 +11,7 @@ import Result
 import SafariServices
 import MessageUI
 import BigInt
+import Combine
 
 protocol TokensCardCollectionCoordinatorDelegate: class, CanOpenURL {
     func didTap(for type: PaymentFlow, in coordinator: TokensCardCollectionCoordinator, viewController: UIViewController)
@@ -38,6 +39,8 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     private let paymantFlow: PaymentFlow
+    private var cancelable = Set<AnyCancellable>()
+
     init(
             session: WalletSession,
             navigationController: UINavigationController,
@@ -74,10 +77,13 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     }
 
     private func refreshUponEthereumEventChanges() {
-        eventsDataStore.subscribe { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
-        }
+        let tokenContract = token.contractAddress
+        eventsDataStore
+            .recentEvents(forTokenContract: tokenContract)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.refreshScreen(forContract: tokenContract)
+            }).store(in: &cancelable)
     }
 
     private func refreshUponAssetDefinitionChanges() {
