@@ -36,10 +36,9 @@ class TransactionsStorage: Hashable {
     }
 
     var objects: Results<Transaction> {
-        realm.objects(Transaction.self)
+        return realm.objects(Transaction.self)
+            .filter(TransactionsStorage.functional.nonEmptyIdTransactionPredicate(server: server))
             .sorted(byKeyPath: "date", ascending: false)
-            .filter("chainId = \(self.server.chainID)")
-            .filter("id != ''")
     }
 
     var completedObjects: Promise<[TransactionInstance]> {
@@ -47,10 +46,12 @@ class TransactionsStorage: Hashable {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                let objects = strongSelf.objects
+                let completedTransactions = strongSelf.realm.objects(Transaction.self)
+                    .filter(TransactionsStorage.functional.transactionPredicate(server: strongSelf.server, transactionState: .completed))
+                    .sorted(byKeyPath: "date", ascending: false)
+                    .map { TransactionInstance(transaction: $0) }
 
-                let completedObjects = objects.filter { $0.state == .completed }.map { TransactionInstance(transaction: $0) }
-                seal.fulfill(Array(completedObjects))
+                seal.fulfill(Array(completedTransactions))
             }
         }
     }
@@ -60,10 +61,12 @@ class TransactionsStorage: Hashable {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                let objects = strongSelf.objects
+                let pendingTransactions = strongSelf.realm.objects(Transaction.self)
+                    .filter(TransactionsStorage.functional.transactionPredicate(server: strongSelf.server, transactionState: .pending))
+                    .sorted(byKeyPath: "date", ascending: false)
+                    .map { TransactionInstance(transaction: $0) }
 
-                let pendingObjects = objects.filter { $0.state == TransactionState.pending }.map { TransactionInstance(transaction: $0) }
-                seal.fulfill(Array(pendingObjects))
+                seal.fulfill(Array(pendingTransactions))
             }
         }
     }
@@ -72,11 +75,12 @@ class TransactionsStorage: Hashable {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let predicate = TransactionsStorage
+                    .functional
+                    .transactionPredicate(server: strongSelf.server, transactionState: .completed, nonce: nonce)
 
                 let value = !strongSelf.realm.objects(Transaction.self)
-                        .filter("nonce = '\(nonce)'")
-                        .filter("chainId = \(strongSelf.server.chainID)")
-                        .filter("internalState = \(TransactionState.completed.rawValue)")
+                        .filter(predicate)
                         .isEmpty
 
                 seal.fulfill(value)
@@ -88,13 +92,13 @@ class TransactionsStorage: Hashable {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let predicate = TransactionsStorage
+                    .functional
+                    .nonERC20InteractionTransactionPredicate(server: strongSelf.server, transactionState: .completed)
 
                 let transaction = strongSelf.realm.objects(Transaction.self)
+                    .filter(predicate)
                     .sorted(byKeyPath: "date", ascending: false)
-                    .filter("chainId = \(strongSelf.server.chainID)")
-                    .filter("id != ''")
-                    .filter("internalState == \(TransactionState.completed.rawValue)")
-                    .filter("isERC20Interaction == false")
                     .map { TransactionInstance(transaction: $0) }
                     .first
 
@@ -107,11 +111,13 @@ class TransactionsStorage: Hashable {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let predicate = TransactionsStorage
+                    .functional
+                    .nonEmptyIdTransactionPredicate(server: strongSelf.server)
 
                 let transactions = strongSelf.realm.objects(Transaction.self)
+                    .filter(predicate)
                     .sorted(byKeyPath: "date", ascending: false)
-                    .filter("chainId = \(strongSelf.server.chainID)")
-                    .filter("id != ''")
                     .map { TransactionInstance(transaction: $0) }
 
                 seal.fulfill(Array(transactions))
@@ -120,10 +126,13 @@ class TransactionsStorage: Hashable {
     }
 
     func transaction(withTransactionId transactionId: String) -> TransactionInstance? {
-        realm.objects(Transaction.self)
+        let predicate = TransactionsStorage
+            .functional
+            .transactionPredicate(withTransactionId: transactionId, server: server)
+
+        return realm.objects(Transaction.self)
+            .filter(predicate) 
             .sorted(byKeyPath: "date", ascending: false)
-            .filter("chainId = \(self.server.chainID)")
-            .filter("id == '\(transactionId)'")
             .map { TransactionInstance(transaction: $0) }
             .first
     }
@@ -383,5 +392,68 @@ extension TransactionsStorage.functional {
             return .init(transactionHash: eachTransaction.id, operations: operationsToWrite)
         }
         return try JSONEncoder().encode(transactionsToWrite)
+    }
+
+    static func chainIdPredicate(server: RPCServer) -> NSPredicate {
+        return NSPredicate(format: "chainId = \(server.chainID)")
+    }
+
+    static func transactionIdPredicate(transactionId: String) -> NSPredicate {
+        return NSPredicate(format: "id == '\(transactionId)'")
+    }
+
+    static func transactionIdNonEmptyPredicate() -> NSPredicate {
+        return NSPredicate(format: "id != ''")
+    }
+
+    static func nonERC20InteractionPredicate() -> NSPredicate {
+        return NSPredicate(format: "isERC20Interaction == false")
+    }
+
+    static func noncePredicate(nonce: String) -> NSPredicate {
+        return NSPredicate(format: "nonce == \(nonce)")
+    }
+
+    static func nonEmptyIdTransactionPredicate(server: RPCServer) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            chainIdPredicate(server: server),
+            transactionIdNonEmptyPredicate()
+        ])
+    }
+
+    static func transactionPredicate(withTransactionId transactionId: String, server: RPCServer) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            chainIdPredicate(server: server),
+            transactionIdPredicate(transactionId: transactionId)
+        ])
+    }
+
+    static func nonERC20InteractionTransactionPredicate(server: RPCServer, transactionState: TransactionState) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            nonEmptyIdTransactionPredicate(server: server),
+            nonERC20InteractionPredicate(),
+            TransactionState.predicate(for: transactionState)
+        ])
+    }
+
+    static func transactionPredicate(server: RPCServer, transactionState: TransactionState, nonce: String) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            nonEmptyIdTransactionPredicate(server: server),
+            noncePredicate(nonce: nonce),
+            TransactionState.predicate(for: transactionState)
+        ])
+    }
+
+    static func transactionPredicate(server: RPCServer, transactionState: TransactionState) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            nonEmptyIdTransactionPredicate(server: server),
+            TransactionState.predicate(for: transactionState)
+        ])
+    }
+}
+
+extension TransactionState {
+    static func predicate(state: TransactionState) -> NSPredicate {
+        return NSPredicate(format: "internalState == \(state.rawValue)")
     }
 }
