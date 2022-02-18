@@ -4,5 +4,5 @@ import Foundation
 import PromiseKit
 
 protocol Erc721TokenIdsFetcher: AnyObject {
-    func tokenIdsForErc721Token(contract: AlphaWallet.Address, inAccount account: AlphaWallet.Address) -> Promise<[String]>
+    func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer: RPCServer, inAccount account: AlphaWallet.Address) -> Promise<[String]>
 }
