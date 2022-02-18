@@ -71,15 +71,15 @@ class Erc1155TokenIdsFetcher {
             functional.fetchEvents(forAddress: address, server: server, fromBlock: .blockNumber(UInt64(fromBlockNumber)), toBlock: toBlock, queue: queue)
         }.map(on: queue, { fetched -> Erc1155TokenIds in
             let tokens = fetched.tokens
+            let deltaSinceLastCheck: Erc1155TokenIds
             switch toBlock {
             case .latest, .pending:
                 //TODO even better if we set the latest block number in the blockchain
-                return fetched
+                deltaSinceLastCheck = fetched
             case .blockNumber(let num):
                 let lastBlockNumber = BigUInt(num)
-                return Erc1155TokenIds(tokens: tokens, lastBlockNumber: lastBlockNumber)
+                deltaSinceLastCheck = Erc1155TokenIds(tokens: tokens, lastBlockNumber: lastBlockNumber)
             }
-        }).map(on: queue, { deltaSinceLastCheck -> Erc1155TokenIds in
             let updatedTokens = functional.computeUpdatedTokenIds(fromPreviousRead: fromPreviousRead.tokens, deltaSinceLastCheck: deltaSinceLastCheck.tokens)
             let contractsAndTokenIds = Erc1155TokenIds(tokens: updatedTokens, lastBlockNumber: deltaSinceLastCheck.lastBlockNumber)
             return contractsAndTokenIds
