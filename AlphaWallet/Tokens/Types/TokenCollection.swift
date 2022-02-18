@@ -37,7 +37,7 @@ final class MultipleChainsTokenCollection: NSObject, TokenCollection {
         tokensDataStore
             .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
             .combineLatest(refereshSubject, { changeset, _ in return changeset.asTokensArray })
-            .map { MultipleChainsTokensDataStore.erc20AddressForNativeTokenFilter(servers: enabledServers, tokenObjects: $0) }
+            .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokenObjects: $0) }
             .map { TokensViewModel(filterTokensCoordinator: self.filterTokensCoordinator, tokens: $0, config: config) }
             .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: DispatchQueue.main)
             .sink { [weak self] tokensViewModel in
