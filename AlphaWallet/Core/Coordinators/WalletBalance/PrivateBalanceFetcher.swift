@@ -309,7 +309,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address, tokens: [Activity.AssignedToken]) -> Promise<TokenBatchOperation?> {
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return .value(nil) }
         return firstly {
-            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, inAccount: account.address)
+            erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: server, inAccount: account.address)
         }.then(on: queue, { tokenIds -> Promise<[String]> in
             let guarantees: [Guarantee<String>] = tokenIds
                 .map { self.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, tokens: tokens, enjinTokens: [:]) }

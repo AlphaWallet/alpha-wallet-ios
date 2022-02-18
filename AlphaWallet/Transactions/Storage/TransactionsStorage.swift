@@ -336,15 +336,17 @@ class TransactionsStorage: Hashable {
 }
 
 extension TransactionsStorage: Erc721TokenIdsFetcher {
-    func tokenIdsForErc721Token(contract: AlphaWallet.Address, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
+    func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
         Promise { seal in
             //Important to sort ascending to figure out ownership from transfers in and out
             //TODO is this really slow? getting all transactions, right?
             //TODO why are some isERC20Interaction = false
             DispatchQueue.main.async {
-                let transactions = self.objects
-                        .sorted(byKeyPath: "date", ascending: true)
+                let transactions = self.realm.objects(Transaction.self)
+                    .filter(TransactionsStorage.functional.transactionPredicate(server: server, operationContract: contract))
+                    .sorted(byKeyPath: "date", ascending: true)
                 let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
+
                 var tokenIds: Set<String> = .init()
                 for each in operations {
                     let tokenId = each.tokenId
@@ -448,6 +450,14 @@ extension TransactionsStorage.functional {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             nonEmptyIdTransactionPredicate(server: server),
             TransactionState.predicate(for: transactionState)
+        ])
+    }
+
+    static func transactionPredicate(server: RPCServer, operationContract: AlphaWallet.Address) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            chainIdPredicate(server: server),
+            transactionIdNonEmptyPredicate(),
+            NSPredicate(format: "ANY localizedOperations.contract == '\(operationContract.eip55String)'")
         ])
     }
 }
