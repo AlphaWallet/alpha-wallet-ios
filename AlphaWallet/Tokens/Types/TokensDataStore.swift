@@ -300,6 +300,7 @@ class TokensDataStore: NSObject {
     }
 
     @discardableResult func add(tokens: [TokenObject]) -> [TokenObject] {
+        guard !tokens.isEmpty else { return [] }
         realm.beginWrite()
 
         //TODO: save existed sort index and displaying state
@@ -313,12 +314,16 @@ class TokensDataStore: NSObject {
     }
 
     func delete(tokens: [TokenObject]) {
+        guard !tokens.isEmpty else { return }
+
         realm.beginWrite()
         realm.delete(tokens)
         try! realm.commitWrite()
     }
 
     func delete(hiddenContracts: [HiddenContract]) {
+        guard !hiddenContracts.isEmpty else { return }
+
         realm.beginWrite()
         realm.delete(hiddenContracts)
         try! realm.commitWrite()
@@ -334,6 +339,7 @@ class TokensDataStore: NSObject {
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
+        guard !orderedTokens.isEmpty else { return }
         let orderedTokensIds = orderedTokens.map { $0.primaryKey }
 
         let storedTokens = realm.objects(TokenObject.self)

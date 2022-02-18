@@ -76,6 +76,7 @@ class EventsDataStore: EventsDataStoreProtocol {
     }
 
     func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) {
+        guard !events.isEmpty else { return }
         let eventsToSave = events.map { EventInstance(event: $0) }
 
         realm.beginWrite()
