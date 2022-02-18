@@ -136,24 +136,6 @@ class TokensDataStore: NSObject {
         }
     }
 
-    static func update(in realm: Realm, tokens: [TokenUpdate]) {
-        realm.beginWrite()
-        for token in tokens {
-            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
-            let update: [String: Any] = [
-                "primaryKey": token.primaryKey,
-                "contract": token.address.eip55String,
-                "chainId": token.server.chainID,
-                "name": token.name,
-                "symbol": token.symbol,
-                "decimals": token.decimals,
-                "rawType": token.tokenType.rawValue,
-            ]
-            realm.create(TokenObject.self, value: update, update: .all)
-        }
-        try! realm.commitWrite()
-    }
-
     func tokenPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?> {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
@@ -179,32 +161,11 @@ class TokensDataStore: NSObject {
         delegate?.didUpdate(in: self, refreshImmediately: refreshImmediately)
     }
 
-    func addCustomPromise(token: ERCToken) -> Promise<TokenObject> {
-        return Promise<TokenObject> { seal in
-            DispatchQueue.main.async {
-                let token = self.addCustom(token: token, shouldUpdateBalance: true)
-                seal.fulfill(token)
-            }
-        }
-    }
-
     @discardableResult func addCustom(token: ERCToken, shouldUpdateBalance: Bool) -> TokenObject {
         let newToken = TokensDataStore.tokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
         add(tokens: [newToken])
 
         return newToken
-    }
-
-    func addCustom(tokens: [ERCToken], completion: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            self.addCustom(tokens: tokens, shouldUpdateBalance: true)
-
-            completion()
-        }
-    }
-
-    func addCustom(token: ERCToken, completion: @escaping () -> Void) {
-        addCustom(tokens: [token], completion: completion)
     }
 
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject] {
@@ -279,18 +240,6 @@ class TokensDataStore: NSObject {
         }
 
         return tokenObjects
-    }
-
-    func add(deadContracts: [DeletedContract]) {
-        try! realm.write {
-            realm.add(deadContracts, update: .all)
-        }
-    }
-
-    func add(delegateContracts: [DelegateContract]) {
-        try! realm.write {
-            realm.add(delegateContracts, update: .all)
-        }
     }
 
     func add(hiddenContracts: [HiddenContract]) {
