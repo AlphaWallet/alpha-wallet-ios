@@ -850,6 +850,8 @@
 		87741FC3277475D2007F4604 /* TokenInstanceInfoPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC2277475D2007F4604 /* TokenInstanceInfoPageViewModel.swift */; };
 		87741FC527747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */; };
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
+		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
+		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
 		87897B9C25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */; };
@@ -1927,6 +1929,8 @@
 		87741FC2277475D2007F4604 /* TokenInstanceInfoPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceInfoPageViewModel.swift; sourceTree = "<group>"; };
 		87741FC427747C5C007F4604 /* TokenInstanceViewConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewConfigurationHelper.swift; sourceTree = "<group>"; };
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
+		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
+		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
 		87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseIntroductionViewController.swift; sourceTree = "<group>"; };
@@ -4155,6 +4159,7 @@
 		5E7C7EF382294C8C3357E9EC /* Activities */ = {
 			isa = PBXGroup;
 			children = (
+				8780FDAB27BF882B00BBE9DD /* Types */,
 				5E7C79B61997F5903F0C6D70 /* Coordinators */,
 				5E7C75019080D822E6BE9E92 /* ViewControllers */,
 				5E7C7372BDD012864CBFE456 /* ViewModels */,
@@ -4748,6 +4753,15 @@
 				87741F202770C71E007F4604 /* WhereAreMyTokensCoordinator.swift */,
 			);
 			path = WhereAreMyTokens;
+			sourceTree = "<group>";
+		};
+		8780FDAB27BF882B00BBE9DD /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */,
+				8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */,
+			);
+			path = Types;
 			sourceTree = "<group>";
 		};
 		8783EFC8256D11A700120C0D /* ViewControllers */ = {
@@ -5812,6 +5826,7 @@
 				77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */,
 				8728FFDB27428F87008E5524 /* NonFungibleRowView.swift in Sources */,
 				29F1C863200375D2003780D8 /* Wallet.swift in Sources */,
+				8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */,
 				29E6E06E1FE897EE0079265A /* BrowserViewController.swift in Sources */,
 				879F184A26E73D14000602F2 /* TokenInstanceAttributeView.swift in Sources */,
 				2912CCF91F6A830700C6CBE3 /* AppDelegate.swift in Sources */,
@@ -6190,6 +6205,7 @@
 				5E7C7EE445B044CA15171BD5 /* DappsHomeHeaderViewViewModel.swift in Sources */,
 				5E7C7F67945615E242B61CC3 /* BoxView.swift in Sources */,
 				5E7C7DCF09B84E5675D58CED /* DiscoverDappCellViewModel.swift in Sources */,
+				8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */,
 				5E7C72CEFE98436DB8EC0E05 /* BrowserHistoryCell.swift in Sources */,
 				5E7C7EF1F2CDFA52BBF1C620 /* BrowserHistoryCellViewModel.swift in Sources */,
 				5E7C77B397BCB0E254F359A8 /* DappsAutoCompletionCellViewModel.swift in Sources */,

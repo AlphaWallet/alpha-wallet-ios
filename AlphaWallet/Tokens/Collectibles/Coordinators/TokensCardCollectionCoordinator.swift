@@ -112,11 +112,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     }
 
     private func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
-        let filter = FilterInSingleTransactionsStorage(transactionsStorage: transactionsStorage) { tx in
-            return strategy.isRecentTransaction(transaction: tx)
-        }
-
-        return .filter(filter: filter, tokenObject: tokenObject)
+        return .filter(transactionsStorage: transactionsStorage, strategy: strategy, tokenObject: tokenObject)
     }
 
     private func makeTokensCardCollectionViewController() -> TokensCardCollectionViewController {
