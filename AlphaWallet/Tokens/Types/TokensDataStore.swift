@@ -3,9 +3,7 @@
 import Foundation
 import BigInt
 import PromiseKit
-import Result
 import RealmSwift
-import SwiftyJSON
 
 enum TokenError: Error {
     case failedToFetch
@@ -28,31 +26,28 @@ class TokensDataStore: NSObject {
     weak var delegate: TokensDataStoreDelegate?
 
     var enabledObjectResults: Results<TokenObject> {
-        realm.objects(TokenObject.self)
-            .filter("chainId = \(chainId)")
-            .filter("contract != ''")
-            .filter("isDisabled = false")
+        return realm.objects(TokenObject.self)
+            .filter(TokensDataStore.functional.nonEmptyContractTokenPredicate(server: server, isDisabled: false))
     }
 
     var enabledObjectAddresses: [AlphaWallet.Address] {
         enabledObjectResults
-            .filter("isDisabled = false")
             .map { $0.contractAddress }
     }
 
     private var objects: [TokenObject] {
-        return Array(
-                realm.objects(TokenObject.self)
-                        .filter("chainId = \(chainId)")
-                        .filter("contract != ''")
-        )
+        return Array(realm.objects(TokenObject.self)
+                        .filter(TokensDataStore.functional.nonEmptyContractTokenPredicate(server: server)))
     }
 
     //TODO might be good to change `enabledObject` to just return the streaming list from Realm instead of a Swift native Array and other properties/callers can convert to Array if necessary
     var enabledObject: [TokenObject] {
+        let predicate = TokensDataStore
+            .functional
+            .nonEmptyContractTokenPredicate(server: server, isDisabled: false)
+
         let result = Array(realm.objects(TokenObject.self)
-                .filter("chainId = \(chainId)")
-                .filter("isDisabled = false"))
+                            .filter(predicate))
         if let erc20AddressForNativeToken = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: erc20AddressForNativeToken) }) {
             return result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) }
         } else {
@@ -140,10 +135,12 @@ class TokensDataStore: NSObject {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
+                let predicate = TokensDataStore
+                    .functional
+                    .tokenPredicate(server: strongSelf.server, contract: contract)
                 let token = strongSelf.realm.objects(TokenObject.self)
-                    .filter("contract = '\(contract.eip55String)'")
-                    .filter("chainId = \(strongSelf.chainId)").first
+                    .filter(predicate)
+                    .first
 
                 seal.fulfill(token)
             }
@@ -151,9 +148,13 @@ class TokensDataStore: NSObject {
     }
 
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
-        realm.objects(TokenObject.self)
-            .filter("contract = '\(contract.eip55String)'")
-            .filter("chainId = \(chainId)").first
+        let predicate = TokensDataStore
+            .functional
+            .tokenPredicate(server: server, contract: contract)
+
+        return realm.objects(TokenObject.self)
+            .filter(predicate)
+            .first
     }
 
     private func updateDelegate(refreshImmediately: Bool = false) {
@@ -445,5 +446,51 @@ extension TokensDataStore.functional {
         case .nativeCryptocurrency, .erc20, .erc875:
             return NonFungibleFromJsonTokenType.erc721
         }
+    }
+
+    static func chainIdPredicate(server: RPCServer) -> NSPredicate {
+        return NSPredicate(format: "chainId = \(server.chainID)")
+    }
+
+    static func isDisabledPredicate(isDisabled: Bool) -> NSPredicate {
+        return NSPredicate(format: "isDisabled = \(isDisabled ? "true" : "false")")
+    }
+
+    static func nonEmptyContractPredicate() -> NSPredicate {
+        return NSPredicate(format: "contract != ''")
+    }
+
+    static func contractPredicate(contract: AlphaWallet.Address) -> NSPredicate {
+        return NSPredicate(format: "contract = '\(contract.eip55String)'")
+    }
+
+    static func tokenPredicate(server: RPCServer, isDisabled: Bool, contract: AlphaWallet.Address) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            contractPredicate(contract: contract),
+            isDisabledPredicate(isDisabled: isDisabled),
+            chainIdPredicate(server: server)
+        ])
+    }
+
+    static func tokenPredicate(server: RPCServer, contract: AlphaWallet.Address) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            contractPredicate(contract: contract),
+            chainIdPredicate(server: server)
+        ])
+    }
+
+    static func nonEmptyContractTokenPredicate(server: RPCServer, isDisabled: Bool) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            isDisabledPredicate(isDisabled: isDisabled),
+            chainIdPredicate(server: server),
+            nonEmptyContractPredicate()
+        ])
+    }
+
+    static func nonEmptyContractTokenPredicate(server: RPCServer) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            chainIdPredicate(server: server),
+            nonEmptyContractPredicate()
+        ])
     }
 }
