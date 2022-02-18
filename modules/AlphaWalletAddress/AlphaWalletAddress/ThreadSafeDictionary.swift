@@ -15,14 +15,16 @@ public class ThreadSafeDictionary<Key: Hashable, Value> {
     public subscript(server: Key) -> Value? {
         get {
             var element: Value?
-            queue.sync { [weak self] in
-                element = self?.cache[server]
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                element = self.cache[server]
             }
             return element
         }
         set {
-            queue.async(flags: .barrier) { [weak self] in
-                self?.cache[server] = newValue
+            dispatchPrecondition(condition: .notOnQueue(queue))
+            queue.sync { [unowned self] in
+                self.cache[server] = newValue
             }
         }
     }
@@ -31,25 +33,26 @@ public class ThreadSafeDictionary<Key: Hashable, Value> {
     }
 
     public func removeAll() {
-        queue.async(flags: .barrier) { [weak self] in
-            self?.cache.removeAll()
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            self.cache.removeAll()
         }
     }
 
     @discardableResult public func removeValue(forKey key: Key) -> Value? {
         var element: Value?
-        queue.sync { [weak self] in
-            if let index = self?.cache.firstIndex(where: { $0.key == key }) {
-                element = self?.cache.remove(at: index).value
-            }
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            element = self.cache.firstIndex(where: { $0.key == key }).flatMap { self.cache.remove(at: $0).value }
         }
         return element
     }
 
     public var values: [Key: Value] {
         var elements: [Key: Value] = [:]
-        queue.sync { [weak self] in
-            elements = self?.cache ?? [:]
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync { [unowned self] in
+            elements = self.cache
         }
 
         return elements
