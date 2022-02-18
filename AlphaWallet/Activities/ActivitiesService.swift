@@ -8,6 +8,7 @@
 import UIKit
 import CoreFoundation
 import PromiseKit
+import Combine
 
 protocol ActivitiesServiceType: class {
     var sessions: ServerDictionary<WalletSession> { get }
@@ -84,9 +85,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private var filteredTransactionsSubscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
-    private var recentEventsSubscriptionKey: Subscribable<Void>.SubscribableKey!
     private let transactionCollection: TransactionCollection
-    private lazy var recentEventsSubscribable = eventsActivityDataStore.recentEventsSubscribable
     private lazy var filteredTransactionsSubscription = transactionCollection.subscribableFor(filter: transactionsFilterStrategy)
     private let transactionsFilterStrategy: TransactionsFilterStrategy
 
@@ -98,6 +97,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private lazy var tokenObjectsCache: CachedTokenObjectResolverType = TokenObjectsCache(tokensCollection: tokenCollection)
     //Cache tokens lookup for performance
     private var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
+
+    private var cancelable = Set<AnyCancellable>()
 
     init(
         config: Config,
@@ -127,16 +128,16 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             self?.reloadImpl(reloadImmediately: true)
         }
 
-        recentEventsSubscriptionKey = recentEventsSubscribable.subscribe { [weak self] _ in
-            self?.reloadImpl(reloadImmediately: true)
-        }
+        eventsActivityDataStore
+            .recentEventsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self]  _ in
+                self?.reloadImpl(reloadImmediately: true)
+            }.store(in: &cancelable)
     }
 
     deinit {
         filteredTransactionsSubscription.unsubscribe(filteredTransactionsSubscriptionKey)
-        recentEventsSubscribable.unsubscribe(recentEventsSubscriptionKey)
-
-        eventsActivityDataStore.removeSubscription(subscription: recentEventsSubscribable)
         transactionCollection.removeSubscription(subscription: filteredTransactionsSubscription)
     }
 

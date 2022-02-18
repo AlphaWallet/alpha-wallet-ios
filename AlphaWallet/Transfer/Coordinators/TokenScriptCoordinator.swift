@@ -8,6 +8,7 @@
 import UIKit
 import BigInt
 import Result
+import Combine
 
 protocol TokenScriptCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: TokenScriptCoordinator)
@@ -34,6 +35,7 @@ class TokenScriptCoordinator: Coordinator {
     weak var delegate: TokenScriptCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
+    private var cancelable = Set<AnyCancellable>()
 
     init(
             session: WalletSession,
@@ -86,9 +88,12 @@ class TokenScriptCoordinator: Coordinator {
     }
 
     private func refreshUponEthereumEventChanges() {
-        eventsDataStore.subscribe { [weak self] contract in
-            self?.refreshScreen(forContract: contract)
-        }
+        eventsDataStore
+            .recentEvents(forTokenContract: tokenObject.contractAddress)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.viewController.configure()
+            }).store(in: &cancelable)
     }
 
     private func refreshUponAssetDefinitionChanges() {

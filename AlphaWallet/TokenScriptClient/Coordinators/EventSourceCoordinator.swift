@@ -129,7 +129,7 @@ extension EventSourceCoordinator.functional {
                             Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
                         }
                     }).done(on: .main, { events in
-                        eventsDataStore.add(events: events, forTokenContract: contractAddress)
+                        eventsDataStore.add(events: events)
                         seal.fulfill(())
                     }).catch(on: queue, { e in
                         error(value: e, rpcServer: tokenServer, address: contractAddress)

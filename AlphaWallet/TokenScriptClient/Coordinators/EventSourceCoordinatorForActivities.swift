@@ -142,14 +142,12 @@ extension EventSourceCoordinatorForActivities.functional {
                         values.compactMap { $0.optionalValue }.compactMap { $0 }
                     })
                 }).done(on: .main, { events in
-                    eventsDataStore.add(events: events, forTokenContract: tokenContract)
+                    eventsDataStore.add(events: events)
                     seal.fulfill(())
-// swiftlint:disable closure_end_indentation
-                }).catch { e in
-// swiftlint:enable closure_end_indentation
+                }).catch({ e in
                     error(value: e, rpcServer: server, address: tokenContract)
                     seal.reject(e)
-                }
+                })
         }
         return promise
     }

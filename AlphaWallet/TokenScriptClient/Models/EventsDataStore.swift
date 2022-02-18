@@ -3,30 +3,22 @@
 import Foundation
 import RealmSwift
 import PromiseKit
+import Combine
 
 protocol EventsDataStoreProtocol {
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address)
+    func add(events: [EventInstanceValue])
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance?
-    func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void)
+    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never>
 }
 
 //TODO rename to indicate it's for instances, not activity
 class EventsDataStore: EventsDataStoreProtocol {
     private let realm: Realm
-    private var subscribers: [(AlphaWallet.Address) -> Void] = []
 
     init(realm: Realm) {
         self.realm = realm
-    }
-
-    func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
-        subscribers.append(subscribe)
-    }
-
-    private func triggerSubscribers(forContract contract: AlphaWallet.Address) {
-        subscribers.forEach { $0(contract) }
     }
 
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
@@ -40,13 +32,16 @@ class EventsDataStore: EventsDataStoreProtocol {
     }
 
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {
-        let events = getEvents(forTokenContract: contract)
+        let events = realm.objects(EventInstance.self)
+            .filter("tokenContract = '\(contract.eip55String)'")
         delete(events: events)
     }
 
-    private func getEvents(forTokenContract tokenContract: AlphaWallet.Address) -> Results<EventInstance> {
-        realm.objects(EventInstance.self)
-                .filter("tokenContract = '\(tokenContract.eip55String)'")
+    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never> {
+        return realm.objects(EventInstance.self)
+            .filter("tokenContract = '\(tokenContract.eip55String)'")
+            .changesetPublisher
+            .eraseToAnyPublisher()
     }
 
     private func delete<S: Sequence>(events: S) where S.Element: EventInstance {
@@ -74,14 +69,13 @@ class EventsDataStore: EventsDataStoreProtocol {
         }
     }
 
-    func add(events: [EventInstanceValue], forTokenContract contract: AlphaWallet.Address) {
+    func add(events: [EventInstanceValue]) {
         guard !events.isEmpty else { return }
         let eventsToSave = events.map { EventInstance(event: $0) }
 
         realm.beginWrite()
         realm.add(eventsToSave, update: .all)
         try? realm.commitWrite()
-        triggerSubscribers(forContract: contract)
     }
 }
 
