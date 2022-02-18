@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreFoundation
+import PromiseKit
 
 protocol ActivitiesServiceType: class {
     var sessions: ServerDictionary<WalletSession> { get }
@@ -17,98 +18,6 @@ protocol ActivitiesServiceType: class {
     func reinject(activity: Activity)
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType
 }
-
-enum ActivitiesFilterStrategy {
-    case none
-    case nativeCryptocurrency(primaryKey: String)
-    case contract(contract: AlphaWallet.Address)
-    case operationTypes(operationTypes: [OperationType], contract: AlphaWallet.Address)
-
-    func isRecentTransaction(transaction: TransactionInstance) -> Bool {
-        switch self {
-        case .nativeCryptocurrency:
-            return ActivitiesFilterStrategy.filterTransactionsForNativeCryptocurrency(transaction: transaction)
-        case .contract(let contract):
-            return ActivitiesFilterStrategy.filterTransactionsForERC20Token(transaction: transaction, contract: contract)
-        case .operationTypes(let operationTypes, let contract):
-            return ActivitiesFilterStrategy.filterTransactionsForCustomOperations(transaction: transaction, operationTypes: operationTypes, contract: contract)
-        case .none:
-            return true
-        }
-    }
-
-    private static func filterTransactionsForNativeCryptocurrency(transaction: TransactionInstance) -> Bool {
-        let isInCompletedOrPandingState: Bool = transaction.state == .completed || transaction.state == .pending
-        return isInCompletedOrPandingState && (transaction.operation == nil) && (transaction.value != "" && transaction.value != "0")
-    }
-
-    private static func filterTransactionsForERC20Token(transaction: TransactionInstance, contract: AlphaWallet.Address) -> Bool {
-        return filterTransactionsForCustomOperations(transaction: transaction, operationTypes: [.erc20TokenTransfer, .erc20TokenApprove], contract: contract)
-    }
-
-    private static func filterTransactionsForCustomOperations(transaction: TransactionInstance, operationTypes: [OperationType], contract: AlphaWallet.Address) -> Bool {
-        let isInCompletedOrPandingState: Bool = transaction.state == .completed || transaction.state == .pending
-        func hasValidOperationState(operationTypes: [OperationType], operationType: OperationType) -> Bool {
-            return operationTypes.isEmpty ? true : operationTypes.contains(operationType)
-        }
-
-        return isInCompletedOrPandingState && transaction.localizedOperations.contains(where: { op in
-            let isMatchingContract = (op.contract.flatMap({ contract.sameContract(as: $0) }) ?? false)
-            let hasValidOperationTypes = hasValidOperationState(operationTypes: operationTypes, operationType: op.operationType)
-            return hasValidOperationTypes && isMatchingContract
-        })
-    }
-}
-
-extension TransactionType {
-    var activitiesFilterStrategy: ActivitiesFilterStrategy {
-        switch self {
-        case .nativeCryptocurrency(let tokenObject, _, _):
-            return .nativeCryptocurrency(primaryKey: tokenObject.primaryKey)
-        case .erc20Token(let tokenObject, _, _):
-            return .contract(contract: tokenObject.contractAddress)
-        case .erc875Token(let tokenObject, _), .erc875TokenOrder(let tokenObject, _):
-            return .contract(contract: tokenObject.contractAddress)
-        case .erc721Token(let tokenObject, _), .erc721ForTicketToken(let tokenObject, _), .erc1155Token(let tokenObject, _, _):
-            return .operationTypes(operationTypes: [], contract: tokenObject.contractAddress)
-        case .dapp, .claimPaidErc875MagicLink, .tokenScript:
-            return .none
-        }
-    }
-}
-
-private enum ActivityOrTransactionInstance {
-    case activity(Activity)
-    case transaction(TransactionInstance)
-
-    var blockNumber: Int {
-        switch self {
-        case .activity(let activity):
-            return activity.blockNumber
-        case .transaction(let transaction):
-            return transaction.blockNumber
-        }
-    }
-
-    var transaction: TransactionInstance? {
-        switch self {
-        case .activity:
-            return nil
-        case .transaction(let transaction):
-            return transaction
-        }
-    }
-    var activity: Activity? {
-        switch self {
-        case .activity(let activity):
-            return activity
-        case .transaction:
-            return nil
-        }
-    }
-}
-
-import PromiseKit
 
 protocol CachedTokenObjectResolverType: class {
     func updateCache() -> Promise<[TokenObject]>
@@ -190,10 +99,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     //Cache tokens lookup for performance
     private var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
 
-    override var description: String {
-        transactionsFilterStrategy.description
-    }
-
     init(
         config: Config,
         sessions: ServerDictionary<WalletSession>,
@@ -258,7 +163,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 switch self.transactionsFilterStrategy {
                 case .all:
                     return tokenObjects
-                case .filter(_, let tokenObject):
+                case .filter(_, _, let tokenObject):
                     return [tokenObject]
                 }
             })

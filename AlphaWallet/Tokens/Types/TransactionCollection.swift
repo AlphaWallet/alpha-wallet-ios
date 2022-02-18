@@ -2,51 +2,11 @@
 
 import Foundation
 import RealmSwift
-import PromiseKit
+import PromiseKit 
 
-class FilterInSingleTransactionsStorage: Equatable, Hashable {
-    let filter: (TransactionInstance) -> Bool
-    let transactionsStorage: TransactionsStorage
-    private let uuid: UUID
-
-    init(transactionsStorage: TransactionsStorage, filter: @escaping (TransactionInstance) -> Bool) {
-        self.filter = filter
-        self.transactionsStorage = transactionsStorage
-        uuid = UUID()
-    }
-
-    static func == (lhs: FilterInSingleTransactionsStorage, rhs: FilterInSingleTransactionsStorage) -> Bool {
-        return lhs.uuid == rhs.uuid
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
-        hasher.combine(transactionsStorage.hashValue)
-    }
-}
-
-enum TransactionsFilterStrategy: Hashable, CustomStringConvertible {
+enum TransactionsFilterStrategy {
     case all
-    case filter(filter: FilterInSingleTransactionsStorage, tokenObject: TokenObject)
-
-    var description: String {
-        switch self {
-        case .all:
-            return "AT"
-        case .filter:
-            return "ST"
-        }
-    }
-
-    func hash(into hasher: inout Hasher) {
-        switch self {
-        case .all:
-            hasher.combine(1)
-        case .filter(let filter, let tokenObject):
-            hasher.combine(filter.hashValue)
-            hasher.combine(tokenObject.hashValue)
-        }
-    }
+    case filter(transactionsStorage: TransactionsStorage, strategy: ActivitiesFilterStrategy, tokenObject: TokenObject)
 }
 
 protocol TransactionCollectionType: class {
@@ -83,8 +43,8 @@ class TransactionCollection: NSObject, TransactionCollectionType {
 
     func subscribableFor(filter: TransactionsFilterStrategy) -> Subscribable<[TransactionInstance]> {
         switch filter {
-        case .filter(let filterObject, _):
-            let mapped = createSingleStorageSubscription(filterObject: filterObject)
+        case .filter(let transactionsStorage, let filterObject, _):
+            let mapped = createSingleStorageSubscription(transactionsStorage: transactionsStorage, filterObject: filterObject)
             cache[mapped.notifier] = mapped.subscriptions
 
             return mapped.notifier
@@ -96,33 +56,36 @@ class TransactionCollection: NSObject, TransactionCollectionType {
         }
     }
 
-    private func createSingleStorageSubscription(filterObject: FilterInSingleTransactionsStorage) -> (notifier: Subscribable<[TransactionInstance]>, subscriptions: [NotificationToken]) {
+    private func createSingleStorageSubscription(transactionsStorage: TransactionsStorage, filterObject: ActivitiesFilterStrategy) -> (notifier: Subscribable<[TransactionInstance]>, subscriptions: [NotificationToken]) {
 
         let notifier = Subscribable<[TransactionInstance]>(nil)
-        let subscription = filterObject.transactionsStorage.objects.observe(on: queue) { change in
-            switch change {
-            case .initial, .error:
-                break
-            case .update(let objects, _, _, _):
-                notifier.value = Self.filter(results: objects, filterObject: filterObject)
+
+        let subscription = transactionsStorage
+            .objects
+            .filter(filterObject.predicate)
+            .observe(on: queue) { change in
+                switch change {
+                case .initial, .error:
+                    break
+                case .update(let objects, _, _, _):
+                    notifier.value = Array(objects.map { TransactionInstance(transaction: $0) })
+                }
             }
-        }
 
         Promise<[TransactionInstance]> { seal in
             DispatchQueue.main.async {
                 //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
-                let values = Array(filterObject.transactionsStorage.objects.map { TransactionInstance(transaction: $0) })
-                seal.fulfill(values)
+                let values = transactionsStorage
+                    .objects
+                    .filter(filterObject.predicate)
+                    .map { TransactionInstance(transaction: $0) }
+                seal.fulfill(Array(values))
             }
         }.done(on: queue, { trx in
-            notifier.value = trx.filter(filterObject.filter)
+            notifier.value = trx
         }).cauterize()
 
         return (notifier, [subscription])
-    }
-
-    static func filter(results: Results<Transaction>, filterObject: FilterInSingleTransactionsStorage) -> [TransactionInstance] {
-        return Array(results.map { TransactionInstance(transaction: $0) }).filter(filterObject.filter)
     }
 
     private func createAvailableStoragesSubscription() -> (notifier: Subscribable<[TransactionInstance]>, subscriptions: [NotificationToken]) {
