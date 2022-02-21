@@ -9,8 +9,8 @@ import Foundation
 import BigInt
 import PromiseKit
 import Result
-import RealmSwift
 import SwiftyJSON
+import Combine
 
 protocol PrivateTokensDataStoreDelegate: AnyObject {
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher)
@@ -43,14 +43,14 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let openSea: OpenSea
     private let queue: DispatchQueue
     private let server: RPCServer
-    private lazy var etherToken = Activity.AssignedToken(tokenObject: TokensDataStore.etherToken(forServer: server))
+    private lazy var etherToken = Activity.AssignedToken(tokenObject: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
     private var isRefeshingBalance: Bool = false
     weak var delegate: PrivateTokensDataStoreDelegate?
-    private var enabledObjectsObservation: NotificationToken?
     private let tokensDatastore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let enjin: EnjinProvider
     private var cachedErc1155TokenIdsFetchers: [AddressAndRPCServer: Erc1155TokenIdsFetcher] = [:]
+    private var cancelable = Set<AnyCancellable>()
 
     init(account: Wallet, tokensDatastore: TokensDataStore, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
         self.account = account
@@ -62,33 +62,31 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.assetDefinitionStore = assetDefinitionStore
 
         // NOTE: fire refresh balance only for initial scope, and while adding new tokens
-        enabledObjectsObservation = tokensDatastore.enabledObjectResults.observe(on: queue) { [weak self] change in
-            guard let strongSelf = self else { return }
-            switch change {
-            case .initial(let tokenObjects):
-                let tokenObjects = tokenObjects.map { Activity.AssignedToken(tokenObject: $0) }
+        tokensDatastore
+            .enabledTokenObjectsChangesetPublisher(forServers: [server])
+            .subscribe(on: DispatchQueue.main)
+            .sink { [weak self] changeset in
+                guard let strongSelf = self else { return }
+                switch changeset {
+                case .initial(let tokenObjects):
+                    let tokenObjects = tokenObjects.map { Activity.AssignedToken(tokenObject: $0) }
 
-                strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: true).done { _ in
+                    strongSelf.refreshBalance(tokenObjects: Array(tokenObjects), updatePolicy: .all, force: true).done { _ in
+                            // no-op
+                    }.cauterize()
+                case .update(let tokenObjects, _, let insertions, _):
+                    let tokenObjects = insertions.map { tokenObjects[$0] }.map { Activity.AssignedToken(tokenObject: $0) }
+                    guard !tokenObjects.isEmpty else { return }
+
+                    strongSelf.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: true).done { _ in
                         // no-op
-                }.cauterize()
-            case .update(let updates, _, let insertions, _):
-                let values = updates.map { Activity.AssignedToken(tokenObject: $0) }
-                let tokenObjects = insertions.map { values[$0] }
-                guard !tokenObjects.isEmpty else { return }
+                    }.cauterize()
 
-                strongSelf.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: true).done { _ in
-                    // no-op
-                }.cauterize()
-
-                strongSelf.delegate?.didAddToken(in: strongSelf)
-            case .error:
-                break
-            }
-        }
-    }
-
-    deinit {
-        enabledObjectsObservation.flatMap { $0.invalidate() }
+                    strongSelf.delegate?.didAddToken(in: strongSelf)
+                case .error:
+                    break
+                }
+            }.store(in: &cancelable)
     }
 
     // NOTE: Its important to return value for promise and not an error. As we are using `when(fulfilled: ...)`. There is force unwrap inside the `when(fulfilled` function
@@ -110,7 +108,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
-        // TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
+        // TODO when we no longer create multiple instances of MultipleChainsTokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
         return openSea.makeFetchPromise()
             .recover { _ -> Promise<OpenSeaNonFungiblesToAddress> in
                 return .value([:])
@@ -121,7 +119,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         Promise<[Activity.AssignedToken]> { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let tokenObjects = strongSelf.tokensDatastore.tokenObjects
+                let tokenObjects = strongSelf.tokensDatastore
+                    .enabledTokenObjects(forServers: [strongSelf.server])
+                    .map { Activity.AssignedToken(tokenObject: $0) }
 
                 seal.fulfill(tokenObjects)
             }
@@ -180,11 +180,13 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private func refreshEthBalance(etherToken: Activity.AssignedToken) -> Promise<Bool?> {
         let tokensDatastore = self.tokensDatastore
 
-        return tokenProvider.getEthBalance(for: account.address).then(on: queue, { balance -> Promise<Bool?> in
-            tokensDatastore.updateTokenPromise(primaryKey: etherToken.primaryKey, action: .value(balance.value))
-        }).recover(on: queue, { _ -> Guarantee<Bool?> in
-            return .value(nil)
-        })
+        return tokenProvider.getEthBalance(for: account.address)
+            .then(on: .main, { balance -> Promise<Bool?> in
+                let result = tokensDatastore.updateToken(primaryKey: etherToken.primaryKey, action: .value(balance.value))
+                return .value(result)
+            }).recover(on: queue, { _ -> Guarantee<Bool?> in
+                return .value(nil)
+            })
     }
 
     private func refreshBalance(tokenObjects: [Activity.AssignedToken]) -> Promise<Bool?> {
@@ -197,19 +199,19 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let promise2 = refreshBalanceForErc721Or1155Tokens(tokens: erc721Or1155Tokens)
         let tokensDatastore = self.tokensDatastore
 
-        return when(resolved: [promise1, promise2]).then(on: queue, { value -> Promise<Bool?> in
-            let resolved: [TokenBatchOperation] = value.compactMap { $0.optionalValue }.flatMap { $0 }
-            return tokensDatastore.batchUpdateTokenPromise(resolved).recover { _ -> Guarantee<Bool?> in
-                return .value(nil)
-            }
-        })
+        return when(resolved: [promise1, promise2])
+            .then(on: .main, { value -> Promise<Bool?> in
+                let resolved: [TokenBatchOperation] = value.compactMap { $0.optionalValue }.flatMap { $0 }
+                let result = tokensDatastore.batchUpdateTokenPromise(resolved)
+                return .value(result)
+            })
     }
 
     enum TokenBatchOperation {
         case add(ERCToken, shouldUpdateBalance: Bool)
-        case update(tokenObject: Activity.AssignedToken, action: TokensDataStore.TokenUpdateAction)
+        case update(tokenObject: Activity.AssignedToken, action: TokenUpdateAction)
 
-        var updateAction: TokensDataStore.TokenUpdateAction? {
+        var updateAction: TokenUpdateAction? {
             switch self {
             case .add:
                 return nil
@@ -373,10 +375,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         return firstly {
             functional.fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
         }.then(on: .main, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
-            let (promise, seal) = Promise<Erc1155TokenIds.ContractsAndTokenIds>.pending()
             tokensDatastore.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
-            seal.fulfill(contractsAndTokenIds)
-            return promise
+
+            return .value(contractsAndTokenIds)
         })
     }
 

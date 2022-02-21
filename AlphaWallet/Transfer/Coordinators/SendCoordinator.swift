@@ -15,7 +15,7 @@ class SendCoordinator: Coordinator {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let keystore: Keystore
-    private let storage: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -34,7 +34,7 @@ class SendCoordinator: Coordinator {
             navigationController: UINavigationController,
             session: WalletSession,
             keystore: Keystore,
-            storage: TokensDataStore,
+            tokensDataStore: TokensDataStore,
             ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator
@@ -43,14 +43,14 @@ class SendCoordinator: Coordinator {
         self.navigationController = navigationController
         self.session = session
         self.keystore = keystore
-        self.storage = storage
+        self.tokensDataStore = tokensDataStore
         self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
-        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, storage: storage))
+        sendViewController.configure(viewModel: .init(transactionType: sendViewController.transactionType, session: session, tokensDataStore: tokensDataStore))
 
         navigationController.pushViewController(sendViewController, animated: true)
     }
@@ -58,7 +58,7 @@ class SendCoordinator: Coordinator {
     private func makeSendViewController() -> SendViewController {
         let controller = SendViewController(
             session: session,
-            storage: storage,
+            tokensDataStore: tokensDataStore,
             transactionType: transactionType,
             cryptoPrice: ethPrice
         )

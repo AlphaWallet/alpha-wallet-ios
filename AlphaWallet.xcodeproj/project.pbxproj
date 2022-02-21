@@ -856,6 +856,7 @@
 		877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */; };
 		8780FDAD27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */; };
 		8780FDAF27BF887700BBE9DD /* ActivitiesFilterStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */; };
+		8780FDBF27C3CC0F00BBE9DD /* ChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8780FDBE27C3CC0F00BBE9DD /* ChangeSet.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
 		87897B9C25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */; };
@@ -1939,6 +1940,7 @@
 		877D00AE25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfiguratorTransactionsTests.swift; sourceTree = "<group>"; };
 		8780FDAC27BF883F00BBE9DD /* ActivityOrTransactionInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityOrTransactionInstance.swift; sourceTree = "<group>"; };
 		8780FDAE27BF887700BBE9DD /* ActivitiesFilterStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesFilterStrategy.swift; sourceTree = "<group>"; };
+		8780FDBE27C3CC0F00BBE9DD /* ChangeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSet.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
 		87897B9B25EF7C08006E3C75 /* ShowSeedPhraseIntroductionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseIntroductionViewController.swift; sourceTree = "<group>"; };
@@ -3267,6 +3269,7 @@
 				87FB0A8126D8D307000EC15F /* TokenProviderType.swift */,
 				87CC3852273E7980005BE9B8 /* eip155URLDecoder.swift */,
 				87D6E5DE2791934D00B9DEE3 /* DeepLink.swift */,
+				8780FDBE27C3CC0F00BBE9DD /* ChangeSet.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -5726,6 +5729,7 @@
 				29F114F01FA6D53700114A29 /* ImportSelectionType.swift in Sources */,
 				AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */,
 				29850D251F6B27A800791A49 /* R.generated.swift in Sources */,
+				8780FDBF27C3CC0F00BBE9DD /* ChangeSet.swift in Sources */,
 				87012F462797FA97002BCDF0 /* SelfResizableCollectionView.swift in Sources */,
 				737D1675202BDCB400B42DDE /* UINavigationController.swift in Sources */,
 				AA4E531820425A9500143A09 /* Date.swift in Sources */,

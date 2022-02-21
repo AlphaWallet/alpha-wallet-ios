@@ -2,8 +2,7 @@
 
 import Foundation
 import UIKit
-import BigInt
-import RealmSwift
+import BigInt 
 import PromiseKit
 import Result
 
@@ -28,7 +27,7 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
 // swiftlint:disable type_body_length
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
-    private let storage: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -66,7 +65,7 @@ class SingleChainTokenCoordinator: Coordinator {
     ) {
         self.session = session
         self.keystore = keystore
-        self.storage = tokensStorage
+        self.tokensDataStore = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -103,13 +102,13 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
-    private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], storage: TokensDataStore) -> Promise<[AlphaWallet.Address]> {
+    private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], storage: TokensDataStore, forServer server: RPCServer) -> Promise<[AlphaWallet.Address]> {
         return Promise { seal in
             DispatchQueue.main.async {
-                let alreadyAddedContracts = storage.enabledObjectAddresses
-                let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
-                let hiddenContracts = storage.hiddenContracts.map { $0.contractAddress }
-                let delegateContracts = storage.delegateContracts.map { $0.contractAddress }
+                let alreadyAddedContracts = storage.enabledTokenObjects(forServers: [server]).map { $0.contractAddress }
+                let deletedContracts = storage.deletedContracts(forServer: server).map { $0.contractAddress }
+                let hiddenContracts = storage.hiddenContracts(forServer: server).map { $0.contractAddress }
+                let delegateContracts = storage.delegateContracts(forServer: server).map { $0.contractAddress }
                 let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
 
                 seal.fulfill(contractsToAdd)
@@ -141,14 +140,14 @@ class SingleChainTokenCoordinator: Coordinator {
             guard currentAddress.sameContract(as: wallet) else { return .init(error: PMKError.cancelled) }
             let detectedContracts = contracts
 
-            return strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, storage: strongSelf.storage).then(on: strongSelf.queue, { contractsToAdd -> Promise<Bool> in
+            return strongSelf.contractsForTransactedTokens(detectedContracts: detectedContracts, storage: strongSelf.tokensDataStore, forServer: strongSelf.server).then(on: strongSelf.queue, { contractsToAdd -> Promise<Bool> in
                 let promises = contractsToAdd.compactMap { each -> Promise<BatchObject> in
-                    strongSelf.fetchBatchObjectFromContractData(for: each, server: strongSelf.server, storage: strongSelf.storage)
+                    strongSelf.fetchBatchObjectFromContractData(for: each, server: strongSelf.server, tokensDataStore: strongSelf.tokensDataStore)
                 }
 
                 return when(resolved: promises).then(on: .main, { values -> Promise<Bool> in
                     let values = values.compactMap { $0.optionalValue }.filter { $0.nonEmptyAction }
-                    strongSelf.storage.addBatchObjects(values: values)
+                    strongSelf.tokensDataStore.addBatchObjects(values: values)
 
                     return .value(!values.isEmpty)
                 })
@@ -191,12 +190,12 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private static func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], storage: TokensDataStore) -> Promise<[AlphaWallet.Address]> {
+    private static func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], tokensDataStore: TokensDataStore, forServer server: RPCServer) -> Promise<[AlphaWallet.Address]> {
         return Promise { seal in
             DispatchQueue.main.async {
-                let alreadyAddedContracts = storage.enabledObjectAddresses
-                let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
-                let hiddenContracts = storage.hiddenContracts.map { $0.contractAddress }
+                let alreadyAddedContracts = tokensDataStore.enabledTokenObjects(forServers: [server]).map { $0.contractAddress }
+                let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
+                let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
 
                 seal.fulfill(contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts)
             }
@@ -207,8 +206,8 @@ class SingleChainTokenCoordinator: Coordinator {
         let account = keystore.currentWallet
         let address = account.address
         let server = server
-        let storage = storage
-        return Self.contractsToAutodetectTokens(withContracts: contractsToDetect, storage: storage).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
+        let tokensDataStore = tokensDataStore
+        return Self.contractsToAutodetectTokens(withContracts: contractsToDetect, tokensDataStore: tokensDataStore, forServer: server).map(on: queue, { contracts -> [Promise<SingleChainTokenCoordinator.BatchObject>] in
             contracts.map { [weak self] each -> Promise<BatchObject> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -223,7 +222,7 @@ class SingleChainTokenCoordinator: Coordinator {
                                 if balance.isEmpty {
                                     return .value(.none)
                                 } else {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, tokensDataStore: tokensDataStore)
                                 }
                             }.recover { _ -> Guarantee<BatchObject> in
                                 return .value(.none)
@@ -232,7 +231,7 @@ class SingleChainTokenCoordinator: Coordinator {
                             let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server)
                             return balanceCoordinator.getBalance(for: address, contract: each).then { balance -> Promise<BatchObject> in
                                 if balance > 0 {
-                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, storage: storage)
+                                    return strongSelf.fetchBatchObjectFromContractData(for: each, server: server, tokensDataStore: tokensDataStore)
                                 } else {
                                     return .value(.none)
                                 }
@@ -251,7 +250,7 @@ class SingleChainTokenCoordinator: Coordinator {
                     .compactMap { $0.optionalValue }
                     .filter { $0.nonEmptyAction }
 
-                storage.addBatchObjects(values: values)
+                tokensDataStore.addBatchObjects(values: values)
 
                 return .value(!values.isEmpty)
             })
@@ -275,7 +274,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func fetchBatchObjectFromContractData(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, storage: TokensDataStore) -> Promise <BatchObject> {
+    private func fetchBatchObjectFromContractData(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, server: RPCServer, tokensDataStore: TokensDataStore) -> Promise <BatchObject> {
         return Promise { seal in
             fetchContractData(for: contract) { data in
                 DispatchQueue.main.async {
@@ -297,7 +296,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         seal.fulfill(.ercToken(token))
                     case .fungibleTokenComplete(let name, let symbol, let decimals):
                         //We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
-                        let tokenObject = storage.token(forContract: contract)
+                        let tokenObject = tokensDataStore.token(forContract: contract, server: server)
 
                         let value = tokenObject?.value ?? "0"
                         guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
@@ -346,9 +345,9 @@ class SingleChainTokenCoordinator: Coordinator {
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             return firstly {
-                strongSelf.fetchBatchObjectFromContractData(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance, server: strongSelf.server, storage: strongSelf.storage)
+                strongSelf.fetchBatchObjectFromContractData(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance, server: strongSelf.server, tokensDataStore: strongSelf.tokensDataStore)
             }.map(on: .main, { operation -> [TokenObject] in
-                return strongSelf.storage.addBatchObjects(values: [operation])
+                return strongSelf.tokensDataStore.addBatchObjects(values: [operation])
             }).map(on: .main, { tokenObjects -> TokenObject in
                 if let tokenObject = tokenObjects.first {
                     return tokenObject
@@ -364,9 +363,9 @@ class SingleChainTokenCoordinator: Coordinator {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
 
-                if let hiddenContract = strongSelf.storage.hiddenContracts.first(where: { contract.sameContract(as: $0.contract) }) {
+                if let hiddenContract = strongSelf.tokensDataStore.hiddenContracts(forServer: strongSelf.server).first(where: { contract.sameContract(as: $0.contract) }) {
                     //TODO we need to make sure it's all uppercase?
-                    strongSelf.storage.delete(hiddenContracts: [hiddenContract])
+                    strongSelf.tokensDataStore.delete(hiddenContracts: [hiddenContract])
                 } else {
                     //no-op
                 }
@@ -404,7 +403,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 session: session,
                 navigationController: navigationController,
                 keystore: keystore,
-                tokensStorage: storage,
+                tokensStorage: tokensDataStore,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -429,7 +428,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 session: session,
                 navigationController: navigationController,
                 keystore: keystore,
-                tokensStorage: storage,
+                tokensStorage: tokensDataStore,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -471,25 +470,26 @@ class SingleChainTokenCoordinator: Coordinator {
 
         navigationController.pushViewController(viewController, animated: true)
     }
-
+    //NOTE: check and remove if not using
     func delete(token: TokenObject) {
         assetDefinitionStore.contractDeleted(token.contractAddress)
-        storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: server)])
-        storage.delete(tokens: [token])
+        tokensDataStore.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: server)])
+        tokensDataStore.delete(tokens: [token])
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
-        storage.updateOrderedTokens(with: orderedTokens)
+        tokensDataStore.updateOrderedTokens(with: orderedTokens)
     }
 
     func mark(token: TokenObject, isHidden: Bool) {
-        storage.update(token: token, action: .isHidden(isHidden))
+        guard !token.isInvalidated else { return }
+        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .isHidden(isHidden))
     }
 
     func add(token: ERCToken) -> TokenObject {
-        let tokenObject = storage.addCustom(token: token, shouldUpdateBalance: true)
+        let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
 
-        return tokenObject
+        return tokenObject[0]
     }
 
     class AutoDetectTransactedTokensOperation: Operation {
@@ -648,7 +648,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         case .dapp, .erc721Token, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink:
             return
         case .nativeCryptocurrency:
-            token = TokensDataStore.etherToken(forServer: server)
+            token = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
             return
         }

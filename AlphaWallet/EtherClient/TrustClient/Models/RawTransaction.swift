@@ -53,7 +53,7 @@ struct RawTransaction: Decodable {
 }
 
 extension TransactionInstance {
-    static func from(transaction: RawTransaction, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType) -> Promise<TransactionInstance?> {
+    static func from(transaction: RawTransaction, tokensDataStore: TokensDataStore, tokenProvider: TokenProviderType, server: RPCServer) -> Promise<TransactionInstance?> {
         guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }
@@ -68,11 +68,11 @@ extension TransactionInstance {
         let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
 
         return firstly {
-            createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage, tokenProvider: tokenProvider)
+            createOperationForTokenTransfer(forTransaction: transaction, tokensDataStore: tokensDataStore, tokenProvider: tokenProvider, server: server)
         }.then { operations -> Promise<TransactionInstance?> in
             let result = TransactionInstance(
                     id: transaction.hash,
-                    server: tokensStorage.server,
+                    server: server,
                     blockNumber: Int(transaction.blockNumber)!,
                     transactionIndex: Int(transaction.transactionIndex)!,
                     from: from.description,
@@ -92,13 +92,13 @@ extension TransactionInstance {
         }
     }
 
-    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensStorage: TokensDataStore, tokenProvider: TokenProviderType) -> Promise<[LocalizedOperationObjectInstance]> {
+    static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensDataStore: TokensDataStore, tokenProvider: TokenProviderType, server: RPCServer) -> Promise<[LocalizedOperationObjectInstance]> {
         guard let contract = transaction.toAddress else {
             return Promise.value([])
         }
 
-        func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall) -> Promise<[LocalizedOperationObjectInstance]> {
-            tokensStorage.tokenPromise(forContract: contract).then { token -> Promise<[LocalizedOperationObjectInstance]> in
+        func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall, server: RPCServer) -> Promise<[LocalizedOperationObjectInstance]> {
+            tokensDataStore.tokenObjectPromise(forContract: contract, server: server).then { token -> Promise<[LocalizedOperationObjectInstance]> in
                 if let token = token {
                     let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
                     let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
@@ -127,9 +127,9 @@ extension TransactionInstance {
         if let functionCall = DecodedFunctionCall(data: data) {
             switch functionCall.type {
             case .erc20Transfer(let recipient, let value):
-                return generateLocalizedOperation(value: value, contract: contract, to: recipient, functionCall: functionCall)
+                return generateLocalizedOperation(value: value, contract: contract, to: recipient, functionCall: functionCall, server: server)
             case .erc20Approve(let spender, let value):
-                return generateLocalizedOperation(value: value, contract: contract, to: spender, functionCall: functionCall)
+                return generateLocalizedOperation(value: value, contract: contract, to: spender, functionCall: functionCall, server: server)
             case .nativeCryptoTransfer, .others:
                 break
             case .erc1155SafeTransfer, .erc1155SafeBatchTransfer:

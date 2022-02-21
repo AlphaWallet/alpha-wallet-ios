@@ -7,7 +7,7 @@ protocol SingleChainTransactionDataCoordinatorDelegate: AnyObject {
 }
 
 protocol SingleChainTransactionDataCoordinator: Coordinator {
-    init(session: WalletSession, storage: TransactionsStorage, keystore: Keystore, tokensStorage: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
+    init(session: WalletSession, storage: TransactionsStorage, keystore: Keystore, tokensDataStore: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
 
     var delegate: SingleChainTransactionDataCoordinatorDelegate? { get set }
 

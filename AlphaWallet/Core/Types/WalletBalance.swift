@@ -34,7 +34,7 @@ struct WalletBalance: Equatable {
     }
 
     var etherTokenObject: Activity.AssignedToken? {
-        let etherToken = TokensDataStore.etherToken(forServer: .main)
+        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
         guard let token = tokensWithTickers.first(where: { $0.primaryKey == etherToken.primaryKey }) else {
             return nil
         }

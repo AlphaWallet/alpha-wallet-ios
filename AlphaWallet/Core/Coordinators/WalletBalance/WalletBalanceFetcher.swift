@@ -32,9 +32,8 @@ protocol WalletBalanceFetcherType: AnyObject {
     func refreshBalance() -> Promise<Void>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
     func transactionsStorage(server: RPCServer) -> TransactionsStorage
-    func tokensDatastore(server: RPCServer) -> TokensDataStore
 }
-typealias WalletBalanceFetcherSubServices = (tokensDataStore: TokensDataStore, balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
+typealias WalletBalanceFetcherSubServices = (balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
 
 class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
@@ -45,13 +44,18 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private var services: ServerDictionary<WalletBalanceFetcherSubServices> = .init()
 
     var tokenObjects: [Activity.AssignedToken] {
-        services.flatMap { $0.value.tokensDataStore.tokenObjects }
+        //NOTE: replace with more clear solution
+        tokensDatastore
+            .enabledTokenObjects(forServers: Array(services.keys))
+            .map { Activity.AssignedToken(tokenObject: $0) }
     }
 
     private let queue: DispatchQueue
     private var cache: ThreadSafeDictionary<AddressAndRPCServer, (NotificationToken, Subscribable<BalanceBaseViewModel>)> = .init()
     private let coinTickersFetcher: CoinTickersFetcherType
-
+    private lazy var tokensDatastore: TokensDataStore = {
+        return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: Config().enabledServers)
+    }()
     weak var delegate: WalletBalanceFetcherDelegate?
 
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
@@ -86,27 +90,15 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
             return subServices.transactionsStorage
         }
-    }
-
-    func tokensDatastore(server: RPCServer) -> TokensDataStore {
-        if let services = services[safe: server] {
-            return services.tokensDataStore
-        } else {
-            let subServices = createServices(wallet: wallet, server: server)
-            services[server] = subServices
-
-            return subServices.tokensDataStore
-        }
-    }
+    } 
 
     private func createServices(wallet: Wallet, server: RPCServer) -> WalletBalanceFetcherSubServices {
         let transactionsStorage = TransactionsStorage(realm: realm, server: server, delegate: nil)
-        let tokensDatastore = TokensDataStore(realm: realm, account: wallet, server: server)
         let balanceFetcher = PrivateBalanceFetcher(account: wallet, tokensDatastore: tokensDatastore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
-        return (tokensDatastore, balanceFetcher, transactionsStorage)
+        return (balanceFetcher, transactionsStorage)
     }
 
     func update(servers: [RPCServer]) {
@@ -136,8 +128,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             guard let strongSelf = self else { return }
 
             for (key, each) in strongSelf.cache.values {
-                guard let service = strongSelf.services[safe: key.server] else { continue }
-                guard let tokenObject = service.tokensDataStore.token(forContract: key.address) else { continue }
+                guard let tokenObject = strongSelf.tokensDatastore.token(forContract: key.address, server: key.server) else { continue }
 
                 each.1.value = strongSelf.balanceViewModel(key: tokenObject)
             }
@@ -186,9 +177,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        guard let services = services[safe: addressAndRPCServer.server] else { return .init(nil) }
-
-        guard let tokenObject = services.tokensDataStore.token(forContract: addressAndRPCServer.address) else {
+        guard let tokenObject = tokensDatastore.token(forContract: addressAndRPCServer.address, server: addressAndRPCServer.server) else {
             return .init(nil)
         }
 
@@ -220,7 +209,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     var balance: WalletBalance {
-        let tokenObjects = services.compactMap { $0.value.0.enabledObject }.flatMap { $0 }.map { Activity.AssignedToken(tokenObject: $0) }
         var balances = Set<Activity.AssignedToken>()
 
         for var tokenObject in tokenObjects {
@@ -258,28 +246,28 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func timedCallForBalanceRefresh() -> Promise<Void> {
         let promises = services.map { each in
-            each.value.1.refreshBalance(updatePolicy: .all, force: false)
+            each.value.balanceFetcher.refreshBalance(updatePolicy: .all, force: false)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
         let promises = services.map { each in
-            each.value.1.refreshBalance(updatePolicy: updatePolicy, force: force)
+            each.value.balanceFetcher.refreshBalance(updatePolicy: updatePolicy, force: force)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshEthBalance() -> Promise<Void> {
         let promises = services.map { each in
-            each.value.1.refreshBalance(updatePolicy: .eth, force: true)
+            each.value.balanceFetcher.refreshBalance(updatePolicy: .eth, force: true)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshBalance() -> Promise<Void> {
         let promises = services.map { each in
-            each.value.1.refreshBalance(updatePolicy: .ercTokens, force: true)
+            each.value.balanceFetcher.refreshBalance(updatePolicy: .ercTokens, force: true)
         }
 
         return when(resolved: promises).asVoid()

@@ -15,7 +15,7 @@ class PaymentCoordinator: Coordinator {
     private let session: WalletSession
     let flow: PaymentFlow
     private let keystore: Keystore
-    private let tokensStorage: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -32,7 +32,7 @@ class PaymentCoordinator: Coordinator {
             flow: PaymentFlow,
             session: WalletSession,
             keystore: Keystore,
-            tokensStorage: TokensDataStore,
+            tokensDataStore: TokensDataStore,
             ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
@@ -42,7 +42,7 @@ class PaymentCoordinator: Coordinator {
         self.session = session
         self.flow = flow
         self.keystore = keystore
-        self.tokensStorage = tokensStorage
+        self.tokensDataStore = tokensDataStore
         self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -58,7 +58,7 @@ class PaymentCoordinator: Coordinator {
             navigationController: navigationController,
             session: session,
             keystore: keystore,
-            storage: tokensStorage,
+            tokensDataStore: tokensDataStore,
             ethPrice: ethPrice,
             assetDefinitionStore: assetDefinitionStore,
             analyticsCoordinator: analyticsCoordinator
@@ -69,21 +69,21 @@ class PaymentCoordinator: Coordinator {
     }
 
     private func startWithSendCollectiblesCoordinator(tokenObject: TokenObject, transferType: Erc1155TokenTransactionType, tokenHolders: [TokenHolder]) {
-        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, tokensStorage: tokensStorage, ethPrice: ethPrice, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransferCollectiblesCoordinator(session: session, navigationController: navigationController, keystore: keystore, filteredTokenHolders: tokenHolders, ethPrice: ethPrice, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithSendNFTCoordinator(transactionType: TransactionType, tokenObject: TokenObject, tokenHolder: TokenHolder) {
-        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: tokensStorage, ethPrice: ethPrice, tokenObject: tokenObject, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransferNFTCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, ethPrice: ethPrice, tokenObject: tokenObject, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
 
     private func startWithTokenScriptCoordinator(action: TokenInstanceAction, tokenObject: TokenObject, tokenHolder: TokenHolder) {
-        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: tokensStorage, ethPrice: ethPrice, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, action: action, eventsDataStore: eventsDataStore)
+        let coordinator = TokenScriptCoordinator(session: session, navigationController: navigationController, keystore: keystore, tokenHolder: tokenHolder, tokensStorage: tokensDataStore, ethPrice: ethPrice, tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, action: action, eventsDataStore: eventsDataStore)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

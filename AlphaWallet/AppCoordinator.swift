@@ -432,7 +432,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
             guard let coordinator = assetDefinitionStoreCoordinator else { return }
             coordinator.handleOpen(url: url)
         case .eip681(let url):
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDatastores: resolver.tokensStorages, assetDefinitionStore: assetDefinitionStore, config: config)
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, assetDefinitionStore: assetDefinitionStore, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
@@ -468,7 +468,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
                     config: config,
                     ethPrice: resolver.nativeCryptoCurrencyPrices[server],
                     ethBalance: resolver.nativeCryptoCurrencyBalances[server],
-                    tokensDatastore: resolver.tokensStorages[server],
+                    tokensDatastore: resolver.tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,
                     server: server

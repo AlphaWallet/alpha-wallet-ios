@@ -4,6 +4,7 @@ import UIKit
 import Result
 import StatefulViewController
 import PromiseKit
+import Combine
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
@@ -59,8 +60,6 @@ class TokensViewController: UIViewController {
             viewModel.walletConnectSessions = oldValue.walletConnectSessions
             viewModel.isSearchActive = oldValue.isSearchActive
             viewModel.filter = oldValue.filter
-
-            refreshView(viewModel: viewModel)
         }
     }
     private let sessions: ServerDictionary<WalletSession>
@@ -75,14 +74,14 @@ class TokensViewController: UIViewController {
         control.setSelection(cellIndex: 0)
         return control
     }()
-    private lazy var emptyTableView: EmptyTableView = {
+    private let emptyTableView: EmptyTableView = {
         let view = EmptyTableView(title: "", image: R.image.activities_empty_list()!, heightAdjustment: 0)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
         return view
     }()
     private var emptyTableViewHeightConstraint: NSLayoutConstraint?
-    private lazy var tableView: UITableView = {
+    private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
@@ -95,12 +94,9 @@ class TokensViewController: UIViewController {
         tableView.registerHeaderFooterView(ActiveWalletSessionView.self)
         tableView.registerHeaderFooterView(GeneralTableViewSectionHeader<WalletSummaryView>.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
 
-        tableView.addSubview(tableViewRefreshControl)
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
@@ -217,7 +213,8 @@ class TokensViewController: UIViewController {
 
         return header
     }()
-    
+    private var cancellable = Set<AnyCancellable>()
+
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
          tokenCollection: TokenCollection,
@@ -244,7 +241,7 @@ class TokensViewController: UIViewController {
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
-        handleTokenCollectionUpdates()
+
         searchController.delegate = self
         searchController.hidesNavigationBarDuringPresentation = false
 
@@ -311,6 +308,16 @@ class TokensViewController: UIViewController {
         subscriptionKey.flatMap { walletSummarySubscription.unsubscribe($0) }
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.addSubview(tableViewRefreshControl)
+
+        handleTokenCollectionUpdates()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -368,21 +375,19 @@ class TokensViewController: UIViewController {
     }
 
     private func handleTokenCollectionUpdates() {
-        tokenCollection.subscribe { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let viewModel):
+        //NOTE: we don't apply .subscribe(on: DispatchQueue.main) for refresh table view immediatelly, otherwise an empty tokens view will be presented
+        tokenCollection.tokensViewModel
+            .sink { [weak self] viewModel in
+                guard let strongSelf = self else { return }
                 strongSelf.viewModel = viewModel
+                strongSelf.refreshView(viewModel: viewModel)
                 strongSelf.endLoading()
-            case .failure(let error):
-                strongSelf.endLoading(error: error)
-            }
-            strongSelf.reload()
+                strongSelf.reload()
 
-            if strongSelf.tableViewRefreshControl.isRefreshing {
-                strongSelf.tableViewRefreshControl.endRefreshing()
-            }
-        }
+                if strongSelf.tableViewRefreshControl.isRefreshing {
+                    strongSelf.tableViewRefreshControl.endRefreshing()
+                }
+            }.store(in: &cancellable)
     }
 
     private func adjustTableViewHeaderHeightToFitContents() {

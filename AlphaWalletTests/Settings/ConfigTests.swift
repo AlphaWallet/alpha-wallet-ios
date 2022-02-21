@@ -25,28 +25,32 @@ class ConfigTests: XCTestCase {
     }
 
     func testSwitchLocale() {
-        let assetDefinitionStore = AssetDefinitionStore()
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
+
+        var transactionsStorages = ServerDictionary<TransactionsStorage>()
+        transactionsStorages[.main] = FakeTransactionsStorage()
+
         let config: Config = .make()
         Config.setLocale(AppLocale.english)
+        let coinTickersFetcher = FakeCoinTickersFetcher()
         let tokenActionsService = FakeSwapTokenService()
-
+        let tokensDataStore = FakeTokensDataStore()
+        
         let coordinator_1 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: []),
+            tokensDataStore: tokensDataStore,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            transactionsStorages: .init(),
-            coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
+            transactionsStorages: transactionsStorages,
+            coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
@@ -56,22 +60,21 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(coordinator_1.tokensViewController.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
-
+        
         let coordinator_2 = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()), tokenDataStores: []),
+            tokensDataStore: tokensDataStore,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
-            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: FakeCoinTickersFetcher()),
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            transactionsStorages: .init(),
-            coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
+            transactionsStorages: transactionsStorages,
+            coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )

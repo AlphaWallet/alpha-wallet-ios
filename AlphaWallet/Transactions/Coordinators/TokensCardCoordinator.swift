@@ -80,7 +80,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let tokenContract = token.contractAddress
         eventsDataStore
             .recentEvents(forTokenContract: tokenContract)
-            .receive(on: DispatchQueue.main)
+            .subscribe(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.refreshScreen(forContract: tokenContract)
             }).store(in: &cancelable)

@@ -11,7 +11,7 @@ import XCTest
 import BigInt
 
 class SendViewControllerTests: XCTestCase {
-    private let storage = FakeTokensDataStore()
+    private let tokensDataStore = FakeTokensDataStore()
 
     private let balanceCoordinator = FakeBalanceCoordinator()
     private let nativeCryptocurrencyTransactionType: TransactionType = {
@@ -134,11 +134,11 @@ class SendViewControllerTests: XCTestCase {
         Config.setLocale(locale)
 
         let vc = SendViewController(session: session,
-                                    storage: storage,
+                                    tokensDataStore: tokensDataStore,
                                     transactionType: nativeCryptocurrencyTransactionType,
                                     cryptoPrice: Subscribable<Double>.init(nil))
 
-        vc.configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage))
+        vc.configure(viewModel: .init(transactionType: transactionType, session: session, tokensDataStore: tokensDataStore))
 
         return vc
     }

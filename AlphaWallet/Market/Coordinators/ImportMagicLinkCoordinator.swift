@@ -3,8 +3,7 @@
 import Foundation
 import Alamofire
 import BigInt
-import PromiseKit
-import RealmSwift
+import PromiseKit 
 import web3swift
 
 protocol ImportMagicLinkCoordinatorDelegate: class, CanOpenURL {
@@ -36,7 +35,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
-    private let tokensDatastore: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let url: URL
 
@@ -64,7 +63,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         self.config = config
         self.ethPrice = ethPrice
         self.ethBalance = ethBalance
-        self.tokensDatastore = tokensDatastore
+        self.tokensDataStore = tokensDatastore
         self.assetDefinitionStore = assetDefinitionStore
         self.url = url
         self.server = server
@@ -447,7 +446,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         return filteredTokens
     }
     private lazy var tokenProvider: TokenProviderType = {
-         return TokenProvider(account: tokensDatastore.account, server: tokensDatastore.server)
+        return TokenProvider(account: wallet, server: server)
     }()
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
@@ -459,8 +458,7 @@ class ImportMagicLinkCoordinator: Coordinator {
                 strongSelf.updateTokenFields()
             }
 
-            let tokensDatastore = strongSelf.tokensDatastore
-            if let existingToken = tokensDatastore.token(forContract: contractAddress) {
+            if let existingToken = strongSelf.tokensDataStore.token(forContract: contractAddress, server: strongSelf.server) {
                 let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
@@ -481,7 +479,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
     private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
-        guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
+        guard let tokenType = type ?? (tokensDataStore.token(forContract: contractAddress, server: server)?.type) else { return }
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {

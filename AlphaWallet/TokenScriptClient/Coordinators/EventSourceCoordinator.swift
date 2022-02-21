@@ -20,22 +20,24 @@ protocol EventSourceCoordinatorType: class {
     func fetchEthereumEvents()
     @discardableResult func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
 }
-
-//TODO rename this generic name to reflect that it's for event instances, not for event activity
+//TODO: Create XMLHandler store and pass it everwhere we use it
+//TODO: Rename this generic name to reflect that it's for event instances, not for event activity
 class EventSourceCoordinator: EventSourceCoordinatorType {
     private var wallet: Wallet
-    private let tokenCollection: TokenCollection
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
+    private let enabledServers: [RPCServer]
 
-    init(wallet: Wallet, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
+    init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, config: Config) {
         self.wallet = wallet
-        self.tokenCollection = tokenCollection
+        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.enabledServers = config.enabledServers
     }
 
     func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
@@ -75,7 +77,14 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
         isFetching = true
 
         firstly {
-            tokenCollection.tokenObjects
+            return Promise<[TokenObject]> { seal in
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                    let values = strongSelf.tokensDataStore.enabledTokenObjects(forServers: strongSelf.enabledServers)
+
+                    seal.fulfill(values)
+                }
+            }
         //NOTE: calling .fetchEventsByTokenId shoul be performed on .main queue
         }.then(on: .main, { tokens -> Promise<Void> in
             return Promise { seal in

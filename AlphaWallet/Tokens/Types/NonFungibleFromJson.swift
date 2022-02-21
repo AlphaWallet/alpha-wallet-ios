@@ -53,7 +53,7 @@ func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> No
         return nonFungible
     }
 
-    let nonFungibleTokenType = tokenType.flatMap { TokensDataStore.functional.nonFungibleTokenType(fromTokenType: $0) }
+    let nonFungibleTokenType = tokenType.flatMap { MultipleChainsTokensDataStore.functional.nonFungibleTokenType(fromTokenType: $0) }
     //Parse JSON strings which were saved before we added support for ERC1155. So they are might be ERC721s with missing fields
     if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungibleBeforeErc1155Support.self, from: jsonData) {
         return nonFungible.asPostErc1155Support(tokenType: nonFungibleTokenType)

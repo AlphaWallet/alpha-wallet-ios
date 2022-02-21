@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import RealmSwift
+import Foundation 
 
 struct CoinTicker: Codable, Hashable {
     private enum CodingKeys: String, CodingKey {

@@ -16,7 +16,7 @@ class GetInterfaceSupported165Coordinator {
     func getInterfaceSupported165(hash: String, contract: AlphaWallet.Address) -> Promise<Bool> {
         let function = GetInterfaceSupported165Encode()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout)
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject], timeout: Constants.fetchContractDataTimeout)
         }.map { result in
             if let supported = result["0"] as? Bool {
                 return supported

@@ -90,7 +90,6 @@ class TokenScriptCoordinator: Coordinator {
     private func refreshUponEthereumEventChanges() {
         eventsDataStore
             .recentEvents(forTokenContract: tokenObject.contractAddress)
-            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.viewController.configure()
             }).store(in: &cancelable)

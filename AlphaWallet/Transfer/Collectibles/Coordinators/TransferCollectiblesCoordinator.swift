@@ -40,7 +40,6 @@ class TransferCollectiblesCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             filteredTokenHolders: [TokenHolder],
-            tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
             tokenObject: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,

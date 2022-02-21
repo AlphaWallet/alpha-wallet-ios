@@ -32,7 +32,6 @@ class TransferNFTCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokenHolder: TokenHolder,
-            tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
             tokenObject: TokenObject,
             transactionType: TransactionType,
