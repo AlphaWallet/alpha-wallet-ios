@@ -63,6 +63,7 @@ class InCoordinator: NSObject, Coordinator {
     private lazy var eventSourceCoordinator: EventSourceCoordinatorType = createEventSourceCoordinator()
     var tokensStorages = ServerDictionary<TokensDataStore>()
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
+    private var blockscanChat: BlockscanChat?
 
     lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
         return createEtherPricesSubscribablesForAllChains()
@@ -82,7 +83,9 @@ class InCoordinator: NSObject, Coordinator {
     private var activityCoordinator: ActivitiesCoordinator? {
         return coordinators.compactMap { $0 as? ActivitiesCoordinator }.first
     }
-
+    private var settingsCoordinator: SettingsCoordinator? {
+        return coordinators.compactMap { $0 as? SettingsCoordinator }.first
+    }
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
         HelpUsCoordinator(navigationController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
     }()
@@ -364,6 +367,13 @@ class InCoordinator: NSObject, Coordinator {
 
     func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
+        switch account.type {
+        case .real(let address):
+            blockscanChat = BlockscanChat(address: address)
+        case .watch:
+            blockscanChat = nil
+        }
+        refreshBlockscanChatUnreadCount()
 
         if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
             service.configure(account: account)
@@ -377,6 +387,33 @@ class InCoordinator: NSObject, Coordinator {
         setupTabBarController()
 
         showTabBar(animated: animated)
+    }
+
+    private func refreshBlockscanChatUnreadCount() {
+        guard Features.isBlockscanChatEnabled else { return }
+        guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
+        if let blockscanChat = blockscanChat {
+            RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.call", value: 1)
+            firstly {
+                blockscanChat.fetchUnreadCount()
+            }.done { [weak self] unreadCount in
+                if unreadCount > 0 {
+                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.nonZero", value: 1)
+                } else {
+                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.zero", value: 1)
+                }
+                self?.settingsCoordinator?.showBlockscanChatUnreadCount(unreadCount)
+            }.catch { [weak self] error in
+                if let error = error as? AFError, let code = error.responseCode, code == 429 {
+                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.error.429", value: 1)
+                } else {
+                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.error.others", value: 1)
+                }
+                self?.settingsCoordinator?.showBlockscanChatUnreadCount(nil)
+            }
+        } else {
+            settingsCoordinator?.showBlockscanChatUnreadCount(nil)
+        }
     }
 
     func showTabBar(animated: Bool) {
@@ -896,6 +933,16 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
         processRestartQueueAndRestartUI()
+    }
+
+    func openBlockscanChat(in coordinator: SettingsCoordinator) {
+        open(for: Constants.BlockscanChat.blockscanChatWebUrl.appendingPathComponent(wallet.address.eip55String))
+        //We refresh since the user might have cleared their unread messages after we point them to the chat dapp
+        if let n = blockscanChat?.lastKnownCount, n > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in
+                self?.refreshBlockscanChatUnreadCount()
+            }
+        }
     }
 }
 

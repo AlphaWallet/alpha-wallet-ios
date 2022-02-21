@@ -19,6 +19,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
     func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
+    func openBlockscanChat(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
@@ -83,6 +84,10 @@ class SettingsCoordinator: Coordinator {
         controller.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(controller, animated: true)
     }
+
+    func showBlockscanChatUnreadCount(_ count: Int?) {
+        rootViewController.configure(blockscanChatUnreadCount: count)
+    }
 }
 
 extension SettingsCoordinator: SupportViewControllerDelegate {
@@ -107,6 +112,10 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         viewController.hidesBottomBarWhenPushed = true
 
         navigationController.pushViewController(viewController, animated: true)
+    }
+
+    func settingsViewControllerBlockscanChatSelected(in controller: SettingsViewController) {
+        delegate?.openBlockscanChat(in: self)
     }
 
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {

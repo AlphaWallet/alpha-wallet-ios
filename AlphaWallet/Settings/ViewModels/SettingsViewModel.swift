@@ -6,6 +6,8 @@ import UIKit
 struct SettingsViewModel {
     private let account: Wallet
 
+    let blockscanChatUnreadCount: Int?
+
     func addressReplacedWithENSOrWalletName(_ ensOrWalletName: String? = nil) -> String {
         if let ensOrWalletName = ensOrWalletName {
             return "\(ensOrWalletName) | \(account.address.truncateMiddle)"
@@ -29,27 +31,10 @@ struct SettingsViewModel {
 
     let sections: [SettingsSection]
 
-    init(account: Wallet, keystore: Keystore) {
+    init(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) {
         self.account = account
-        let walletRows: [SettingsWalletRow]
-
-        if account.allowBackup {
-            if keystore.isHdWallet(wallet: account) {
-                walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase, .nameWallet, .walletConnect]
-            } else {
-                walletRows = [.showMyWallet, .changeWallet, .backup, .nameWallet, .walletConnect]
-            }
-        } else {
-            walletRows = [.showMyWallet, .changeWallet, .nameWallet, .walletConnect]
-        }
-
-        sections = [
-            .wallet(rows: walletRows),
-            .system(rows: [.passcode, .selectActiveNetworks, .advanced]),
-            .help,
-            .version(value: Bundle.main.fullVersion),
-            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
-        ]
+        self.blockscanChatUnreadCount = blockscanChatUnreadCount
+        sections = SettingsViewModel.functional.computeSections(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
     }
 
     func numberOfSections() -> Int {
@@ -70,13 +55,40 @@ struct SettingsViewModel {
     }
 }
 
-enum SettingsWalletRow: CaseIterable {
+extension SettingsViewModel {
+    enum functional {}
+}
+
+extension SettingsViewModel.functional {
+    fileprivate static func computeSections(account: Wallet, keystore: Keystore, blockscanChatUnreadCount: Int?) -> [SettingsSection] {
+        let walletRows: [SettingsWalletRow]
+        if account.allowBackup {
+            if keystore.isHdWallet(wallet: account) {
+                walletRows = [.showMyWallet, .changeWallet, .backup, .showSeedPhrase, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
+            } else {
+                walletRows = [.showMyWallet, .changeWallet, .backup, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
+            }
+        } else {
+            walletRows = [.showMyWallet, .changeWallet, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
+        }
+        return [
+            .wallet(rows: walletRows),
+            .system(rows: [.passcode, .selectActiveNetworks, .advanced]),
+            .help,
+            .version(value: Bundle.main.fullVersion),
+            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
+        ]
+    }
+}
+
+enum SettingsWalletRow {
     case showMyWallet
     case changeWallet
     case backup
     case showSeedPhrase
     case walletConnect
     case nameWallet
+    case blockscanChat(blockscanChatUnreadCount: Int?)
 
     var title: String {
         switch self {
@@ -92,6 +104,12 @@ enum SettingsWalletRow: CaseIterable {
             return R.string.localizable.settingsWalletConnectButtonTitle()
         case .nameWallet:
             return R.string.localizable.settingsWalletRename()
+        case .blockscanChat(let blockscanChatUnreadCount):
+            if let blockscanChatUnreadCount = blockscanChatUnreadCount, blockscanChatUnreadCount > 0 {
+                return "\(R.string.localizable.settingsBlockscanChat()) (\(blockscanChatUnreadCount))"
+            } else {
+                return R.string.localizable.settingsBlockscanChat()
+            }
         }
     }
 
@@ -109,6 +127,8 @@ enum SettingsWalletRow: CaseIterable {
             return R.image.iconsSettingsWalletConnect()!
         case .nameWallet:
             return R.image.iconsSettingsDisplayedEns()!
+        case .blockscanChat:
+            return R.image.settingsBlockscanChat()!
         }
     }
 }

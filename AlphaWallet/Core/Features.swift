@@ -29,4 +29,5 @@ enum Features {
     static let is24SeedWordPhraseAllowed = true
     static let isAnalyticsUIEnabled = true
     static let isJsonFileBasedStorageForWalletAddressesEnabled = true
+    static let isBlockscanChatEnabled = true
 }
