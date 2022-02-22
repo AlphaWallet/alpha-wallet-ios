@@ -413,7 +413,7 @@ extension TransactionsStorage.functional {
     }
 
     static func noncePredicate(nonce: String) -> NSPredicate {
-        return NSPredicate(format: "nonce == \(nonce)")
+        return NSPredicate(format: "nonce == '\(nonce)'")
     }
 
     static func nonEmptyIdTransactionPredicate(server: RPCServer) -> NSPredicate {
