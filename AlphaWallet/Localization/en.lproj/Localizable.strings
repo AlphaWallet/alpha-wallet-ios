@@ -366,6 +366,7 @@
 "a.advanced.settings.navigation.title" = "Advanced";
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
 "a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
+"a.settings.tools" = "Tools";
 "a.welcome.navigation.title" = "Welcome";
 "a.welcome.onboarding.1" = "Hold all your Crypto assets in one place";
 "a.welcome.onboarding.2" = "Powered by blockchain technology, smart tickets, fraud free";

@@ -366,6 +366,7 @@
 "a.advanced.settings.navigation.title" = "Advanced";
 "a.settings.contents.myWalletAddress" = "私のウォレットのアドレス";
 "a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
+"a.settings.tools" = "Tools";
 "a.welcome.navigation.title" = "ようこそ";
 "a.welcome.onboarding.1" = "あなたのすべての暗号資産を1か所に保持します";
 "a.welcome.onboarding.2" = "ブロッキチェーン技術、スマート チケットを使用、不正行為なし";

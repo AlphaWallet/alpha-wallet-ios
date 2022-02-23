@@ -11,13 +11,12 @@ import UIKit
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow] = {
         return [
-            .console,
             .clearBrowserCache,
             .tokenScript,
-            .pingInfura,
             Features.isUsingPrivateNetwork ? .usePrivateNetwork : nil,
             Features.isAnalyticsUIEnabled ? .analytics : nil,
             Features.isLanguageSwitcherDisabled ? nil : .changeLanguage,
+            .tools,
         ].compactMap { $0 }
     }()
 
@@ -27,20 +26,19 @@ struct AdvancedSettingsViewModel {
 }
 
 enum AdvancedSettingsRow: CaseIterable {
-    case console
+    case tools
     case clearBrowserCache
     case tokenScript
     case changeLanguage
     case changeCurrency
     case analytics
     case usePrivateNetwork
-    case pingInfura
     case exportJSONKeystore
 
     var title: String {
         switch self {
-        case .console:
-            return R.string.localizable.aConsoleTitle()
+        case .tools:
+            return R.string.localizable.aSettingsTools()
         case .clearBrowserCache:
             return R.string.localizable.aSettingsContentsClearDappBrowserCache()
         case .tokenScript:
@@ -53,8 +51,6 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsAnalitycsTitle()
         case .usePrivateNetwork:
             return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
-        case .pingInfura:
-            return R.string.localizable.settingsPingInfuraTitle()
         case .exportJSONKeystore:
             return R.string.localizable.settingsAdvancedExportJSONKeystoreTitle()
         }
@@ -62,8 +58,8 @@ enum AdvancedSettingsRow: CaseIterable {
 
     var icon: UIImage {
         switch self {
-        case .console:
-            return R.image.settings_console()!
+        case .tools:
+            return R.image.developerMode()!
         case .clearBrowserCache:
             return R.image.settings_clear_dapp_cache()!
         case .tokenScript:
@@ -76,9 +72,6 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.settings_analytics()!
         case .usePrivateNetwork:
             return R.image.iconsSettingsEthermine()!
-        case .pingInfura:
-            //TODO need a more appropriate icon, maybe represent diagnostic or (to a lesser degree Infura)
-            return R.image.settings_analytics()!
         case .exportJSONKeystore:
             return R.image.iconsSettingsJson()!
         }

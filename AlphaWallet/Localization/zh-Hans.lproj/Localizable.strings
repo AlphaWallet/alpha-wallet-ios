@@ -366,6 +366,7 @@
 "a.advanced.settings.navigation.title" = "高级";
 "a.settings.contents.myWalletAddress" = "我的钱包地址";
 "a.settings.contents.clearDappBrowserCache" = "清除浏览器缓存";
+"a.settings.tools" = "Tools";
 "a.welcome.navigation.title" = "欢迎";
 "a.welcome.onboarding.1" = "支持调用各种数字资产";
 "a.welcome.onboarding.2" = "基于区块链技术，智能门票，杜绝欺诈";
