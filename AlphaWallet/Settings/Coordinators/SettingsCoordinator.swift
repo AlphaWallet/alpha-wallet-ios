@@ -76,6 +76,13 @@ class SettingsCoordinator: Coordinator {
     func restart(for wallet: Wallet, reason: RestartReason) {
 		delegate?.didRestart(with: wallet, in: self, reason: reason)
 	}
+
+    private func showTools(in controller: AdvancedSettingsViewController) {
+        let controller = ToolsViewController(config: config)
+        controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(controller, animated: true)
+    }
 }
 
 extension SettingsCoordinator: SupportViewControllerDelegate {
@@ -269,9 +276,8 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
-
-    func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController) {
-        delegate?.showConsole(in: self)
+    func advancedSettingsViewControllerMoreSelected(in controller: AdvancedSettingsViewController) {
+        showTools(in: controller)
     }
 
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
@@ -312,13 +318,6 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         navigationController.pushViewController(controller, animated: true)
     }
 
-    func advancedSettingsViewControllerPingInfuraSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = PingInfuraCoordinator(inViewController: rootViewController, analyticsCoordinator: analyticsCoordinator)
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
-    }
-
     func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController) {
         let coordinator = ExportJsonKeystoreCoordinator(keystore: keystore, navigationController: navigationController)
         addCoordinator(coordinator)
@@ -356,5 +355,18 @@ extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
 
     func didCancel(in coordinator: ClearDappBrowserCacheCoordinator) {
         removeCoordinator(self)
+    }
+}
+
+extension SettingsCoordinator: ToolsViewControllerDelegate {
+    func toolsConsoleSelected(in controller: ToolsViewController) {
+        delegate?.showConsole(in: self)
+    }
+
+    func toolsPingInfuraSelected(in controller: ToolsViewController) {
+        let coordinator = PingInfuraCoordinator(inViewController: controller, analyticsCoordinator: analyticsCoordinator)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 }

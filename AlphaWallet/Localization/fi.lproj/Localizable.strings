@@ -366,6 +366,7 @@
 "a.advanced.settings.navigation.title" = "Lisäasetukset";
 "a.settings.contents.myWalletAddress" = "Tämän lompakon osoite";
 "a.settings.contents.clearDappBrowserCache" = "Tyhjennä selaimen välimuisti";
+"a.settings.tools" = "Tools";
 "a.welcome.navigation.title" = "Tervetuloa!";
 "a.welcome.onboarding.1" = "Turvallinen tapa säilyttää kryptovaluttoja";
 "a.welcome.onboarding.2" = "Perustana lohkoketjut ja älykkäät liput";

@@ -8,14 +8,13 @@
 import UIKit
 
 protocol AdvancedSettingsViewControllerDelegate: AnyObject {
-    func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController)
+    func advancedSettingsViewControllerMoreSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerTokenScriptSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerChangeLanguageSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
-    func advancedSettingsViewControllerPingInfuraSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController)
 }
 
@@ -45,9 +44,10 @@ class AdvancedSettingsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         if Features.isExportJsonKeystoreEnabled && keystore.currentWallet.isReal() {
-            viewModel.rows.append(.exportJSONKeystore)
+            //TODO remove hardcoded insertion by index when we move this into the view model. Doesn't below here in the view controller
+            viewModel.rows.insert(.exportJSONKeystore, at: viewModel.rows.count - 1)
         }
-        
+
         roundedBackground.backgroundColor = GroupedTable.Color.background
 
         view.addSubview(roundedBackground)
@@ -86,7 +86,7 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = viewModel.rows[indexPath.row]
         switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .console, .tokenScript, .exportJSONKeystore, .pingInfura:
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
             return cell
@@ -125,8 +125,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
-        case .console:
-            delegate?.advancedSettingsViewControllerConsoleSelected(in: self)
+        case .tools:
+            delegate?.advancedSettingsViewControllerMoreSelected(in: self)
         case .clearBrowserCache:
             delegate?.advancedSettingsViewControllerClearBrowserCacheSelected(in: self)
         case .tokenScript:
@@ -139,8 +139,6 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.advancedSettingsViewControllerAnalyticsSelected(in: self)
         case .usePrivateNetwork:
             delegate?.advancedSettingsViewControllerUsePrivateNetworkSelected(in: self)
-        case .pingInfura:
-            delegate?.advancedSettingsViewControllerPingInfuraSelected(in: self)
         case .exportJSONKeystore:
             delegate?.advancedSettingsViewControllerExportJSONKeystoreSelected(in: self)
         }
