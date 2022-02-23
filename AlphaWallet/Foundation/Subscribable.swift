@@ -21,7 +21,7 @@ open class Subscribable<T>: Hashable {
     }
 
     private var _value: T?
-    private var _subscribers: ThreadSafeDictionary<SubscribableKey, Subscription> = .init()
+    private var _subscribers: [SubscribableKey: Subscription] = .init()
     private var _oneTimeSubscribers: [(T) -> Void] = []
     open var value: T? {
         get {
@@ -29,7 +29,7 @@ open class Subscribable<T>: Hashable {
         }
         set {
             _value = newValue
-            for (_, f) in _subscribers.values {
+            for (_, f) in _subscribers {
                 if let q = f.queue {
                     q.async { f.callback(newValue) }
                 } else {

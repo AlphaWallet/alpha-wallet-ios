@@ -678,8 +678,8 @@ private class PrivateXMLHandler {
 public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinators: ServerDictionary<CallForAssetAttributeCoordinator>?
-    fileprivate static var xmlHandlers = ThreadSafeDictionary<AlphaWallet.Address, PrivateXMLHandler>()
-    fileprivate static var baseXmlHandlers = ThreadSafeDictionary<String, PrivateXMLHandler>()
+    fileprivate static var xmlHandlers = [AlphaWallet.Address: PrivateXMLHandler]()
+    fileprivate static var baseXmlHandlers = [String: PrivateXMLHandler]()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
 

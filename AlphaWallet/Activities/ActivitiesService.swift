@@ -97,7 +97,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private lazy var tokenObjectsCache: CachedTokenObjectResolverType = TokenObjectsCache(tokensCollection: tokenCollection)
     //Cache tokens lookup for performance
     private var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
-
+    private let activitiesThreadSafeQueue = DispatchQueue(label: "ActivitiesSynchronizedAccessQueue", qos: .background)
     private var cancelable = Set<AnyCancellable>()
 
     init(
@@ -157,7 +157,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         if let promise = contractsAndCardsPromise, promise.isPending {
             return
         }
-
+        let enabledServers = self.config.enabledServers
         let promise = firstly {
             //Hack way to keep all token objects for all datasources
             tokenObjectsCache.updateCache().map(on: .main, { tokenObjects -> [TokenObject] in
@@ -202,7 +202,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     guard let server = xmlHandler.server else { continue }
                     switch server {
                     case .any:
-                        for each in self.config.enabledServers {
+                        for each in enabledServers {
                             contractAndCard.append((tokenContract: eachContract, server: each, card: card, interpolatedFilter: interpolatedFilter))
                         }
                     case .server(let server):
@@ -347,12 +347,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func reinject(activity: Activity) {
-        queue.async { [weak self] in
-            guard let strongSelf = self else { return }
-            guard let (token, tokenHolder) = strongSelf.tokensAndTokenHolders[activity.tokenObject.contractAddress] else { return }
+        guard let (token, tokenHolder) = tokensAndTokenHolders[activity.tokenObject.contractAddress] else { return }
 
-            strongSelf.refreshActivity(tokenObject: token, tokenHolder: tokenHolder[0], activity: activity, isFirstUpdate: true)
-        }
+        refreshActivity(tokenObject: token, tokenHolder: tokenHolder[0], activity: activity, isFirstUpdate: true)
     }
 
     private func reloadViewControllerImpl() {
@@ -420,7 +417,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     results.append(.parentTransaction(transaction: transaction, isSwap: false, activities: activities))
                     results.append(contentsOf: activities.map { .childActivity(transaction: transaction, activity: $0) })
                 } else {
-                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
+                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations, wallet: wallet)
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: activities))
 
                     results.append(contentsOf: transaction.localizedOperations.map {
@@ -447,7 +444,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 } else if transaction.localizedOperations.count == 1 {
                     return [.standaloneTransaction(transaction: transaction, activity: activity)]
                 } else {
-                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations)
+                    let isSwap = self.isSwap(activities: activities, operations: transaction.localizedOperations, wallet: wallet)
                     var results: [ActivityRowModel] = .init()
                     results.append(.parentTransaction(transaction: transaction, isSwap: isSwap, activities: .init()))
                     results.append(contentsOf: transaction.localizedOperations.map {
@@ -463,7 +460,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
     }
 
-    private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance]) -> Bool {
+    private func isSwap(activities: [Activity], operations: [LocalizedOperationObjectInstance], wallet: Wallet) -> Bool {
         //Might have other transactions like approved embedded, so we can't check for all send and receives.
         let hasSend = activities.contains { $0.isSend } || operations.contains { $0.isSend(from: wallet.address) }
         let hasReceive = activities.contains { $0.isReceive } || operations.contains { $0.isReceived(by: wallet.address) }
@@ -483,10 +480,13 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
             let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
-            activities[index] = updatedActivity
-            reloadViewController(reloadImmediately: false)
+            //Ugly, but should be safe
+            executeThreadSafe({ [unowned self] in
+                self.activities[index] = updatedActivity
+                self.reloadViewController(reloadImmediately: false)
 
-            subscribableUpdatedActivity.value = updatedActivity
+                self.subscribableUpdatedActivity.value = updatedActivity
+            }, queue: activitiesThreadSafeQueue)
         } else {
             //no-op. We should be able to find it unless the list of activities has changed
         }
@@ -578,5 +578,16 @@ extension ActivitiesService.functional {
         timestamp.date = event.date
         results["timestamp"] = .generalisedTime(timestamp)
         return results
+    }
+}
+
+func executeThreadSafe(_ closure: () -> Void, queue: DispatchQueue) {
+    if Thread.isMainThread {
+        closure()
+    } else {
+        dispatchPrecondition(condition: .notOnQueue(queue))
+        queue.sync {
+            closure()
+        }
     }
 }
