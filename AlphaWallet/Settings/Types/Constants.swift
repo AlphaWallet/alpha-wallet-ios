@@ -192,6 +192,13 @@ public struct Constants {
     static let enjinApiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
     static let walletConnectRelayURL = URL(string: "https://relay.walletconnect.com")!
 
+    enum BlockscanChat {
+        static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!
+        static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
+    }
+
+    static let statHatEndPoint = URL(string: "https://api.stathat.com/ez")!
+
     //CurrencyFormatter
     static let formatterFractionDigits = 2
 

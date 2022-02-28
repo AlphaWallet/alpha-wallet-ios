@@ -11,6 +11,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerShowSeedPhraseSelected(in controller: SettingsViewController)
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController)
     func settingsViewControllerNameWalletSelected(in controller: SettingsViewController)
+    func settingsViewControllerBlockscanChatSelected(in controller: SettingsViewController)
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
     func settingsViewControllerHelpSelected(in controller: SettingsViewController)
 }
@@ -35,7 +36,7 @@ class SettingsViewController: UIViewController {
 
         return tableView
     }()
-    private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account, keystore: keystore)
+    private var viewModel: SettingsViewModel
 
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
@@ -64,6 +65,7 @@ class SettingsViewController: UIViewController {
         self.keystore = keystore
         self.account = account
         self.analyticsCoordinator = analyticsCoordinator
+        viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: nil)
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(tableView)
@@ -89,6 +91,16 @@ class SettingsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         reflectCurrentWalletSecurityLevel()
+    }
+
+    func configure(blockscanChatUnreadCount: Int?) {
+        viewModel = SettingsViewModel(account: account, keystore: keystore, blockscanChatUnreadCount: blockscanChatUnreadCount)
+        tableView.reloadData()
+        if let unreadCount = viewModel.blockscanChatUnreadCount, unreadCount > 0 {
+            tabBarItem.badgeValue = String(unreadCount)
+        } else {
+            tabBarItem.badgeValue = nil
+        }
     }
 
     private func showPromptBackupWalletViewAsTableHeaderView() {
@@ -234,7 +246,7 @@ extension SettingsViewController: UITableViewDataSource {
                 cell.accessoryType = .disclosureIndicator
 
                 return cell
-            case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet:
+            case .showMyWallet, .showSeedPhrase, .walletConnect, .nameWallet, .blockscanChat:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
 
                 return cell
@@ -280,6 +292,8 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerWalletConnectSelected(in: self)
             case .nameWallet:
                 delegate?.settingsViewControllerNameWalletSelected(in: self)
+            case .blockscanChat:
+                delegate?.settingsViewControllerBlockscanChatSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {

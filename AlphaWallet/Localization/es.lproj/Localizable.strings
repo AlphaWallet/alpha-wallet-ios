@@ -651,6 +651,7 @@
 "server.warning.serverIsDisabled" = "%@ is disabled. Please enable it in Settings > Select Active Networks";
 "server.warning.serversAreDisabled" = "%@ are disabled. Please enable them in Settings > Select Active Networks";
 "settings.wallet.rename" = "Name this Wallet";
+"settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Save Name";
 "wallet.rename.enterNameTitle" = "Enter Name (min. 5 characters)";
 "wallets.hideToken.error.AddTokenFailure" = "Add token failure";

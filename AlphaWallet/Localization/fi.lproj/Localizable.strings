@@ -651,6 +651,7 @@
 "server.warning.serverIsDisabled" = "%@ on kytketty pois. Kytke päälle kohdassa Asetukset > Kytketyt verkot";
 "server.warning.serversAreDisabled" = "%@ on kytketty pois. Kytke päälle kohdassa Asetukset > Kytketyt verkot";
 "settings.wallet.rename" = "Nimeä lompakko";
+"settings.blockscanChat" = "Blockscan Chat";
 "wallet.rename.save" = "Tallenna";
 "wallet.rename.enterNameTitle" = "Uusi nimi (min. 5 merkkiä pitkä)";
 "wallets.hideToken.error.AddTokenFailure" = "Rahakkeen lisääminen epäonnistui";
