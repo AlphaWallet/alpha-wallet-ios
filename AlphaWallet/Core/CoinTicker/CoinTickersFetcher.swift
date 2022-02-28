@@ -7,7 +7,6 @@
 
 import PromiseKit
 import Moya
-import SwiftyJSON
 
 struct TokenMappedToTicker: Hashable {
     let symbol: String
