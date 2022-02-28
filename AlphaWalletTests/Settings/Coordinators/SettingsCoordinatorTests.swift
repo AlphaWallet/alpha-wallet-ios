@@ -29,6 +29,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {}
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}
             func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {}
+            func openBlockscanChat(in coordinator: SettingsCoordinator) {}
         }
 
         let storage = FakeTransactionsStorage(server: .main)
@@ -110,7 +111,7 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
         return .value(())
     }
-    
+
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
         services[server].1
     }
