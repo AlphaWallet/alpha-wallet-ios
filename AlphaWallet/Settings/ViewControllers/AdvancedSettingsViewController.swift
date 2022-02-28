@@ -20,7 +20,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
 
 class AdvancedSettingsViewController: UIViewController {
 
-    private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel()
+    private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel(keystore: keystore)
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
@@ -42,11 +42,6 @@ class AdvancedSettingsViewController: UIViewController {
         self.config = config
         self.keystore = keystore
         super.init(nibName: nil, bundle: nil)
-
-        if Features.isExportJsonKeystoreEnabled && keystore.currentWallet.isReal() {
-            //TODO remove hardcoded insertion by index when we move this into the view model. Doesn't below here in the view controller
-            viewModel.rows.insert(.exportJSONKeystore, at: viewModel.rows.count - 1)
-        }
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
 
@@ -142,11 +137,5 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
         case .exportJSONKeystore:
             delegate?.advancedSettingsViewControllerExportJSONKeystoreSelected(in: self)
         }
-    }
-}
-
-fileprivate extension Wallet {
-    func isReal() -> Bool {
-        return type == .real(address)
     }
 }
