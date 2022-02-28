@@ -1,7 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
-import RealmSwift
+import UIKit 
 import PromiseKit
 
 private struct NoContractDetailsDetected: Error {
@@ -19,7 +18,7 @@ class AddHideTokensCoordinator: Coordinator {
         viewModel: viewModel,
         assetDefinitionStore: assetDefinitionStore
     )
-    private let tokenCollection: TokenCollection
+
     private let sessions: ServerDictionary<WalletSession>
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let assetDefinitionStore: AssetDefinitionStore
@@ -30,14 +29,13 @@ class AddHideTokensCoordinator: Coordinator {
     weak var delegate: AddHideTokensCoordinatorDelegate?
     private var tokens: [TokenObject]
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
         self.sessions = sessions
         self.tokens = tokens
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
-        self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
         self.viewModel = AddHideTokensViewModel(
@@ -103,7 +101,6 @@ extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
         let coordinator = NewTokenCoordinator(
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
-            tokenCollection: tokenCollection,
             config: config,
             singleChainTokenCoordinators: singleChainTokenCoordinators,
             initialState: initialState,

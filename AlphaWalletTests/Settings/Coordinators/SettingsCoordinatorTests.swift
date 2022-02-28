@@ -76,13 +76,15 @@ import PromiseKit
 
 final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
-    typealias Services = (TokensDataStore, TransactionsStorage)
-    private var services: ServerDictionary<Services> = ServerDictionary<Services>.init()
+
+    private var services: ServerDictionary<TransactionsStorage> = ServerDictionary<TransactionsStorage>.init()
+    private let fakeTokensDataStore: FakeTokensDataStore
 
     init(config: Config = .make(), account: Wallet = .make()) {
+        self.fakeTokensDataStore = FakeTokensDataStore(account: account)
+
         for each in config.enabledServers {
             services[each] = (
-                FakeTokensDataStore(account: account, server: each),
                 FakeTransactionsStorage(server: each)
             )
         }
@@ -113,10 +115,6 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     }
 
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
-        services[server].1
-    }
-
-    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore {
-        services[server].0
+        return services[server]
     }
 }

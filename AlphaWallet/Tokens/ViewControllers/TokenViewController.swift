@@ -3,8 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
-import PromiseKit
-import RealmSwift
+import PromiseKit 
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)

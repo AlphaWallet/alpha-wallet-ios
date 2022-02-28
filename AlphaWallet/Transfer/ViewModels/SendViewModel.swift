@@ -6,14 +6,14 @@ import BigInt
 
 struct SendViewModel {
     private let session: WalletSession
-    private let storage: TokensDataStore
+    private let tokensDataStore: TokensDataStore
 
     let transactionType: TransactionType
 
-    init(transactionType: TransactionType, session: WalletSession, storage: TokensDataStore) {
+    init(transactionType: TransactionType, session: WalletSession, tokensDataStore: TokensDataStore) {
         self.transactionType = transactionType
         self.session = session
-        self.storage = storage
+        self.tokensDataStore = tokensDataStore
     }
 
     let amountViewModel = SendViewSectionHeaderViewModel(
@@ -112,7 +112,7 @@ struct SendViewModel {
         case .nativeCryptocurrency:
             return false
         case .erc20Token(let token, _, _):
-            let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt
+            let tokenBalance = tokensDataStore.token(forContract: token.contractAddress, server: session.server)?.valueBigInt
             return tokenBalance == nil
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
             break
@@ -150,7 +150,7 @@ struct SendViewModel {
                 return nil
             }
         case .erc20Token(let token, _, _):
-            if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
+            if let tokenBalance = tokensDataStore.token(forContract: token.contractAddress, server: session.server)?.valueBigInt, tokenBalance < value {
                 return nil
             }
         case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:

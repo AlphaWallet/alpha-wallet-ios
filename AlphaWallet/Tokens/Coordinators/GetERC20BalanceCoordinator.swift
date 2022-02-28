@@ -17,7 +17,7 @@ class GetERC20BalanceCoordinator {
 
     func getBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigInt> {
         let functionName = "balanceOf"
-        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).map(on: queue, { balanceResult in
+        return callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout).map(on: queue, { balanceResult in
             if let balanceWithUnknownType = balanceResult["0"] {
                 let string = String(describing: balanceWithUnknownType)
                 if let balance = BigInt(string) {

@@ -223,7 +223,7 @@ class TokensViewModel {
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
-        return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: server).primaryKey })
+        return tokens.first(where: { $0.primaryKey == MultipleChainsTokensDataStore.functional.etherToken(forServer: server).primaryKey })
     }
 
     func convertSegmentedControlSelectionToFilter(_ selection: ControlSelection) -> WalletFilter? {

@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 25.05.2021.
 //
 
-import UIKit
-import RealmSwift
+import UIKit 
 import BigInt
 import PromiseKit
 
@@ -21,7 +20,6 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
     
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage
-    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore
 }
 
 class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
@@ -111,16 +109,12 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
 
     func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
         balanceFetchers[wallet]!.transactionsStorage(server: server)
-    }
-
-    func tokensDatastore(wallet: Wallet, server: RPCServer) -> TokensDataStore {
-        balanceFetchers[wallet]!.tokensDatastore(server: server)
-    }
+    } 
 
         //NOTE: for case if we disable rpc server, we don't fetch ticker for its native crypto
     private static var nativeCryptoForAllChains: [Activity.AssignedToken] {
         return RPCServer.allCases.map { server in
-            Activity.AssignedToken.init(tokenObject: TokensDataStore.etherToken(forServer: server))
+            Activity.AssignedToken.init(tokenObject: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
         }
     }
 

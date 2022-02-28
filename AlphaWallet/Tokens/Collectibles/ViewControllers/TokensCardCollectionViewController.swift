@@ -8,8 +8,7 @@
 import Foundation
 import UIKit
 import BigInt
-import PromiseKit
-import RealmSwift
+import PromiseKit 
 
 protocol TokensCardCollectionViewControllerDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, in viewController: TokensCardCollectionViewController)

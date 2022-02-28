@@ -7,6 +7,7 @@
 
 import UIKit
 import StatefulViewController
+import Combine
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
     func controller(_ controller: SelectTokenViewController, didSelectToken token: TokenObject)
@@ -19,6 +20,7 @@ class SelectTokenViewController: UIViewController {
         tokens: [],
         filter: filter
     )
+    private var cancellable = Set<AnyCancellable>()
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessions: ServerDictionary<WalletSession>
@@ -98,19 +100,11 @@ class SelectTokenViewController: UIViewController {
     }
 
     private func handleTokenCollectionUpdates() {
-        tokenCollection.subscribe { [weak self] result in
+        tokenCollection.tokensViewModel.sink { [weak self] viewModel in
             guard let strongSelf = self else { return }
-
-            switch result {
-            case .success(let viewModel):
-                strongSelf.viewModel = .init(tokensViewModel: viewModel, filterTokensCoordinator: strongSelf.filterTokensCoordinator, filter: strongSelf.filter)
-                strongSelf.endLoading()
-            case .failure(let error):
-                strongSelf.endLoading(error: error)
-            }
-
-            strongSelf.tableView.reloadData()
-        }
+            strongSelf.viewModel = .init(tokensViewModel: viewModel, filterTokensCoordinator: strongSelf.filterTokensCoordinator, filter: strongSelf.filter)
+            strongSelf.endLoading()
+        }.store(in: &cancellable)
     }
 
     @objc private func dismiss(_ sender: UIBarButtonItem) {

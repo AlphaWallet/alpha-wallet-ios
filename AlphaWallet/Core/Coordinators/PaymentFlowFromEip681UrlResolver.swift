@@ -5,13 +5,13 @@ import BigInt
 import PromiseKit
 
 class PaymentFlowFromEip681UrlResolver: Coordinator {
-    private let tokensDatastores: ServerDictionary<TokensDataStore>
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let config: Config
     var coordinators: [Coordinator] = []
 
-    init(tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, config: Config) {
-        self.tokensDatastores = tokensDatastores
+    init(tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, config: Config) {
+        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.config = config
     }
@@ -33,7 +33,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
             return nil
         }
 
-        let tokensDatastores = self.tokensDatastores
+        let tokensDataStore = self.tokensDataStore
         let assetDefinitionStore = self.assetDefinitionStore
         let config = self.config
 
@@ -52,13 +52,12 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                     let server = optionalServer ?? config.anyEnabledServer()
 
                     //NOTE: self is required here because object has delated before resolving state
-                    let datastore = tokensDatastores[server]
-                    if let token = datastore.token(forContract: contract) {
+                    if let token = tokensDataStore.token(forContract: contract, server: server) {
                         let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
                     } else {
-                        ContractDataDetector(address: contract, account: datastore.account, server: datastore.server, assetDefinitionStore: assetDefinitionStore).fetch { data in
+                        ContractDataDetector(address: contract, account: tokensDataStore.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { data in
                             switch data {
                             case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                                 //seal.reject(PMKError.cancelled)
@@ -75,7 +74,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         type: .erc20,
                                         balance: ["0"]
                                 )
-                                let tokenObject = datastore.addCustom(token: token, shouldUpdateBalance: true)
+                                let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)[0]
 
                                 let transactionType = Self.transactionType(tokenObject, recipient: recipient, amount: amount)
 

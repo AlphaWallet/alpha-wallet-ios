@@ -15,7 +15,7 @@ class GetERC875BalanceCoordinator {
 
     func getERC875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
         let function = GetERC875Balance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).map(on: queue, { balanceResult -> [String] in
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout).map(on: queue, { balanceResult -> [String] in
             return GetERC875BalanceCoordinator.adapt(balanceResult["0"])
         })
     }

@@ -17,7 +17,7 @@ struct WalletConnectRequestConverter {
         }
         debugLog("WalletConnect convert request: \(request.method) url: \(request.topicOrURLString)")
 
-        let token = TokensDataStore.token(forServer: rpcServer)
+        let token = MultipleChainsTokensDataStore.functional.token(forServer: rpcServer)
         let data: AlphaWallet.WalletConnect.Request
         do {
             switch request {

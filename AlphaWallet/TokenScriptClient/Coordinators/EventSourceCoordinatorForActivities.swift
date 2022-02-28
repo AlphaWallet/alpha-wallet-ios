@@ -14,19 +14,21 @@ protocol EventSourceCoordinatorForActivitiesType: AnyObject {
 class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesType {
     private var wallet: Wallet
     private let config: Config
-    private let tokenCollection: TokenCollection
+    private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsActivityDataStoreProtocol
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
+    private let enabledServers: [RPCServer]
 
-    init(wallet: Wallet, config: Config, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
+    init(wallet: Wallet, config: Config, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
         self.config = config
-        self.tokenCollection = tokenCollection
+        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.enabledServers = Config().enabledServers
     }
 
     func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
@@ -64,7 +66,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         isFetching = true
 
         let promises = firstly {
-            tokensForEnabledRPCServers()
+            tokensForEnabledRPCServers(forServers: enabledServers)
         }.map(on: queue, { data -> [Promise<Void>] in
             return data.flatMap { [weak self] data -> [Promise<Void>] in
                 guard let strongSelf = self else { return [] }
@@ -78,9 +80,15 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     }
 
     typealias EnabledTokenAddresses = [(contract: AlphaWallet.Address, tokenType: TokenType, server: RPCServer)]
-    private func tokensForEnabledRPCServers() -> Promise<EnabledTokenAddresses> {
-        tokenCollection.tokenObjects.map { tokenObjects -> EnabledTokenAddresses in
-            tokenObjects.compactMap { (contract: $0.contractAddress, tokenType: $0.type, server: $0.server) }
+    private func tokensForEnabledRPCServers(forServers servers: [RPCServer]) -> Promise<EnabledTokenAddresses> {
+        return Promise<EnabledTokenAddresses> { seal in
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
+                let tokenObjects = strongSelf.tokensDataStore.enabledTokenObjects(forServers: servers)
+                let values = tokenObjects.compactMap { (contract: $0.contractAddress, tokenType: $0.type, server: $0.server) }
+
+                seal.fulfill(values)
+            }
         }
     }
 }

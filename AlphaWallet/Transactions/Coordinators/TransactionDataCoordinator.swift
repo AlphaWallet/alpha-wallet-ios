@@ -18,7 +18,7 @@ class TransactionDataCoordinator: Coordinator {
     private let transactionCollection: TransactionCollection
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
-    private let tokensStorages: ServerDictionary<TokensDataStore>
+    private let tokensDataStore: TokensDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private var singleChainTransactionDataCoordinators: [SingleChainTransactionDataCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTransactionDataCoordinator }
@@ -40,13 +40,13 @@ class TransactionDataCoordinator: Coordinator {
             sessions: ServerDictionary<WalletSession>,
             transactionCollection: TransactionCollection,
             keystore: Keystore,
-            tokensStorages: ServerDictionary<TokensDataStore>,
+            tokensDataStore: TokensDataStore,
             promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.sessions = sessions
         self.transactionCollection = transactionCollection
         self.keystore = keystore
-        self.tokensStorages = tokensStorages
+        self.tokensDataStore = tokensDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         setupSingleChainTransactionDataCoordinators()
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
@@ -57,9 +57,8 @@ class TransactionDataCoordinator: Coordinator {
         for each in transactionCollection.transactionsStorages {
             let server = each.server
             let session = sessions[server]
-            let tokensDataStore = tokensStorages[server]
             let coordinatorType = server.transactionDataCoordinatorType
-            let coordinator = coordinatorType.init(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            let coordinator = coordinatorType.init(session: session, storage: each, keystore: keystore, tokensDataStore: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -96,8 +95,7 @@ class TransactionDataCoordinator: Coordinator {
     func addSentTransaction(_ transaction: SentTransaction) {
         let session = sessions[transaction.original.server]
         TransactionsStorage.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
-        let tokensDataStore = tokensStorages[transaction.original.server]
-        let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore)
+        let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore, server: transaction.original.server)
         transactionCollection.add([transaction])
     }
 

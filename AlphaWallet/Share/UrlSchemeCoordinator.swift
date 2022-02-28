@@ -9,7 +9,7 @@ import Foundation
 import BigInt
 
 protocol UrlSchemeResolver: AnyObject {
-    var tokensStorages: ServerDictionary<TokensDataStore> { get }
+    var tokensDataStore: TokensDataStore { get }
     var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
     var nativeCryptoCurrencyBalances: ServerDictionary<Subscribable<BigInt>> { get }
     var presentationNavigationController: UINavigationController { get }

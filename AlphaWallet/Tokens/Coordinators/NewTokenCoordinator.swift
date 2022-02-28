@@ -5,8 +5,7 @@
 //  Created by Vladyslav Shepitko on 20.07.2020.
 //
 
-import UIKit
-import RealmSwift
+import UIKit 
 import PromiseKit
 
 private struct NoContractDetailsDetected: Error {
@@ -32,7 +31,6 @@ class NewTokenCoordinator: Coordinator {
     private var addressToAutoDetectServerFor: AlphaWallet.Address?
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
-    private let tokenCollection: TokenCollection
     private let analyticsCoordinator: AnalyticsCoordinator
     private let navigationController: UINavigationController
     private lazy var viewController: NewTokenViewController = .init(server: serverToAddCustomTokenOn, initialState: initialState)
@@ -41,11 +39,10 @@ class NewTokenCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: NewTokenCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator], initialState: NewTokenInitialState = .empty, sessions: ServerDictionary<WalletSession>) {
         self.config = config
         self.analyticsCoordinator = analyticsCoordinator
         self.navigationController = navigationController
-        self.tokenCollection = tokenCollection
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
         self.initialState = initialState
         self.sessions = sessions
@@ -118,7 +115,7 @@ extension NewTokenCoordinator: NewTokenViewControllerDelegate {
             var serversFailed = 0
 
             //TODO be good if we can check every chain, including those that are not enabled: https://github.com/AlphaWallet/alpha-wallet-ios/issues/1166
-            let servers = tokenCollection.tokenDataStores.map { $0.server }
+            let servers = config.enabledServers
             for each in servers {
                 //It's possible we'll find the contracts with the same address across different chains, but let's not worry about it. User can manually choose a chain if they encounter this
                 fetchContractDataPromise(forServer: each, address: address, inViewController: viewController).done { [weak self] (tokenType) in

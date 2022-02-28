@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import web3swift
+import Combine
 
 public struct Constants {
     public static let keychainKeyPrefix = "alphawallet"
@@ -211,4 +212,8 @@ public struct Constants {
         .byField(field: .value, direction: .ascending),
         .byField(field: .value, direction: .descending)
     ]
+
+    static let fetchContractDataTimeout = TimeInterval(4)
+
+    static let refreshTokensThresholdSec: Int = 1
 }

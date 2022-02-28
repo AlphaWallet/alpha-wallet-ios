@@ -27,11 +27,16 @@ class TokensCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let config: Config
-    private let tokenCollection: TokenCollection
+
+    private lazy var tokenCollection: TokenCollection = {
+        return MultipleChainsTokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokensDataStore: tokensDataStore, config: config)
+    }()
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let promptBackupCoordinator: PromptBackupCoordinator
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private lazy var filterTokensCoordinator: FilterTokensCoordinator = {
+        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
+    }()
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsService: TokenActionsServiceType
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
@@ -94,16 +99,17 @@ class TokensCoordinator: Coordinator {
         PriceAlertService(datastore: PriceAlertDataStore(wallet: sessions.anyValue.account), wallet: sessions.anyValue.account)
     }()
 
+    private let tokensDataStore: TokensDataStore
+
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
             config: Config,
-            tokenCollection: TokenCollection,
+            tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
             promptBackupCoordinator: PromptBackupCoordinator,
-            filterTokensCoordinator: FilterTokensCoordinator,
             analyticsCoordinator: AnalyticsCoordinator,
             tokenActionsService: TokenActionsServiceType,
             walletConnectCoordinator: WalletConnectCoordinator,
@@ -112,12 +118,11 @@ class TokensCoordinator: Coordinator {
             activitiesService: ActivitiesServiceType,
             walletBalanceCoordinator: WalletBalanceCoordinatorType
     ) {
-        self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
         self.sessions = sessions
         self.keystore = keystore
         self.config = config
-        self.tokenCollection = tokenCollection
+        self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
@@ -173,11 +178,10 @@ class TokensCoordinator: Coordinator {
     }
 
     private func setupSingleChainTokenCoordinators() {
-        for each in tokenCollection.tokenDataStores {
-            let server = each.server
-            let session = sessions[server]
+        for session in sessions.values {
+            let server = session.server
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: each, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
@@ -209,9 +213,8 @@ class TokensCoordinator: Coordinator {
     func launchUniversalScanner(fromSource source: Analytics.ScanQRCodeSource) {
         let account = sessions.anyValue.account
         let scanQRCodeCoordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: account)
-        let tokensDatastores = tokenCollection.tokenDataStores
 
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore))
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastore: tokensDataStore, assetDefinitionStore: assetDefinitionStore))
         coordinator.delegate = self
 
         addCoordinator(coordinator)
@@ -321,7 +324,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             sessions: sessions,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
-            tokenCollection: tokenCollection,
             config: config,
             singleChainTokenCoordinators: singleChainTokenCoordinators
         )
@@ -434,7 +436,6 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         let coordinator = NewTokenCoordinator(
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
-            tokenCollection: tokenCollection,
             config: config,
             singleChainTokenCoordinators: singleChainTokenCoordinators,
             initialState: .address(address),

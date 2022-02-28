@@ -35,7 +35,7 @@ class BalanceCoordinator: NSObject, BalanceCoordinatorType {
     lazy private (set) var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> = .init(ethBalanceViewModel)
 
     lazy private var privateSubscribableViewModel: Subscribable<BalanceBaseViewModel> = {
-        let etherToken = TokensDataStore.etherToken(forServer: server).addressAndRPCServer
+        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server).addressAndRPCServer
         return subscribableTokenBalance(etherToken)
     }()
 
