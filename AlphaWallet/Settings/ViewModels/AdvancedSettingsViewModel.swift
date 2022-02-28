@@ -9,16 +9,20 @@ import Foundation
 import UIKit
 
 struct AdvancedSettingsViewModel {
-    var rows: [AdvancedSettingsRow] = {
-        return [
+    var rows: [AdvancedSettingsRow]
+
+    init(keystore: Keystore) {
+        let canExportToJSONKeystore = Features.isExportJsonKeystoreEnabled && keystore.currentWallet.isReal()
+        self.rows = [
             .clearBrowserCache,
             .tokenScript,
             Features.isUsingPrivateNetwork ? .usePrivateNetwork : nil,
             Features.isAnalyticsUIEnabled ? .analytics : nil,
             Features.isLanguageSwitcherDisabled ? nil : .changeLanguage,
+            canExportToJSONKeystore ? .exportJSONKeystore : nil,
             .tools,
         ].compactMap { $0 }
-    }()
+    }
 
     func numberOfRows() -> Int {
         return rows.count
@@ -75,5 +79,11 @@ enum AdvancedSettingsRow: CaseIterable {
         case .exportJSONKeystore:
             return R.image.iconsSettingsJson()!
         }
+    }
+}
+
+fileprivate extension Wallet {
+    func isReal() -> Bool {
+        return type == .real(address)
     }
 }
