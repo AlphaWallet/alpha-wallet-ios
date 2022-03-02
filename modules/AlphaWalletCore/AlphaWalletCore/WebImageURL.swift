@@ -126,7 +126,7 @@ extension WebImageURL.functional {
     }
 
     static func googleContentSize(for url: URL, hostSuffix: String = "googleusercontent.com") -> GoogleContentSize? {
-        guard var components = URLComponents(string: url.absoluteString), let host = components.host, host.hasSuffix(hostSuffix) else {
+        guard let components = URLComponents(string: url.absoluteString), let host = components.host, host.hasSuffix(hostSuffix) else {
             return nil
         }
 
