@@ -116,27 +116,8 @@ class InCoordinator: NSObject, Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
 
     lazy var tabBarController: UITabBarController = {
-        let tabBarController = UITabBarController()
-        tabBarController.tabBar.isTranslucent = false
+        let tabBarController: UITabBarController = .withOverridenBarAppearence()
         tabBarController.delegate = self
-
-        let tabBarAppearance = UITabBarAppearance()
-        tabBarController.tabBar.tintColor = Colors.appTint
-        tabBarAppearance.shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
-        tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
-        let tabBarItemAppearance = UITabBarItemAppearance()
-
-        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal]
-        tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected]
-
-        tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
-
-        tabBarController.tabBar.standardAppearance = tabBarAppearance
-        if #available(iOS 15.0, *) {
-            tabBarController.tabBar.scrollEdgeAppearance = tabBarAppearance
-        } else {
-            // Fallback on earlier versions
-        }
 
         return tabBarController
     }()

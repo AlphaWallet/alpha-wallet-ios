@@ -72,6 +72,40 @@ extension UINavigationController {
     }
 }
 
+extension UITabBarAppearance {
+    static var defaultAppearence: UITabBarAppearance {
+        let tabBarAppearance = UITabBarAppearance()
+
+        tabBarAppearance.shadowImage = UIImage(color: Style.TabBar.Separator.color, size: CGSize(width: 0.25, height: 0.25))
+        tabBarAppearance.backgroundImage = UIImage(color: Style.TabBar.Background.color)
+        let tabBarItemAppearance = UITabBarItemAppearance()
+
+        tabBarItemAppearance.normal.titleTextAttributes = [.font: Style.TabBar.Font.normal]
+        tabBarItemAppearance.selected.titleTextAttributes = [.font: Style.TabBar.Font.selected]
+
+        tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
+
+        return tabBarAppearance
+    }
+}
+
+extension UITabBarController {
+    static func withOverridenBarAppearence(appearence tabBarAppearance: UITabBarAppearance = .defaultAppearence) -> UITabBarController {
+        let tabBarController = UITabBarController()
+        tabBarController.tabBar.isTranslucent = false
+        tabBarController.tabBar.tintColor = Colors.appTint
+        tabBarController.tabBar.standardAppearance = tabBarAppearance
+
+        if #available(iOS 15.0, *) {
+            tabBarController.tabBar.scrollEdgeAppearance = tabBarAppearance
+        } else {
+            // Fallback on earlier versions
+        }
+
+        return tabBarController
+    }
+}
+
 struct Colors {
     static let darkBlue = UIColor(hex: "3375BB")
     static let red = UIColor(hex: "f7506c")
