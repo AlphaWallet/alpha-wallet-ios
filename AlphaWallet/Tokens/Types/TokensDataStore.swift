@@ -24,7 +24,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func tokenObjectPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?>
     func tokenObjectPromise(forContract contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenObject?>
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
-    func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
     func add(hiddenContracts: [HiddenContract])
     @discardableResult func add(tokens: [TokenObject]) -> [TokenObject]
     func delete(tokens: [TokenObject])
