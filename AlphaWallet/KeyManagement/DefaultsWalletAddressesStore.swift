@@ -36,54 +36,49 @@ struct DefaultsWalletAddressesStore: WalletAddressesStoreType {
     }
 
     var watchAddresses: [String] {
-        get {
-            guard let data = userDefaults.data(forKey: Keys.watchAddresses) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
+        get { 
+            return userDefaults.data(forKey: Keys.watchAddresses)
+                .flatMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? [String] }
+                .flatMap { $0 } ?? []
         }
         set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: true) else { return }
             userDefaults.set(data, forKey: Keys.watchAddresses)
         }
     }
 
     var ethereumAddressesWithPrivateKeys: [String] {
         get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithPrivateKeys) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
+            return userDefaults.data(forKey: Keys.ethereumAddressesWithPrivateKeys)
+                .flatMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? [String] }
+                .flatMap { $0 } ?? []
         }
         set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: true) else { return }
             userDefaults.set(data, forKey: Keys.ethereumAddressesWithPrivateKeys)
         }
     }
 
     var ethereumAddressesWithSeed: [String] {
         get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithSeed) else {
-                return []
-            }
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
+            return userDefaults.data(forKey: Keys.ethereumAddressesWithSeed)
+                .flatMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? [String] }
+                .flatMap { $0 } ?? []
         }
         set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: true) else { return }
             userDefaults.set(data, forKey: Keys.ethereumAddressesWithSeed)
         }
     }
 
     var ethereumAddressesProtectedByUserPresence: [String] {
         get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesProtectedByUserPresence) else {
-                return []
-            }
-
-            return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
+            return userDefaults.data(forKey: Keys.ethereumAddressesProtectedByUserPresence)
+                .flatMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? [String] }
+                .flatMap { $0 } ?? []
         }
         set {
-            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            guard let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: true) else { return }
             userDefaults.set(data, forKey: Keys.ethereumAddressesProtectedByUserPresence)
         }
     }

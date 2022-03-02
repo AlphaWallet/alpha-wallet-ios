@@ -180,7 +180,14 @@ public extension AlphaWallet {
 extension AlphaWallet.Device {
     /// Return `true` for landscape interface orientation
     static public var isLandscape: Bool {
-        return UIApplication.shared.statusBarOrientation == .landscapeLeft || UIApplication.shared.statusBarOrientation == .landscapeRight
+        let statusBarOrientation: UIInterfaceOrientation
+        if let currentWindowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            statusBarOrientation = currentWindowScene.interfaceOrientation
+        } else {
+            statusBarOrientation = .portrait
+        }
+
+        return statusBarOrientation == .landscapeLeft || statusBarOrientation == .landscapeRight
     }
 
     /// Return `true` for portrait interface orientation
