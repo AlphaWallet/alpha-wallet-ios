@@ -135,7 +135,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        token.icon
+        token.icon(withSize: .s300)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

@@ -16,7 +16,7 @@ public enum GoogleContentSize: Equatable {
     case s2500
     case custom(string: String)
 
-    var rawValue: String {
+    public var rawValue: String {
         switch self {
         case .s120: return "=s120"
         case .s128: return "=s128"

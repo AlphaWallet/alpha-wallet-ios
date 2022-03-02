@@ -104,7 +104,7 @@ class AmountTextField: UIControl {
         var icon: Subscribable<TokenImage> {
             switch left {
             case .cryptoCurrency(let tokenObject):
-                return tokenObject.icon
+                return tokenObject.icon(withSize: .s120)
             case .usd:
                 return .init((image: .image(R.image.usaFlag()!), symbol: "", isFinal: true, overlayServerIcon: nil))
             }

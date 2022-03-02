@@ -475,7 +475,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             thumbnailImageView.setImage(url: nil)
             bigImageView.setImage(url: nil)
         } else {
-            if let url = viewModel.imageUrl {
+            if let url = viewModel.imageUrl(rewriteGoogleContentSizeUrl: .s300) {
                 thumbnailImageView.setImage(url: url)
                 bigImageView.setImage(url: url)
                 //TODO this is dubious. But we don't have the image (and hence the dimensions) to calculate based on aspect ratio anymore

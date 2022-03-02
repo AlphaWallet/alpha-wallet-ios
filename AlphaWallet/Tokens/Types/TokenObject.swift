@@ -8,19 +8,14 @@ extension Activity {
 
     struct AssignedToken: Equatable, Hashable {
 
-        struct TokenBalance {
-            var balance = "0"
-            var json: String = "{}"
-        }
-
         enum Balance {
             case value(NSDecimalNumber?)
-            case nftBalance(NSDecimalNumber)
+            case nftBalance([NonFungibleFromJson])
 
             var isEmpty: Bool {
                 switch self {
                 case .nftBalance(let values):
-                    return values == 0
+                    return values.isEmpty
                 case .value(let value):
                     return value == 0
                 }
@@ -30,8 +25,17 @@ extension Activity {
                 switch self {
                 case .value(let value):
                     return value
-                case .nftBalance(let value):
-                    return value
+                case .nftBalance(let nftBalances):
+                    return NSDecimalNumber(value: nftBalances.count)
+                }
+            }
+
+            var nftBalances: [NonFungibleFromJson] {
+                switch self {
+                case .value:
+                    return []
+                case .nftBalance(let nftBalances):
+                    return nftBalances
                 }
             }
         }
@@ -41,7 +45,6 @@ extension Activity {
         let symbol: String
         let decimals: Int
         let server: RPCServer
-        let icon: Subscribable<TokenImage>
         let type: TokenType
         let name: String
         let balance: Balance
@@ -60,7 +63,6 @@ extension Activity {
             contractAddress = tokenObject.contractAddress
             symbol = tokenObject.symbol
             decimals = tokenObject.decimals
-            icon = tokenObject.icon
             type = tokenObject.type
             shouldDisplay = tokenObject.shouldDisplay
             sortIndex = tokenObject.sortIndex.value
@@ -70,12 +72,16 @@ extension Activity {
                 let fullValue = EtherNumberFormatter.plain.string(from: tokenObject.valueBigInt, decimals: decimals)
                 balance = .value(fullValue.optionalDecimalValue)
             case .erc721, .erc721ForTickets, .erc875, .erc1155:
-                balance = .nftBalance(.init(value: tokenObject.balance.count))
+                balance = .nftBalance(tokenObject.balance.compactMap { $0.nonFungibleBalance })
             }
         }
 
         var valueDecimal: NSDecimalNumber? {
             balance.valueDecimal
+        }
+
+        var nftBalanceValue: [NonFungibleFromJson] {
+            balance.nftBalances
         }
 
         static func == (lhs: Activity.AssignedToken, rhs: Activity.AssignedToken) -> Bool {
@@ -85,7 +91,6 @@ extension Activity {
                 lhs.contractAddress == rhs.contractAddress &&
                 lhs.symbol == rhs.symbol &&
                 lhs.decimals == rhs.decimals &&
-                lhs.icon.value?.image == rhs.icon.value?.image &&
                 lhs.type == rhs.type
         }
 

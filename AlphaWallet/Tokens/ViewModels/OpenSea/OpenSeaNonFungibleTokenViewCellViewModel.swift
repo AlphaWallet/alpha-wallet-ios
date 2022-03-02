@@ -30,11 +30,12 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
             .foregroundColor: Colors.appText
         ])
     }
-    let tokenIcon: Subscribable<TokenImage>
+    var tokenIcon: Subscribable<TokenImage> {
+        token.icon(withSize: .s750)
+    }
 
     init(token: TokenObject) {
         self.token = token
-        self.tokenIcon = token.icon
     }
 
     var backgroundColor: UIColor {

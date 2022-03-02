@@ -82,7 +82,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        token.icon
+        token.icon(withSize: .s750)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

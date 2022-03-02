@@ -122,7 +122,7 @@ struct ActivityViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        activity.tokenObject.icon
+        activity.tokenObject.icon(withSize: .s300)
     }
 
     var stateImage: UIImage? {

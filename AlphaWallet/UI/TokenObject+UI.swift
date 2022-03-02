@@ -4,6 +4,7 @@ import UIKit
 import PromiseKit
 import AlphaWalletCore
 
+typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 typealias WebImageURL = AlphaWalletCore.WebImageURL
 typealias TokenImage = (image: WebImageViewImage, symbol: String, isFinal: Bool, overlayServerIcon: UIImage?)
 typealias Image = UIImage
@@ -106,8 +107,18 @@ class RPCServerImageFetcher {
 extension TokenObject {
     fileprivate static let numberOfCharactersOfSymbolToShowInIcon = 4
 
-    var icon: Subscribable<TokenImage> {
-        return TokenImageFetcher.instance.image(forToken: self)
+    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
+        return TokenImageFetcher.instance.image(forToken: self, size: size)
+    }
+}
+
+extension Activity.AssignedToken {
+    
+    func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
+        let name = symbol.nilIfEmpty ?? name
+        let nftBalance = nftBalanceValue.first
+
+        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, type: type, balance: nftBalance, size: size)
     }
 }
 
@@ -143,19 +154,19 @@ class TokenImageFetcher {
     }
 
     //Relies on built-in HTTP/HTTPS caching in iOS for the images
-    func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
-        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.nonFungibleBalance)
+    func image(forToken tokenObject: TokenObject, size: GoogleContentSize) -> Subscribable<TokenImage> {
+        return image(contractAddress: tokenObject.contractAddress, server: tokenObject.server, name: tokenObject.symbol.nilIfEmpty ?? tokenObject.name, type: tokenObject.type, balance: tokenObject.balance.first?.nonFungibleBalance, size: size)
     }
 
-    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String) -> Subscribable<TokenImage> {
+    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, size: GoogleContentSize) -> Subscribable<TokenImage> {
         // NOTE: not meatter what type we passa as `type`, here we are not going to fetch from OpenSea
-        return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil)
+        return image(contractAddress: contractAddress, server: server, name: name, type: .erc20, balance: nil, size: size)
     }
 
-    private func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?) -> Subscribable<TokenImage> {
+    func image(contractAddress: AlphaWallet.Address, server: RPCServer, name: String, type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize) -> Subscribable<TokenImage> {
         let queue = self.queue
         let subscribable: Subscribable<TokenImage>
-        let key = "\(contractAddress.eip55String)-\(server.chainID)"
+        let key = "\(contractAddress.eip55String)-\(server.chainID)-\(size.rawValue)"
         if let sub = TokenImageFetcher.subscribables[key] {
             subscribable = sub
             if let value = sub.value, value.isFinal {
@@ -214,7 +225,7 @@ class TokenImageFetcher {
                     })
             }.recover(on: queue, { _ -> Promise<TokenImage> in
                 return TokenImageFetcher
-                    .fetchFromOpenSea(type, balance: balance, queue: queue)
+                    .fetchFromOpenSea(type, balance: balance, size: size, queue: queue)
                     .map(on: queue, { url -> TokenImage in
                         return (image: url, symbol: "", isFinal: true, overlayServerIcon: server.staticOverlayIcon)
                     })
@@ -234,10 +245,10 @@ class TokenImageFetcher {
         return subscribable
     }
 
-    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, queue: DispatchQueue) -> Promise<WebImageViewImage> {
+    private static func fetchFromOpenSea(_ type: TokenType, balance: NonFungibleFromJson?, size: GoogleContentSize, queue: DispatchQueue) -> Promise<WebImageViewImage> {
         switch type {
         case .erc721, .erc1155:
-            guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl else {
+            guard let openSeaNonFungible = balance, let url = openSeaNonFungible.nonFungibleImageUrl(rewriteGoogleContentSizeUrl: size) else {
                 return .init(error: ImageAvailabilityError.notAvailable)
             }
             return .value(.url(url))

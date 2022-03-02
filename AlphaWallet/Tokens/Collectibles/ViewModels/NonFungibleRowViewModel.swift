@@ -214,8 +214,8 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
         return convertDescriptionToAttributedString(asHTML: false)
     } 
 
-    var imageUrl: WebImageURL? {
-        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
+    func imageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0, rewriteGoogleContentSizeUrl: size) }
     }
 
     var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
@@ -237,7 +237,7 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
     }
 
     var areImagesHidden: Bool {
-        return tokenHolder.status == .availableButDataUnavailable || imageUrl == nil
+        return tokenHolder.status == .availableButDataUnavailable || imageUrl(rewriteGoogleContentSizeUrl: .s300) == nil
     }
 
     var isDescriptionHidden: Bool {
@@ -512,8 +512,8 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
         return convertDescriptionToAttributedString(asHTML: false)
     }
 
-    var imageUrl: WebImageURL? {
-        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
+    func imageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0, rewriteGoogleContentSizeUrl: size) }
     }
 
     var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
@@ -535,7 +535,7 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
     }
 
     var areImagesHidden: Bool {
-        return tokenHolder.status == .availableButDataUnavailable || imageUrl == nil
+        return tokenHolder.status == .availableButDataUnavailable || imageUrl(rewriteGoogleContentSizeUrl: .s300) == nil
     }
 
     var isDescriptionHidden: Bool {
