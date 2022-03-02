@@ -10,7 +10,7 @@ import Foundation
 protocol WalletConnectServerProviderType: WalletConnectResponder {
     var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> { get }
 
-    func register(service: WalletConnectServerType)
+    func register(service: WalletConnectServer)
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws
 
     func session(forIdentifier identifier: AlphaWallet.WalletConnect.SessionIdentifier) -> AlphaWallet.WalletConnect.Session?
@@ -34,9 +34,9 @@ class WalletConnectServerProvider: WalletConnectServerProviderType {
 
     var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> = .init(nil)
 
-    private var services: [WalletConnectServerType] = []
+    private var services: [WalletConnectServer] = []
 
-    func register(service: WalletConnectServerType) {
+    func register(service: WalletConnectServer) {
         services.append(service)
 
         sessionsSubscribable.value = services.compactMap { $0.sessionsSubscribable.value }.flatMap { $0 }

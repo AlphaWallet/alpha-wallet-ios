@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import PromiseKit
+import Combine
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -87,14 +88,14 @@ class AppCoordinator: NSObject, Coordinator {
         return service
     }()
 
+    private lazy var selectedWalletSessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config, sessionsSubject: selectedWalletSessionsSubject)
 
         return coordinator
     }()
 
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
-
         self.navigationController = navigationController
         self.window = window
         self.analyticsService = analyticsService
@@ -213,7 +214,8 @@ class AppCoordinator: NSObject, Coordinator {
                 walletBalanceCoordinator: walletBalanceCoordinator,
                 coinTickersFetcher: coinTickersFetcher,
                 tokenActionsService: tokenActionsService,
-                walletConnectCoordinator: walletConnectCoordinator
+                walletConnectCoordinator: walletConnectCoordinator,
+                sessionsSubject: selectedWalletSessionsSubject
         )
 
         coordinator.delegate = self

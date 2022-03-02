@@ -9,10 +9,9 @@ import Foundation
 import WalletConnectSwift
 import AlphaWalletAddress
 import PromiseKit
+import Combine
 
-class WalletConnectV1Provider: WalletConnectServerType {
-    static let connectionTimeout: TimeInterval = 10
-
+class WalletConnectV1Provider: WalletConnectServer {
     enum Keys {
         static let storageFileKey = "walletConnectSessions-v1"
     }
@@ -45,33 +44,36 @@ class WalletConnectV1Provider: WalletConnectServerType {
 
         return handler
     }()
-    private let keystore: Keystore
-    private var subscription: Subscribable<Set<Wallet>>.SubscribableKey!
+    private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private var cancelable = Set<AnyCancellable>()
 
-    init(keystore: Keystore) {
-        self.keystore = keystore
-        self.storage = .init(fileName: Keys.storageFileKey, defaultValue: [])
+    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: SubscribableFileStorage<[SingleServerWalletConnectSession]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
+        self.sessionsSubject = sessionsSubject
+        self.storage = storage
 
         server.register(handler: requestHandler)
 
-        subscription = keystore.subscribableWallets.subscribe { [weak self] _ in
-            guard let strongSelf = self else { return }
+        sessionsSubject
+            .filter { !$0.isEmpty }
+            .sink { [weak self] sessions in
+                guard let strongSelf = self else { return }
+                let wallets = Array(Set(sessions.values.map { $0.account.address.eip55String }))
 
-            for each in strongSelf.storage.value {
-                let walletInfo = strongSelf.walletInfo(choice: .connect(each.server))
-                try? strongSelf.server.updateSession(each.session, with: walletInfo)
-            }
-        }
+                for each in strongSelf.storage.value {
+                    let walletInfo = strongSelf.walletInfo(choice: .connect(each.server), wallets: wallets)
+                    try? strongSelf.server.updateSession(each.session, with: walletInfo)
+                }
+            }.store(in: &cancelable)
     }
 
     deinit {
-        debugLog("[WalletConnect] WalletConnectServer.deinit")
+        debugLog("[WalletConnect] WalletConnectV1Provider.deinit")
         server.unregister(handler: requestHandler)
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
         guard case .v1(let wcUrl) = url else { return }
-        let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: Constants.WalletConnect.connectionTimeout, repeats: false) { _ in
             let isStillWatching = self.connectionTimeoutTimers[wcUrl] != nil
             debugLog("WalletConnect app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
             if isStillWatching {
@@ -93,8 +95,8 @@ class WalletConnectV1Provider: WalletConnectServerType {
     func updateSession(session: AlphaWallet.WalletConnect.Session, servers: [RPCServer]) throws {
         guard let index = storage.value.firstIndex(where: { $0 == session }), let server = servers.first else { return }
         storage.value[index].server = server
-
-        let walletInfo = walletInfo(choice: .connect(server))
+        let wallets = Array(Set(sessionsSubject.value.values.map { $0.account.address.eip55String }))
+        let walletInfo = walletInfo(choice: .connect(server), wallets: wallets)
         try self.server.updateSession(storage.value[index].session, with: walletInfo)
     }
 
@@ -139,11 +141,10 @@ class WalletConnectV1Provider: WalletConnectServerType {
         return server.openSessions().contains(where: { $0.dAppInfo.peerId == nativeSession.session.dAppInfo.peerId })
     }
 
-    private func walletInfo(choice: AlphaWallet.WalletConnect.SessionProposalResponse) -> Session.WalletInfo {
+    private func walletInfo(choice: AlphaWallet.WalletConnect.SessionProposalResponse, wallets: [String]) -> Session.WalletInfo {
         func peerId(approved: Bool) -> String {
             return approved ? UUID().uuidString : String()
         }
-        let wallets = keystore.wallets.map { $0.address.eip55String }
 
         return Session.WalletInfo(
             approved: choice.shouldProceed,
@@ -205,6 +206,7 @@ extension WalletConnectV1Provider: ServerDelegate {
 
     func server(_ server: Server, shouldStart session: Session, completion: @escaping (Session.WalletInfo) -> Void) {
         connectionTimeoutTimers[session.url] = nil
+        let wallets = Array(Set(sessionsSubject.value.values.map { $0.account.address.eip55String }))
 
         DispatchQueue.main.async {
             if let delegate = self.delegate {
@@ -213,7 +215,7 @@ extension WalletConnectV1Provider: ServerDelegate {
                 delegate.server(self, shouldConnectFor: sessionProposal) { [weak self] choice in
                     guard let strongSelf = self, let server = choice.server else { return }
 
-                    let info = strongSelf.walletInfo(choice: choice)
+                    let info = strongSelf.walletInfo(choice: choice, wallets: wallets)
                     if let index = strongSelf.storage.value.firstIndex(where: { $0 == session }) {
                         strongSelf.storage.value[index] = .init(session: session, server: server)
                     } else {
@@ -222,7 +224,7 @@ extension WalletConnectV1Provider: ServerDelegate {
                     completion(info)
                 }
             } else {
-                let info = self.walletInfo(choice: .cancel)
+                let info = self.walletInfo(choice: .cancel, wallets: wallets)
                 completion(info)
             }
         }

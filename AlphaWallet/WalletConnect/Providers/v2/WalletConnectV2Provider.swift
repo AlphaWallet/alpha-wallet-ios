@@ -8,16 +8,13 @@
 import Foundation
 import WalletConnect
 import WalletConnectUtils
+import Combine
 
 protocol NativeCryptoCurrencyPricesProvider: class {
     var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
 }
 
-protocol WalletSessionListProvider: class {
-    var walletSessions: ServerDictionary<WalletSession> { get }
-}
-
-class WalletConnectV2Provider: WalletConnectServerType {
+class WalletConnectV2Provider: WalletConnectServer {
 
     private var pendingSessionProposal: Session.Proposal?
     private var client: WalletConnectClient = {
@@ -29,7 +26,7 @@ class WalletConnectV2Provider: WalletConnectServerType {
         let projectId = Constants.Credentials.walletConnectProjectId
         let relayHost = Constants.WalletConnect.relayURL.host!
 
-        return WalletConnectClient(metadata: metadata, projectId: projectId, isController: true, relayHost: relayHost)
+        return WalletConnectClient(metadata: metadata, projectId: projectId, relayHost: relayHost)
     }()
     private var pendingSessionStack: [Session.Proposal] = []
 
@@ -42,7 +39,6 @@ class WalletConnectV2Provider: WalletConnectServerType {
     }()
     private let storage: SubscribableFileStorage<[MultiServerWalletConnectSession]>
     weak var delegate: WalletConnectServerDelegate?
-    weak var sessionProvider: WalletSessionListProvider?
 
     enum Keys {
         static let storageFileKey = "walletConnectSessions-v2"
@@ -51,21 +47,37 @@ class WalletConnectV2Provider: WalletConnectServerType {
     private let config: Config = Config()
     //NOTE: Since the connection url doesn't we are getting in `func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws` isn't the same of what we got in
     //`SessionProposal` we are not able to manage connection timeout. As well as we are not able to mach topics of urls. connection timeout isn't supported for now for v2.
-    private let keystore: Keystore
-    private var subscription: Subscribable<Set<Wallet>>.SubscribableKey!
-
-    init(keystore: Keystore) {
-        self.keystore = keystore
-        self.storage = .init(fileName: Keys.storageFileKey, defaultValue: [])
+    private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
+    private var cancelable = Set<AnyCancellable>()
+    //NOTE: we support only single account session as WalletConnects request doesn't provide a wallets address to sign transaction or some other method, so we cant figure out wallet address to sign, so for now we use only active wallet session address
+    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: SubscribableFileStorage<[MultiServerWalletConnectSession]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
+        self.sessionsSubject = sessionsSubject
+        self.storage = storage
         client.delegate = self
 
-        subscription = keystore.subscribableWallets.subscribe { [weak self] wallets in
-            guard let strongSelf = self, let values = wallets else { return }
+        //NOTE: skip empty sessions event
+        sessionsSubject
+            .filter { !$0.isEmpty }
+            .sink { [weak self] sessions in
+                self?.reloadSessions(sessions: sessions)
+            }.store(in: &cancelable)
+    }
 
-            let wallets = Set(values.map { $0.address.eip55String })
-            for each in strongSelf.storage.value {
-                strongSelf.client.update(topic: each.identifier.description, accounts: wallets)
-            }
+    private func reloadSessions(sessions: ServerDictionary<WalletSession>) {
+        func allAccountsInEip155(sessionServers: [RPCServer]) -> [String] {
+            let availableSessions: [WalletSession] = sessions.values.filter { sessionServers.contains($0.server) }
+            let wallets = Set(sessions.values.map { $0.account })
+            //NOTE: idelly here is going to be one wallet address
+            return wallets.map { wallet -> [String] in
+                availableSessions.map { eip155URLCoder.encode(rpcServer: $0.server, address: wallet.address) }
+            }.flatMap { $0 }
+        }
+
+        for each in storage.value {
+            let accounts = Set(allAccountsInEip155(sessionServers: each.servers).compactMap { Account($0) })
+            guard !accounts.isEmpty else { return }
+
+            try? client.update(topic: each.identifier.description, accounts: accounts)
         }
     }
 
@@ -235,7 +247,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
         }
     }
 
-    func didUpdate(sessionTopic: String, accounts: Set<String>) {
+    func didUpdate(sessionTopic: String, accounts: Set<Account>) {
         debugLog("[RESPONDER] WC: Did receive session update")
     }
 
@@ -276,7 +288,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
 
         func reject(sessionProposal: Session.Proposal) {
             debugLog("[RESPONDER] WC: Did reject session proposal: \(sessionProposal)")
-            client.reject(proposal: sessionProposal, reason: Reason(code: 0, message: "reject"))
+            client.reject(proposal: sessionProposal, reason: RejectionReason.disapprovedChains)
             completion()
         }
 
@@ -301,15 +313,16 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
                         return
                     }
 
-                    let accounts = strongSelf.allAccountsInEip155(request: sessionRequest)
-                    guard !accounts.isEmpty else {
+                    let accounts = strongSelf.allAccountsInEip155(sessionServers: sessionRequest.servers)
+                    let accountSet = Set(accounts.compactMap { Account($0) })
+                    debugLog("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(accountSet)")
+                    guard !accountSet.isEmpty else {
                         strongSelf.pendingSessionProposal = .none
                         reject(sessionProposal: sessionProposal)
                         return
                     }
 
-                    debugLog("[RESPONDER] WC: Did accept session proposal: \(sessionProposal) accounts: \(Set(accounts))")
-                    strongSelf.client.approve(proposal: sessionProposal, accounts: Set(accounts))
+                    strongSelf.client.approve(proposal: sessionProposal, accounts: accountSet)
                     strongSelf.pendingSessionProposal = .none
 
                     completion()
@@ -323,15 +336,12 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
         }
     }
 
-    private func allAccountsInEip155(request: AlphaWallet.WalletConnect.SessionProposal) -> [String] {
-        let sessions: [WalletSession] = sessionProvider.flatMap {
-            $0.walletSessions.values.filter {
-                request.servers.contains($0.server)
-            }
-        } ?? []
+    private func allAccountsInEip155(sessionServers: [RPCServer]) -> [String] {
+        let availableSessions: [WalletSession] = sessionsSubject.value.values.filter { sessionServers.contains($0.server) }
+        let wallets = Set(availableSessions.map { $0.account })
 
-        return keystore.wallets.map { wallet -> [String] in
-            sessions.map {
+        return wallets.map { wallet -> [String] in
+            availableSessions.map {
                 eip155URLCoder.encode(rpcServer: $0.server, address: wallet.address)
             }
         }.flatMap { $0 }

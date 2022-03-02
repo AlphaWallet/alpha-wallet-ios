@@ -9,6 +9,7 @@ import UIKit
 import WalletConnectSwift
 import PromiseKit
 import Result
+import Combine
 
 protocol RequestAddCustomChainProvider: NSObjectProtocol {
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject)
@@ -17,25 +18,28 @@ protocol RequestSwitchChainProvider: NSObjectProtocol {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject)
 }
 
-protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnRampDelegate, WalletSessionListProvider, NativeCryptoCurrencyPricesProvider, RequestAddCustomChainProvider, RequestSwitchChainProvider {
+protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnRampDelegate/*, WalletSessionListProvider*/, NativeCryptoCurrencyPricesProvider, RequestAddCustomChainProvider, RequestSwitchChainProvider {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
 }
 
 class WalletConnectCoordinator: NSObject, Coordinator {
 
     private lazy var walletConnectV2service: WalletConnectV2Provider = {
-        let walletConnectV2service = WalletConnectV2Provider(keystore: keystore)
+        let walletConnectV2service = WalletConnectV2Provider(sessionsSubject: sessionsSubject)
         walletConnectV2service.delegate = self
-        walletConnectV2service.sessionProvider = delegate
 
         return walletConnectV2service
     }()
 
-    private lazy var provider: WalletConnectServerProviderType = {
-        let provider = WalletConnectServerProvider()
-        let walletConnectV1service = WalletConnectV1Provider(keystore: keystore)
+    private lazy var walletConnectV1service: WalletConnectV1Provider = {
+        let walletConnectV1service = WalletConnectV1Provider(sessionsSubject: sessionsSubject)
         walletConnectV1service.delegate = self
 
+        return walletConnectV1service
+    }()
+
+    private lazy var provider: WalletConnectServerProviderType = {
+        let provider = WalletConnectServerProvider()
         provider.register(service: walletConnectV1service)
         provider.register(service: walletConnectV2service)
 
@@ -43,12 +47,6 @@ class WalletConnectCoordinator: NSObject, Coordinator {
     }()
 
     private let navigationController: UINavigationController
-
-    var coordinators: [Coordinator] = []
-    var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> {
-        provider.sessionsSubscribable
-    }
-
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let config: Config
@@ -58,13 +56,16 @@ class WalletConnectCoordinator: NSObject, Coordinator {
         ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
     }
     private weak var sessionsViewController: WalletConnectSessionsViewController?
-    weak var delegate: WalletConnectCoordinatorDelegate? {
-        didSet {
-            walletConnectV2service.sessionProvider = delegate
-        }
-    } 
+    private var sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
 
-    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, config: Config) {
+    weak var delegate: WalletConnectCoordinatorDelegate?
+    var coordinators: [Coordinator] = []
+    var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> {
+        provider.sessionsSubscribable
+    }
+
+    init(keystore: Keystore, navigationController: UINavigationController, analyticsCoordinator: AnalyticsCoordinator, config: Config, sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>) {
+        self.sessionsSubject = sessionsSubject
         self.config = config
         self.keystore = keystore
         self.navigationController = navigationController
@@ -244,17 +245,15 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    func server(_ server: WalletConnectServerType, didConnect walletConnectSession: AlphaWallet.WalletConnect.Session) {
+    func server(_ server: WalletConnectServer, didConnect walletConnectSession: AlphaWallet.WalletConnect.Session) {
         infoLog("WalletConnect didConnect session: \(walletConnectSession.identifier)")
         resetSessionsToRemoveLoadingIfNeeded()
     }
 
-    func server(_ server: WalletConnectServerType, action: AlphaWallet.WalletConnect.Action, request: AlphaWallet.WalletConnect.Session.Request, session walletConnectSession: AlphaWallet.WalletConnect.Session) {
+    func server(_ server: WalletConnectServer, action: AlphaWallet.WalletConnect.Action, request: AlphaWallet.WalletConnect.Session.Request, session walletConnectSession: AlphaWallet.WalletConnect.Session) {
         infoLog("WalletConnect action: \(action)")
 
-        guard let walletSession = request.server.flatMap({ server in
-            delegate.flatMap { $0.walletSessions[safe: server] }
-        }) else {
+        guard let walletSession = request.server.flatMap({ sessionsSubject.value[safe: $0] }) else {
             try? server.respond(.init(error: .requestRejected), request: request)
             return
         }
@@ -327,10 +326,9 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         infoLog("WalletConnect switchChain: \(targetChain)")
         //NOTE: DappRequestSwitchExistingChainCoordinator requires current selected server, (from dapp impl) if we pass server that isn't currently selected it will ask to switch server 2 times, for this we return server that is already selected
         func firstEnabledRPCServer() -> RPCServer? {
-            let session = targetChain.server
-                .flatMap { server in delegate.flatMap { $0.walletSessions[safe: server]?.server } }
+            let server = targetChain.server.flatMap { server in sessionsSubject.value[safe: server]?.server }
 
-            return session ?? walletConnectSession.servers.first
+            return server ?? walletConnectSession.servers.first
         }
         
         guard let server = firstEnabledRPCServer(), targetChain.server != nil else {
@@ -413,13 +411,13 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    func server(_ server: WalletConnectServerType, didFail error: Error) {
+    func server(_ server: WalletConnectServer, didFail error: Error) {
         infoLog("WalletConnect didFail error: \(error)")
         let errorMessage = R.string.localizable.walletConnectFailureTitle()
         displayErrorMessage(errorMessage)
     }
 
-    func server(_ server: WalletConnectServerType, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {
+    func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {
         if Features.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections {
             infoLog("WalletConnect app-enforced timeout for waiting for new connection")
             analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
@@ -432,7 +430,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
         }
     }
 
-    func server(_ server: WalletConnectServerType, shouldConnectFor sessionProposal: AlphaWallet.WalletConnect.SessionProposal, completion: @escaping (AlphaWallet.WalletConnect.SessionProposalResponse) -> Void) {
+    func server(_ server: WalletConnectServer, shouldConnectFor sessionProposal: AlphaWallet.WalletConnect.SessionProposal, completion: @escaping (AlphaWallet.WalletConnect.SessionProposalResponse) -> Void) {
         infoLog("WalletConnect shouldConnectFor connection: \(sessionProposal)")
         firstly {
             WalletConnectToSessionCoordinator.promise(navigationController, coordinator: self, sessionProposal: sessionProposal, serverChoices: serverChoices, analyticsCoordinator: analyticsCoordinator, config: config)
