@@ -247,7 +247,6 @@
 		5E7C705166218753CAA19A6D /* TokenIdOrigin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7587F30FF1896039B8C8 /* TokenIdOrigin.swift */; };
 		5E7C7062A44AF416B110008A /* PingInfuraCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */; };
 		5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C7B211FF0FE5BE98BB7D0 /* aETH.tsml */; };
-		5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71AFE747055742986023 /* withRetry.swift */; };
 		5E7C7067E8FEA5055BF83553 /* HDWallet+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C6759CA1C223DABA462 /* HDWallet+Extension.swift */; };
 		5E7C7068825D19D22329AC7E /* SendTransactionErrorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75273010A92461EE5CD7 /* SendTransactionErrorViewController.swift */; };
 		5E7C706F4BDF994D539F8040 /* AssetDefinitionsOverridesViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E54BE622E49554FE4A9 /* AssetDefinitionsOverridesViewCell.swift */; };
@@ -655,8 +654,6 @@
 		5E7C7FE1E7806D33001F9867 /* ShowSeedPhraseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73CC82B9877AF4A42333 /* ShowSeedPhraseViewController.swift */; };
 		5E7C7FE5F70D5777FD7258B2 /* DappsHomeEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C790B6371A5BCD733A4BE /* DappsHomeEmptyView.swift */; };
 		5E7C7FF312AB61DBEBD86C94 /* WhatsNewViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E9871A0D0D81A012640 /* WhatsNewViewModels.swift */; };
-		5F4D80A426A3F97B00BB1135 /* DeviceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */; };
-		5F4D80AA26A3F9C500BB1135 /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4D80A926A3F9C500BB1135 /* UIDevice.swift */; };
 		613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */ = {isa = PBXBuildFile; fileRef = 613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */; };
 		613D048B1FDE162B008DE72E /* AlphaWalletProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613D048A1FDE162B008DE72E /* AlphaWalletProviderFactory.swift */; };
 		61C359E02002AA5A0097B04D /* TransactionSigning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C359DF2002AA590097B04D /* TransactionSigning.swift */; };
@@ -707,7 +704,6 @@
 		771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA94D1FF971CD00D25403 /* DappAction.swift */; };
 		771AA964200D5EDB00D25403 /* WordCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA963200D5EDB00D25403 /* WordCollectionViewCell.swift */; };
 		771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 771AA965200D5F1900D25403 /* WordCollectionViewCell.xib */; };
-		7721A6BE202A5677004DB16C /* DecryptError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6BD202A5677004DB16C /* DecryptError.swift */; };
 		7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6C7202EF81B004DB16C /* CustomRPC.swift */; };
 		77872D232023F43B0032D687 /* TransactionsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77872D222023F43B0032D687 /* TransactionsTracker.swift */; };
 		77872D25202505B70032D687 /* EnterKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77872D24202505B70032D687 /* EnterKeystorePasswordViewController.swift */; };
@@ -1365,7 +1361,6 @@
 		5E7C7185AA9F93D4F0B67AF7 /* ABIEncoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIEncoder.swift; sourceTree = "<group>"; };
 		5E7C71A8BE594C1D126AB309 /* FakeEventsDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeEventsDataStore.swift; sourceTree = "<group>"; };
 		5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptViewController.swift; sourceTree = "<group>"; };
-		5E7C71AFE747055742986023 /* withRetry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = withRetry.swift; sourceTree = "<group>"; };
 		5E7C71C2C110B621EFDE336F /* TokensCardViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewControllerTitleHeader.swift; sourceTree = "<group>"; };
 		5E7C71CE10548877F1124BF2 /* WelcomeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewModel.swift; sourceTree = "<group>"; };
 		5E7C71DB4EDD10EA665101C2 /* ActivityViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewCell.swift; sourceTree = "<group>"; };
@@ -1744,8 +1739,6 @@
 		5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStoreTests.swift; sourceTree = "<group>"; };
 		5E7C7FE5EEC96A7CDF62213F /* DappsHomeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7FF2EF77D5004A600DDB /* SuccessOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuccessOverlayView.swift; sourceTree = "<group>"; };
-		5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceModel.swift; sourceTree = "<group>"; };
-		5F4D80A926A3F9C500BB1135 /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */ = {isa = PBXFileReference; lastKnownFileType = file.cer; path = "COMODO ECC Domain Validation Secure Server CA 2.cer"; sourceTree = "<group>"; };
 		613D048A1FDE162B008DE72E /* AlphaWalletProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaWalletProviderFactory.swift; sourceTree = "<group>"; };
 		61C359DF2002AA590097B04D /* TransactionSigning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionSigning.swift; sourceTree = "<group>"; };
@@ -1796,7 +1789,6 @@
 		771AA94D1FF971CD00D25403 /* DappAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappAction.swift; sourceTree = "<group>"; };
 		771AA963200D5EDB00D25403 /* WordCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCollectionViewCell.swift; sourceTree = "<group>"; };
 		771AA965200D5F1900D25403 /* WordCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WordCollectionViewCell.xib; sourceTree = "<group>"; };
-		7721A6BD202A5677004DB16C /* DecryptError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptError.swift; sourceTree = "<group>"; };
 		7721A6BF202B1D3E004DB16C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7721A6C7202EF81B004DB16C /* CustomRPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRPC.swift; sourceTree = "<group>"; };
 		77872D222023F43B0032D687 /* TransactionsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsTracker.swift; sourceTree = "<group>"; };
@@ -2954,7 +2946,6 @@
 				293112361FC9A24600966EEA /* UIGestureRecognizer+Closure.swift */,
 				29F1C85020032688003780D8 /* Address.swift */,
 				29FA00D3201EC662002F7DC5 /* NSObject.swift */,
-				7721A6BD202A5677004DB16C /* DecryptError.swift */,
 				737D1674202BDCB400B42DDE /* UINavigationController.swift */,
 				73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */,
 				442FCCAC6A172506637A2FF6 /* Int.swift */,
@@ -2970,7 +2961,6 @@
 				87CDD48F25F100AE0009B6AC /* Array.swift */,
 				8722F86A25F79A2E00293D89 /* UIResponder.swift */,
 				8722F86C25F79A4700293D89 /* UITableViewCell.swift */,
-				5F4D80A926A3F9C500BB1135 /* UIDevice.swift */,
 				87BC89B726B82287005482F4 /* UIBarButtonItem.swift */,
 				874015BE270DBB4800B3515F /* MimeType+Extension.swift */,
 				87D84748274533F500EDBA80 /* UIImageView+Extension.swift */,
@@ -5191,13 +5181,11 @@
 				CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */,
 				5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */,
 				5E7C708DE897B6677EAD769B /* ScriptMessageProxy.swift */,
-				5E7C71AFE747055742986023 /* withRetry.swift */,
 				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
 				878EE953255BFFB9000210DE /* FeedbackGenerator.swift */,
 				87FF2E412567F0A3002350EB /* BlockieGenerator.swift */,
 				5E7C7B80946D854599838AD1 /* RemoteLogger.swift */,
 				5E7C77DBECDF831CD6C8FF71 /* Environment.swift */,
-				5F4D80A326A3F97B00BB1135 /* DeviceModel.swift */,
 				025F5D2E2760CDE600B2A3BC /* StringValidator.swift */,
 				0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */,
 			);
@@ -5803,7 +5791,6 @@
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
 				87F4D41C26C26C2000EFB9BC /* DropDownViewModel.swift in Sources */,
 				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
-				5F4D80AA26A3F9C500BB1135 /* UIDevice.swift in Sources */,
 				87C447AA255970C5009DF2D2 /* ActiveWalletSessionView.swift in Sources */,
 				87897B9E25EF7C50006E3C75 /* ShowSeedPhraseIntroductionViewModel.swift in Sources */,
 				874AF0832603405F00D613A5 /* LoadingIndicatorView.swift in Sources */,
@@ -5821,7 +5808,6 @@
 				29FA00D0201CA66A002F7DC5 /* DAppError.swift in Sources */,
 				2995739F1FA1F294006F17FD /* QRCodeValueParser.swift in Sources */,
 				8731E6E02565269400A6A7DA /* Uniswap.swift in Sources */,
-				7721A6BE202A5677004DB16C /* DecryptError.swift in Sources */,
 				87BBF9982563DD7600FF4846 /* TransactionConfirmationCoordinatorBridgeToPromise.swift in Sources */,
 				61FC5ECF1FCFBAE500CCB12A /* EtherNumberFormatter.swift in Sources */,
 				87A5D53E26B9767300856995 /* QuickSwap.swift in Sources */,
@@ -6382,7 +6368,6 @@
 				5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */,
 				5E7C70794E07FF6B26AE297B /* DirectoryContentsWatcher.swift in Sources */,
 				5E7C757F9E9F7738B213C8B8 /* AssetDefinitionDiskBackingStore.swift in Sources */,
-				5F4D80A426A3F97B00BB1135 /* DeviceModel.swift in Sources */,
 				5E7C7350C5F9ADE212A0F1CA /* CallForAssetAttributeCoordinator.swift in Sources */,
 				5E7C760E41FF2E035BC968C5 /* AssetFunctionCall.swift in Sources */,
 				5E7C76D464BD797FF3A962F8 /* Origin.swift in Sources */,
@@ -6505,7 +6490,6 @@
 				8712A38B26F476030009C376 /* StatefulView.swift in Sources */,
 				5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */,
 				878EE954255BFFB9000210DE /* FeedbackGenerator.swift in Sources */,
-				5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */,
 				5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */,
 				5E7C7C5C350376B83D23154F /* MixpanelCoordinator.swift in Sources */,
 				5E7C769C85D1EBB44DEA5AC5 /* AnalyticsEventPropertyValue.swift in Sources */,
