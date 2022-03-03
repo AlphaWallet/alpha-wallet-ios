@@ -32,7 +32,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func updateOrderedTokens(with orderedTokens: [TokenObject])
 
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
-    @discardableResult func addBatchObjects(values: [SingleChainTokenCoordinator.BatchObject]) -> [TokenObject]
+    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject]
     @discardableResult func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
 }
 
@@ -49,6 +49,17 @@ enum TokenUpdateAction {
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let realm: Realm
     let account: Wallet
+
+    init(realm: Realm, account: Wallet, servers: [RPCServer]) {
+        self.account = account
+        self.realm = realm
+
+        super.init()
+
+        for each in servers {
+            addEthToken(forServer: each)
+        }
+    }
 
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never> {
         return enabledObjectResults(forServers: servers)
@@ -69,29 +80,7 @@ enum TokenUpdateAction {
 
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject] {
         let tokenObjects = Array(enabledObjectResults(forServers: servers).map { $0 })
-        return MultipleChainsTokensDataStore.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
-    }
-
-    private func enabledObjectResults(forServers servers: [RPCServer]) -> Results<TokenObject> {
-        let predicate = MultipleChainsTokensDataStore
-            .functional
-            .nonEmptyContractTokenPredicateWithErc20AddressForNativeTokenFilter(servers: servers, isDisabled: false)
-
-        return realm.objects(TokenObject.self)
-            .filter(predicate)
-    }
-
-    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokenObjects: [TokenObject]) -> [TokenObject] {
-        var result = tokenObjects
-        for server in servers {
-            if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: address) }) {
-                result = result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.server == server }
-            } else {
-                continue
-            }
-        }
-
-        return result
+        return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
     }
 
     func deletedContracts(forServer server: RPCServer) -> [DeletedContract] {
@@ -107,17 +96,6 @@ enum TokenUpdateAction {
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract] {
         return Array(realm.objects(HiddenContract.self)
             .filter("chainId = \(server.chainID)"))
-    }
-
-    init(realm: Realm, account: Wallet, servers: [RPCServer]) {
-        self.account = account
-        self.realm = realm
-
-        super.init()
-
-        for each in servers {
-            addEthToken(forServer: each)
-        }
     }
 
     func addEthToken(forServer server: RPCServer) {
@@ -180,20 +158,7 @@ enum TokenUpdateAction {
         return newTokens
     }
 
-    //TODO: Group private and internal functions, mark private everithing
-    @discardableResult private func addTokenUnsafe(tokenObject: TokenObject, realm: Realm) -> TokenObject {
-        //TODO: save existed sort index and displaying state
-        if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: tokenObject.primaryKey) {
-            tokenObject.sortIndex = object.sortIndex
-            tokenObject.shouldDisplay = object.shouldDisplay
-        }
-
-        realm.add(tokenObject, update: .all)
-
-        return tokenObject
-    }
-
-    @discardableResult func addBatchObjects(values: [SingleChainTokenCoordinator.BatchObject]) -> [TokenObject] {
+    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject] {
         guard !values.isEmpty else { return [] }
         var tokenObjects: [TokenObject] = []
 
@@ -211,6 +176,24 @@ enum TokenUpdateAction {
                     tokenObjects += [tokenObject]
                 case .deletedContracts(let deadContracts):
                     realm.add(deadContracts, update: .all)
+                case .fungibleTokenComplete(let name, let symbol, let decimals, let contract, let server, let onlyIfThereIsABalance):
+                    let existedTokenObject = token(forContract: contract, server: server)
+
+                    let value = existedTokenObject?.value ?? "0"
+                    guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
+                        continue
+                    }
+                    let tokenObject = TokenObject(
+                            contract: contract,
+                            server: server,
+                            name: name,
+                            symbol: symbol,
+                            decimals: Int(decimals),
+                            value: value,
+                            type: .erc20
+                    )
+                    addTokenUnsafe(tokenObject: tokenObject, realm: realm)
+                    tokenObjects += [tokenObject]
                 case .none:
                     break
                 }
@@ -304,6 +287,19 @@ enum TokenUpdateAction {
         return result
     }
 
+    //TODO: Group private and internal functions, mark private everithing
+    @discardableResult private func addTokenUnsafe(tokenObject: TokenObject, realm: Realm) -> TokenObject {
+        //TODO: save existed sort index and displaying state
+        if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: tokenObject.primaryKey) {
+            tokenObject.sortIndex = object.sortIndex
+            tokenObject.shouldDisplay = object.shouldDisplay
+        }
+
+        realm.add(tokenObject, update: .all)
+
+        return tokenObject
+    }
+
     @discardableResult private func updateTokenUnsafe(primaryKey: String, action: TokenUpdateAction) -> Bool? {
         guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else {
             return nil
@@ -361,6 +357,15 @@ enum TokenUpdateAction {
         }
 
         return result
+    }
+
+    private func enabledObjectResults(forServers servers: [RPCServer]) -> Results<TokenObject> {
+        let predicate = MultipleChainsTokensDataStore
+            .functional
+            .nonEmptyContractTokenPredicateWithErc20AddressForNativeTokenFilter(servers: servers, isDisabled: false)
+
+        return realm.objects(TokenObject.self)
+            .filter(predicate)
     }
 }
 
@@ -492,5 +497,18 @@ extension MultipleChainsTokensDataStore.functional {
         }
 
         return newToken
+    }
+
+    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokenObjects: [TokenObject]) -> [TokenObject] {
+        var result = tokenObjects
+        for server in servers {
+            if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: address) }) {
+                result = result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.server == server }
+            } else {
+                continue
+            }
+        }
+
+        return result
     }
 }

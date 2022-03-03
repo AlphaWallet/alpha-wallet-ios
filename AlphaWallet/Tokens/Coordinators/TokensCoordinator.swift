@@ -100,6 +100,7 @@ class TokensCoordinator: Coordinator {
     }()
 
     private let tokensDataStore: TokensDataStore
+    private let tokensAutoDetectionQueue: DispatchQueue = DispatchQueue(label: "com.TokensAutoDetection.updateQueue")
 
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
@@ -181,7 +182,17 @@ class TokensCoordinator: Coordinator {
         for session in sessions.values {
             let server = session.server
             let transactionsStorage = transactionsStorages[server]
-            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService)
+
+            let tokenObjectFetcher: TokenObjectFetcher = {
+                SingleChainTokenObjectFetcher(account: session.account, server: server, assetDefinitionStore: assetDefinitionStore)
+            }()
+
+            let tokensAutodetector: TokensAutodetector = {
+                SingleChainTokensAutodetector(account: session.account, server: server, config: config, keystore: keystore, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, tokenObjectFetcher: tokenObjectFetcher)
+            }()
+
+            let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, tokenActionsProvider: tokenActionsService, transactionsStorage: transactionsStorage, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)
+
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
