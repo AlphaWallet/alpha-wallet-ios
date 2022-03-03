@@ -109,9 +109,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
 
         super.init()
-
         //Necessary so that some sites don't bleed into (under) navigation bar after we tweak global styles for navigationBars after adding large title support
-        self.navigationController.navigationBar.isTranslucent = false
+        navigationController.navigationBar.isTranslucent = false
 
         browserNavBar?.navigationBarDelegate = self
         browserNavBar?.configure(server: server)
@@ -902,11 +901,4 @@ extension DappBrowserCoordinator {
     private func logEnterUrl() {
         analyticsCoordinator.log(action: Analytics.Action.enterUrl)
     }
-}
-
-extension UINavigationController {
-    /// Removes all instances of view controller from navigation stack of type `T` skipping instance `avoidToRemove`
-    func removeViewControllerOfSameType<T>(except avoidToRemove: T) where T: UIViewController {
-        viewControllers = viewControllers.filter { !($0 is T) || $0 == avoidToRemove }
-    }
-}
+} 

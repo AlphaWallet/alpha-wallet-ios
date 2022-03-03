@@ -58,7 +58,7 @@ class SettingsCoordinator: Coordinator {
         walletBalanceCoordinator: WalletBalanceCoordinatorType
 	) {
 		self.navigationController = navigationController
-
+        
         self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
