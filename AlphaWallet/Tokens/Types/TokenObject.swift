@@ -273,13 +273,13 @@ class TokenObject: Object {
             let tokenName = _compositeTokenName(fallback: name)
 
             if tokenName.isEmpty {
+                return symbol
+            } else if tokenName.count > symbol.count {
                 if symbol.isEmpty {
-                    return "??"
+                    return tokenName
                 } else {
                     return symbol
                 }
-            } else if tokenName.count > symbol.count {
-                return tokenName
             } else {
                 //some-imas asd -> someimas asd
                 let acronym = tokenName.components(separatedBy: CharacterSet.alphanumerics.inverted).joined(separator: "").getAcronyms()
