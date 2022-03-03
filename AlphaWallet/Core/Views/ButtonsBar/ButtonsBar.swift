@@ -364,7 +364,7 @@ struct ButtonsBarViewModel {
         buttonBorderWidth: 0.0
     )
 
-    static let moreButton = ButtonsBarViewModel()
+    static let moreButton = ButtonsBarViewModel(buttonBorderWidth: 0)
 
     var buttonBackgroundColor: UIColor = Colors.appWhite
     var highlightedButtonBackgroundColor: UIColor?
