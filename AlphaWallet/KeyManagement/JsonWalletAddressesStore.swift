@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct JsonWalletAddressesStore: WalletAddressesStoreType {
+struct JsonWalletAddressesStore: WalletAddressesStore {
     private static let walletsFolderForTests = "testSuiteWalletsForWalletAddresses"
     static func createStorage() -> StorageType {
         let directoryUrl: URL = {
@@ -121,7 +121,7 @@ struct JsonWalletAddressesStore: WalletAddressesStoreType {
 extension EtherKeystore {
     private static let rawJsonWalletStore = JsonWalletAddressesStore.createStorage()
     
-    static func migratedWalletAddressesStore(userDefaults: UserDefaults) -> WalletAddressesStoreType {
+    static func migratedWalletAddressesStore(userDefaults: UserDefaults) -> WalletAddressesStore {
         if Features.isJsonFileBasedStorageForWalletAddressesEnabled {
             //NOTE: its quite important to remove test wallets right before fetching, otherwise tests will fails, especially Keystore related
             JsonWalletAddressesStore.removeWalletsFolderForTests()

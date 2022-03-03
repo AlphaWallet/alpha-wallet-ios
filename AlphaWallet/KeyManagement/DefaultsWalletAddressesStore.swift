@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DefaultsWalletAddressesStore: WalletAddressesStoreType {
+struct DefaultsWalletAddressesStore: WalletAddressesStore {
 
     private struct Keys {
         static let watchAddresses = "watchAddresses"

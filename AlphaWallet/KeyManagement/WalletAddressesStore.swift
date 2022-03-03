@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol WalletAddressesStoreMigrationType {
-    func migrate(to store: WalletAddressesStoreType) -> WalletAddressesStoreType
+protocol WalletAddressesStoreMigration {
+    func migrate(to store: WalletAddressesStore) -> WalletAddressesStore
 }
 
-protocol WalletAddressesStoreType: WalletAddressesStoreMigrationType {
+protocol WalletAddressesStore: WalletAddressesStoreMigration {
     var watchAddresses: [String] { get set }
     var ethereumAddressesWithPrivateKeys: [String] { get set }
     var ethereumAddressesWithSeed: [String] { get set }
@@ -21,9 +21,9 @@ protocol WalletAddressesStoreType: WalletAddressesStoreMigrationType {
     var hasMigratedFromKeystoreFiles: Bool { get }
 }
 
-extension WalletAddressesStoreType {
+extension WalletAddressesStore {
 
-    func migrate(to store: WalletAddressesStoreType) -> WalletAddressesStoreType {
+    func migrate(to store: WalletAddressesStore) -> WalletAddressesStore {
         var store = store
         store.watchAddresses = watchAddresses
         store.ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys
