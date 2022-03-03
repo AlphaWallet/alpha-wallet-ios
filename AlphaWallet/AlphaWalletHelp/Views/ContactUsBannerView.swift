@@ -15,14 +15,14 @@ class ContactUsBannerView: UIView {
     private let label = UILabel()
 
     weak var delegate: ContactUsBannerViewDelegate?
-
+    
     private var emailTemplate: String {
         return """
                \n\n\n
 
                \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
                \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
-               \(R.string.localizable.aHelpContactEmailDeviceModel("\(UIDevice.type.rawValue) \(UIDevice.type == .unrecognized ? " - \(UIDevice.current.model)" : "")"))
+               \(R.string.localizable.aHelpContactEmailDeviceModel("\(AlphaWallet.Device.type.rawValue) \(AlphaWallet.Device.type == .unknown ? " - \(UIDevice.current.model)" : "")"))
                \(R.string.localizable.aHelpContactEmailAppVersion("\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"))
                \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
                """
