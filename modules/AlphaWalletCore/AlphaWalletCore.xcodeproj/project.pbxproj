@@ -8,15 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		8717D39227B636F000FB789D /* AlphaWalletCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 8717D38F27B636F000FB789D /* AlphaWalletCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		8717D39927B6399E00FB789D /* AlphaWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717D39827B6399E00FB789D /* AlphaWallet.swift */; };
-		8717D39B27B63A0800FB789D /* AlphaWalletURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717D39A27B63A0800FB789D /* AlphaWalletURL.swift */; };
+		872C9C4027CFCA8600C98945 /* WebImageURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872C9C3F27CFCA8600C98945 /* WebImageURL.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		8717D38C27B636F000FB789D /* AlphaWalletCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AlphaWalletCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8717D38F27B636F000FB789D /* AlphaWalletCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlphaWalletCore.h; sourceTree = "<group>"; };
-		8717D39827B6399E00FB789D /* AlphaWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaWallet.swift; sourceTree = "<group>"; };
-		8717D39A27B63A0800FB789D /* AlphaWalletURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaWalletURL.swift; sourceTree = "<group>"; };
+		872C9C3F27CFCA8600C98945 /* WebImageURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebImageURL.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,9 +47,8 @@
 		8717D38E27B636F000FB789D /* AlphaWalletCore */ = {
 			isa = PBXGroup;
 			children = (
+				872C9C3F27CFCA8600C98945 /* WebImageURL.swift */,
 				8717D38F27B636F000FB789D /* AlphaWalletCore.h */,
-				8717D39827B6399E00FB789D /* AlphaWallet.swift */,
-				8717D39A27B63A0800FB789D /* AlphaWalletURL.swift */,
 			);
 			path = AlphaWalletCore;
 			sourceTree = "<group>";
@@ -95,6 +92,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1300;
 				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					8717D38B27B636F000FB789D = {
@@ -136,8 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8717D39927B6399E00FB789D /* AlphaWallet.swift in Sources */,
-				8717D39B27B63A0800FB789D /* AlphaWalletURL.swift in Sources */,
+				872C9C4027CFCA8600C98945 /* WebImageURL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

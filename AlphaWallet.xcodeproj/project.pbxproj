@@ -501,7 +501,6 @@
 		5E7C797F3278A290BE47BFA2 /* TokenIdOrEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78302634885C93D9B6FA /* TokenIdOrEvent.swift */; };
 		5E7C79880D398BF8D145D666 /* ImportMagicLinkCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A5A91E5DE208B33325 /* ImportMagicLinkCoordinatorTests.swift */; };
 		5E7C798A5D213DD92F24CBFB /* AssetImplicitAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78FAB9070B10A476DB29 /* AssetImplicitAttributes.swift */; };
-		5E7C799DED280839CE80FCD3 /* URLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7DCF28B3F0342113E20E /* URLTests.swift */; };
 		5E7C79BFFFB6A5FE833489C0 /* ActivitiesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72E648B7C34EDA193BDA /* ActivitiesCoordinator.swift */; };
 		5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */; };
 		5E7C79DE18FC5CB46E75753A /* AssetAttributeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C788F7461AC159215BFA7 /* AssetAttributeMapping.swift */; };
@@ -950,6 +949,8 @@
 		87C447AA255970C5009DF2D2 /* ActiveWalletSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C447A9255970C5009DF2D2 /* ActiveWalletSessionView.swift */; };
 		87C650C325F2408E007B02CB /* ServerUnavailableCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C650C225F2408E007B02CB /* ServerUnavailableCoordinator.swift */; };
 		87C65F532660DD2E00919819 /* WalletBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C65F522660DD2E00919819 /* WalletBalanceFetcher.swift */; };
+		87C7E68627D0D2EB009D245C /* URLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C7E68427D0D2EB009D245C /* URLTests.swift */; };
+		87C7E68727D0D2EB009D245C /* WebImageUrlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C7E68527D0D2EB009D245C /* WebImageUrlTests.swift */; };
 		87C8018C24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */; };
 		87CA8495253DDFF200BF8443 /* TransitionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CA8490253DDFF100BF8443 /* TransitionButton.swift */; };
 		87CC3853273E7980005BE9B8 /* eip155URLDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CC3852273E7980005BE9B8 /* eip155URLDecoder.swift */; };
@@ -1685,7 +1686,6 @@
 		5E7C7DC3AEBE4049927B7625 /* EnableServersHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnableServersHeaderView.swift; sourceTree = "<group>"; };
 		5E7C7DC4B06C1A623788EEED /* WalletConnectSessionCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7DCB0BDDD30D10130AE7 /* GetIsERC875Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875Encode.swift; sourceTree = "<group>"; };
-		5E7C7DCF28B3F0342113E20E /* URLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLTests.swift; sourceTree = "<group>"; };
 		5E7C7DD30D23ACDDA7995355 /* RemoteCounter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteCounter.swift; sourceTree = "<group>"; };
 		5E7C7DD409C330DA4033F504 /* Keystore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keystore.swift; sourceTree = "<group>"; };
 		5E7C7DD9C564F2C7DE435894 /* ConfirmSignMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfirmSignMessageTableViewCell.swift; sourceTree = "<group>"; };
@@ -2038,6 +2038,8 @@
 		87C650C225F2408E007B02CB /* ServerUnavailableCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerUnavailableCoordinator.swift; sourceTree = "<group>"; };
 		87C65F4F265FCAC500919819 /* ThreadSafeDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeDictionary.swift; sourceTree = "<group>"; };
 		87C65F522660DD2E00919819 /* WalletBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceFetcher.swift; sourceTree = "<group>"; };
+		87C7E68427D0D2EB009D245C /* URLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLTests.swift; sourceTree = "<group>"; };
+		87C7E68527D0D2EB009D245C /* WebImageUrlTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebImageUrlTests.swift; sourceTree = "<group>"; };
 		87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddHideTokenSectionHeaderViewModel.swift; sourceTree = "<group>"; };
 		87CA8490253DDFF100BF8443 /* TransitionButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionButton.swift; sourceTree = "<group>"; };
 		87CC3852273E7980005BE9B8 /* eip155URLDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eip155URLDecoder.swift; sourceTree = "<group>"; };
@@ -3328,6 +3330,8 @@
 		29F1C85420036879003780D8 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				87C7E68427D0D2EB009D245C /* URLTests.swift */,
+				87C7E68527D0D2EB009D245C /* WebImageUrlTests.swift */,
 				29F1C85520036887003780D8 /* AppTrackerTests.swift */,
 				5E7C7570889AD33EA942D9A6 /* AlphaWalletAddressTests.swift */,
 				5E7C75DE215F0AAEF284948F /* HDWalletTest.swift */,
@@ -4241,7 +4245,6 @@
 			children = (
 				5E7C76D132F4BEA5CE4FFD0A /* StringExtensionTests.swift */,
 				5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */,
-				5E7C7DCF28B3F0342113E20E /* URLTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5788,7 +5791,6 @@
 				AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */,
 				29850D251F6B27A800791A49 /* R.generated.swift in Sources */,
 				8780FDBF27C3CC0F00BBE9DD /* ChangeSet.swift in Sources */,
-				87012F462797FA97002BCDF0 /* SelfResizableCollectionView.swift in Sources */,
 				737D1675202BDCB400B42DDE /* UINavigationController.swift in Sources */,
 				8717D37627B415C500FB789D /* SingleServerWalletConnectSession.swift in Sources */,
 				AA4E531820425A9500143A09 /* Date.swift in Sources */,
@@ -6630,6 +6632,7 @@
 				29FF13081F75F0AE00AFD326 /* AppCoordinatorTests.swift in Sources */,
 				2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */,
 				29F1C865200384FE003780D8 /* Wallet.swift in Sources */,
+				87C7E68627D0D2EB009D245C /* URLTests.swift in Sources */,
 				29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */,
 				61DCE17D2001A7A20053939F /* RLPTests.swift in Sources */,
 				299573A41FA27A15006F17FD /* TestKeyStore.swift in Sources */,
@@ -6650,6 +6653,7 @@
 				29AD8A0E1F93FF28008E10E7 /* WalletSession.swift in Sources */,
 				870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */,
 				CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */,
+				87C7E68727D0D2EB009D245C /* WebImageUrlTests.swift in Sources */,
 				29FF13011F75EAD900AFD326 /* FakeKeystore.swift in Sources */,
 				29FC9BCC1F831860000209CD /* PaymentCoordinatorTests.swift in Sources */,
 				732E0F522022754600B39C1F /* FakeLockProtocol.swift in Sources */,
@@ -6708,7 +6712,6 @@
 				5E7C7B89694C62A14CBE8105 /* FakeEventsDataStore.swift in Sources */,
 				5E7C7E5C76318C0E802F377F /* TokenScriptFilterParserTests.swift in Sources */,
 				5E7C7ADB4D80243679028A6D /* IntExtensionsTests.swift in Sources */,
-				5E7C799DED280839CE80FCD3 /* URLTests.swift in Sources */,
 				5E7C7A7FFA16D3505F94BB9E /* FakeActivitiesService.swift in Sources */,
 				5E7C775BE0C1CF2B2FCAEA4B /* DecodedFunctionCall+DecodeTests.swift in Sources */,
 				5E7C79880D398BF8D145D666 /* ImportMagicLinkCoordinatorTests.swift in Sources */,
