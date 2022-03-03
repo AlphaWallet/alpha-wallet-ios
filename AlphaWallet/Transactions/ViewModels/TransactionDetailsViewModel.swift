@@ -60,11 +60,11 @@ struct TransactionDetailsViewModel {
     }
 
     var detailsURL: URL? {
-        return ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.url
+        return ConfigExplorer(server: server).transactionUrl(for: transactionRow.id)?.url
     }
 
     var detailsButtonText: String {
-        if let name = ConfigExplorer(server: server).transactionURL(for: transactionRow.id)?.name {
+        if let name = ConfigExplorer(server: server).transactionUrl(for: transactionRow.id)?.name {
             return R.string.localizable.viewIn(name)
         } else {
             return R.string.localizable.moreDetails()

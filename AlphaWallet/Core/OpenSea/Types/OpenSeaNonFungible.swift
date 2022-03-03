@@ -42,9 +42,13 @@ struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
     var issuer: String?
     var created: String?
     var transferFee: String?
+    var collection: OpenSea.Collection?
+    var creator: OpenSea.AssetCreator?
+    let slug: String
 }
 
 extension OpenSeaNonFungible {
+
     var tokenIdSubstituted: String {
         return TokenIdConverter.toTokenIdSubstituted(string: tokenId)
     }
@@ -80,7 +84,7 @@ extension JSON {
         self["nonFungible"] = JSON(enjinToken.nonFungible as Any)
         self["blockHeight"] = JSON(enjinToken.blockHeight as Any)
         self["mintableSupply"] = JSON(enjinToken.mintableSupply as Any)
-        self["issuer"] = JSON(enjinToken.creator as Any)
+        self["enjin.issuer"] = JSON(enjinToken.creator as Any)
         self["created"] = JSON(enjinToken.createdAt as Any)
         self["transferFee"] = JSON(enjinToken.transferFeeSettings?.type?.rawValue as Any)
     }
@@ -105,6 +109,12 @@ struct OpenSeaNonFungibleTrait: Codable {
     let count: Int
     let type: String
     let value: String
+
+    init(json: JSON) {
+        count = json["trait_count"].intValue
+        type = json["trait_type"].stringValue
+        value = json["value"].stringValue
+    }
 }
 
 struct OpenSeaError: Error {
@@ -132,7 +142,7 @@ struct OpenSeaNonFungibleBeforeErc1155Support: Codable {
     }
 
     func asPostErc1155Support(tokenType: NonFungibleFromJsonTokenType?) -> NonFungibleFromJson {
-        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil)
+        let result = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType ?? .erc721, value: 1, contractName: contractName, decimals: 0, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: nil, collectionDescription: nil, creator: nil, slug: "")
         return result
     }
 }

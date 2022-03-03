@@ -179,7 +179,7 @@ class AssetsPageView: UIView, PageViewType {
 
     @objc func doneButtonTapped() {
         endEditing(true)
-    }
+    } 
 }
 
 extension AssetsPageView: StatefulViewController {

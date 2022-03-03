@@ -1,17 +1,13 @@
 //
-//  TokenInstanceAttributeView.swift
+//  NonFungibleTraitView.swift
 //  AlphaWallet
 //
-//  Created by Vladyslav Shepitko on 07.09.2021.
+//  Created by Vladyslav Shepitko on 03.02.2022.
 //
 
 import UIKit
 
-protocol TokenInstanceAttributeViewDelegate: class {
-    func didSelect(in view: TokenInstanceAttributeView)
-}
-
-class TokenInstanceAttributeView: UIView {
+class NonFungibleTraitView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -26,8 +22,16 @@ class TokenInstanceAttributeView: UIView {
         let label = UILabel()
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.setContentHuggingPriority(.required, for: .vertical)
-        label.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        return label
+    }()
+
+    private let countLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         return label
     }()
@@ -38,14 +42,14 @@ class TokenInstanceAttributeView: UIView {
 
         return view
     }()
-    weak var delegate: TokenInstanceAttributeViewDelegate?
+
     let indexPath: IndexPath
 
     init(edgeInsets: UIEdgeInsets = .init(top: 0, left: 20, bottom: 0, right: 20), indexPath: IndexPath) {
         self.indexPath = indexPath
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        let subStackView = [titleLabel, valueLabel].asStackView(spacing: 5)
+        let subStackView = [titleLabel, valueLabel, countLabel].asStackView(spacing: 5)
         let stackView = [
             .spacer(height: 0, flexible: true),
             subStackView,
@@ -61,27 +65,25 @@ class TokenInstanceAttributeView: UIView {
             subStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -1),
             stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
             stackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
+            countLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 20),
             separatorView.heightAnchor.constraint(equalToConstant: 1),
+            valueLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 100)
         ])
-
-        isUserInteractionEnabled = true
-        _ = UITapGestureRecognizer(addToView: self, closure: { [weak self] in
-            guard let strongSelf = self else { return }
-
-            strongSelf.delegate?.didSelect(in: strongSelf)
-        })
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    func configure(viewModel: TokenInstanceAttributeViewModel) {
+    func configure(viewModel: NonFungibleTraitViewModel) {
         titleLabel.attributedText = viewModel.attributedTitle
 
         valueLabel.attributedText = viewModel.attributedValue
         valueLabel.isHidden = valueLabel.attributedText == nil
-        valueLabel.numberOfLines = viewModel.valueLabelNumberOfLines
+
+        countLabel.attributedText = viewModel.attributedCountValue
+        countLabel.isHidden = countLabel.attributedText == nil
+
         separatorView.backgroundColor = viewModel.separatorColor
         separatorView.isHidden = viewModel.isSeparatorHidden
     }

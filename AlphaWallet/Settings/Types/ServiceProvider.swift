@@ -88,6 +88,59 @@ enum URLServiceProvider {
     }
 }
 
+enum SocialNetworkUrlProvider {
+    case discord
+    case telegram
+    case twitter
+    case facebook
+    case instagram
+
+    static func resolveUrl(for user: String, urlProvider: SocialNetworkUrlProvider) -> URL? {
+        if let url = URL(string: user), user.isValidURL {
+            return url
+        }
+
+        guard let deepLink = urlProvider.deepLinkURL(user: user), UIApplication.shared.canOpenURL(deepLink) else {
+            if let url = urlProvider.remoteURL(user: user) {
+                return url
+            } else {
+                return URL(string: user)
+            }
+        }
+        return deepLink
+    }
+
+    func deepLinkURL(user: String) -> URL? {
+        switch self {
+        case .discord:
+            return URL(string: "https://discord.com/\(user)")
+        case .telegram:
+            return URL(string: "https://t.me/\(user)")
+        case .twitter:
+            return URL(string: "twitter://user?screen_name=\(user)")
+        case .facebook:
+            return URL(string: "https://www.facebook.com/\(user)")
+        case .instagram:
+            return URL(string: "instagram://user?username=\(user)")
+        }
+    }
+
+    func remoteURL(user: String) -> URL? {
+        switch self {
+        case .discord:
+            return URL(string: "https://discord.com/\(user)")
+        case .telegram:
+            return URL(string: "https://t.me/\(user)")
+        case .twitter:
+            return URL(string: "https://twitter.com/\(user)")
+        case .facebook:
+            return URL(string: "https://www.facebook.com/\(user)")
+        case .instagram:
+            return URL(string: "https://instagram.com/\(user)")
+        }
+    }
+}
+
 import MessageUI
 
 final class ContactUsEmailResolver: NSObject {

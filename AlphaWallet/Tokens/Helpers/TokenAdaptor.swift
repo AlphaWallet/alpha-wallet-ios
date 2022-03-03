@@ -226,6 +226,9 @@ class TokenAdaptor {
         values.setIssuer(string: nonFungible.issuer)
         values.setCreated(string: nonFungible.created)
         values.setTransferFee(string: nonFungible.transferFee)
+        values.setCollection(collection: nonFungible.collection)
+        values.setSlug(string: nonFungible.slug)
+        values.setCreator(creator: nonFungible.creator)
 
         let status: Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"

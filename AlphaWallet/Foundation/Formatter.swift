@@ -46,6 +46,16 @@ struct Formatter {
         return formatter
     }()
 
+    static func shortCrypto(symbol: String) -> NumberFormatter {
+        let formatter = basicCurrencyFormatter()
+        formatter.positiveFormat = ",###.#" + " " + symbol
+        formatter.negativeFormat = "-,###.#" + " " + symbol
+        formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
+        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+        formatter.numberStyle = .none
+        return formatter
+    }
+
     static let priceChange: NumberFormatter = {
         let formatter = basicCurrencyFormatter()
         formatter.positiveFormat = "+$,###.#"

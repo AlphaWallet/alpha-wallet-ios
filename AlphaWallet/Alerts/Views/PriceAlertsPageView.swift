@@ -86,7 +86,7 @@ class PriceAlertsPageView: UIView, PageViewType {
 
     func reloadData() {
         tableView.reloadData()
-    }
+    } 
 }
 
 extension PriceAlertsPageView: UITableViewDataSource {

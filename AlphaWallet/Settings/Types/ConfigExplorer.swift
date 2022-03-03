@@ -5,27 +5,25 @@ import Foundation
 struct ConfigExplorer {
     private let server: RPCServer
 
-    init(
-        server: RPCServer
-    ) {
+    init(server: RPCServer) {
         self.server = server
     }
 
-    func transactionURL(for ID: String) -> (url: URL, name: String)? {
-        let result = explorer(for: server)
-        guard let endpoint = result.url else { return .none }
-        let urlString: String? = {
-            switch server {
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .callisto, .poa, .cronosTestnet, .custom, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
-                return endpoint + "/tx/" + ID
-            }
-        }()
-        guard let string = urlString, let url = URL(string: string) else { return .none }
-
-        return (url: url, name: result.name)
+    func transactionUrl(for ID: String) -> (url: URL, name: String)? {
+        let result = ConfigExplorer.explorer(for: server)
+        return result.url
+            .flatMap { URL(string: $0 + "/tx/" + ID) }
+            .flatMap { (url: $0, name: result.name) }
     }
 
-    func explorerName(for server: RPCServer) -> String {
+    func contractUrl(address: AlphaWallet.Address) -> (url: URL, name: String)? {
+        let result = ConfigExplorer.explorer(for: server)
+        return result.url
+            .flatMap { URL(string: $0 + "/address/" + address.eip55String) }
+            .flatMap { (url: $0, name: result.name) }
+    }
+
+    private static func explorerName(for server: RPCServer) -> String {
         switch server {
         case .main, .kovan, .ropsten, .rinkeby, .goerli:
             return "Etherscan"
@@ -38,7 +36,7 @@ struct ConfigExplorer {
         }
     }
 
-    private func explorer(for server: RPCServer) -> (url: String?, name: String) {
+    private static func explorer(for server: RPCServer) -> (url: String?, name: String) {
         let nameForServer = explorerName(for: server)
         let url = server.etherscanWebpageRoot
         return (url?.absoluteString, nameForServer)

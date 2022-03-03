@@ -148,7 +148,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     }
 
     private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, keystore: keystore, servers: servers, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

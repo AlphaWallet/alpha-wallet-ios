@@ -73,11 +73,13 @@ class TokenInstanceInfoPageView: UIView, PageViewType {
                 view.configure(viewModel: viewModel)
                 view.delegate = self
                 stackView.addArrangedSubview(view)
-            case .attributeCollection(let viewModel):
-                let view = OpenSeaAttributeCollectionView(viewModel: viewModel)
-                view.configure(viewModel: viewModel)
+            case .attributeCollection(let attributes):
+                for (row, attribute) in attributes.enumerated() {
+                    let view = NonFungibleTraitView(indexPath: IndexPath(row: row, section: index))
+                    view.configure(viewModel: attribute)
 
-                stackView.addArrangedSubview(view)
+                    stackView.addArrangedSubview(view)
+                }
             }
         }
     }
@@ -95,7 +97,7 @@ class TokenInstanceInfoPageView: UIView, PageViewType {
 
     @objc private func showContractWebPage() {
         delegate?.didPressViewContractWebPage(forContract: viewModel.contractAddress, in: self)
-    }
+    } 
 }
 
 extension TokenInstanceInfoPageView: TokenInstanceAttributeViewDelegate {

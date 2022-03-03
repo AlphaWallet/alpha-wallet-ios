@@ -36,6 +36,9 @@ protocol NonFungibleFromJson: Codable {
     var issuer: String? { get }
     var created: String? { get }
     var transferFee: String? { get }
+    var slug: String { get }
+    var creator: OpenSea.AssetCreator? { get }
+    var collection: OpenSea.Collection? { get }
 }
 
 extension NonFungibleFromJson {
