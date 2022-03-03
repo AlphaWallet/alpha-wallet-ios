@@ -10,50 +10,22 @@ import WalletConnectSwift
 import AlphaWalletAddress
 import PromiseKit
 
-struct SingleServerWalletConnectSession: Codable, SessionIdentifiable, Equatable {
-    let identifier: AlphaWallet.WalletConnect.SessionIdentifier
-    var session: WalletConnectSwift.Session
-    var server: RPCServer
-
-    init(session: WalletConnectSwift.Session, server: RPCServer) {
-        self.identifier = .url(url: session.url)
-        self.session = session
-        self.server = server
-    }
-
-    mutating func updateSession(_ session: WalletConnectSwift.Session) {
-        self.session = session
-    }
-
-    static func == (lsh: SingleServerWalletConnectSession, rsh: SingleServerWalletConnectSession) -> Bool {
-        return lsh.identifier == rsh.identifier
-    }
-
-    static func == (lsh: SingleServerWalletConnectSession, rsh: WalletConnectV1URL) -> Bool {
-        return lsh.identifier.description == rsh.absoluteString
-    }
-
-    static func == (lsh: SingleServerWalletConnectSession, rsh: AlphaWallet.WalletConnect.Session) -> Bool {
-        return lsh.identifier.description == rsh.identifier.description
-    }
-
-    static func == (lsh: SingleServerWalletConnectSession, rsh: Session) -> Bool {
-        return lsh.identifier.description == rsh.url.absoluteString
-    }
-}
-
 class WalletConnectV1Provider: WalletConnectServerType {
     static let connectionTimeout: TimeInterval = 10
 
     enum Keys {
-        static let server = "AlphaWallet"
-        static func generateStorageFileKey(wallet: AlphaWallet.Address) -> String {
-            return "walletConnectSessions-v1-\(wallet.eip55String)"
-        }
+        static let storageFileKey = "walletConnectSessions-v1"
     }
 
-    private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [Constants.iconUrl], url: URL(string: Constants.website)!)
-    private let wallet: AlphaWallet.Address
+    private let walletMeta: Session.ClientMeta = {
+        let client = Session.ClientMeta(
+            name: Constants.WalletConnect.server,
+            description: nil,
+            icons: Constants.WalletConnect.icons.compactMap { URL(string: $0) },
+            url: Constants.WalletConnect.websiteUrl
+        )
+        return client
+    }()
     private var connectionTimeoutTimers: [WalletConnectV1URL: Timer] = .init()
     private lazy var server: Server = {
         return Server(delegate: self)
@@ -73,12 +45,23 @@ class WalletConnectV1Provider: WalletConnectServerType {
 
         return handler
     }()
+    private let keystore: Keystore
+    private var subscription: Subscribable<Set<Wallet>>.SubscribableKey!
 
-    init(wallet: AlphaWallet.Address) {
-        self.wallet = wallet
-        self.storage = .init(fileName: Keys.generateStorageFileKey(wallet: wallet), defaultValue: [])
+    init(keystore: Keystore) {
+        self.keystore = keystore
+        self.storage = .init(fileName: Keys.storageFileKey, defaultValue: [])
 
         server.register(handler: requestHandler)
+
+        subscription = keystore.subscribableWallets.subscribe { [weak self] _ in
+            guard let strongSelf = self else { return }
+
+            for each in strongSelf.storage.value {
+                let walletInfo = strongSelf.walletInfo(choice: .connect(each.server))
+                try? strongSelf.server.updateSession(each.session, with: walletInfo)
+            }
+        }
     }
 
     deinit {
@@ -87,24 +70,20 @@ class WalletConnectV1Provider: WalletConnectServerType {
     }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws {
-        switch url {
-        case .v1(let wcUrl):
-            let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { _ in
-                let isStillWatching = self.connectionTimeoutTimers[wcUrl] != nil
-                debugLog("WalletConnect app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
-                if isStillWatching {
-                    //TODO be good if we can do `server.communicator.disconnect(from: url)` here on in the delegate. But `communicator` is not accessible
-                    self.delegate?.server(self, tookTooLongToConnectToUrl: url)
-                } else {
-                    //no-op
-                }
+        guard case .v1(let wcUrl) = url else { return }
+        let timer = Timer.scheduledTimer(withTimeInterval: Self.connectionTimeout, repeats: false) { _ in
+            let isStillWatching = self.connectionTimeoutTimers[wcUrl] != nil
+            debugLog("WalletConnect app-enforced connection timer is up for: \(wcUrl.absoluteString) isStillWatching: \(isStillWatching)")
+            if isStillWatching {
+                //TODO be good if we can do `server.communicator.disconnect(from: url)` here on in the delegate. But `communicator` is not accessible
+                self.delegate?.server(self, tookTooLongToConnectToUrl: url)
+            } else {
+                //no-op
             }
-            connectionTimeoutTimers[wcUrl] = timer
-
-            try server.connect(to: wcUrl)
-        case .v2:
-            break
         }
+        connectionTimeoutTimers[wcUrl] = timer
+
+        try server.connect(to: wcUrl)
     }
 
     func session(forIdentifier identifier: AlphaWallet.WalletConnect.SessionIdentifier) -> AlphaWallet.WalletConnect.Session? {
@@ -115,7 +94,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
         guard let index = storage.value.firstIndex(where: { $0 == session }), let server = servers.first else { return }
         storage.value[index].server = server
 
-        let walletInfo = walletInfo(wallet, choice: .connect(server))
+        let walletInfo = walletInfo(choice: .connect(server))
         try self.server.updateSession(storage.value[index].session, with: walletInfo)
     }
 
@@ -130,7 +109,7 @@ class WalletConnectV1Provider: WalletConnectServerType {
             guard let session = storage.value.first(where: { $0 == each.session }) else { continue }
 
             removeSession(for: session.session.url)
-            storage.value.removeAll(where: { $0 == each.session })
+
             try server.disconnect(from: session.session)
         }
     }
@@ -142,24 +121,16 @@ class WalletConnectV1Provider: WalletConnectServerType {
         try server.disconnect(from: nativeSession.session)
     }
 
-    func fulfill(_ callback: AlphaWallet.WalletConnect.Callback, request: AlphaWallet.WalletConnect.Session.Request) throws {
-        switch request {
-        case .v1(let request, _):
-            guard let callbackId = request.id else { throw WalletConnectError.callbackIdMissing }
-
-            let response = try Response(url: request.url, value: callback.value.hexEncoded, id: callbackId)
+    func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {
+        guard case .v1(let request, _) = request else { return }
+        guard let callbackId = request.id else { throw WalletConnectError.callbackIdMissing }
+        switch response {
+        case .value(let value):
+            let response = try Response(url: request.url, value: value.flatMap { $0.hexEncoded }, id: callbackId)
             server.send(response)
-        case .v2:
-            break
-        }
-    }
-
-    func reject(_ request: AlphaWallet.WalletConnect.Session.Request) {
-        switch request {
-        case .v1(let request, _):
-            server.send(.reject(request))
-        case .v2:
-            break
+        case .error(let code, let message):
+            let response = try Response(url: request.url, errorCode: code, message: message, id: callbackId)
+            server.send(response)
         }
     }
 
@@ -168,16 +139,17 @@ class WalletConnectV1Provider: WalletConnectServerType {
         return server.openSessions().contains(where: { $0.dAppInfo.peerId == nativeSession.session.dAppInfo.peerId })
     }
 
-    private func walletInfo(_ wallet: AlphaWallet.Address, choice: AlphaWallet.WalletConnect.SessionProposalResponse) -> Session.WalletInfo {
+    private func walletInfo(choice: AlphaWallet.WalletConnect.SessionProposalResponse) -> Session.WalletInfo {
         func peerId(approved: Bool) -> String {
             return approved ? UUID().uuidString : String()
         }
+        let wallets = keystore.wallets.map { $0.address.eip55String }
 
         return Session.WalletInfo(
             approved: choice.shouldProceed,
-            accounts: [wallet.eip55String],
+            accounts: wallets,
             //When there's no server (because user chose to cancel), it shouldn't matter whether the fallback (mainnet) is enabled
-            chainId: choice.server?.chainID ?? RPCServer.main.chainID,
+            chainId: choice.server?.chainID ?? Config().anyEnabledServer().chainID,
             peerId: peerId(approved: choice.shouldProceed),
             peerMeta: walletMeta
         )
@@ -196,15 +168,17 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
                 return strongSelf.server.send(.reject(request))
             }
 
-            WalletConnectRequestConverter().convert(request: request, session: session).map { type -> AlphaWallet.WalletConnect.Action in
-                return .init(type: type)
-            }.done { action in
-                strongSelf.delegate?.server(strongSelf, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
-            }.catch { error in
-                strongSelf.delegate?.server(strongSelf, didFail: error)
-                //NOTE: we need to reject request if there is some arrays
-                strongSelf.server.send(.reject(request))
-            }
+            WalletConnectRequestConverter()
+                .convert(request: request, session: session)
+                .map { type -> AlphaWallet.WalletConnect.Action in
+                    return .init(type: type)
+                }.done { action in
+                    strongSelf.delegate?.server(strongSelf, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
+                }.catch { error in
+                    strongSelf.delegate?.server(strongSelf, didFail: error)
+                    //NOTE: we need to reject request if there is some arrays
+                    strongSelf.server.send(.reject(request))
+                }
         }
     }
 
@@ -225,7 +199,7 @@ extension WalletConnectV1Provider: ServerDelegate {
         DispatchQueue.main.async {
             self.connectionTimeoutTimers[url] = nil
             self.removeSession(for: url)
-            self.delegate?.server(self, didFail: WalletConnectError.connect(url))
+            self.delegate?.server(self, didFail: WalletConnectError.connectionFailure(url))
         }
     }
 
@@ -239,7 +213,7 @@ extension WalletConnectV1Provider: ServerDelegate {
                 delegate.server(self, shouldConnectFor: sessionProposal) { [weak self] choice in
                     guard let strongSelf = self, let server = choice.server else { return }
 
-                    let info = strongSelf.walletInfo(strongSelf.wallet, choice: choice)
+                    let info = strongSelf.walletInfo(choice: choice)
                     if let index = strongSelf.storage.value.firstIndex(where: { $0 == session }) {
                         strongSelf.storage.value[index] = .init(session: session, server: server)
                     } else {
@@ -248,7 +222,7 @@ extension WalletConnectV1Provider: ServerDelegate {
                     completion(info)
                 }
             } else {
-                let info = self.walletInfo(self.wallet, choice: .cancel)
+                let info = self.walletInfo(choice: .cancel)
                 completion(info)
             }
         }

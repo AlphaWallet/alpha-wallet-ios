@@ -8,18 +8,12 @@
 import Foundation
 
 enum WalletConnectError: Error {
-    case connectionInvalid
-    case invalidWCURL
     case callbackIdMissing
-    case sessionMissing
-    case connect(WalletConnectV1URL)
-    case request(AlphaWallet.WalletConnect.Request.AnyError)
-    case unsupported
+    case connectionFailure(WalletConnectV1URL)
 }
 
 protocol WalletConnectResponder {
-    func fulfill(_ callback: AlphaWallet.WalletConnect.Callback, request: AlphaWallet.WalletConnect.Session.Request) throws
-    func reject(_ request: AlphaWallet.WalletConnect.Session.Request)
+    func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws
 }
 
 protocol UpdateableSessionServerType: class {

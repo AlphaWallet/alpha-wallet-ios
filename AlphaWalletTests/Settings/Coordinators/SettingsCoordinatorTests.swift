@@ -36,7 +36,6 @@ class SettingsCoordinatorTests: XCTestCase {
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make(), analyticsCoordinator: FakeAnalyticsService())
         let sessons = ServerDictionary<Any>.make(server: .main)
 
-        let walletConnectCoordinator = WalletConnectCoordinator(keystore: FakeKeystore(), sessions: sessons, navigationController: FakeNavigationController(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), nativeCryptoCurrencyPrices: .init())
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
@@ -45,7 +44,7 @@ class SettingsCoordinatorTests: XCTestCase {
             restartQueue: .init(),
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
-            walletConnectCoordinator: walletConnectCoordinator,
+            walletConnectCoordinator: .fake(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()
         )
         let delegate = Delegate()
