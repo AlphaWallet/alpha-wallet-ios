@@ -1,5 +1,5 @@
 //
-//  TokenAssetTableViewCell.swift
+//  Erc875NonFungibleRowView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.08.2021.
@@ -109,7 +109,7 @@ class Erc875NonFungibleRowView: TokenCardViewType {
     required init?(coder: NSCoder) {
         return nil
     }
-    
+
     func configure(viewModel: Erc875NonFungibleRowViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
         titleLabel.text = viewModel.title
