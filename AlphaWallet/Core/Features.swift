@@ -30,4 +30,5 @@ enum Features {
     static let isAnalyticsUIEnabled = true
     static let isJsonFileBasedStorageForWalletAddressesEnabled = true
     static let isBlockscanChatEnabled = true
+    static let isTokenScriptSignatureStatusEnabled = false
 }

@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
-import PromiseKit 
+import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
@@ -187,16 +187,20 @@ class TokenViewController: UIViewController {
             }.cauterize()
         }
 
-        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
-            switch status {
-            case .type0NoTokenScript:
+        if Features.isTokenScriptSignatureStatusEnabled {
+            if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
+                switch status {
+                case .type0NoTokenScript:
+                    navigationItem.rightBarButtonItem = nil
+                case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
+                    let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
+                    navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
+                }
+            } else {
                 navigationItem.rightBarButtonItem = nil
-            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
-                let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
-                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
             }
         } else {
-            navigationItem.rightBarButtonItem = nil
+            //no-op
         }
     }
 
