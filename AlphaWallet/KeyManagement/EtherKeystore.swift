@@ -421,11 +421,7 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     private func removeAccountFromBookkeeping(_ account: AlphaWallet.Address) {
-        walletAddressesStore.ethereumAddressesWithPrivateKeys = walletAddressesStore.ethereumAddressesWithPrivateKeys.filter { $0 != account.eip55String }
-        walletAddressesStore.ethereumAddressesWithSeed = walletAddressesStore.ethereumAddressesWithSeed.filter { $0 != account.eip55String }
-        walletAddressesStore.ethereumAddressesProtectedByUserPresence = walletAddressesStore.ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
-        walletAddressesStore.watchAddresses = walletAddressesStore.watchAddresses.filter { $0 != account.eip55String }
-
+        walletAddressesStore.removeAddress(account)
         notifyWalletUpdated()
     }
 

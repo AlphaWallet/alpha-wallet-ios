@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 struct JsonWalletAddressesStore: WalletAddressesStore {
     private static let walletsFolderForTests = "testSuiteWalletsForWalletAddresses"
@@ -41,6 +42,12 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
     private var storage: StorageType
     private var walletAddresses: WalletAddresses
 
+    var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
+        walletsSubject.eraseToAnyPublisher()
+    }
+
+    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never>
+
     init(storage: StorageType = JsonWalletAddressesStore.createStorage()) {
         self.storage = storage
 
@@ -49,6 +56,7 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
         } else {
             walletAddresses = WalletAddresses()
         }
+        walletsSubject = .init(Set(walletAddresses.wallets))
     }
 
     var hasAnyStoredData: Bool {
@@ -64,10 +72,7 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
     }
 
     var wallets: [Wallet] {
-        let watchAddresses = self.watchAddresses.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
-        let addressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
-        let addressesWithSeed = ethereumAddressesWithSeed.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
-        return addressesWithSeed + addressesWithPrivateKeys + watchAddresses
+        return Array(walletAddresses.wallets)
     }
 
     var watchAddresses: [String] {
@@ -75,6 +80,7 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
             walletAddresses.watchAddresses ?? []
         }
         set {
+            guard walletAddresses.watchAddresses != newValue else { return }
             walletAddresses.watchAddresses = newValue
             saveWalletCollectionToFile()
         }
@@ -85,6 +91,7 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
             walletAddresses.ethereumAddressesWithPrivateKeys ?? []
         }
         set {
+            guard walletAddresses.ethereumAddressesWithPrivateKeys != newValue else { return }
             walletAddresses.ethereumAddressesWithPrivateKeys = newValue
             saveWalletCollectionToFile()
         }
@@ -95,6 +102,7 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
             walletAddresses.ethereumAddressesWithSeed ?? []
         }
         set {
+            guard walletAddresses.ethereumAddressesWithSeed != newValue else { return }
             walletAddresses.ethereumAddressesWithSeed = newValue
             saveWalletCollectionToFile()
         }
@@ -105,16 +113,17 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
             walletAddresses.ethereumAddressesProtectedByUserPresence ?? []
         }
         set {
+            guard walletAddresses.ethereumAddressesProtectedByUserPresence != newValue else { return }
             walletAddresses.ethereumAddressesProtectedByUserPresence = newValue
             saveWalletCollectionToFile()
         }
     }
 
-    private func saveWalletCollectionToFile() {
-        guard let data = try? JSONEncoder().encode(walletAddresses) else {
-            return
-        }
+    mutating private func saveWalletCollectionToFile() {
+        guard let data = try? JSONEncoder().encode(walletAddresses) else { return }
         storage.setData(data, forKey: Keys.walletAddresses)
+
+        walletsSubject.send(walletAddresses.wallets)
     }
 }
 
@@ -155,5 +164,13 @@ private struct WalletAddresses: Codable {
         ethereumAddressesWithPrivateKeys = []
         ethereumAddressesWithSeed = []
         ethereumAddressesProtectedByUserPresence = []
+    }
+
+    var wallets: Set<Wallet> {
+        let watchAddresses = (watchAddresses ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
+        let addressesWithPrivateKeys = (ethereumAddressesWithPrivateKeys ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
+        let addressesWithSeed = (ethereumAddressesWithSeed ?? []).compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
+
+        return Set(addressesWithSeed + addressesWithPrivateKeys + watchAddresses)
     }
 }
