@@ -15,11 +15,10 @@ class LegacyFileBasedKeystore {
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: KeyStore
-    private let analyticsCoordinator: AnalyticsCoordinator
-
+    private let etherkeystore: Keystore
     let keystoreDirectory: URL
 
-    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", analyticsCoordinator: AnalyticsCoordinator) throws {
+    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", keystore: Keystore) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw FileBasedKeystoreError.protectionDisabled
         }
@@ -27,7 +26,7 @@ class LegacyFileBasedKeystore {
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.keyStore = try KeyStore(keydir: keystoreDirectory)
-        self.analyticsCoordinator = analyticsCoordinator
+        self.etherkeystore = keystore
     }
 
     func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
@@ -99,13 +98,12 @@ class LegacyFileBasedKeystore {
     }
 
     func migrateKeystoreFilesToRawPrivateKeysInKeychain() {
-        guard let etherKeystore = try? EtherKeystore(analyticsCoordinator: analyticsCoordinator) else { return }
-        guard !etherKeystore.hasMigratedFromKeystoreFiles else { return }
+        guard !etherkeystore.hasMigratedFromKeystoreFiles else { return }
 
         for each in keyStore.accounts {
             switch exportPrivateKey(account: AlphaWallet.Address(address: each.address)) {
             case .success(let privateKey):
-                etherKeystore.importWallet(type: .privateKey(privateKey: privateKey), completion: { _ in })
+                etherkeystore.importWallet(type: .privateKey(privateKey: privateKey), completion: { _ in })
             case .failure:
                 break
             }

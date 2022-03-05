@@ -18,10 +18,10 @@ class ActivitiesViewController: UIViewController {
     private var activitiesView: ActivitiesView
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
-        activitiesView = ActivitiesView(viewModel: viewModel, sessions: sessions)
+        activitiesView = ActivitiesView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions)
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.activityTabbarItemTitle()

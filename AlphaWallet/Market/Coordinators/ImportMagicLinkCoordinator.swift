@@ -38,7 +38,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let url: URL
-
+    private let keystore: Keystore
     private var isNotProcessingYet: Bool {
         switch importTokenViewController?.state {
         case .ready(let viewModel):
@@ -57,7 +57,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     let server: RPCServer
     weak var delegate: ImportMagicLinkCoordinatorDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
         self.config = config
@@ -67,6 +67,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.url = url
         self.server = server
+        self.keystore = keystore
     }
 
     func start(url: URL) -> Bool {
@@ -498,7 +499,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, server: server, assetDefinitionStore: assetDefinitionStore)
+        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, server: server, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))

@@ -18,13 +18,18 @@ class ActivitiesView: UIView {
     private var viewModel: ActivitiesViewModel
     private let sessions: ServerDictionary<WalletSession>
     private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let keystore: Keystore
+    private let wallet: Wallet
+    private let analyticsCoordinator: AnalyticsCoordinator
 
     weak var delegate: ActivitiesViewDelegate?
 
-    init(viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
         self.sessions = sessions
-
+        self.keystore = keystore
+        self.wallet = wallet
+        self.analyticsCoordinator = analyticsCoordinator
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -128,6 +133,20 @@ extension ActivitiesView: UITableViewDataSource {
         return viewModel.numberOfSections
     }
 
+    private func setupTokenScriptRendererViewForCellOnce(cell: ActivityViewCell) {
+        guard cell.tokenScriptRendererView == nil else { return }
+
+        let tokenScriptRendererView: TokenInstanceWebView = {
+            //TODO server value doesn't matter since we will change it later. But we should improve this
+            let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance, keystore: keystore)
+            //TODO needed? Seems like scary, performance-wise
+            //webView.delegate = self
+            return webView
+        }()
+
+        cell.setupTokenScriptRendererView(tokenScriptRendererView)
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch viewModel.item(for: indexPath.row, section: indexPath.section) {
         case .parentTransaction(_, isSwap: let isSwap, _):
@@ -147,6 +166,7 @@ extension ActivitiesView: UITableViewDataSource {
                 return cell
             case .none:
                 let cell: ActivityViewCell = tableView.dequeueReusableCell(for: indexPath)
+                setupTokenScriptRendererViewForCellOnce(cell: cell)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             }
@@ -180,6 +200,7 @@ extension ActivitiesView: UITableViewDataSource {
                 return cell
             case .none:
                 let cell: ActivityViewCell = tableView.dequeueReusableCell(for: indexPath)
+                setupTokenScriptRendererViewForCellOnce(cell: cell)
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             }

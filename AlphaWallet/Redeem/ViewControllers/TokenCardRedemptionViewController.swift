@@ -21,6 +21,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var session: WalletSession
     private let token: TokenObject
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let keystore: Keystore
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -31,19 +32,20 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
+        self.keystore = keystore
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -116,7 +118,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         }
         func _generateQr(account: AlphaWallet.Address) {
             do {
-                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, analyticsCoordinator: analyticsCoordinator) else { return }
+                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account, keystore: keystore) else { return }
                 let qrCodeInfo = redeemData.qrCode + decimalSignature
                 imageView.image = qrCodeInfo.toQRCode()
             } catch {

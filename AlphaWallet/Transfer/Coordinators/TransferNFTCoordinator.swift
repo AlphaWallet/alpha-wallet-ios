@@ -64,7 +64,7 @@ class TransferNFTCoordinator: Coordinator {
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokensCardViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = TransferTokensCardViaWalletAddressViewController(analyticsCoordinator: analyticsCoordinator, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller

@@ -73,6 +73,7 @@ class TokenInstanceWebView: UIView {
     var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
     private var estimatedProgressObservation: NSKeyValueObservation!
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
+    private let keystore: Keystore
 
     var server: RPCServer
     var isWebViewInteractionEnabled: Bool = false {
@@ -102,11 +103,12 @@ class TokenInstanceWebView: UIView {
         return results
     }
 
-    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.server = server
         self.wallet = wallet
         self.assetDefinitionStore = assetDefinitionStore
+        self.keystore = keystore
         super.init(frame: .zero)
 
         webView.isUserInteractionEnabled = false
@@ -501,7 +503,6 @@ extension TokenInstanceWebView: Coordinator {
 
     func signMessage(with type: SignMessageType, account: AlphaWallet.Address, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
-        let keystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
         firstly {
             SignMessageCoordinator.promise(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, keystore: keystore, coordinator: self, signType: type, account: account, source: .tokenScript, walletConnectDappRequesterViewModel: nil)
         }.done { data in
@@ -586,23 +587,4 @@ extension String {
     var hashForCachingHeight: Int {
         return hashValue
     }
-}
-
-//TODO to remove this.
-//TODO Do not use this unless it's absolutely necessary — e.g. it requires a big re-architecting of code
-class NoOpAnalyticsService: AnalyticsServiceType {
-    func log(action: AnalyticsAction, properties: [String: AnalyticsEventPropertyValue]?) { }
-    func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) { }
-    func applicationDidBecomeActive() { }
-    func application(continue userActivity: NSUserActivity) { }
-    func application(open url: URL, sourceApplication: String?, annotation: Any) { }
-    func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) { }
-    func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any]) { }
-    func add(pushDeviceToken token: Data) { }
-    func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {}
-    func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) { }
-    func incrementUser(property: AnalyticsUserProperty, by value: Int) { }
-    func incrementUser(property: AnalyticsUserProperty, by value: Double) { }
-
-    init() {}
 }

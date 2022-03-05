@@ -99,7 +99,7 @@ class AppCoordinator: NSObject, Coordinator {
         self.window = window
         self.analyticsService = analyticsService
         self.keystore = keystore
-        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(analyticsCoordinator: analyticsService)
+        self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(keystore: keystore)
 
         super.init()
         window.rootViewController = navigationController
@@ -481,7 +481,8 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
                     tokensDatastore: resolver.tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,
-                    server: server
+                    server: server,
+                    keystore: keystore
                 )
 
                 coordinator.delegate = self

@@ -58,9 +58,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	var stateLabel = UILabel()
 	var tokenView: TokenView
 	lazy var tokenScriptRendererView: TokenInstanceWebView = {
-		//TODO pass in keystore or wallet instead
-		let wallet = EtherKeystore.currentWallet
-		let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+		let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
 		webView.delegate = self
 		return webView
 	}()
@@ -98,13 +96,17 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			tokenScriptRendererView.isStandalone = newValue
 		}
 	}
+    private let keystore: Keystore
+    private let wallet: Wallet
 
-	init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, wallet: Wallet) {
+        self.keystore = keystore
         self.analyticsCoordinator = analyticsCoordinator
 		self.server = server
 		self.tokenView = tokenView
         self.showCheckbox = showCheckbox
 		self.assetDefinitionStore = assetDefinitionStore
+        self.wallet = wallet
 
 		row3 = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 

@@ -34,9 +34,9 @@ class ActivitiesPageView: UIView, PageViewType {
     weak var delegate: ActivitiesPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
     
-    init(viewModel: ActivityPageViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet, viewModel: ActivityPageViewModel, sessions: ServerDictionary<WalletSession>) {
         self.viewModel = viewModel
-        activitiesView = ActivitiesView(viewModel: viewModel.activitiesViewModel, sessions: sessions)
+        activitiesView = ActivitiesView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel.activitiesViewModel, sessions: sessions)
         super.init(frame: .zero)
 
         activitiesView.delegate = self
