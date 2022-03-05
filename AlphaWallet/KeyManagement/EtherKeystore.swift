@@ -60,7 +60,7 @@ open class EtherKeystore: NSObject, Keystore {
     private let keychain: KeychainSwift
     private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
-    private var walletAddressesStore: WalletAddressesStoreType
+    private var walletAddressesStore: WalletAddressesStore
 
     private var analyticsCoordinator: AnalyticsCoordinator
 
@@ -99,9 +99,7 @@ open class EtherKeystore: NSObject, Keystore {
             guard let address = keychain.get(Keys.recentlyUsedAddress) else {
                 return nil
             }
-            return wallets.filter {
-                $0.address.sameContract(as: address)
-            }.first
+            return wallets.filter { $0.address.sameContract(as: address) }.first
         }
         set {
             keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccessUserPresenceNotRequired)

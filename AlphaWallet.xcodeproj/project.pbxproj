@@ -823,7 +823,7 @@
 		87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */; };
 		87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4325EFAFEC0070063B /* BuyTokenService.swift */; };
 		87584B4725EFB0950070063B /* Ramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4625EFB0950070063B /* Ramp.swift */; };
-		8759C9E7279ADEFC00FE361F /* WalletAddressesStoreType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */; };
+		8759C9E7279ADEFC00FE361F /* WalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */; };
 		8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */; };
 		8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */; };
 		8759C9ED279E9D6100FE361F /* TextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EC279E9D6100FE361F /* TextFieldView.swift */; };
@@ -1910,7 +1910,7 @@
 		87584B4025EF911D0070063B /* ShowSeedPhraseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseCoordinator.swift; sourceTree = "<group>"; };
 		87584B4325EFAFEC0070063B /* BuyTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenService.swift; sourceTree = "<group>"; };
 		87584B4625EFB0950070063B /* Ramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ramp.swift; sourceTree = "<group>"; };
-		8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressesStoreType.swift; sourceTree = "<group>"; };
+		8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsWalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonWalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9EC279E9D6100FE361F /* TextFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFieldView.swift; sourceTree = "<group>"; };
@@ -3712,7 +3712,7 @@
 				5E7C7DD409C330DA4033F504 /* Keystore.swift */,
 				5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */,
 				5E7C7778166E01A0D483C58D /* SecureEnclave.swift */,
-				8759C9E6279ADEFC00FE361F /* WalletAddressesStoreType.swift */,
+				8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */,
 				8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */,
 				8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */,
 			);
@@ -6443,7 +6443,7 @@
 				5E7C7F53A21D1D0FE576DD8F /* ElevateWalletSecurityViewController.swift in Sources */,
 				5E7C743467F5D428AF4E4F0F /* ElevateWalletSecurityViewModel.swift in Sources */,
 				5E7C7751F57FE1B8A563A79B /* WalletSecurityLevelIndicator.swift in Sources */,
-				8759C9E7279ADEFC00FE361F /* WalletAddressesStoreType.swift in Sources */,
+				8759C9E7279ADEFC00FE361F /* WalletAddressesStore.swift in Sources */,
 				5E7C70CF44075CF73F03AD4B /* TokensViewControllerTableViewHeader.swift in Sources */,
 				5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */,
 				87C65F532660DD2E00919819 /* WalletBalanceFetcher.swift in Sources */,
