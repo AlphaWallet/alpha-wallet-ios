@@ -201,16 +201,20 @@ class TokensCardViewController: UIViewController {
             }.cauterize()
         }
 
-        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
-            switch status {
-            case .type0NoTokenScript:
+        if Features.isTokenScriptSignatureStatusEnabled {
+            if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
+                switch status {
+                case .type0NoTokenScript:
+                    collectionInfoPageView.rightBarButtonItem = nil
+                case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
+                    let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
+                    collectionInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
+                }
+            } else {
                 collectionInfoPageView.rightBarButtonItem = nil
-            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
-                let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
-                collectionInfoPageView.rightBarButtonItem = UIBarButtonItem(customView: button)
             }
         } else {
-            collectionInfoPageView.rightBarButtonItem = nil
+            //no-op
         }
     }
 
