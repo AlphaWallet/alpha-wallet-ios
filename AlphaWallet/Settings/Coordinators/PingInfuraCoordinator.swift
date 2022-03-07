@@ -57,7 +57,7 @@ class PingInfuraCoordinator: Coordinator {
                     style: .alert)
         }.catch { error in
             UIAlertController.alert(title: R.string.localizable.settingsPingInfuraFail(),
-                    message: "\(error)",
+                    message: "\(error.prettyError)",
                     alertButtonTitles: [
                         R.string.localizable.oK(),
                     ],
