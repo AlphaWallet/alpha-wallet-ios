@@ -8,7 +8,7 @@
 import UIKit
 
 class SelectTokenViewModel {
-    let filterTokensCoordinator: FilterTokensCoordinator
+    let tokensFilter: TokensFilter
     var tokens: [TokenObject]
     let filter: WalletFilter
 
@@ -42,18 +42,18 @@ class SelectTokenViewModel {
         return selectedToken.isEqual(token) ? .checkmark : .none
     }
 
-    convenience init(tokensViewModel viewModel: TokensViewModel, filterTokensCoordinator: FilterTokensCoordinator, filter: WalletFilter) {
-        self.init(filterTokensCoordinator: filterTokensCoordinator, tokens: viewModel.tokens, filter: filter)
+    convenience init(tokensViewModel viewModel: TokensViewModel, tokensFilter: TokensFilter, filter: WalletFilter) {
+        self.init(tokensFilter: tokensFilter, tokens: viewModel.tokens, filter: filter)
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], filter: WalletFilter) {
-        self.filterTokensCoordinator = filterTokensCoordinator
+    init(tokensFilter: TokensFilter, tokens: [TokenObject], filter: WalletFilter) {
+        self.tokensFilter = tokensFilter
         self.tokens = tokens
         self.filter = filter
     }
 
     private func filteredAndSortedTokens() -> [TokenObject] {
-        let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
-        return filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+        let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
+        return tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
     }
 }

@@ -19,12 +19,12 @@ class SelectTokenCoordinator: Coordinator {
         sessions: sessions,
         tokenCollection: tokenCollection,
         assetDefinitionStore: assetDefinitionStore,
-        filterTokensCoordinator: filterTokensCoordinator,
+        tokensFilter: tokensFilter,
         filter: filter
     )
     private let tokenCollection: TokenCollection
     private let sessions: ServerDictionary<WalletSession>
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private let tokensFilter: TokensFilter
     private let assetDefinitionStore: AssetDefinitionStore
     private let filter: WalletFilter
 
@@ -33,13 +33,13 @@ class SelectTokenCoordinator: Coordinator {
     weak var delegate: SelectTokenCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency]), filterTokensCoordinator: FilterTokensCoordinator) {
+    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency]), tokensFilter: TokensFilter) {
         self.sessions = sessions
         self.filter = filter
         self.parentsNavigationController = navigationController
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-        self.filterTokensCoordinator = filterTokensCoordinator
+        self.tokensFilter = tokensFilter
         self.navigationController.hidesBottomBarWhenPushed = true
         viewController.delegate = self
     }

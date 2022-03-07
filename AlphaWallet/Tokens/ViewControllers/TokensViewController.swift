@@ -220,7 +220,7 @@ class TokensViewController: UIViewController {
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
          eventsDataStore: EventsDataStoreProtocol,
-         filterTokensCoordinator: FilterTokensCoordinator,
+         tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
          walletBalanceCoordinator: WalletBalanceCoordinatorType,
@@ -236,7 +236,7 @@ class TokensViewController: UIViewController {
         self.analyticsCoordinator = analyticsCoordinator
         walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
 
-        viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], config: config)
+        viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
 
         searchController = UISearchController(searchResultsController: nil)
 

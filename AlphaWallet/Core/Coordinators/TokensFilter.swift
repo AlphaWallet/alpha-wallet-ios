@@ -1,5 +1,5 @@
 //
-//  FilterTokensCoordinator.swift
+//  TokensFilter.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 30.03.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FilterTokensCoordinator {
+class TokensFilter {
     private enum FilterKeys: String {
         case swap
 

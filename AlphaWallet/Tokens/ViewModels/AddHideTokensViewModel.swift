@@ -33,7 +33,7 @@ enum AddHideTokenSections: Int {
 //NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
 class AddHideTokensViewModel {
     var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private let tokensFilter: TokensFilter
     private var tokens: [TokenObject]
     private var allPopularTokens: [PopularToken] = []
     private var displayedTokens: [TokenObject] = []
@@ -52,9 +52,9 @@ class AddHideTokensViewModel {
     }
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
 
-    init(tokens: [TokenObject], filterTokensCoordinator: FilterTokensCoordinator, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [TokenObject], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.tokens = tokens
-        self.filterTokensCoordinator = filterTokensCoordinator
+        self.tokensFilter = tokensFilter
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
         
         filter(tokens: tokens)
@@ -224,7 +224,7 @@ class AddHideTokensViewModel {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
-        let filteredTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
+        let filteredTokens = tokensFilter.filterTokens(tokens: tokens, filter: .keyword(searchText ?? ""))
         for token in filteredTokens {
             if token.shouldDisplay {
                 displayedTokens.append(token)
@@ -232,8 +232,8 @@ class AddHideTokensViewModel {
                 hiddenTokens.append(token)
             }
         }
-        popularTokens = filterTokensCoordinator.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
-        displayedTokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
+        popularTokens = tokensFilter.filterTokens(tokens: allPopularTokens, walletTokens: tokens, filter: .keyword(searchText ?? ""))
+        displayedTokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens, sortTokensParam: sortTokensParam)
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 

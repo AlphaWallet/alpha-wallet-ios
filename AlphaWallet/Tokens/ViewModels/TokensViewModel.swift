@@ -47,7 +47,7 @@ class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private let tokensFilter: TokensFilter
     var tokens: [TokenObject]
     let config: Config
     var isSearchActive: Bool = false
@@ -178,8 +178,8 @@ class TokensViewModel {
         return item(for: row, section: section).canDelete
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], config: Config) {
-        self.filterTokensCoordinator = filterTokensCoordinator
+    init(tokensFilter: TokensFilter, tokens: [TokenObject], config: Config) {
+        self.tokensFilter = tokensFilter
         self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
         self.config = config
     }
@@ -212,8 +212,8 @@ class TokensViewModel {
     }
 
     private func filteredAndSortedTokens() -> [TokenObjectOrRpcServerPair] {
-        let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
-        let tokens = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+        let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
+        let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
         case .all, .type, .currencyOnly, .assetsOnly, .keyword:
             return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
