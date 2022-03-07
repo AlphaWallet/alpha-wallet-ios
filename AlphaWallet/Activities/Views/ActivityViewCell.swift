@@ -5,19 +5,12 @@ import BigInt
 
 class ActivityViewCell: UITableViewCell {
     private let background = UIView()
-    lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        //TODO pass in keystore or wallet address instead. Have to think about initialization of cells
-        let wallet = EtherKeystore.currentWallet
-        //TODO server value doesn't matter since we will change it later. But we should improve this
-        //TODO We aren't going to log analytics in a cell (for now), but we might, at any time
-        let webView = TokenInstanceWebView(analyticsCoordinator: NoOpAnalyticsService(), server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance)
-        //TODO needed? Seems like scary, performance-wise
-        //webView.delegate = self
-        return webView
-    }()
+    private (set) var tokenScriptRendererView: TokenInstanceWebView?
     private var isFirstLoad = true
     private var viewModel: ActivityCellViewModel? {
         didSet {
+            guard let tokenScriptRendererView = tokenScriptRendererView else { return }
+            
             if let oldValue = oldValue {
                 if oldValue.activity.id == viewModel?.activity.id {
                     //no-op
@@ -44,16 +37,22 @@ class ActivityViewCell: UITableViewCell {
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
+        NSLayoutConstraint.activate([
+            background.anchorsConstraint(to: contentView),
+
+            contentView.heightAnchor.constraint(equalToConstant: 80)
+        ])
+    }
+
+    func setupTokenScriptRendererView(_ tokenScriptRendererView: TokenInstanceWebView) {
         tokenScriptRendererView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(tokenScriptRendererView)
 
         NSLayoutConstraint.activate([
             tokenScriptRendererView.anchorsConstraint(to: background),
-
-            background.anchorsConstraint(to: contentView),
-
-            contentView.heightAnchor.constraint(equalToConstant: 80)
         ])
+
+        self.tokenScriptRendererView = tokenScriptRendererView
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -61,6 +60,7 @@ class ActivityViewCell: UITableViewCell {
     }
 
     func configure(viewModel: ActivityCellViewModel) {
+        guard let tokenScriptRendererView = tokenScriptRendererView else { return }
         self.viewModel = viewModel
 
         selectionStyle = .none

@@ -19,9 +19,7 @@ enum KeystoreExportReason {
 }
 
 protocol Keystore {
-    //TODO remove this if possible, replacing with the instance-side version
-    static var currentWallet: Wallet { get }
-
+    var hasMigratedFromKeystoreFiles: Bool { get }
     var hasWallets: Bool { get }
     var isUserPresenceCheckPossible: Bool { get }
     var subscribableWallets: Subscribable<Set<Wallet>> { get }
@@ -49,4 +47,6 @@ protocol Keystore {
     func signHash(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
     func signTransaction(_ signTransaction: UnsignedTransaction) -> Result<Data, KeystoreError>
     func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
+    func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address) -> Result<[Data], KeystoreError>
+    func signMessageData(_ message: Data?, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
 }

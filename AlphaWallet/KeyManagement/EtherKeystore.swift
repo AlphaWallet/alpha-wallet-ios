@@ -117,12 +117,6 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    //TODO improve
-    static var currentWallet: Wallet {
-        //Better crash now instead of populating callers with optionals
-        (try! EtherKeystore(analyticsCoordinator: NoOpAnalyticsService())).currentWallet
-    }
-
     init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standardOrForTests, analyticsCoordinator: AnalyticsCoordinator) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
@@ -167,7 +161,7 @@ open class EtherKeystore: NSObject, Keystore {
     func importWallet(type: ImportType) -> Result<Wallet, KeystoreError> {
         switch type {
         case .keystore(let json, let password):
-            guard let keystore = try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator) else {
+            guard let keystore = try? LegacyFileBasedKeystore(keystore: self) else {
                 return .failure(.failedToExportPrivateKey)
             }
             let result = keystore.getPrivateKeyFromKeystoreFile(json: json, password: password)
@@ -332,7 +326,7 @@ open class EtherKeystore: NSObject, Keystore {
             return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
-        if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
+        if let result = (try? LegacyFileBasedKeystore(keystore: self))?.export(privateKey: key, newPassword: newPassword) {
             completion(result)
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -356,7 +350,7 @@ open class EtherKeystore: NSObject, Keystore {
             return
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
-        if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
+        if let result = (try? LegacyFileBasedKeystore(keystore: self))?.export(privateKey: key, newPassword: newPassword) {
             completion(result)
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -407,7 +401,7 @@ open class EtherKeystore: NSObject, Keystore {
             //TODO: pass in Config instance instead
             Config().deleteWalletName(forAccount: address)
         }
-        (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.delete(wallet: wallet)
+        (try? LegacyFileBasedKeystore(keystore: self))?.delete(wallet: wallet)
         return .success(())
     }
 

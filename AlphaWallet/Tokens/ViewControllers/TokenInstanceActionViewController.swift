@@ -21,7 +21,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let tokensStorage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: keystore.currentWallet, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: keystore.currentWallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true

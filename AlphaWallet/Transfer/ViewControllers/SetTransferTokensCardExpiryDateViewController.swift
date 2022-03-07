@@ -43,7 +43,8 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            keystore: Keystore
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokenHolder = tokenHolder
@@ -56,7 +57,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
         }
 
         super.init(nibName: nil, bundle: nil)

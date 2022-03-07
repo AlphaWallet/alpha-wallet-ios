@@ -43,7 +43,7 @@ class TokenViewController: UIViewController {
     private let alertService: PriceAlertServiceType
     private lazy var alertsSubscribable = alertService.alertsSubscribable(strategy: .token(tokenObject))
 
-    init(session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
@@ -53,7 +53,7 @@ class TokenViewController: UIViewController {
         self.activitiesService = activitiesService
         self.alertService = alertService
 
-        activitiesPageView = ActivitiesPageView(viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
+        activitiesPageView = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
         alertsPageView = PriceAlertsPageView(viewModel: .init(alerts: []))
 
         super.init(nibName: nil, bundle: nil)

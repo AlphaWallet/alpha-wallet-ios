@@ -451,7 +451,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
-        let coordinator = ActivitiesCoordinator(sessions: walletSessions, activitiesService: activitiesService)
+        let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: walletSessions, activitiesService: activitiesService, keystore: keystore, wallet: wallet)
         coordinator.delegate = self
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.start()
@@ -1183,7 +1183,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     private func showActivity(_ activity: Activity, navigationController: UINavigationController) {
-        let controller = ActivityViewController(analyticsCoordinator: analyticsCoordinator, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesService)
+        let controller = ActivityViewController(analyticsCoordinator: analyticsCoordinator, wallet: wallet, assetDefinitionStore: assetDefinitionStore, viewModel: .init(activity: activity), service: activitiesService, keystore: keystore)
         controller.delegate = self
 
         controller.hidesBottomBarWhenPushed = true

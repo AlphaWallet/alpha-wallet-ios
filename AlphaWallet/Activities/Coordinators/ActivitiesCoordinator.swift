@@ -10,6 +10,10 @@ protocol ActivitiesCoordinatorDelegate: AnyObject {
 class ActivitiesCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
+    private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey!
+    private let keystore: Keystore
+    private let wallet: Wallet
+    private let analyticsCoordinator: AnalyticsCoordinator
     weak var delegate: ActivitiesCoordinatorDelegate?
 
     lazy var rootViewController: ActivitiesViewController = {
@@ -18,16 +22,21 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey!
 
     init(
+        analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
-        activitiesService: ActivitiesServiceType
+        activitiesService: ActivitiesServiceType,
+        keystore: Keystore,
+        wallet: Wallet
     ) {
+        self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
         self.sessions = sessions
         self.navigationController = navigationController
+        self.keystore = keystore
+        self.wallet = wallet
         super.init()
 
         subscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
@@ -43,7 +52,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel()
-        let controller = ActivitiesViewController(viewModel: viewModel, sessions: sessions)
+        let controller = ActivitiesViewController(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions)
         controller.delegate = self
 
         return controller

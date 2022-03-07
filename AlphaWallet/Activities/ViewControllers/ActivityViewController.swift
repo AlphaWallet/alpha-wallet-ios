@@ -25,7 +25,7 @@ class ActivityViewController: UIViewController {
     private let separator = UIView()
     private let bottomFiller = UIView.spacerWidth()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore)
+        let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: server, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
@@ -44,8 +44,10 @@ class ActivityViewController: UIViewController {
     weak var delegate: ActivityViewControllerDelegate?
     private let service: ActivitiesServiceType
     private var subscriptionKey: Subscribable<Activity>.SubscribableKey?
+    private let keystore: Keystore
 
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType, keystore: Keystore) {
+        self.keystore = keystore
         self.service = service
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet

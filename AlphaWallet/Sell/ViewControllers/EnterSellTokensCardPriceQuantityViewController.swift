@@ -61,7 +61,8 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             paymentFlow: PaymentFlow,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
             assetDefinitionStore: AssetDefinitionStore,
-            walletSession: WalletSession
+            walletSession: WalletSession,
+            keystore: Keystore
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.storage = storage
@@ -75,7 +76,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: walletSession.account)
         }
 
         super.init(nibName: nil, bundle: nil)

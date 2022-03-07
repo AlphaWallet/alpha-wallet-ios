@@ -61,7 +61,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             tokenHolder: TokenHolder,
             ethCost: Ether,
             viewModel: SetSellTokensCardExpiryDateViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            keystore: Keystore
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.storage = storage
@@ -76,7 +77,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
         }
 
         super.init(nibName: nil, bundle: nil)

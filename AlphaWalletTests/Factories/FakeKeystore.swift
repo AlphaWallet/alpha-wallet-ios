@@ -7,6 +7,9 @@ import TrustKeystore
 import Result
 
 struct FakeKeystore: Keystore {
+    var hasMigratedFromKeystoreFiles: Bool {
+        return false
+    }
 
     static var currentWallet: Wallet {
         Wallet(type: .watch(.makeStormBird()))
@@ -124,6 +127,15 @@ struct FakeKeystore: Keystore {
 
     func elevateSecurity(forAccount account: AlphaWallet.Address) -> Bool {
         return false
+    }
+
+
+    func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address) -> Result<[Data], KeystoreError> {
+        return .failure(KeystoreError.failedToSignMessage)
+    }
+
+    func signMessageData(_ message: Data?, for account: AlphaWallet.Address) -> Result<Data, KeystoreError> {
+        return .failure(KeystoreError.failedToSignMessage)
     }
 
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: AlphaWallet.Address, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {

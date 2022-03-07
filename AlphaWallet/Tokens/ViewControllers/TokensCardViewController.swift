@@ -33,6 +33,7 @@ class TokensCardViewController: UIViewController {
         return buttonsBar
     }()
     private let tokenScriptFileStatusHandler: XMLHandler
+
     weak var delegate: TokensCardViewControllerDelegate?
 
     private lazy var collectionInfoPageView: TokensCardCollectionInfoPageView = {
@@ -45,7 +46,7 @@ class TokensCardViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivitiesPageView(viewModel: viewModel, sessions: activitiesService.sessions)
+        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: account, viewModel: viewModel, sessions: activitiesService.sessions)
         view.delegate = self
 
         return view
@@ -71,8 +72,9 @@ class TokensCardViewController: UIViewController {
         return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     }()
     private let activitiesService: ActivitiesServiceType
+    private let keystore: Keystore
 
-    init(session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
@@ -82,7 +84,8 @@ class TokensCardViewController: UIViewController {
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
-
+        self.keystore = keystore
+        
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true

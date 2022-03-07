@@ -32,7 +32,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     // swiftlint:disable function_body_length
-    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.token = token
         self.tokenHolder = tokenHolder
@@ -45,7 +45,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
         }
 
         super.init(nibName: nil, bundle: nil)

@@ -49,9 +49,9 @@ extension Data {
 }
 
 public class OrderHandler {
-    private let keystore: EtherKeystore
+    private let keystore: Keystore
 
-    init(keystore: EtherKeystore) {
+    init(keystore: Keystore) {
         self.keystore = keystore
     }
 

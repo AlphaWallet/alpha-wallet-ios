@@ -38,7 +38,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     private var cancelable = Set<AnyCancellable>()
-
+    
     init(
             session: WalletSession,
             navigationController: UINavigationController,
@@ -118,7 +118,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let controller = TokensCardViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -227,7 +227,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeRedeemTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
         let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = RedeemTokenCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = RedeemTokenCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -235,7 +235,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session)
+        let controller = EnterSellTokensCardPriceQuantityViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, walletSession: session, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -243,7 +243,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterTransferTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
         let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = SetTransferTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = SetTransferTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -251,7 +251,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
         let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -259,7 +259,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTokenCardRedemptionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> TokenCardRedemptionViewController {
         let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator)
+        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -267,7 +267,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTransferTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
         let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokensCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = TransferTokensCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -275,7 +275,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeChooseTokenCardTransferModeViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
         let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = ChooseTokenCardTransferModeViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
+        let controller = ChooseTokenCardTransferModeViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -295,8 +295,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = keystore.currentWallet.address
-        let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
-        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
+        let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
@@ -321,8 +320,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = keystore.currentWallet.address
-        let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
-        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
+        let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 

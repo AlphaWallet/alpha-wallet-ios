@@ -33,7 +33,8 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: ChooseTokenCardTransferModeViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            keystore: Keystore
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokenHolder = tokenHolder
@@ -46,7 +47,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
         }
 
         super.init(nibName: nil, bundle: nil)
