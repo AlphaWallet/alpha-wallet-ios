@@ -138,7 +138,7 @@ class BlockiesGenerator {
                 }
 
                 if url.pathExtension == "svg" {
-                    return seal.fulfill(.url(url: WebImageURL(url: url), isEnsAvatar: true))
+                    return seal.fulfill(.url(url: WebImageURL(url: url, rewriteGoogleContentSizeUrl: .s120), isEnsAvatar: true))
                 }
 
                 let task = URLSession.shared.dataTask(with: request) { data, _, _ in

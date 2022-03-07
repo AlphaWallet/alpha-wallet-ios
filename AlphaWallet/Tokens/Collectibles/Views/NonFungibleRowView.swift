@@ -113,7 +113,7 @@ class NonFungibleRowView: TokenCardViewType {
     func configure(viewModel: NonFungibleRowViewModelType) {
         backgroundColor = viewModel.contentsBackgroundColor
         titleLabel.text = viewModel.title
-        thumbnailImageView.setImage(url: viewModel.imageUrl)
+        thumbnailImageView.setImage(url: viewModel.imageUrl(rewriteGoogleContentSizeUrl: .s300))
 
         descriptionLabel.font = viewModel.descriptionTextFont
         descriptionLabel.textColor = viewModel.descriptionTextForegroundColor
@@ -133,7 +133,6 @@ class NonFungibleRowView: TokenCardViewType {
 protocol NonFungibleRowViewModelType {
     var contentsBackgroundColor: UIColor { get }
     var title: String { get }
-    var imageUrl: WebImageURL? { get }
 
     var descriptionTextFont: UIFont { get }
     var descriptionTextForegroundColor: UIColor { get }
@@ -142,4 +141,6 @@ protocol NonFungibleRowViewModelType {
     var titleTextFont: UIFont { get }
     var titleTextForegroundColor: UIColor { get }
     var titleText: String { get }
+    
+    func imageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL?
 }

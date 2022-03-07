@@ -230,15 +230,15 @@ class TokenHolder: Hashable {
         return token(tokenId: tokenId)?.values.traitsValue
     }
 
-    func imageUrl(tokenId: TokenId) -> WebImageURL? {
+    func imageUrl(tokenId: TokenId, rewriteGoogleContentSizeUrl size: GoogleContentSize = .s750) -> WebImageURL? {
         token(tokenId: tokenId)
             .flatMap { ($0.values.contractImageUrlUrlValue ?? $0.values.thumbnailUrlUrlValue ?? $0.values.imageUrlUrlValue) }
-            .flatMap { WebImageURL(url: $0) }
+            .flatMap { WebImageURL(url: $0, rewriteGoogleContentSizeUrl: size) }
     }
 
-    func assetImageUrl(tokenId: TokenId) -> WebImageURL? {
+    func assetImageUrl(tokenId: TokenId, rewriteGoogleContentSizeUrl size: GoogleContentSize = .s750) -> WebImageURL? {
         token(tokenId: tokenId)
             .flatMap { ($0.values.imageUrlUrlValue ?? $0.values.thumbnailUrlUrlValue ?? $0.values.contractImageUrlUrlValue) }
-            .flatMap { WebImageURL(url: $0) }
+            .flatMap { WebImageURL(url: $0, rewriteGoogleContentSizeUrl: size) }
     }
 }

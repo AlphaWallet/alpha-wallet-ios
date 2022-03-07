@@ -34,7 +34,7 @@ struct TokenInstanceInfoPageViewModel {
     }
 
     var imageUrl: WebImageURL? {
-        tokenHolder.imageUrl(tokenId: tokenId)
+        tokenHolder.imageUrl(tokenId: tokenId, rewriteGoogleContentSizeUrl: .s750)
     }
 
     var backgroundColor: UIColor {

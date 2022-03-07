@@ -174,8 +174,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         return convertDescriptionToAttributedString(asHTML: false)
     }
 
-    var imageUrl: WebImageURL? {
-        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0) }
+    func imageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
+        return tokenHolder.values.imageUrlUrlValue.flatMap { WebImageURL(url: $0, rewriteGoogleContentSizeUrl: size) }
     }
 
     var externalLink: URL? {

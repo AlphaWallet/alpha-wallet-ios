@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import AlphaWalletCore
 
 //Shape of this originally created to match OpenSea's API output
 protocol NonFungibleFromJson: Codable {
@@ -43,8 +44,8 @@ protocol NonFungibleFromJson: Codable {
 
 extension NonFungibleFromJson {
     
-    var nonFungibleImageUrl: WebImageURL? {
-        return WebImageURL(string: contractImageUrl) ?? WebImageURL(string: thumbnailUrl) ?? WebImageURL(string: imageUrl)
+    func nonFungibleImageUrl(rewriteGoogleContentSizeUrl size: GoogleContentSize) -> WebImageURL? {
+        return WebImageURL(string: contractImageUrl, rewriteGoogleContentSizeUrl: size) ?? WebImageURL(string: thumbnailUrl, rewriteGoogleContentSizeUrl: size) ?? WebImageURL(string: imageUrl, rewriteGoogleContentSizeUrl: size)
     }
 }
 

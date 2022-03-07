@@ -89,7 +89,7 @@ struct TokensCardCollectionInfoPageViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        tokenObject.icon
+        tokenObject.icon(withSize: .s750)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {

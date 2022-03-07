@@ -32,7 +32,7 @@ struct PopularToken: Decodable {
     var name: String
 
     var iconImage: Subscribable<TokenImage> {
-        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name)
+        return TokenImageFetcher.instance.image(contractAddress: contractAddress, server: server, name: name, size: .s120)
     }
 
     enum CodingKeys: String, CodingKey {
