@@ -155,7 +155,7 @@ class TransactionConfirmationHeaderView: UIView {
         return nil
     }
 
-    private func configure(viewModel: TransactionConfirmationHeaderViewModel) {
+    func configure(viewModel: TransactionConfirmationHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         chevronView.isHidden = viewModel.configuration.shouldHideChevron

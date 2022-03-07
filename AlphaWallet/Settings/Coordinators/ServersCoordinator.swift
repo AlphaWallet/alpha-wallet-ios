@@ -79,7 +79,7 @@ class ServersCoordinator: Coordinator {
         self.viewModel = viewModel
     }
 
-    private static func serverChoices(includeAny: Bool, config: Config) -> [RPCServerOrAuto] {
+    static func serverChoices(includeAny: Bool, config: Config) -> [RPCServerOrAuto] {
         let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
         let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
         if includeAny {

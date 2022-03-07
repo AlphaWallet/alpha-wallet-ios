@@ -20,7 +20,7 @@ struct AdvancedSettingsViewModel {
             Features.isAnalyticsUIEnabled ? .analytics : nil,
             Features.isLanguageSwitcherDisabled ? nil : .changeLanguage,
             canExportToJSONKeystore ? .exportJSONKeystore : nil,
-            .tools,
+            .tools
         ].compactMap { $0 }
     }
 
@@ -38,7 +38,7 @@ enum AdvancedSettingsRow: CaseIterable {
     case analytics
     case usePrivateNetwork
     case exportJSONKeystore
-
+    
     var title: String {
         switch self {
         case .tools:

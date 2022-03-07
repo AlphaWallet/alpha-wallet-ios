@@ -6,6 +6,15 @@ enum ServerSelection {
     case server(server: RPCServerOrAuto)
     case multipleServers(servers: [RPCServerOrAuto])
 
+    var asServersOrAnyArray: [RPCServerOrAuto] {
+        switch self {
+        case .multipleServers:
+            return []
+        case .server(let server):
+            return [server]
+        }
+    }
+
     var asServersArray: [RPCServer] {
         switch self {
         case .server(let server):

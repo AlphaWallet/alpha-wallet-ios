@@ -827,3 +827,16 @@
 "analytics.shareAnonymousData" = "Share Anonymous Data?";
 "email.not.configured" = "Your device isn't configured to send email";
 "tokenscript.import.ok" = "%@ file imported with no error";
+"checkTransactionState.invalidHash" = "Transaction hash is invalid";
+"checkTransactionState.field.server.title" = "Server";
+"checkTransactionState.field.hash.placeholder" = "Transaction Hash";
+"checkTransactionState.actionButton.title" = "Check";
+"checkTransactionState.title" = "Check transaction hash";
+"checkTransactionState.error" = "Failure with error: %@";
+"checkTransactionState.complete" = "Transactions status: %@";
+"transactionState.completed" = "Completed";
+"transactionState.pending" = "Pending";
+"transactionState.error" = "Error";
+"transactionState.failed" = "Failed";
+"transactionState.unknown" = "Unknown";
+"settings.checkTransactionState" = "Check Transaction State";
