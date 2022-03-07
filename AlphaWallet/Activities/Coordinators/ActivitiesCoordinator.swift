@@ -54,7 +54,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
         let viewModel = ActivitiesViewModel()
         let controller = ActivitiesViewController(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions)
         controller.delegate = self
-
+        
         return controller
     }
 

@@ -236,7 +236,7 @@ class InCoordinatorTests: XCTestCase {
             )
             coordinator.showTabBar(for: wallet, animated: false)
 
-            coordinator.showTab(.wallet)
+            coordinator.showTab(.tokens)
 
             let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
 

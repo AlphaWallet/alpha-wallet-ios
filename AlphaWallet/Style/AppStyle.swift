@@ -61,17 +61,6 @@ extension UINavigationBarAppearance {
     }
 }
 
-extension UINavigationController {
-    static func withOverridenBarAppearence(appearence: UINavigationBarAppearance = .defaultAppearence) -> UINavigationController {
-        let instance = UINavigationController()
-        instance.navigationBar.compactAppearance = appearence
-        instance.navigationBar.standardAppearance = appearence
-        instance.navigationBar.scrollEdgeAppearance = appearence
-
-        return instance
-    }
-}
-
 extension UITabBarAppearance {
     static var defaultAppearence: UITabBarAppearance {
         let tabBarAppearance = UITabBarAppearance()

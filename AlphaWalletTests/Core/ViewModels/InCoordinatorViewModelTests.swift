@@ -7,6 +7,6 @@ class InCoordinatorViewModelTests: XCTestCase {
     
     func testInitialTab() {
         let viewModel = InCoordinatorViewModel()
-        XCTAssertEqual(.wallet, viewModel.initialTab)
+        XCTAssertEqual(.tokens, viewModel.initialTab)
     }
 }

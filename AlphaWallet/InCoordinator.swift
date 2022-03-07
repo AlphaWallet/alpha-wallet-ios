@@ -16,30 +16,6 @@ protocol InCoordinatorDelegate: AnyObject {
     func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet)
 }
 
-enum Tabs {
-    case wallet
-    case alphaWalletSettings
-    case transactionsOrActivity
-    case browser
-
-    var className: String {
-        switch self {
-        case .wallet:
-            return String(describing: TokensViewController.self)
-        case .transactionsOrActivity:
-            if Features.isActivityEnabled {
-                return String(describing: ActivitiesViewController.self)
-            } else {
-                return String(describing: TransactionsViewController.self)
-            }
-        case .alphaWalletSettings:
-            return String(describing: SettingsViewController.self)
-        case .browser:
-            return String(describing: DappsHomeViewController.self)
-        }
-    }
-}
-
 // swiftlint:disable type_body_length
 class InCoordinator: NSObject, Coordinator {
     private var wallet: Wallet
@@ -333,6 +309,7 @@ class InCoordinator: NSObject, Coordinator {
                 strongSelf.fetchEthereumEvents()
             }.store(in: &cancellable)
     }
+
     //Internal for test purposes
     /*private*/ func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
@@ -420,8 +397,7 @@ class InCoordinator: NSObject, Coordinator {
                 activitiesService: activitiesService,
                 walletBalanceCoordinator: walletBalanceCoordinator
         )
-
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.tokens.tabBarItem
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -443,7 +419,8 @@ class InCoordinator: NSObject, Coordinator {
                 transactionsCollection: transactionsCollection,
                 dataCoordinator: transactionDataCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.transactions.tabBarItem
+        coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -453,8 +430,9 @@ class InCoordinator: NSObject, Coordinator {
     private func createActivityCoordinator(activitiesService: ActivitiesServiceType) -> ActivitiesCoordinator {
         let coordinator = ActivitiesCoordinator(analyticsCoordinator: analyticsCoordinator, sessions: walletSessions, activitiesService: activitiesService, keystore: keystore, wallet: wallet)
         coordinator.delegate = self
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.start()
+        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.activities.tabBarItem
+        coordinator.navigationController.configureForLargeTitles()
         addCoordinator(coordinator)
         return coordinator
     }
@@ -463,7 +441,7 @@ class InCoordinator: NSObject, Coordinator {
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.browser.tabBarItem
         addCoordinator(coordinator)
         return coordinator
     }
@@ -479,7 +457,8 @@ class InCoordinator: NSObject, Coordinator {
             walletConnectCoordinator: walletConnectCoordinator,
             walletBalanceCoordinator: walletBalanceCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.settings.tabBarItem
+        coordinator.navigationController.configureForLargeTitles()
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -492,15 +471,12 @@ class InCoordinator: NSObject, Coordinator {
 
         let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, activitiesService: activitiesService)
 
-        configureNavigationControllerForLargeTitles(tokensCoordinator.navigationController)
         viewControllers.append(tokensCoordinator.navigationController)
 
         let transactionCoordinator = createTransactionCoordinator(promptBackupCoordinator: promptBackupCoordinator, transactionsCollection: transactionsCollection)
-        configureNavigationControllerForLargeTitles(transactionCoordinator.navigationController)
 
         if Features.isActivityEnabled {
             let activityCoordinator = createActivityCoordinator(activitiesService: activitiesService)
-            configureNavigationControllerForLargeTitles(activityCoordinator.navigationController)
             viewControllers.append(activityCoordinator.navigationController)
         } else {
             viewControllers.append(transactionCoordinator.navigationController)
@@ -510,27 +486,16 @@ class InCoordinator: NSObject, Coordinator {
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
-        configureNavigationControllerForLargeTitles(settingsCoordinator.navigationController)
         viewControllers.append(settingsCoordinator.navigationController)
 
         tabBarController.viewControllers = viewControllers
-    }
-
-    private func configureNavigationControllerForLargeTitles(_ navigationController: UINavigationController) {
-        navigationController.navigationBar.prefersLargeTitles = true
-        //When we enable large titles,
-        //1. we can't get `UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)` to work anymore, needing to replace it with: `UINavigationBar.appearance().barTintColor = Colors.appBackground`.
-        //2. Without the former, we need to clear `isTranslucent` in order for view controllers that do not embed scroll views to clip off content at the top (unless we offset ourselves).
-        //3. And when we clear `isTranslucent`, we need to set the navigationController's background ourselves, otherwise when pushing a view controller, the navigationController will show as black
-        navigationController.navigationBar.isTranslucent = false
-        navigationController.view.backgroundColor = Colors.appBackground
     }
 
     @objc private func dismissTransactions() {
         navigationController.dismiss(animated: true)
     }
 
-    func showTab(_ selectTab: Tabs) {
+    func showTab(_ selectTab: UITabBarController.Tabs) {
         guard let viewControllers = tabBarController.viewControllers else {
             return
         }
@@ -769,7 +734,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func showWalletQrCode() {
-        showTab(.wallet)
+        showTab(.tokens)
         if let nc = tabBarController.viewControllers?.first as? UINavigationController, nc.visibleViewController is RequestViewController {
             //no-op
         } else if navigationController.visibleViewController is RequestViewController {
