@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 protocol WalletAddressesStoreMigration {
     func migrate(to store: WalletAddressesStore) -> WalletAddressesStore
@@ -19,9 +20,19 @@ protocol WalletAddressesStore: WalletAddressesStoreMigration {
     var hasWallets: Bool { get }
     var wallets: [Wallet] { get }
     var hasMigratedFromKeystoreFiles: Bool { get }
+    var walletsPublisher: AnyPublisher<Set<Wallet>, Never> { get }
+
+    mutating func removeAddress(_ account: AlphaWallet.Address)
 }
 
 extension WalletAddressesStore {
+
+    mutating func removeAddress(_ account: AlphaWallet.Address) {
+        ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter { $0 != account.eip55String }
+        ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.eip55String }
+        ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.eip55String }
+        watchAddresses = watchAddresses.filter { $0 != account.eip55String }
+    }
 
     func migrate(to store: WalletAddressesStore) -> WalletAddressesStore {
         var store = store

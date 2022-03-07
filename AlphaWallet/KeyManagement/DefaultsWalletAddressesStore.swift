@@ -6,9 +6,16 @@
 //
 
 import Foundation
+import Combine
 
 struct DefaultsWalletAddressesStore: WalletAddressesStore {
+    
+    var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
+        walletsSubject.eraseToAnyPublisher()
+    }
 
+    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never> = .init([])
+    
     private struct Keys {
         static let watchAddresses = "watchAddresses"
         static let ethereumAddressesWithPrivateKeys = "ethereumAddressesWithPrivateKeys"
