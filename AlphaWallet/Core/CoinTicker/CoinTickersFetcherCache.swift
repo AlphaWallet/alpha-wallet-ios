@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 11.06.2021.
 //
 
-import UIKit
+import Foundation
 import PromiseKit
 
 protocol CoinTickersFetcherCacheType: AnyObject {

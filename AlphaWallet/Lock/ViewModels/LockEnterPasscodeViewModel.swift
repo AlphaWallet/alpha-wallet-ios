@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
+import Foundation
 
 class LockEnterPasscodeViewModel: LockViewModel {
     let initialLabelText =  R.string.localizable.lockEnterPasscodeViewModelInitial()

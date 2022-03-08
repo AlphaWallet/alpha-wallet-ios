@@ -1,6 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import UIKit
 import CoreImage
 
@@ -31,7 +30,7 @@ extension Data {
             self = Data(_hex: value)
         }
     }
-    //NOTE: renamed to `_hex` because CryptoSwift has its own implementation of `.init(hex:)` that instantiates Data() object with additionaly byte at the end. That brokes `signing` in app. Not sure that this is good name. 
+    //NOTE: renamed to `_hex` because CryptoSwift has its own implementation of `.init(hex:)` that instantiates Data() object with additionaly byte at the end. That brokes `signing` in app. Not sure that this is good name.
     init(_hex hex: String) {
         let len = hex.count / 2
         var data = Data(capacity: len)

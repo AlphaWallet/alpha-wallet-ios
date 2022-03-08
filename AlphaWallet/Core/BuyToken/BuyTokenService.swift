@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 03.03.2021.
 //
 
-import UIKit
+import Foundation
 
 protocol BuyTokenURLProviderType {
     var action: String { get }

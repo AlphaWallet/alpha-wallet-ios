@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 26.11.2020.
 //
 
-import UIKit
+import Foundation
 
 struct TokenActionsServiceKey {
     let contractAddress: AlphaWallet.Address

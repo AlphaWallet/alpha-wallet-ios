@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 11.05.2021.
 //
 
-import UIKit
+import Foundation
 
 extension AlphaWallet {
     enum Ethereum {

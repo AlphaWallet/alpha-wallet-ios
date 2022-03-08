@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 20.01.2022.
 //
 
-import UIKit
+import Foundation
 
 class EnterKeystorePasswordViewModel {
     var validator: StringValidator = StringValidator(rules: [

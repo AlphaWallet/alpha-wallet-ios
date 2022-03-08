@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit 
+import UIKit
 
 extension String {
 
@@ -20,7 +19,7 @@ extension String {
         guard let data = self.data(using: .utf8) else {
             return String()
         }
-        
+
         return data.map {
             String(format: "%02x", $0)
         }.joined()

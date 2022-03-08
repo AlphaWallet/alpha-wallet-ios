@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 23.09.2021.
 //
 
-import UIKit
+import Foundation
 
 enum SwitchChainRequestConfiguration {
     case promptAndSwitchToExistingServerInBrowser(existingServer: RPCServer)

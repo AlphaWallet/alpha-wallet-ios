@@ -1,7 +1,6 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
 
 #if targetEnvironment(simulator)
 //no-op

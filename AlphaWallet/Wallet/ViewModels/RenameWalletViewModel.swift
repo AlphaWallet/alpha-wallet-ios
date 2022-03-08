@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 31.03.2021.
 //
 
-import UIKit
+import Foundation
 
 struct RenameWalletViewModel {
     let account: AlphaWallet.Address

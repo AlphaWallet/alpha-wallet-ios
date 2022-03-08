@@ -2,7 +2,6 @@
 
 import BigInt
 import Foundation
-import UIKit
 
 struct TransactionRowCellViewModel {
     private let transactionRow: TransactionRow

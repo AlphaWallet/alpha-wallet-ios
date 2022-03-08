@@ -1,6 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
-import UIKit
+import Foundation
 import PromiseKit
 
 enum AddHideTokenSections: Int {
@@ -56,7 +56,7 @@ class AddHideTokensViewModel {
         self.tokens = tokens
         self.tokensFilter = tokensFilter
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
-        
+
         filter(tokens: tokens)
     }
 

@@ -5,8 +5,6 @@
 //  Created by Vladyslav Shepitko on 19.02.2021.
 //
 
-import UIKit
-
 import Foundation
 import TrustKeystore
 

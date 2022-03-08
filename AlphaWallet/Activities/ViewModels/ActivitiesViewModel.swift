@@ -1,7 +1,6 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import UIKit
 import BigInt
 
 enum ActivityOrTransactionFilter {
