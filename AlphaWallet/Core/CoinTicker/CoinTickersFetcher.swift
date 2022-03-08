@@ -14,18 +14,35 @@ struct TokenMappedToTicker: Hashable {
     let contractAddress: AlphaWallet.Address
     let server: RPCServer
 
-    init(tokenObject: TokenObject) {
-        symbol = tokenObject.symbol
-        name = tokenObject.name
-        contractAddress = tokenObject.contractAddress
-        server = tokenObject.server
-    }
-
     init(token: Activity.AssignedToken) {
         symbol = token.symbol
         name = token.name
         contractAddress = token.contractAddress
         server = token.server
+    }
+
+    var canPassFiltering: Bool {
+        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return true
+        } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return true
+        } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func overridenCoinGeckoTickerId(tickerId: String) -> String {
+        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "avalanche-2"
+        } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "fantom"
+        } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "binancecoin"
+        } else {
+            return tickerId
+        }
     }
 }
 
@@ -181,7 +198,8 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         }.compactMap(on: CoinTickersFetcher.queue, { tickers -> [MappedCoinTickerId] in
             let mappedTokensToCoinTickerIds = tokens.compactMap { tokenObject -> MappedCoinTickerId? in
                 if let ticker = tickers.first(where: { $0.matches(tokenObject: tokenObject) }) {
-                    return MappedCoinTickerId(tickerId: ticker.id, contractAddress: tokenObject.contractAddress, server: tokenObject.server)
+                    let tickerId = tokenObject.overridenCoinGeckoTickerId(tickerId: ticker.id)
+                    return MappedCoinTickerId(tickerId: tickerId, contractAddress: tokenObject.contractAddress, server: tokenObject.server)
                 } else {
                     return nil
                 }
@@ -303,7 +321,7 @@ fileprivate struct Ticker: Codable {
             } else if tokenObject.server == .polygon && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
                 return true
             } else {
-                return false
+                return tokenObject.canPassFiltering
             }
         } else {
             return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase && name.localizedLowercase == tokenObject.name.localizedLowercase
@@ -349,7 +367,9 @@ fileprivate struct Ticker: Codable {
         case .avalanche: return true
         case .polygon: return true
         case .arbitrum: return true
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby:
+        case .fantom: return true
+        case .palm: return true
+        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby:
             return false
         }
     }

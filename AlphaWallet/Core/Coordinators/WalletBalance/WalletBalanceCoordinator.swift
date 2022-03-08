@@ -127,7 +127,8 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
                 seal.fulfill(tokenObjects + Self.nativeCryptoForAllChains)
             }
         }.map(on: queue, { objects -> ServerDictionary<[TokenMappedToTicker]> in
-            let uniqueTokenObjectsOfAllWallets = Set(objects)
+            let tokenObjects = objects.filter { !$0.server.isTestnet }
+            let uniqueTokenObjectsOfAllWallets = Set(tokenObjects)
 
             var tokens = ServerDictionary<[TokenMappedToTicker]>()
 
