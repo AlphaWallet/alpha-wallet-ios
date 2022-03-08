@@ -14,7 +14,7 @@ protocol TokenCollection {
 
 ///This contains tokens across multiple-chains
 final class MultipleChainsTokenCollection: NSObject, TokenCollection {
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private let tokensFilter: TokensFilter
     private var tokensViewModelSubject: CurrentValueSubject<TokensViewModel, Never>
 
     private let refereshSubject = PassthroughSubject<Void, Never>.init()
@@ -25,20 +25,20 @@ final class MultipleChainsTokenCollection: NSObject, TokenCollection {
         tokensViewModelSubject.eraseToAnyPublisher()
     }
 
-    init(filterTokensCoordinator: FilterTokensCoordinator, tokensDataStore: TokensDataStore, config: Config) {
-        self.filterTokensCoordinator = filterTokensCoordinator
+    init(tokensFilter: TokensFilter, tokensDataStore: TokensDataStore, config: Config) {
+        self.tokensFilter = tokensFilter
         self.tokensDataStore = tokensDataStore
 
         let enabledServers = config.enabledServers
         let tokenObjects = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
-        self.tokensViewModelSubject = .init(.init(filterTokensCoordinator: filterTokensCoordinator, tokens: tokenObjects, config: config))
+        self.tokensViewModelSubject = .init(.init(tokensFilter: tokensFilter, tokens: tokenObjects, config: config))
         super.init()
 
         tokensDataStore
             .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
             .combineLatest(refereshSubject, { changeset, _ in return changeset.asTokensArray })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokenObjects: $0) }
-            .map { TokensViewModel(filterTokensCoordinator: self.filterTokensCoordinator, tokens: $0, config: config) }
+            .map { TokensViewModel(tokensFilter: self.tokensFilter, tokens: $0, config: config) }
             .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: DispatchQueue.main)
             .sink { [weak self] tokensViewModel in
                 self?.tokensViewModelSubject.send(tokensViewModel)

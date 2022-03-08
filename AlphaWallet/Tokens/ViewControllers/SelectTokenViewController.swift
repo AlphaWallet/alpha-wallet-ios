@@ -16,7 +16,7 @@ protocol SelectTokenViewControllerDelegate: AnyObject {
 
 class SelectTokenViewController: UIViewController {
     private lazy var viewModel = SelectTokenViewModel(
-        filterTokensCoordinator: filterTokensCoordinator,
+        tokensFilter: tokensFilter,
         tokens: [],
         filter: filter
     )
@@ -24,7 +24,7 @@ class SelectTokenViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessions: ServerDictionary<WalletSession>
-    private let filterTokensCoordinator: FilterTokensCoordinator
+    private let tokensFilter: TokensFilter
     private var selectedToken: TokenObject?
     private let filter: WalletFilter
     private lazy var tableView: UITableView = {
@@ -49,12 +49,12 @@ class SelectTokenViewController: UIViewController {
         view = tableView
     }
 
-    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, filter: WalletFilter) {
+    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, filter: WalletFilter) {
         self.filter = filter
         self.sessions = sessions
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-        self.filterTokensCoordinator = filterTokensCoordinator
+        self.tokensFilter = tokensFilter
 
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
@@ -102,7 +102,7 @@ class SelectTokenViewController: UIViewController {
     private func handleTokenCollectionUpdates() {
         tokenCollection.tokensViewModel.sink { [weak self] viewModel in
             guard let strongSelf = self else { return }
-            strongSelf.viewModel = .init(tokensViewModel: viewModel, filterTokensCoordinator: strongSelf.filterTokensCoordinator, filter: strongSelf.filter)
+            strongSelf.viewModel = .init(tokensViewModel: viewModel, tokensFilter: strongSelf.tokensFilter, filter: strongSelf.filter)
             strongSelf.endLoading()
         }.store(in: &cancellable)
     }

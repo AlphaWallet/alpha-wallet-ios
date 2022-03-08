@@ -29,12 +29,12 @@ class TokensCoordinator: Coordinator {
     private let config: Config
 
     private lazy var tokenCollection: TokenCollection = {
-        return MultipleChainsTokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokensDataStore: tokensDataStore, config: config)
+        return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config)
     }()
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let promptBackupCoordinator: PromptBackupCoordinator
-    private lazy var filterTokensCoordinator: FilterTokensCoordinator = {
+    private lazy var tokensFilter: TokensFilter = {
         return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
     }()
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -70,7 +70,7 @@ class TokensCoordinator: Coordinator {
             tokenCollection: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
             eventsDataStore: eventsDataStore,
-            filterTokensCoordinator: filterTokensCoordinator,
+            tokensFilter: tokensFilter,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
             walletBalanceCoordinator: walletBalanceCoordinator,
@@ -333,7 +333,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let coordinator: AddHideTokensCoordinator = .init(
             tokens: viewModel.tokens,
             assetDefinitionStore: assetDefinitionStore,
-            filterTokensCoordinator: filterTokensCoordinator,
+            tokensFilter: tokensFilter,
             sessions: sessions,
             analyticsCoordinator: analyticsCoordinator,
             navigationController: navigationController,
@@ -473,7 +473,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             sessions: sessions,
             tokenCollection: tokenCollection,
             navigationController: navigationController,
-            filterTokensCoordinator: filterTokensCoordinator
+            tokensFilter: tokensFilter
         )
         coordinator.delegate = self
         addCoordinator(coordinator)
