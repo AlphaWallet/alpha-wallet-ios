@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
+import Foundation
 
 final class StringFormatter {
     /// Converts a Double to a `currency String`.

@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 04.06.2021.
 //
 
-import UIKit
+import Foundation
 import PromiseKit
 
 struct JSONCodingKeys: CodingKey {

@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 04.10.2021.
 //
 
-import UIKit
+import Foundation
 
 typealias BridgeTokenURLProviderType = BuyTokenURLProviderType
 

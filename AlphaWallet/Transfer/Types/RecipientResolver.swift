@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 20.08.2020.
 //
 
-import UIKit
+import Foundation
 
 class RecipientResolver {
     enum Row: Int, CaseIterable {

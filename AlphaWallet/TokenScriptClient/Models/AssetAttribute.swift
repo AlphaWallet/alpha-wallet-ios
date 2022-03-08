@@ -1,6 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import UIKit
+import Foundation
 //TODO make only XMLHandler import Kanna and hence be the only file to handle XML parsing
 import Kanna
 

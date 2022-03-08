@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 10.08.2021.
 //
 
-import UIKit
+import Foundation
 
 /// Enum represents value sorting direction
 enum SortDirection: Int {

@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 17.05.2021.
 //
 
-import UIKit
+import Foundation
 import CoreFoundation
 import PromiseKit
 import Combine
@@ -234,7 +234,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private func getActivities(forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [ActivityTokenObjectTokenHolder] {
         //NOTE: eventsActivityDataStore. getRecentEvents() returns only 100 events, that could cause error with creating activities (missing events)
-        //replace with fetching only filtered event instances, 
+        //replace with fetching only filtered event instances,
         let events = eventsActivityDataStore.getRecentEventsSortedByBlockNumber(forContract: card.eventOrigin.contract, server: server, eventName: card.eventOrigin.eventName, interpolatedFilter: interpolatedFilter)
 
         let activitiesForThisCard: [ActivityTokenObjectTokenHolder] = events.compactMap { eachEvent in

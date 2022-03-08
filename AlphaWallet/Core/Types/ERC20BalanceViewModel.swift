@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 02.06.2021.
 //
 
-import UIKit
+import Foundation
 import BigInt
 
 struct ERC20BalanceViewModel: BalanceBaseViewModel {

@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 30.03.2020.
 //
 
-import UIKit
+import Foundation
 
 class TokensFilter {
     private enum FilterKeys: String {

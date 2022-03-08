@@ -5,7 +5,7 @@
 //  Created by Vladyslav Shepitko on 04.03.2021.
 //
 
-import UIKit
+import Foundation
 
 func -<T: Equatable>(left: [T], right: [T]) -> [T] {
     return left.filter { l in

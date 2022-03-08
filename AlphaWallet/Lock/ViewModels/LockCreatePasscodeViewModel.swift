@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import UIKit
+import Foundation
 
 class LockCreatePasscodeViewModel: LockViewModel {
     let title = R.string.localizable.lockCreatePasscodeViewModelTitle()
