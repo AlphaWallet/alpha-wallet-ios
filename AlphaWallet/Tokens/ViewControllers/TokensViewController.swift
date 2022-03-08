@@ -14,7 +14,7 @@ protocol TokensViewControllerDelegate: AnyObject {
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
 }
- 
+
 class TokensViewController: UIViewController {
     private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
     static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
@@ -108,25 +108,11 @@ class TokensViewController: UIViewController {
     }()
     private (set) lazy var blockieImageView: BlockieImageView = .defaultBlockieImageView
     private let searchController: UISearchController
-    private lazy var searchBar: DymmySearchView = {
-        return DymmySearchView(closure: { [weak self] in
+    private lazy var searchBar: DummySearchView = {
+        return DummySearchView(closure: { [weak self] in
             guard let strongSelf = self else { return }
-
-            let searchController = strongSelf.searchController
-            strongSelf.navigationItem.searchController = searchController
-
-            strongSelf.viewModel.isSearchActive = true
-            strongSelf.viewModel.filter = strongSelf.viewModel.filter
-            strongSelf.tableView.reloadData()
-
-            DispatchQueue.main.async {
-                searchController.isActive = true
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    searchController.searchBar.becomeFirstResponder()
-                }
-            }
-        }) 
+            strongSelf.enterSearchMode()
+        })
     }()
 
     private var consoleButton: UIButton {
@@ -207,8 +193,8 @@ class TokensViewController: UIViewController {
     private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
     private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
     private let walletSummarySubscription: Subscribable<WalletBalance>
-    private lazy var searchBarHeader: TokensViewController.ContainerView<DymmySearchView> = {
-        let header: TokensViewController.ContainerView<DymmySearchView> = .init(subview: searchBar)
+    private lazy var searchBarHeader: TokensViewController.ContainerView<DummySearchView> = {
+        let header: TokensViewController.ContainerView<DummySearchView> = .init(subview: searchBar)
         header.useSeparatorLine = false
 
         return header
@@ -399,6 +385,23 @@ class TokensViewController: UIViewController {
     private static func reloadWalletSummaryView(_ walletSummaryView: WalletSummaryView, with balance: WalletBalance?, config: Config) {
         let summary = balance.map { WalletSummary(balances: [$0]) }
         walletSummaryView.configure(viewModel: .init(summary: summary, config: config, alignment: .center))
+    }
+
+    @objc private func enterSearchMode() {
+        let searchController = searchController
+        navigationItem.searchController = searchController
+
+        viewModel.isSearchActive = true
+        viewModel.filter = viewModel.filter
+        tableView.reloadData()
+
+        DispatchQueue.main.async {
+            searchController.isActive = true
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                searchController.searchBar.becomeFirstResponder()
+            }
+        }
     }
 }
 
@@ -749,7 +752,7 @@ extension TokensViewController: UISearchResultsUpdating {
     }
 }
 
-fileprivate class DymmySearchView: UIView {
+fileprivate class DummySearchView: UIView {
 
     private let searchBar: UISearchBar = {
         let searchBar: UISearchBar = UISearchBar(frame: .init(x: 0, y: 0, width: 100, height: 50))
@@ -842,6 +845,13 @@ extension TokensViewController {
         guard !isSearchBarConfigured else { return }
         isSearchBarConfigured = true
         UISearchBar.configure(searchBar: searchController.searchBar)
+    }
+}
+
+//MARK: Search
+extension TokensViewController {
+    override var keyCommands: [UIKeyCommand]? {
+        return [UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(enterSearchMode), discoverabilityTitle: "Filter")]
     }
 }
 
