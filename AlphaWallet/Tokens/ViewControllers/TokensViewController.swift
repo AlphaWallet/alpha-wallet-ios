@@ -52,7 +52,7 @@ class TokensViewController: UIViewController {
 
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
 
     private (set) var viewModel: TokensViewModel {
@@ -205,7 +205,7 @@ class TokensViewController: UIViewController {
          account: Wallet,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
-         eventsDataStore: EventsDataStoreProtocol,
+         eventsDataStore: NonActivityEventsDataStore,
          tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,

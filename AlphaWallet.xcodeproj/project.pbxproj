@@ -337,7 +337,7 @@
 		5E7C732AA43385E80681B24F /* EmailList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B097096FC37B68A399B /* EmailList.swift */; };
 		5E7C732BD09AABEEE6096BF4 /* ServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74C0C1803DD17FE9EBA7 /* ServersViewController.swift */; };
 		5E7C733638D7596F93DEE2A9 /* OnboardingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CE3F1D6B7993E7A840 /* OnboardingCollectionViewController.swift */; };
-		5E7C733C6C4DD52495427B66 /* EventsDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EDC84FC2C767ED0C167 /* EventsDataStore.swift */; };
+		5E7C733C6C4DD52495427B66 /* NonActivityEventsDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EDC84FC2C767ED0C167 /* NonActivityEventsDataStore.swift */; };
 		5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79199D828A206A7F23B1 /* AssetInternalValue.swift */; };
 		5E7C7350C5F9ADE212A0F1CA /* CallForAssetAttributeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74F4900AB6D34CDD3674 /* CallForAssetAttributeCoordinator.swift */; };
 		5E7C7376B566E5A59CC8F463 /* ImportMagicTokenViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */; };
@@ -1706,7 +1706,7 @@
 		5E7C7EC53B2B5DFAAC7965EC /* TokenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenViewController.swift; sourceTree = "<group>"; };
 		5E7C7ED293E477AD7C13056C /* Bookmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bookmark.swift; sourceTree = "<group>"; };
 		5E7C7ED522A9E75F10594EFB /* DirectoryContentsWatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DirectoryContentsWatcher.swift; sourceTree = "<group>"; };
-		5E7C7EDC84FC2C767ED0C167 /* EventsDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventsDataStore.swift; sourceTree = "<group>"; };
+		5E7C7EDC84FC2C767ED0C167 /* NonActivityEventsDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NonActivityEventsDataStore.swift; sourceTree = "<group>"; };
 		5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewModel.swift; sourceTree = "<group>"; };
 		5E7C7EE6BFC8BB79CD1C5565 /* AlphaWalletAddressExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletAddressExtension.swift; sourceTree = "<group>"; };
@@ -3922,7 +3922,7 @@
 				5E7C72FABB78B9E1655A06A2 /* FunctionOrigin.swift */,
 				5E7C7E014F0C6BD090E955A2 /* TokenInterfaceType.swift */,
 				5E7C740BBC5AAF5C545CCC6A /* EventOrigin.swift */,
-				5E7C7EDC84FC2C767ED0C167 /* EventsDataStore.swift */,
+				5E7C7EDC84FC2C767ED0C167 /* NonActivityEventsDataStore.swift */,
 				5E7C78302634885C93D9B6FA /* TokenIdOrEvent.swift */,
 				5E7C77E52AD90BA044CFD67A /* TokenScriptFilterParser.swift */,
 				5E7C71E8E2D256BC461E9597 /* TokenScriptSelection.swift */,
@@ -6497,7 +6497,7 @@
 				5E7C7F3CB1F280E6795A479C /* EventOrigin.swift in Sources */,
 				5E7C7A2DBFF7FB3B8B5DEB1B /* EventInstance.swift in Sources */,
 				5E7C7D918B514B4C2F8DF296 /* EventSourceCoordinator.swift in Sources */,
-				5E7C733C6C4DD52495427B66 /* EventsDataStore.swift in Sources */,
+				5E7C733C6C4DD52495427B66 /* NonActivityEventsDataStore.swift in Sources */,
 				5E7C797F3278A290BE47BFA2 /* TokenIdOrEvent.swift in Sources */,
 				870CC47D27C6566400A19380 /* AutoDetectTokensOperation.swift in Sources */,
 				5E7C7193C577A84710D71F5C /* TokenScriptFilterParser.swift in Sources */,

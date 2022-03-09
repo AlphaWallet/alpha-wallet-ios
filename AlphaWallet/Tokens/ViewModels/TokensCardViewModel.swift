@@ -37,10 +37,10 @@ struct TokensCardViewModel {
         return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let account: Wallet
 
-    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
+    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
         self.account = account
         self.eventsDataStore = eventsDataStore

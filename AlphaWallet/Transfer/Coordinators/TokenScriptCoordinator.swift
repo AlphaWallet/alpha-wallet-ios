@@ -31,7 +31,7 @@ class TokenScriptCoordinator: Coordinator {
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let action: TokenInstanceAction
     private let tokensStorage: TokensDataStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     weak var delegate: TokenScriptCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -48,7 +48,7 @@ class TokenScriptCoordinator: Coordinator {
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
             action: TokenInstanceAction,
-            eventsDataStore: EventsDataStoreProtocol
+            eventsDataStore: NonActivityEventsDataStore
     ) {
         self.eventsDataStore = eventsDataStore
         self.action = action

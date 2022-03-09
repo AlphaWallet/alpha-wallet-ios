@@ -24,7 +24,7 @@ class TokensCardViewController: UIViewController {
     private let tokenObject: TokenObject
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private lazy var buttonsBar: ButtonsBar = {
         let buttonsBar = ButtonsBar(configuration: .empty)
@@ -74,7 +74,7 @@ class TokensCardViewController: UIViewController {
     private let activitiesService: ActivitiesServiceType
     private let keystore: Keystore
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: EventsDataStoreProtocol) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
