@@ -31,32 +31,32 @@ protocol WalletBalanceFetcherType: AnyObject {
     func refreshEthBalance() -> Promise<Void>
     func refreshBalance() -> Promise<Void>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
-    func transactionsStorage(server: RPCServer) -> TransactionsStorage
 }
-typealias WalletBalanceFetcherSubServices = (balanceFetcher: PrivateBalanceFetcherType, transactionsStorage: TransactionsStorage)
 
 class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static let updateBalanceInterval: TimeInterval = 60
     private var timer: Timer?
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
-    private var services: ServerDictionary<WalletBalanceFetcherSubServices> = .init()
+    private var balanceFetchers: ServerDictionary<PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
     private var cache: ThreadSafeDictionary<AddressAndRPCServer, (NotificationToken, Subscribable<BalanceBaseViewModel>)> = .init()
     private let coinTickersFetcher: CoinTickersFetcherType
-    private lazy var tokensDatastore: TokensDataStore = {
+    private lazy var tokensDataStore: TokensDataStore = {
         return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: Config().enabledServers)
     }()
     private let keystore: Keystore
+    private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
 
     weak var delegate: WalletBalanceFetcherDelegate?
     var tokenObjects: [Activity.AssignedToken] {
-        tokensDatastore
-            .enabledTokenObjects(forServers: Array(services.keys))
+        //NOTE: replace with more clear solution
+        tokensDataStore
+            .enabledTokenObjects(forServers: Array(balanceFetchers.keys))
             .map { Activity.AssignedToken(tokenObject: $0) }
     }
+    private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
 
     required init(wallet: Wallet, keystore: Keystore, servers: [RPCServer], assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
@@ -67,7 +67,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
         super.init()
         for each in servers {
-            services[each] = createServices(wallet: wallet, server: each)
+            balanceFetchers[each] = createServices(wallet: wallet, server: each)
         }
 
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
@@ -80,38 +80,29 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
     }
 
-    func transactionsStorage(server: RPCServer) -> TransactionsStorage {
-        if let services = services[safe: server] {
-            return services.transactionsStorage
-        } else {
-            let subServices = createServices(wallet: wallet, server: server)
-            services[server] = subServices
-
-            return subServices.transactionsStorage
-        }
-    } 
-
-    private func createServices(wallet: Wallet, server: RPCServer) -> WalletBalanceFetcherSubServices {
-        let transactionsStorage = TransactionsStorage(realm: realm, server: server, delegate: nil)
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, keystore: keystore, tokensDataStore: tokensDatastore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
+    private func createServices(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, keystore: keystore, tokensDataStore: tokensDataStore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
-        return (balanceFetcher, transactionsStorage)
+        return balanceFetcher
     }
 
     func update(servers: [RPCServer]) {
         for each in servers {
-            if services[safe: each] != nil {
+            //NOTE: when we change servers it might happen the case when native 
+            tokensDataStore.addEthToken(forServer: each)
+
+            if balanceFetchers[safe: each] != nil {
                 //no-op
             } else {
-                services[each] = createServices(wallet: wallet, server: each)
+                balanceFetchers[each] = createServices(wallet: wallet, server: each)
             }
         }
 
-        let deletedServers = services.filter { !servers.contains($0.key) }.map { $0.key }
+        let deletedServers = balanceFetchers.filter { !servers.contains($0.key) }.map { $0.key }
         for each in deletedServers {
-            services.remove(at: each)
+            balanceFetchers.remove(at: each)
         }
 
         queue.async { [weak self] in 
@@ -127,7 +118,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             guard let strongSelf = self else { return }
 
             for (key, each) in strongSelf.cache.values {
-                guard let tokenObject = strongSelf.tokensDatastore.token(forContract: key.address, server: key.server) else { continue }
+                guard let tokenObject = strongSelf.tokensDataStore.token(forContract: key.address, server: key.server) else { continue }
 
                 each.1.value = strongSelf.balanceViewModel(key: tokenObject)
             }
@@ -176,7 +167,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        guard let tokenObject = tokensDatastore.token(forContract: addressAndRPCServer.address, server: addressAndRPCServer.server) else {
+        guard let tokenObject = tokensDataStore.token(forContract: addressAndRPCServer.address, server: addressAndRPCServer.server) else {
             return .init(nil)
         }
 
@@ -244,29 +235,29 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     private func timedCallForBalanceRefresh() -> Promise<Void> {
-        let promises = services.map { each in
-            each.value.balanceFetcher.refreshBalance(updatePolicy: .all, force: false)
+        let promises = balanceFetchers.map { each in
+            each.value.refreshBalance(updatePolicy: .all, force: false)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
-        let promises = services.map { each in
-            each.value.balanceFetcher.refreshBalance(updatePolicy: updatePolicy, force: force)
+        let promises = balanceFetchers.map { each in
+            each.value.refreshBalance(updatePolicy: updatePolicy, force: force)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshEthBalance() -> Promise<Void> {
-        let promises = services.map { each in
-            each.value.balanceFetcher.refreshBalance(updatePolicy: .eth, force: true)
+        let promises = balanceFetchers.map { each in
+            each.value.refreshBalance(updatePolicy: .eth, force: true)
         }
         return when(resolved: promises).asVoid()
     }
 
     func refreshBalance() -> Promise<Void> {
-        let promises = services.map { each in
-            each.value.balanceFetcher.refreshBalance(updatePolicy: .ercTokens, force: true)
+        let promises = balanceFetchers.map { each in
+            each.value.refreshBalance(updatePolicy: .ercTokens, force: true)
         }
 
         return when(resolved: promises).asVoid()
@@ -286,6 +277,14 @@ extension WalletBalanceFetcher: PrivateTokensDataStoreDelegate {
 
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher) {
         notifyUpdateBalance()
+    }
+}
+
+extension WalletBalanceFetcher: TransactionDataStoreDelegate {
+    func didAddTokensWith(contracts: [AlphaWallet.Address], in transactionsStorage: TransactionDataStore) {
+        for each in contracts {
+            assetDefinitionStore.fetchXML(forContract: each)
+        }
     }
 }
 

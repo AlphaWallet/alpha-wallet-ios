@@ -32,7 +32,6 @@ class SingleChainTokenCoordinator: Coordinator {
     private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsProvider: TokenActionsProvider
-    private let transactionsStorage: TransactionsStorage
     private let coinTickersFetcher: CoinTickersFetcherType
     private let activitiesService: ActivitiesServiceType
     let session: WalletSession
@@ -56,7 +55,6 @@ class SingleChainTokenCoordinator: Coordinator {
             eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
             tokenActionsProvider: TokenActionsProvider,
-            transactionsStorage: TransactionsStorage,
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
             alertService: PriceAlertServiceType,
@@ -69,7 +67,6 @@ class SingleChainTokenCoordinator: Coordinator {
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
         self.tokenActionsProvider = tokenActionsProvider
-        self.transactionsStorage = transactionsStorage
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
         self.alertService = alertService
@@ -155,7 +152,7 @@ class SingleChainTokenCoordinator: Coordinator {
         guard let transactionType = type.transactionType else { return }
 
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
 
         let tokensCardCoordinator = TokensCardCollectionCoordinator(
                 session: session,
@@ -167,7 +164,6 @@ class SingleChainTokenCoordinator: Coordinator {
                 eventsDataStore: eventsDataStore,
                 analyticsCoordinator: analyticsCoordinator,
                 activitiesService: activitiesService,
-                transactionsStorage: transactionsStorage,
                 paymantFlow: type
         )
 
@@ -180,7 +176,7 @@ class SingleChainTokenCoordinator: Coordinator {
         guard let transactionType = type.transactionType else { return }
 
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
 
         let tokensCardCoordinator = TokensCardCoordinator(
                 session: session,
@@ -199,14 +195,10 @@ class SingleChainTokenCoordinator: Coordinator {
         tokensCardCoordinator.start()
     }
 
-    private func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
-        return .filter(transactionsStorage: transactionsStorage, strategy: strategy, tokenObject: tokenObject)
-    }
-
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
         let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
         let viewController = TokenViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService)
         viewController.delegate = self

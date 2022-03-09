@@ -7,15 +7,11 @@ enum TransactionError: Error {
     case failedToFetch
 }
 
-protocol TransactionDataCoordinatorDelegate: AnyObject {
-    func didUpdate(result: ResultResult<[TransactionInstance], TransactionError>.t, reloadImmediately: Bool)
-}
-
 class TransactionDataCoordinator: Coordinator {
     static let deleteMissingInternalSeconds: Double = 60.0
     static let delayedTransactionInternalSeconds: Double = 60.0
 
-    private let transactionCollection: TransactionCollection
+    private let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
@@ -35,16 +31,15 @@ class TransactionDataCoordinator: Coordinator {
     }()
 
     var coordinators: [Coordinator] = []
-
     init(
             sessions: ServerDictionary<WalletSession>,
-            transactionCollection: TransactionCollection,
+            transactionDataStore: TransactionDataStore,
             keystore: Keystore,
             tokensDataStore: TokensDataStore,
             promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.sessions = sessions
-        self.transactionCollection = transactionCollection
+        self.transactionDataStore = transactionDataStore
         self.keystore = keystore
         self.tokensDataStore = tokensDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
@@ -54,12 +49,10 @@ class TransactionDataCoordinator: Coordinator {
     }
 
     private func setupSingleChainTransactionDataCoordinators() {
-        for each in transactionCollection.transactionsStorages {
-            let server = each.server
-            let session = sessions[server]
-            let coordinatorType = server.transactionDataCoordinatorType
-            let coordinator = coordinatorType.init(session: session, storage: each, keystore: keystore, tokensDataStore: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
-            coordinator.delegate = self
+        for each in sessions.values {
+            let coordinatorType = each.server.transactionDataCoordinatorType
+            let coordinator = coordinatorType.init(session: each, transactionDataStore: transactionDataStore, keystore: keystore, tokensDataStore: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+
             addCoordinator(coordinator)
         }
     }
@@ -94,9 +87,10 @@ class TransactionDataCoordinator: Coordinator {
 
     func addSentTransaction(_ transaction: SentTransaction) {
         let session = sessions[transaction.original.server]
-        TransactionsStorage.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
+        
+        TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore, server: transaction.original.server)
-        transactionCollection.add([transaction])
+        transactionDataStore.add(transactions: [transaction])
     }
 
     func stop() {
@@ -107,11 +101,5 @@ class TransactionDataCoordinator: Coordinator {
 
     private func singleChainTransactionDataCoordinator(forServer server: RPCServer) -> SingleChainTransactionDataCoordinator? {
         return singleChainTransactionDataCoordinators.first { $0.isServer(server) }
-    }
-}
-
-extension TransactionDataCoordinator: SingleChainTransactionDataCoordinatorDelegate {
-    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator, reloadImmediately: Bool) {
-        // no-op
     }
 }

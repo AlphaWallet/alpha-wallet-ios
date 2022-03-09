@@ -32,14 +32,11 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: [Int: (index: Int, activity: Activity)] = .init()
     private var activities: [Activity] = .init()
-    private var transactions: [TransactionInstance] {
-        filteredTransactionsSubscription.value ?? []
-    }
 
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: Activity.AssignedToken, tokenHolders: [TokenHolder])] = .init()
-    private var rateLimitedUpdater: RateLimiter?
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
+    private var fetchTransactionsCancelable: AnyCancellable?
 
     let subscribableUpdatedActivity: Subscribable<Activity> = .init(nil)
     let subscribableViewModel: Subscribable<ActivitiesViewModel> = .init(.init(activities: []))
@@ -52,8 +49,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
     private var filteredTransactionsSubscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
-    private let transactionCollection: TransactionCollection
-    private lazy var filteredTransactionsSubscription = transactionCollection.subscribableFor(filter: transactionsFilterStrategy)
+    private let transactionDataStore: TransactionDataStore
     private let transactionsFilterStrategy: TransactionsFilterStrategy
 
     private typealias ContractsAndCards = [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]
@@ -72,7 +68,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         assetDefinitionStore: AssetDefinitionStore,
         eventsActivityDataStore: EventsActivityDataStoreProtocol,
         eventsDataStore: NonActivityEventsDataStore,
-        transactionCollection: TransactionCollection,
+        transactionDataStore: TransactionDataStore,
         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
         transactionsFilterStrategy: TransactionsFilterStrategy = .all,
         queue: DispatchQueue,
@@ -85,30 +81,28 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.eventsDataStore = eventsDataStore
         self.eventsActivityDataStore = eventsActivityDataStore
         self.activitiesFilterStrategy = activitiesFilterStrategy
-        self.transactionCollection = transactionCollection
+        self.transactionDataStore = transactionDataStore
         self.transactionsFilterStrategy = transactionsFilterStrategy
         self.tokensDataStore = tokensDataStore
         super.init()
 
-        filteredTransactionsSubscriptionKey = filteredTransactionsSubscription.subscribe { [weak self] _ in
-            self?.reloadImpl(reloadImmediately: true)
-        }
+        transactionDataStore
+            .transactionsChangesetPublisher(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
+            .receive(on: queue)
+            .sink { [weak self] _ in
+                self?.reloadImpl(reloadImmediately: true)
+            }.store(in: &cancelable)
 
         eventsActivityDataStore
             .recentEventsPublisher
-            .subscribe(on: DispatchQueue.main)
+            .receive(on: queue)
             .sink { [weak self]  _ in
                 self?.reloadImpl(reloadImmediately: true)
             }.store(in: &cancelable)
     }
 
-    deinit {
-        filteredTransactionsSubscription.unsubscribe(filteredTransactionsSubscriptionKey)
-        transactionCollection.removeSubscription(subscription: filteredTransactionsSubscription)
-    }
-
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionCollection: transactionCollection, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue, tokensDataStore: tokensDataStore)
+        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue, tokensDataStore: tokensDataStore)
     }
 
     func stop() {
@@ -131,7 +125,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     case .all:
                         let tokenObjects = self.tokensDataStore.enabledTokenObjects(forServers: self.config.enabledServers)
                         seal.fulfill(tokenObjects)
-                    case .filter(_, _, let tokenObject):
+                    case .filter(_, let tokenObject):
                         seal.fulfill([tokenObject])
                     }
                 }
@@ -321,20 +315,24 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     private func reloadViewControllerImpl() {
-        Promise<[TransactionInstance]> { [weak self] seal in
-            guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
+        Promise<[TransactionInstance]> { seal in
             if !activities.isEmpty {
                 hasLoadedActivitiesTheFirstTime = true
             }
-            let transactions: [TransactionInstance]
-            if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
-                transactions = strongSelf.transactions.filter { $0.blockNumber >= blockNumberOfOldestActivity }
-            } else {
-                transactions = strongSelf.transactions
-            }
 
-            seal.fulfill(transactions)
+            DispatchQueue.main.async {
+                self.fetchTransactionsCancelable?.cancel()
+                self.fetchTransactionsCancelable = self.transactionDataStore
+                    .transactionsPublisher(forFilter: self.transactionsFilterStrategy, servers: self.config.enabledServers, oldestBlockNumber: self.activities.last?.blockNumber)
+                    .replaceError(with: [])
+                    .map { result -> [TransactionInstance] in
+                        return result.map { TransactionInstance(transaction: $0) }
+                    }
+                    .receive(on: self.queue)
+                    .sink { transactions in
+                        seal.fulfill(transactions)
+                    }
+            }
         }.then(on: queue, { [weak self] transactions -> Promise<[ActivityRowModel]> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 

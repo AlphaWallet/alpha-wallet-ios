@@ -49,9 +49,9 @@ class SettingsCoordinatorTests: XCTestCase {
         )
         let delegate = Delegate()
         coordinator.delegate = delegate
-        storage.add([.make()])
+        storage.add(transactions: [.make()])
 
-        XCTAssertEqual(1, storage.count)
+        XCTAssertEqual(1, storage.transactionCount(forServer: .main))
 
         let accountCoordinator = AccountsCoordinator(
             config: .make(),
@@ -76,17 +76,8 @@ import PromiseKit
 final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
     var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
 
-    private var services: ServerDictionary<TransactionsStorage> = ServerDictionary<TransactionsStorage>.init()
-    private let fakeTokensDataStore: FakeTokensDataStore
-
     init(config: Config = .make(), account: Wallet = .make()) {
-        self.fakeTokensDataStore = FakeTokensDataStore(account: account)
 
-        for each in config.enabledServers {
-            services[each] = (
-                FakeTransactionsStorage(server: each)
-            )
-        }
     }
 
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance> {
@@ -111,9 +102,5 @@ final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
 
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
         return .value(())
-    }
-
-    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
-        return services[server]
     }
 }

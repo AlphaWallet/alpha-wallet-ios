@@ -468,9 +468,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     /// For development only
-    func writeJsonForTransactions(toUrl url: URL) {
-        guard let transactionStorage = erc721TokenIdsFetcher as? TransactionsStorage else { return }
-        transactionStorage.writeJsonForTransactions(toUrl: url)
+    func writeJsonForTransactions(toUrl url: URL, server: RPCServer) {
+        guard let transactionStorage = erc721TokenIdsFetcher as? TransactionDataStore else { return }
+        transactionStorage.writeJsonForTransactions(toUrl: url, server: server)
     }
 }
 // swiftlint:enable type_body_length
@@ -541,7 +541,10 @@ fileprivate extension PrivateBalanceFetcher.functional {
             $0 + _buildNonErc1155Updater(contractToOpenSeaNonFungibles: nonErc1155ContractToOpenSeaNonFungibles)
         }
     }
+}
+// swiftlint:enable type_body_length
 
+fileprivate extension PrivateBalanceFetcher.functional {
     static func fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokens: [Activity.AssignedToken], server: RPCServer, account: Wallet, assetDefinitionStore: AssetDefinitionStore) -> Promise<[ERCToken]> {
         let contractsToAdd: [AlphaWallet.Address] = contractsAndTokenIds.keys.filter { contract in
             !tokens.contains(where: { $0.contractAddress.sameContract(as: contract) })
