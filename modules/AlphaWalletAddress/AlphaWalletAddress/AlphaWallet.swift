@@ -121,11 +121,11 @@ extension AlphaWallet.Address {
 }
 
 extension AlphaWallet.Address {
-    //Produces this format: 0x1234...5678
+    //Produces this format: 0x1234…5678
     public var truncateMiddle: String {
         let address = eip55String
         let front = address.prefix(6)
         let back = address.suffix(4)
-        return "\(front)...\(back)"
+        return "\(front)…\(back)"
     }
 }
