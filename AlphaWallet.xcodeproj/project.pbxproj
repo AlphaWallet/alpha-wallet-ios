@@ -810,6 +810,7 @@
 		874DED1524C1BAFF006C8FCE /* SelectTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1424C1BAFF006C8FCE /* SelectTokenCoordinator.swift */; };
 		874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */; };
 		874DED1924C1BD2C006C8FCE /* SelectTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */; };
+		874ED68827D880C4001AB374 /* RestartQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68727D880C4001AB374 /* RestartQueueHandler.swift */; };
 		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
 		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91624EE5AE100E19DFF /* RecipientResolver.swift */; };
@@ -1898,6 +1899,7 @@
 		874DED1424C1BAFF006C8FCE /* SelectTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenCoordinator.swift; sourceTree = "<group>"; };
 		874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewController.swift; sourceTree = "<group>"; };
 		874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewModel.swift; sourceTree = "<group>"; };
+		874ED68727D880C4001AB374 /* RestartQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartQueueHandler.swift; sourceTree = "<group>"; };
 		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
 		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91624EE5AE100E19DFF /* RecipientResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientResolver.swift; sourceTree = "<group>"; };
@@ -5191,6 +5193,7 @@
 				5E7C77DBECDF831CD6C8FF71 /* Environment.swift */,
 				025F5D2E2760CDE600B2A3BC /* StringValidator.swift */,
 				0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */,
+				874ED68727D880C4001AB374 /* RestartQueueHandler.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -6195,6 +6198,7 @@
 				5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */,
 				87713EB2264BAB4700B1B9CB /* TokenInfoPageView.swift in Sources */,
 				5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */,
+				874ED68827D880C4001AB374 /* RestartQueueHandler.swift in Sources */,
 				5E7C77BFA252C7AA63BA5B90 /* TokenCardRowView.swift in Sources */,
 				87C650C325F2408E007B02CB /* ServerUnavailableCoordinator.swift in Sources */,
 				5E7C7DCE5242D2AC0A8DA65C /* TokenCardRowViewModel.swift in Sources */,
