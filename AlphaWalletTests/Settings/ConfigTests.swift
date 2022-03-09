@@ -2,6 +2,7 @@
 
 import XCTest
 @testable import AlphaWallet
+import Combine
 
 extension WalletConnectCoordinator {
 
@@ -10,8 +11,9 @@ extension WalletConnectCoordinator {
         var sessions = ServerDictionary<WalletSession>()
         let session = WalletSession.make()
         sessions[session.server] = session
-        
-        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), config: .make())
+        let sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(sessions)
+
+        return WalletConnectCoordinator(keystore: keystore, navigationController: .init(), analyticsCoordinator: FakeAnalyticsService(), config: .make(), sessionsSubject: sessionsSubject)
     }
 }
 
