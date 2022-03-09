@@ -12,7 +12,7 @@ struct SettingsViewModel {
         if let ensOrWalletName = ensOrWalletName {
             return "\(ensOrWalletName) | \(account.address.truncateMiddle)"
         } else {
-            return account.address.eip55String
+            return account.address.truncateMiddle
         }
     }
 
