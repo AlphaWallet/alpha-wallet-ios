@@ -30,7 +30,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
     private let analyticsCoordinator: AnalyticsCoordinator
     private let activitiesService: ActivitiesServiceType
@@ -46,7 +46,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
             tokensStorage: TokensDataStore,
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: EventsDataStoreProtocol,
+            eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
             activitiesService: ActivitiesServiceType
     ) {

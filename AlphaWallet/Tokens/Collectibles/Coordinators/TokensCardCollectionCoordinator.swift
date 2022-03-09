@@ -29,7 +29,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     private let session: WalletSession
     private let tokensStorage: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let transactionsStorage: TransactionsStorage
 
     private (set) var analyticsCoordinator: AnalyticsCoordinator
@@ -47,7 +47,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
             tokensStorage: TokensDataStore,
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: EventsDataStoreProtocol,
+            eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
             activitiesService: ActivitiesServiceType,
             transactionsStorage: TransactionsStorage,

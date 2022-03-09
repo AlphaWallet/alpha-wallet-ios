@@ -1,11 +1,11 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import RealmSwift
-import PromiseKit
+import RealmSwift 
 import Combine
+import PromiseKit
 
-protocol EventsDataStoreProtocol {
+protocol NonActivityEventsDataStore {
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
     func add(events: [EventInstanceValue])
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
@@ -13,8 +13,7 @@ protocol EventsDataStoreProtocol {
     func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never>
 }
 
-//TODO rename to indicate it's for instances, not activity
-class EventsDataStore: EventsDataStoreProtocol {
+class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
     private let realm: Realm
 
     init(realm: Realm) {
@@ -22,7 +21,7 @@ class EventsDataStore: EventsDataStoreProtocol {
     }
 
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
-        let predicate = EventsDataStore
+        let predicate = NonActivityMultiChainEventsDataStore
             .functional
             .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
 
@@ -54,7 +53,7 @@ class EventsDataStore: EventsDataStoreProtocol {
         return Promise { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = EventsDataStore
+                let predicate = NonActivityMultiChainEventsDataStore
                     .functional
                     .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName)
 
@@ -79,11 +78,11 @@ class EventsDataStore: EventsDataStoreProtocol {
     }
 }
 
-extension EventsDataStore {
+extension NonActivityMultiChainEventsDataStore {
     enum functional {}
 }
 
-extension EventsDataStore.functional {
+extension NonActivityMultiChainEventsDataStore.functional {
 
     static func isFilterMatchPredicate(filterName: String, filterValue: String) -> NSPredicate {
         return NSPredicate(format: "filter = '\(filterName)=\(filterValue)'")

@@ -26,13 +26,13 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
     private var wallet: Wallet
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
 
-    init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol, config: Config) {
+    init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
@@ -105,7 +105,7 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: EventsDataStoreProtocol, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         //Important to not access `token` in the queue or another thread. Do it outside
         //TODO better to pass in a non-Realm representation of the TokenObject instead
         let contractAddress = token.contractAddress

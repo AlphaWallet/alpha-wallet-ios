@@ -29,7 +29,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsProvider: TokenActionsProvider
     private let transactionsStorage: TransactionsStorage
@@ -53,7 +53,7 @@ class SingleChainTokenCoordinator: Coordinator {
             keystore: Keystore,
             tokensStorage: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: EventsDataStoreProtocol,
+            eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
             tokenActionsProvider: TokenActionsProvider,
             transactionsStorage: TransactionsStorage,

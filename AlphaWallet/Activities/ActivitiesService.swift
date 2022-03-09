@@ -28,7 +28,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsActivityDataStore: EventsActivityDataStoreProtocol
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     //Dictionary for lookup. Using `.firstIndex` too many times is too slow (60s for 10k events)
     private var activitiesIndexLookup: [Int: (index: Int, activity: Activity)] = .init()
     private var activities: [Activity] = .init()
@@ -71,7 +71,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         sessions: ServerDictionary<WalletSession>,
         assetDefinitionStore: AssetDefinitionStore,
         eventsActivityDataStore: EventsActivityDataStoreProtocol,
-        eventsDataStore: EventsDataStoreProtocol,
+        eventsDataStore: NonActivityEventsDataStore,
         transactionCollection: TransactionCollection,
         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
         transactionsFilterStrategy: TransactionsFilterStrategy = .all,

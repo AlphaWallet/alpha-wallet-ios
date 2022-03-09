@@ -31,8 +31,7 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
     private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
-    //TODO rename this generic name to reflect that it's for event instances, not for event activity
-    lazy private var eventsDataStore: EventsDataStoreProtocol = EventsDataStore(realm: realm)
+    lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
     private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     private let coinTickersFetcher: CoinTickersFetcherType

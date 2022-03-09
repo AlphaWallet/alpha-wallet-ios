@@ -7,7 +7,7 @@ import RealmSwift
 
 @testable import AlphaWallet
 
-class FakeEventsDataStore: EventsDataStoreProtocol {
+class FakeEventsDataStore: NonActivityEventsDataStore {
     func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never> {
         fatalError()
     }

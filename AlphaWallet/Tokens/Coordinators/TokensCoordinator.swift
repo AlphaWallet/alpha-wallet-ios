@@ -32,7 +32,7 @@ class TokensCoordinator: Coordinator {
         return MultipleChainsTokenCollection(tokensFilter: tokensFilter, tokensDataStore: tokensDataStore, config: config)
     }()
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: EventsDataStoreProtocol
+    private let eventsDataStore: NonActivityEventsDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private lazy var tokensFilter: TokensFilter = {
         return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
@@ -109,7 +109,7 @@ class TokensCoordinator: Coordinator {
             config: Config,
             tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: EventsDataStoreProtocol,
+            eventsDataStore: NonActivityEventsDataStore,
             promptBackupCoordinator: PromptBackupCoordinator,
             analyticsCoordinator: AnalyticsCoordinator,
             tokenActionsService: TokenActionsServiceType,
