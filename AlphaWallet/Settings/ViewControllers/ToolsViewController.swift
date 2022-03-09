@@ -5,6 +5,7 @@ import UIKit
 protocol ToolsViewControllerDelegate: AnyObject {
     func toolsConsoleSelected(in controller: ToolsViewController)
     func toolsPingInfuraSelected(in controller: ToolsViewController)
+    func toolsCheckTransactionStateSelected(in controller: ToolsViewController)
 }
 
 class ToolsViewController: UIViewController {
@@ -98,6 +99,8 @@ extension ToolsViewController: UITableViewDelegate {
             delegate?.toolsConsoleSelected(in: self)
         case .pingInfura:
             delegate?.toolsPingInfuraSelected(in: self)
+        case .checkTransactionState:
+            delegate?.toolsCheckTransactionStateSelected(in: self)
         }
     }
 }

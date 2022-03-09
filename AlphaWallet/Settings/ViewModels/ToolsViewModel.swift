@@ -7,6 +7,7 @@ struct ToolsViewModel {
         return [
             .console,
             .pingInfura,
+            .checkTransactionState
         ]
     }()
 
@@ -18,13 +19,15 @@ struct ToolsViewModel {
 enum ToolsRow: CaseIterable {
     case console
     case pingInfura
-
+    case checkTransactionState
     var title: String {
         switch self {
         case .console:
             return R.string.localizable.aConsoleTitle()
         case .pingInfura:
             return R.string.localizable.settingsPingInfuraTitle()
+        case .checkTransactionState:
+            return R.string.localizable.settingsCheckTransactionState()
         }
     }
 
@@ -33,6 +36,9 @@ enum ToolsRow: CaseIterable {
         case .console:
             return R.image.settings_console()!
         case .pingInfura:
+            //TODO need a more appropriate icon, maybe represent diagnostic or (to a lesser degree Infura)
+            return R.image.settings_analytics()!
+        case .checkTransactionState:
             //TODO need a more appropriate icon, maybe represent diagnostic or (to a lesser degree Infura)
             return R.image.settings_analytics()!
         }

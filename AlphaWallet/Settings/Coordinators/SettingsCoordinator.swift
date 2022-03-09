@@ -332,7 +332,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
-    }
+    } 
 }
 
 extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
@@ -348,6 +348,12 @@ extension SettingsCoordinator: PingInfuraCoordinatorDelegate {
 
     func didCancel(in coordinator: PingInfuraCoordinator) {
         removeCoordinator(self)
+    }
+}
+
+extension SettingsCoordinator: CheckTransactionStateCoordinatorDelegate {
+    func didComplete(coordinator: CheckTransactionStateCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
@@ -368,6 +374,13 @@ extension SettingsCoordinator: ClearDappBrowserCacheCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: ToolsViewControllerDelegate {
+    func toolsCheckTransactionStateSelected(in controller: ToolsViewController) {
+        let coordinator = CheckTransactionStateCoordinator(navigationController: navigationController, config: config)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
+    }
+
     func toolsConsoleSelected(in controller: ToolsViewController) {
         delegate?.showConsole(in: self)
     }

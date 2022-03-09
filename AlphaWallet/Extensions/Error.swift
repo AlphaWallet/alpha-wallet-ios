@@ -4,6 +4,24 @@ import Foundation
 import APIKit
 import JSONRPCKit
 import Result
+import web3swift
+
+extension web3swift.Web3Error: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .transactionSerializationError: return "Transaction Serialization Error"
+        case .connectionError: return "Connection Error"
+        case .dataError: return "Data Decode Error"
+        case .walletError: return "Wallet Error"
+        case .inputError(let e): return e
+        case .nodeError(let e): return e
+        case .processingError(let e): return e
+        case .keystoreError(let e): return e.localizedDescription
+        case .generalError(let e): return e.localizedDescription
+        case .unknownError: return "Unknown Error"
+        }
+    }
+}
 
 extension Error {
     var prettyError: String {
