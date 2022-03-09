@@ -552,15 +552,15 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
 
-    func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: cordinator.session, alertService: alertService)
+    func didTapAddAlert(for tokenObject: TokenObject, in coordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()
     }
 
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in cordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), tokenObject: tokenObject, session: cordinator.session, alertService: alertService)
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), tokenObject: tokenObject, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()

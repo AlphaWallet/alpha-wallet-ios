@@ -2,7 +2,7 @@
 
 import Foundation
 import UIKit
-import BigInt 
+import BigInt
 import PromiseKit
 import Result
 
@@ -20,8 +20,8 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
-    func didTapAddAlert(for tokenObject: TokenObject, in cordinator: SingleChainTokenCoordinator)
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in cordinator: SingleChainTokenCoordinator)
+    func didTapAddAlert(for tokenObject: TokenObject, in coordinator: SingleChainTokenCoordinator)
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
 }
 
 // swiftlint:disable type_body_length
@@ -246,7 +246,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     func add(token: ERCToken) -> TokenObject {
         let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)
-        
+
         return tokenObject[0]
     }
 
