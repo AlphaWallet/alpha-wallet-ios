@@ -78,8 +78,9 @@ extension EIP712TypedData {
         var depSet = findDependencies(primaryType: primaryType)
         depSet.remove(primaryType)
         let sorted = [primaryType] + Array(depSet).sorted()
-        let encoded = sorted.map { type in
-            let param = types[type]!.map { "\($0.type) \($0.name)" }.joined(separator: ",")
+        let encoded = sorted.compactMap { type in
+            guard let values = types[type] else { return nil }
+            let param = values.map { "\($0.type) \($0.name)" }.joined(separator: ",")
             return "\(type)(\(param))"
         }.joined()
         return encoded.data(using: .utf8) ?? Data()
