@@ -812,6 +812,7 @@
 		874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */; };
 		874DED1924C1BD2C006C8FCE /* SelectTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */; };
 		874ED68827D880C4001AB374 /* RestartQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68727D880C4001AB374 /* RestartQueueHandler.swift */; };
+		874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */; };
 		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
 		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91624EE5AE100E19DFF /* RecipientResolver.swift */; };
@@ -1905,6 +1906,7 @@
 		874DED1624C1BB0E006C8FCE /* SelectTokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewController.swift; sourceTree = "<group>"; };
 		874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewModel.swift; sourceTree = "<group>"; };
 		874ED68727D880C4001AB374 /* RestartQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartQueueHandler.swift; sourceTree = "<group>"; };
+		874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappRequestHandler.swift; sourceTree = "<group>"; };
 		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
 		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91624EE5AE100E19DFF /* RecipientResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientResolver.swift; sourceTree = "<group>"; };
@@ -5222,6 +5224,7 @@
 				025F5D2E2760CDE600B2A3BC /* StringValidator.swift */,
 				0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */,
 				874ED68727D880C4001AB374 /* RestartQueueHandler.swift */,
+				874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -6353,6 +6356,7 @@
 				5E7C751D847B47B2BA67F6B5 /* PaymentFlowFromEip681UrlResolver.swift in Sources */,
 				02E7B6782795352E00311218 /* Formatter.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
+				874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
 				8712A38526F475A20009C376 /* PriceAlertDataStore.swift in Sources */,
 				87584B4725EFB0950070063B /* Ramp.swift in Sources */,
