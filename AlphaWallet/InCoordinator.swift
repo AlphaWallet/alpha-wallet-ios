@@ -50,12 +50,6 @@ class InCoordinator: NSObject, Coordinator {
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private var blockscanChat: BlockscanChat?
 
-    lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
-        return createEtherPricesSubscribablesForAllChains()
-    }()
-    lazy var nativeCryptoCurrencyBalances: ServerDictionary<Subscribable<BigInt>> = {
-        return createEtherBalancesSubscribablesForAllChains()
-    }()
     private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap { $0 as? TransactionCoordinator }.first
     }
@@ -263,20 +257,10 @@ class InCoordinator: NSObject, Coordinator {
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupWalletSessions()
-        setupNativeCryptoCurrencyPrices()
-        setupNativeCryptoCurrencyBalances()
         removeFailedOrPendingTransactions()
         setupCallForAssetAttributeCoordinators()
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinatorForActivities()
-    }
-
-    private func setupNativeCryptoCurrencyPrices() {
-        nativeCryptoCurrencyPrices = createEtherPricesSubscribablesForAllChains()
-    }
-
-    private func setupNativeCryptoCurrencyBalances() {
-        nativeCryptoCurrencyBalances = createEtherBalancesSubscribablesForAllChains()
     }
 
     private func fetchEthereumEvents() {
@@ -423,7 +407,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, browserOnly: Bool, analyticsCoordinator: AnalyticsCoordinator) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.browser.tabBarItem
@@ -504,7 +488,6 @@ class InCoordinator: NSObject, Coordinator {
                     session: sessionsSubject.value[server],
                     keystore: keystore,
                     tokensDataStore: tokensDataStore,
-                    ethPrice: nativeCryptoCurrencyPrices[server],
                     assetDefinitionStore: assetDefinitionStore,
                     analyticsCoordinator: analyticsCoordinator,
                     eventsDataStore: eventsDataStore
@@ -540,7 +523,7 @@ class InCoordinator: NSObject, Coordinator {
         guard let navigationController = viewController.navigationController else { return }
         let session = sessionsSubject.value[tokenObject.server]
         claimOrderCoordinatorCompletionBlock = completion
-        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, tokenObject: tokenObject, signedOrder: signedOrder, ethPrice: nativeCryptoCurrencyPrices[session.server], analyticsCoordinator: analyticsCoordinator)
+        let coordinator = ClaimPaidOrderCoordinator(navigationController: navigationController, keystore: keystore, session: session, tokenObject: tokenObject, signedOrder: signedOrder, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -551,37 +534,6 @@ class InCoordinator: NSObject, Coordinator {
         guard !contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return }
         let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
         tokensCoordinator?.addImportedToken(forContract: contract, server: server)
-    }
-
-    private func createEtherPricesSubscribablesForAllChains() -> ServerDictionary<Subscribable<Double>> {
-        var result = ServerDictionary<Subscribable<Double>>()
-        for each in config.enabledServers {
-            result[each] = createNativeCryptoCurrencyPriceSubscribable(forServer: each)
-        }
-        return result
-    }
-
-    private func createNativeCryptoCurrencyPriceSubscribable(forServer server: RPCServer) -> Subscribable<Double> {
-        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server).addressAndRPCServer
-        let subscription = sessionsSubject.value[server].balanceCoordinator.subscribableTokenBalance(etherToken)
-        return subscription.map({ viewModel -> Double? in
-            return viewModel.ticker?.price_usd
-        }, on: .main)
-    }
-
-    private func createEtherBalancesSubscribablesForAllChains() -> ServerDictionary<Subscribable<BigInt>> {
-        var result = ServerDictionary<Subscribable<BigInt>>()
-        for each in config.enabledServers {
-            result[each] = createCryptoCurrencyBalanceSubscribable(forServer: each)
-        }
-        return result
-    }
-
-    private func createCryptoCurrencyBalanceSubscribable(forServer server: RPCServer) -> Subscribable<BigInt> {
-        let subscription = sessionsSubject.value[server].balanceCoordinator.subscribableEthBalanceViewModel
-        return subscription.map({ viewModel -> BigInt? in
-            return viewModel.value
-        }, on: .main)
     }
 
     private func isViewControllerDappBrowserTab(_ viewController: UIViewController) -> Bool {
@@ -941,6 +893,9 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: UrlSchemeResolver {
+    var sessions: ServerDictionary<WalletSession> {
+        sessionsSubject.value
+    }
 
     func openURLInBrowser(url: URL) {
         openURLInBrowser(url: url, forceReload: false)
@@ -968,9 +923,8 @@ extension InCoordinator: ActivityViewControllerDelegate {
 
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
-        let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
         let session = sessionsSubject.value[transaction.server]
-        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .speedup) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -978,9 +932,8 @@ extension InCoordinator: ActivityViewControllerDelegate {
 
     func cancelTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {
         guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
-        let ethPrice = nativeCryptoCurrencyPrices[transaction.server]
         let session = sessionsSubject.value[transaction.server]
-        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, ethPrice: ethPrice, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel) else { return }
+        guard let coordinator = ReplaceTransactionCoordinator(analyticsCoordinator: analyticsCoordinator, keystore: keystore, presentingViewController: viewController, session: session, transaction: transaction, mode: .cancel) else { return }
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)

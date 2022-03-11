@@ -9,7 +9,6 @@ struct ConfigureTransactionViewModel {
         case none
     }
 
-    private let ethPrice: Subscribable<Double>
     private let transactionType: TransactionType
     private let configurator: TransactionConfigurator
     private let fullFormatter = EtherNumberFormatter.full
@@ -144,8 +143,7 @@ struct ConfigureTransactionViewModel {
         }
     }
 
-    init(configurator: TransactionConfigurator, ethPrice: Subscribable<Double>, recoveryMode: ConfigureTransactionViewModel.RecoveryMode) {
-        self.ethPrice = ethPrice
+    init(configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode) {
         let configurations = configurator.configurations
         self.configurationTypes = ConfigureTransactionViewModel.sortedConfigurationTypes(fromConfigurations: configurations)
         self.configurator = configurator
@@ -172,14 +170,16 @@ struct ConfigureTransactionViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        let ethPrice = configurator.session.balanceCoordinator.ethBalanceViewModel.ticker?.price_usd
+        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     func gasSpeedViewModel(configurationType: TransactionConfigurationType) -> GasSpeedViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice.value, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
+        let ethPrice = configurator.session.balanceCoordinator.ethBalanceViewModel.ticker?.price_usd
+        return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
     func numberOfRowsInSections(in section: Int) -> Int {

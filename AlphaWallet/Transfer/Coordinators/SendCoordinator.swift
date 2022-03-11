@@ -16,7 +16,6 @@ class SendCoordinator: Coordinator {
     private let session: WalletSession
     private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
-    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private var transactionConfirmationResult: ConfirmResult? = .none
@@ -35,7 +34,6 @@ class SendCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             tokensDataStore: TokensDataStore,
-            ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator
     ) {
@@ -44,7 +42,6 @@ class SendCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.tokensDataStore = tokensDataStore
-        self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
     }
@@ -59,8 +56,7 @@ class SendCoordinator: Coordinator {
         let controller = SendViewController(
             session: session,
             tokensDataStore: tokensDataStore,
-            transactionType: transactionType,
-            cryptoPrice: ethPrice
+            transactionType: transactionType
         )
 
         switch transactionType {
@@ -117,8 +113,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             confirmType: .signThenSend,
             keystore: keystore,
             assetDefinitionStore: assetDefinitionStore,
-            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds),
-            ethPrice: ethPrice
+            amount: FungiblesTransactionAmount(value: amount, shortValue: shortValue, isAllFunds: viewController.isAllFunds)
         )
         let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)

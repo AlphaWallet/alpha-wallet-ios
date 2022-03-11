@@ -20,7 +20,6 @@ class ReplaceTransactionCoordinator: Coordinator {
     private let pendingTransactionInformation: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)
     private let nonce: BigInt
     private let keystore: Keystore
-    private let ethPrice: Subscribable<Double>
     private let presentingViewController: UIViewController
     private let session: WalletSession
     private let transaction: TransactionInstance
@@ -71,21 +70,20 @@ class ReplaceTransactionCoordinator: Coordinator {
     private var transactionConfirmationConfiguration: TransactionConfirmationConfiguration {
         switch mode {
         case .speedup:
-            return .speedupTransaction(keystore: keystore, ethPrice: ethPrice)
+            return .speedupTransaction(keystore: keystore)
         case .cancel:
-            return .cancelTransaction(keystore: keystore, ethPrice: ethPrice)
+            return .cancelTransaction(keystore: keystore)
         }
     }
 
     var coordinators: [Coordinator] = []
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
-    init?(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, ethPrice: Subscribable<Double>, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
+    init?(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
         guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore
-        self.ethPrice = ethPrice
         self.analyticsCoordinator = analyticsCoordinator
         self.presentingViewController = presentingViewController
         self.session = session

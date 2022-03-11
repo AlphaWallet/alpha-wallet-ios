@@ -18,7 +18,7 @@ protocol RequestSwitchChainProvider: NSObjectProtocol {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject)
 }
 
-protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnRampDelegate/*, WalletSessionListProvider*/, NativeCryptoCurrencyPricesProvider, RequestAddCustomChainProvider, RequestSwitchChainProvider {
+protocol WalletConnectCoordinatorDelegate: CanOpenURL, SendTransactionAndFiatOnRampDelegate, RequestAddCustomChainProvider, RequestSwitchChainProvider {
     func universalScannerSelected(in coordinator: WalletConnectCoordinator)
 }
 
@@ -364,9 +364,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     private func executeTransaction(session: WalletSession, dappRequesterViewModel: WalletConnectDappRequesterViewModel, transaction: UnconfirmedTransaction, type: ConfirmType) -> Promise<AlphaWallet.WalletConnect.Response> {
-        let ethPrice = delegate.flatMap { $0.nativeCryptoCurrencyPrices[safe: session.server] } ?? .init(nil)
-
-        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, ethPrice: ethPrice, dappRequesterViewModel: dappRequesterViewModel)
+        let configuration: TransactionConfirmationConfiguration = .walletConnect(confirmType: type, keystore: keystore, dappRequesterViewModel: dappRequesterViewModel)
         infoLog("WalletConnect executeTransaction: \(transaction) type: \(type)")
         return firstly {
             TransactionConfirmationCoordinator.promise(navigationController, session: session, coordinator: self, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, source: .walletConnect, delegate: self.delegate)

@@ -21,7 +21,6 @@ class ClaimPaidOrderCoordinator: Coordinator {
     private let session: WalletSession
     private let tokenObject: TokenObject
     private let signedOrder: SignedOrder
-    private let ethPrice: Subscribable<Double>
     private let analyticsCoordinator: AnalyticsCoordinator
 
     private var numberOfTokens: UInt {
@@ -37,13 +36,12 @@ class ClaimPaidOrderCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: ClaimOrderCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, ethPrice: Subscribable<Double>, analyticsCoordinator: AnalyticsCoordinator) {
+    init(navigationController: UINavigationController, keystore: Keystore, session: WalletSession, tokenObject: TokenObject, signedOrder: SignedOrder, analyticsCoordinator: AnalyticsCoordinator) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.session = session
         self.tokenObject = tokenObject
         self.signedOrder = signedOrder
-        self.ethPrice = ethPrice
         self.analyticsCoordinator = analyticsCoordinator
     }
 
@@ -75,7 +73,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                         gasPrice: nil,
                         nonce: nil
                 )
-                let coordinator = TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, ethPrice: strongSelf.ethPrice, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
+                let coordinator = TransactionConfirmationCoordinator(presentingViewController: strongSelf.navigationController, session: strongSelf.session, transaction: transaction, configuration: .claimPaidErc875MagicLink(confirmType: .signThenSend, keystore: strongSelf.keystore, price: strongSelf.signedOrder.order.price, numberOfTokens: strongSelf.numberOfTokens), analyticsCoordinator: strongSelf.analyticsCoordinator)
                 coordinator.delegate = self
                 strongSelf.addCoordinator(coordinator)
                 coordinator.start(fromSource: .claimPaidMagicLink)

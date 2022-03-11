@@ -103,6 +103,7 @@ class TransactionConfirmationViewController: UIViewController {
     // swiftlint:disable function_body_length
     init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
+
         super.init(nibName: nil, bundle: nil)
 
         view.addSubview(backgroundView)
@@ -173,15 +174,15 @@ class TransactionConfirmationViewController: UIViewController {
         case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
             headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
 
-            dappTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            dappTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                dappTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                dappTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .tokenScriptTransaction(let tokenScriptTransactionViewModel):
-            tokenScriptTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            tokenScriptTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                tokenScriptTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                tokenScriptTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
@@ -195,25 +196,21 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] balanceBaseViewModel in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-                    strongSelf.generateSubviews()
-                }
-                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
-                    guard let strongSelf = self else { return }
-                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    sendFungiblesViewModel.cryptoToDollarRate = balanceBaseViewModel?.ticker?.price_usd
                     strongSelf.generateSubviews()
                 }
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .erc20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
-                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                     guard let strongSelf = self else { return }
-                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    sendFungiblesViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                     strongSelf.generateSubviews()
                 }
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                     guard let strongSelf = self else { return }
-                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                    sendFungiblesViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                     strongSelf.generateSubviews()
                 }
             }
@@ -222,27 +219,27 @@ class TransactionConfirmationViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 strongSelf.generateSubviews()
             }
-            sendNftViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            sendNftViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                sendNftViewModel.cryptoToDollarRate = cryptoToDollarRate
+                sendNftViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .claimPaidErc875MagicLink(let claimPaidErc875MagicLinkViewModel):
-            claimPaidErc875MagicLinkViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            claimPaidErc875MagicLinkViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = cryptoToDollarRate
+                claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .speedupTransaction(let speedupTransactionViewModel):
-            speedupTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            speedupTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                speedupTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                speedupTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .cancelTransaction(let cancelTransactionViewModel):
-            cancelTransactionViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+            cancelTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
-                cancelTransactionViewModel.cryptoToDollarRate = cryptoToDollarRate
+                cancelTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         }

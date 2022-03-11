@@ -20,9 +20,8 @@ class SendViewController: UIViewController {
     private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SendViewModel
     private let session: WalletSession
-    private let ethPrice: Subscribable<Double>
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
-    private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
+    private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
@@ -62,15 +61,9 @@ class SendViewController: UIViewController {
         return view
     }()
 
-    init(
-            session: WalletSession,
-            tokensDataStore: TokensDataStore,
-            transactionType: TransactionType,
-            cryptoPrice: Subscribable<Double>
-    ) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, transactionType: TransactionType) {
         self.session = session
         self.tokensDataStore = tokensDataStore
-        self.ethPrice = cryptoPrice
         self.viewModel = .init(transactionType: transactionType, session: session, tokensDataStore: tokensDataStore)
 
         super.init(nibName: nil, bundle: nil)
@@ -99,9 +92,6 @@ class SendViewController: UIViewController {
 
             footerBar.anchorsConstraint(to: view),
         ])
-
-        // NOTE: not sure do we need to call refresh balance here
-        //session.balanceCoordinator.refresh()
 
         observation = observe(\.isAllFunds, options: [.initial, .new]) { [weak self] _, _ in
             guard let strongSelf = self else { return }
@@ -147,13 +137,13 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
-            currentSubscribableKeyForNativeCryptoCurrencyPrice = ethPrice.subscribe { [weak self] value in
-                if let value = value {
+            currentSubscribableKeyForNativeCryptoCurrencyPrice = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] value in
+                if let value = value?.ticker?.price_usd {
                     self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
                 }
             }
         case .erc20Token(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
 
             if let recipient = recipient {
@@ -163,7 +153,7 @@ class SendViewController: UIViewController {
                 amountTextField.ethCost = amount
             }
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
 
@@ -261,7 +251,7 @@ class SendViewController: UIViewController {
 
     private func configureBalanceViewModel() {
         currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
-        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
+        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in

@@ -11,18 +11,18 @@ import PromiseKit
 import Result
 
 enum TransactionConfirmationConfiguration {
-    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall, ethPrice: Subscribable<Double>)
-    case dappTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>)
-    case walletConnect(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, dappRequesterViewModel: WalletConnectDappRequesterViewModel)
-    case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount, ethPrice: Subscribable<Double>)
-    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, ethPrice: Subscribable<Double>, tokenInstanceNames: [TokenId: String])
-    case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, ethPrice: Subscribable<Double>, numberOfTokens: UInt)
-    case speedupTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
-    case cancelTransaction(keystore: Keystore, ethPrice: Subscribable<Double>)
+    case tokenScriptTransaction(confirmType: ConfirmType, contract: AlphaWallet.Address, keystore: Keystore, functionCallMetaData: DecodedFunctionCall)
+    case dappTransaction(confirmType: ConfirmType, keystore: Keystore)
+    case walletConnect(confirmType: ConfirmType, keystore: Keystore, dappRequesterViewModel: WalletConnectDappRequesterViewModel)
+    case sendFungiblesTransaction(confirmType: ConfirmType, keystore: Keystore, assetDefinitionStore: AssetDefinitionStore, amount: FungiblesTransactionAmount)
+    case sendNftTransaction(confirmType: ConfirmType, keystore: Keystore, tokenInstanceNames: [TokenId: String])
+    case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, numberOfTokens: UInt)
+    case speedupTransaction(keystore: Keystore)
+    case cancelTransaction(keystore: Keystore)
 
     var confirmType: ConfirmType {
         switch self {
-        case .dappTransaction(let confirmType, _, _), .walletConnect(let confirmType, _, _, _), .sendFungiblesTransaction(let confirmType, _, _, _, _), .sendNftTransaction(let confirmType, _, _, _), .tokenScriptTransaction(let confirmType, _, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _, _):
+        case .dappTransaction(let confirmType, _), .walletConnect(let confirmType, _, _ ), .sendFungiblesTransaction(let confirmType, _, _,  _), .sendNftTransaction(let confirmType,  _, _), .tokenScriptTransaction(let confirmType, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _):
             return confirmType
         case .speedupTransaction, .cancelTransaction:
             return .signThenSend
@@ -31,15 +31,8 @@ enum TransactionConfirmationConfiguration {
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore, _), .walletConnect(_, let keystore, _, _), .sendFungiblesTransaction(_, let keystore, _, _, _), .sendNftTransaction(_, let keystore, _, _), .tokenScriptTransaction(_, _, let keystore, _, _), .claimPaidErc875MagicLink(_, let keystore, _, _, _), .speedupTransaction(let keystore, _), .cancelTransaction(let keystore, _):
+        case .dappTransaction(_, let keystore), .walletConnect(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _), .sendNftTransaction(_, let keystore, _), .tokenScriptTransaction(_, _, let keystore, _), .claimPaidErc875MagicLink(_, let keystore, _, _), .speedupTransaction(let keystore), .cancelTransaction(let keystore):
             return keystore
-        }
-    }
-
-    var ethPrice: Subscribable<Double> {
-        switch self {
-        case .dappTransaction(_, _, let ethPrice), .walletConnect(_, _, let ethPrice, _), .sendFungiblesTransaction(_, _, _, _, let ethPrice), .sendNftTransaction(_, _, let ethPrice, _), .tokenScriptTransaction(_, _, _, _, let ethPrice), .claimPaidErc875MagicLink(_, _, _, let ethPrice, _), .speedupTransaction(_, let ethPrice), .cancelTransaction(_, let ethPrice):
-            return ethPrice
         }
     }
 }
@@ -235,7 +228,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
-        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, ethPrice: configuration.ethPrice, recoveryMode: recoveryMode))
+        let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode))
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
         configureTransactionViewController = controller
@@ -338,7 +331,7 @@ extension TransactionConfirmationCoordinator {
             infoLog("Sent transaction publicly")
         }
         switch configuration {
-        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+        case .sendFungiblesTransaction(_, _, _, amount: let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
             break
@@ -360,7 +353,7 @@ extension TransactionConfirmationCoordinator {
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
         var analyticsProperties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.source.rawValue: source.rawValue]
         switch configuration {
-        case .sendFungiblesTransaction(_, _, _, amount: let amount, _):
+        case .sendFungiblesTransaction(_, _, _, amount: let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
         case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
             break
