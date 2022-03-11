@@ -30,13 +30,13 @@ class WalletConnectV1Provider: WalletConnectServer {
         return Server(delegate: self)
     }()
 
-    lazy var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> = {
-        return storage.valueSubscribable.map { sessions -> [AlphaWallet.WalletConnect.Session] in
-            return sessions.map { .init(session: $0) }
-        }
+    lazy var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> = {
+        return storage.publisher
+            .map { $0.map { AlphaWallet.WalletConnect.Session(session: $0) } }
+            .eraseToAnyPublisher()
     }()
 
-    private let storage: SubscribableFileStorage<[SingleServerWalletConnectSession]>
+    private let storage: Storage<[SingleServerWalletConnectSession]>
     weak var delegate: WalletConnectServerDelegate?
     private lazy var requestHandler: RequestHandlerToAvoidMemoryLeak = { [weak self] in
         let handler = RequestHandlerToAvoidMemoryLeak()
@@ -47,7 +47,7 @@ class WalletConnectV1Provider: WalletConnectServer {
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private var cancelable = Set<AnyCancellable>()
 
-    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: SubscribableFileStorage<[SingleServerWalletConnectSession]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
+    init(sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>, storage: Storage<[SingleServerWalletConnectSession]> = .init(fileName: Keys.storageFileKey, defaultValue: [])) {
         self.sessionsSubject = sessionsSubject
         self.storage = storage
 
@@ -171,9 +171,8 @@ extension WalletConnectV1Provider: WalletConnectV1ServerRequestHandlerDelegate {
 
             WalletConnectRequestConverter()
                 .convert(request: request, session: session)
-                .map { type -> AlphaWallet.WalletConnect.Action in
-                    return .init(type: type)
-                }.done { action in
+                .map { AlphaWallet.WalletConnect.Action(type: $0) }
+                .done { action in
                     strongSelf.delegate?.server(strongSelf, action: action, request: .v1(request: request, server: session.server), session: .init(session: session))
                 }.catch { error in
                     strongSelf.delegate?.server(strongSelf, didFail: error)

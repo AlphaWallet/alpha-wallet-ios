@@ -824,6 +824,7 @@
 		874DED1924C1BD2C006C8FCE /* SelectTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */; };
 		874ED68827D880C4001AB374 /* RestartQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68727D880C4001AB374 /* RestartQueueHandler.swift */; };
 		874ED69027DB48FE001AB374 /* DappRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */; };
+		874ED69227DB8053001AB374 /* CombineLatestCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874ED69127DB8053001AB374 /* CombineLatestCollection.swift */; };
 		87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A5F26F8D63600D3EE85 /* ModalViewController.swift */; };
 		87509A6226F8D67E00D3EE85 /* CollectUsersEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */; };
 		8750F91724EE5AE100E19DFF /* RecipientResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91624EE5AE100E19DFF /* RecipientResolver.swift */; };
@@ -914,7 +915,7 @@
 		879F185E26E74512000602F2 /* ButtonsBarBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */; };
 		879F186026E74543000602F2 /* ToolButtonsBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F185F26E74543000602F2 /* ToolButtonsBarView.swift */; };
 		879FD3A1273BF64900D9747D /* WalletConnectV2Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879FD3A0273BF64900D9747D /* WalletConnectV2Provider.swift */; };
-		879FD3A3273BF8C100D9747D /* SubscribableFileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879FD3A2273BF8C100D9747D /* SubscribableFileStorage.swift */; };
+		879FD3A3273BF8C100D9747D /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879FD3A2273BF8C100D9747D /* Storage.swift */; };
 		879FD3A6273C115800D9747D /* WalletConnectV2URI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879FD3A5273C115800D9747D /* WalletConnectV2URI.swift */; };
 		87A05C7526FCCA5C00AE26CA /* SwitchChainRequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05C7426FCCA5C00AE26CA /* SwitchChainRequestViewController.swift */; };
 		87A05C7726FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05C7626FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift */; };
@@ -1938,6 +1939,7 @@
 		874DED1824C1BD2C006C8FCE /* SelectTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTokenViewModel.swift; sourceTree = "<group>"; };
 		874ED68727D880C4001AB374 /* RestartQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestartQueueHandler.swift; sourceTree = "<group>"; };
 		874ED68F27DB48FE001AB374 /* DappRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappRequestHandler.swift; sourceTree = "<group>"; };
+		874ED69127DB8053001AB374 /* CombineLatestCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineLatestCollection.swift; sourceTree = "<group>"; };
 		87509A5F26F8D63600D3EE85 /* ModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalViewController.swift; sourceTree = "<group>"; };
 		87509A6126F8D67E00D3EE85 /* CollectUsersEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectUsersEmailViewController.swift; sourceTree = "<group>"; };
 		8750F91624EE5AE100E19DFF /* RecipientResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipientResolver.swift; sourceTree = "<group>"; };
@@ -2029,7 +2031,7 @@
 		879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarBackgroundView.swift; sourceTree = "<group>"; };
 		879F185F26E74543000602F2 /* ToolButtonsBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolButtonsBarView.swift; sourceTree = "<group>"; };
 		879FD3A0273BF64900D9747D /* WalletConnectV2Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Provider.swift; sourceTree = "<group>"; };
-		879FD3A2273BF8C100D9747D /* SubscribableFileStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribableFileStorage.swift; sourceTree = "<group>"; };
+		879FD3A2273BF8C100D9747D /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		879FD3A5273C115800D9747D /* WalletConnectV2URI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2URI.swift; sourceTree = "<group>"; };
 		87A05C7426FCCA5C00AE26CA /* SwitchChainRequestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainRequestViewController.swift; sourceTree = "<group>"; };
 		87A05C7626FCCA8B00AE26CA /* SwitchChainRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainRequestViewModel.swift; sourceTree = "<group>"; };
@@ -5118,8 +5120,9 @@
 				8717DA38273A7E83002D3D66 /* WalletConnect.swift */,
 				8717DA3A273AB176002D3D66 /* RequestHandlerToAvoidMemoryLeak.swift */,
 				8717DA3C273AB19E002D3D66 /* WalletConnectRequestConverter.swift */,
-				879FD3A2273BF8C100D9747D /* SubscribableFileStorage.swift */,
+				879FD3A2273BF8C100D9747D /* Storage.swift */,
 				87D847442744EFA300EDBA80 /* JSONRPC_2_0.swift */,
+				874ED69127DB8053001AB374 /* CombineLatestCollection.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -6258,7 +6261,7 @@
 				8722F86D25F79A4700293D89 /* UITableViewCell.swift in Sources */,
 				5E7C78407F6DCB0EDD562DF6 /* NonFungibleTokenViewCellViewModel.swift in Sources */,
 				5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */,
-				879FD3A3273BF8C100D9747D /* SubscribableFileStorage.swift in Sources */,
+				879FD3A3273BF8C100D9747D /* Storage.swift in Sources */,
 				5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */,
 				879F185C26E74507000602F2 /* ButtonsBar.swift in Sources */,
 				5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */,
@@ -6533,6 +6536,7 @@
 				879702FC27EE47B60056CA71 /* LocalNotification.swift in Sources */,
 				5E7C742DDE5C63804A2C420D /* Collection+UIView.swift in Sources */,
 				8712A38526F475A20009C376 /* PriceAlertDataStore.swift in Sources */,
+				874ED69227DB8053001AB374 /* CombineLatestCollection.swift in Sources */,
 				87584B4725EFB0950070063B /* Ramp.swift in Sources */,
 				87D163A7242CD9A2002662D2 /* AddHideTokenSectionHeaderView.swift in Sources */,
 				5E7C7ACB2F44B820940EACEB /* TokenInstanceActionViewController.swift in Sources */,

@@ -188,7 +188,7 @@ extension AlphaWallet {
             }
         }
 
-        struct Session: Equatable {
+        struct Session: Equatable, Hashable {
             static func == (lhs: AlphaWallet.WalletConnect.Session, rhs: AlphaWallet.WalletConnect.Session) -> Bool {
                 return lhs.identifier == rhs.identifier
             }
@@ -197,7 +197,11 @@ extension AlphaWallet {
             var servers: [RPCServer]
             let dapp: Dapp
             var methods: [String]
-            let isMultipleServersEnabled: Bool 
+            let isMultipleServersEnabled: Bool
+
+            func hash(into hasher: inout Hasher) {
+                hasher.combine(identifier.description)
+            }
         }
 
         enum SessionProposalResponse {

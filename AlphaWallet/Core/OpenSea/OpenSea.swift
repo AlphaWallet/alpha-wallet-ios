@@ -10,7 +10,7 @@ import SwiftyJSON
 typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
 final class OpenSea: NFTProvider {
-    private let storage: SubscribableFileStorage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
+    private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private var promiseCache: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
     private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
     private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)

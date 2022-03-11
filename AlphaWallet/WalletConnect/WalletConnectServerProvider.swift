@@ -5,10 +5,11 @@
 //  Created by Vladyslav Shepitko on 09.11.2021.
 //
 
-import Foundation 
+import Foundation
+import Combine
 
 protocol WalletConnectServerProviderType: WalletConnectResponder {
-    var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> { get }
+    var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> { get }
 
     func register(service: WalletConnectServer)
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws
@@ -22,37 +23,23 @@ protocol WalletConnectServerProviderType: WalletConnectResponder {
     func hasConnectedSession(session: AlphaWallet.WalletConnect.Session) -> Bool
 }
 
-extension WalletConnectServerProviderType {
-    var sessions: [AlphaWallet.WalletConnect.Session] {
-        return sessionsSubscribable.value ?? []
-    }
-}
-
-class WalletConnectServerProvider: WalletConnectServerProviderType {
-
+class WalletConnectServerProvider: NSObject, WalletConnectServerProviderType {
     weak var delegate: WalletConnectServerDelegate?
 
-    var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> = .init(nil)
-
-    private var services: [WalletConnectServer] = []
+    @Published private var services: [WalletConnectServer] = []
+    private (set) lazy var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> = {
+        return $services
+            .flatMap { $0.map { $0.sessions }.combineLatest }
+            .map { $0.flatMap { $0 } }
+            .eraseToAnyPublisher()
+    }()
 
     func register(service: WalletConnectServer) {
         services.append(service)
-
-        sessionsSubscribable.value = services.compactMap { $0.sessionsSubscribable.value }.flatMap { $0 }
-        service.sessionsSubscribable.subscribe { [weak self] _ in
-            guard let strongSelf = self else { return }
-
-            strongSelf.sessionsSubscribable.value = strongSelf.services
-                .compactMap { $0.sessionsSubscribable.value }
-                .flatMap { $0 }
-        }
     }
 
     func session(forIdentifier identifier: AlphaWallet.WalletConnect.SessionIdentifier) -> AlphaWallet.WalletConnect.Session? {
-        return services.compactMap {
-            $0.session(forIdentifier: identifier)
-        }.first
+        return services.compactMap { $0.session(forIdentifier: identifier) }.first
     }
 
     func respond(_ response: AlphaWallet.WalletConnect.Response, request: AlphaWallet.WalletConnect.Session.Request) throws {

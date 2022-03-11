@@ -218,15 +218,17 @@ class TokensViewController: UIViewController {
 
         setupFilteringWithKeyword()
 
-        walletConnectCoordinator.sessionsSubscribable.subscribe { [weak self] value in
-            guard let strongSelf = self, let sessions = value else { return }
+        walletConnectCoordinator.sessions
+            .receive(on: RunLoop.main)
+            .sink { [weak self] sessions in
+                guard let strongSelf = self else { return }
 
-            let viewModel = strongSelf.viewModel
-            viewModel.walletConnectSessions = sessions.count
-            strongSelf.viewModel = viewModel
+                let viewModel = strongSelf.viewModel
+                viewModel.walletConnectSessions = sessions.count
+                strongSelf.viewModel = viewModel
 
-            strongSelf.tableView.reloadData()
-        }
+                strongSelf.tableView.reloadData()
+            }.store(in: &cancellable)
 
         let walletSummary = walletBalanceService
             .walletBalance(wallet: account)

@@ -3,6 +3,7 @@
 import UIKit
 import StatefulViewController
 import AlphaWalletAddress
+import Combine
 
 protocol WalletConnectSessionsViewControllerDelegate: AnyObject {
     func didDisconnectSelected(session: AlphaWallet.WalletConnect.Session, in viewController: WalletConnectSessionsViewController)
@@ -18,18 +19,20 @@ extension WalletConnectSessionsViewController {
     }
 }
 
-class WalletConnectSessionsViewController: UIViewController {
-    private var sessions: [AlphaWallet.WalletConnect.Session] {
-        return sessionsSubscribable.value ?? []
+class WalletConnectSessionsViewModel {
+    enum Section: Int, Hashable, CaseIterable {
+        case sessions
     }
+}
 
-    private let sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]>
+private class WalletConnectSessionsDiffableDataSource: UITableViewDiffableDataSource<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session> {}
+
+class WalletConnectSessionsViewController: UIViewController {
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(WalletConnectSessionCell.self)
         tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
-        tableView.delegate = self
-        tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -45,14 +48,16 @@ class WalletConnectSessionsViewController: UIViewController {
         let view = UIActivityIndicatorView(style: .medium)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.hidesWhenStopped = true
-        view.tintColor = .red
 
         return view
     }()
     private var state: State = .sessions
+    private let provider: WalletConnectServerProviderType
+    private var cancelable = Set<AnyCancellable>()
+    private var dataSource: WalletConnectSessionsDiffableDataSource!
 
-    init(sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]>) {
-        self.sessionsSubscribable = sessionsSubscribable
+    init(provider: WalletConnectServerProviderType) {
+        self.provider = provider
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
@@ -61,17 +66,8 @@ class WalletConnectSessionsViewController: UIViewController {
         roundedBackground.addSubview(tableView)
         roundedBackground.addSubview(spinner)
 
-        sessionsSubscribable.subscribe { [weak self] _ in
-            self?.tableView.reloadData()
-            self?.endLoading()
-        }
-
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            tableView.anchorsConstraintSafeArea(to: roundedBackground),
             spinner.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
         ] + roundedBackground.createConstraintsWithContainer(view: view))
@@ -85,8 +81,30 @@ class WalletConnectSessionsViewController: UIViewController {
         })
     }
 
+    private func invalidateDataSource(animatingDifferences: Bool = false, session: [AlphaWallet.WalletConnect.Session]) {
+        var snapshot = NSDiffableDataSourceSnapshot<WalletConnectSessionsViewModel.Section, AlphaWallet.WalletConnect.Session>()
+        snapshot.appendSections([.sessions])
+        snapshot.appendItems(session)
+
+        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+    }
+
+    private func configureDataSource() {
+        dataSource = WalletConnectSessionsDiffableDataSource(tableView: tableView, cellProvider: { tableView, indexPath, session in
+            let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
+
+            let viewModel = WalletConnectSessionCellViewModel(session: session)
+            cell.configure(viewModel: viewModel)
+
+            return cell
+        })
+
+        tableView.delegate = self
+        tableView.dataSource = dataSource
+    }
+
     required init?(coder aDecoder: NSCoder) {
-        nil
+        return nil
     }
 
     override func viewDidLoad() {
@@ -98,6 +116,14 @@ class WalletConnectSessionsViewController: UIViewController {
         if let host = emptyView {
             spinner.bringSubviewToFront(host)
         }
+
+        configureDataSource()
+        provider.sessions
+            .receive(on: RunLoop.main)
+            .sink { [weak self] sessions in
+                self?.invalidateDataSource(session: sessions)
+                self?.endLoading()
+            }.store(in: &cancelable)
     }
 
     func configure(state: State) {
@@ -113,8 +139,6 @@ class WalletConnectSessionsViewController: UIViewController {
         case .sessions:
             spinner.stopAnimating()
         }
-        
-        self.endLoading()
     }
 
     @objc private func qrCodeButtonSelected(_ sender: UIBarButtonItem) {
@@ -130,7 +154,7 @@ extension WalletConnectSessionsViewController: StatefulViewController {
     func hasContent() -> Bool {
         switch state {
         case .sessions:
-            return !sessions.isEmpty
+            return dataSource.snapshot().numberOfItems != 0
         case .loading:
             return true
         }
@@ -140,17 +164,17 @@ extension WalletConnectSessionsViewController: StatefulViewController {
 extension WalletConnectSessionsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard let session = dataSource.itemIdentifier(for: indexPath) else { return }
 
-        delegate?.didSessionSelected(session: sessions[indexPath.row], in: self)
+        delegate?.didSessionSelected(session: session, in: self)
     }
-}
 
-extension WalletConnectSessionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let title = R.string.localizable.walletConnectSessionDisconnect()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
-            let session = strongSelf.sessions[indexPath.row]
+            guard let session = strongSelf.dataSource.itemIdentifier(for: indexPath) else { return }
+
             strongSelf.delegate?.didDisconnectSelected(session: session, in: strongSelf)
 
             completionHandler(true)
@@ -162,19 +186,6 @@ extension WalletConnectSessionsViewController: UITableViewDataSource {
         configuration.performsFirstActionWithFullSwipe = true
 
         return configuration
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: WalletConnectSessionCell = tableView.dequeueReusableCell(for: indexPath)
-
-        let viewModel = WalletConnectSessionCellViewModel(session: sessions[indexPath.row])
-        cell.configure(viewModel: viewModel)
-
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sessions.count
     }
 
     //Hide the header
