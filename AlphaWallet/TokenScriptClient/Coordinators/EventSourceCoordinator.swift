@@ -4,6 +4,7 @@ import Foundation
 import BigInt
 import PromiseKit
 import web3swift
+import Combine
 
 extension PromiseKit.Result {
     var optionalValue: T? {
@@ -17,12 +18,13 @@ extension PromiseKit.Result {
 }
 
 protocol EventSourceCoordinatorType: class {
-    func fetchEthereumEvents()
+    func start()
     @discardableResult func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
 }
+
 //TODO: Create XMLHandler store and pass it everwhere we use it
 //TODO: Rename this generic name to reflect that it's for event instances, not for event activity
-class EventSourceCoordinator: EventSourceCoordinatorType {
+class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
     private var wallet: Wallet
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
@@ -31,6 +33,7 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
+    private var cancellable = Set<AnyCancellable>()
 
     init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
@@ -38,6 +41,18 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.enabledServers = config.enabledServers
+
+        super.init()
+    }
+
+    func start() {
+        tokensDataStore
+            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .subscribe(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.fetchEthereumEvents()
+            }.store(in: &cancellable)
     }
 
     func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
@@ -84,15 +99,10 @@ class EventSourceCoordinator: EventSourceCoordinatorType {
 
                     seal.fulfill(values)
                 }
-            }
-        //NOTE: calling .fetchEventsByTokenId shoul be performed on .main queue
+            } 
         }.then(on: .main, { tokens -> Promise<Void> in
-            return Promise { seal in
-                let promises = tokens.map { self.fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
-                when(resolved: promises).done { _ in
-                    seal.fulfill(())
-                }
-            }
+            let promises = tokens.map { self.fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
+            return when(resolved: promises).asVoid()
         }).done(on: queue, { _ in
             self.isFetching = false
         }).cauterize()

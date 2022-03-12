@@ -32,7 +32,10 @@ class InCoordinator: NSObject, Coordinator {
     private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
-    private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
+    private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
+        guard Features.isActivityEnabled else { return nil }
+        return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
+    }()
     private let coinTickersFetcher: CoinTickersFetcherType
 
     lazy var tokensDataStore: TokensDataStore = {
@@ -150,7 +153,6 @@ class InCoordinator: NSObject, Coordinator {
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
         super.init()
-
     }
 
     deinit {
@@ -214,9 +216,7 @@ class InCoordinator: NSObject, Coordinator {
         guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
         eventsDataStore.deleteEvents(forTokenContract: contract)
         let _ = eventSourceCoordinator.fetchEventsByTokenId(forToken: token)
-        if Features.isActivityEnabled {
-            let _ = eventSourceCoordinatorForActivities?.fetchEvents(forToken: token)
-        }
+        let _ = eventSourceCoordinatorForActivities?.fetchEvents(forToken: token)
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
@@ -261,23 +261,6 @@ class InCoordinator: NSObject, Coordinator {
         setupCallForAssetAttributeCoordinators()
         //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinatorForActivities()
-    }
-
-    private func fetchEthereumEvents() {
-        eventSourceCoordinator.fetchEthereumEvents()
-        if Features.isActivityEnabled {
-            eventSourceCoordinatorForActivities?.fetchEthereumEvents()
-        }
-    }
-
-    private func pollEthereumEvents(tokensDataStore: TokensDataStore) {
-        tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: config.enabledServers)
-            .subscribe(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.fetchEthereumEvents()
-            }.store(in: &cancellable)
     }
 
     //Internal for test purposes
@@ -349,7 +332,6 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, activitiesService: ActivitiesServiceType) -> TokensCoordinator {
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withWalletSessions: sessionsSubject.value)
-        pollEthereumEvents(tokensDataStore: tokensDataStore)
 
         let coordinator = TokensCoordinator(
                 sessions: sessionsSubject.value,
@@ -369,6 +351,7 @@ class InCoordinator: NSObject, Coordinator {
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.tokens.tabBarItem
         coordinator.delegate = self
         coordinator.start()
+
         addCoordinator(coordinator)
         return coordinator
     }
@@ -998,6 +981,11 @@ extension InCoordinator: WhereAreMyTokensCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+
+    func viewWillAppearOnce(in coordinator: TokensCoordinator) {
+        eventSourceCoordinator.start()
+        eventSourceCoordinatorForActivities?.start()
+    }
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {
         let coordinator = WhereAreMyTokensCoordinator(navigationController: navigationController)

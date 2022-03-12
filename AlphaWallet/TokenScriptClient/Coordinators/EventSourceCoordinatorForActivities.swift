@@ -4,11 +4,11 @@ import Foundation
 import BigInt
 import PromiseKit
 import web3swift
+import Combine
 
 protocol EventSourceCoordinatorForActivitiesType: AnyObject {
-    func fetchEvents(forToken token: TokenObject) -> [Promise<Void>]
-    func fetchEvents(contract: AlphaWallet.Address, tokenType: TokenType, rpcServer: RPCServer) -> [Promise<Void>]
-    func fetchEthereumEvents()
+    func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] 
+    func start()
 }
 
 class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesType {
@@ -21,6 +21,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.EventSourceCoordinatorForActivities.updateQueue")
     private let enabledServers: [RPCServer]
+    private var cancellable = Set<AnyCancellable>()
 
     init(wallet: Wallet, config: Config, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsActivityDataStoreProtocol) {
         self.wallet = wallet
@@ -31,6 +32,16 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         self.enabledServers = Config().enabledServers
     }
 
+    func start() {
+        tokensDataStore
+            .enabledTokenObjectsChangesetPublisher(forServers: config.enabledServers)
+            .subscribe(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+                strongSelf.fetchEthereumEvents()
+            }.store(in: &cancellable)
+    }
+
     func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
         let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
@@ -39,7 +50,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         }
     }
 
-    func fetchEvents(contract: AlphaWallet.Address, tokenType: TokenType, rpcServer: RPCServer) -> [Promise<Void>] {
+    private func fetchEvents(contract: AlphaWallet.Address, tokenType: TokenType, rpcServer: RPCServer) -> [Promise<Void>] {
         let xmlHandler = XMLHandler(contract: contract, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
         return xmlHandler.activityCards.compactMap {

@@ -18,6 +18,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
+    func viewWillAppearOnce(in coordinator: TokensCoordinator)
 }
 
 private struct NoContractDetailsDetected: Error {
@@ -101,7 +102,7 @@ class TokensCoordinator: Coordinator {
 
     private let tokensDataStore: TokensDataStore
     private let tokensAutoDetectionQueue: DispatchQueue = DispatchQueue(label: "com.TokensAutoDetection.updateQueue")
-
+    private var viewWillAppearHandled = false
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
             sessions: ServerDictionary<WalletSession>,
@@ -264,6 +265,11 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func viewWillAppear(in viewController: UIViewController) {
         getWalletName()
         getWalletBlockie()
+
+        guard !viewWillAppearHandled else { return }
+        viewWillAppearHandled = true
+
+        delegate?.viewWillAppearOnce(in: self)
     }
 
     private func makeMoreAlertSheet(sender: UIBarButtonItem) -> UIAlertController {
