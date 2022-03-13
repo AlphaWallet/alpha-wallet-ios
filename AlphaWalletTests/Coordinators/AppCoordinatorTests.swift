@@ -10,7 +10,8 @@ class AppCoordinatorTests: XCTestCase {
             let coordinator = try AppCoordinator(
                 window: UIWindow(),
                 analyticsService: FakeAnalyticsService(),
-                keystore: FakeKeystore()
+                keystore: FakeKeystore(),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
             )
 
             XCTAssertTrue(coordinator.navigationController.viewControllers[0].isSplashScreen)
@@ -30,6 +31,7 @@ class AppCoordinatorTests: XCTestCase {
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                 navigationController: FakeNavigationController()
             )
 
@@ -52,7 +54,8 @@ class AppCoordinatorTests: XCTestCase {
                 keystore: FakeKeystore(
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
-                )
+                ),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
             )
             coordinator.start()
             coordinator.reset()
@@ -72,6 +75,7 @@ class AppCoordinatorTests: XCTestCase {
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                 navigationController: FakeNavigationController()
             )
             coordinator.start()
@@ -92,6 +96,7 @@ class AppCoordinatorTests: XCTestCase {
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
                 ),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                 navigationController: FakeNavigationController()
             )
             coordinator.start()
@@ -114,7 +119,8 @@ class AppCoordinatorTests: XCTestCase {
                 keystore: FakeKeystore(
                     wallets: [.make()],
                     recentlyUsedWallet: .make()
-                )
+                ),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
             )
 
             coordinator.start()
@@ -130,7 +136,8 @@ class AppCoordinatorTests: XCTestCase {
             let coordinator = try AppCoordinator(
                 window: .init(),
                 analyticsService: FakeAnalyticsService(),
-                keystore: FakeKeystore()
+                keystore: FakeKeystore(),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests)
             )
 
             coordinator.start()

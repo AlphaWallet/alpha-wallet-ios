@@ -61,7 +61,6 @@ open class EtherKeystore: NSObject, Keystore {
     private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private var walletAddressesStore: WalletAddressesStore
-
     private var analyticsCoordinator: AnalyticsCoordinator
 
     private var isSimulator: Bool {
@@ -86,8 +85,6 @@ open class EtherKeystore: NSObject, Keystore {
     var wallets: [Wallet] {
         walletAddressesStore.wallets
     }
-
-    var subscribableWallets: Subscribable<Set<Wallet>> = .init(nil)
 
     var hasMigratedFromKeystoreFiles: Bool {
         return walletAddressesStore.hasMigratedFromKeystoreFiles
@@ -117,17 +114,16 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standardOrForTests, analyticsCoordinator: AnalyticsCoordinator) throws {
+    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), walletAddressesStore: WalletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .standardOrForTests), analyticsCoordinator: AnalyticsCoordinator) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
         }
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.analyticsCoordinator = analyticsCoordinator
-        self.walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: userDefaults)
+        self.walletAddressesStore = walletAddressesStore
         super.init()
 
-        subscribableWallets.value = Set<Wallet>(wallets)
     }
 
     func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {
@@ -215,43 +211,23 @@ open class EtherKeystore: NSObject, Keystore {
                 $0
             }
 
-            notifyWalletUpdated()
-
             return .success(Wallet(type: .watch(address)))
-        }
-    }
-
-    private func notifyWalletUpdated() {
-        // NOTE: application crashes because adding a new wallet performed on background queue, we want to perform it on .main
-        // using .addOperation we want to save operations order, hope it willn't crash. with DispatchQueue.main.async it crashes
-        if Thread.isMainThread {
-            subscribableWallets.value = Set<Wallet>(wallets)
-        } else {
-            OperationQueue.main.addOperation {
-                self.subscribableWallets.value = Set<Wallet>(self.wallets)
-            }
         }
     }
 
     private func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
         let updatedOwnedAddresses = Array(Set(walletAddressesStore.ethereumAddressesWithPrivateKeys + [address.eip55String]))
         walletAddressesStore.ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
-
-        notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
         let updated = Array(Set(walletAddressesStore.ethereumAddressesWithSeed + [address.eip55String]))
         walletAddressesStore.ethereumAddressesWithSeed = updated
-
-        notifyWalletUpdated()
     }
 
     private func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
         let updated = Array(Set(walletAddressesStore.ethereumAddressesProtectedByUserPresence + [address.eip55String]))
         walletAddressesStore.ethereumAddressesProtectedByUserPresence = updated
-
-        notifyWalletUpdated()
     }
 
     private func generateMnemonic() -> String {
@@ -422,7 +398,6 @@ open class EtherKeystore: NSObject, Keystore {
 
     private func removeAccountFromBookkeeping(_ account: AlphaWallet.Address) {
         walletAddressesStore.removeAddress(account)
-        notifyWalletUpdated()
     }
 
     func isHdWallet(account: AlphaWallet.Address) -> Bool {

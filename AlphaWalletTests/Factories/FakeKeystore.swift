@@ -29,7 +29,6 @@ struct FakeKeystore: Keystore {
     }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
-    var subscribableWallets: Subscribable<Set<Wallet>>
     var currentWallet: Wallet {
         //Better crash now instead of populating callers with optionals
         if let wallet = recentlyUsedWallet {
@@ -40,12 +39,11 @@ struct FakeKeystore: Keystore {
             fatalError("No wallet")
         }
     }
-
+    
     init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = .none, assumeAllWalletsType: AssumeAllWalletsType = .hdWallet) {
         self.wallets = wallets
         self.recentlyUsedWallet = recentlyUsedWallet ?? FakeKeystore.currentWallet
         self.assumeAllWalletsType = assumeAllWalletsType
-        self.subscribableWallets = .init(Set(wallets))
     }
 
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: AlphaWallet.Address, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
@@ -127,7 +125,6 @@ struct FakeKeystore: Keystore {
     func elevateSecurity(forAccount account: AlphaWallet.Address) -> Bool {
         return false
     }
-
 
     func signMessageBulk(_ data: [Data], for account: AlphaWallet.Address) -> Result<[Data], KeystoreError> {
         return .failure(KeystoreError.failedToSignMessage)
