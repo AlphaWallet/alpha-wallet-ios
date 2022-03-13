@@ -2,16 +2,9 @@
 
 import Foundation
 
-protocol SingleChainTransactionDataCoordinatorDelegate: AnyObject {
-    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator, reloadImmediately: Bool)
-}
-
 protocol SingleChainTransactionDataCoordinator: Coordinator {
-    init(session: WalletSession, storage: TransactionsStorage, keystore: Keystore, tokensDataStore: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
-
-    var delegate: SingleChainTransactionDataCoordinatorDelegate? { get set }
-
-    var session: WalletSession { get }
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, keystore: Keystore, tokensDataStore: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
+    
     func start()
     func stopTimers()
     func runScheduledTimers()

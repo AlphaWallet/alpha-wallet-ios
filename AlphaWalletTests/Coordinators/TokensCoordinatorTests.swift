@@ -29,8 +29,6 @@ class TokensCoordinatorTests: XCTestCase {
         let config: Config = .make()
         let tokenActionsService = FakeSwapTokenService()
         let tokensDataStore = FakeTokensDataStore()
-        var transactionsStorages = ServerDictionary<TransactionsStorage>()
-        transactionsStorages[.main] = FakeTransactionsStorage()
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
@@ -44,7 +42,6 @@ class TokensCoordinatorTests: XCTestCase {
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            transactionsStorages: transactionsStorages,
             coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
             activitiesService: FakeActivitiesService(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()

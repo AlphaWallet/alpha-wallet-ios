@@ -18,8 +18,6 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func refreshBalance() -> Promise<Void>
     func refreshEthBalance() -> Promise<Void>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
-    
-    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage
 }
 
 class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
@@ -107,11 +105,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         }
     }
 
-    func transactionsStorage(wallet: Wallet, server: RPCServer) -> TransactionsStorage {
-        balanceFetchers[wallet]!.transactionsStorage(server: server)
-    } 
-
-        //NOTE: for case if we disable rpc server, we don't fetch ticker for its native crypto
+    //NOTE: for case if we disable rpc server, we don't fetch ticker for its native crypto
     private static var nativeCryptoForAllChains: [Activity.AssignedToken] {
         return RPCServer.allCases.map { server in
             Activity.AssignedToken.init(tokenObject: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))

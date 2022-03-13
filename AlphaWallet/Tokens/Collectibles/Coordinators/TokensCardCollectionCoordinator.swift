@@ -30,8 +30,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
     private let tokensStorage: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private let transactionsStorage: TransactionsStorage
-
     private (set) var analyticsCoordinator: AnalyticsCoordinator
     private let activitiesService: ActivitiesServiceType
     weak var delegate: TokensCardCollectionCoordinatorDelegate?
@@ -50,7 +48,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
             eventsDataStore: NonActivityEventsDataStore,
             analyticsCoordinator: AnalyticsCoordinator,
             activitiesService: ActivitiesServiceType,
-            transactionsStorage: TransactionsStorage,
             paymantFlow: PaymentFlow
     ) {
         self.paymantFlow = paymantFlow
@@ -63,7 +60,6 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
-        self.transactionsStorage = transactionsStorage
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -114,16 +110,12 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
                 break
             }
         }
-    }
-
-    private func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
-        return .filter(transactionsStorage: transactionsStorage, strategy: strategy, tokenObject: tokenObject)
-    }
+    } 
 
     private func makeTokensCardCollectionViewController() -> TokensCardViewController {
         let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         let activitiesFilterStrategy: ActivitiesFilterStrategy = .operationTypes(operationTypes: [.erc1155TokenTransfer], contract: token.contractAddress)
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
+        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
 
         let controller = TokensCardViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true

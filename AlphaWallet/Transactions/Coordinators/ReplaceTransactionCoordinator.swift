@@ -81,7 +81,7 @@ class ReplaceTransactionCoordinator: Coordinator {
     weak var delegate: ReplaceTransactionCoordinatorDelegate?
 
     init?(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, ethPrice: Subscribable<Double>, presentingViewController: UIViewController, session: WalletSession, transaction: TransactionInstance, mode: Mode) {
-        guard let pendingTransactionInformation = TransactionsStorage.pendingTransactionsInformation[transaction.id] else { return nil }
+        guard let pendingTransactionInformation = TransactionDataStore.pendingTransactionsInformation[transaction.id] else { return nil }
         guard let nonce = BigInt(transaction.nonce) else { return nil }
         self.pendingTransactionInformation = pendingTransactionInformation
         self.keystore = keystore

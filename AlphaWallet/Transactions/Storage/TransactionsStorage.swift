@@ -2,131 +2,140 @@ import Foundation
 import BigInt
 import RealmSwift
 import PromiseKit
+import Combine
 
-protocol TransactionsStorageDelegate: AnyObject {
-    func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage)
+protocol TransactionDataStoreDelegate: AnyObject {
+    func didAddTokensWith(contracts: [AlphaWallet.Address], in transactionsStorage: TransactionDataStore)
 }
 
-class TransactionsStorage: Hashable {
-
-    static func == (lhs: TransactionsStorage, rhs: TransactionsStorage) -> Bool {
-        return lhs.server == rhs.server && lhs.realm == rhs.realm
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(server.chainID)
-    }
-
+class TransactionDataStore {
     //TODO if we move this to instance-side, we have to be careful it's the same instance we are accessing, otherwise we wouldn't find the pending transaction information when we need it
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let realm: Realm
-    weak var delegate: TransactionsStorageDelegate?
 
-    let server: RPCServer
+    weak var delegate: TransactionDataStoreDelegate?
 
-    init(realm: Realm, server: RPCServer, delegate: TransactionsStorageDelegate?) {
+    init(realm: Realm, delegate: TransactionDataStoreDelegate?) {
         self.realm = realm
-        self.server = server
         self.delegate = delegate
     }
 
-    var count: Int {
-        return objects.count
+    func transactionCount(forServer server: RPCServer) -> Int {
+        return transactions(forServer: server).count
     }
 
-    var objects: Results<Transaction> {
+    func transactions(forServer server: RPCServer) -> Results<Transaction> {
         return realm.objects(Transaction.self)
-            .filter(TransactionsStorage.functional.nonEmptyIdTransactionPredicate(server: server))
+            .filter(TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: server))
             .sorted(byKeyPath: "date", ascending: false)
     }
 
-    var completedObjects: Promise<[TransactionInstance]> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                let completedTransactions = strongSelf.realm.objects(Transaction.self)
-                    .filter(TransactionsStorage.functional.transactionPredicate(server: strongSelf.server, transactionState: .completed))
-                    .sorted(byKeyPath: "date", ascending: false)
-                    .map { TransactionInstance(transaction: $0) }
-
-                seal.fulfill(Array(completedTransactions))
-            }
+    func transactionsChangesetPublisher(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Transaction]>, Never> {
+        let predicate: NSPredicate
+        switch filter {
+        case .filter(let filter, let tokenObject):
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: tokenObject.server),
+                filter.predicate
+            ])
+        case .all:
+            predicate = TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
         }
+
+        return realm.objects(Transaction.self)
+            .filter(predicate)
+            .sorted(byKeyPath: "date", ascending: false)
+            .changesetPublisher
+            .map { change in
+                switch change {
+                case .initial(let transactions):
+                    return .initial(Array(transactions))
+                case .update(let transactions, let deletions, let insertions, let modifications):
+                    return .update(Array(transactions), deletions: deletions, insertions: insertions, modifications: modifications)
+                case .error(let error):
+                    return .error(error)
+                }
+            }
+            .share()
+            .eraseToAnyPublisher()
     }
 
-    var pendingObjects: Promise<[TransactionInstance]> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                let pendingTransactions = strongSelf.realm.objects(Transaction.self)
-                    .filter(TransactionsStorage.functional.transactionPredicate(server: strongSelf.server, transactionState: .pending))
-                    .sorted(byKeyPath: "date", ascending: false)
-                    .map { TransactionInstance(transaction: $0) }
-
-                seal.fulfill(Array(pendingTransactions))
-            }
+    func transactionsPublisher(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer], oldestBlockNumber: Int? = nil) -> AnyPublisher<[Transaction], Error> {
+        let oldestBlockNumberPredicate = oldestBlockNumber.flatMap { [TransactionDataStore.functional.blockNumberPredicate(blockNumber: $0)] } ?? []
+        let predicate: NSPredicate
+        switch filter {
+        case .filter(let filter, let tokenObject):
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: tokenObject.server),
+                filter.predicate
+            ] + oldestBlockNumberPredicate)
+        case .all:
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
+            ] + oldestBlockNumberPredicate)
         }
+
+        return realm.objects(Transaction.self)
+            .filter(predicate)
+            .sorted(byKeyPath: "date", ascending: false)
+            .collectionPublisher
+            .map { Array($0) }
+            .share()
+            .eraseToAnyPublisher()
     }
 
-    func hasCompletedTransaction(withNonce nonce: String) -> Promise<Bool> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = TransactionsStorage
-                    .functional
-                    .transactionPredicate(server: strongSelf.server, transactionState: .completed, nonce: nonce)
-
-                let value = !strongSelf.realm.objects(Transaction.self)
-                        .filter(predicate)
-                        .isEmpty
-
-                seal.fulfill(value)
-            }
-        }
+    func transactions(forServer server: RPCServer, withTransactionState transactionState: TransactionState) -> [TransactionInstance] {
+        return realm.objects(Transaction.self)
+            .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
+            .sorted(byKeyPath: "date", ascending: false)
+            .map { TransactionInstance(transaction: $0) }
     }
 
-    func transactionObjectsThatDoNotComeFromEventLogs() -> Promise<TransactionInstance?> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = TransactionsStorage
-                    .functional
-                    .nonERC20InteractionTransactionPredicate(server: strongSelf.server, transactionState: .completed)
-
-                let transaction = strongSelf.realm.objects(Transaction.self)
-                    .filter(predicate)
-                    .sorted(byKeyPath: "date", ascending: false)
-                    .map { TransactionInstance(transaction: $0) }
-                    .first
-
-                seal.fulfill(transaction)
-            }
-        }
+    func lastTransaction(forServer server: RPCServer, withTransactionState transactionState: TransactionState) -> TransactionInstance? {
+        return realm.objects(Transaction.self)
+            .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
+            .sorted(byKeyPath: "date", ascending: false)
+            .last
+            .map { TransactionInstance(transaction: $0) }
     }
 
-    var transactions: Promise<[TransactionInstance]> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = TransactionsStorage
-                    .functional
-                    .nonEmptyIdTransactionPredicate(server: strongSelf.server)
+    func hasCompletedTransaction(withNonce nonce: String, forServer server: RPCServer) -> Bool {
+        let predicate = TransactionDataStore
+            .functional
+            .transactionPredicate(server: server, transactionState: .completed, nonce: nonce)
 
-                let transactions = strongSelf.realm.objects(Transaction.self)
-                    .filter(predicate)
-                    .sorted(byKeyPath: "date", ascending: false)
-                    .map { TransactionInstance(transaction: $0) }
-
-                seal.fulfill(Array(transactions))
-            }
-        }
+        return !realm.objects(Transaction.self)
+            .filter(predicate)
+            .isEmpty
     }
 
-    func transaction(withTransactionId transactionId: String) -> TransactionInstance? {
-        let predicate = TransactionsStorage
+    func transactionObjectsThatDoNotComeFromEventLogs(forServer server: RPCServer) -> TransactionInstance? {
+        let predicate = TransactionDataStore
+            .functional
+            .nonERC20InteractionTransactionPredicate(server: server, transactionState: .completed)
+
+        return realm.objects(Transaction.self)
+            .filter(predicate)
+            .sorted(byKeyPath: "date", ascending: false)
+            .map { TransactionInstance(transaction: $0) }
+            .first
+    }
+
+    func firstTransactions(forServer server: RPCServer) -> TransactionInstance? {
+        let predicate = TransactionDataStore
+            .functional
+            .nonEmptyIdTransactionPredicate(server: server)
+
+        return realm.objects(Transaction.self)
+            .filter(predicate)
+            .sorted(byKeyPath: "date", ascending: false)
+            .map { TransactionInstance(transaction: $0) }
+            .first
+    }
+
+    func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> TransactionInstance? {
+        let predicate = TransactionDataStore
             .functional
             .transactionPredicate(withTransactionId: transactionId, server: server)
 
@@ -137,62 +146,30 @@ class TransactionsStorage: Hashable {
             .first
     }
 
-    func delete(transactions: [TransactionInstance]) -> Promise<Void> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                let realm = strongSelf.realm
-                let objects = transactions.compactMap {
-                    realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)
-                }
-
-                do {
-                    try realm.write {
-                        realm.delete(objects)
-                    }
-                    seal.fulfill(())
-                } catch {
-                    seal.reject(error)
-                }
-            }
+    func delete(transactions: [TransactionInstance]) {
+        let objects = transactions.compactMap {
+            realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)
         }
+
+        realm.beginWrite()
+        realm.delete(objects)
+        try? realm.commitWrite()
     }
 
-    func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: PendingTransaction?) -> Promise<TransactionInstance> {
-        enum AnyError: Error {
-            case invalid
+    func update(state: TransactionState, for primaryKey: String, withPendingTransaction pendingTransaction: PendingTransaction?) {
+        guard let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) else { return }
+        realm.beginWrite()
+
+        if let pendingTransaction = pendingTransaction {
+            value.gas = pendingTransaction.gas
+            value.gasPrice = pendingTransaction.gasPrice
+            value.nonce = pendingTransaction.nonce
+            //We assume that by the time we get here, the block number is valid
+            value.blockNumber = Int(pendingTransaction.blockNumber)!
         }
+        value.internalState = state.rawValue
 
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let realm = strongSelf.realm
-                if let value = realm.object(ofType: Transaction.self, forPrimaryKey: primaryKey) {
-                    realm.beginWrite()
-
-                    if let pendingTransaction = pendingTransaction {
-                        value.gas = pendingTransaction.gas
-                        value.gasPrice = pendingTransaction.gasPrice
-                        value.nonce = pendingTransaction.nonce
-                        //We assume that by the time we get here, the block number is valid
-                        value.blockNumber = Int(pendingTransaction.blockNumber)!
-                    }
-                    value.internalState = state.rawValue
-                    let transaction = TransactionInstance(transaction: value)
-
-                    do {
-                        try realm.commitWrite()
-
-                        seal.fulfill(transaction)
-                    } catch {
-                        seal.reject(error)
-                    }
-                } else {
-                    seal.reject(AnyError.invalid)
-                }
-            }
-        }
+        try? realm.commitWrite()
     }
 
     func add(transactions: [TransactionInstance], transactionsToPullContractsFrom: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
@@ -203,7 +180,7 @@ class TransactionsStorage: Hashable {
         realm.beginWrite()
         realm.add(transactionsToCommit, update: .all)
         //NOTE: move adding transactions under single write realm transaction
-        addTokensWithContractAddresses(fromTransactions: newTransactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes, realm: realm)
+        addTokensWithContractAddresses(fromTransactions: newTransactionsToPullContractsFrom, server: transactions[0].server, contractsAndTokenTypes: contractsAndTokenTypes, realm: realm)
 
         try! realm.commitWrite()
     }
@@ -224,9 +201,9 @@ class TransactionsStorage: Hashable {
         }
     }
 
-    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {
-        let tokens = Self.tokens(from: transactions, server: server, contractsAndTokenTypes: contractsAndTokenTypes)
-        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)
+    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {
+        let tokens = TransactionDataStore.functional.tokens(from: transactions, server: server, contractsAndTokenTypes: contractsAndTokenTypes)
+        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), in: self)
 
         if !tokens.isEmpty {
             updateTransactionsWithoutCommitWrite(in: realm, tokens: tokens)
@@ -244,16 +221,96 @@ class TransactionsStorage: Hashable {
         }
     }
 
-    @discardableResult
-    func add(_ items: [Transaction]) -> [Transaction] {
-        guard !items.isEmpty else { return [] }
+    @discardableResult func add(transactions: [Transaction]) -> [Transaction] {
+        guard !transactions.isEmpty else { return [] }
         realm.beginWrite()
-        realm.add(items, update: .all)
+        realm.add(transactions, update: .all)
         try! realm.commitWrite()
-        return items
+        return transactions
     }
 
-    private static func tokens(from transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
+    func delete(_ items: [Transaction]) {
+        guard !items.isEmpty else { return }
+        try! realm.write {
+            realm.delete(items)
+        }
+    }
+
+    func removeTransactions(for states: [TransactionState], servers: [RPCServer]) {
+        let objects = realm.objects(Transaction.self)
+            .filter("chainId IN %@", servers.map { $0.chainID })
+            .filter { states.contains($0.state) }
+
+        try! realm.write {
+            realm.delete(objects)
+        }
+    }
+
+    func deleteAll() {
+        try! realm.write {
+            realm.delete(realm.objects(LocalizedOperationObject.self))
+            realm.delete(realm.objects(Transaction.self))
+        }
+    }
+
+    func writeJsonForTransactions(toUrl url: URL, server: RPCServer) {
+        do {
+            let data = try functional.generateJsonForTransactions(transactionStorage: self, server: server, toUrl: url)
+            try data.write(to: url)
+            verboseLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
+        } catch {
+            verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
+        }
+    }
+
+    static func deleteAllTransactions(realm: Realm, config: Config) {
+        let transactionsStorage = TransactionDataStore(realm: realm, delegate: nil)
+        transactionsStorage.deleteAll()
+    }
+}
+
+extension TransactionDataStore: Erc721TokenIdsFetcher {
+    func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
+        Promise { seal in
+            //Important to sort ascending to figure out ownership from transfers in and out
+            //TODO is this really slow? getting all transactions, right?
+            //TODO why are some isERC20Interaction = false
+            DispatchQueue.main.async {
+                let transactions = self.realm.objects(Transaction.self)
+                    .filter(TransactionDataStore.functional.transactionPredicate(server: server, operationContract: contract))
+                    .sorted(byKeyPath: "date", ascending: true)
+
+                let operations: [LocalizedOperationObject] = transactions
+                    .flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
+
+                var tokenIds: Set<String> = .init()
+                for each in operations {
+                    let tokenId = each.tokenId
+                    guard !tokenId.isEmpty else { continue }
+                    if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
+                        //no-op
+                    } else if account.sameContract(as: each.from) {
+                        tokenIds.remove(tokenId)
+                    } else if account.sameContract(as: each.to) {
+                        tokenIds.insert(tokenId)
+                    } else {
+                        //no-op
+                    }
+                }
+
+                seal.fulfill(Array(tokenIds))
+            }
+        }
+    }
+}
+
+extension TransactionDataStore {
+    class functional {}
+}
+
+extension TransactionDataStore.functional {
+
+    static func tokens(from transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
         let tokens: [TokenUpdate] = transactions.flatMap { transaction -> [TokenUpdate] in
             let tokenUpdates: [TokenUpdate] = transaction.localizedOperations.compactMap { operation in
                 guard let contract = operation.contractAddress else { return nil }
@@ -294,86 +351,11 @@ class TransactionsStorage: Hashable {
         return tokens
     }
 
-    func delete(_ items: [Transaction]) {
-        try! realm.write {
-            realm.delete(items)
-        }
+    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
+        return .filter(strategy: strategy, tokenObject: tokenObject)
     }
 
-    func removeTransactions(for states: [TransactionState]) {
-        //TODO improve filtering/matching performance
-        let objects = realm.objects(Transaction.self)
-                .filter("chainId = \(self.server.chainID)")
-                .filter { states.contains($0.state) }
-        try! realm.write {
-            realm.delete(objects)
-        }
-    }
-
-    func deleteAll() {
-        try! realm.write {
-            realm.delete(realm.objects(LocalizedOperationObject.self))
-            realm.delete(realm.objects(Transaction.self))
-        }
-    }
-
-    func writeJsonForTransactions(toUrl url: URL) {
-        do {
-            let data = try functional.generateJsonForTransactions(transactionStorage: self, toUrl: url)
-            try data.write(to: url)
-            verboseLog("Written transactions for \(server) to JSON to: \(url.absoluteString)")
-        } catch {
-            verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
-        }
-    }
-
-    static func deleteAllTransactions(realm: Realm) {
-        for each in RPCServer.availableServers {
-            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
-            transactionsStorage.deleteAll()
-        }
-    }
-}
-
-extension TransactionsStorage: Erc721TokenIdsFetcher {
-    func tokenIdsForErc721Token(contract: AlphaWallet.Address, forServer server: RPCServer, inAccount account: AlphaWallet.Address) -> Promise<[String]> {
-        Promise { seal in
-            //Important to sort ascending to figure out ownership from transfers in and out
-            //TODO is this really slow? getting all transactions, right?
-            //TODO why are some isERC20Interaction = false
-            DispatchQueue.main.async {
-                let transactions = self.realm.objects(Transaction.self)
-                    .filter(TransactionsStorage.functional.transactionPredicate(server: server, operationContract: contract))
-                    .sorted(byKeyPath: "date", ascending: true)
-                let operations: [LocalizedOperationObject] = transactions.flatMap { $0.localizedOperations.filter { $0.contractAddress?.sameContract(as: contract) ?? false } }
-
-                var tokenIds: Set<String> = .init()
-                for each in operations {
-                    let tokenId = each.tokenId
-                    guard !tokenId.isEmpty else { continue }
-                    if account.sameContract(as: each.from) && account.sameContract(as: each.to) {
-                        //no-op
-                    } else if account.sameContract(as: each.from) {
-                        tokenIds.remove(tokenId)
-                    } else if account.sameContract(as: each.to) {
-                        tokenIds.insert(tokenId)
-                    } else {
-                        //no-op
-                    }
-                }
-
-                seal.fulfill(Array(tokenIds))
-            }
-        }
-    }
-}
-
-extension TransactionsStorage {
-    class functional {}
-}
-
-extension TransactionsStorage.functional {
-    static func generateJsonForTransactions(transactionStorage: TransactionsStorage, toUrl url: URL) throws -> Data {
+    static func generateJsonForTransactions(transactionStorage: TransactionDataStore, server: RPCServer, toUrl url: URL) throws -> Data {
         struct Operation: Encodable {
             let from: String
             let to: String
@@ -385,7 +367,7 @@ extension TransactionsStorage.functional {
             let operations: [Operation]
         }
 
-        let transactions = transactionStorage.objects.sorted(byKeyPath: "date", ascending: true)
+        let transactions = transactionStorage.transactions(forServer: server).sorted(byKeyPath: "date", ascending: true)
         let transactionsToWrite: [Transaction] = transactions.map { eachTransaction in
             let operations = eachTransaction.localizedOperations
             let operationsToWrite: [Operation] = operations.map { eachOp in
@@ -398,6 +380,10 @@ extension TransactionsStorage.functional {
 
     static func chainIdPredicate(server: RPCServer) -> NSPredicate {
         return NSPredicate(format: "chainId = \(server.chainID)")
+    }
+
+    static func chainIdPredicate(servers: [RPCServer]) -> NSPredicate {
+        return NSPredicate(format: "chainId IN %@", servers.map { $0.chainID })
     }
 
     static func transactionIdPredicate(transactionId: String) -> NSPredicate {
@@ -416,9 +402,20 @@ extension TransactionsStorage.functional {
         return NSPredicate(format: "nonce == '\(nonce)'")
     }
 
+    static func blockNumberPredicate(blockNumber: Int) -> NSPredicate {
+        return NSPredicate(format: "blockNumber > \(blockNumber)")
+    }
+
     static func nonEmptyIdTransactionPredicate(server: RPCServer) -> NSPredicate {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             chainIdPredicate(server: server),
+            transactionIdNonEmptyPredicate()
+        ])
+    }
+
+    static func nonEmptyIdTransactionPredicate(servers: [RPCServer]) -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            chainIdPredicate(servers: servers),
             transactionIdNonEmptyPredicate()
         ])
     }

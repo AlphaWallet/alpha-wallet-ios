@@ -10,7 +10,7 @@ enum TokenError: Error {
     case failedToFetch
 }
 
-///Multiple-chains tokens data store
+/// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
     var account: Wallet { get }
 
@@ -45,7 +45,7 @@ enum TokenUpdateAction {
     case isHidden(Bool)
 }
 
-// Should be `final`, but removed for test purposes
+/// Should be `final`, but removed for test purposes
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let realm: Realm
     let account: Wallet
@@ -250,7 +250,7 @@ enum TokenUpdateAction {
                 token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
             }
         }
-    } 
+    }
 
     @discardableResult func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool? {
         realm.beginWrite()

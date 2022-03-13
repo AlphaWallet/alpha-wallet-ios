@@ -4,6 +4,12 @@ import XCTest
 @testable import AlphaWallet
 import RealmSwift
 
+extension FakeTransactionsStorage {
+    var count: Int {
+        transactionCount(forServer: .main)
+    }
+}
+
 class TransactionsStorageTests: XCTestCase {
 
     func testInit() {
@@ -17,7 +23,7 @@ class TransactionsStorageTests: XCTestCase {
         let storage = FakeTransactionsStorage()
         let item: Transaction = .make()
 
-        storage.add([item])
+        storage.add(transactions: [item])
 
         XCTAssertEqual(1, storage.count)
     }
@@ -25,7 +31,7 @@ class TransactionsStorageTests: XCTestCase {
     func testAddItems() {
         let storage = FakeTransactionsStorage()
 
-        storage.add([
+        storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x2")
         ])
@@ -36,7 +42,7 @@ class TransactionsStorageTests: XCTestCase {
     func testAddItemsDuplicate() {
         let storage = FakeTransactionsStorage()
 
-        storage.add([
+        storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x1"),
             .make(id: "0x2")
@@ -50,7 +56,7 @@ class TransactionsStorageTests: XCTestCase {
         let one: Transaction = .make(id: "0x1")
         let two: Transaction = .make(id: "0x2")
 
-        storage.add([
+        storage.add(transactions: [
             one,
             two,
         ])
@@ -61,13 +67,13 @@ class TransactionsStorageTests: XCTestCase {
 
         XCTAssertEqual(1, storage.count)
 
-        XCTAssertEqual(two, storage.objects.first)
+        XCTAssertEqual(two, storage.transactions(forServer: .main).first)
     }
 
     func testDeleteAll() {
         let storage = FakeTransactionsStorage()
 
-        storage.add([
+        storage.add(transactions: [
             .make(id: "0x1"),
             .make(id: "0x2")
         ])

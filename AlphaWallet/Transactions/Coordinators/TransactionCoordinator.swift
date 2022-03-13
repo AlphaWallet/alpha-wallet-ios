@@ -3,13 +3,14 @@
 import UIKit
 import PromiseKit
 import Result
+import Combine
 
 protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 }
 
 class TransactionCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let transactionsCollection: TransactionCollection
+    private let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
 
     lazy var rootViewController: TransactionsViewController = {
@@ -21,18 +22,20 @@ class TransactionCoordinator: NSObject, Coordinator {
     weak var delegate: TransactionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    private var subscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
+
+    private var cancelable = Set<AnyCancellable>()
+    
     init(
         analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
-        transactionsCollection: TransactionCollection,
+        transactionDataStore: TransactionDataStore,
         dataCoordinator: TransactionDataCoordinator
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.sessions = sessions
         self.navigationController = navigationController
-        self.transactionsCollection = transactionsCollection
+        self.transactionDataStore = transactionDataStore
         self.dataCoordinator = dataCoordinator
 
         super.init()
@@ -40,17 +43,24 @@ class TransactionCoordinator: NSObject, Coordinator {
 
         //NOTE: Reduce copies of unused transaction instances, `TransactionsViewController` isn't using when activities enabled.
         guard !Features.isActivityEnabled else { return }
-        let subscription = transactionsCollection.subscribableFor(filter: .all)
-        subscriptionKey = subscription.subscribe { [weak self] txs in
-            guard let strongSelf = self else { return }
 
-            //NOTE: avoid filtering events on main queue
-            let values = TransactionsViewModel.mapTransactions(transactions: txs ?? [])
-            
-            DispatchQueue.main.async {
-                strongSelf.rootViewController.configure(viewModel: .init(transactions: values))
+        transactionDataStore
+            .transactionsChangesetPublisher(forFilter: .all, servers: Config().enabledServers)
+            .map { change -> [TransactionInstance] in
+                switch change {
+                case .initial(let transactions):
+                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                case .update(let transactions, _, _, _):
+                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                case .error:
+                    return []
+                }
             }
-        }
+            .map { TransactionsViewModel.mapTransactions(transactions: $0) }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] transactions in
+                self?.rootViewController.configure(viewModel: .init(transactions: transactions))
+            }.store(in: &cancelable)
     }
 
     func start() {
@@ -86,7 +96,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
         //Quite likely we should have the transaction already
         //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
-        guard let transaction = transactionsCollection.transaction(withTransactionId: transactionId, server: server) else { return }
+        guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
         if transaction.localizedOperations.count > 1 {
             showTransaction(.group(transaction), inViewController: viewController)
         } else {

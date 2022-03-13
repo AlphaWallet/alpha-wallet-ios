@@ -4,9 +4,9 @@ import Foundation
 @testable import AlphaWallet
 import RealmSwift
 
-class FakeTransactionsStorage: TransactionsStorage {
+class FakeTransactionsStorage: TransactionDataStore {
     convenience init(server: RPCServer = .main) {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm"))
-        self.init(realm: realm, server: server, delegate: nil)
+        self.init(realm: realm, delegate: nil)
     }
 }

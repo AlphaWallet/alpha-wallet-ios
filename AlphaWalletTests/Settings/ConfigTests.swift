@@ -31,9 +31,6 @@ class ConfigTests: XCTestCase {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
 
-        var transactionsStorages = ServerDictionary<TransactionsStorage>()
-        transactionsStorages[.main] = FakeTransactionsStorage()
-
         let config: Config = .make()
         Config.setLocale(AppLocale.english)
         let coinTickersFetcher = FakeCoinTickersFetcher()
@@ -52,7 +49,6 @@ class ConfigTests: XCTestCase {
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            transactionsStorages: transactionsStorages,
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()
@@ -76,7 +72,6 @@ class ConfigTests: XCTestCase {
             analyticsCoordinator: FakeAnalyticsService(),
             tokenActionsService: tokenActionsService,
             walletConnectCoordinator: .fake(),
-            transactionsStorages: transactionsStorages,
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
             walletBalanceCoordinator: FakeWalletBalanceCoordinator()
