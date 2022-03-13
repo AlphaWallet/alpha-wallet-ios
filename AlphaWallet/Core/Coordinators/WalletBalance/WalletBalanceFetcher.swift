@@ -9,6 +9,7 @@ import UIKit
 import RealmSwift
 import BigInt
 import PromiseKit
+import Combine
 
 protocol WalletBalanceFetcherDelegate: AnyObject {
     func didAddToken(in fetcher: WalletBalanceFetcherType)
@@ -27,7 +28,6 @@ protocol WalletBalanceFetcherType: AnyObject {
 
     func start()
     func stop()
-    func update(servers: [RPCServer])
     func refreshEthBalance() -> Promise<Void>
     func refreshBalance() -> Promise<Void>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
@@ -43,7 +43,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private var cache: ThreadSafeDictionary<AddressAndRPCServer, (NotificationToken, Subscribable<BalanceBaseViewModel>)> = .init()
     private let coinTickersFetcher: CoinTickersFetcherType
     private lazy var tokensDataStore: TokensDataStore = {
-        return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: Config().enabledServers)
+        return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: config.enabledServers)
     }()
     private let keystore: Keystore
     private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)
@@ -57,18 +57,29 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .map { Activity.AssignedToken(tokenObject: $0) }
     }
     private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
+    private var cancelable = Set<AnyCancellable>()
+    private let config: Config
 
-    required init(wallet: Wallet, keystore: Keystore, servers: [RPCServer], assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    required init(wallet: Wallet, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
         self.keystore = keystore
         self.assetDefinitionStore = assetDefinitionStore
         self.queue = queue
         self.coinTickersFetcher = coinTickersFetcher
-
+        self.config = config
         super.init()
-        for each in servers {
+
+        for each in config.enabledServers {
             balanceFetchers[each] = createServices(wallet: wallet, server: each)
         }
+
+        config.enabledServersPublisher
+            .filter { !$0.isEmpty }
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { servers in
+                self.update(servers: servers)
+            }.store(in: &cancelable)
 
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
             guard let strongSelf = self else { return }
@@ -88,7 +99,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return balanceFetcher
     }
 
-    func update(servers: [RPCServer]) {
+    private func update(servers: [RPCServer]) {
         for each in servers {
             //NOTE: when we change servers it might happen the case when native 
             tokensDataStore.addEthToken(forServer: each)
