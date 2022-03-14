@@ -17,7 +17,6 @@ class TransferNFTCoordinator: Coordinator {
     private let keystore: Keystore
     private let tokenObject: TokenObject
     private let session: WalletSession
-    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenHolder: TokenHolder
@@ -32,7 +31,6 @@ class TransferNFTCoordinator: Coordinator {
             navigationController: UINavigationController,
             keystore: Keystore,
             tokenHolder: TokenHolder,
-            ethPrice: Subscribable<Double>,
             tokenObject: TokenObject,
             transactionType: TransactionType,
             assetDefinitionStore: AssetDefinitionStore,
@@ -43,7 +41,6 @@ class TransferNFTCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
-        self.ethPrice = ethPrice
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -106,7 +103,7 @@ extension TransferNFTCoordinator: TransferTokensCardViaWalletAddressViewControll
         )
 
         let tokenInstanceNames = tokenHolder.valuesAll.compactMapValues { $0.nameStringValue }
-        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, ethPrice: ethPrice, tokenInstanceNames: tokenInstanceNames)
+        let configuration: TransactionConfirmationConfiguration = .sendNftTransaction(confirmType: .signThenSend, keystore: keystore, tokenInstanceNames: tokenInstanceNames)
         let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(coordinator)
         coordinator.delegate = self

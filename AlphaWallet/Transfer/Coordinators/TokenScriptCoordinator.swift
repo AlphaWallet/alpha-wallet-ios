@@ -24,7 +24,6 @@ class TokenScriptCoordinator: Coordinator {
     private let keystore: Keystore
     private let tokenObject: TokenObject
     private let session: WalletSession
-    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenHolder: TokenHolder
@@ -43,7 +42,6 @@ class TokenScriptCoordinator: Coordinator {
             keystore: Keystore,
             tokenHolder: TokenHolder,
             tokensStorage: TokensDataStore,
-            ethPrice: Subscribable<Double>,
             tokenObject: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
@@ -56,7 +54,6 @@ class TokenScriptCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
-        self.ethPrice = ethPrice
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -130,7 +127,7 @@ extension TokenScriptCoordinator: TokenInstanceActionViewControllerDelegate {
 
         switch transactionFunction.makeUnConfirmedTransaction(withTokenObject: tokenObject, tokenId: tokenId, attributeAndValues: values, localRefs: localRefs, server: server, session: session) {
         case .success((let transaction, let functionCallMetaData)):
-            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice), analyticsCoordinator: analyticsCoordinator)
+            let coordinator = TransactionConfirmationCoordinator(presentingViewController: navigationController, session: session, transaction: transaction, configuration: .tokenScriptTransaction(confirmType: .signThenSend, contract: contract, keystore: keystore, functionCallMetaData: functionCallMetaData), analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             addCoordinator(coordinator)
             coordinator.start(fromSource: .tokenScript)

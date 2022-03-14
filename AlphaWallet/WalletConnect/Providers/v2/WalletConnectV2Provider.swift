@@ -10,10 +10,6 @@ import WalletConnect
 import WalletConnectUtils
 import Combine
 
-protocol NativeCryptoCurrencyPricesProvider: class {
-    var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
-}
-
 class WalletConnectV2Provider: WalletConnectServer {
 
     private var pendingSessionProposal: Session.Proposal?

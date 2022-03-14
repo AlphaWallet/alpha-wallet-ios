@@ -5,13 +5,11 @@
 //  Created by Vladyslav Shepitko on 11.11.2020.
 //
 
-import Foundation
-import BigInt
+import UIKit
 
 protocol UrlSchemeResolver: AnyObject {
     var tokensDataStore: TokensDataStore { get }
-    var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> { get }
-    var nativeCryptoCurrencyBalances: ServerDictionary<Subscribable<BigInt>> { get }
+    var sessions: ServerDictionary<WalletSession> { get }
     var presentationNavigationController: UINavigationController { get }
 
     func openURLInBrowser(url: URL)
