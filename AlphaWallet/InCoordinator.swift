@@ -173,7 +173,7 @@ class InCoordinator: NSObject, Coordinator {
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
         setupWatchingTokenScriptFileChangesToFetchEvents()
 
-        processRestartQueueAfterRestart(config: config, coordinator: self, restartQueue: restartQueue)
+        RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
 
         showWhatsNew()
     }
@@ -564,19 +564,6 @@ class InCoordinator: NSObject, Coordinator {
 
     private func restartUI(withReason reason: RestartReason, account: Wallet) {
         delegate?.didRestart(in: self, reason: reason, wallet: account)
-    }
-
-    private func processRestartQueueAfterRestart(config: Config, coordinator: InCoordinator, restartQueue: RestartTaskQueue) {
-        for each in restartQueue.queue {
-            switch each {
-            case .addServer, .reloadServers, .editServer, .removeServer, .enableServer, .switchDappServer:
-                break
-            case .loadUrlInDappBrowser(let url):
-                restartQueue.remove(each)
-                coordinator.showTab(.browser)
-                coordinator.dappBrowserCoordinator?.open(url: url, animated: false)
-            }
-        }
     }
 
     func showWalletQrCode() {
@@ -1259,4 +1246,12 @@ extension InCoordinator: WhatsNewExperimentCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 }
+
+extension InCoordinator: LoadUrlInDappBrowserProvider {
+    func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler) {
+        showTab(.browser)
+        dappBrowserCoordinator?.open(url: url, animated: false)
+    }
+}
+
 // swiftlint:enable file_length

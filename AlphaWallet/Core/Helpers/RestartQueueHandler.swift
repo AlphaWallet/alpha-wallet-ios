@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol LoadUrlInDappBrowserProvider {
+    func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler)
+}
+
 final class RestartQueueHandler {
     private let config: Config
 
@@ -16,6 +20,18 @@ final class RestartQueueHandler {
 
     func processRestartQueueBeforeRestart(restartQueue: RestartTaskQueue) {
         processRestartQueueBeforeRestart(config: config, restartQueue: restartQueue)
+    }
+
+    func processRestartQueueAfterRestart(provider: LoadUrlInDappBrowserProvider, restartQueue: RestartTaskQueue) {
+        for each in restartQueue.queue {
+            switch each {
+            case .addServer, .reloadServers, .editServer, .removeServer, .enableServer, .switchDappServer:
+                break
+            case .loadUrlInDappBrowser(let url):
+                restartQueue.remove(each)
+                provider.didLoadUrlInDappBrowser(url: url, in: self)
+            }
+        }
     }
 
     private func processRestartQueueBeforeRestart(config: Config, restartQueue: RestartTaskQueue) {
