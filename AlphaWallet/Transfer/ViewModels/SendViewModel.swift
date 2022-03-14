@@ -75,7 +75,7 @@ struct SendViewModel {
     var selectCurrencyButtonHidden: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            guard let ticker = session.balanceCoordinator.coinTicker(transactionType.addressAndRPCServer), ticker.price_usd > 0 else {
+            guard let ticker = session.tokenBalanceService.coinTicker(transactionType.addressAndRPCServer), ticker.price_usd > 0 else {
                 return true
             }
             return false
@@ -96,7 +96,7 @@ struct SendViewModel {
     var availableLabelText: String? {
         switch transactionType {
         case .nativeCryptocurrency:
-            return R.string.localizable.sendAvailable(session.balanceCoordinator.ethBalanceViewModel.amountShort)
+            return R.string.localizable.sendAvailable(session.tokenBalanceService.ethBalanceViewModel.amountShort)
         case .erc20Token(let token, _, _):
             let value = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
@@ -146,7 +146,7 @@ struct SendViewModel {
 
         switch transactionType {
         case .nativeCryptocurrency:
-            if session.balanceCoordinator.ethBalanceViewModel.value < value {
+            if session.tokenBalanceService.ethBalanceViewModel.value < value {
                 return nil
             }
         case .erc20Token(let token, _, _):

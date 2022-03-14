@@ -207,7 +207,7 @@ class TokenViewController: UIViewController {
     private func configureBalanceViewModel() {
         switch transactionType {
         case .nativeCryptocurrency:
-            session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
+            session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
 
                 celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
@@ -221,8 +221,8 @@ class TokenViewController: UIViewController {
         case .erc20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
-            tokenInfoPageView.viewModel.ticker = session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
-            session.balanceCoordinator.subscribableTokenBalance(token.addressAndRPCServer).subscribe { [weak self] viewModel in
+            tokenInfoPageView.viewModel.ticker = session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
+            session.tokenBalanceService.subscribableTokenBalance(token.addressAndRPCServer).subscribe { [weak self] viewModel in
                 guard let strongSelf = self, let viewModel = viewModel else { return }
                 strongSelf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
                 strongSelf.configure(viewModel: strongSelf.viewModel)

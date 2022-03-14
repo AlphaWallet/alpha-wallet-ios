@@ -137,13 +137,13 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
-            currentSubscribableKeyForNativeCryptoCurrencyPrice = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] value in
+            currentSubscribableKeyForNativeCryptoCurrencyPrice = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] value in
                 if let value = value?.ticker?.price_usd {
                     self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
                 }
             }
         case .erc20Token(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
 
             if let recipient = recipient {
@@ -153,7 +153,7 @@ class SendViewController: UIViewController {
                 amountTextField.ethCost = amount
             }
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
             amountTextField.cryptoToDollarRate = nil
         }
 
@@ -190,7 +190,7 @@ class SendViewController: UIViewController {
     private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         switch transactionType {
         case .nativeCryptocurrency:
-            let balance = session.balanceCoordinator.ethBalanceViewModel
+            let balance = session.tokenBalanceService.ethBalanceViewModel
             let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
             let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
 
@@ -250,11 +250,11 @@ class SendViewController: UIViewController {
     }
 
     private func configureBalanceViewModel() {
-        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
-        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.balanceCoordinator.subscribableEthBalanceViewModel.unsubscribe($0) }
+        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
+        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
+            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self else { return }
                 guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                 celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)

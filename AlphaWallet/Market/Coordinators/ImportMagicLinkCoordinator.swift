@@ -54,13 +54,13 @@ class ImportMagicLinkCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     let server: RPCServer
     weak var delegate: ImportMagicLinkCoordinatorDelegate?
-    private let balanceCoordinator: BalanceCoordinatorType
+    private let tokenBalanceService: TokenBalanceService
     
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, balanceCoordinator: BalanceCoordinatorType, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, tokenBalanceService: TokenBalanceService, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
         self.wallet = wallet
         self.config = config
-        self.balanceCoordinator = balanceCoordinator
+        self.tokenBalanceService = tokenBalanceService
         self.tokensDataStore = tokensDatastore
         self.assetDefinitionStore = assetDefinitionStore
         self.url = url
@@ -151,7 +151,7 @@ class ImportMagicLinkCoordinator: Coordinator {
         let ethCost = convert(ethCost: signedOrder.order.price)
         promptImportUniversalLink(cost: .paid(eth: ethCost, dollar: nil))
 
-        balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] balance in
+        tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] balance in
             guard let celf = self, let balance = balance, let price = balance.ticker?.price_usd else { return }
 
             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
@@ -386,7 +386,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     }
 
     private func handlePaidImports(signedOrder: SignedOrder) {
-        balanceCoordinator.subscribableEthBalanceViewModel.subscribeOnce { [weak self] value in
+        tokenBalanceService.subscribableEthBalanceViewModel.subscribeOnce { [weak self] value in
             guard let celf = self else { return }
             if value.value > signedOrder.order.price {
                 celf.handlePaidImportsImpl(signedOrder: signedOrder)
@@ -405,14 +405,14 @@ class ImportMagicLinkCoordinator: Coordinator {
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
         }
 
-        if balanceCoordinator.subscribableEthBalanceViewModel.value?.ticker?.price_usd == nil {
+        if tokenBalanceService.subscribableEthBalanceViewModel.value?.ticker?.price_usd == nil {
             let ethCost = convert(ethCost: signedOrder.order.price)
             showImportError(
                 errorMessage: errorMessage,
                 cost: .paid(eth: ethCost, dollar: nil)
             )
         }
-        balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] balance in
+        tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] balance in
             guard let celf = self, let balance = balance, let price = balance.ticker?.price_usd else { return }
             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
             celf.showImportError(errorMessage: errorMessage,

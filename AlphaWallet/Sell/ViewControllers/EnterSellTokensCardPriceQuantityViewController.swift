@@ -98,7 +98,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        walletSession.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] value in
+        walletSession.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] value in
             if let value = value?.ticker.flatMap({ NSDecimalNumber(value: $0.price_usd) }) {
                 self?.pricePerTokenField.cryptoToDollarRate = value
             }

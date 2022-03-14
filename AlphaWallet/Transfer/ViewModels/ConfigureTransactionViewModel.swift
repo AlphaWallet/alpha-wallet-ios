@@ -19,7 +19,7 @@ struct ConfigureTransactionViewModel {
         configurator.session.server
     }
     private var currencyRate: CurrencyRate? {
-        configurator.session.balanceCoordinator.ethBalanceViewModel.currencyRate
+        configurator.session.tokenBalanceService.ethBalanceViewModel.currencyRate
     }
 
     var recoveryMode: RecoveryMode
@@ -170,7 +170,7 @@ struct ConfigureTransactionViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let ethPrice = configurator.session.balanceCoordinator.ethBalanceViewModel.ticker?.price_usd
+        let ethPrice = configurator.session.tokenBalanceService.ethBalanceViewModel.ticker?.price_usd
         return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 
@@ -178,7 +178,7 @@ struct ConfigureTransactionViewModel {
         let isSelected = selectedConfigurationType == configurationType
         let configuration = configurations[configurationType]!
         //TODO if subscribable price are resolved or changes, will be good to refresh, but not essential
-        let ethPrice = configurator.session.balanceCoordinator.ethBalanceViewModel.ticker?.price_usd
+        let ethPrice = configurator.session.tokenBalanceService.ethBalanceViewModel.ticker?.price_usd
         return .init(configuration: configuration, configurationType: configurationType, cryptoToDollarRate: ethPrice, symbol: server.symbol, title: configurationType.title, isSelected: isSelected)
     }
 

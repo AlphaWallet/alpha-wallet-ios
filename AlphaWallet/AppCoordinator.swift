@@ -478,7 +478,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
                     analyticsCoordinator: analyticsService,
                     wallet: keystore.currentWallet,
                     config: config,
-                    balanceCoordinator: resolver.sessions[server].balanceCoordinator,
+                    tokenBalanceService: resolver.sessions[server].tokenBalanceService,
                     tokensDatastore: resolver.tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,

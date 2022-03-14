@@ -95,7 +95,7 @@ struct TokenViewControllerViewModel {
     var fungibleBalance: BigInt? {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.balanceCoordinator.ethBalanceViewModel.value
+            return session.tokenBalanceService.ethBalanceViewModel.value
         case .erc20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
@@ -106,9 +106,9 @@ struct TokenViewControllerViewModel {
     var balanceViewModel: BalanceBaseViewModel? {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.balanceCoordinator.subscribableEthBalanceViewModel.value
+            return session.tokenBalanceService.subscribableEthBalanceViewModel.value
         case .erc20Token(let token, _, _):
-            return session.balanceCoordinator.subscribableTokenBalance(token.addressAndRPCServer).value
+            return session.tokenBalanceService.subscribableTokenBalance(token.addressAndRPCServer).value
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             return nil
         }
@@ -130,7 +130,7 @@ struct TokenViewControllerViewModel {
     }
 
     var showAlternativeAmount: Bool {
-        guard let coinTicker = session.balanceCoordinator.coinTicker(transactionType.addressAndRPCServer), coinTicker.price_usd > 0 else {
+        guard let coinTicker = session.tokenBalanceService.coinTicker(transactionType.addressAndRPCServer), coinTicker.price_usd > 0 else {
             return false
         }
         return true
