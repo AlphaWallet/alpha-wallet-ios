@@ -84,14 +84,14 @@ class EditPriceAlertViewController: UIViewController {
 
         switch viewModel.tokenObject.type {
         case .nativeCryptocurrency:
-            subscription = session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
+            subscription = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
                 guard let strongSelf = self else { return }
 
                 strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)
                 strongSelf.configure(viewModel: strongSelf.viewModel)
             }
         case .erc20:
-            subscription = session.balanceCoordinator.subscribableTokenBalance(viewModel.tokenObject.addressAndRPCServer).subscribe { [weak self] viewModel in
+            subscription = session.tokenBalanceService.subscribableTokenBalance(viewModel.tokenObject.addressAndRPCServer).subscribe { [weak self] viewModel in
                 guard let strongSelf = self else { return }
 
                 strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)

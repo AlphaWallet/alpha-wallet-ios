@@ -174,13 +174,13 @@ class TransactionConfirmationViewController: UIViewController {
         case .dappOrWalletConnectTransaction(let dappTransactionViewModel):
             headerView.iconImageView.setImage(url: dappTransactionViewModel.dappIconUrl, placeholder: dappTransactionViewModel.placeholderIcon)
 
-            dappTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            dappTransactionViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 dappTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .tokenScriptTransaction(let tokenScriptTransactionViewModel):
-            tokenScriptTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            tokenScriptTransactionViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 tokenScriptTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
@@ -193,7 +193,7 @@ class TransactionConfirmationViewController: UIViewController {
 
             switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
-                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] balanceBaseViewModel in
+                sendFungiblesViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] balanceBaseViewModel in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                     sendFungiblesViewModel.cryptoToDollarRate = balanceBaseViewModel?.ticker?.price_usd
@@ -202,13 +202,13 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .erc20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
-                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+                sendFungiblesViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                     strongSelf.generateSubviews()
                 }
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-                sendFungiblesViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+                sendFungiblesViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                     guard let strongSelf = self else { return }
                     sendFungiblesViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                     strongSelf.generateSubviews()
@@ -219,25 +219,25 @@ class TransactionConfirmationViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 strongSelf.generateSubviews()
             }
-            sendNftViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            sendNftViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 sendNftViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .claimPaidErc875MagicLink(let claimPaidErc875MagicLinkViewModel):
-            claimPaidErc875MagicLinkViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            claimPaidErc875MagicLinkViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 claimPaidErc875MagicLinkViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .speedupTransaction(let speedupTransactionViewModel):
-            speedupTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            speedupTransactionViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 speedupTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
             }
         case .cancelTransaction(let cancelTransactionViewModel):
-            cancelTransactionViewModel.session.balanceCoordinator.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
+            cancelTransactionViewModel.session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] vm in
                 guard let strongSelf = self else { return }
                 cancelTransactionViewModel.cryptoToDollarRate = vm?.ticker?.price_usd
                 strongSelf.generateSubviews()
@@ -360,7 +360,7 @@ class TransactionConfirmationViewController: UIViewController {
         case .sendFungiblesTransaction(let sendFungiblesViewModel):
             switch sendFungiblesViewModel.transactionType {
             case .nativeCryptocurrency:
-                let balanceBaseViewModel = sendFungiblesViewModel.session.balanceCoordinator.ethBalanceViewModel
+                let balanceBaseViewModel = sendFungiblesViewModel.session.tokenBalanceService.ethBalanceViewModel
 
                 sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
             case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:

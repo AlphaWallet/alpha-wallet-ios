@@ -107,7 +107,7 @@ class PromptBackupCoordinator: Coordinator {
         guard let walletSession = walletSessions[safe: .main]  else { return }
 
         let addressAndRPCServer = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main).addressAndRPCServer
-        walletSession.balanceCoordinator.subscribableTokenBalance(addressAndRPCServer).subscribe { [weak self] viewModel in
+        walletSession.tokenBalanceService.subscribableTokenBalance(addressAndRPCServer).subscribe { [weak self] viewModel in
             guard let strongSelf = self, let viewModel = viewModel else { return }
 
             let dollarValue = viewModel.currencyAmountWithoutSymbol ?? 0

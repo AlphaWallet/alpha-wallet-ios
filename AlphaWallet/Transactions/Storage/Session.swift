@@ -10,7 +10,7 @@ enum RefreshType {
 class WalletSession {
     let account: Wallet
     let server: RPCServer
-    let balanceCoordinator: BalanceCoordinatorType
+    let tokenBalanceService: TokenBalanceService
     let config: Config
     let chainState: ChainState
 
@@ -22,13 +22,13 @@ class WalletSession {
         account: Wallet,
         server: RPCServer,
         config: Config,
-        balanceCoordinator: BalanceCoordinatorType
+        tokenBalanceService: TokenBalanceService
     ) {
         self.account = account
         self.server = server
         self.config = config
         self.chainState = ChainState(config: config, server: server)
-        self.balanceCoordinator = balanceCoordinator
+        self.tokenBalanceService = tokenBalanceService
 
         if config.development.isAutoFetchingDisabled {
             //no-op
@@ -40,9 +40,9 @@ class WalletSession {
     func refresh(_ type: RefreshType) {
         switch type {
         case .balance:
-            balanceCoordinator.refresh()
+            tokenBalanceService.refresh()
         case .ethBalance:
-            balanceCoordinator.refreshEthBalance()
+            tokenBalanceService.refreshEthBalance()
         }
     }
 

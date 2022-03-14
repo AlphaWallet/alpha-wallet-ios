@@ -1,12 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import APIKit
-import JSONRPCKit
-import Result
-import BigInt
 
-protocol BalanceCoordinatorType {
+protocol TokenBalanceService {
     var ethBalanceViewModel: BalanceBaseViewModel { get }
     var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> { get }
 
@@ -20,7 +16,7 @@ protocol BalanceCoordinatorType {
     func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
 }
 
-class BalanceCoordinator: NSObject, BalanceCoordinatorType {
+class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     private let wallet: Wallet
     private let server: RPCServer
 

@@ -143,8 +143,8 @@ extension SelectTokenViewController: UITableViewDataSource {
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(
                 token: token,
-                ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer),
-                currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmountWithoutSymbol,
+                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer),
+                currencyAmount: session.tokenBalanceService.ethBalanceViewModel.currencyAmountWithoutSymbol,
                 assetDefinitionStore: assetDefinitionStore
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
@@ -154,7 +154,7 @@ extension SelectTokenViewController: UITableViewDataSource {
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token,
                 assetDefinitionStore: assetDefinitionStore,
-                ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
+                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 

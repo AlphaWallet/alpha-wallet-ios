@@ -8,13 +8,13 @@ extension WalletSession {
         account: Wallet = .make(),
         server: RPCServer = .main,
         config: Config = .make(),
-        balanceCoordinator: BalanceCoordinatorType = FakeBalanceCoordinator()
+        tokenBalanceService: TokenBalanceService = FakeBalanceCoordinator()
     ) -> WalletSession {
         return WalletSession(
             account: account,
             server: server,
             config: config,
-            balanceCoordinator: balanceCoordinator
+            tokenBalanceService: tokenBalanceService
         )
     }
 
@@ -22,18 +22,18 @@ extension WalletSession {
         account: Wallet = .makeStormBird(),
         server: RPCServer,
         config: Config = .make(),
-        balanceCoordinator: BalanceCoordinatorType = FakeBalanceCoordinator()
+        tokenBalanceService: TokenBalanceService = FakeBalanceCoordinator()
     ) -> WalletSession {
         return WalletSession(
             account: account,
             server: server,
             config: config,
-            balanceCoordinator: balanceCoordinator
+            tokenBalanceService: tokenBalanceService
         )
     }
 }
 
-class FakeBalanceCoordinator: BalanceCoordinatorType {
+class FakeBalanceCoordinator: TokenBalanceService {
 
     var balance: Balance? = nil {
         didSet {

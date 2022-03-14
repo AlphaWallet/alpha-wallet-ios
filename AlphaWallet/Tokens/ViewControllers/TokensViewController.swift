@@ -516,8 +516,8 @@ extension TokensViewController: UITableViewDataSource {
                     let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                     cell.configure(viewModel: .init(
                         token: token,
-                        ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer),
-                        currencyAmount: session.balanceCoordinator.ethBalanceViewModel.currencyAmountWithoutSymbol,
+                        ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer),
+                        currencyAmount: session.tokenBalanceService.ethBalanceViewModel.currencyAmountWithoutSymbol,
                         assetDefinitionStore: assetDefinitionStore
                     ))
 
@@ -527,7 +527,7 @@ extension TokensViewController: UITableViewDataSource {
                     cell.configure(viewModel: .init(token: token,
                         assetDefinitionStore: assetDefinitionStore,
                         isVisible: isVisible,
-                        ticker: session.balanceCoordinator.coinTicker(token.addressAndRPCServer)
+                        ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
                 case .erc721, .erc721ForTickets, .erc1155:
