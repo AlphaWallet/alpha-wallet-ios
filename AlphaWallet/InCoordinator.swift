@@ -167,8 +167,7 @@ class InCoordinator: NSObject, Coordinator {
         showTabBar(for: wallet, animated: animated)
         checkDevice()
 
-        helpUsCoordinator.start()
-        addCoordinator(helpUsCoordinator)
+        showHelpUs()
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
         setupWatchingTokenScriptFileChangesToFetchEvents()
@@ -176,6 +175,11 @@ class InCoordinator: NSObject, Coordinator {
         RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
 
         showWhatsNew()
+    }
+
+    private func showHelpUs() {
+        helpUsCoordinator.start()
+        addCoordinator(helpUsCoordinator)
     }
 
     private func showWhatsNew() {
@@ -231,11 +235,6 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func setUpEventSourceCoordinatorForActivities() {
-        guard Features.isActivityEnabled else { return }
-        eventSourceCoordinatorForActivities = EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
-    }
-
     private func removeFailedOrPendingTransactions() {
         //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
         transactionDataStore.removeTransactions(for: [.failed, .pending, .unknown], servers: config.enabledServers)
@@ -259,8 +258,6 @@ class InCoordinator: NSObject, Coordinator {
         setupWalletSessions()
         removeFailedOrPendingTransactions()
         setupCallForAssetAttributeCoordinators()
-        //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
-        setUpEventSourceCoordinatorForActivities()
     }
 
     //Internal for test purposes
