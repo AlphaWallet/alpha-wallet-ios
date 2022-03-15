@@ -16,40 +16,6 @@ protocol TokensViewControllerDelegate: AnyObject {
 }
 
 class TokensViewController: UIViewController {
-    private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
-    static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
-
-    enum Section: Equatable {
-        static func == (lhs: Section, rhs: Section) -> Bool {
-            switch (lhs, rhs) {
-            case (.walletSummary, .walletSummary):
-                return true
-            case (.filters, .filters):
-                return true
-            case (.testnetTokens, .testnetTokens):
-                return true
-            case (.search, .search):
-                return true
-            case (.tokens, .tokens):
-                return true
-            case (.collectiblePairs, .collectiblePairs):
-                return true
-            case (.activeWalletSession(let count1), .activeWalletSession(let count2)):
-                return count1 == count2
-            case (_, _):
-                return false
-            }
-        }
-
-        case walletSummary
-        case filters
-        case testnetTokens
-        case search
-        case tokens
-        case collectiblePairs
-        case activeWalletSession(count: Int)
-    }
-
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -428,18 +394,7 @@ extension TokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch viewModel.sections[section] {
-        case .walletSummary:
-            return 80
-        case .filters:
-            return TokensViewController.filterViewHeight
-        case .activeWalletSession:
-            return 80
-        case .search, .testnetTokens:
-            return TokensViewController.addHideTokensViewHeight
-        case .tokens, .collectiblePairs:
-            return 0.01
-        }
+        return viewModel.heightForHeaderInSection(for: section)
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {

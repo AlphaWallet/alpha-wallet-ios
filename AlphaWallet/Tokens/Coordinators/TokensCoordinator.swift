@@ -40,16 +40,7 @@ class TokensCoordinator: Coordinator {
     }()
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsService: TokenActionsServiceType
-    private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
-        didSet {
-            switch serverToAddCustomTokenOn {
-            case .auto:
-                break
-            case .server:
-                addressToAutoDetectServerFor = nil
-            }
-        }
-    }
+
     private let autoDetectTransactedTokensQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Auto-detect Transacted Tokens"

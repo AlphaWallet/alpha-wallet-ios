@@ -63,7 +63,7 @@ class PriceAlertsPageView: UIView, PageViewType {
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraintSafeArea(to: self),
-            addNotificationView.heightAnchor.constraint(equalToConstant: TokensViewController.addHideTokensViewHeight)
+            addNotificationView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.Tokens.Filter.height)
         ])
         
         statefulView.emptyView = EmptyView.activitiesEmptyView() 
