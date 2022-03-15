@@ -6,7 +6,6 @@
 import Foundation
 import BigInt
 import Result
-import TrustKeystore
 
 protocol ClaimOrderCoordinatorDelegate: class, CanOpenURL {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError)
@@ -147,7 +146,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                                       completion: @escaping (Swift.Result<Data, AnyError>) -> Void) {
 
         do {
-            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), TrustKeystore.Address(address: recipient)]
+            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(_hex: r), Data(_hex: s), recipient]
             let functionEncoder = Function(name: "spawnPassTo", parameters: [
                 .uint(bits: 256),
                 .dynamicArray(.uint(bits: 256)),
@@ -180,7 +179,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
                 BigUInt(v),
                 Data(_hex: r),
                 Data(_hex: s),
-                Address(address: recipient)
+                recipient
             ]
             let functionEncoder = Function(name: "dropCurrency", parameters: [
                 .uint(bits: 256),

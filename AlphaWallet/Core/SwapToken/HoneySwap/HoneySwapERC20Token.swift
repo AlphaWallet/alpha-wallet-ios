@@ -6,10 +6,9 @@
 //
 
 import Foundation
-import TrustKeystore
 
 extension HoneySwap {
-    
+
     struct TokensResponse: Decodable {
         let tokens: [ERC20Token]
     }

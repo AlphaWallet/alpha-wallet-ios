@@ -2,7 +2,6 @@
 
 import BigInt
 @testable import AlphaWallet
-import TrustKeystore
 import XCTest
 
 class TransactionSigningTests: XCTestCase {

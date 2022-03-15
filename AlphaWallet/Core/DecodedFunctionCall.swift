@@ -2,7 +2,6 @@
 
 import Foundation
 import BigInt
-import TrustKeystore
 import web3swift
 
 struct DecodedFunctionCall {

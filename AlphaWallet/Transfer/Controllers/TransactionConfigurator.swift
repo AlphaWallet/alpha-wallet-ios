@@ -5,7 +5,6 @@ import APIKit
 import BigInt
 import JSONRPCKit
 import PromiseKit
-import TrustKeystore
 
 protocol TransactionConfiguratorDelegate: AnyObject {
     func configurationChanged(in configurator: TransactionConfigurator)
@@ -346,10 +345,10 @@ class TransactionConfigurator {
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
                 let encoder = ABIEncoder()
-                try encoder.encode(function: function, arguments: [Address(address: transaction.recipient!), BigUInt(transaction.value)])
+                try encoder.encode(function: function, arguments: [transaction.recipient!, BigUInt(transaction.value)])
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
             case .erc875Token(let token, _):
-                let parameters: [Any] = [TrustKeystore.Address(address: transaction.recipient!), transaction.indices!.map({ BigUInt($0) })]
+                let parameters: [Any] = [transaction.recipient!, transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
                     arrayType = ABIType.uint(bits: 16)
@@ -393,13 +392,13 @@ class TransactionConfigurator {
                 if token.contractAddress.isLegacy721Contract {
                     function = Function(name: "transfer", parameters: [.address, .uint(bits: 256)])
                     parameters = [
-                        TrustKeystore.Address(address: transaction.recipient!), transaction.tokenId!
+                        transaction.recipient!, transaction.tokenId!
                     ]
                 } else {
                     function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256)])
                     parameters = [
-                        TrustKeystore.Address(address: account),
-                        TrustKeystore.Address(address: transaction.recipient!),
+                        account,
+                        transaction.recipient!,
                         transaction.tokenId!
                     ]
                 }
@@ -411,8 +410,8 @@ class TransactionConfigurator {
                 case .singleTransfer:
                     let function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256), .uint(bits: 256), .dynamicBytes])
                     let parameters: [Any] = [
-                        TrustKeystore.Address(address: account),
-                        TrustKeystore.Address(address: transaction.recipient!),
+                        account,
+                        transaction.recipient!,
                         transaction.tokenIdsAndValues![0].tokenId,
                         transaction.tokenIdsAndValues![0].value,
                         Data()
@@ -432,8 +431,8 @@ class TransactionConfigurator {
                     ])
 
                     let parameters: [Any] = [
-                        TrustKeystore.Address(address: account),
-                        TrustKeystore.Address(address: transaction.recipient!),
+                        account,
+                        transaction.recipient!,
                         tokenIds,
                         values,
                         Data()
