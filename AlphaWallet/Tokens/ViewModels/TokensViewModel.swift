@@ -42,6 +42,39 @@ struct CollectiblePairs: Hashable {
     }
 }
 
+extension TokensViewModel {
+    enum Section: Equatable {
+        static func == (lhs: Section, rhs: Section) -> Bool {
+            switch (lhs, rhs) {
+            case (.walletSummary, .walletSummary):
+                return true
+            case (.filters, .filters):
+                return true
+            case (.testnetTokens, .testnetTokens):
+                return true
+            case (.search, .search):
+                return true
+            case (.tokens, .tokens):
+                return true
+            case (.collectiblePairs, .collectiblePairs):
+                return true
+            case (.activeWalletSession(let count1), .activeWalletSession(let count2)):
+                return count1 == count2
+            case (_, _):
+                return false
+            }
+        }
+
+        case walletSummary
+        case filters
+        case testnetTokens
+        case search
+        case tokens
+        case collectiblePairs
+        case activeWalletSession(count: Int)
+    }
+}
+
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
@@ -58,11 +91,11 @@ class TokensViewModel {
         }
     }
     var walletConnectSessions: Int = 0
-    private (set) var sections: [TokensViewController.Section] = []
-    private var tokenListSection: TokensViewController.Section = .tokens
+    private (set) var sections: [Section] = []
+    private var tokenListSection: Section = .tokens
 
     private func refreshSections(walletConnectSessions count: Int) {
-        let varyTokenOrCollectiblePeirsSection: TokensViewController.Section = {
+        let varyTokenOrCollectiblePeirsSection: Section = {
             switch filter {
             case .all, .currencyOnly, .keyword, .assetsOnly, .type:
                 return .tokens
@@ -74,8 +107,8 @@ class TokensViewModel {
         if isSearchActive {
             sections = [varyTokenOrCollectiblePeirsSection]
         } else {
-            let initialSections: [TokensViewController.Section]
-            let testnetHeaderSections: [TokensViewController.Section]
+            let initialSections: [Section]
+            let testnetHeaderSections: [Section]
 
             if config.enabledServers.allSatisfy({ $0.isTestnet }) {
                 testnetHeaderSections = [.testnetTokens]
@@ -143,6 +176,21 @@ class TokensViewModel {
             return false
         case .collectiblesOnly:
             return hasContent
+        }
+    }
+
+    func heightForHeaderInSection(for section: Int) -> CGFloat {
+        switch sections[section] {
+        case .walletSummary:
+            return 80
+        case .filters:
+            return DataEntry.Metric.Tokens.Filter.height
+        case .activeWalletSession:
+            return 80
+        case .search, .testnetTokens:
+            return DataEntry.Metric.AddHideToken.Header.height
+        case .tokens, .collectiblePairs:
+            return 0.01
         }
     }
 
