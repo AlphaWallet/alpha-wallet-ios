@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import TrustKeystore
 
 extension Oneinch {
     struct ApiResponsePayload: Decodable {

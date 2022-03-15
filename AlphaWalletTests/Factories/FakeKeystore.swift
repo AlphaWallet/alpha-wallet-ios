@@ -3,7 +3,6 @@
 import Foundation
 import LocalAuthentication
 @testable import AlphaWallet
-import TrustKeystore
 import Result
 
 struct FakeKeystore: Keystore {
