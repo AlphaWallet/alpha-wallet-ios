@@ -918,7 +918,7 @@
 		87B93B112726C59D00F6EA73 /* BrowserStorageSubscription.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */; };
 		87B93B132726C75900F6EA73 /* helpers.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B122726C75900F6EA73 /* helpers.js */; };
 		87B93B142726C79400F6EA73 /* helpers.js in Resources */ = {isa = PBXBuildFile; fileRef = 87B93B122726C75900F6EA73 /* helpers.js */; };
-		87BB63DC265CFF2700FF702A /* WalletBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */; };
+		87BB63DC265CFF2700FF702A /* WalletBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DB265CFF2700FF702A /* WalletBalanceService.swift */; };
 		87BB63DE265E21C900FF702A /* WalletSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DD265E21C900FF702A /* WalletSummary.swift */; };
 		87BB63E0265E21E400FF702A /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63DF265E21E400FF702A /* WalletBalance.swift */; };
 		87BB63E2265E759700FF702A /* PrivateBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63E1265E759700FF702A /* PrivateBalanceFetcher.swift */; };
@@ -2007,7 +2007,7 @@
 		87B65269256FBF36000EF927 /* SwapTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenService.swift; sourceTree = "<group>"; };
 		87B93B0D2726A46500F6EA73 /* BrowserStorageSubscription.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = BrowserStorageSubscription.js; sourceTree = "<group>"; };
 		87B93B122726C75900F6EA73 /* helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = helpers.js; sourceTree = "<group>"; };
-		87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceCoordinator.swift; sourceTree = "<group>"; };
+		87BB63DB265CFF2700FF702A /* WalletBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceService.swift; sourceTree = "<group>"; };
 		87BB63DD265E21C900FF702A /* WalletSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummary.swift; sourceTree = "<group>"; };
 		87BB63DF265E21E400FF702A /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
 		87BB63E1265E759700FF702A /* PrivateBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateBalanceFetcher.swift; sourceTree = "<group>"; };
@@ -5056,7 +5056,7 @@
 		87C65F512660DD1700919819 /* WalletBalance */ = {
 			isa = PBXGroup;
 			children = (
-				87BB63DB265CFF2700FF702A /* WalletBalanceCoordinator.swift */,
+				87BB63DB265CFF2700FF702A /* WalletBalanceService.swift */,
 				87C65F522660DD2E00919819 /* WalletBalanceFetcher.swift */,
 				87BB63E1265E759700FF702A /* PrivateBalanceFetcher.swift */,
 			);
@@ -6476,7 +6476,7 @@
 				5E7C7133FCB97894647E2628 /* SeedPhraseBackupIntroductionViewController.swift in Sources */,
 				5E7C7AAC782446EADECEADF1 /* SeedPhraseBackupIntroductionViewModel.swift in Sources */,
 				5E7C78FF73BAB3E6EBE1F682 /* SingleChainTransactionDataCoordinator.swift in Sources */,
-				87BB63DC265CFF2700FF702A /* WalletBalanceCoordinator.swift in Sources */,
+				87BB63DC265CFF2700FF702A /* WalletBalanceService.swift in Sources */,
 				5E7C7B2A4B7C94922DED2EA0 /* TokenCardRowViewProtocol.swift in Sources */,
 				5E7C783EA4C21609101A0F99 /* EmptyDapps.swift in Sources */,
 				5E7C739611741D5E61900992 /* Eip681Parser.swift in Sources */,

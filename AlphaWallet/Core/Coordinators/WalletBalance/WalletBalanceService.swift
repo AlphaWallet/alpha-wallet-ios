@@ -1,5 +1,5 @@
 //
-//  WalletBalanceCoordinator.swift
+//  MultiWalletBalanceService.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 25.05.2021.
@@ -10,7 +10,7 @@ import BigInt
 import PromiseKit 
 import Combine
 
-protocol WalletBalanceCoordinatorType: AnyObject {
+protocol WalletBalanceService: AnyObject {
     var subscribableWalletsSummary: Subscribable<WalletSummary> { get }
 
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance>
@@ -21,7 +21,7 @@ protocol WalletBalanceCoordinatorType: AnyObject {
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
-class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
+class MultiWalletBalanceService: NSObject, WalletBalanceService {
 
     private let keystore: Keystore
     private let config: Config
@@ -31,7 +31,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
 
     private lazy var servers: [RPCServer] = config.enabledServers
     private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
-    private let queue: DispatchQueue = DispatchQueue(label: "com.WalletBalanceCoordinator.updateQueue")
+    private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<Combine.AnyCancellable>()
 
@@ -43,7 +43,8 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
         self.walletAddressesStore = walletAddressesStore
         super.init()
 
-        walletAddressesStore.walletsPublisher
+        walletAddressesStore
+            .walletsPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] wallets in
                 guard let strongSelf = self else { return }
@@ -190,7 +191,7 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     }
 }
 
-extension WalletBalanceCoordinator: WalletBalanceFetcherDelegate {
+extension MultiWalletBalanceService: WalletBalanceFetcherDelegate {
 
     func didAddToken(in fetcher: WalletBalanceFetcherType) {
         fetchTokenPrices()

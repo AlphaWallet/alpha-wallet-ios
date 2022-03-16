@@ -30,7 +30,7 @@ class SettingsCoordinator: Coordinator {
     private let promptBackupCoordinator: PromptBackupCoordinator
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
@@ -55,7 +55,7 @@ class SettingsCoordinator: Coordinator {
         promptBackupCoordinator: PromptBackupCoordinator,
         analyticsCoordinator: AnalyticsCoordinator,
         walletConnectCoordinator: WalletConnectCoordinator,
-        walletBalanceCoordinator: WalletBalanceCoordinatorType
+        walletBalanceService: WalletBalanceService
 	) {
 		self.navigationController = navigationController
         
@@ -66,7 +66,7 @@ class SettingsCoordinator: Coordinator {
         self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -151,7 +151,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 promptBackupCoordinator: promptBackupCoordinator,
 				analyticsCoordinator: analyticsCoordinator,
                 viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
-                walletBalanceCoordinator: walletBalanceCoordinator
+                walletBalanceService: walletBalanceService
         )
         coordinator.delegate = self
         coordinator.start()

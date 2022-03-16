@@ -175,7 +175,7 @@ class TokensViewController: UIViewController {
          tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
-         walletBalanceCoordinator: WalletBalanceCoordinatorType,
+         walletBalanceService: WalletBalanceService,
          analyticsCoordinator: AnalyticsCoordinator
     ) {
         self.sessions = sessions
@@ -186,7 +186,7 @@ class TokensViewController: UIViewController {
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
         self.analyticsCoordinator = analyticsCoordinator
-        walletSummarySubscription = walletBalanceCoordinator.subscribableWalletBalance(wallet: account)
+        walletSummarySubscription = walletBalanceService.subscribableWalletBalance(wallet: account)
 
         viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
 

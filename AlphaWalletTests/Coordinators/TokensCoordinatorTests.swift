@@ -44,7 +44,7 @@ class TokensCoordinatorTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
             activitiesService: FakeActivitiesService(),
-            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
+            walletBalanceService: FakeMultiWalletBalanceService()
         )
         coordinator.start()
 

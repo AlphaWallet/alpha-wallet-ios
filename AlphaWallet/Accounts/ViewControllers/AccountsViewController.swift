@@ -34,13 +34,13 @@ class AccountsViewController: UIViewController {
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
 
-    init(config: Config, keystore: Keystore, viewModel: AccountsViewModel, walletBalanceCoordinator: WalletBalanceCoordinatorType, analyticsCoordinator: AnalyticsCoordinator) {
+    init(config: Config, keystore: Keystore, viewModel: AccountsViewModel, walletBalanceService: WalletBalanceService, analyticsCoordinator: AnalyticsCoordinator) {
         self.config = config
         self.keystore = keystore
         self.viewModel = viewModel
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
         self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
@@ -101,7 +101,7 @@ class AccountsViewController: UIViewController {
 
     @objc private func pullToRefresh(_ sender: UIRefreshControl) {
         tableViewRefreshControl.beginRefreshing()
-        walletBalanceCoordinator.refreshBalance(updatePolicy: .all, force: true).done { _ in
+        walletBalanceService.refreshBalance(updatePolicy: .all, force: true).done { _ in
             // no-op
         }.cauterize().finally { [weak self] in
             self?.tableViewRefreshControl.endRefreshing()
@@ -168,7 +168,7 @@ extension AccountsViewController: UITableViewDataSource {
                 cell.configure(viewModel: cellViewModel)
             }.cauterize()
 
-            let subscribableBalance = walletBalanceCoordinator.subscribableWalletBalance(wallet: cellViewModel.wallet)
+            let subscribableBalance = walletBalanceService.subscribableWalletBalance(wallet: cellViewModel.wallet)
             if let key = cell.balanceSubscribtionKey {
                 let subscription = subscribableBalance
                 subscription.unsubscribe(key)
@@ -192,13 +192,13 @@ extension AccountsViewController: UITableViewDataSource {
         case .summary:
             let config = self.config
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(summary: walletBalanceCoordinator.subscribableWalletsSummary.value, config: config))
+            cell.configure(viewModel: .init(summary: walletBalanceService.subscribableWalletsSummary.value, config: config))
 
             if let key = cell.walletSummarySubscriptionKey {
-                walletBalanceCoordinator.subscribableWalletsSummary.unsubscribe(key)
+                walletBalanceService.subscribableWalletsSummary.unsubscribe(key)
             }
 
-            cell.walletSummarySubscriptionKey = walletBalanceCoordinator.subscribableWalletsSummary.subscribe { summary in
+            cell.walletSummarySubscriptionKey = walletBalanceService.subscribableWalletsSummary.subscribe { summary in
                 cell.configure(viewModel: .init(summary: summary, config: config))
             }
 

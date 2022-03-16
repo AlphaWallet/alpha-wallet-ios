@@ -35,13 +35,13 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         return subscribableTokenBalance(etherToken)
     }()
 
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
     private var balanceSubscriptionKey: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     
-    init(wallet: Wallet, server: RPCServer, walletBalanceCoordinator: WalletBalanceCoordinatorType) {
+    init(wallet: Wallet, server: RPCServer, walletBalanceService: WalletBalanceService) {
         self.wallet = wallet
         self.server = server
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
 
         super.init()
 
@@ -57,7 +57,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     }
 
     func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        walletBalanceCoordinator.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
+        walletBalanceService.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
     }
 
     deinit {
@@ -65,12 +65,12 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     }
 
     func refresh() {
-        walletBalanceCoordinator.refreshBalance().done { _ in
+        walletBalanceService.refreshBalance().done { _ in
 
         }.cauterize()
     }
     func refreshEthBalance() {
-        walletBalanceCoordinator.refreshEthBalance().done { _ in
+        walletBalanceService.refreshEthBalance().done { _ in
 
         }.cauterize()
     }
