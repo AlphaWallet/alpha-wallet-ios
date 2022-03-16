@@ -129,8 +129,8 @@ private class EnterKeystorePasswordView: UIView {
 
         return textField
     }()
-    lazy var buttonsBar: ButtonsBar = {
-        let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
         buttonsBar.configure()
 
         return buttonsBar

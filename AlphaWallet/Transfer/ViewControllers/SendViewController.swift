@@ -18,7 +18,7 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController {
     private let recipientHeader = SendViewSectionHeader()
     private let amountHeader = SendViewSectionHeader()
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SendViewModel
     private let session: WalletSession
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?

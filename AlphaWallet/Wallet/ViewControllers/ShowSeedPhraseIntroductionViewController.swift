@@ -18,7 +18,7 @@ class ShowSeedPhraseIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
 
     private var imageViewDimension: CGFloat {
         return ScreenChecker.size(big: 250, medium: 250, small: 250)

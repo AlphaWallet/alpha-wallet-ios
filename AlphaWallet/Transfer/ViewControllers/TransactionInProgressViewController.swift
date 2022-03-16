@@ -22,7 +22,7 @@ class TransactionInProgressViewController: UIViewController {
         view.addSubview(buttonsBar)
         return view
     }()
-    private lazy var buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private lazy var buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,7 @@ class TransactionInProgressViewController: UIViewController {
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
 
             subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -75,7 +75,7 @@ class TransactionInProgressViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            footerBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }

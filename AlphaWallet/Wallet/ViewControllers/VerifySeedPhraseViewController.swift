@@ -39,8 +39,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private let seedPhraseTextView = UITextView()
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
-    private let clearChooseSeedPhraseButton = UIButton(type: .system)
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = VerticalButtonsBar(numberOfButtons: 2)
     private var state: State {
         didSet {
             switch state {
@@ -92,6 +91,9 @@ class VerifySeedPhraseViewController: UIViewController {
         }
 
     }
+    private var clearChooseSeedPhraseButton: UIButton {
+        return buttonsBar.buttons[1]
+    }
     private var continueButton: UIButton {
         return buttonsBar.buttons[0]
     }
@@ -131,18 +133,8 @@ class VerifySeedPhraseViewController: UIViewController {
         roundedBackground.addSubview(stackView)
 
         clearChooseSeedPhraseButton.isHidden = true
-        clearChooseSeedPhraseButton.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(clearChooseSeedPhraseButton)
-
         continueButton.isEnabled = false
-
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
-
+        roundedBackground.addSubview(buttonsBar)
         seedPhraseTextView.becomeFirstResponder()
 
         NSLayoutConstraint.activate([
@@ -151,21 +143,11 @@ class VerifySeedPhraseViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: clearChooseSeedPhraseButton.topAnchor, constant: -7),
+            stackView.bottomAnchor.constraint(equalTo: buttonsBar.topAnchor),
 
-            clearChooseSeedPhraseButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
-            clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
-            clearChooseSeedPhraseButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -10),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16.0),
+            buttonsBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16.0),
+            buttonsBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
@@ -252,7 +234,6 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
         clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
-        buttonsBar.configure()
         continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(), for: .normal)
         continueButton.addTarget(self, action: #selector(verify), for: .touchUpInside)
     }

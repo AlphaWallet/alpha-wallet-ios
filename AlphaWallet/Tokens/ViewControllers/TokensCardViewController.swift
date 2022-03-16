@@ -23,8 +23,8 @@ class TokensCardViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
-    private lazy var buttonsBar: ButtonsBar = {
-        let buttonsBar = ButtonsBar(configuration: .empty)
+    private lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .empty)
         buttonsBar.viewController = self
 
         return buttonsBar

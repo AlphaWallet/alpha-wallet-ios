@@ -15,7 +15,7 @@ protocol SignatureConfirmationViewControllerDelegate: AnyObject {
 
 class SignatureConfirmationViewController: UIViewController {
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
-    private let buttonsBar = ButtonsBar(configuration: .empty)
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     private (set) var viewModel: SignatureConfirmationViewModel
 
     private let stackView: UIStackView = {
@@ -136,7 +136,7 @@ class SignatureConfirmationViewController: UIViewController {
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
         ])
         headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
 

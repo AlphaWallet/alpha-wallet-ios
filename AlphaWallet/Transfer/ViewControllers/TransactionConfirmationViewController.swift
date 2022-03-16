@@ -21,7 +21,7 @@ class TransactionConfirmationViewController: UIViewController {
     }
 
     private lazy var headerView = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransactionConfirmationViewModel
     private var timerToReenableConfirmButton: Timer?
     private let separatorLine: UIView = {
@@ -86,7 +86,7 @@ class TransactionConfirmationViewController: UIViewController {
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
 
             loadingIndicatorView.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
             loadingIndicatorView.centerXAnchor.constraint(equalTo: footerBar.centerXAnchor)

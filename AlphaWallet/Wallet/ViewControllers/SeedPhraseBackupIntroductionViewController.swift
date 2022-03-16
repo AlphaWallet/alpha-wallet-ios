@@ -15,7 +15,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let imageView = UIImageView()
     // NOTE: internal level, for test cases
     let descriptionLabel1 = UILabel()
-    let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
 
     private var imageViewDimension: CGFloat {
         return ScreenChecker.size(big: 250, medium: 250, small: 220)

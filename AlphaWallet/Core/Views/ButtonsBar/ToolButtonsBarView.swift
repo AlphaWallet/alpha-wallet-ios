@@ -12,11 +12,11 @@ enum ToolbarConfiguration {
 }
 
 class ToolButtonsBarView: UIView, ButtonsBarViewType {
-    var height: CGFloat { ButtonsBar.buttonsHeight }
+    var height: CGFloat { HorizontalButtonsBar.buttonsHeight }
 
     private let moreButtonIndex: Int = 2
     private var moreButtons: [UIButton] = []
-    private let buttonsBar = ButtonsBar(configuration: .empty)
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     private let separatorLine: UIView = {
         let view = UIView()
         view.backgroundColor = R.color.mike()

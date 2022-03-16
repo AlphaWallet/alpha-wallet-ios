@@ -26,7 +26,7 @@ class TokenViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let transactionType: TransactionType
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
     private lazy var tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
     weak var delegate: TokenViewControllerDelegate?
 

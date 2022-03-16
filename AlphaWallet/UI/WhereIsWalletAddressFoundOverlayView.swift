@@ -83,7 +83,7 @@ private protocol DialogDelegate: AnyObject {
 private class Dialog: UIView {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
 
     weak var delegate: DialogDelegate?
 
@@ -101,7 +101,7 @@ private class Dialog: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
 
             widthAnchor.constraint(equalToConstant: 300),
             heightAnchor.constraint(equalToConstant: 250),
