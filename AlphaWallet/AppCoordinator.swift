@@ -41,8 +41,9 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
-    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = WalletBalanceCoordinator(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher)
-
+    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = {
+        return WalletBalanceCoordinator(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+    }()
     private var pendingInCoordinator: InCoordinator?
 
     private lazy var accountsCoordinator: AccountsCoordinator = {
@@ -94,12 +95,14 @@ class AppCoordinator: NSObject, Coordinator {
 
         return coordinator
     }()
+    private var walletAddressesStore: WalletAddressesStore
 
-    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
+    init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
         self.window = window
         self.analyticsService = analyticsService
         self.keystore = keystore
+        self.walletAddressesStore = walletAddressesStore
         self.legacyFileBasedKeystore = try LegacyFileBasedKeystore(keystore: keystore)
 
         super.init()

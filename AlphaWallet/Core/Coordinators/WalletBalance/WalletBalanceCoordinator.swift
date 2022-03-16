@@ -7,7 +7,8 @@
 
 import UIKit 
 import BigInt
-import PromiseKit
+import PromiseKit 
+import Combine
 
 protocol WalletBalanceCoordinatorType: AnyObject {
     var subscribableWalletsSummary: Subscribable<WalletSummary> { get }
@@ -26,51 +27,45 @@ class WalletBalanceCoordinator: NSObject, WalletBalanceCoordinatorType {
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private var coinTickersFetcher: CoinTickersFetcherType
-    private var subscribableEnabledServersSubscriptionKey: Subscribable<[RPCServer]>.SubscribableKey!
-    private var walletsSubscriptionKey: Subscribable<Set<Wallet>>.SubscribableKey!
     private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
 
     private lazy var servers: [RPCServer] = config.enabledServers
     private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
     private let queue: DispatchQueue = DispatchQueue(label: "com.WalletBalanceCoordinator.updateQueue")
+    private let walletAddressesStore: WalletAddressesStore
+    private var cancelable = Set<Combine.AnyCancellable>()
 
-    init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
+    init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
         self.keystore = keystore
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
         self.coinTickersFetcher = coinTickersFetcher
+        self.walletAddressesStore = walletAddressesStore
         super.init()
 
-        walletsSubscriptionKey = keystore.subscribableWallets.subscribe { [weak self] wallets in
-            guard let wallets = wallets, let strongSelf = self else { return }
+        walletAddressesStore.walletsPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] wallets in
+                guard let strongSelf = self else { return }
 
-            for wallet in wallets {
-                if strongSelf.balanceFetchers[wallet] != nil {
-                    //no-op
-                } else {
-                    let object = strongSelf.createWalletBalanceFetcher(wallet: wallet)
-                    object.start()
+                for wallet in wallets {
+                    if strongSelf.balanceFetchers[wallet] != nil {
+                        //no-op
+                    } else {
+                        let object = strongSelf.createWalletBalanceFetcher(wallet: wallet)
+                        object.start()
 
-                    strongSelf.balanceFetchers[wallet] = object
+                        strongSelf.balanceFetchers[wallet] = object
+                    }
                 }
-            }
 
-            //NOTE: we need to remove all balance fetcher for deleted wallets
-            let handlertToDelete = strongSelf.balanceFetchers.filter { !wallets.contains($0.key) }
-            for value in handlertToDelete {
-                strongSelf.balanceFetchers.removeValue(forKey: value.key)
-            }
-        }
+                //NOTE: we need to remove all balance fetcher for deleted wallets
+                let handlertToDelete = strongSelf.balanceFetchers.filter { !wallets.contains($0.key) }
+                for value in handlertToDelete {
+                    strongSelf.balanceFetchers.removeValue(forKey: value.key)
+                }
 
-        subscribableEnabledServersSubscriptionKey = config.subscribableEnabledServers.subscribe { [weak self] servers in
-            guard let servers = servers, let strongSelf = self else { return }
-
-            strongSelf.servers = servers
-
-            for fetcher in strongSelf.balanceFetchers {
-                fetcher.value.update(servers: servers)
-            }
-        }
+            }.store(in: &cancelable)
     }
 
     func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
