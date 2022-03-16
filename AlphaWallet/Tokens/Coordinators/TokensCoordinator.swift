@@ -65,7 +65,7 @@ class TokensCoordinator: Coordinator {
             tokensFilter: tokensFilter,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceCoordinator: walletBalanceCoordinator,
+            walletBalanceService: walletBalanceService,
             analyticsCoordinator: analyticsCoordinator
         )
         controller.delegate = self
@@ -86,7 +86,7 @@ class TokensCoordinator: Coordinator {
     lazy var rootViewController: TokensViewController = {
         return tokensViewController
     }()
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
     private lazy var alertService: PriceAlertServiceType = {
         PriceAlertService(datastore: PriceAlertDataStore(wallet: sessions.anyValue.account), wallet: sessions.anyValue.account)
     }()
@@ -108,7 +108,7 @@ class TokensCoordinator: Coordinator {
             walletConnectCoordinator: WalletConnectCoordinator,
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,
-            walletBalanceCoordinator: WalletBalanceCoordinatorType
+            walletBalanceService: WalletBalanceService
     ) {
         self.navigationController = navigationController
         self.sessions = sessions
@@ -123,7 +123,7 @@ class TokensCoordinator: Coordinator {
         self.walletConnectCoordinator = walletConnectCoordinator
         self.coinTickersFetcher = coinTickersFetcher
         self.activitiesService = activitiesService
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
 

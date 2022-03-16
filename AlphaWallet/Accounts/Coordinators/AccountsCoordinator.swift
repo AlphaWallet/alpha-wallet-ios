@@ -48,13 +48,13 @@ class AccountsCoordinator: Coordinator {
     private let keystore: Keystore
     var promptBackupCoordinator: PromptBackupCoordinator?
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
         let viewModel = AccountsViewModel(keystore: keystore, config: config, configuration: self.viewModel.configuration, analyticsCoordinator: analyticsCoordinator)
-        let controller = AccountsViewController(config: config, keystore: keystore, viewModel: viewModel, walletBalanceCoordinator: walletBalanceCoordinator, analyticsCoordinator: analyticsCoordinator)
+        let controller = AccountsViewController(config: config, keystore: keystore, viewModel: viewModel, walletBalanceService: walletBalanceService, analyticsCoordinator: analyticsCoordinator)
         switch self.viewModel.configuration.hidesBackButton {
         case true:
             controller.navigationItem.hidesBackButton = true
@@ -80,7 +80,7 @@ class AccountsCoordinator: Coordinator {
         promptBackupCoordinator: PromptBackupCoordinator?,
         analyticsCoordinator: AnalyticsCoordinator,
         viewModel: AccountsCoordinatorViewModel,
-        walletBalanceCoordinator: WalletBalanceCoordinatorType
+        walletBalanceService: WalletBalanceService
     ) {
         self.config = config
         self.navigationController = navigationController
@@ -88,7 +88,7 @@ class AccountsCoordinator: Coordinator {
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
         self.viewModel = viewModel
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
     }
 
     func start() {

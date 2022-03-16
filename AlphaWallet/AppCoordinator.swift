@@ -41,8 +41,8 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
-    private lazy var walletBalanceCoordinator: WalletBalanceCoordinatorType = {
-        return WalletBalanceCoordinator(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+    private lazy var walletBalanceService: WalletBalanceService = {
+        return MultiWalletBalanceService(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()
     private var pendingInCoordinator: InCoordinator?
 
@@ -54,7 +54,7 @@ class AppCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsService,
                 viewModel: .init(configuration: .summary),
-                walletBalanceCoordinator: walletBalanceCoordinator
+                walletBalanceService: walletBalanceService
         )
         coordinator.delegate = self
 
@@ -162,7 +162,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
-        walletBalanceCoordinator.start()
+        walletBalanceService.start()
         oneInchSwapService.fetchSupportedTokens()
         rampBuyService.fetchSupportedTokens()
 
@@ -214,7 +214,7 @@ class AppCoordinator: NSObject, Coordinator {
                 universalLinkCoordinator: universalLinkCoordinator,
                 promptBackupCoordinator: promptBackupCoordinator,
                 accountsCoordinator: accountsCoordinator,
-                walletBalanceCoordinator: walletBalanceCoordinator,
+                walletBalanceService: walletBalanceService,
                 coinTickersFetcher: coinTickersFetcher,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,

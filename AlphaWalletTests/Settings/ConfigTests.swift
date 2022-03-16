@@ -51,7 +51,7 @@ class ConfigTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
-            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
+            walletBalanceService: FakeMultiWalletBalanceService()
         )
 
         coordinator_1.start()
@@ -74,7 +74,7 @@ class ConfigTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: coinTickersFetcher,
             activitiesService: FakeActivitiesService(),
-            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
+            walletBalanceService: FakeMultiWalletBalanceService()
         )
 
         coordinator_2.start()

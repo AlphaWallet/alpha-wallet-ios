@@ -88,7 +88,7 @@ class InCoordinator: NSObject, Coordinator {
 
     weak var delegate: InCoordinatorDelegate?
 
-    private let walletBalanceCoordinator: WalletBalanceCoordinatorType
+    private let walletBalanceService: WalletBalanceService
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var tokenActionsService: TokenActionsServiceType
     private let walletConnectCoordinator: WalletConnectCoordinator
@@ -128,7 +128,7 @@ class InCoordinator: NSObject, Coordinator {
             universalLinkCoordinator: UniversalLinkCoordinatorType,
             promptBackupCoordinator: PromptBackupCoordinator,
             accountsCoordinator: AccountsCoordinator,
-            walletBalanceCoordinator: WalletBalanceCoordinatorType,
+            walletBalanceService: WalletBalanceService,
             coinTickersFetcher: CoinTickersFetcherType,
             tokenActionsService: TokenActionsServiceType,
             walletConnectCoordinator: WalletConnectCoordinator,
@@ -147,7 +147,7 @@ class InCoordinator: NSObject, Coordinator {
         self.universalLinkCoordinator = universalLinkCoordinator
         self.promptBackupCoordinator = promptBackupCoordinator
         self.accountsCoordinator = accountsCoordinator
-        self.walletBalanceCoordinator = walletBalanceCoordinator
+        self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
         //Disabled for now. Refer to function's comment
@@ -244,7 +244,7 @@ class InCoordinator: NSObject, Coordinator {
     private func setupWalletSessions() {
         var walletSessions: ServerDictionary<WalletSession> = .init()
         for each in config.enabledServers {
-            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, walletBalanceCoordinator: walletBalanceCoordinator)
+            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, walletBalanceService: walletBalanceService)
             let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService)
 
             walletSessions[each] = session
@@ -346,7 +346,7 @@ class InCoordinator: NSObject, Coordinator {
                 walletConnectCoordinator: walletConnectCoordinator,
                 coinTickersFetcher: coinTickersFetcher,
                 activitiesService: activitiesService,
-                walletBalanceCoordinator: walletBalanceCoordinator
+                walletBalanceService: walletBalanceService
         )
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.tokens.tabBarItem
         coordinator.delegate = self
@@ -407,7 +407,7 @@ class InCoordinator: NSObject, Coordinator {
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
             walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceCoordinator: walletBalanceCoordinator
+            walletBalanceService: walletBalanceService
         )
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()

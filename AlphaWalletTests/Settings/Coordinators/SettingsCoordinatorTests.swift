@@ -45,7 +45,7 @@ class SettingsCoordinatorTests: XCTestCase {
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
             walletConnectCoordinator: .fake(),
-            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
+            walletBalanceService: FakeMultiWalletBalanceService()
         )
         let delegate = Delegate()
         coordinator.delegate = delegate
@@ -60,7 +60,7 @@ class SettingsCoordinatorTests: XCTestCase {
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
             viewModel: .init(configuration: .changeWallets),
-            walletBalanceCoordinator: FakeWalletBalanceCoordinator()
+            walletBalanceService: FakeMultiWalletBalanceService()
         )
 
         XCTAssertFalse(delegate.deleteDelegateMethodCalled)
@@ -73,7 +73,7 @@ class SettingsCoordinatorTests: XCTestCase {
 
 import PromiseKit
 
-final class FakeWalletBalanceCoordinator: WalletBalanceCoordinatorType {
+final class FakeMultiWalletBalanceService: WalletBalanceService {
     var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
 
     init(config: Config = .make(), account: Wallet = .make()) {
