@@ -28,12 +28,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let assetDefinitionStore: AssetDefinitionStore
     private var coinTickersFetcher: CoinTickersFetcherType
     private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
-
     private lazy var servers: [RPCServer] = config.enabledServers
     private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
     private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
     private let walletAddressesStore: WalletAddressesStore
-    private var cancelable = Set<Combine.AnyCancellable>()
+    private var cancelable = Set<AnyCancellable>()
 
     init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
         self.keystore = keystore
@@ -139,7 +138,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     }
 
     private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let fetcher = WalletBalanceFetcher(wallet: wallet, keystore: keystore, servers: servers, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

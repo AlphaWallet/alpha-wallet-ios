@@ -3,6 +3,7 @@
 import Foundation
 import ObjectiveC
 import web3swift
+import Combine
 
 struct Config {
     struct Development {
@@ -237,7 +238,7 @@ struct Config {
             let chainIds = newValue.map { $0.chainID }
             defaults.set(chainIds, forKey: Keys.enabledServers)
 
-            subscribableEnabledServers.value = newValue
+            Self.enabledServersSubject.send(newValue)
         }
     }
 
@@ -259,11 +260,14 @@ struct Config {
         }
     }
 
-    var subscribableEnabledServers: Subscribable<[RPCServer]>
+    var enabledServersPublisher: AnyPublisher<[RPCServer], Never> {
+        Self.enabledServersSubject.eraseToAnyPublisher()
+    }
+    //NOTE: keep static while not reduce amount of created instances of `Config`, need to reduce up it to using single instance of Config
+    private static var enabledServersSubject: CurrentValueSubject<[RPCServer], Never> = .init([])
 
     init(defaults: UserDefaults = UserDefaults.standardOrForTests) {
         self.defaults = defaults
-        subscribableEnabledServers = .init(nil)
     }
 
     let priceInfoEndpoints = URL(string: "https://api.coingecko.com")!
