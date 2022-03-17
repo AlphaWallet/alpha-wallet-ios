@@ -98,3 +98,4 @@ AlphaWalletTests/Snapshots/FailureDiffs
 /.bundle
 /vendor
 .ruby-version
+Package.resolved
