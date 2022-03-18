@@ -120,6 +120,15 @@ struct SendViewModel {
         return true
     }
 
+    var checkIfGreaterThanZero: Bool {
+        switch transactionType {
+        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            return false
+        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
+            return true
+        }
+    }
+
     var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
         switch transactionType {
         case .nativeCryptocurrency:

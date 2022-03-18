@@ -55,7 +55,7 @@ class SendViewController: UIViewController {
     private let tokensDataStore: TokensDataStore
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
-
+    
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view
@@ -181,15 +181,8 @@ class SendViewController: UIViewController {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
-        let checkIfGreaterThanZero: Bool
-        switch transactionType {
-        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            checkIfGreaterThanZero = false
-        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
-            checkIfGreaterThanZero = true
-        }
 
-        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: checkIfGreaterThanZero) else {
+        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: viewModel.checkIfGreaterThanZero) else {
             amountTextField.errorState = .error
             return
         }
