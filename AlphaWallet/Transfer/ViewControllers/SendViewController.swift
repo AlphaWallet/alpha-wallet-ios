@@ -296,7 +296,7 @@ class SendViewController: UIViewController {
         //TODO error display on returns
         Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
             guard let (contract: contract, optionalServer, recipient, maybeScientificAmountString) = result.parameters else { return }
-            let amount = self.convertMaybeScientificAmountToBigInt(maybeScientificAmountString)
+            let amount = self.viewModel.convertMaybeScientificAmountToBigInt(maybeScientificAmountString)
             //For user-safety and simpler implementation, we ignore the link if it is for a different chain
             if let server = optionalServer {
                 guard self.session.server == server else { return }
@@ -335,13 +335,6 @@ class SendViewController: UIViewController {
                 }
             }
         }.cauterize()
-    }
-
-    //This function is required because BigInt.init(String) doesn't handle scientific notation
-    private func convertMaybeScientificAmountToBigInt(_ maybeScientificAmountString: String) -> BigInt? {
-        let numberFormatter = Formatter.scientificAmount
-        let amountString = numberFormatter.number(from: maybeScientificAmountString).flatMap { numberFormatter.string(from: $0) }
-        return amountString.flatMap { BigInt($0) }
     }
 
     private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
