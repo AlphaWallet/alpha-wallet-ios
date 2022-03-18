@@ -27,6 +27,7 @@ class InCoordinatorTests: XCTestCase {
         walletBalanceService: FakeMultiWalletBalanceService())
         let coordinator = InCoordinator(
             navigationController: navigationController,
+            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: .make(),
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -74,6 +75,7 @@ class InCoordinatorTests: XCTestCase {
         walletBalanceService: FakeMultiWalletBalanceService())
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
+            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: .make(),
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -107,6 +109,7 @@ class InCoordinatorTests: XCTestCase {
         walletBalanceService: FakeMultiWalletBalanceService())
         let coordinator = InCoordinator(
                 navigationController: FakeNavigationController(),
+                walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                 wallet: wallet,
                 keystore: FakeKeystore(wallets: [wallet]),
                 assetDefinitionStore: AssetDefinitionStore(),
@@ -138,6 +141,7 @@ class InCoordinatorTests: XCTestCase {
         walletBalanceService: FakeMultiWalletBalanceService())
         let coordinator = InCoordinator(
             navigationController: navigationController,
+            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: wallet,
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
@@ -170,6 +174,7 @@ class InCoordinatorTests: XCTestCase {
 
         let coordinator = InCoordinator(
             navigationController: navigationController,
+            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: .make(),
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
@@ -220,6 +225,7 @@ class InCoordinatorTests: XCTestCase {
             let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService())
             let coordinator = InCoordinator(
                     navigationController: navigationController,
+                    walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
@@ -250,7 +256,7 @@ class InCoordinatorTests: XCTestCase {
 import PromiseKit
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
-    
+
     func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
         return .value(())
     }
