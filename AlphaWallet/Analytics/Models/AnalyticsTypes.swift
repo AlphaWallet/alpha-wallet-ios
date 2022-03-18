@@ -46,6 +46,7 @@ enum Analytics {
         case explorer = "Screen: Explorer"
         case openShortcut = "Screen: Shortcut"
         case openHelpUrl = "Screen: Help URL"
+        case blockscanChat = "Screen: Blockscan Chat"
     }
 
     enum Action: String, AnalyticsAction {

@@ -848,6 +848,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func openBlockscanChat(in coordinator: SettingsCoordinator) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
         open(for: Constants.BlockscanChat.blockscanChatWebUrl.appendingPathComponent(wallet.address.eip55String))
         //We refresh since the user might have cleared their unread messages after we point them to the chat dapp
         if let n = blockscanChat?.lastKnownCount, n > 0 {
