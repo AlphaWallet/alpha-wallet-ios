@@ -261,7 +261,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     //Internal for test purposes
-    /*private*/ func showTabBar(for account: Wallet, animated: Bool) {
+    func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
         switch account.type {
         case .real(let address):
