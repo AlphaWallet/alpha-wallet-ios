@@ -24,6 +24,8 @@ class BlockscanChatService {
         case .watch:
             blockscanChat = nil
         }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
     func refreshUnreadCount() {
@@ -62,6 +64,13 @@ class BlockscanChatService {
                 self?.refreshUnreadCount()
             }
         }
+    }
+}
+
+//MARK: Application State
+extension BlockscanChatService {
+    @objc private func applicationWillEnterForeground(_ notification: Notification) {
+        refreshUnreadCount()
     }
 }
 
