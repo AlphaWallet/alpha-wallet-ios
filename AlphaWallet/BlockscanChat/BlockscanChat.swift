@@ -9,8 +9,7 @@ class BlockscanChat {
         case invalidJson
     }
 
-    private let address: AlphaWallet.Address
-
+    let address: AlphaWallet.Address
     var lastKnownCount: Int?
 
     init(address: AlphaWallet.Address) {

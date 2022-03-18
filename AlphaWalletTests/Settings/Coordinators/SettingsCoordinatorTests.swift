@@ -45,7 +45,8 @@ class SettingsCoordinatorTests: XCTestCase {
             promptBackupCoordinator: promptBackupCoordinator,
             analyticsCoordinator: FakeAnalyticsService(),
             walletConnectCoordinator: .fake(),
-            walletBalanceService: FakeMultiWalletBalanceService()
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            blockscanChatService: BlockscanChatService(walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test), account: .make(), analyticsCoordinator: FakeAnalyticsService())
         )
         let delegate = Delegate()
         coordinator.delegate = delegate

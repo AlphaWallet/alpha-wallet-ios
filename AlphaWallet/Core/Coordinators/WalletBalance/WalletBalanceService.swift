@@ -5,9 +5,9 @@
 //  Created by Vladyslav Shepitko on 25.05.2021.
 //
 
-import UIKit 
+import UIKit
 import BigInt
-import PromiseKit 
+import PromiseKit
 import Combine
 
 protocol WalletBalanceService: AnyObject {
@@ -112,7 +112,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
                 let tokenObjects = strongSelf.balanceFetchers.map { $0.value.tokenObjects }.flatMap { $0 }
-                
+
                 seal.fulfill(tokenObjects + Self.nativeCryptoForAllChains)
             }
         }.map(on: queue, { objects -> ServerDictionary<[TokenMappedToTicker]> in
