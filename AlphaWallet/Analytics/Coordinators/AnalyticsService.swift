@@ -68,6 +68,11 @@ class AnalyticsService: NSObject, AnalyticsServiceType {
         mixpanelService?.log(action: action, properties: properties)
     }
 
+    func log(stat: AnalyticsStat, properties: [String: AnalyticsEventPropertyValue]?) {
+        guard config.isSendAnalyticsEnabled else { return }
+        mixpanelService?.log(stat: stat, properties: properties)
+    }
+
     func log(error: AnalyticsError, properties: [String: AnalyticsEventPropertyValue]?) {
         guard config.isSendAnalyticsEnabled else { return }
         mixpanelService?.log(error: error, properties: properties)

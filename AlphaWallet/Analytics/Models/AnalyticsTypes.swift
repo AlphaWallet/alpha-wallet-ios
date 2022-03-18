@@ -10,6 +10,10 @@ protocol AnalyticsAction {
     var rawValue: String { get }
 }
 
+protocol AnalyticsStat {
+    var rawValue: String { get }
+}
+
 protocol AnalyticsError {
     var rawValue: String { get }
 }
@@ -71,6 +75,11 @@ enum Analytics {
         case editCustomChain = "Edit Custom Chain"
         case subscribeToEmailNewsletter = "Subscribe Email Newsletter"
         case tapSafariExtensionRewrittenUrl = "Tap Safari Extension Rewritten URL"
+    }
+
+    //TODO re-evaluate if these should go into the main analytic engine
+    enum Stat: String, AnalyticsStat {
+        case blockscanChatFetchUnread
     }
 
     //Include "Error" at the end of the String value so it's easier to filter in analytics dashboard
@@ -203,5 +212,12 @@ enum Analytics {
         case speedupTransactionInsufficientFunds
         case cancelTransactionInsufficientFunds
         case walletTab
+    }
+
+    enum BlockscanChatResultType: String {
+        case nonZero
+        case zero
+        case error429
+        case errorOthers
     }
 }
