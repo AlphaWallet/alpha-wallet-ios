@@ -248,7 +248,7 @@ class InCoordinator: NSObject, Coordinator {
 
             walletSessions[each] = session
         }
-        
+
         sessionsSubject.send(walletSessions)
     }
 
@@ -287,21 +287,20 @@ class InCoordinator: NSObject, Coordinator {
         guard Features.isBlockscanChatEnabled else { return }
         guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
         if let blockscanChat = blockscanChat {
-            RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.call", value: 1)
             firstly {
                 blockscanChat.fetchUnreadCount()
             }.done { [weak self] unreadCount in
                 if unreadCount > 0 {
-                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.nonZero", value: 1)
+                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.nonZero.rawValue])
                 } else {
-                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.unread.zero", value: 1)
+                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.zero.rawValue])
                 }
                 self?.settingsCoordinator?.showBlockscanChatUnreadCount(unreadCount)
             }.catch { [weak self] error in
                 if let error = error as? AFError, let code = error.responseCode, code == 429 {
-                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.error.429", value: 1)
+                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.error429.rawValue])
                 } else {
-                    RemoteCounter(key: Constants.Credentials.statHatKey).log(statName: "blockscanChat.error.others", value: 1)
+                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.errorOthers.rawValue])
                 }
                 self?.settingsCoordinator?.showBlockscanChatUnreadCount(nil)
             }
@@ -849,6 +848,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 
     func openBlockscanChat(in coordinator: SettingsCoordinator) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
         open(for: Constants.BlockscanChat.blockscanChatWebUrl.appendingPathComponent(wallet.address.eip55String))
         //We refresh since the user might have cleared their unread messages after we point them to the chat dapp
         if let n = blockscanChat?.lastKnownCount, n > 0 {
