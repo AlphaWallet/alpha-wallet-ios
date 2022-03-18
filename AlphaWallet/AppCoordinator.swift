@@ -204,6 +204,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         let coordinator = InCoordinator(
                 navigationController: navigationController,
+                walletAddressesStore: walletAddressesStore,
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,

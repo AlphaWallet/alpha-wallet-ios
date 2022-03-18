@@ -117,7 +117,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerBlockscanChatSelected(in controller: SettingsViewController) {
-        blockscanChatService.openBlockscanChat()
+        blockscanChatService.openBlockscanChat(forAddress: account.address)
     }
 
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {

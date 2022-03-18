@@ -51,7 +51,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
-    private var blockscanChatService: BlockscanChatService
+    private let blockscanChatService: BlockscanChatService
 
     private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap { $0 as? TransactionCoordinator }.first
@@ -88,6 +88,7 @@ class InCoordinator: NSObject, Coordinator {
 
     weak var delegate: InCoordinatorDelegate?
 
+    private let walletAddressesStore: WalletAddressesStore
     private let walletBalanceService: WalletBalanceService
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var tokenActionsService: TokenActionsServiceType
@@ -118,6 +119,7 @@ class InCoordinator: NSObject, Coordinator {
 
     init(
             navigationController: UINavigationController = UINavigationController(),
+            walletAddressesStore: WalletAddressesStore,
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
@@ -137,6 +139,7 @@ class InCoordinator: NSObject, Coordinator {
         self.sessionsSubject = sessionsSubject
         self.walletConnectCoordinator = walletConnectCoordinator
         self.navigationController = navigationController
+        self.walletAddressesStore = walletAddressesStore
         self.wallet = wallet
         self.keystore = keystore
         self.config = config
@@ -150,10 +153,12 @@ class InCoordinator: NSObject, Coordinator {
         self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
-        self.blockscanChatService = BlockscanChatService(account: wallet, analyticsCoordinator: analyticsCoordinator)
+        self.blockscanChatService = BlockscanChatService(walletAddressesStore: walletAddressesStore, account: wallet, analyticsCoordinator: analyticsCoordinator)
+
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
         super.init()
+        blockscanChatService.delegate = self
     }
 
     deinit {
@@ -264,9 +269,6 @@ class InCoordinator: NSObject, Coordinator {
     //Internal for test purposes
     func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
-        blockscanChatService = BlockscanChatService(account: account, analyticsCoordinator: analyticsCoordinator)
-        blockscanChatService.delegate = self
-        blockscanChatService.refreshUnreadCount()
 
         if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
             service.configure(account: account)
