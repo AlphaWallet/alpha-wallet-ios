@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
+import Combine
 
 protocol PromptBackupCoordinatorProminentPromptDelegate: AnyObject {
     var viewControllerToShowBackupLaterAlert: UIViewController { get }
@@ -34,6 +35,8 @@ class PromptBackupCoordinator: Coordinator {
     var prominentPromptView: UIView?
     var subtlePromptView: UIView?
     var coordinators: [Coordinator] = []
+    private var cancelable = Set<AnyCancellable>()
+
     weak var prominentPromptDelegate: PromptBackupCoordinatorProminentPromptDelegate?
     weak var subtlePromptDelegate: PromptBackupCoordinatorSubtlePromptDelegate?
 
@@ -107,19 +110,19 @@ class PromptBackupCoordinator: Coordinator {
         guard let walletSession = walletSessions[safe: .main]  else { return }
 
         let addressAndRPCServer = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main).addressAndRPCServer
-        walletSession.tokenBalanceService.subscribableTokenBalance(addressAndRPCServer).subscribe { [weak self] viewModel in
-            guard let strongSelf = self, let viewModel = viewModel else { return }
-
-            let dollarValue = viewModel.currencyAmountWithoutSymbol ?? 0
-            if !dollarValue.isZero {
-                strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
-            }
-        }
-
+        walletSession.tokenBalanceService
+            .tokenBalancePublisher(addressAndRPCServer)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] viewModel in
+                guard let strongSelf = self else { return }
+                let dollarValue = viewModel.currencyAmountWithoutSymbol ?? 0
+                if !dollarValue.isZero {
+                    strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
+                }
+            }.store(in: &cancelable)
     }
 
     // MARK: Update UI
-
     private func createBackupAfterWalletCreationView() {
         let view = createBackupViewImpl(viewModel: PromptBackupWalletAfterWalletCreationViewViewModel(walletAddress: wallet.address))
         prominentPromptView = nil

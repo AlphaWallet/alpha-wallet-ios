@@ -1,11 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-
+import Combine
 class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
-    let apprecation24hourLabel = UILabel()
-    let balanceLabel = UILabel()
+    private let apprecation24hourLabel = UILabel()
+    private let balanceLabel = UILabel()
     private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
     lazy private var selectedIndicator: UIView = {
         let indicator = UIView()
@@ -22,7 +22,8 @@ class AccountViewCell: UITableViewCell {
     }()
     var viewModel: AccountViewModel?
     var account: Wallet?
-    var balanceSubscribtionKey: Subscribable<WalletBalance>.SubscribableKey?
+
+    private var cancelable = Set<AnyCancellable>()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -58,7 +59,7 @@ class AccountViewCell: UITableViewCell {
 
     func configure(viewModel: AccountViewModel) {
         self.viewModel = viewModel
-
+        cancelable.cancellAll()
         backgroundColor = viewModel.backgroundColor
 
         addressLabel.attributedText = viewModel.addressesAttrinutedString
@@ -68,5 +69,18 @@ class AccountViewCell: UITableViewCell {
         selectedIndicator.isHidden = !viewModel.isSelected
 
         blockieImageView.subscribable = viewModel.icon
+        viewModel.balance
+            .receive(on: RunLoop.main)
+            .sink { [weak balanceLabel] value in
+                balanceLabel?.attributedText = value
+            }
+            .store(in: &cancelable)
+
+        viewModel.apprecation24hour
+            .receive(on: RunLoop.main)
+            .sink { [weak apprecation24hourLabel] value in
+                apprecation24hourLabel?.attributedText = value
+            }
+            .store(in: &cancelable)
     }
 }

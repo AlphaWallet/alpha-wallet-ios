@@ -1,82 +1,83 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import Combine
 
 protocol TokenBalanceService {
+    var etherToken: TokenObject { get }
     var ethBalanceViewModel: BalanceBaseViewModel { get }
-    var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> { get }
+    var etherBalance: AnyPublisher<BalanceBaseViewModel, Never> { get }
+    var etherToFiatRatePublisher: AnyPublisher<Double?, Never> { get }
+    var etherToFiatRate: Double? { get }
 
     func refresh()
     func refreshEthBalance()
-
-    // NOTE: only tests purposes
-    func update()
-
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
-    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never>
 }
 
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     private let wallet: Wallet
     private let server: RPCServer
-
-    var ethBalanceViewModel: BalanceBaseViewModel {
-        if let value = privateSubscribableViewModel.value {
-            return value
-        } else {
-            return NativecryptoBalanceViewModel(server: server, balance: Balance(value: .zero), ticker: nil)
-        }
+    private var emptyEtherBalance: BalanceBaseViewModel {
+        return balanceProvider.tokenBalance(etherToken.addressAndRPCServer, wallet: wallet)
     }
+    private let balanceProvider: TokenBalanceProvider & CoinTickerProvider
+    private var cancelable = Set<AnyCancellable>()
+    private lazy var etherBalanceSubject: CurrentValueSubject<BalanceBaseViewModel, Never> = .init(emptyEtherBalance)
 
-    lazy private (set) var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> = .init(ethBalanceViewModel)
-
-    lazy private var privateSubscribableViewModel: Subscribable<BalanceBaseViewModel> = {
-        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server).addressAndRPCServer
-        return subscribableTokenBalance(etherToken)
+    private (set) lazy var etherToken: TokenObject = {
+        return MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
     }()
 
-    private let walletBalanceService: WalletBalanceService
-    private var balanceSubscriptionKey: Subscribable<BalanceBaseViewModel>.SubscribableKey?
-    
-    init(wallet: Wallet, server: RPCServer, walletBalanceService: WalletBalanceService) {
+    private (set) lazy var etherToFiatRatePublisher: AnyPublisher<Double?, Never> = {
+        return etherBalance
+            .map { $0.ticker?.price_usd }
+            .eraseToAnyPublisher()
+    }()
+
+    private (set) lazy var etherBalance: AnyPublisher<BalanceBaseViewModel, Never> = {
+        return etherBalanceSubject
+            .eraseToAnyPublisher()
+    }()
+
+    var etherToFiatRate: Double? {
+        coinTicker(etherToken.addressAndRPCServer)
+            .flatMap { $0.price_usd }
+    }
+
+    var ethBalanceViewModel: BalanceBaseViewModel {
+        return etherBalanceSubject.value
+    }
+
+    init(wallet: Wallet, server: RPCServer, tokenBalanceProvider: TokenBalanceProvider & CoinTickerProvider) {
         self.wallet = wallet
         self.server = server
-        self.walletBalanceService = walletBalanceService
-
+        self.balanceProvider = tokenBalanceProvider
         super.init()
 
-        balanceSubscriptionKey = privateSubscribableViewModel.subscribe { [weak subscribableEthBalanceViewModel] viewModel in
-            DispatchQueue.main.async {
-                subscribableEthBalanceViewModel?.value = viewModel
-            }
-        }
+        tokenBalancePublisher(etherToken.addressAndRPCServer)
+            .assign(to: \.value, on: etherBalanceSubject)
+            .store(in: &cancelable)
     }
 
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
-        subscribableTokenBalance(addressAndRPCServer).value?.ticker
-    }
+        balanceProvider.coinTicker(addressAndRPCServer)
+    } 
 
-    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        walletBalanceService.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
-    }
-
-    deinit {
-        balanceSubscriptionKey.flatMap { privateSubscribableViewModel.unsubscribe($0) }
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never> {
+        balanceProvider.tokenBalancePublisher(addressAndRPCServer, wallet: wallet)
     }
 
     func refresh() {
-        walletBalanceService.refreshBalance().done { _ in
-
+        balanceProvider.refreshBalance(for: wallet).done { _ in
+            //no-op
         }.cauterize()
     }
+
     func refreshEthBalance() {
-        walletBalanceService.refreshEthBalance().done { _ in
-
+        balanceProvider.refreshEthBalance(for: wallet).done { _ in
+            //no-op
         }.cauterize()
-    }
-
-    func update() {
-        // NOTE: update method to refresh subscribable view model, only tests purposes
-        subscribableEthBalanceViewModel.value = ethBalanceViewModel
     }
 }

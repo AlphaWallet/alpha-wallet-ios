@@ -8,13 +8,26 @@ extension WalletSession {
         account: Wallet = .make(),
         server: RPCServer = .main,
         config: Config = .make(),
-        tokenBalanceService: TokenBalanceService = FakeBalanceCoordinator()
+        tokenBalanceService: TokenBalanceService
     ) -> WalletSession {
         return WalletSession(
             account: account,
             server: server,
             config: config,
             tokenBalanceService: tokenBalanceService
+        )
+    }
+
+    static func make(
+        account: Wallet = .make(),
+        server: RPCServer = .main,
+        config: Config = .make()
+    ) -> WalletSession {
+        return WalletSession(
+            account: account,
+            server: server,
+            config: config,
+            tokenBalanceService: FakeSingleChainTokenBalanceService(wallet: account, server: server)
         )
     }
 
@@ -22,50 +35,66 @@ extension WalletSession {
         account: Wallet = .makeStormBird(),
         server: RPCServer,
         config: Config = .make(),
-        tokenBalanceService: TokenBalanceService = FakeBalanceCoordinator()
+        tokenBalanceService: TokenBalanceService
     ) -> WalletSession {
         return WalletSession(
             account: account,
             server: server,
             config: config,
-            tokenBalanceService: tokenBalanceService
+            tokenBalanceService: FakeSingleChainTokenBalanceService(wallet: account, server: server)
         )
     }
 }
 
-class FakeBalanceCoordinator: TokenBalanceService {
+import PromiseKit
+import Combine
 
-    var balance: Balance? = nil {
-        didSet {
-            update()
-        }
+private final class FakeTokenBalanceProvider: TokenBalanceProvider, CoinTickerProvider {
+    private var balanceSubject = CurrentValueSubject<Balance?, Never>(nil)
+
+    var balance: Balance? {
+        didSet { balanceSubject.value = balance }
     }
 
-    var ethBalanceViewModel: BalanceBaseViewModel {
-        NativecryptoBalanceViewModel(server: .main, balance: balance ?? Balance(value: .zero), ticker: nil)
-    }
-    var subscribableEthBalanceViewModel: Subscribable<BalanceBaseViewModel> = .init(nil)
-
-    func refresh() {
-
-    }
-    func refreshEthBalance() {
-
-    }
-
-    // NOTE: only tests purposes
-    func update() {
-        subscribableEthBalanceViewModel.value = ethBalanceViewModel
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
+        let b: Balance = balance ?? .init(value: .zero)
+        return NativecryptoBalanceViewModel(server: key.server, balance: b, ticker: nil)
     }
 
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
         return nil
     }
-    func subscribableTokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        return .init(nil)
+
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never> {
+        return balanceSubject
+            .map { $0 ?? Balance(value: .zero) }
+            .map { NativecryptoBalanceViewModel(server: addressAndRPCServer.server, balance: $0, ticker: nil) }
+            .eraseToAnyPublisher()
     }
 
-    static func make() -> FakeBalanceCoordinator {
+    func refreshBalance(for wallet: Wallet) -> Promise<Void> {
         return .init()
+    }
+
+    func refreshEthBalance(for wallet: Wallet) -> Promise<Void> {
+        return .init()
+    }
+
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+        return .init()
+    }
+}
+
+class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
+    private let balanceProvider = FakeTokenBalanceProvider()
+
+    var balance: Balance? {
+        didSet { balanceProvider.balance = balance }
+    }
+
+    init(wallet: Wallet, server: RPCServer) {
+        let coinTickersFetcher = FakeCoinTickersFetcher()
+
+        super.init(wallet: wallet, server: server, tokenBalanceProvider: balanceProvider)
     }
 }

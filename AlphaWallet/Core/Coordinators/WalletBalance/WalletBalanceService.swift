@@ -10,29 +10,48 @@ import BigInt
 import PromiseKit
 import Combine
 
-protocol WalletBalanceService: AnyObject {
-    var subscribableWalletsSummary: Subscribable<WalletSummary> { get }
+protocol CoinTickerProvider: AnyObject {
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
+}
 
-    func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance>
-    func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
+protocol TokenBalanceProvider: AnyObject {
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never>
+    func refreshBalance(for wallet: Wallet) -> Promise<Void>
+    func refreshEthBalance(for wallet: Wallet) -> Promise<Void>
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
+}
+
+protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
+    var walletsSummary: AnyPublisher<WalletSummary, Never> { get }
+
+    func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never>
     func start()
-    func refreshBalance() -> Promise<Void>
-    func refreshEthBalance() -> Promise<Void>
+    func refreshBalance(for wallet: Wallet) -> Promise<Void>
+    func refreshEthBalance(for wallet: Wallet) -> Promise<Void>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
 class MultiWalletBalanceService: NSObject, WalletBalanceService {
-
     private let keystore: Keystore
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private var coinTickersFetcher: CoinTickersFetcherType
     private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
-    private lazy var servers: [RPCServer] = config.enabledServers
-    private (set) lazy var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
+    private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
+        let balances = balanceFetchers.map { $0.value.balance }
+        let summary = WalletSummary(balances: balances)
+        return .init(summary)
+    }()
     private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
+
+    var walletsSummary: AnyPublisher<WalletSummary, Never> {
+        return walletsSummarySubject
+            .eraseToAnyPublisher()
+    }
 
     init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
         self.keystore = keystore
@@ -49,14 +68,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
                 guard let strongSelf = self else { return }
 
                 for wallet in wallets {
-                    if strongSelf.balanceFetchers[wallet] != nil {
-                        //no-op
-                    } else {
-                        let object = strongSelf.createWalletBalanceFetcher(wallet: wallet)
-                        object.start()
-
-                        strongSelf.balanceFetchers[wallet] = object
-                    }
+                    strongSelf.getOrCreateBalanceFetcher(for: wallet)
                 }
 
                 //NOTE: we need to remove all balance fetcher for deleted wallets
@@ -65,39 +77,58 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
                     strongSelf.balanceFetchers.removeValue(forKey: value.key)
                 }
 
+                strongSelf.notifyWalletsSummary()
             }.store(in: &cancelable)
     }
 
-    func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        if let pair = balanceFetchers[keystore.currentWallet] {
-            return pair.subscribableTokenBalance(addressAndRPCServer: addressAndRPCServer)
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .tokenBalance(key)
+    }
+
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never> {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .tokenBalancePublisher(addressAndRPCServer)
+    }
+
+    @discardableResult private func getOrCreateBalanceFetcher(for wallet: Wallet) -> WalletBalanceFetcherType {
+        if let fether = balanceFetchers[wallet] {
+            return fether
+        } else {
+            let fether = createWalletBalanceFetcher(wallet: wallet)
+            fether.start()
+
+            balanceFetchers[wallet] = fether
+
+            return fether
         }
-        return .init(nil)
     }
 
-    func refreshBalance() -> Promise<Void> {
-        guard let promise = balanceFetchers[keystore.currentWallet].flatMap({ $0.refreshBalance() }) else { return .value(()) }
-        return promise
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
+        return coinTickersFetcher.ticker(for: addressAndRPCServer)
     }
 
-    func refreshEthBalance() -> Promise<Void> {
-        guard let promise = balanceFetchers[keystore.currentWallet].flatMap({ $0.refreshEthBalance() }) else { return .value(()) }
-        return promise
+    func refreshBalance(for wallet: Wallet) -> Promise<Void> {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .refreshBalance()
+    }
+
+    func refreshEthBalance(for wallet: Wallet) -> Promise<Void> {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .refreshEthBalance()
     }
 
     ///Refreshes available wallets balances
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
-        let promises = keystore.wallets.compactMap { wallet in
-            balanceFetchers[wallet]?.refreshBalance(updatePolicy: updatePolicy, force: force)
+        let promises = keystore.wallets.map { wallet in
+            return getOrCreateBalanceFetcher(for: wallet)
+                .refreshBalance(updatePolicy: updatePolicy, force: force)
         }
         return when(resolved: promises).asVoid()
     }
 
     func start() {
-        queue.async { [weak self] in
-            self?.fetchTokenPrices()
-            self?.notifyWalletSummary()
-        }
+        fetchTokenPrices()
     }
 
     //NOTE: for case if we disable rpc server, we don't fetch ticker for its native crypto
@@ -144,17 +175,9 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         return fetcher
     }
 
-    func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance> {
-        if let fetcher = balanceFetchers[wallet] {
-            return fetcher.subscribableWalletBalance
-        } else {
-            let fetcher = createWalletBalanceFetcher(wallet: wallet)
-            fetcher.start()
-
-            balanceFetchers[wallet] = fetcher
-
-            return fetcher.subscribableWalletBalance
-        }
+    func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .walletBalance
     }
 
     private func fetchTokenPrices() {
@@ -169,24 +192,9 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         })
     }
 
-    private func notifyWalletSummary() {
-        firstly {
-            walletSummary
-        }.done({ [weak subscribableWalletsSummary] summary in
-            subscribableWalletsSummary?.value = summary
-        }).cauterize()
-    }
-
-    private var walletSummary: Promise<WalletSummary> {
-        Promise<[WalletBalance]> { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let balances = strongSelf.balanceFetchers.map { $0.value.balance }
-                seal.fulfill(balances)
-            }
-        }.map(on: queue, { balances -> WalletSummary in
-            return WalletSummary(balances: balances)
-        })
+    private func notifyWalletsSummary() {
+        let balances = balanceFetchers.map { $0.value.balance }
+        walletsSummarySubject.value = WalletSummary(balances: balances)
     }
 }
 
@@ -197,7 +205,7 @@ extension MultiWalletBalanceService: WalletBalanceFetcherDelegate {
     }
 
     func didUpdate(in fetcher: WalletBalanceFetcherType) {
-        notifyWalletSummary()
+        notifyWalletsSummary()
     }
 }
 

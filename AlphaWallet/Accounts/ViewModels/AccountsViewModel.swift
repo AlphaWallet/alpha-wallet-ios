@@ -9,6 +9,7 @@ struct AccountsViewModel {
     private let watchedWallets: [Wallet]
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let walletBalanceService: WalletBalanceService
 
     var sections: [AccountsSectionType] {
         switch configuration {
@@ -33,11 +34,12 @@ struct AccountsViewModel {
         }
     }
 
-    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator) {
+    init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
+        self.walletBalanceService = walletBalanceService
         hdWallets = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         keystoreWallets = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         watchedWallets = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
@@ -45,9 +47,24 @@ struct AccountsViewModel {
 
     subscript(indexPath: IndexPath) -> AccountViewModel? {
         guard let account = account(for: indexPath) else { return nil }
-        let walletName = self.walletName(forAccount: account)
 
-        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, analyticsCoordinator: analyticsCoordinator)
+        let walletName = self.walletName(forAccount: account)
+        let apprecation24hour = walletBalanceService
+            .walletBalance(wallet: account)
+            .map { balance -> NSAttributedString in
+                if self.subscribeForBalanceUpdates {
+                    return AccountViewModel.apprecation24hourAttributedString(for: balance)
+                } else {
+                    return .init()
+                }
+            }.eraseToAnyPublisher()
+
+        let balance = walletBalanceService.walletBalance(wallet: account)
+            .map { balance -> NSAttributedString in
+                return AccountViewModel.balanceAttributedString(for: balance.totalAmountString)
+            }.eraseToAnyPublisher()
+
+        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, analyticsCoordinator: analyticsCoordinator, apprecation24hour: apprecation24hour, balance: balance)
     }
 
     var title: String {

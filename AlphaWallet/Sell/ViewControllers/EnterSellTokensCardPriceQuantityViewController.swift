@@ -2,6 +2,7 @@
 
 import UIKit
 import BigInt
+import Combine
 
 protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenURL {
     func didEnterSellTokensPriceQuantity(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController)
@@ -54,6 +55,8 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
     private let walletSession: WalletSession
+    private var cancelable = Set<AnyCancellable>()
+
 // swiftlint:disable function_body_length
     init(
             analyticsCoordinator: AnalyticsCoordinator,
@@ -98,11 +101,16 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        walletSession.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] value in
-            if let value = value?.ticker.flatMap({ NSDecimalNumber(value: $0.price_usd) }) {
-                self?.pricePerTokenField.cryptoToDollarRate = value
-            }
-        }
+
+        walletSession
+            .tokenBalanceService
+            .etherToFiatRatePublisher
+            .map { $0.flatMap { NSDecimalNumber(value: $0) } }
+            .receive(on: RunLoop.main)
+            .sink { [weak pricePerTokenField] value in
+                pricePerTokenField?.cryptoToDollarRate = value
+            }.store(in: &cancelable)
+
         pricePerTokenField.delegate = self
         ethCostLabel.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false

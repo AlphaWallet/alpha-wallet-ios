@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import UIKit
+import Combine
 
 struct AccountViewModel {
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -10,14 +11,17 @@ struct AccountViewModel {
     let walletName: String?
     var ensName: String?
     let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
-
-    init(wallet: Wallet, current: Wallet?, walletName: String?, analyticsCoordinator: AnalyticsCoordinator) {
+    let apprecation24hour: AnyPublisher<NSAttributedString, Never>
+    let balance: AnyPublisher<NSAttributedString, Never>
+    
+    init(wallet: Wallet, current: Wallet?, walletName: String?, analyticsCoordinator: AnalyticsCoordinator, apprecation24hour: AnyPublisher<NSAttributedString, Never>, balance: AnyPublisher<NSAttributedString, Never>) {
         self.wallet = wallet
         self.current = current
         self.ensName = nil
         self.walletName = walletName
         self.analyticsCoordinator = analyticsCoordinator
-
+        self.apprecation24hour = apprecation24hour
+        self.balance = balance
         switch wallet.type {
         case .real:
             icon.subscribe { value in
@@ -48,7 +52,7 @@ struct AccountViewModel {
         return Colors.appWhite
     }
 
-    func apprecation24hourAttributedString(for balance: WalletBalance?) -> NSAttributedString {
+    static func apprecation24hourAttributedString(for balance: WalletBalance?) -> NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .right
 
@@ -59,7 +63,7 @@ struct AccountViewModel {
         ])
     }
 
-    func balanceAttributedString(for value: String?) -> NSAttributedString {
+    static func balanceAttributedString(for value: String?) -> NSAttributedString {
         return .init(string: value ?? "--", attributes: [
             .font: Fonts.bold(size: 20),
             .foregroundColor: Colors.black,

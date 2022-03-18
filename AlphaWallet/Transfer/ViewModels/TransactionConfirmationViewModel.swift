@@ -3,6 +3,11 @@
 import Foundation
 import BigInt
 
+
+protocol CryptoToFiatRateUpdatable: class {
+    var cryptoToDollarRate: Double? { get set }
+}
+
 enum TransactionConfirmationViewModel {
     case dappOrWalletConnectTransaction(DappOrWalletConnectTransactionViewModel)
     case tokenScriptTransaction(TokenScriptTransactionViewModel)
@@ -38,6 +43,18 @@ enum TransactionConfirmationViewModel {
     enum Action {
         case show
         case hide
+    }
+
+    var cryptoToFiatRateUpdatable: CryptoToFiatRateUpdatable {
+        switch self {
+        case .dappOrWalletConnectTransaction(let viewModel): return viewModel
+        case .tokenScriptTransaction(let viewModel): return viewModel
+        case .sendFungiblesTransaction(let viewModel): return viewModel
+        case .sendNftTransaction(let viewModel): return viewModel
+        case .claimPaidErc875MagicLink(let viewModel): return viewModel
+        case .speedupTransaction(let viewModel): return viewModel
+        case .cancelTransaction(let viewModel): return viewModel
+        }
     }
 
     mutating func showHideSection(_ section: Int) -> Action {
@@ -108,7 +125,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class SendFungiblesTransactionViewModel: SectionProtocol {
+    class SendFungiblesTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section: Int, CaseIterable {
             case balance
             case network
@@ -283,7 +300,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class DappOrWalletConnectTransactionViewModel: SectionProtocol {
+    class DappOrWalletConnectTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section {
             case gas
             case network
@@ -386,7 +403,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class TokenScriptTransactionViewModel: SectionProtocol {
+    class TokenScriptTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section: Int, CaseIterable {
             case gas
             case network
@@ -473,7 +490,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class SendNftTransactionViewModel: SectionProtocol {
+    class SendNftTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section: Int, CaseIterable {
             case gas
             case network
@@ -614,7 +631,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class ClaimPaidErc875MagicLinkViewModel: SectionProtocol {
+    class ClaimPaidErc875MagicLinkViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section: Int, CaseIterable {
             case gas
             case network
@@ -698,7 +715,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class SpeedupTransactionViewModel: SectionProtocol {
+    class SpeedupTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section {
             case gas
             case description
@@ -757,7 +774,7 @@ extension TransactionConfirmationViewModel {
         }
     }
 
-    class CancelTransactionViewModel: SectionProtocol {
+    class CancelTransactionViewModel: SectionProtocol, CryptoToFiatRateUpdatable {
         enum Section {
             case gas
             case description
