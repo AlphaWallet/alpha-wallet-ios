@@ -51,7 +51,7 @@ class InCoordinator: NSObject, Coordinator {
     }()
 
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
-    private var blockscanChat: BlockscanChat?
+    private var blockscanChatService: BlockscanChatService
 
     private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap { $0 as? TransactionCoordinator }.first
@@ -150,6 +150,7 @@ class InCoordinator: NSObject, Coordinator {
         self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
+        self.blockscanChatService = BlockscanChatService(account: wallet, analyticsCoordinator: analyticsCoordinator)
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
         super.init()
@@ -263,13 +264,9 @@ class InCoordinator: NSObject, Coordinator {
     //Internal for test purposes
     func showTabBar(for account: Wallet, animated: Bool) {
         keystore.recentlyUsedWallet = account
-        switch account.type {
-        case .real(let address):
-            blockscanChat = BlockscanChat(address: address)
-        case .watch:
-            blockscanChat = nil
-        }
-        refreshBlockscanChatUnreadCount()
+        blockscanChatService = BlockscanChatService(account: account, analyticsCoordinator: analyticsCoordinator)
+        blockscanChatService.delegate = self
+        blockscanChatService.refreshUnreadCount()
 
         if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
             service.configure(account: account)
@@ -281,32 +278,6 @@ class InCoordinator: NSObject, Coordinator {
         setupTabBarController()
 
         showTabBar(animated: animated)
-    }
-
-    private func refreshBlockscanChatUnreadCount() {
-        guard Features.isBlockscanChatEnabled else { return }
-        guard !Constants.Credentials.blockscanChatProxyKey.isEmpty else { return }
-        if let blockscanChat = blockscanChat {
-            firstly {
-                blockscanChat.fetchUnreadCount()
-            }.done { [weak self] unreadCount in
-                if unreadCount > 0 {
-                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.nonZero.rawValue])
-                } else {
-                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.zero.rawValue])
-                }
-                self?.settingsCoordinator?.showBlockscanChatUnreadCount(unreadCount)
-            }.catch { [weak self] error in
-                if let error = error as? AFError, let code = error.responseCode, code == 429 {
-                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.error429.rawValue])
-                } else {
-                    self?.analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: Analytics.BlockscanChatResultType.errorOthers.rawValue])
-                }
-                self?.settingsCoordinator?.showBlockscanChatUnreadCount(nil)
-            }
-        } else {
-            settingsCoordinator?.showBlockscanChatUnreadCount(nil)
-        }
     }
 
     func showTabBar(animated: Bool) {
@@ -402,8 +373,9 @@ class InCoordinator: NSObject, Coordinator {
                 restartQueue: restartQueue,
                 promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsCoordinator,
-            walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceService: walletBalanceService
+                walletConnectCoordinator: walletConnectCoordinator,
+                walletBalanceService: walletBalanceService,
+                blockscanChatService: blockscanChatService
         )
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.settings.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
@@ -846,17 +818,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
         processRestartQueueAndRestartUI()
     }
-
-    func openBlockscanChat(in coordinator: SettingsCoordinator) {
-        analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
-        open(for: Constants.BlockscanChat.blockscanChatWebUrl.appendingPathComponent(wallet.address.eip55String))
-        //We refresh since the user might have cleared their unread messages after we point them to the chat dapp
-        if let n = blockscanChat?.lastKnownCount, n > 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in
-                self?.refreshBlockscanChatUnreadCount()
-            }
-        }
-    }
 }
 
 extension InCoordinator: UrlSchemeResolver {
@@ -1248,6 +1209,17 @@ extension InCoordinator: LoadUrlInDappBrowserProvider {
     func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler) {
         showTab(.browser)
         dappBrowserCoordinator?.open(url: url, animated: false)
+    }
+}
+
+extension InCoordinator: BlockscanChatServiceDelegate {
+    func openBlockscanChat(url: URL, for: BlockscanChatService) {
+        analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
+        open(for: url)
+    }
+
+    func showBlockscanUnreadCount(_ count: Int?, for: BlockscanChatService) {
+        settingsCoordinator?.showBlockscanChatUnreadCount(count)
     }
 }
 

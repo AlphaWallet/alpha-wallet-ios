@@ -391,6 +391,7 @@
 		5E7C7521CA17E5C2A4506A20 /* DappsHomeHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE5EEC96A7CDF62213F /* DappsHomeHeaderView.swift */; };
 		5E7C75421C08B96E8872722C /* GeneralisedTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72B3371522B5C1B1B5BE /* GeneralisedTime.swift */; };
 		5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70088832B2D161EB4AAB /* SendViewController.swift */; };
+		5E7C756FDCFC0CBC6B9B427A /* BlockscanChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C740E0A696A5A3DC4DED8 /* BlockscanChatService.swift */; };
 		5E7C75704F09D3ECEBE2A3AA /* TransactionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */; };
 		5E7C757F9E9F7738B213C8B8 /* AssetDefinitionDiskBackingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C787E1D2A6529C07709DB /* AssetDefinitionDiskBackingStore.swift */; };
 		5E7C75862ABD367EF101DF9C /* SingleChainTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */; };
@@ -1417,6 +1418,7 @@
 		5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Array.swift"; sourceTree = "<group>"; };
 		5E7C73EFA9494B31C683A287 /* TimeEntryField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimeEntryField.swift; path = Views/TimeEntryField.swift; sourceTree = "<group>"; };
 		5E7C740BBC5AAF5C545CCC6A /* EventOrigin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventOrigin.swift; sourceTree = "<group>"; };
+		5E7C740E0A696A5A3DC4DED8 /* BlockscanChatService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockscanChatService.swift; sourceTree = "<group>"; };
 		5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C7419F47CC8B2996AA8F9 /* TransferTokensCardQuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTokensCardQuantitySelectionViewController.swift; sourceTree = "<group>"; };
 		5E7C741DF75781BBB24CE6D0 /* TokenInstanceActionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenInstanceActionViewController.swift; sourceTree = "<group>"; };
@@ -3811,6 +3813,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C714BB4A095BE99B18F7A /* BlockscanChat.swift */,
+				5E7C740E0A696A5A3DC4DED8 /* BlockscanChatService.swift */,
 			);
 			path = BlockscanChat;
 			sourceTree = "<group>";
@@ -6618,6 +6621,7 @@
 				5E7C78772A59685C37CB99C2 /* ToolsViewController.swift in Sources */,
 				5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */,
 				5E7C7126E01D824557FD7731 /* BlockscanChat.swift in Sources */,
+				5E7C756FDCFC0CBC6B9B427A /* BlockscanChatService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

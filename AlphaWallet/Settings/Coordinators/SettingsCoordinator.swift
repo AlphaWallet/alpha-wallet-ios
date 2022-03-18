@@ -19,7 +19,6 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
     func showConsole(in coordinator: SettingsCoordinator)
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
-    func openBlockscanChat(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
@@ -31,6 +30,7 @@ class SettingsCoordinator: Coordinator {
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let walletConnectCoordinator: WalletConnectCoordinator
     private let walletBalanceService: WalletBalanceService
+    private let blockscanChatService: BlockscanChatService
 	private var account: Wallet {
 		return sessions.anyValue.account
 	}
@@ -55,10 +55,11 @@ class SettingsCoordinator: Coordinator {
         promptBackupCoordinator: PromptBackupCoordinator,
         analyticsCoordinator: AnalyticsCoordinator,
         walletConnectCoordinator: WalletConnectCoordinator,
-        walletBalanceService: WalletBalanceService
+        walletBalanceService: WalletBalanceService,
+        blockscanChatService: BlockscanChatService
 	) {
 		self.navigationController = navigationController
-        
+
         self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
@@ -67,6 +68,7 @@ class SettingsCoordinator: Coordinator {
 		self.analyticsCoordinator = analyticsCoordinator
         self.walletConnectCoordinator = walletConnectCoordinator
         self.walletBalanceService = walletBalanceService
+        self.blockscanChatService = blockscanChatService
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -115,7 +117,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerBlockscanChatSelected(in controller: SettingsViewController) {
-        delegate?.openBlockscanChat(in: self)
+        blockscanChatService.openBlockscanChat()
     }
 
     func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {
@@ -332,7 +334,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
-    } 
+    }
 }
 
 extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {
