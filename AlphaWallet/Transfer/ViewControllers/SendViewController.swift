@@ -171,38 +171,10 @@ class SendViewController: UIViewController {
     }
 
     @objc func allFundsSelected() {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            guard let ethCost = allFundsFormattedValues else { return }
-            isAllFunds = true
+        guard let ethCost = viewModel.allFundsFormattedValues else { return }
+        isAllFunds = true
 
-            amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
-        case .erc20Token:
-            guard let ethCost = allFundsFormattedValues else { return }
-            isAllFunds = true
-
-            amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
-            break
-        }
-    }
-
-    private var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
-        switch transactionType {
-        case .nativeCryptocurrency:
-            let balance = session.tokenBalanceService.ethBalanceViewModel
-            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-        case .erc20Token(let token, _, _):
-            let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
-            let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
-
-            return (fullValue.optionalDecimalValue, shortValue)
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
-            return nil
-        }
+        amountTextField.set(ethCost: ethCost.allFundsFullValue, shortEthCost: ethCost.allFundsShortValue, useFormatting: false)
     }
 
     @objc private func send() {
@@ -238,7 +210,7 @@ class SendViewController: UIViewController {
     }
 
     var shortValueForAllFunds: String? {
-        return isAllFunds ? allFundsFormattedValues?.allFundsShortValue : .none
+        return isAllFunds ? viewModel.allFundsFormattedValues?.allFundsShortValue : .none
     }
 
     func activateAmountView() {
@@ -390,7 +362,7 @@ extension SendViewController: AmountTextFieldDelegate {
 
     //NOTE: not sure if we need to set `isAllFunds` to true if edited value quals to balance value
     private func resetAllFundsIfNeeded(ethCostRawValue: NSDecimalNumber?) {
-        if let allFunds = allFundsFormattedValues, allFunds.allFundsFullValue.localizedString.nonEmpty {
+        if let allFunds = viewModel.allFundsFormattedValues, allFunds.allFundsFullValue.localizedString.nonEmpty {
             guard let value = allFunds.allFundsFullValue, ethCostRawValue != value else { return }
 
             isAllFunds = false

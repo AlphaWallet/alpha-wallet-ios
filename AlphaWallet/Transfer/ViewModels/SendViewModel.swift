@@ -120,6 +120,24 @@ struct SendViewModel {
         return true
     }
 
+    var allFundsFormattedValues: (allFundsFullValue: NSDecimalNumber?, allFundsShortValue: String)? {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            let balance = session.tokenBalanceService.ethBalanceViewModel
+            let fullValue = EtherNumberFormatter.plain.string(from: balance.value, units: .ether).droppedTrailingZeros
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: balance.value, units: .ether).droppedTrailingZeros
+
+            return (fullValue.optionalDecimalValue, shortValue)
+        case .erc20Token(let token, _, _):
+            let fullValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
+            let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
+
+            return (fullValue.optionalDecimalValue, shortValue)
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+            return nil
+        }
+    }
+
     func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
         let parsedValue: BigInt? = {
             switch transactionType {
