@@ -20,6 +20,7 @@ final class TokenInstanceViewConfigurationHelper {
     }
     var overiddenOpenSeaStats: OpenSea.Stats?
     var overridenFloorPrice: Double?
+    var overridenItemsCount: Double?
 
     init(tokenId: TokenId, tokenHolder: TokenHolder) {
         self.tokenId = tokenId
@@ -137,30 +138,54 @@ final class TokenInstanceViewConfigurationHelper {
             .flatMap { .init(title: R.string.localizable.semifungiblesAttributeTransferFee(), attributedValue: $0) }
     }
 
+    var itemsCountRawValue: Double? {
+        return tokenHolder.values.collectionValue?.stats?.itemsCount ?? overridenItemsCount
+    }
+
     var attributes: [NonFungibleTraitViewModel] {
         let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayAttribute(name: $0.type) }
-        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value, count: $0.count) }
+        return traitsToDisplay.map { trait in
+            let rarity: Int? = itemsCountRawValue
+                .flatMap { (Double(trait.count) / $0 * 100.0).rounded(to: 0) }
+                .flatMap { Int($0) }
+
+            if let rarity = rarity {
+                let displayName = displayHelper.mapTraitsToDisplayName(name: trait.type)
+                let attribute = TokenInstanceAttributeViewModel.boldValueAttributedString("\(trait.value)".titleCasedWords(), alignment: .center)
+                var rarityValue: String
+                if rarity == 0 {
+                    rarityValue = R.string.localizable.nonfungiblesValueRarityUnique()
+                } else {
+                    rarityValue = R.string.localizable.nonfungiblesValueRarity(rarity, "%")
+                }
+                let rarity = TokenInstanceAttributeViewModel.defaultValueAttributedString(rarityValue, alignment: .center)
+
+                return .init(title: displayName, attributedValue: attribute, attributedCountValue: rarity)
+            } else {
+                return mapTraitsToProperName(name: trait.type, value: trait.value, count: String(trait.count))
+            }
+        }
     }
 
     var rankings: [NonFungibleTraitViewModel] {
         let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayRanking(name: $0.type) }
-        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value, count: $0.count) }
+        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value, count: String($0.count)) }
     }
 
     var stats: [NonFungibleTraitViewModel] {
         let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayStat(name: $0.type) }
-        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value, count: $0.count) }
+        return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value, count: String($0.count)) }
     }
 
-    private func mapTraitsToProperName(name: String, value: String, count: Int) -> NonFungibleTraitViewModel {
+    private func mapTraitsToProperName(name: String, value: String, count: String? = nil) -> NonFungibleTraitViewModel {
         let displayName = displayHelper.mapTraitsToDisplayName(name: name)
         let displayValue = displayHelper.mapTraitsToDisplayValue(name: name, value: value)
 
-        let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(displayValue, alignment: .left)
-        let count = TokenInstanceAttributeViewModel.defaultValueAttributedString(String(count))
+        let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString(displayValue, alignment: .center)
+        let count = count.flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString($0, alignment: .center) }
 
         return .init(title: displayName, attributedValue: attributedValue, attributedCountValue: count)
     }

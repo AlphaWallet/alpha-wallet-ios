@@ -36,38 +36,25 @@ class NonFungibleTraitView: UIView {
         return label
     }()
 
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-
-        return view
-    }()
-
     let indexPath: IndexPath
 
     init(edgeInsets: UIEdgeInsets = .init(top: 0, left: 20, bottom: 0, right: 20), indexPath: IndexPath) {
         self.indexPath = indexPath
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
-        let subStackView = [titleLabel, valueLabel, countLabel].asStackView(spacing: 5)
         let stackView = [
-            .spacer(height: 0, flexible: true),
-            subStackView,
-            .spacer(height: 0, flexible: true),
-            separatorView
-        ].asStackView(axis: .vertical)
+            titleLabel,
+            valueLabel,
+            countLabel
+        ].asStackView(axis: .vertical, spacing: 5)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        subStackView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            subStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -1),
-            stackView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
-            stackView.heightAnchor.constraint(greaterThanOrEqualToConstant: 60),
-            countLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 20),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-            valueLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 100)
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets)
         ])
     }
 
@@ -84,7 +71,8 @@ class NonFungibleTraitView: UIView {
         countLabel.attributedText = viewModel.attributedCountValue
         countLabel.isHidden = countLabel.attributedText == nil
 
-        separatorView.backgroundColor = viewModel.separatorColor
-        separatorView.isHidden = viewModel.isSeparatorHidden
+        borderColor = viewModel.borderColor
+        cornerRadius = viewModel.cornerRadius
+        borderWidth = viewModel.borderWidth
     }
 }

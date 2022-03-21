@@ -743,6 +743,8 @@
 "nonfungibles.value.blockchain" = "Blockchain";
 "nonfungibles.value.tokenStandard" = "Token Standard";
 "nonfungibles.value.contract" = "Contract";
+"nonfungibles.value.rarity" = "%d%@ have this trait";
+"nonfungibles.value.rarity.unique" = "Unique";
 "url.discord" = "Discord";
 "url.telegramCustomer" = "Telegram (Customer Support)";
 "url.twitter" = "Twitter";

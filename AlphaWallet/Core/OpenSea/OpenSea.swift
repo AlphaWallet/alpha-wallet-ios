@@ -10,16 +10,10 @@ import SwiftyJSON
 typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
 final class OpenSea: NFTProvider {
-    private let storage: SubscribableFileStorage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]>
-    private var fetchePromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
-    private let queue: DispatchQueue
-    private var networkProvider: OpenSeaNetworkProvider
-
-    init() {
-        self.queue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
-        self.networkProvider = OpenSeaNetworkProviderX(queue: queue)
-        self.storage = .init(fileName: "OpenSea", defaultValue: [:])
-    }
+    private let storage: SubscribableFileStorage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
+    private var promiseCache: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
+    private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
+    private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
 
     static func isServerSupported(_ server: RPCServer) -> Bool {
         switch server {
@@ -34,18 +28,18 @@ final class OpenSea: NFTProvider {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard OpenSea.isServerSupported(key.server) else {
-            fetchePromises[key] = .value([:])
-            return fetchePromises[key]!
+            promiseCache[key] = .value([:])
+            return promiseCache[key]!
         }
 
         return makeFetchPromise(for: key)
     }
 
     private func makeFetchPromise(for key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
-        if let promise = fetchePromises[key] {
+        if let promise = promiseCache[key] {
             if promise.isResolved {
                 let promise = makeFetchFromLocalAndRemotePromise(key: key)
-                fetchePromises[key] = promise
+                promiseCache[key] = promise
 
                 return promise
             } else {
@@ -53,7 +47,7 @@ final class OpenSea: NFTProvider {
             }
         } else {
             let promise = makeFetchFromLocalAndRemotePromise(key: key)
-            fetchePromises[key] = promise
+            promiseCache[key] = promise
 
             return promise
         }
@@ -75,13 +69,8 @@ final class OpenSea: NFTProvider {
                 } else {
                     self.storage.value[key] = result.result
                 }
-
-                let result = self.storage.value[key] ?? result.result
-
-                let ss = result.map { "\($0.truncateMiddle.suffix(4)) - \($1.count)" }.joined(separator: ",")
-                print("XXX.OpenSea local: \(key.server), account: \(key.address.truncateMiddle.suffix(4)), values: [\(ss)]")
-
-                return result
+                
+                return self.storage.value[key] ?? result.result
             }
     }
 

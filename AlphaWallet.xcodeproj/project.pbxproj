@@ -830,6 +830,7 @@
 		87584FA727E9F8A2006A7CD1 /* NFTBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA627E9F8A2006A7CD1 /* NFTBalanceViewModel.swift */; };
 		87584FAA27EA2185006A7CD1 /* NFTProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA927EA2185006A7CD1 /* NFTProvider.swift */; };
 		87584FAC27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FAB27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift */; };
+		87584FA527E9DDB0006A7CD1 /* GridStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA427E9DDB0006A7CD1 /* GridStackView.swift */; };
 		8759C9E7279ADEFC00FE361F /* WalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */; };
 		8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */; };
 		8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */; };
@@ -1924,6 +1925,7 @@
 		87584FA627E9F8A2006A7CD1 /* NFTBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTBalanceViewModel.swift; sourceTree = "<group>"; };
 		87584FA927EA2185006A7CD1 /* NFTProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTProvider.swift; sourceTree = "<group>"; };
 		87584FAB27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSeaNetworkProvider.swift; sourceTree = "<group>"; };
+		87584FA427E9DDB0006A7CD1 /* GridStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridStackView.swift; sourceTree = "<group>"; };
 		8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsWalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonWalletAddressesStore.swift; sourceTree = "<group>"; };
@@ -3787,6 +3789,7 @@
 				87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */,
 				87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */,
 				8712A38A26F476030009C376 /* StatefulView.swift */,
+				87584FA427E9DDB0006A7CD1 /* GridStackView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6404,6 +6407,7 @@
 				8739BB6026CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift in Sources */,
 				022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */,
 				5E7C76DD6335158C70AA4F12 /* TokenScriptSignatureVerifier.swift in Sources */,
+				87584FA527E9DDB0006A7CD1 /* GridStackView.swift in Sources */,
 				87AB425D2767A2C00099DF9F /* TokenScriptCoordinator.swift in Sources */,
 				5E7C77AF8CA540D8F1404B6F /* AssetAttribute.swift in Sources */,
 				5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */,

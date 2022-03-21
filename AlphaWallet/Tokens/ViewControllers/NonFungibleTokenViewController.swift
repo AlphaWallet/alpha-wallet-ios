@@ -23,6 +23,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode
+    private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 20, bottom: 15, right: 20)))
 
     var server: RPCServer {
         return viewModel.token.server
@@ -102,13 +103,17 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
                 view.delegate = self
 
                 subviews.append(view)
-            case .attributeCollection(let attributes):
-                for (row, attribute) in attributes.enumerated() {
-                    let view = NonFungibleTraitView(indexPath: IndexPath(row: row, section: index))
+            case .attributeCollection(let viewModel):
+                var views: [UIView] = []
+                for (row, attribute) in viewModel.traits.enumerated() {
+                    let view = NonFungibleTraitView(edgeInsets: .init(top: 10, left: 10, bottom: 10, right: 10), indexPath: IndexPath(row: row, section: index))
                     view.configure(viewModel: attribute)
 
-                    subviews.append(view)
+                    views.append(view)
                 }
+                attributesStackView.set(subviews: views)
+
+                subviews.append(attributesStackView)
             }
         }
 
