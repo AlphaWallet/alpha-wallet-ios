@@ -79,7 +79,7 @@ clean:
 	rm -rf ./Pods/*
 
 release:
-	fastlane release
+	@bundle exec fastlane testrelease
 
 setup_path:
 	@$(bundle_cmd) config path $(vendor_path)

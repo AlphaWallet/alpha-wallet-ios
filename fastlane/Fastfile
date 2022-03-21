@@ -32,7 +32,7 @@ platform :ios do
     increment_version_number(bump_type: "patch")
     cert
     match(type: "appstore", readonly: true)
-    gym(scheme: "AlphaWallet")
+    build_app(workspace: "AlphaWallet.xcworkspace", scheme: "AlphaWallet", xcargs: "-allowProvisioningUpdates")
     commit_version_bump(message: "Version Bump", force: true)
     deliver(force: true)
     push_to_git_remote
@@ -64,6 +64,23 @@ platform :ios do
   end
 
   # You can define as many lanes as you want
+
+  desc "Test new release lane"
+  lane :testrelease do
+    cocoapods(use_bundle_exec: true)
+    increment_build_number_in_xcodeproj(xcodeproj: "AlphaWallet.xcodeproj")
+    ## increment_build_number_in_xcodeproj(build_number: "430", xcodeproj: "AlphaWallet.xcodeproj")
+
+    ## TODO: This needs to be modified to refer to the master branch
+    # ensure_git_branch(branch: "#3205_Fix_build_and_particularly_signing_with_Fastlane")
+
+    increment_version_number_in_xcodeproj(bump_type: "patch", xcodeproj: "AlphaWallet.xcodeproj")
+    ## increment_version_number_in_xcodeproj(version_number: "3.40.0")
+    build_app(workspace: "AlphaWallet.xcworkspace", scheme: "AlphaWallet", xcargs: "-allowProvisioningUpdates")
+    commit_version_bump(message: "Version Bump", xcodeproj: "AlphaWallet.xcodeproj")
+    # deliver(force: true)
+    push_to_git_remote
+  end
 
   after_all do |lane|
     # This block is called, only if the executed lane was successful
