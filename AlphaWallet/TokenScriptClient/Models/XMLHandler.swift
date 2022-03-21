@@ -741,15 +741,18 @@ public class XMLHandler {
     }
 
     var actions: [TokenInstanceAction] {
+        let result: [TokenInstanceAction]
         //TODO cache?
         if let baseXMLHandler = baseXMLHandler {
             let overrides = privateXMLHandler.actions
             let base = baseXMLHandler.actions
             let overrideNames = overrides.map { $0.name }
-            return overrides + base.filter { !overrideNames.contains($0.name) }
+            result = overrides + base.filter { !overrideNames.contains($0.name) }
         } else {
-            return privateXMLHandler.actions
+            result = privateXMLHandler.actions
         }
+        infoLog("[TokenScript] actions names: \(result.map(\.name))")
+        return result
     }
 
     var server: RPCServerOrAny? {
