@@ -478,6 +478,7 @@
 		5E7C786AD8E4877C36D3B14A /* TokenAdaptorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C775FD95FE80B0F1CEA33 /* TokenAdaptorTest.swift */; };
 		5E7C786DB5B71302FF66CBAD /* SendTransactionErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BB7DBFDF5A5E4F2DDC0 /* SendTransactionErrorViewModel.swift */; };
 		5E7C78772A59685C37CB99C2 /* ToolsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AB8844E5D88BD6B2F2A /* ToolsViewController.swift */; };
+		5E7C787DED35E3A63E99F78F /* SpamTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C756B103348BA67AA0C1A /* SpamTokens.swift */; };
 		5E7C7883FB31565411F7C928 /* NonFungibleFromJsonTokenType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78EBC7D0A09B8EAACBE3 /* NonFungibleFromJsonTokenType.swift */; };
 		5E7C788C6ACB6E5AA24216A6 /* FiatOnRampCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF60DF9E7FBD2933C32 /* FiatOnRampCoordinator.swift */; };
 		5E7C788C8830A7CF05B9189A /* OpenSea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C0CFD047ED7C488FB45 /* OpenSea.swift */; };
@@ -1448,6 +1449,7 @@
 		5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferNFTCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7553BB089397B7E74BE0 /* WalletSecurityLevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSecurityLevelIndicator.swift; sourceTree = "<group>"; };
 		5E7C7558286761EF1ADD2988 /* ABIError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIError.swift; sourceTree = "<group>"; };
+		5E7C756B103348BA67AA0C1A /* SpamTokens.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpamTokens.swift; sourceTree = "<group>"; };
 		5E7C7570889AD33EA942D9A6 /* AlphaWalletAddressTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletAddressTests.swift; sourceTree = "<group>"; };
 		5E7C757AEC6586F51EC75646 /* PingInfuraCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingInfuraCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7587F30FF1896039B8C8 /* TokenIdOrigin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenIdOrigin.swift; sourceTree = "<group>"; };
@@ -2342,6 +2344,7 @@
 				5E7C7F1CC5699A58ED5D4E74 /* WhatsNew */,
 				5E7C74F0A1BB877A6FE35F37 /* FiatOnRamp */,
 				5E7C76487E444E00B78BAA14 /* BlockscanChat */,
+				5E7C72AB43EC4939E6C7D46B /* Lists */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -3666,6 +3669,14 @@
 				5E7C72FBC0D2787AAA804098 /* OpenSeaNonFungibleTokenViewCellViewModel.swift */,
 			);
 			path = OpenSea;
+			sourceTree = "<group>";
+		};
+		5E7C72AB43EC4939E6C7D46B /* Lists */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C756B103348BA67AA0C1A /* SpamTokens.swift */,
+			);
+			path = Lists;
 			sourceTree = "<group>";
 		};
 		5E7C72C3D9C939508F8EBFAC /* Models */ = {
@@ -6618,6 +6629,7 @@
 				5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */,
 				5E7C7126E01D824557FD7731 /* BlockscanChat.swift in Sources */,
 				5E7C756FDCFC0CBC6B9B427A /* BlockscanChatService.swift in Sources */,
+				5E7C787DED35E3A63E99F78F /* SpamTokens.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
