@@ -6,13 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 class WalletSummaryView: UIView, ReusableTableHeaderViewType {
     private let apprecation24HoursLabel = UILabel()
     private let balanceLabel = UILabel()
-
-    private (set) var viewModel: WalletSummaryViewModel?
-    var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey?
+    private var cancelable = Set<AnyCancellable>()
 
     init(edgeInsets: UIEdgeInsets = .init(top: 20, left: 20, bottom: 20, right: 0), spacing: CGFloat = 0) {
         super.init(frame: .zero)
@@ -37,6 +36,8 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
+            balanceLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
+            apprecation24HoursLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 30),
             stackView.anchorsConstraintLessThanOrEqualTo(to: self, edgeInsets: edgeInsets),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 0),
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: 0),
@@ -48,11 +49,29 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
     }
 
     func configure(viewModel: WalletSummaryViewModel) {
-        self.viewModel = viewModel
-
         backgroundColor = viewModel.backgroundColor
+        cancelable.cancellAll()
 
-        balanceLabel.attributedText = viewModel.balanceAttributedString
-        apprecation24HoursLabel.attributedText = viewModel.apprecation24HoursAttributedString
+        viewModel.balanceAttributedString
+            .receive(on: RunLoop.main)
+            .sink { [weak balanceLabel] value in
+                balanceLabel?.attributedText = value
+            }.store(in: &cancelable)
+
+        viewModel.apprecation24HoursAttributedString
+            .receive(on: RunLoop.main)
+            .sink { [weak apprecation24HoursLabel] value in
+                apprecation24HoursLabel?.attributedText = value
+            }.store(in: &cancelable)
+    }
+}
+
+extension Set where Element: AnyCancellable {
+    mutating func cancellAll() {
+        for each in self {
+            each.cancel()
+        }
+
+        removeAll()
     }
 }

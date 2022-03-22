@@ -157,8 +157,6 @@ class TokensViewController: UIViewController {
         }
     }
     private var walletSummaryView = WalletSummaryView(edgeInsets: .init(top: 10, left: 0, bottom: 0, right: 0), spacing: 0)
-    private var subscriptionKey: Subscribable<WalletBalance>.SubscribableKey?
-    private let walletSummarySubscription: Subscribable<WalletBalance>
     private lazy var searchBarHeader: TokensViewController.ContainerView<DummySearchView> = {
         let header: TokensViewController.ContainerView<DummySearchView> = .init(subview: searchBar)
         header.useSeparatorLine = false
@@ -186,7 +184,6 @@ class TokensViewController: UIViewController {
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
         self.analyticsCoordinator = analyticsCoordinator
-        walletSummarySubscription = walletBalanceService.subscribableWalletBalance(wallet: account)
 
         viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
 
@@ -248,16 +245,14 @@ class TokensViewController: UIViewController {
             strongSelf.tableView.reloadData()
         }
 
-        TokensViewController.reloadWalletSummaryView(walletSummaryView, with: walletSummarySubscription.value, config: config)
-        subscriptionKey = walletSummarySubscription.subscribe { [weak walletSummaryView] balance in
-            guard let view = walletSummaryView else { return }
-            TokensViewController.reloadWalletSummaryView(view, with: balance, config: config)
-        }
-        navigationItem.largeTitleDisplayMode = .never
-    }
+        let walletSummary = walletBalanceService
+            .walletBalance(wallet: account)
+            .map { return WalletSummary(balances: [$0]) }
+            .eraseToAnyPublisher()
 
-    deinit {
-        subscriptionKey.flatMap { walletSummarySubscription.unsubscribe($0) }
+        walletSummaryView.configure(viewModel: .init(walletSummary: walletSummary, config: config, alignment: .center))
+
+        navigationItem.largeTitleDisplayMode = .never
     }
 
     override func viewDidLoad() {
@@ -346,11 +341,6 @@ class TokensViewController: UIViewController {
         let size = tableViewHeader.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         tableViewHeader.bounds.size.height = size.height
         tableView.tableHeaderView = tableViewHeader
-    }
-
-    private static func reloadWalletSummaryView(_ walletSummaryView: WalletSummaryView, with balance: WalletBalance?, config: Config) {
-        let summary = balance.map { WalletSummary(balances: [$0]) }
-        walletSummaryView.configure(viewModel: .init(summary: summary, config: config, alignment: .center))
     }
 
     @objc private func enterSearchMode() {

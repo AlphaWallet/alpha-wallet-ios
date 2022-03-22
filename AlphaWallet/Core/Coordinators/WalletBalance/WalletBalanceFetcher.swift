@@ -19,13 +19,12 @@ protocol WalletBalanceFetcherDelegate: AnyObject {
 protocol WalletBalanceFetcherType: AnyObject {
     var tokenObjects: [Activity.AssignedToken] { get }
     var balance: WalletBalance { get }
-    var subscribableWalletBalance: Subscribable<WalletBalance> { get }
+    var walletBalance: AnyPublisher<WalletBalance, Never> { get }
 
     var isRunning: Bool { get }
 
-    func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel>
-    func removeSubscribableTokenBalance(for addressAndRPCServer: AddressAndRPCServer)
-
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never>
+    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel
     func start()
     func stop()
     func refreshEthBalance() -> Promise<Void>
@@ -40,7 +39,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let assetDefinitionStore: AssetDefinitionStore
     private var balanceFetchers: ServerDictionary<PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
-    private var cache: ThreadSafeDictionary<AddressAndRPCServer, (NotificationToken, Subscribable<BalanceBaseViewModel>)> = .init()
     private let coinTickersFetcher: CoinTickersFetcherType
     private lazy var tokensDataStore: TokensDataStore = {
         return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: config.enabledServers)
@@ -48,6 +46,10 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let keystore: Keystore
     private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
+    private var cancelable = Set<AnyCancellable>()
+    private let config: Config
+    private let balanceUpdateSubject = PassthroughSubject<Void, Never>()
+    private lazy var walletBalanceSubject: CurrentValueSubject<WalletBalance, Never> = .init(balance)
 
     weak var delegate: WalletBalanceFetcherDelegate?
     var tokenObjects: [Activity.AssignedToken] {
@@ -56,9 +58,11 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .enabledTokenObjects(forServers: Array(balanceFetchers.keys))
             .map { Activity.AssignedToken(tokenObject: $0) }
     }
-    private (set) lazy var subscribableWalletBalance: Subscribable<WalletBalance> = .init(balance)
-    private var cancelable = Set<AnyCancellable>()
-    private let config: Config
+
+    var walletBalance: AnyPublisher<WalletBalance, Never> {
+        return walletBalanceSubject
+            .eraseToAnyPublisher()
+    }
 
     required init(wallet: Wallet, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
@@ -70,7 +74,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         super.init()
 
         for each in config.enabledServers {
-            balanceFetchers[each] = createServices(wallet: wallet, server: each)
+            balanceFetchers[each] = createBalanceFetcher(wallet: wallet, server: each)
         }
 
         config.enabledServersPublisher
@@ -84,14 +88,14 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
             guard let strongSelf = self else { return }
 
-            strongSelf.queue.async {
-                strongSelf.notifyUpdateBalance()
-                strongSelf.notifyUpdateTokenBalancesSubscribers()
+            DispatchQueue.main.async {
+                strongSelf.reloadWalletBalance()
+                strongSelf.triggerUpdateBalance()
             }
         }
-    }
+    } 
 
-    private func createServices(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
+    private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
         let balanceFetcher = PrivateBalanceFetcher(account: wallet, keystore: keystore, tokensDataStore: tokensDataStore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
@@ -99,16 +103,21 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return balanceFetcher
     }
 
+    @discardableResult private func getOrCreateBalanceFetcher(server: RPCServer) -> PrivateBalanceFetcherType {
+        if let fetcher = balanceFetchers[safe: server] {
+            return fetcher
+        } else {
+            let service = createBalanceFetcher(wallet: wallet, server: server)
+            balanceFetchers[server] = service
+            return service
+        }
+    }
+
     private func update(servers: [RPCServer]) {
         for each in servers {
             //NOTE: when we change servers it might happen the case when native 
             tokensDataStore.addEthToken(forServer: each)
-
-            if balanceFetchers[safe: each] != nil {
-                //no-op
-            } else {
-                balanceFetchers[each] = createServices(wallet: wallet, server: each)
-            }
+            getOrCreateBalanceFetcher(server: each)
         }
 
         let deletedServers = balanceFetchers.filter { !servers.contains($0.key) }.map { $0.key }
@@ -116,41 +125,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             balanceFetchers.remove(at: each)
         }
 
-        queue.async { [weak self] in 
-            guard let strongSelf = self else { return }
-
-            strongSelf.notifyUpdateBalance()
-            strongSelf.notifyUpdateTokenBalancesSubscribers()
-        }
+        reloadWalletBalance()
+        triggerUpdateBalance()
     }
 
-    private func notifyUpdateTokenBalancesSubscribers() {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            for (key, each) in strongSelf.cache.values {
-                guard let tokenObject = strongSelf.tokensDataStore.token(forContract: key.address, server: key.server) else { continue }
-
-                each.1.value = strongSelf.balanceViewModel(key: tokenObject)
-            }
-        }
-    }
-
-    private func notifyUpdateBalance() {
-        Promise<WalletBalance> { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let value = strongSelf.balance
-
-                seal.fulfill(value)
-            }
-        }.get(on: .main, { [weak self] balance in
-            self?.subscribableWalletBalance.value = balance
-        }).done(on: queue, { [weak self] _ in
-            guard let strongSelf = self else { return }
-
-            strongSelf.delegate?.didUpdate(in: strongSelf)
-        }).cauterize()
+    private func reloadWalletBalance() {
+        walletBalanceSubject.value = balance
+        delegate?.didUpdate(in: self)
     }
 
     private func balanceViewModel(key tokenObject: TokenObject) -> BalanceBaseViewModel? {
@@ -168,45 +149,41 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
     }
 
-    func removeSubscribableTokenBalance(for addressAndRPCServer: AddressAndRPCServer) {
-        if let value = cache[addressAndRPCServer] {
-            value.0.invalidate()
-            value.1.unsubscribeAll()
+    private func triggerUpdateBalance() {
+        balanceUpdateSubject.send(())
+    }
 
-            cache[addressAndRPCServer] = .none
+    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel {
+        guard let tokenObject = tokensDataStore.token(forContract: key.address, server: key.server) else {
+            let ticker = coinTickersFetcher.ticker(for: key)
+            return NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: ticker)
+        }
+
+        if let balance = balanceViewModel(key: tokenObject) {
+            return balance
+        } else {
+            let ticker = coinTickersFetcher.ticker(for: key)
+            return NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: ticker)
         }
     }
 
-    func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        guard let tokenObject = tokensDataStore.token(forContract: addressAndRPCServer.address, server: addressAndRPCServer.server) else {
-            return .init(nil)
+    func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never> {
+        guard let tokenObject = tokensDataStore.token(forContract: key.address, server: key.server) else {
+            let ticker = coinTickersFetcher.ticker(for: key)
+            let viewModel: BalanceBaseViewModel = NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: ticker)
+            let publisher = Just(viewModel)
+                .eraseToAnyPublisher()
+
+            return publisher
         }
 
-        if let value = cache[addressAndRPCServer] {
-            return value.1
-        } else {
-            let balance = balanceViewModel(key: tokenObject)
-            let subscribable = Subscribable<BalanceBaseViewModel>(balance)
+        let publisher = tokenObject
+            .publisher(for: \.value, options: [.new, .initial])
+            .combineLatest(balanceUpdateSubject) { _, _ -> Void in return () }
+            .compactMap { _ in self.balanceViewModel(key: tokenObject) }
+            .eraseToAnyPublisher()
 
-            let observation = tokenObject.observe(on: queue) { [weak self] change in
-                guard let strongSelf = self else { return }
-
-                switch change {
-                case .change(let object, let properties):
-                    if let tokenObject = object as? TokenObject, properties.isBalanceUpdate {
-                        let balance = strongSelf.balanceViewModel(key: tokenObject)
-                        subscribable.value = balance
-                    }
-
-                case .deleted, .error:
-                    break
-                }
-            }
-
-            cache[addressAndRPCServer] = (observation, subscribable)
-
-            return subscribable
-        }
+        return publisher
     }
 
     var balance: WalletBalance {
@@ -287,7 +264,9 @@ extension WalletBalanceFetcher: PrivateTokensDataStoreDelegate {
     }
 
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher) {
-        notifyUpdateBalance()
+        DispatchQueue.main.async {
+            self.reloadWalletBalance()
+        }
     }
 }
 

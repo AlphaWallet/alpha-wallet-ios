@@ -8,13 +8,7 @@
 import UIKit
 
 class WalletSummaryTableViewCell: UITableViewCell {
-    var viewModel: WalletSummaryViewModel? { summaryView.viewModel }
-
-    var walletSummarySubscriptionKey: Subscribable<WalletSummary>.SubscribableKey? {
-        get { summaryView.walletSummarySubscriptionKey }
-        set { summaryView.walletSummarySubscriptionKey = newValue }
-    }
-
+    
     private let summaryView: WalletSummaryView = .init()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

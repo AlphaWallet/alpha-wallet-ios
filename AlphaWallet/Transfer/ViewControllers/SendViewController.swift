@@ -7,6 +7,7 @@ import APIKit
 import PromiseKit
 import BigInt
 import MBProgressHUD
+import Combine
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
     func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String, shortValue: String?)
@@ -55,7 +56,9 @@ class SendViewController: UIViewController {
     private let tokensDataStore: TokensDataStore
     @objc private (set) dynamic var isAllFunds: Bool = false
     private var observation: NSKeyValueObservation!
-    
+    private var etherToFiatRateCancelable: AnyCancellable?
+    private var etherBalanceCancelable: AnyCancellable?
+
     private lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
         return view
@@ -137,13 +140,17 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.plain.string(from: amount, units: .ether)
             }
-            currentSubscribableKeyForNativeCryptoCurrencyPrice = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] value in
-                if let value = value?.ticker?.price_usd {
-                    self?.amountTextField.cryptoToDollarRate = NSDecimalNumber(value: value)
+
+            etherToFiatRateCancelable = session
+                .tokenBalanceService
+                .etherToFiatRatePublisher
+                .compactMap { $0.flatMap { NSDecimalNumber(value: $0) } }
+                .receive(on: RunLoop.main)
+                .sink { [weak amountTextField] price in
+                    amountTextField?.cryptoToDollarRate = price
                 }
-            }
         case .erc20Token(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
+            etherToFiatRateCancelable?.cancel()
             amountTextField.cryptoToDollarRate = nil
 
             if let recipient = recipient {
@@ -153,7 +160,7 @@ class SendViewController: UIViewController {
                 amountTextField.ethCost = amount
             }
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
+            etherToFiatRateCancelable?.cancel()
             amountTextField.cryptoToDollarRate = nil
         }
 
@@ -215,15 +222,19 @@ class SendViewController: UIViewController {
     }
 
     private func configureBalanceViewModel() {
-        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
-        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { session.tokenBalanceService.subscribableEthBalanceViewModel.unsubscribe($0) }
+        etherBalanceCancelable?.cancel()
+        etherToFiatRateCancelable?.cancel()
+
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
-                guard let celf = self else { return }
-                guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
-                celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-            }
+            etherBalanceCancelable = session.tokenBalanceService
+                .etherBalance
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in
+                    guard let celf = self else { return }
+                    guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
+                    celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
+                }
             session.refresh(.ethBalance)
         case .erc20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }

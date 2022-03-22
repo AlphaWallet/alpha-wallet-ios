@@ -64,7 +64,7 @@ class AccountsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration, analyticsCoordinator: analyticsCoordinator))
+        configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration, analyticsCoordinator: analyticsCoordinator, walletBalanceService: walletBalanceService))
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -119,7 +119,7 @@ class AccountsViewController: UIViewController {
 
             switch result {
             case .success:
-                strongSelf.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration, analyticsCoordinator: strongSelf.analyticsCoordinator))
+                strongSelf.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration, analyticsCoordinator: strongSelf.analyticsCoordinator, walletBalanceService: strongSelf.walletBalanceService))
                 strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
             case .failure(let error):
                 strongSelf.displayError(error: error)
@@ -168,39 +168,11 @@ extension AccountsViewController: UITableViewDataSource {
                 cell.configure(viewModel: cellViewModel)
             }.cauterize()
 
-            let subscribableBalance = walletBalanceService.subscribableWalletBalance(wallet: cellViewModel.wallet)
-            if let key = cell.balanceSubscribtionKey {
-                let subscription = subscribableBalance
-                subscription.unsubscribe(key)
-            }
-
-            cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: subscribableBalance.value?.totalAmountString)
-            cell.balanceSubscribtionKey = subscribableBalance.subscribe { [weak cell, weak self] balance in
-                guard let strongSelf = self else { return }
-                guard let cell = cell, let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
-
-                if strongSelf.viewModel.subscribeForBalanceUpdates {
-                    cell.apprecation24hourLabel.attributedText = cellViewModel.apprecation24hourAttributedString(for: balance)
-                } else {
-                    cell.apprecation24hourLabel.attributedText = .init()
-                }
-
-                cell.balanceLabel.attributedText = cellViewModel.balanceAttributedString(for: balance?.totalAmountString)
-            }
-
             return cell
         case .summary:
             let config = self.config
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(summary: walletBalanceService.subscribableWalletsSummary.value, config: config))
-
-            if let key = cell.walletSummarySubscriptionKey {
-                walletBalanceService.subscribableWalletsSummary.unsubscribe(key)
-            }
-
-            cell.walletSummarySubscriptionKey = walletBalanceService.subscribableWalletsSummary.subscribe { summary in
-                cell.configure(viewModel: .init(summary: summary, config: config))
-            }
+            cell.configure(viewModel: .init(walletSummary: walletBalanceService.walletsSummary, config: config))
 
             return cell
         }

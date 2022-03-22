@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol EditPriceAlertViewControllerDelegate: class {
     func didUpdateAlert(in viewController: EditPriceAlertViewController)
@@ -47,8 +48,8 @@ class EditPriceAlertViewController: UIViewController {
 
     private var viewModel: EditPriceAlertViewModel
     private let session: WalletSession
-    private var subscription: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     private let alertService: PriceAlertServiceType
+    private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: EditPriceAlertViewControllerDelegate?
 
@@ -84,19 +85,25 @@ class EditPriceAlertViewController: UIViewController {
 
         switch viewModel.tokenObject.type {
         case .nativeCryptocurrency:
-            subscription = session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
-                guard let strongSelf = self else { return }
+            session.tokenBalanceService
+                .etherToFiatRatePublisher
+                .receive(on: RunLoop.main)
+                .sink { [weak self] price in
+                    guard let strongSelf = self else { return }
 
-                strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)
-                strongSelf.configure(viewModel: strongSelf.viewModel)
-            }
+                    strongSelf.viewModel.set(marketPrice: price)
+                    strongSelf.configure(viewModel: strongSelf.viewModel)
+                }.store(in: &cancelable)
         case .erc20:
-            subscription = session.tokenBalanceService.subscribableTokenBalance(viewModel.tokenObject.addressAndRPCServer).subscribe { [weak self] viewModel in
-                guard let strongSelf = self else { return }
+            session.tokenBalanceService
+                .tokenBalancePublisher(viewModel.tokenObject.addressAndRPCServer)
+                .receive(on: RunLoop.main)
+                .sink { [weak self] viewModel in
+                    guard let strongSelf = self else { return }
 
-                strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)
-                strongSelf.configure(viewModel: strongSelf.viewModel)
-            }
+                    strongSelf.viewModel.set(marketPrice: viewModel.ticker?.price_usd)
+                    strongSelf.configure(viewModel: strongSelf.viewModel)
+                }.store(in: &cancelable)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             break
         }

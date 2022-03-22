@@ -73,20 +73,48 @@ class SettingsCoordinatorTests: XCTestCase {
 }
 
 import PromiseKit
+import Combine
 
 final class FakeMultiWalletBalanceService: WalletBalanceService {
-    var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
+    func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
+        return Just(WalletBalance(wallet: wallet, values: .init()))
+            .eraseToAnyPublisher()
+    }
 
-    init(config: Config = .make(), account: Wallet = .make()) {
+    var walletsSummary: AnyPublisher<WalletSummary, Never> {
+        Just(WalletSummary(balances: []))
+            .eraseToAnyPublisher()
+    }
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
+        return NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: nil)
+    }
 
+    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
+        return nil
     }
 
     func subscribableWalletBalance(wallet: Wallet) -> Subscribable<WalletBalance> {
         return .init(nil)
     }
 
-    func subscribableTokenBalance(addressAndRPCServer: AddressAndRPCServer) -> Subscribable<BalanceBaseViewModel> {
-        return .init(nil)
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never> {
+        let viewModel = NativecryptoBalanceViewModel(server: addressAndRPCServer.server, balance: Balance(value: .zero), ticker: nil)
+        return Just(viewModel)
+            .eraseToAnyPublisher()
+    }
+
+    func refreshBalance(for wallet: Wallet) -> Promise<Void> {
+        return .value(())
+    }
+
+    func refreshEthBalance(for wallet: Wallet) -> Promise<Void> {
+        return .value(())
+    }
+
+    var subscribableWalletsSummary: Subscribable<WalletSummary> = .init(nil)
+
+    init(config: Config = .make(), account: Wallet = .make()) {
+
     }
 
     func start() {

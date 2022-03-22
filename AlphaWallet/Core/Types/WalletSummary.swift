@@ -35,7 +35,7 @@ struct WalletSummary: Equatable {
     }
 
     var changePercentage: Double? {
-        let values = balances.compactMap { $0.changePercentage }
+        let values = balances.compactMap { $0.changePercentage?.nilIfNan }
         if values.isEmpty {
             return nil
         } else {

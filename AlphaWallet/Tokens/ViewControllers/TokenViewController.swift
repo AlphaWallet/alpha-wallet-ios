@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
+import Combine
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
@@ -42,6 +43,7 @@ class TokenViewController: UIViewController {
     private var alertsSubscriptionKey: Subscribable<[PriceAlert]>.SubscribableKey?
     private let alertService: PriceAlertServiceType
     private lazy var alertsSubscribable = alertService.alertsSubscribable(strategy: .token(tokenObject))
+    private var cancelable = Set<AnyCancellable>()
 
     init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
         self.tokenObject = token
@@ -65,7 +67,7 @@ class TokenViewController: UIViewController {
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         let pageWithFooter = PageViewWithFooter(pageView: tokenInfoPageView, footerBar: footerBar)
         let pages: [PageViewType]
-        if Features.isAlertsEnabled && viewModel.balanceViewModel?.ticker != nil {
+        if Features.isAlertsEnabled && viewModel.hasCoinTicker {
             pages = [pageWithFooter, activitiesPageView, alertsPageView]
         } else {
             pages = [pageWithFooter, activitiesPageView]
@@ -207,26 +209,35 @@ class TokenViewController: UIViewController {
     private func configureBalanceViewModel() {
         switch transactionType {
         case .nativeCryptocurrency:
-            session.tokenBalanceService.subscribableEthBalanceViewModel.subscribe { [weak self] viewModel in
-                guard let celf = self, let viewModel = viewModel else { return }
+            session
+                .tokenBalanceService
+                .etherBalance
+                .receive(on: RunLoop.main)
+                .sink { [weak self] viewModel in
+                    guard let celf = self else { return }
 
-                celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
-                celf.tokenInfoPageView.viewModel.ticker = viewModel.ticker
-                celf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
+                    celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
+                    celf.tokenInfoPageView.viewModel.ticker = viewModel.ticker
+                    celf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
 
-                celf.configure(viewModel: celf.viewModel)
-            }
+                    celf.configure(viewModel: celf.viewModel)
+                }.store(in: &cancelable)
 
             session.refresh(.ethBalance)
         case .erc20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
             tokenInfoPageView.viewModel.ticker = session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
-            session.tokenBalanceService.subscribableTokenBalance(token.addressAndRPCServer).subscribe { [weak self] viewModel in
-                guard let strongSelf = self, let viewModel = viewModel else { return }
-                strongSelf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
-                strongSelf.configure(viewModel: strongSelf.viewModel)
-            }
+
+            session.tokenBalanceService
+                .tokenBalancePublisher(token.addressAndRPCServer)
+                .receive(on: RunLoop.main)
+                .sink { [weak self] viewModel in
+                    guard let strongSelf = self else { return }
+
+                    strongSelf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
+                    strongSelf.configure(viewModel: strongSelf.viewModel)
+                }.store(in: &cancelable)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             break
         }

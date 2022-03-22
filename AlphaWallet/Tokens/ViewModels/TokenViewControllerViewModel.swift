@@ -103,14 +103,15 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    var balanceViewModel: BalanceBaseViewModel? {
+    var hasCoinTicker: Bool {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.tokenBalanceService.subscribableEthBalanceViewModel.value
+            let etherToken = session.tokenBalanceService.etherToken
+            return session.tokenBalanceService.coinTicker(etherToken.addressAndRPCServer) != nil
         case .erc20Token(let token, _, _):
-            return session.tokenBalanceService.subscribableTokenBalance(token.addressAndRPCServer).value
+            return session.tokenBalanceService.coinTicker(token.addressAndRPCServer) != nil
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
-            return nil
+            return false
         }
     }
 

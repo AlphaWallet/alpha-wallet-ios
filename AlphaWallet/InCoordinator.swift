@@ -249,7 +249,7 @@ class InCoordinator: NSObject, Coordinator {
     private func setupWalletSessions() {
         var walletSessions: ServerDictionary<WalletSession> = .init()
         for each in config.enabledServers {
-            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, walletBalanceService: walletBalanceService)
+            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, tokenBalanceProvider: walletBalanceService)
             let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService)
 
             walletSessions[each] = session

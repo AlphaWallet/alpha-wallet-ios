@@ -13,7 +13,7 @@ import BigInt
 class SendViewControllerTests: XCTestCase {
     private let tokensDataStore = FakeTokensDataStore()
 
-    private let tokenBalanceService = FakeBalanceCoordinator()
+    private let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: .make(), server: .main)
     private let nativeCryptocurrencyTransactionType: TransactionType = {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, value: "0", type: .nativeCryptocurrency)
         return .nativeCryptocurrency(token, destination: nil, amount: nil)

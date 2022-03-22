@@ -58,7 +58,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
-        let controller = TransactionConfirmationViewController(viewModel: viewModel)
+        let controller = TransactionConfirmationViewController(viewModel: viewModel, session: configurator.session)
         controller.delegate = self
         return controller
     }()
