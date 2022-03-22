@@ -192,11 +192,17 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         let pricesCacheLifetime = self.pricesCacheLifetime
         let provider = self.provider
         let config = self.config
+        let spamTokens = SpamTokens()
 
         return firstly {
             fetchSupportedTickers()
         }.compactMap(on: CoinTickersFetcher.queue, { tickers -> [MappedCoinTickerId] in
             let mappedTokensToCoinTickerIds = tokens.compactMap { tokenObject -> MappedCoinTickerId? in
+               let spamNeedle = AddressAndRPCServer(address: tokenObject.contractAddress, server: tokenObject.server)
+                if spamTokens.isSpamToken(spamNeedle) {
+                    return nil
+                }
+
                 if let ticker = tickers.first(where: { $0.matches(tokenObject: tokenObject) }) {
                     let tickerId = tokenObject.overridenCoinGeckoTickerId(tickerId: ticker.id)
                     return MappedCoinTickerId(tickerId: tickerId, contractAddress: tokenObject.contractAddress, server: tokenObject.server)
