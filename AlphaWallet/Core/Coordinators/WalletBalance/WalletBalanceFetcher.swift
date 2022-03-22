@@ -134,7 +134,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         delegate?.didUpdate(in: self)
     }
 
-    private func balanceViewModel(key tokenObject: TokenObject) -> BalanceBaseViewModel? {
+    private func balanceViewModel(key tokenObject: TokenObject) -> BalanceBaseViewModel {
         let ticker = coinTickersFetcher.ticker(for: tokenObject.addressAndRPCServer)
 
         switch tokenObject.type {
@@ -145,7 +145,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             let balance = ERC20Balance(tokenObject: tokenObject)
             return ERC20BalanceViewModel(server: tokenObject.server, balance: balance, ticker: ticker)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            return nil
+            let balance = NFTBalance(tokenObject: tokenObject)
+            return NFTBalanceViewModel(server: tokenObject.server, balance: balance, ticker: ticker)
         }
     }
 
@@ -159,12 +160,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             return NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: ticker)
         }
 
-        if let balance = balanceViewModel(key: tokenObject) {
-            return balance
-        } else {
-            let ticker = coinTickersFetcher.ticker(for: key)
-            return NativecryptoBalanceViewModel(server: key.server, balance: Balance(value: .zero), ticker: ticker)
-        }
+        return balanceViewModel(key: tokenObject)
     }
 
     func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never> {
@@ -180,7 +176,8 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         let publisher = tokenObject
             .publisher(for: \.value, options: [.new, .initial])
             .combineLatest(balanceUpdateSubject) { _, _ -> Void in return () }
-            .compactMap { _ in self.balanceViewModel(key: tokenObject) }
+            .map { _ in self.balanceViewModel(key: tokenObject) }
+            .prepend(self.balanceViewModel(key: tokenObject))
             .eraseToAnyPublisher()
 
         return publisher
