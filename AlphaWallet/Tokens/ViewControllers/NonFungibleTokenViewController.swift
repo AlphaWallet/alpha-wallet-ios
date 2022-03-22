@@ -1,5 +1,5 @@
 //
-//  TokenInstanceViewController2.swift
+//  NonFungibleTokenViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,48 +7,37 @@
 
 import UIKit
 
-protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController)
-    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController)
-    func didTapURL(url: URL, in viewController: TokenInstanceViewController)
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController)
+protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NonFungibleTokenViewController)
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController)
+    func didPressViewRedemptionInfo(in viewController: NonFungibleTokenViewController)
+    func didTapURL(url: URL, in viewController: NonFungibleTokenViewController)
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NonFungibleTokenViewController)
 }
 
-class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
+class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let tokenObject: TokenObject
-    private var viewModel: TokenInstanceViewModel
-    private let account: Wallet
+    private (set) var viewModel: NonFungibleTokenViewModel
     private let bigImageView = WebImageView()
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
-
-    var tokenHolder: TokenHolder {
-        return viewModel.tokenHolder
-    }
-    var server: RPCServer {
-        return tokenObject.server
-    }
-    var contract: AlphaWallet.Address {
-        return tokenObject.contractAddress
-    }
-    let assetDefinitionStore: AssetDefinitionStore
-    weak var delegate: TokenInstanceViewControllerDelegate?
-
-    private lazy var containerView: ScrollableStackView = {
-        let view = ScrollableStackView()
-        return view
-    }()
+    private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode
 
-    init(analyticsCoordinator: AnalyticsCoordinator, tokenObject: TokenObject, tokenHolder: TokenHolder, tokenId: TokenId, account: Wallet, assetDefinitionStore: AssetDefinitionStore, mode: TokenInstanceViewMode) {
+    var server: RPCServer {
+        return viewModel.token.server
+    }
+    var contract: AlphaWallet.Address {
+        return viewModel.token.contractAddress
+    }
+    let assetDefinitionStore: AssetDefinitionStore
+    weak var delegate: NonFungibleTokenViewControllerDelegate?
+
+    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, viewModel: NonFungibleTokenViewModel, mode: TokenInstanceViewMode) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.tokenObject = tokenObject
-        self.account = account
         self.assetDefinitionStore = assetDefinitionStore
         self.mode = mode
-        self.viewModel = .init(tokenId: tokenId, token: tokenObject, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
@@ -94,7 +83,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         }
     }
 
-    private func generateSubviews(viewModel: TokenInstanceViewModel) {
+    private func generateSubviews(viewModel: NonFungibleTokenViewModel) {
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
 
@@ -126,10 +115,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         stackView.addArrangedSubviews(subviews)
     }
 
-    func configure(viewModel newViewModel: TokenInstanceViewModel? = nil) {
-        if let newViewModel = newViewModel {
-            viewModel = newViewModel
-        }
+    func configure(viewModel newViewModel: NonFungibleTokenViewModel) {
+        viewModel = newViewModel
 
         view.backgroundColor = viewModel.backgroundColor
         containerView.backgroundColor = viewModel.backgroundColor
@@ -144,7 +131,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             buttonsBar.viewController = self
 
             func _configButton(action: TokenInstanceAction, button: BarButton) {
-                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [viewModel.tokenHolder], forWalletAddress: viewModel.account.address) {
                     if selection.denial == nil {
                         button.displayButton = false
                     }
@@ -155,7 +142,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 let action = viewModel.actions[index]
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
-                switch account.type {
+                switch viewModel.account.type {
                 case .real:
                     _configButton(action: action, button: button)
                 case .watch:
@@ -169,17 +156,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }
         }
 
-        bigImageView.setImage(url: tokenHolder.assetImageUrl(tokenId: viewModel.tokenId), placeholder: viewModel.tokenImagePlaceholder)
+        bigImageView.setImage(url: viewModel.tokenHolder.assetImageUrl(tokenId: viewModel.tokenId), placeholder: viewModel.tokenImagePlaceholder)
 
         generateSubviews(viewModel: viewModel)
-    }
-
-    func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
-        return tokenHolders.first { $0.tokens[0].id == viewModel.tokenId }
-    }
-
-    func isMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
-        return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == viewModel.tokenId }) }).flatMap { ($0, viewModel.tokenId) }
     }
 
     @objc private func actionButtonTapped(sender: UIButton) {
@@ -196,7 +175,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             case .nonFungibleTransfer:
                 transfer()
             case .tokenScript:
-                if let selection = action.activeExcludingSelection(selectedTokenHolder: tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: account.address) {
+                if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: viewModel.account.address) {
                     if let denialMessage = selection.denial {
                         UIAlertController.alert(
                                 title: nil,
@@ -210,7 +189,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                         //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
                     }
                 } else {
-                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                    delegate?.didTap(action: action, tokenHolder: viewModel.tokenHolder, viewController: self)
                 }
             }
             break
@@ -218,10 +197,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
 
     private func transfer() {
-        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-        let transactionType = TransactionType(nonFungibleToken: tokenObject, tokenHolders: [tokenHolder])
-
-        delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: .transaction(transactionType)), in: self)
+        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
     }
 
     private func redeem() {
@@ -229,20 +205,17 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
 
     private func sell() {
-        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
-        let transactionType = TransactionType.erc875Token(viewModel.token, tokenHolders: [tokenHolder])
-
-        delegate?.didPressSell(tokenHolder: tokenHolder, for: .send(type: .transaction(transactionType)), in: self)
+        delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
     }
 }
 
-extension TokenInstanceViewController: VerifiableStatusViewController {
+extension NonFungibleTokenViewController: VerifiableStatusViewController {
     func showInfo() {
         delegate?.didPressViewRedemptionInfo(in: self)
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contractAddress, server: viewModel.token.server, in: self)
     }
 
     func open(url: URL) {
@@ -250,7 +223,7 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
     }
 }
 
-extension TokenInstanceViewController: TokenInstanceAttributeViewDelegate {
+extension NonFungibleTokenViewController: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
         switch viewModel.configurations[view.indexPath.row] {
         case .field(let vm) where viewModel.tokenIdViewModel == vm:
