@@ -235,7 +235,7 @@ extension TransactionConfirmationViewModel {
                 } else {
                     return "\(amount.value) \(token.symbol)"
                 }
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return String()
             }
         }
@@ -608,7 +608,7 @@ extension TransactionConfirmationViewModel {
                     }
 
                     return .init(title: .normal(viewModels.first ?? "-"), headerName: headerName, configuration: configuration)
-                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript:
+                case .nativeCryptocurrency, .erc20Token, .erc721Token, .claimPaidErc875MagicLink, .erc875Token, .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .prebuilt:
                     //This is really just for ERC721, but the type system…
                     let tokenId = configurator.transaction.tokenId.flatMap({ String($0) })
                     let title: String

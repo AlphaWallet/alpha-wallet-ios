@@ -61,7 +61,7 @@ struct ConfigureTransactionViewModel {
 
     var isDataInputHidden: Bool {
         switch transactionType {
-        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
         case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             return true

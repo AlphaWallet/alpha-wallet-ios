@@ -48,7 +48,7 @@ struct SendViewModel {
             return token
         case .erc1155Token(let token, _, _):
             return token
-        case .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -79,7 +79,7 @@ struct SendViewModel {
                 return true
             }
             return false
-        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return true
         }
     }
@@ -88,7 +88,7 @@ struct SendViewModel {
         switch transactionType {
         case .nativeCryptocurrency, .erc20Token:
             return false
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return true
         }
     }
@@ -100,7 +100,7 @@ struct SendViewModel {
         case .erc20Token(let token, _, _):
             let value = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc875TokenOrder, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc875TokenOrder, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
 
@@ -114,7 +114,7 @@ struct SendViewModel {
         case .erc20Token(let token, _, _):
             let tokenBalance = tokensDataStore.token(forContract: token.contractAddress, server: session.server)?.valueBigInt
             return tokenBalance == nil
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
         return true
@@ -122,7 +122,7 @@ struct SendViewModel {
 
     var checkIfGreaterThanZero: Bool {
         switch transactionType {
-        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
         case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token:
             return true
@@ -142,7 +142,7 @@ struct SendViewModel {
             let shortValue = EtherNumberFormatter.shortPlain.string(from: token.valueBigInt, decimals: token.decimals).droppedTrailingZeros
 
             return (fullValue.optionalDecimalValue, shortValue)
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -150,7 +150,7 @@ struct SendViewModel {
     func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
         let parsedValue: BigInt? = {
             switch transactionType {
-            case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .erc20Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -180,7 +180,7 @@ struct SendViewModel {
             if let tokenBalance = tokensDataStore.token(forContract: token.contractAddress, server: session.server)?.valueBigInt, tokenBalance < value {
                 return nil
             }
-        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc721ForTicketToken, .erc721Token, .erc875Token, .erc1155Token, .erc875TokenOrder, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
 

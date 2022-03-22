@@ -44,7 +44,7 @@ extension TransactionType {
             return .contract(contract: tokenObject.contractAddress)
         case .erc721Token(let tokenObject, _), .erc721ForTicketToken(let tokenObject, _), .erc1155Token(let tokenObject, _, _):
             return .operationTypes(operationTypes: [], contract: tokenObject.contractAddress)
-        case .dapp, .claimPaidErc875MagicLink, .tokenScript:
+        case .dapp, .claimPaidErc875MagicLink, .tokenScript, .prebuilt:
             return .none
         }
     }

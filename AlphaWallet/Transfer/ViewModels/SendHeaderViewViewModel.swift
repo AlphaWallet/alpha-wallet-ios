@@ -241,7 +241,7 @@ struct TokenInfoPageViewModel {
                 } else {
                     return marketPriceAttributedString
                 }
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 return nil
             }
         }

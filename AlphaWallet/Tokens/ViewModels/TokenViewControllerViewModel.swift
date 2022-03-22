@@ -19,7 +19,7 @@ struct TokenViewControllerViewModel {
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
             return token
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -98,7 +98,7 @@ struct TokenViewControllerViewModel {
             return session.tokenBalanceService.ethBalanceViewModel.value
         case .erc20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -110,7 +110,7 @@ struct TokenViewControllerViewModel {
             return session.tokenBalanceService.coinTicker(etherToken.addressAndRPCServer) != nil
         case .erc20Token(let token, _, _):
             return session.tokenBalanceService.coinTicker(token.addressAndRPCServer) != nil
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return false
         }
     }
