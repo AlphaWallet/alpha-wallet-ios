@@ -2,7 +2,13 @@
 
 import Foundation
 
-class WalletSession {
+extension WalletSession {
+    static func == (_ lhs: WalletSession, _ rhs: WalletSession) -> Bool {
+        return lhs.server == rhs.server
+    }
+}
+
+class WalletSession: Equatable {
     let account: Wallet
     let server: RPCServer
     let tokenBalanceService: TokenBalanceService

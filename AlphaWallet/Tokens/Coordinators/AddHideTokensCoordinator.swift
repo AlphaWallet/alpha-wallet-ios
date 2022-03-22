@@ -20,7 +20,6 @@ class AddHideTokensCoordinator: Coordinator {
     )
 
     private let sessions: ServerDictionary<WalletSession>
-    private let tokensFilter: TokensFilter
     private let assetDefinitionStore: AssetDefinitionStore
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
@@ -31,7 +30,6 @@ class AddHideTokensCoordinator: Coordinator {
 
     init(tokens: [Token], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
-        self.tokensFilter = tokensFilter
         self.sessions = sessions
         self.tokens = tokens
         self.analyticsCoordinator = analyticsCoordinator

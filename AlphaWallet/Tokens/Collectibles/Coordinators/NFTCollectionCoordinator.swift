@@ -333,7 +333,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         switch paymentFlow {
         case .send(let transactionType):
             server = transactionType.server
-        case .request:
+        case .request, .swap:
             return
         }
         let url = generateSellLink(
@@ -361,7 +361,7 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         switch paymentFlow {
         case .send(let transactionType):
             server = transactionType.server
-        case .request:
+        case .request, .swap:
             return
         }
 

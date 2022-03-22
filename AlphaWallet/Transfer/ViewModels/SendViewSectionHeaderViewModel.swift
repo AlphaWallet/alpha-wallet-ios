@@ -8,22 +8,12 @@
 import UIKit
 
 struct SendViewSectionHeaderViewModel {
-    
     let text: String
     var showTopSeparatorLine: Bool = true
-    
-    var font: UIFont {
-        return Fonts.semibold(size: 15)
-    }
-    var textColor: UIColor {
-        return R.color.dove()!
-    }
-    var backgroundColor: UIColor {
-        return R.color.alabaster()!
-    }
-    
-    var separatorBackgroundColor: UIColor {
-        return R.color.mike()!
-    }
+    var showBottomSeparatorLine: Bool = true
+    var font: UIFont = Fonts.semibold(size: 15)
+    var textColor: UIColor = R.color.dove()!
+    var backgroundColor: UIColor = R.color.alabaster()!
+    var separatorBackgroundColor: UIColor = R.color.mike()!
 }
 

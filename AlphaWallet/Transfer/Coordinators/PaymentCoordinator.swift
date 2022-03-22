@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: PaymentCoordinator)
@@ -12,32 +13,47 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
 }
 
 class PaymentCoordinator: Coordinator {
-    private let session: WalletSession
-    let flow: PaymentFlow
+    private var session: WalletSession {
+        sessions.value[server]
+    }
+    private let server: RPCServer
+    private let sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
     private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let eventsDataStore: NonActivityEventsDataStore
+    private let tokenCollection: TokenCollection
+    private let tokenSwapper: TokenSwapper
+    private var shouldRestoreNavigationBarIsHiddenState: Bool
+    private var latestNavigationStackViewController: UIViewController?
+    private let reachabilityManager: ReachabilityManagerProtocol
+
+    let flow: PaymentFlow
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
 
-    private var shouldRestoreNavigationBarIsHiddenState: Bool
-    private var latestNavigationStackViewController: UIViewController?
-
     init(
             navigationController: UINavigationController,
             flow: PaymentFlow,
-            session: WalletSession,
+            server: RPCServer,
+            sessions: CurrentValueSubject<ServerDictionary<WalletSession>, Never>,
             keystore: Keystore,
             tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             analyticsCoordinator: AnalyticsCoordinator,
-            eventsDataStore: NonActivityEventsDataStore
+            eventsDataStore: NonActivityEventsDataStore,
+            tokenCollection: TokenCollection,
+            reachabilityManager: ReachabilityManagerProtocol = ReachabilityManager(),
+            tokenSwapper: TokenSwapper
     ) {
+        self.tokenSwapper = tokenSwapper
+        self.reachabilityManager = reachabilityManager
+        self.tokenCollection = tokenCollection
         self.navigationController = navigationController
-        self.session = session
+        self.server = server
+        self.sessions = sessions
         self.flow = flow
         self.keystore = keystore
         self.tokensDataStore = tokensDataStore
@@ -84,10 +100,18 @@ class PaymentCoordinator: Coordinator {
         coordinator.start()
         addCoordinator(coordinator)
     }
+    
+    private func startWithSwapCoordinator(swapPair: SwapPair) {
+        let configurator = SwapOptionsConfigurator(walletSessions: sessions, swapPair: swapPair, tokenCollection: tokenCollection, reachabilityManager: reachabilityManager, tokenSwapper: tokenSwapper)
+        let coordinator = SwapTokensCoordinator(navigationController: navigationController, configurator: configurator, keystore: keystore, analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, tokenCollection: tokenCollection, eventsDataStore: eventsDataStore)
+        coordinator.start()
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+    }
 
     func start() {
         if shouldRestoreNavigationBarIsHiddenState {
-            self.navigationController.setNavigationBarHidden(false, animated: true)
+            self.navigationController.setNavigationBarHidden(false, animated: false)
         }
 
         func _startPaymentFlow(transactionType: PaymentFlowType) {
@@ -109,6 +133,8 @@ class PaymentCoordinator: Coordinator {
         }
 
         switch (flow, session.account.type) {
+        case (.swap(let swapPair), .real):
+            startWithSwapCoordinator(swapPair: swapPair)
         case (.send(let transactionType), .real):
             _startPaymentFlow(transactionType: transactionType)
         case (.request, _):
@@ -123,6 +149,12 @@ class PaymentCoordinator: Coordinator {
             } else {
                 //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
             }
+        case (.swap(let swapPair), .watch):
+            if Config().development.shouldPretendIsRealWallet {
+                startWithSwapCoordinator(swapPair: swapPair)
+            } else {
+                //TODO: This case should be returning an error inCoordinator. Improve this logic into single piece.
+            }
         }
     }
 
@@ -130,13 +162,9 @@ class PaymentCoordinator: Coordinator {
         return nil
     }
 
-    func cancel() {
-        delegate?.didCancel(in: self)
-    }
-
     func dismiss(animated: Bool) {
         if shouldRestoreNavigationBarIsHiddenState {
-            navigationController.setNavigationBarHidden(true, animated: animated)
+            navigationController.setNavigationBarHidden(true, animated: false)
         }
 
         if let viewController = latestNavigationStackViewController {
@@ -144,6 +172,25 @@ class PaymentCoordinator: Coordinator {
         } else {
             navigationController.popToRootViewController(animated: animated)
         }
+    }
+}
+
+extension PaymentCoordinator: SwapTokensCoordinatorDelegate {
+
+    func didFinish(_ result: ConfirmResult, in coordinator: SwapTokensCoordinator) {
+        delegate?.didFinish(result, in: self)
+    }
+
+    func didSendTransaction(_ transaction: SentTransaction, in coordinator: SwapTokensCoordinator) {
+        delegate?.didSendTransaction(transaction, inCoordinator: self)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, coordinator: SwapTokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
+    }
+
+    func didCancel(in coordinator: SwapTokensCoordinator) {
+        delegate?.didCancel(in: self)
     }
 }
 
@@ -158,8 +205,7 @@ extension PaymentCoordinator: TransferNFTCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: TransferNFTCoordinator) {
-        removeCoordinator(coordinator)
-        cancel()
+        delegate?.didCancel(in: self)
     }
 }
 
@@ -173,8 +219,7 @@ extension PaymentCoordinator: TokenScriptCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: TokenScriptCoordinator) {
-        removeCoordinator(coordinator)
-        cancel()
+        delegate?.didCancel(in: self)
     }
 }
 
@@ -192,8 +237,7 @@ extension PaymentCoordinator: TransferCollectiblesCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: TransferCollectiblesCoordinator) {
-        removeCoordinator(coordinator)
-        cancel()
+        delegate?.didCancel(in: self)
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransferCollectiblesCoordinator) {
@@ -211,8 +255,7 @@ extension PaymentCoordinator: SendCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: SendCoordinator) {
-        removeCoordinator(coordinator)
-        cancel()
+        delegate?.didCancel(in: self)
     }
 
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: SendCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
@@ -222,8 +265,7 @@ extension PaymentCoordinator: SendCoordinatorDelegate {
 
 extension PaymentCoordinator: RequestCoordinatorDelegate {
     func didCancel(in coordinator: RequestCoordinator) {
-        removeCoordinator(coordinator)
-        cancel()
+        delegate?.didCancel(in: self)
     }
 }
 

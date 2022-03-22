@@ -13,15 +13,13 @@ class TokensCoordinatorTests: XCTestCase {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
         let config: Config = .make()
-        let tokenActionsService = FakeSwapTokenService()
-        let tokensDataStore = FakeTokensDataStore()
+        let tokenActionsService = FakeSwapTokenService() 
 
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokensDataStore: tokensDataStore,
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: FakeAnalyticsService()),
@@ -30,7 +28,8 @@ class TokensCoordinatorTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             coinTickersFetcher: CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config),
             activitiesService: FakeActivitiesService(),
-            walletBalanceService: FakeMultiWalletBalanceService()
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            tokenCollection: MultipleChainsTokenCollection.fake()
         )
         coordinator.start()
 

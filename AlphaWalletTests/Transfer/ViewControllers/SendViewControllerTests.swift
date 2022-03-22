@@ -181,6 +181,7 @@ class SendViewControllerTests: XCTestCase {
                 }
 
                 callbackCount += 1
+
                 if callbackCount == callbackCountExpectation {
                     tokenBalanceUpdateCallbackExpectation.fulfill()
                 }

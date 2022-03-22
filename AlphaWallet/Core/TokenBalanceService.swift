@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import PromiseKit
 import Combine
 
 protocol TokenBalanceService {
@@ -15,9 +16,11 @@ protocol TokenBalanceService {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
     func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel?
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never>
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
+
     private let wallet: Wallet
     private let server: RPCServer
     private let balanceProvider: TokenBalanceProvider & CoinTickerProvider
@@ -54,6 +57,11 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
 
     func start() {
         //no-op
+    }
+
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        return balanceProvider
+            .fetchChartHistories(addressToRPCServerKey, force: force, periods: periods)
     }
 
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {

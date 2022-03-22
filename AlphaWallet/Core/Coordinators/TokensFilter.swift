@@ -85,8 +85,8 @@ class TokensFilter {
         switch filter {
         case .all:
             filteredTokens = tokens
-        case .type(let types):
-            filteredTokens = tokens.filter { types.contains($0.type) }
+        case .filter(let filter):
+            filteredTokens = tokens.filter { filter.filter(token: $0) }
         case .defi:
             filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .defi }
         case .governance:
@@ -141,7 +141,7 @@ class TokensFilter {
         switch filter {
         case .all:
             break //no-op
-        case .type, .defi, .governance, .assets, .collectiblesOnly:
+        case .filter, .defi, .governance, .assets, .collectiblesOnly:
             filteredTokens = []
         case .keyword(let keyword):
             let lowercasedKeyword = keyword.trimmed.lowercased()

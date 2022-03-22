@@ -152,6 +152,8 @@ enum Analytics {
         case claimPaidMagicLink
         case speedupTransaction
         case cancelTransaction
+        case swapApproval
+        case swap
     }
 
     enum TransactionConfirmationSpeedType: String {
@@ -166,6 +168,7 @@ enum Analytics {
         case erc20Transfer
         case erc20Approve
         case nativeCryptoTransfer
+        case swap
         case unknown
     }
 

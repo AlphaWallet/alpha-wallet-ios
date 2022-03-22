@@ -8,13 +8,14 @@ import Combine
 protocol TokenCollection {
     var tokensViewModel: AnyPublisher<TokensViewModel, Never> { get }
     var tokensDataStore: TokensDataStore { get }
-
+    var tokensFilter: TokensFilter { get }
+    
     func fetch()
 }
 
 ///This contains tokens across multiple-chains
-final class MultipleChainsTokenCollection: NSObject, TokenCollection {
-    private let tokensFilter: TokensFilter
+class MultipleChainsTokenCollection: NSObject, TokenCollection {
+    let tokensFilter: TokensFilter
     private var tokensViewModelSubject: CurrentValueSubject<TokensViewModel, Never>
 
     private let refereshSubject = PassthroughSubject<Void, Never>.init()

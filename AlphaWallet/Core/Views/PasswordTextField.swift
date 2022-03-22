@@ -18,8 +18,8 @@ class PasswordTextField: TextField {
         return button
     }()
 
-    override init() {
-        super.init()
+    override init(edgeInsets: UIEdgeInsets = DataEntry.Metric.textFieldInsets) {
+        super.init(edgeInsets: edgeInsets)
 
         isSecureTextEntry = true
         button.addTarget(self, action: #selector(toggleMaskPassword), for: .touchUpInside)

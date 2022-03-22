@@ -12,6 +12,7 @@ import Combine
 
 protocol CoinTickerProvider: AnyObject {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
 protocol TokenBalanceProviderTests {
@@ -144,6 +145,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
             getOrCreateBalanceFetcher(for: wallet)
                 .refreshBalance(updatePolicy: updatePolicy)
         }
+    }
+
+    func fetchChartHistories(_ addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
+        return coinTickersFetcher
+            .fetchChartHistories(addressToRPCServerKey: addressToRPCServerKey, force: force, periods: periods)
     }
 
     /// NOTE: internal for test ourposes

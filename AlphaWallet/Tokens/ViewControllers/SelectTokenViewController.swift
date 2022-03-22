@@ -11,21 +11,20 @@ import Combine
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
     func controller(_ controller: SelectTokenViewController, didSelectToken token: Token)
-    func controller(_ controller: SelectTokenViewController, didCancelSelected sender: UIBarButtonItem)
 }
 
 class SelectTokenViewController: UIViewController {
     private lazy var viewModel = SelectTokenViewModel(
-        tokensFilter: tokensFilter,
+        tokensFilter: tokenCollection.tokensFilter,
         tokens: [],
         filter: filter
     )
     private var cancellable = Set<AnyCancellable>()
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
-    private let sessions: ServerDictionary<WalletSession>
-    private let tokensFilter: TokensFilter
     private var selectedToken: Token?
+    private let wallet: Wallet
+    private let tokenBalanceService: TokenBalanceService
     private let filter: WalletFilter
     private let eventsDataStore: NonActivityEventsDataStore
     private lazy var tableView: UITableView = {
@@ -45,27 +44,37 @@ class SelectTokenViewController: UIViewController {
     }()
 
     weak var delegate: SelectTokenViewControllerDelegate?
+    private (set) lazy var headerView: ConfirmationHeaderView = {
+        let view = ConfirmationHeaderView(viewModel: .init(title: viewModel.navigationTitle))
+        view.isHidden = true
 
-    override func loadView() {
-        view = tableView
-    }
+        return view
+    }()
 
-    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, tokensFilter: TokensFilter, filter: WalletFilter) {
+    init(wallet: Wallet, tokenBalanceService: TokenBalanceService, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, filter: WalletFilter) {
+        self.wallet = wallet
+        self.tokenBalanceService = tokenBalanceService
         self.filter = filter
-        self.sessions = sessions
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-        self.tokensFilter = tokensFilter
         self.eventsDataStore = eventsDataStore
+
         super.init(nibName: nil, bundle: nil)
-        handleTokenCollectionUpdates()
+
+        let stackView = [headerView, tableView].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: view)
+        ])
 
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
             self?.tokenCollection.fetch()
         })
 
-        loadingView = LoadingView()
+        loadingView = LoadingView(insets: .init(top: Style.SearchBar.height, left: 0, bottom: 0, right: 0))
         emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
             self?.startLoading()
             self?.tokenCollection.fetch()
@@ -74,13 +83,17 @@ class SelectTokenViewController: UIViewController {
         configure(viewModel: viewModel)
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        handleTokenCollectionUpdates()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         navigationController?.applyTintAdjustment()
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dismiss))
 
         fetchTokens()
     }
@@ -95,7 +108,7 @@ class SelectTokenViewController: UIViewController {
     }
 
     private func configure(viewModel: SelectTokenViewModel) {
-        title = viewModel.title
+        title = viewModel.navigationTitle
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
     }
@@ -103,20 +116,15 @@ class SelectTokenViewController: UIViewController {
     private func handleTokenCollectionUpdates() {
         tokenCollection.tokensViewModel.sink { [weak self] viewModel in
             guard let strongSelf = self else { return }
-            strongSelf.viewModel = .init(tokensViewModel: viewModel, tokensFilter: strongSelf.tokensFilter, filter: strongSelf.filter)
+            strongSelf.viewModel = .init(tokensViewModel: viewModel, tokensFilter: strongSelf.tokenCollection.tokensFilter, filter: strongSelf.filter)
             strongSelf.endLoading()
         }.store(in: &cancellable)
-    }
-
-    @objc private func dismiss(_ sender: UIBarButtonItem) {
-        delegate?.controller(self, didCancelSelected: sender)
     }
 }
 
 extension SelectTokenViewController: StatefulViewController {
-    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
-        return true
+        return viewModel.numberOfItems() > 0
     }
 }
 
@@ -136,15 +144,14 @@ extension SelectTokenViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row)
-        let session = sessions[token.server]
-
         switch token.type {
         case .nativeCryptocurrency:
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+
             cell.configure(viewModel: .init(
                 token: token,
-                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer),
-                currencyAmount: session.tokenBalanceService.ethBalanceViewModel?.currencyAmountWithoutSymbol,
+                ticker: tokenBalanceService.coinTicker(token.addressAndRPCServer),
+                currencyAmount: tokenBalanceService.ethBalanceViewModel?.currencyAmountWithoutSymbol,
                 assetDefinitionStore: assetDefinitionStore
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
@@ -155,15 +162,15 @@ extension SelectTokenViewController: UITableViewDataSource {
             cell.configure(viewModel: .init(token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                wallet: session.account,
-                ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
+                wallet: wallet,
+                ticker: tokenBalanceService.coinTicker(token.addressAndRPCServer)
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 
             return cell
         case .erc721, .erc721ForTickets, .erc875, .erc1155:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
+            cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: wallet))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 
             return cell

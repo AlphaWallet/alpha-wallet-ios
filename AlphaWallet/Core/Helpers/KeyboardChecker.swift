@@ -7,16 +7,6 @@
 
 import UIKit
 
-extension UIApplication {
-    var bottomSafeAreaHeight: CGFloat {
-
-        let window = UIApplication.shared.windows[0]
-        let safeFrame = window.safeAreaLayoutGuide.layoutFrame
-
-        return window.frame.maxY - safeFrame.maxY
-    }
-}
-
 class KeyboardChecker: NSObject {
 
     private weak var viewController: UIViewController?

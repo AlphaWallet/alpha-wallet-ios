@@ -91,6 +91,10 @@ class BarButton: TransitionButton {
     func setBorderColor(_ color: UIColor?, for state: UIControl.State) {
         borderColorMap[state.rawValue] = color
     }
+
+    override func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
+        super.addTarget(target, action: action, for: controlEvents)
+    }
 }
 
 protocol ButtonObservationProtocol: class {

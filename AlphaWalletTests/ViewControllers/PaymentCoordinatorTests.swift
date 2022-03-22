@@ -2,6 +2,11 @@
 
 import XCTest
 @testable import AlphaWallet
+import Combine
+
+func sessions(server: RPCServer = .main) -> CurrentValueSubject<ServerDictionary<WalletSession>, Never> {
+    return CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.make(server: server))
+}
 
 class PaymentCoordinatorTests: XCTestCase {
 
@@ -10,12 +15,15 @@ class PaymentCoordinatorTests: XCTestCase {
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
             flow: .send(type: .transaction(.nativeCryptocurrency(TokenObject(), destination: .init(address: address), amount: nil))),
-            session: .make(),
+            server: .main,
+            sessions: sessions(server: .main),
             keystore: FakeKeystore(),
             tokensDataStore: FakeTokensDataStore(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
-            eventsDataStore: FakeEventsDataStore()
+            eventsDataStore: FakeEventsDataStore(),
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            tokenSwapper: FakeTokenSwapper()
         )
         coordinator.start()
 
@@ -27,12 +35,15 @@ class PaymentCoordinatorTests: XCTestCase {
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
             flow: .request,
-            session: .make(),
+            server: .main,
+            sessions: sessions(server: .main),
             keystore: FakeKeystore(),
             tokensDataStore: FakeTokensDataStore(),
             assetDefinitionStore: AssetDefinitionStore(),
             analyticsCoordinator: FakeAnalyticsService(),
-            eventsDataStore: FakeEventsDataStore()
+            eventsDataStore: FakeEventsDataStore(),
+            tokenCollection: MultipleChainsTokenCollection.fake(),
+            tokenSwapper: FakeTokenSwapper()
         )
 
         coordinator.start()
