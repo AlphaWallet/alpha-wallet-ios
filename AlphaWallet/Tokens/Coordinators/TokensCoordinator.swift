@@ -15,6 +15,7 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: TokensCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
+    func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator)
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator)
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator)
@@ -139,7 +140,14 @@ class TokensCoordinator: Coordinator {
     }
 
     @objc private func blockieButtonSelected(_ sender: UIButton) {
-        delegate?.blockieSelected(in: self)
+        //hhh restore
+        //delegate?.blockieSelected(in: self)
+
+        //hhh remove
+        let coordinator = TokenSwapCoordinator(navigationController: navigationController, keystore: keystore, sessions: sessions, analyticsCoordinator: analyticsCoordinator)
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     @objc private func scanQRCodeButtonSelected(_ sender: UIBarButtonItem) {
@@ -622,5 +630,19 @@ extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
 extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
     func didClose(coordinator: AddHideTokensCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension TokensCoordinator: TokenSwapCoordinatorDelegate {
+    func didSentApproveTransaction(transaction: SentTransaction, in coordinator: TokenSwapCoordinator) {
+        delegate?.didSentTransaction(transaction: transaction, in: self)
+    }
+
+    func didSentSwapTransaction(transaction: SentTransaction, in coordinator: TokenSwapCoordinator) {
+        delegate?.didSentTransaction(transaction: transaction, in: self)
+    }
+
+    func openFiatOnRamp(wallet: Wallet, server: RPCServer, coordinator: TokenSwapCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {
+        delegate?.openFiatOnRamp(wallet: wallet, server: server, inCoordinator: self, viewController: viewController, source: source)
     }
 }

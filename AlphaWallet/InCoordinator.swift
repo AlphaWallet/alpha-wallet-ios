@@ -845,6 +845,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
         openFiatOnRamp(wallet: wallet, server: server, inViewController: viewController, source: source)
     }
 
+    func didSentTransaction(transaction: SentTransaction, in coordinator: TokensCoordinator) {
+        handlePendingTransaction(transaction: transaction)
+    }
+
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
         guard keystore.currentWallet != account else { return }
         restartUI(withReason: .walletChange, account: account)

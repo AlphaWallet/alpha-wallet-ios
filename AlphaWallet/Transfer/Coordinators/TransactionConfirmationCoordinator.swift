@@ -19,19 +19,22 @@ enum TransactionConfirmationConfiguration {
     case claimPaidErc875MagicLink(confirmType: ConfirmType, keystore: Keystore, price: BigUInt, numberOfTokens: UInt)
     case speedupTransaction(keystore: Keystore)
     case cancelTransaction(keystore: Keystore)
+    case swapTransaction(keystore: Keystore, fromToken: TokenToSwap, fromAmount: BigUInt, toToken: TokenToSwap, toAmount: BigUInt)
+    //TODO: generalize type name so it can be used for more types (some of the enum-cases above), if possible
+    case approve(keystore: Keystore)
 
     var confirmType: ConfirmType {
         switch self {
         case .dappTransaction(let confirmType, _), .walletConnect(let confirmType, _, _ ), .sendFungiblesTransaction(let confirmType, _, _, _), .sendNftTransaction(let confirmType, _, _), .tokenScriptTransaction(let confirmType, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _):
             return confirmType
-        case .speedupTransaction, .cancelTransaction:
+        case .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             return .signThenSend
         }
     }
 
     var keystore: Keystore {
         switch self {
-        case .dappTransaction(_, let keystore), .walletConnect(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _), .sendNftTransaction(_, let keystore, _), .tokenScriptTransaction(_, _, let keystore, _), .claimPaidErc875MagicLink(_, let keystore, _, _), .speedupTransaction(let keystore), .cancelTransaction(let keystore):
+        case .dappTransaction(_, let keystore), .walletConnect(_, let keystore, _), .sendFungiblesTransaction(_, let keystore, _, _), .sendNftTransaction(_, let keystore, _), .tokenScriptTransaction(_, _, let keystore, _), .claimPaidErc875MagicLink(_, let keystore, _, _), .speedupTransaction(let keystore), .cancelTransaction(let keystore), .swapTransaction(let keystore, _, _, _, _), .approve(let keystore):
             return keystore
         }
     }
@@ -92,8 +95,13 @@ class TransactionConfirmationCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
+    //hhh remove
+    deinit {
+        NSLog("xxx deinit TransactionConfirmationCoordinator")
+    }
 
     init(presentingViewController: UIViewController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator) {
+        NSLog("xxx init TransactionConfirmationCoordinator")
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
@@ -167,12 +175,18 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     }
 
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton) {
+        //hhh remove
+        //return;
+
         sender.isEnabled = false
         canBeDismissed = false
         rootViewController.set(state: .pending)
 
         firstly { () -> Promise<ConfirmResult> in
-            return sendTransaction()
+            //hhh restore
+            //return sendTransaction()
+            //hhh remove
+            return fakeSendTransaction()
         }.done { result in
             self.handleSendTransactionSuccessfully(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
@@ -195,6 +209,16 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         let transaction = configurator.formUnsignedTransaction()
         return coordinator.send(transaction: transaction)
     }
+
+    //hhh remove
+    private func fakeSendTransaction() -> Promise<ConfirmResult> {
+        NSLog("xxx fakeSentTransaction()")
+        let transaction = configurator.formUnsignedTransaction()
+        //return Promise.value(ConfirmResult.sentTransaction(SentTransaction(id: "1", original: transaction)))
+        struct E: Error {}
+        return Promise(error: E())
+    }
+
 
     private func handleSendTransactionSuccessfully(result: ConfirmResult) {
         switch result {
@@ -305,28 +329,7 @@ extension TransactionConfirmationCoordinator {
             speedType = .custom
         }
 
-        let transactionType: Analytics.TransactionType
-        if let functionCallMetaData = DecodedFunctionCall(data: configurator.currentConfiguration.data) {
-            switch functionCallMetaData.type {
-            case .erc1155SafeTransfer:
-                transactionType = .unknown
-            case .erc1155SafeBatchTransfer:
-                transactionType = .unknown
-            case .erc20Approve:
-                transactionType = .erc20Approve
-            case .erc20Transfer:
-                transactionType = .erc20Transfer
-            case .nativeCryptoTransfer:
-                transactionType = .nativeCryptoTransfer
-            case .others:
-                transactionType = .unknown
-            }
-        } else if configurator.currentConfiguration.data.isEmpty {
-            transactionType = .nativeCryptoTransfer
-        } else {
-            transactionType = .unknown
-        }
-
+        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.currentConfiguration.data)
         let overridingRpcUrl: URL? = configurator.session.config.sendPrivateTransactionsProvider?.rpcUrl(forServer: configurator.session.server)
         let privateNetworkProvider: SendPrivateTransactionsProvider?
         if overridingRpcUrl == nil {
@@ -351,7 +354,7 @@ extension TransactionConfirmationCoordinator {
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
-        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
         }
 
@@ -369,11 +372,16 @@ extension TransactionConfirmationCoordinator {
     }
 
     private func logStartActionSheetForTransactionConfirmation(source: Analytics.TransactionConfirmationSource) {
-        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [Analytics.Properties.source.rawValue: source.rawValue]
+        let transactionType: Analytics.TransactionType = functional.analyticsTransactionType(fromConfiguration: configuration, data: configurator.currentConfiguration.data)
+        var analyticsProperties: [String: AnalyticsEventPropertyValue] = [
+            Analytics.Properties.source.rawValue: source.rawValue,
+            Analytics.Properties.chain.rawValue: server.chainID,
+            Analytics.Properties.transactionType.rawValue: transactionType.rawValue,
+        ]
         switch configuration {
         case .sendFungiblesTransaction(_, _, _, amount: let amount):
             analyticsProperties[Analytics.Properties.isAllFunds.rawValue] = amount.isAllFunds
-        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction:
+        case .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .swapTransaction, .approve:
             break
         }
         analyticsCoordinator.log(navigation: Analytics.Navigation.actionSheetForTransactionConfirmation, properties: analyticsProperties)
@@ -415,6 +423,49 @@ extension SendTransactionNotRetryableError {
             return "possibleChainIdMismatch"
         case .executionReverted:
             return "executionReverted"
+        }
+    }
+}
+
+extension TransactionConfirmationCoordinator {
+    enum functional {}
+}
+
+fileprivate extension TransactionConfirmationCoordinator.functional {
+    static func isSwapTransaction(configuration: TransactionConfirmationConfiguration) -> Bool {
+        switch configuration {
+        case .swapTransaction:
+            return true
+        case .sendFungiblesTransaction, .tokenScriptTransaction, .dappTransaction, .walletConnect, .sendNftTransaction, .claimPaidErc875MagicLink, .speedupTransaction, .cancelTransaction, .approve:
+            return false
+        }
+    }
+
+    static func analyticsTransactionType(fromConfiguration configuration: TransactionConfirmationConfiguration, data: Data) -> Analytics.TransactionType {
+        if let functionCallMetaData = DecodedFunctionCall(data: data) {
+            switch functionCallMetaData.type {
+            case .erc1155SafeTransfer:
+                return .unknown
+            case .erc1155SafeBatchTransfer:
+                return .unknown
+            case .erc20Approve:
+                return .erc20Approve
+            case .erc20Transfer:
+                return .erc20Transfer
+            case .nativeCryptoTransfer:
+                return .nativeCryptoTransfer
+            case .others:
+                return .unknown
+            }
+        } else if data.isEmpty {
+            return .nativeCryptoTransfer
+        } else {
+            if isSwapTransaction(configuration: configuration) {
+                //TODO should probably log which DEX is used? But does it still map into this analytics event or should we have a different one?
+                return .swap
+            } else {
+                return .unknown
+            }
         }
     }
 }

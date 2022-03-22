@@ -7,7 +7,7 @@ import PromiseKit
 
 struct AlphaWalletProviderFactory {
     static let policies: [String: ServerTrustPolicy] = [:]
-    
+
     static func makeProvider() -> MoyaProvider<AlphaWalletService> {
         let manager = Manager(
             configuration: URLSessionConfiguration.default,
