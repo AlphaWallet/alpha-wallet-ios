@@ -1,5 +1,5 @@
 //
-//  TokenInstanceViewModel2.swift
+//  NonFungibleTokenViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -19,7 +19,7 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
-struct TokenInstanceViewModel {
+struct NonFungibleTokenViewModel {
     let tokenId: TokenId
     let token: TokenObject
     let tokenHolder: TokenHolder
@@ -27,8 +27,20 @@ struct TokenInstanceViewModel {
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     var backgroundColor: UIColor = Colors.appBackground
     private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+    let account: Wallet
 
-    init(tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
+    var transferTransactionType: TransactionType {
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+        return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
+    }
+
+    var sellTransactionType: TransactionType {
+        tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
+        return TransactionType.erc875Token(token, tokenHolders: [tokenHolder])
+    }
+
+    init(account: Wallet, tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
+        self.account = account
         self.tokenId = tokenId
         self.token = token
         self.tokenHolder = tokenHolder
@@ -62,6 +74,14 @@ struct TokenInstanceViewModel {
                 return []
             }
         }
+    }
+
+    func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
+        return tokenHolders.first { $0.tokens[0].id == tokenId }
+    }
+
+    func isMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> (tokenHolder: TokenHolder, tokenId: TokenId)? {
+        return tokenHolders.first(where: { $0.tokens.contains(where: { $0.id == tokenId }) }).flatMap { ($0, tokenId) }
     }
 
     var tokenIdViewModel: TokenInstanceAttributeViewModel? {
