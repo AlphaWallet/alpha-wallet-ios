@@ -26,7 +26,7 @@ struct TokenActionsServiceKey {
 protocol TokenActionsProvider {
     func isSupport(token: TokenActionsServiceKey) -> Bool
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction]
-} 
+}
 
 protocol SwapTokenURLProviderType {
     var action: String { get }
@@ -42,7 +42,7 @@ protocol TokenActionsServiceType: TokenActionsProvider {
 }
 
 class TokenActionsService: TokenActionsServiceType {
-    
+
     private var services: [TokenActionsProvider] = []
 
     func register(service: TokenActionsProvider) {
@@ -73,7 +73,7 @@ extension TransactionType {
             return TokenActionsServiceKey(tokenObject: token)
         case .erc20Token(let token, _, _):
             return TokenActionsServiceKey(tokenObject: token)
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }

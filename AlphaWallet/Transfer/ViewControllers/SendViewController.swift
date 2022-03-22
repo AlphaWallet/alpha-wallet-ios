@@ -159,7 +159,7 @@ class SendViewController: UIViewController {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             etherToFiatRateCancelable?.cancel()
             amountTextField.cryptoToDollarRate = nil
         }
@@ -239,7 +239,7 @@ class SendViewController: UIViewController {
         case .erc20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
     }
@@ -325,7 +325,7 @@ class SendViewController: UIViewController {
                 transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount.flatMap { EtherNumberFormatter().string(from: $0, units: .ether) })
             case .erc20Token(_, _, let amount):
                 transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: amount)
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 transactionType = TransactionType(fungibleToken: tokenObject, recipient: recipient, amount: nil)
             }
         }

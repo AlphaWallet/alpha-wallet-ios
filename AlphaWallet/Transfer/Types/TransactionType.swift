@@ -56,6 +56,8 @@ enum TransactionType {
     case dapp(TokenObject, DAppRequester)
     case claimPaidErc875MagicLink(TokenObject)
     case tokenScript(TokenObject)
+    //TODO replace some of those above with this?
+    case prebuilt(RPCServer)
 
     var contractForFungibleSend: AlphaWallet.Address? {
         switch self {
@@ -63,7 +65,7 @@ enum TransactionType {
             return nil
         case .erc20Token(let token, _, _):
             return token.contractAddress
-        case .dapp, .tokenScript, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink:
+        case .dapp, .tokenScript, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
     }
@@ -95,6 +97,9 @@ extension TransactionType {
             return token.symbol
         case .claimPaidErc875MagicLink(let token):
             return token.symbol
+        case .prebuilt:
+            //Not applicable
+            return ""
         }
     }
 
@@ -118,6 +123,9 @@ extension TransactionType {
             return token
         case .claimPaidErc875MagicLink(let token):
             return token
+        case .prebuilt(let server):
+            //Not applicable
+            return MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         }
     }
 
@@ -141,6 +149,8 @@ extension TransactionType {
             return token.server
         case .claimPaidErc875MagicLink(let token):
             return token.server
+        case .prebuilt(let server):
+             return server
         }
     }
 
@@ -162,6 +172,9 @@ extension TransactionType {
             return token.contractAddress
         case .dapp(let token, _), .tokenScript(let token), .claimPaidErc875MagicLink(let token):
             return token.contractAddress
+        case .prebuilt:
+            //We don't care about the contract for prebuilt transactions
+            return Constants.nativeCryptoAddressInDatabase
         }
     }
 }

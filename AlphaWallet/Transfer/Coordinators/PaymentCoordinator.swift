@@ -96,7 +96,7 @@ class PaymentCoordinator: Coordinator {
                 switch transactionType {
                 case .erc1155Token(let tokenObject, let transferType, let tokenHolders):
                     startWithSendCollectiblesCoordinator(tokenObject: tokenObject, transferType: transferType, tokenHolders: tokenHolders)
-                case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder:
+                case .nativeCryptocurrency, .erc20Token, .dapp, .claimPaidErc875MagicLink, .tokenScript, .erc875TokenOrder, .prebuilt:
                     startWithSendCoordinator(transactionType: transactionType)
                 case .erc875Token(let tokenObject, let tokenHolders), .erc721Token(let tokenObject, let tokenHolders):
                     startWithSendNFTCoordinator(transactionType: transactionType, tokenObject: tokenObject, tokenHolder: tokenHolders[0])

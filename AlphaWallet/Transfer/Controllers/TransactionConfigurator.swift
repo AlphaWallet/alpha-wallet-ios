@@ -98,7 +98,7 @@ class TransactionConfigurator {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
             return transaction.recipient
-        case .dapp, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink:
+        case .dapp, .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return transaction.contract
         }
     }
@@ -115,6 +115,7 @@ class TransactionConfigurator {
         case .erc1155Token: return 0
         case .tokenScript: return transaction.value
         case .claimPaidErc875MagicLink: return transaction.value
+        case .prebuilt: return transaction.value
         }
     }
 
@@ -442,6 +443,8 @@ class TransactionConfigurator {
                     return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
                 }
             case .claimPaidErc875MagicLink:
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
+            case .prebuilt:
                 return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
             }
         } catch {

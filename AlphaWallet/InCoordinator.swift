@@ -981,7 +981,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
             } else {
                 open(for: url)
             }
-        case .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+        case .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }
     }

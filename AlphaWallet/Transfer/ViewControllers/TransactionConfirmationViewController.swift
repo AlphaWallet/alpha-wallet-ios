@@ -202,7 +202,7 @@ class TransactionConfirmationViewController: UIViewController {
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .erc20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 break
             }
         case .sendNftTransaction(let sendNftViewModel):
@@ -333,7 +333,7 @@ class TransactionConfirmationViewController: UIViewController {
                 let balanceBaseViewModel = sendFungiblesViewModel.session.tokenBalanceService.ethBalanceViewModel
 
                 sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
-            case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink:
+            case .erc20Token, .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
                 break
             }
         case .sendNftTransaction, .claimPaidErc875MagicLink:
