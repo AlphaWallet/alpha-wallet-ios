@@ -197,8 +197,6 @@ public struct Constants {
         static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
     }
 
-    static let statHatEndPoint = URL(string: "https://api.stathat.com/ez")!
-
     enum WalletConnect {
         static let relayURL = URL(string: "https://relay.walletconnect.com")!
         static let server = "AlphaWallet"

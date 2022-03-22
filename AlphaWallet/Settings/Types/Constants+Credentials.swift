@@ -18,6 +18,5 @@ extension Constants {
         static let walletConnectProjectId = "6eb1175ea3e57209d8f8f39bd4213691"
         static let unstoppableDomainsV2ApiKey = "Bearer rLuujk_dLBN-JDE6Xl8QSCg-FeIouRKM"
         static let blockscanChatProxyKey = ""
-        static let statHatKey = ""
     }
 }
