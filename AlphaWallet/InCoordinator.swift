@@ -932,6 +932,9 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
         eventSourceCoordinator.start()
         eventSourceCoordinatorForActivities?.start()
+        walletBalanceService.refreshBalance(for: wallet).done { _ in
+            //no-op
+        }.cauterize()
     }
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {

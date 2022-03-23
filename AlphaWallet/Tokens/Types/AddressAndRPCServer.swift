@@ -14,6 +14,10 @@ struct AddressAndRPCServer: Hashable, Codable, CustomStringConvertible {
     var description: String {
         return "\(address.eip55String)-\(server)"
     }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
 }
 
 extension AddressAndRPCServer: Equatable {

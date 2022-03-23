@@ -43,7 +43,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private lazy var tokensDataStore: TokensDataStore = {
         return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: config.enabledServers)
     }()
-    private let keystore: Keystore
+    private let nftProvider: NFTProvider
     private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var cancelable = Set<AnyCancellable>()
@@ -64,9 +64,9 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .eraseToAnyPublisher()
     }
 
-    required init(wallet: Wallet, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
+    required init(wallet: Wallet, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
-        self.keystore = keystore
+        self.nftProvider = nftProvider
         self.assetDefinitionStore = assetDefinitionStore
         self.queue = queue
         self.coinTickersFetcher = coinTickersFetcher
@@ -96,7 +96,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     } 
 
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, keystore: keystore, tokensDataStore: tokensDataStore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 

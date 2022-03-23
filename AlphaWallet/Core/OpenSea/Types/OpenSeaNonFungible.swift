@@ -4,7 +4,18 @@ import Foundation
 import BigInt
 import SwiftyJSON
 //Some fields are duplicated across token IDs within the same contract like the contractName, symbol, contractImageUrl, etc. The space savings in the database aren't work the normalization
-struct OpenSeaNonFungible: Codable, NonFungibleFromJson {
+struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJson {
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tokenId)
+        hasher.combine(tokenType.rawValue)
+        hasher.combine(value.description)
+    }
+
+    static func == (lhs: OpenSeaNonFungible, rhs: OpenSeaNonFungible) -> Bool {
+        return lhs.tokenId == rhs.tokenId
+    }
+
     //Not every token might used the same name. This is just common in OpenSea
     public static let generationTraitName = "generation"
     public static let cooldownIndexTraitName = "cooldown_index"
