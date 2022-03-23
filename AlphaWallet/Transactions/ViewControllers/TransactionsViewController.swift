@@ -39,7 +39,7 @@ class TransactionsViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
-        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
