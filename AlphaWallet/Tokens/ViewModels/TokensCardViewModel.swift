@@ -7,15 +7,9 @@
 //
 
 import Foundation
-import UIKit
-import PromiseKit
 import BigInt
 
 struct TokensCardViewModel {
-
-    var fungibleBalance: BigInt? {
-        return nil
-    }
 
     var initiallySelectedTabIndex: Int {
         return 1

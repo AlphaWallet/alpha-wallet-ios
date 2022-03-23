@@ -117,7 +117,7 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         let activitiesFilterStrategy: ActivitiesFilterStrategy = .operationTypes(operationTypes: [.erc1155TokenTransfer], contract: token.contractAddress)
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: token))
 
-        let controller = TokensCardViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+        let controller = TokensCardViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         controller.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(didCloseSelected))
