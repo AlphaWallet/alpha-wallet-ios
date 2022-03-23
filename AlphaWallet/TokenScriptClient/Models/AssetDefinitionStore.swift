@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Alamofire
+import Combine 
 
 protocol AssetDefinitionStoreDelegate: AnyObject {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore )
@@ -50,6 +51,31 @@ class AssetDefinitionStore {
 
     var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
         return backingStore.contractsWithTokenScriptFileFromOfficialRepo
+    }
+    private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+    private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+
+    func assetBodyChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
+        return bodyChangeSubject
+            .filter { $0.sameContract(as: contract) }
+            .map { _ in return () }
+            .share()
+            .eraseToAnyPublisher()
+    }
+
+    func assetSignatureChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
+        return signatureChangeSubject
+            .filter { $0.sameContract(as: contract) }
+            .map { _ in return () }
+            .share()
+            .eraseToAnyPublisher()
+    }
+
+    func assetsSignatureOrBodyChange(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
+        return Publishers
+            .Merge(assetSignatureChanged(for: contract), assetSignatureChanged(for: contract))
+            .map { _ in return () }
+            .eraseToAnyPublisher()
     }
 
     //TODO move
@@ -187,10 +213,12 @@ class AssetDefinitionStore {
     }
 
     private func triggerBodyChangedSubscribers(forContract contract: AlphaWallet.Address) {
+        bodyChangeSubject.send(contract)
         tokenScriptBodyChangedSubscribers.forEach { $0(contract) }
     }
 
     private func triggerSignatureChangedSubscribers(forContract contract: AlphaWallet.Address) {
+        signatureChangeSubject.send(contract)
         tokenScriptSignatureChangedSubscribers.forEach { $0(contract) }
     }
 
