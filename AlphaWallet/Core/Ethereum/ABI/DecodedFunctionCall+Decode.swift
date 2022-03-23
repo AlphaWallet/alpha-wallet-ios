@@ -34,14 +34,16 @@ extension DecodedFunctionCall {
                 guard let functionName = function.name else { return nil }
 
                 if functionToResearch == function.methodEncoding.hex(), let inputs = element.decodeInputData(data) {
-                    //NOTE: perform filter for response input data to remove duplicated values from dictionary
-                    let arguments = inputs.compactMap { value -> (type: ABIType, value: AnyObject)? in
-                        if let inputParam = function.inputs.first(where: { $0.name == value.key }), let type = ABIType(abiParam: inputParam.type) {
-                            return (type, value.value as AnyObject)
+                    let arguments: [(type: ABIType, value: AnyObject)] = function.inputs.compactMap { inputParam in
+                        let value = inputs[inputParam.name]
+                        if let type = ABIType(abiParam: inputParam.type) {
+                            return (type: type, value: value as AnyObject)
+                        } else {
+                            return nil
                         }
-                        return nil
                     }
-
+                    //TODO check isArgCountMatches too:
+                    _ = inputs.count * 2 == function.inputs.count
                     let functionType = DecodedFunctionCall.FunctionType(name: functionName, arguments: arguments)
                     return DecodedFunctionCall(name: functionName, arguments: arguments, type: functionType)
                 }
