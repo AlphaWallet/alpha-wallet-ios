@@ -46,3 +46,20 @@ struct ERC20Balance: BalanceProtocol {
         return EtherNumberFormatter.plain.string(from: value, decimals: decimals).droppedTrailingZeros
     }
 }
+
+struct NFTBalance: BalanceProtocol {
+    var value: BigInt
+
+    var amountShort: String {
+        return value.description
+    }
+
+    var amountFull: String {
+        return value.description
+    }
+
+    init(tokenObject: TokenObject) {
+        let actualBalance = tokenObject.nonZeroBalance
+        value = BigInt(actualBalance.count.toString()) ?? .zero
+    }
+}
