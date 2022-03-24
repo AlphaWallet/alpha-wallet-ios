@@ -159,7 +159,10 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
 }
 
 extension ReplaceTransactionCoordinator: TransactionInProgressCoordinatorDelegate {
+    
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
+        removeCoordinator(coordinator)
+
         switch transactionConfirmationResult {
         case .some(let result):
             delegate?.didFinish(result, in: self)

@@ -29,6 +29,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
+    private var lastViewControllerInNavigationStack: UIViewController
     
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -51,6 +52,7 @@ class TransferCollectiblesCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last!
     }
 
     func start() {
@@ -178,8 +180,10 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
 extension TransferCollectiblesCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+
         switch transactionConfirmationResult {
         case .some(let result):
+            navigationController.popToViewController(lastViewControllerInNavigationStack, animated: true)
             delegate?.didFinish(result, in: self)
         case .none:
             break
