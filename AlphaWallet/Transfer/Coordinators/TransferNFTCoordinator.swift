@@ -132,8 +132,9 @@ extension TransferNFTCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.localizedDescription)
+        UIApplication.shared
+            .presentedViewController(navigationController)
+            .displayError(message: error.prettyError)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {

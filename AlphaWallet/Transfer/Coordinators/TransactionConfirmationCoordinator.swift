@@ -54,6 +54,18 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
     func didClose(in coordinator: TransactionConfirmationCoordinator)
 }
 
+extension UIApplication {
+    func presentedViewController(_ defaultViewControler: UIViewController) -> UIViewController {
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return defaultViewControler }
+
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            return controller
+        } else {
+            return defaultViewControler
+        }
+    }
+}
+
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
@@ -62,7 +74,6 @@ class TransactionConfirmationCoordinator: Coordinator {
         controller.delegate = self
         return controller
     }()
-
     private lazy var hostViewController: FloatingPanelController = {
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
@@ -70,14 +81,13 @@ class TransactionConfirmationCoordinator: Coordinator {
 
         return panel
     }()
-
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analyticsCoordinator: AnalyticsCoordinator
     private var canBeDismissed = true
     private var server: RPCServer { configurator.session.server }
+    private let navigationController: UIViewController
 
-    let navigationController: UIViewController
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
