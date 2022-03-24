@@ -131,11 +131,6 @@ class TransactionConfirmationCoordinator: Coordinator {
             break
         }
     }
-
-    private func askUserToRateAppOrSubscribeToNewsletter() {
-        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
-        coordinator.rateUsOrSubscribeToNewsletter()
-    }
 }
 
 extension TransactionConfirmationCoordinator: TransactionConfirmationViewControllerDelegate {
@@ -158,23 +153,11 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         canBeDismissed = false
         rootViewController.set(state: .pending)
 
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//            self.handleSendTransactionSuccessfully(result: .sentRawTransaction(id: "", original: ""))
-//            self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-//            self.askUserToRateAppOrSubscribeToNewsletter()
-//
-//            DispatchQueue.main.async {
-//                sender.isEnabled = true
-//                self.canBeDismissed = true
-//            }
-//        }
-
         firstly { () -> Promise<ConfirmResult> in
             return sendTransaction()
         }.done { result in
             self.handleSendTransactionSuccessfully(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-            self.askUserToRateAppOrSubscribeToNewsletter()
         }.catch { error in
             self.logActionSheetForTransactionConfirmationFailed()
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct

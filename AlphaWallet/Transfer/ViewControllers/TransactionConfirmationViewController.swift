@@ -51,6 +51,7 @@ class TransactionConfirmationViewController: UIViewController {
 
     weak var delegate: TransactionConfirmationViewControllerDelegate?
 
+// swiftlint:disable function_body_length
     init(viewModel: TransactionConfirmationViewModel, session: WalletSession) {
         self.viewModel = viewModel
         self.session = session
@@ -159,7 +160,8 @@ class TransactionConfirmationViewController: UIViewController {
 
         generateSubviews()
     }
-
+// swiftlint:enable function_body_length
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
