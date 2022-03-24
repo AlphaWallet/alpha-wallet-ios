@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TransactionInProgressViewControllerDelegate: AnyObject {
-    func transactionInProgressDidDismiss(in controller: TransactionInProgressViewController)
+    func didDismiss(in controller: TransactionInProgressViewController)
     func controller(_ controller: TransactionInProgressViewController, okButtonSelected sender: UIButton)
 }
 
@@ -103,7 +103,7 @@ class TransactionInProgressViewController: UIViewController {
     }
 
     @objc private func dismiss(_ sender: UIBarButtonItem) {
-        delegate?.transactionInProgressDidDismiss(in: self)
+        delegate?.didDismiss(in: self)
     }
 
     @objc private func okButtonSelected(_ sender: UIButton) {

@@ -36,7 +36,7 @@ private class TransactionInProgressCoordinatorBridgeToPromise {
 
 extension TransactionInProgressCoordinatorBridgeToPromise: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+    func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         seal.fulfill(())
     }
 }

@@ -192,7 +192,7 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 }
 
 extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
-    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+    func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
         switch transactionConfirmationResult {
         case .some(let result):
