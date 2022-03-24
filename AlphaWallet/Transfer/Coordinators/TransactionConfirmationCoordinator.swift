@@ -207,11 +207,12 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         case let e as SendTransactionNotRetryableError:
             let errorViewController = SendTransactionErrorViewController(server: server, analyticsCoordinator: analyticsCoordinator, error: e)
             errorViewController.delegate = self
-            let controller = UINavigationController(rootViewController: errorViewController)
-            controller.modalPresentationStyle = .overFullScreen
-            controller.modalTransitionStyle = .crossDissolve
-            controller.view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            rootViewController.present(controller, animated: true)
+
+            let panel = FloatingPanelController(isPanEnabled: false)
+            panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
+            panel.set(contentViewController: errorViewController)
+
+            rootViewController.present(panel, animated: true)
         default:
             showError(error)
         }
@@ -372,13 +373,13 @@ extension TransactionConfirmationCoordinator {
 
 extension TransactionConfirmationCoordinator: SendTransactionErrorViewControllerDelegate {
     func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
-        controller.dismiss(animated: false) {
+        controller.dismiss(animated: true) {
             self.rectifyTransactionError(error: error)
         }
     }
 
     func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
-        controller.dismiss(animated: false) {
+        controller.dismiss(animated: true) {
             self.delegate?.didPressOpenWebPage(url, in: self.rootViewController)
         }
     }

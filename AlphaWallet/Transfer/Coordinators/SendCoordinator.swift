@@ -19,7 +19,7 @@ class SendCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private var confirmResult: ConfirmResult? = .none
-    private var lastViewControllerInNavigationStack: UIViewController
+    private var lastViewControllerInNavigationStack: UIViewController?
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -46,7 +46,7 @@ class SendCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
 
-        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last!
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -168,12 +168,11 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
 extension SendCoordinator: TransactionInProgressCoordinatorDelegate {
 
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
-        switch transactionConfirmationResult {
         removeCoordinator(coordinator)
 
         switch confirmResult {
         case .some(let result):
-            navigationController.popToViewController(lastViewControllerInNavigationStack, animated: true)
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

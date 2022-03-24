@@ -31,7 +31,7 @@ class TokenScriptCoordinator: Coordinator {
     private let action: TokenInstanceAction
     private let tokensStorage: TokensDataStore
     private let eventsDataStore: NonActivityEventsDataStore
-    private var lastViewControllerInNavigationStack: UIViewController
+    private var lastViewControllerInNavigationStack: UIViewController?
     private var cancelable = Set<AnyCancellable>()
 
     weak var delegate: TokenScriptCoordinatorDelegate?
@@ -61,7 +61,7 @@ class TokenScriptCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokensStorage = tokensStorage
         navigationController.navigationBar.isTranslucent = false
-        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last!
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -201,7 +201,7 @@ extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
         
         switch transactionConfirmationResult {
         case .some(let result):
-            navigationController.popToViewController(lastViewControllerInNavigationStack, animated: true)
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

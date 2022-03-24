@@ -22,7 +22,7 @@ class TransferNFTCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
-    private var lastViewControllerInNavigationStack: UIViewController
+    private var lastViewControllerInNavigationStack: UIViewController?
     
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -47,7 +47,7 @@ class TransferNFTCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
-        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last!
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -170,7 +170,7 @@ extension TransferNFTCoordinator: TransactionInProgressCoordinatorDelegate {
         
         switch transactionConfirmationResult {
         case .some(let result):
-            navigationController.popToViewController(lastViewControllerInNavigationStack, animated: true)
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break
