@@ -69,7 +69,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return coordinators.compactMap { $0 as? SettingsCoordinator }.first
     }
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
-        HelpUsCoordinator(navigationController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
+        HelpUsCoordinator(hostViewController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
     }()
 
     private lazy var whatsNewExperimentCoordinator: WhatsNewExperimentCoordinator = {
