@@ -17,7 +17,6 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
     func showConsole(in coordinator: SettingsCoordinator)
-	func delete(account: Wallet, in coordinator: SettingsCoordinator)
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator)
 }
 
@@ -223,8 +222,6 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 	}
 
 	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        delegate?.delete(account: account, in: self)
-        TransactionsTracker.resetFetchingState(account: account, config: config)
 		delegate?.didUpdateAccounts(in: self)
 		guard !coordinator.accountsViewController.hasWallets else { return }
         coordinator.navigationController.popViewController(animated: true)

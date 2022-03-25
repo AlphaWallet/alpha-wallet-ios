@@ -96,6 +96,7 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
     private var walletAddressesStore: WalletAddressesStore
+    private var cancelable = Set<AnyCancellable>()
 
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
@@ -110,6 +111,24 @@ class AppCoordinator: NSObject, Coordinator {
         window.makeKeyAndVisible()
 
         setupSplashViewController(on: navigationController)
+
+        bindWalletAddressesStore()
+    }
+
+    private func bindWalletAddressesStore() {
+        walletAddressesStore
+            .didRemoveWalletPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] account in
+                guard let `self` = self else { return }
+
+                self.config.deleteWalletName(forAccount: account.address)
+                PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analyticsCoordinator: self.analyticsService).deleteWallet()
+                TransactionsTracker.resetFetchingState(account: account, config: self.config)
+                Erc1155TokenIdsFetcher.deleteForWallet(account.address)
+                TransactionDataStore.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account), config: self.config)
+                self.legacyFileBasedKeystore.delete(wallet: account)
+            }.store(in: &cancelable)
     }
 
     func start() {
