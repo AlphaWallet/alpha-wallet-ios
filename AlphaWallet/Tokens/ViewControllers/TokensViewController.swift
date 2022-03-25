@@ -18,8 +18,6 @@ protocol TokensViewControllerDelegate: AnyObject {
 class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let analyticsCoordinator: AnalyticsCoordinator
 
     private (set) var viewModel: TokensViewModel {
         didSet {
@@ -169,21 +167,17 @@ class TokensViewController: UIViewController {
          account: Wallet,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
-         eventsDataStore: NonActivityEventsDataStore,
          tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
-         walletBalanceService: WalletBalanceService,
-         analyticsCoordinator: AnalyticsCoordinator
+         walletBalanceService: WalletBalanceService
     ) {
         self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-        self.eventsDataStore = eventsDataStore
         self.config = config
         self.walletConnectCoordinator = walletConnectCoordinator
-        self.analyticsCoordinator = analyticsCoordinator
 
         viewModel = TokensViewModel(tokensFilter: tokensFilter, tokens: [], config: config)
 

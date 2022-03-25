@@ -61,12 +61,10 @@ class TokensCoordinator: Coordinator {
             account: sessions.anyValue.account,
             tokenCollection: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
-            eventsDataStore: eventsDataStore,
             tokensFilter: tokensFilter,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceService: walletBalanceService,
-            analyticsCoordinator: analyticsCoordinator
+            walletBalanceService: walletBalanceService
         )
         controller.delegate = self
         return controller
