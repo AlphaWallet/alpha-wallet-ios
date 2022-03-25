@@ -19,7 +19,6 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 
 class TokensCardViewController: UIViewController {
     private (set) var viewModel: TokensCardViewModel
-    private let tokenObject: TokenObject
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -35,7 +34,7 @@ class TokensCardViewController: UIViewController {
     weak var delegate: TokensCardViewControllerDelegate?
 
     private lazy var collectionInfoPageView: TokensCardCollectionInfoPageView = {
-        let viewModel: TokensCardCollectionInfoPageViewModel = .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
+        let viewModel: TokensCardCollectionInfoPageViewModel = .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
         let view = TokensCardCollectionInfoPageView(viewModel: viewModel, session: session)
         view.delegate = self
 
@@ -71,11 +70,10 @@ class TokensCardViewController: UIViewController {
     private let activitiesService: ActivitiesServiceType
     private let keystore: Keystore
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
-        self.tokenObject = token
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
         self.session = session
-        self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
+        self.tokenScriptFileStatusHandler = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinition)
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -176,7 +174,7 @@ class TokensCardViewController: UIViewController {
         title = viewModel.navigationTitle
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
-        collectionInfoPageView.configure(viewModel: .init(server: session.server, token: tokenObject, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
+        collectionInfoPageView.configure(viewModel: .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
         assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: assetsPageView.viewModel.selection))
 
         if collectionInfoPageView.viewModel.openInUrl != nil {
