@@ -163,7 +163,7 @@ extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
 
 extension SendCoordinator: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+    func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         switch transactionConfirmationResult {
         case .some(let result):
             delegate?.didFinish(result, in: self)

@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TransactionInProgressCoordinatorDelegate: AnyObject {
-    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator)
+    func didDismiss(in coordinator: TransactionInProgressCoordinator)
 }
 
 class TransactionInProgressCoordinator: Coordinator {
@@ -36,15 +36,15 @@ class TransactionInProgressCoordinator: Coordinator {
 
 extension TransactionInProgressCoordinator: TransactionInProgressViewControllerDelegate {
 
-    func transactionInProgressDidDismiss(in controller: TransactionInProgressViewController) {
+    func didDismiss(in controller: TransactionInProgressViewController) {
         viewControllerToPresent.dismiss(animated: true) {
-            self.delegate?.transactionInProgressDidDismiss(in: self)
+            self.delegate?.didDismiss(in: self)
         }
     }
 
     func controller(_ controller: TransactionInProgressViewController, okButtonSelected sender: UIButton) {
         viewControllerToPresent.dismiss(animated: true) {
-            self.delegate?.transactionInProgressDidDismiss(in: self)
+            self.delegate?.didDismiss(in: self)
         }
     }
 }

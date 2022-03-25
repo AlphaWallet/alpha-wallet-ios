@@ -176,7 +176,7 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
 }
 
 extension TransferCollectiblesCoordinator: TransactionInProgressCoordinatorDelegate {
-    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
+    func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
         switch transactionConfirmationResult {
         case .some(let result):
