@@ -44,7 +44,7 @@ class TokensCardViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: account, viewModel: viewModel, sessions: activitiesService.sessions)
+        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions)
         view.delegate = self
 
         return view
@@ -64,7 +64,6 @@ class TokensCardViewController: UIViewController {
 
         return view
     }()
-    private let account: Wallet
     private let refreshControl = UIRefreshControl()
     private lazy var keyboardChecker: KeyboardChecker = {
         return KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
@@ -76,7 +75,6 @@ class TokensCardViewController: UIViewController {
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
-        self.account = session.account
         self.tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinition)
         self.assetDefinitionStore = assetDefinition
         self.eventsDataStore = eventsDataStore
