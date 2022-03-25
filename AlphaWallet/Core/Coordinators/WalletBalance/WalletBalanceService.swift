@@ -47,7 +47,8 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-
+    private let nftProvider: NFTProvider = OpenSea()
+    
     var walletsSummary: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
             .eraseToAnyPublisher()
@@ -169,7 +170,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     }
 
     private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let fetcher = WalletBalanceFetcher(wallet: wallet, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher

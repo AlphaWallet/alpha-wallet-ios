@@ -827,6 +827,8 @@
 		87584B4425EFAFEC0070063B /* BuyTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4325EFAFEC0070063B /* BuyTokenService.swift */; };
 		87584B4725EFB0950070063B /* Ramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584B4625EFB0950070063B /* Ramp.swift */; };
 		87584FA727E9F8A2006A7CD1 /* NFTBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA627E9F8A2006A7CD1 /* NFTBalanceViewModel.swift */; };
+		87584FAA27EA2185006A7CD1 /* NFTProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FA927EA2185006A7CD1 /* NFTProvider.swift */; };
+		87584FAC27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87584FAB27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift */; };
 		8759C9E7279ADEFC00FE361F /* WalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */; };
 		8759C9E9279BD7B100FE361F /* DefaultsWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */; };
 		8759C9EB279BD7C300FE361F /* JsonWalletAddressesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */; };
@@ -1918,6 +1920,8 @@
 		87584B4325EFAFEC0070063B /* BuyTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenService.swift; sourceTree = "<group>"; };
 		87584B4625EFB0950070063B /* Ramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ramp.swift; sourceTree = "<group>"; };
 		87584FA627E9F8A2006A7CD1 /* NFTBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTBalanceViewModel.swift; sourceTree = "<group>"; };
+		87584FA927EA2185006A7CD1 /* NFTProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTProvider.swift; sourceTree = "<group>"; };
+		87584FAB27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSeaNetworkProvider.swift; sourceTree = "<group>"; };
 		8759C9E6279ADEFC00FE361F /* WalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9E8279BD7B100FE361F /* DefaultsWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsWalletAddressesStore.swift; sourceTree = "<group>"; };
 		8759C9EA279BD7C300FE361F /* JsonWalletAddressesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonWalletAddressesStore.swift; sourceTree = "<group>"; };
@@ -3342,6 +3346,7 @@
 		29FC9BC31F830880000209CD /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				87584FA827EA217C006A7CD1 /* NFT */,
 				2932045D1F8EEE760095B7C1 /* TokenBalanceService.swift */,
 				870CC47727C6560800A19380 /* TokensAutodetector */,
 				874D2F7C27A2B14C005459DA /* UnstoppableDomains */,
@@ -4810,6 +4815,14 @@
 			path = Ramp;
 			sourceTree = "<group>";
 		};
+		87584FA827EA217C006A7CD1 /* NFT */ = {
+			isa = PBXGroup;
+			children = (
+				87584FA927EA2185006A7CD1 /* NFTProvider.swift */,
+			);
+			path = NFT;
+			sourceTree = "<group>";
+		};
 		87741F1B2770C3AD007F4604 /* WhereAreMyTokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -5035,6 +5048,7 @@
 				87C2008F27A8806300338D26 /* Helpers */,
 				87C2008A27A87FBE00338D26 /* Types */,
 				5E7C7C0CFD047ED7C488FB45 /* OpenSea.swift */,
+				87584FAB27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift */,
 			);
 			path = OpenSea;
 			sourceTree = "<group>";
@@ -5901,6 +5915,7 @@
 				AA26C62420412A4100318B9B /* Double.swift in Sources */,
 				298542FB1FBEA03300CB5081 /* SendInputErrors.swift in Sources */,
 				02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */,
+				87584FAA27EA2185006A7CD1 /* NFTProvider.swift in Sources */,
 				29EB102A1F6CBD23000907A4 /* UIAlertController.swift in Sources */,
 				296AF9A51F736BA20058AF78 /* Config.swift in Sources */,
 				7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */,
@@ -6572,6 +6587,7 @@
 				5E7C7068825D19D22329AC7E /* SendTransactionErrorViewController.swift in Sources */,
 				5E7C786DB5B71302FF66CBAD /* SendTransactionErrorViewModel.swift in Sources */,
 				872D9567271D66C200870971 /* GasPriceEstimates.swift in Sources */,
+				87584FAC27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift in Sources */,
 				5E7C71FA0D6A918598005EF3 /* SendTransactionError.swift in Sources */,
 				5E7C715B5921162B65A9A706 /* PromptViewController.swift in Sources */,
 				02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */,

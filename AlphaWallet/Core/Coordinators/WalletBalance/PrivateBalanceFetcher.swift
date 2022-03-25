@@ -36,7 +36,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
     private let account: Wallet
-    let openSea: OpenSea
+    private let nftProvider: NFTProvider
     private let queue: DispatchQueue
     private let server: RPCServer
     private lazy var etherToken = Activity.AssignedToken(tokenObject: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
@@ -47,14 +47,12 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let enjin: EnjinProvider
     private var cachedErc1155TokenIdsFetchers: [AddressAndRPCServer: Erc1155TokenIdsFetcher] = [:]
     private var cancelable = Set<AnyCancellable>()
-    private let keystore: Keystore
 
-    init(account: Wallet, keystore: Keystore, tokensDataStore: TokensDataStore, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
-        self.keystore = keystore
+    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
+        self.nftProvider = nftProvider
         self.account = account
         self.server = server
         self.queue = queue
-        self.openSea = OpenSea.createInstance(with: AddressAndRPCServer(address: account.address, server: server), keystore: keystore)
         self.enjin = EnjinProvider.createInstance(with: AddressAndRPCServer(address: account.address, server: server))
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
@@ -106,15 +104,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func getTokensFromOpenSea() -> Promise<OpenSeaNonFungiblesToAddress> {
-        // TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        // NOTE: We need to reduce amount of concurrent calls to Open Sea, because of call trolling of OpenSea, that is why we make calls only for current wallet
-        guard keystore.currentWallet.address == account.address else {
-            return .value([:])
-        }
-        return openSea.makeFetchPromise()
-            .recover { _ -> Promise<OpenSeaNonFungiblesToAddress> in
-                return .value([:])
-            }
+        return nftProvider.nonFungible(wallet: account, server: server)
     }
 
     func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) -> Promise<Void> {
@@ -511,6 +501,7 @@ fileprivate extension PrivateBalanceFetcher.functional {
                 Erc1155BalanceFetcher(address: account.address, server: server)
                     .fetch(contract: contract, tokenIds: Set(tokenIds))
                     .map { (contract: contract, balances: $0) }
+                    .recover { _ in return .value((contract: contract, balances: [:]))}
             }
             return firstly {
                 when(fulfilled: promises)
