@@ -335,7 +335,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             return .value(.init(error: .unsupportedChain(chainId: targetChain.chainId)))
         }
 
-        let callbackID: SwitchCustomChainCallbackId = .walletConnectRequest(request: request)
+        let callbackID: SwitchCustomChainCallbackId = .walletConnect(request: request)
         delegate?.requestSwitchChain(server: server, currentUrl: nil, callbackID: callbackID, targetChain: targetChain)
 
         return .init(error: DelayWalletConnectResponseError())
@@ -347,7 +347,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
             return .value(.init(error: .requestRejected))
         }
         
-        let callbackId: SwitchCustomChainCallbackId = .walletConnectRequest(request: request)
+        let callbackId: SwitchCustomChainCallbackId = .walletConnect(request: request)
         delegate?.requestAddCustomChain(server: server, callbackId: callbackId, customChain: customChain)
 
         return .init(error: DelayWalletConnectResponseError())

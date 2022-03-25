@@ -386,11 +386,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCustomChain(callbackID: Int, customChain: WalletAddEthereumChainObject, inViewController viewController: UIViewController) {
-        delegate?.requestAddCustomChain(server: server, callbackId: .dappRequestId(callbackID), customChain: customChain)
+        delegate?.requestAddCustomChain(server: server, callbackId: .dapp(requestId: callbackID), customChain: customChain)
     }
 
     private func switchChain(callbackID: Int, targetChain: WalletSwitchEthereumChainObject, inViewController viewController: UIViewController) {
-        delegate?.requestSwitchChain(server: server, currentUrl: currentUrl, callbackID: .dappRequestId(callbackID), targetChain: targetChain)
+        delegate?.requestSwitchChain(server: server, currentUrl: currentUrl, callbackID: .dapp(requestId: callbackID), targetChain: targetChain)
     }
 }
 

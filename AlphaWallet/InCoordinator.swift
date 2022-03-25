@@ -17,7 +17,7 @@ protocol InCoordinatorDelegate: AnyObject {
 }
 
 // swiftlint:disable type_body_length
-class InCoordinator: NSObject, Coordinator {
+class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private var wallet: Wallet
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
@@ -116,6 +116,13 @@ class InCoordinator: NSObject, Coordinator {
             return navigationController
         }
     }
+
+    private lazy var dappRequestHandler: DappRequestHandler = {
+        let handler = DappRequestHandler(walletConnectCoordinator: walletConnectCoordinator, dappBrowserCoordinator: dappBrowserCoordinator!)
+        handler.delegate = self
+        
+        return handler
+    }()
 
     init(
             navigationController: UINavigationController = UINavigationController(),
@@ -527,7 +534,7 @@ class InCoordinator: NSObject, Coordinator {
         walletConnectCoordinator.openSession(url: url)
     }
 
-    private func processRestartQueueAndRestartUI() {
+    func processRestartQueueAndRestartUI() {
         RestartQueueHandler(config: config).processRestartQueueBeforeRestart(restartQueue: restartQueue)
         restartUI(withReason: .serverChange, account: wallet)
     }
@@ -554,166 +561,18 @@ class InCoordinator: NSObject, Coordinator {
     }
 }
 
-extension InCoordinator: DappRequestSwitchCustomChainCoordinatorDelegate {
-
-    func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            let callback = DappCallback(id: callbackId, value: .walletAddEthereumChain)
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .success(callback))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func switchBrowserToExistingServer(_ server: RPCServer, callbackId: SwitchCustomChainCallbackId, url: URL?, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        dappBrowserCoordinator?.switch(toServer: server, url: url)
-
-        switch callbackId {
-        case .dappRequestId:
-            break
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: server)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        processRestartQueueAndRestartUI()
-        switch coordinator.callbackId {
-        case .dappRequestId:
-            break
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func restartToAddEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        processRestartQueueAndRestartUI()
-        switch coordinator.callbackId {
-        case .dappRequestId:
-            break
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.responseServerChangeSucceed(request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func userCancelled(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            let error = DAppError.nodeError(errorMessage)
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .failure(error))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .init(code: 0, message: errorMessage), request: request)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withError error: DAppError, withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
-
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .failure(error))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func cleanup(coordinator: DappRequestSwitchCustomChainCoordinator) {
-        removeCoordinator(coordinator)
-    }
-}
-
-extension InCoordinator: DappRequestSwitchExistingChainCoordinatorDelegate {
-
-    func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            let callback = DappCallback(id: callbackId, value: .walletSwitchEthereumChain)
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .success(callback))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
-        }
-
-        removeCoordinator(coordinator)
-    }
-
-    func switchBrowserToExistingServer(_ server: RPCServer, callbackId: SwitchCustomChainCallbackId, url: URL?, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        dappBrowserCoordinator?.switch(toServer: server, url: url)
-        switch callbackId {
-        case .dappRequestId:
-            break
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: server)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func restartToEnableAndSwitchBrowserToServer(inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        processRestartQueueAndRestartUI()
-        switch coordinator.callbackId {
-        case .dappRequestId:
-            break
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .value(nil), request: request)
-            try? walletConnectCoordinator.notifyUpdateServers(request: request, server: coordinator.server)
-        }
-        removeCoordinator(coordinator)
-    }
-    func userCancelled(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .failure(DAppError.cancelled))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func failed(withErrorMessage errorMessage: String, withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
-        switch callbackId {
-        case .dappRequestId(let callbackId):
-            let error = DAppError.nodeError(errorMessage)
-            dappBrowserCoordinator?.notifyFinish(callbackID: callbackId, value: .failure(error))
-        case .walletConnectRequest(let request):
-            try? walletConnectCoordinator.respond(response: .init(error: .requestRejected), request: request)
-        }
-        removeCoordinator(coordinator)
-    }
-}
-
 extension InCoordinator {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
         let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: presentationViewController)
-        coordinator.delegate = self
-        addCoordinator(coordinator)
+        coordinator.delegate = dappRequestHandler
+        dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
     }
 
     func requestAddCustomChain(server: RPCServer, callbackId: SwitchCustomChainCallbackId, customChain: WalletAddEthereumChainObject) {
         let coordinator = DappRequestSwitchCustomChainCoordinator(config: config, server: server, callbackId: callbackId, customChain: customChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: nil, inViewController: presentationViewController)
-            coordinator.delegate = self
-        addCoordinator(coordinator)
+        coordinator.delegate = dappRequestHandler
+        dappRequestHandler.addCoordinator(coordinator)
         coordinator.start()
     }
 }

@@ -16,8 +16,8 @@ protocol DappRequestSwitchCustomChainCoordinatorDelegate: AnyObject {
 }
 
 enum SwitchCustomChainCallbackId {
-    case dappRequestId(Int)
-    case walletConnectRequest(request: AlphaWallet.WalletConnect.Session.Request/*, session: AlphaWallet.WalletConnect.Session*/)
+    case dapp(requestId: Int)
+    case walletConnect(request: AlphaWallet.WalletConnect.Session.Request)
 }
 
 class DappRequestSwitchCustomChainCoordinator: NSObject, Coordinator {
