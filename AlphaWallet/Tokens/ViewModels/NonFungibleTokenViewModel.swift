@@ -8,10 +8,14 @@
 import UIKit
 import BigInt
 
+struct AttributeCollectionViewModel {
+    let traits: [NonFungibleTraitViewModel]
+}
+
 enum TokenInstanceViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
     case field(viewModel: TokenInstanceAttributeViewModel)
-    case attributeCollection(viewModel: [NonFungibleTraitViewModel])
+    case attributeCollection(viewModel: AttributeCollectionViewModel)
 }
 
 enum TokenInstanceViewMode {
@@ -52,6 +56,7 @@ struct NonFungibleTokenViewModel {
 
     mutating func configure(overiddenOpenSeaStats: OpenSea.Stats?) {
         self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
+        self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
 
     var actions: [TokenInstanceAction] {
@@ -163,21 +168,21 @@ struct NonFungibleTokenViewModel {
         if !tokenHolderHelper.attributes.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesAttributes())),
-                .attributeCollection(viewModel: tokenHolderHelper.attributes)
+                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.attributes))
             ]
         }
 
         if !tokenHolderHelper.stats.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesStats())),
-                .attributeCollection(viewModel: tokenHolderHelper.stats)
+                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.stats))
             ]
         }
 
         if !tokenHolderHelper.rankings.isEmpty {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesRankings())),
-                .attributeCollection(viewModel: tokenHolderHelper.rankings)
+                .attributeCollection(viewModel: .init(traits: tokenHolderHelper.rankings))
             ]
         }
 

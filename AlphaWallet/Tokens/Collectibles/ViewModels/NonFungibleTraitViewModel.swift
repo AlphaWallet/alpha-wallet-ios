@@ -12,8 +12,6 @@ struct NonFungibleTraitViewModel: Equatable {
     static func == (lsh: NonFungibleTraitViewModel, rhs: NonFungibleTraitViewModel) -> Bool {
         return lsh.title == rhs.title &&
             lsh.attributedValue == rhs.attributedValue &&
-            lsh.separatorColor == rhs.separatorColor &&
-            lsh.isSeparatorHidden == rhs.isSeparatorHidden &&
             lsh.count == rhs.count &&
             lsh.attributedCountValue == rhs.attributedCountValue
     }
@@ -23,28 +21,27 @@ struct NonFungibleTraitViewModel: Equatable {
     let count: String?
     var attributedValue: NSAttributedString?
     var attributedCountValue: NSAttributedString?
-    var separatorColor: UIColor = R.color.mercury()!
-    var isSeparatorHidden: Bool = false
+    var borderColor: UIColor = Colors.appTint
+    var cornerRadius: CGFloat = 10
+    var borderWidth: CGFloat = 1
 
-    init(title: String?, attributedValue: NSAttributedString?, attributedCountValue: NSAttributedString?, isSeparatorHidden: Bool = false) {
+    init(title: String?, attributedValue: NSAttributedString?, attributedCountValue: NSAttributedString?) {
         self.title = title
         self.attributedValue = attributedValue
         self.attributedCountValue = attributedCountValue
-        self.isSeparatorHidden = isSeparatorHidden
         self.value = attributedValue?.string
         self.count = attributedCountValue?.string
     }
 
-    init(title: String?, attributedValue: NSAttributedString?, attributedCountValue: NSAttributedString?, value: String?, count: String?, isSeparatorHidden: Bool = false) {
+    init(title: String?, attributedValue: NSAttributedString?, attributedCountValue: NSAttributedString?, value: String?, count: String?) {
         self.title = title
         self.attributedValue = attributedValue
         self.attributedCountValue = attributedCountValue
-        self.isSeparatorHidden = isSeparatorHidden
         self.value = value
         self.count = count
     }
 
     var attributedTitle: NSAttributedString? {
-        title.flatMap { TokenInstanceAttributeViewModel.defaultTitleAttributedString($0) }
+        title.flatMap { TokenInstanceAttributeViewModel.defaultTitleAttributedString($0, alignment: .center) }
     }
 }

@@ -11,13 +11,7 @@ import PromiseKit
 import Result
 import SwiftyJSON
 
-protocol OpenSeaNetworkProvider: AnyObject {
-    func collectionStats(slug: String) -> Promise<OpenSea.Stats>
-    func fetchAssetImageUrl(for value: Eip155URL) -> Promise<URL>
-    func fetchAssetsPromise(address owner: AlphaWallet.Address, server: RPCServer) -> Promise<OpenSea.Response<OpenSeaNonFungiblesToAddress>>
-}
-
-final class OpenSeaNetworkProviderX: OpenSeaNetworkProvider {
+final class OpenSeaNetworkProvider {
 
     private let sessionManagerWithDefaultHttpHeaders: SessionManager = {
         let configuration = URLSessionConfiguration.default
