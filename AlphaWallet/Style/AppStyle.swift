@@ -176,7 +176,7 @@ enum Metrics {
     }
 
     static let tokenChainOverlayDimension = CGFloat(16)
-    
+    static let anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
     enum Analytics {
         static let spacing = CGFloat(30)
         static let edgeInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)

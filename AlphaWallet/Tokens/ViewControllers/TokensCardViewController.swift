@@ -18,8 +18,6 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokensCardViewController: UIViewController {
-    static let anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
-
     private (set) var viewModel: TokensCardViewModel
     private let tokenObject: TokenObject
     private let session: WalletSession

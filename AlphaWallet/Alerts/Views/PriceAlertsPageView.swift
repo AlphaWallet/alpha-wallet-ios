@@ -29,7 +29,7 @@ class PriceAlertsPageView: UIView, PageViewType {
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = viewModel.backgroundColor
-        tableView.estimatedRowHeight = TokensCardViewController.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
+        tableView.estimatedRowHeight = Metrics.anArbitraryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.tableFooterView = .tableFooterToRemoveEmptyCellSeparators()
 
         return tableView
