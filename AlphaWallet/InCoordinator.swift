@@ -118,6 +118,9 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return handler
     }()
 
+    private lazy var transactionNotificationService = TransactionNotificationSourceService(transactionDataStore: transactionDataStore, promptBackupCoordinator: promptBackupCoordinator, config: config)
+    private let notificationService: NotificationService
+
     init(
             navigationController: UINavigationController = UINavigationController(),
             walletAddressesStore: WalletAddressesStore,
@@ -135,7 +138,8 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
             coinTickersFetcher: CoinTickersFetcherType,
             tokenActionsService: TokenActionsServiceType,
             walletConnectCoordinator: WalletConnectCoordinator,
-            sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init())
+            sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init()),
+            notificationService: NotificationService
     ) {
         self.sessionsSubject = sessionsSubject
         self.walletConnectCoordinator = walletConnectCoordinator
@@ -155,16 +159,19 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         self.coinTickersFetcher = coinTickersFetcher
         self.tokenActionsService = tokenActionsService
         self.blockscanChatService = BlockscanChatService(walletAddressesStore: walletAddressesStore, account: wallet, analyticsCoordinator: analyticsCoordinator)
-
+        self.notificationService = notificationService
         //Disabled for now. Refer to function's comment
         //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
         super.init()
         blockscanChatService.delegate = self
+
+        notificationService.register(source: transactionNotificationService)
     }
 
     deinit {
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
+        notificationService.unregister(source: transactionNotificationService)
     }
 
     func start(animated: Bool) {
@@ -181,6 +188,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
 
         showWhatsNew()
+        notificationService.start(wallet: wallet)
     }
 
     private func showHelpUs() {
@@ -234,9 +242,9 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         migration.oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: assetDefinitionStore)
     }
 
-    private func removeFailedOrPendingTransactions() {
+    private func removeUnknownTransactions() {
         //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
-        transactionDataStore.removeTransactions(for: [.failed, .pending, .unknown], servers: config.enabledServers)
+        transactionDataStore.removeTransactions(for: [.unknown], servers: config.enabledServers)
     }
 
     private func setupWalletSessions() {
@@ -255,7 +263,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupWalletSessions()
-        removeFailedOrPendingTransactions()
+        removeUnknownTransactions()
     }
 
     //Internal for test purposes
@@ -321,7 +329,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         let transactionDataCoordinator = TransactionDataCoordinator(
             sessions: sessionsSubject.value,
             transactionDataStore: transactionDataStore,
-            keystore: keystore,
             tokensDataStore: tokensDataStore,
             promptBackupCoordinator: promptBackupCoordinator
         )

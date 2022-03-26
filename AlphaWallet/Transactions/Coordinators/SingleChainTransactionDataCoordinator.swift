@@ -3,7 +3,7 @@
 import Foundation
 
 protocol SingleChainTransactionDataCoordinator: Coordinator {
-    init(session: WalletSession, transactionDataStore: TransactionDataStore, keystore: Keystore, tokensDataStore: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue)
     
     func start()
     func stopTimers()

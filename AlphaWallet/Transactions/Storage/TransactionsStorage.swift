@@ -39,6 +39,11 @@ class TransactionDataStore {
                 TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: tokenObject.server),
                 filter.predicate
             ])
+        case .predicate(let p):
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers),
+                p
+            ])
         case .all:
             predicate = TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
         }
@@ -74,6 +79,8 @@ class TransactionDataStore {
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
                 TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
             ] + oldestBlockNumberPredicate)
+        case .predicate(let p):
+            predicate = p
         }
 
         return realm.objects(Transaction.self)
@@ -177,6 +184,8 @@ class TransactionDataStore {
         let newTransactions = transactions.map { Transaction(object: $0) }
         let newTransactionsToPullContractsFrom = transactionsToPullContractsFrom.map { Transaction(object: $0) }
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
+        guard !transactionsToCommit.isEmpty else { return }
+
         realm.beginWrite()
         realm.add(transactionsToCommit, update: .all)
         //NOTE: move adding transactions under single write realm transaction
@@ -216,7 +225,11 @@ class TransactionDataStore {
             if each.isERC20Interaction {
                 return true
             } else {
-                return realm.object(ofType: Transaction.self, forPrimaryKey: each.primaryKey) == nil
+                if let tx = realm.object(ofType: Transaction.self, forPrimaryKey: each.primaryKey) {
+                    return each.blockNumber != tx.blockNumber && each.blockNumber != 0
+                } else {
+                    return true
+                }
             }
         }
     }

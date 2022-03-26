@@ -14,6 +14,12 @@ class FakeUniversalLinkCoordinator: UniversalLinkCoordinatorType {
     }
 }
 
+final class FakeNotificationService: NotificationService {
+    init() {
+        super.init(sources: [], walletBalanceService: FakeMultiWalletBalanceService())
+    }
+}
+
 class InCoordinatorTests: XCTestCase {
 
     func testShowTabBar() {
@@ -40,7 +46,8 @@ class InCoordinatorTests: XCTestCase {
             walletBalanceService: FakeMultiWalletBalanceService(),
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
-            walletConnectCoordinator: .fake()
+            walletConnectCoordinator: .fake(),
+            notificationService: FakeNotificationService()
         )
 
         coordinator.start(animated: false)
@@ -88,7 +95,9 @@ class InCoordinatorTests: XCTestCase {
             walletBalanceService: FakeMultiWalletBalanceService(),
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
-            walletConnectCoordinator: .fake())
+            walletConnectCoordinator: .fake(),
+            notificationService: FakeNotificationService()
+        )
 
         coordinator.showTabBar(for: account1, animated: false)
 
@@ -122,7 +131,8 @@ class InCoordinatorTests: XCTestCase {
                 walletBalanceService: FakeMultiWalletBalanceService(),
                 coinTickersFetcher: FakeCoinTickersFetcher(),
                 tokenActionsService: FakeSwapTokenService(),
-                walletConnectCoordinator: .fake()
+                walletConnectCoordinator: .fake(),
+                notificationService: FakeNotificationService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
@@ -154,7 +164,8 @@ class InCoordinatorTests: XCTestCase {
             walletBalanceService: FakeMultiWalletBalanceService(),
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
-            walletConnectCoordinator: .fake()
+            walletConnectCoordinator: .fake(),
+            notificationService: FakeNotificationService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
 
@@ -187,7 +198,8 @@ class InCoordinatorTests: XCTestCase {
             walletBalanceService: FakeMultiWalletBalanceService(),
             coinTickersFetcher: FakeCoinTickersFetcher(),
             tokenActionsService: FakeSwapTokenService(),
-            walletConnectCoordinator: .fake()
+            walletConnectCoordinator: .fake(),
+            notificationService: FakeNotificationService()
         )
         coordinator.showTabBar(for: .make(), animated: false)
 
@@ -238,7 +250,8 @@ class InCoordinatorTests: XCTestCase {
                     walletBalanceService: FakeMultiWalletBalanceService(),
                     coinTickersFetcher: FakeCoinTickersFetcher(),
                     tokenActionsService: FakeSwapTokenService(),
-                    walletConnectCoordinator: .fake()
+                    walletConnectCoordinator: .fake(),
+                    notificationService: FakeNotificationService()
             )
             coordinator.showTabBar(for: wallet, animated: false)
 

@@ -13,7 +13,6 @@ class TransactionDataCoordinator: Coordinator {
 
     private let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
-    private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private var singleChainTransactionDataCoordinators: [SingleChainTransactionDataCoordinator] {
@@ -34,13 +33,11 @@ class TransactionDataCoordinator: Coordinator {
     init(
             sessions: ServerDictionary<WalletSession>,
             transactionDataStore: TransactionDataStore,
-            keystore: Keystore,
             tokensDataStore: TokensDataStore,
             promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.sessions = sessions
         self.transactionDataStore = transactionDataStore
-        self.keystore = keystore
         self.tokensDataStore = tokensDataStore
         self.promptBackupCoordinator = promptBackupCoordinator
         setupSingleChainTransactionDataCoordinators()
@@ -51,7 +48,7 @@ class TransactionDataCoordinator: Coordinator {
     private func setupSingleChainTransactionDataCoordinators() {
         for each in sessions.values {
             let coordinatorType = each.server.transactionDataCoordinatorType
-            let coordinator = coordinatorType.init(session: each, transactionDataStore: transactionDataStore, keystore: keystore, tokensDataStore: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            let coordinator = coordinatorType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
 
             addCoordinator(coordinator)
         }
