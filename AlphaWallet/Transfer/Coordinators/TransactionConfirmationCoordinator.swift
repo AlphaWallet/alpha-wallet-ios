@@ -22,7 +22,7 @@ enum TransactionConfirmationConfiguration {
 
     var confirmType: ConfirmType {
         switch self {
-        case .dappTransaction(let confirmType, _), .walletConnect(let confirmType, _, _ ), .sendFungiblesTransaction(let confirmType, _, _,  _), .sendNftTransaction(let confirmType,  _, _), .tokenScriptTransaction(let confirmType, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _):
+        case .dappTransaction(let confirmType, _), .walletConnect(let confirmType, _, _ ), .sendFungiblesTransaction(let confirmType, _, _, _), .sendNftTransaction(let confirmType, _, _), .tokenScriptTransaction(let confirmType, _, _, _), .claimPaidErc875MagicLink(let confirmType, _, _, _):
             return confirmType
         case .speedupTransaction, .cancelTransaction:
             return .signThenSend
@@ -54,30 +54,39 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
     func didClose(in coordinator: TransactionConfirmationCoordinator)
 }
 
+extension UIApplication {
+    func presentedViewController(_ defaultViewControler: UIViewController) -> UIViewController {
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return defaultViewControler }
+
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            return controller
+        } else {
+            return defaultViewControler
+        }
+    }
+}
+
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
     private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
-    private lazy var confirmationViewController: TransactionConfirmationViewController = {
+    private lazy var rootViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel, session: configurator.session)
         controller.delegate = self
         return controller
     }()
+    private lazy var hostViewController: FloatingPanelController = {
+        let panel = FloatingPanelController(isPanEnabled: false)
+        panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
+        panel.set(contentViewController: rootViewController)
+
+        return panel
+    }()
     private weak var configureTransactionViewController: ConfigureTransactionViewController?
     private let configurator: TransactionConfigurator
     private let analyticsCoordinator: AnalyticsCoordinator
-
-    private var server: RPCServer {
-        configurator.session.server
-    }
-
-    let presentingViewController: UIViewController
-    lazy var navigationController: UINavigationController = {
-        let controller = UINavigationController(rootViewController: confirmationViewController)
-        controller.modalPresentationStyle = .overFullScreen
-        controller.modalTransitionStyle = .crossDissolve
-        controller.view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-        return controller
-    }()
+    private var canBeDismissed = true
+    private var server: RPCServer { configurator.session.server }
+    private let navigationController: UIViewController
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
@@ -86,38 +95,27 @@ class TransactionConfirmationCoordinator: Coordinator {
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
-        self.presentingViewController = presentingViewController
+        self.navigationController = presentingViewController
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
         guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
 
         if let controller = keyWindow.rootViewController?.presentedViewController {
-            controller.present(navigationController, animated: false)
+            controller.present(hostViewController, animated: true)
         } else {
-            presentingViewController.present(navigationController, animated: false)
+            navigationController.present(hostViewController, animated: true)
         }
 
         configurator.delegate = self
         configurator.start()
-        confirmationViewController.reloadView()
+        rootViewController.reloadView()
 
         logStartActionSheetForTransactionConfirmation(source: source)
     }
 
     func close(completion: @escaping () -> Void) {
-        confirmationViewController.dismissViewAnimated {
-            //Needs a strong self reference otherwise `self` might have been removed by its owner by the time animation completes and the `completion` block not called
-            self.navigationController.dismiss(animated: true, completion: completion)
-        }
-    }
-
-    func close() -> Promise<Void> {
-        return Promise { seal in
-            self.close {
-                seal.fulfill(())
-            }
-        }
+        navigationController.dismiss(animated: true, completion: completion)
     }
 
     private func showFeedbackOnSuccess() {
@@ -128,7 +126,7 @@ class TransactionConfirmationCoordinator: Coordinator {
         analyticsCoordinator.log(action: Analytics.Action.rectifySendTransactionErrorInActionSheet, properties: [Analytics.Properties.type.rawValue: error.analyticsName])
         switch error {
         case .insufficientFunds:
-            delegate?.openFiatOnRamp(wallet: configurator.session.account, server: server, inCoordinator: self, viewController: confirmationViewController)
+            delegate?.openFiatOnRamp(wallet: configurator.session.account, server: server, inCoordinator: self, viewController: rootViewController)
         case .nonceTooLow:
             showConfigureTransactionViewController(configurator, recoveryMode: .invalidNonce)
         case .gasPriceTooLow:
@@ -143,44 +141,44 @@ class TransactionConfirmationCoordinator: Coordinator {
             break
         }
     }
-
-    private func askUserToRateAppOrSubscribeToNewsletter() {
-        let coordinator = HelpUsCoordinator(navigationController: navigationController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
-        coordinator.rateUsOrSubscribeToNewsletter()
-    }
 }
 
 extension TransactionConfirmationCoordinator: TransactionConfirmationViewControllerDelegate {
 
+    func didInvalidateLayout(in controller: TransactionConfirmationViewController) {
+        hostViewController.invalidateLayout()
+    }
+
     func didClose(in controller: TransactionConfirmationViewController) {
+        guard canBeDismissed else { return }
+
         analyticsCoordinator.log(action: Analytics.Action.cancelsTransactionInActionSheet)
-        navigationController.dismiss(animated: false) { [weak self] in
-            guard let strongSelf = self, let delegate = strongSelf.delegate else { return }
-            delegate.didClose(in: strongSelf)
+        rootViewController.dismiss(animated: true) {
+            self.delegate?.didClose(in: self)
         }
     }
 
     func controller(_ controller: TransactionConfirmationViewController, continueButtonTapped sender: UIButton) {
         sender.isEnabled = false
-        confirmationViewController.canBeDismissed = false
-        confirmationViewController.set(state: .pending)
+        canBeDismissed = false
+        rootViewController.set(state: .pending)
+
         firstly { () -> Promise<ConfirmResult> in
             return sendTransaction()
         }.done { result in
             self.handleSendTransactionSuccessfully(result: result)
             self.logCompleteActionSheetForTransactionConfirmationSuccessfully()
-            self.askUserToRateAppOrSubscribeToNewsletter()
         }.catch { error in
             self.logActionSheetForTransactionConfirmationFailed()
             //TODO remove delay which is currently needed because the starting animation may not have completed and internal state (whether animation is running) is in correct
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.confirmationViewController.set(state: .done(withError: true)) {
+                self.rootViewController.set(state: .done(withError: true)) {
                     self.handleSendTransactionError(error)
                 }
             }
         }.finally {
             sender.isEnabled = true
-            self.confirmationViewController.canBeDismissed = true
+            self.canBeDismissed = true
         }
     }
 
@@ -198,7 +196,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
             break
         }
 
-        confirmationViewController.set(state: .done(withError: false)) {
+        rootViewController.set(state: .done(withError: false)) {
             self.showFeedbackOnSuccess()
             self.delegate?.didFinish(result, in: self)
         }
@@ -209,11 +207,12 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
         case let e as SendTransactionNotRetryableError:
             let errorViewController = SendTransactionErrorViewController(server: server, analyticsCoordinator: analyticsCoordinator, error: e)
             errorViewController.delegate = self
-            let controller = UINavigationController(rootViewController: errorViewController)
-            controller.modalPresentationStyle = .overFullScreen
-            controller.modalTransitionStyle = .crossDissolve
-            controller.view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            confirmationViewController.present(controller, animated: true)
+
+            let panel = FloatingPanelController(isPanEnabled: false)
+            panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
+            panel.set(contentViewController: errorViewController)
+
+            rootViewController.present(panel, animated: true)
         default:
             showError(error)
         }
@@ -230,39 +229,49 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
     private func showConfigureTransactionViewController(_ configurator: TransactionConfigurator, recoveryMode: ConfigureTransactionViewModel.RecoveryMode = .none) {
         let controller = ConfigureTransactionViewController(viewModel: .init(configurator: configurator, recoveryMode: recoveryMode))
         controller.delegate = self
-        navigationController.pushViewController(controller, animated: true)
+
+        let navigationController = UINavigationController(rootViewController: controller)
+        navigationController.makePresentationFullScreenForiOS13Migration()
+        controller.navigationItem.leftBarButtonItem = .closeBarButton(self, selector: #selector(configureTransactionDidDismiss))
+        
+        hostViewController.present(navigationController, animated: true)
+
         configureTransactionViewController = controller
+    }
+
+    @objc func configureTransactionDidDismiss() {
+        configureTransactionViewController?.navigationController?.dismiss(animated: true)
     }
 }
 
 extension TransactionConfirmationCoordinator: ConfigureTransactionViewControllerDelegate {
     func didSavedToUseDefaultConfigurationType(_ configurationType: TransactionConfigurationType, in viewController: ConfigureTransactionViewController) {
         configurator.chooseDefaultConfigurationType(configurationType)
-        navigationController.popViewController(animated: true)
+        viewController.navigationController?.dismiss(animated: true)
     }
 
     func didSaved(customConfiguration: TransactionConfiguration, in viewController: ConfigureTransactionViewController) {
         configurator.chooseCustomConfiguration(customConfiguration)
-        navigationController.popViewController(animated: true)
+        viewController.navigationController?.dismiss(animated: true)
     }
 }
 
 extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     func configurationChanged(in configurator: TransactionConfigurator) {
-        confirmationViewController.reloadView()
-        confirmationViewController.reloadViewWithCurrentBalanceValue()
+        rootViewController.reloadView()
+        rootViewController.reloadViewWithCurrentBalanceValue()
     }
 
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasLimit: estimate)
-        confirmationViewController.reloadViewWithGasChanges()
-        confirmationViewController.reloadViewWithCurrentBalanceValue()
+        rootViewController.reloadViewWithGasChanges()
+        rootViewController.reloadViewWithCurrentBalanceValue()
     }
 
     func gasPriceEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
         configureTransactionViewController?.configure(withEstimatedGasPrice: estimate, configurator: configurator)
-        confirmationViewController.reloadViewWithGasChanges()
-        confirmationViewController.reloadViewWithCurrentBalanceValue()
+        rootViewController.reloadViewWithGasChanges()
+        rootViewController.reloadViewWithCurrentBalanceValue()
     }
 
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator) {
@@ -364,14 +373,14 @@ extension TransactionConfirmationCoordinator {
 
 extension TransactionConfirmationCoordinator: SendTransactionErrorViewControllerDelegate {
     func rectifyErrorButtonTapped(error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
-        controller.dismiss(animated: false) {
+        controller.dismiss(animated: true) {
             self.rectifyTransactionError(error: error)
         }
     }
 
     func linkTapped(_ url: URL, forError error: SendTransactionNotRetryableError, inController controller: SendTransactionErrorViewController) {
-        controller.dismiss(animated: false) {
-            self.delegate?.didPressOpenWebPage(url, in: self.confirmationViewController)
+        controller.dismiss(animated: true) {
+            self.delegate?.didPressOpenWebPage(url, in: self.rootViewController)
         }
     }
 

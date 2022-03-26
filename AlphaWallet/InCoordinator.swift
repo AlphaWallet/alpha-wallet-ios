@@ -69,7 +69,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return coordinators.compactMap { $0 as? SettingsCoordinator }.first
     }
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
-        HelpUsCoordinator(navigationController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
+        HelpUsCoordinator(hostViewController: navigationController, appTracker: appTracker, analyticsCoordinator: analyticsCoordinator)
     }()
 
     private lazy var whatsNewExperimentCoordinator: WhatsNewExperimentCoordinator = {
@@ -911,17 +911,22 @@ extension InCoordinator: PaymentCoordinatorDelegate {
 
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         removeCoordinator(coordinator)
+        askUserToRateAppOrSubscribeToNewsletter()
+    }
 
-        switch result {
-        case .sentTransaction(let transaction):
-            coordinator.dismiss(animated: false)
+    //NOTE: askUserToRateAppOrSubscribeToNewsletter can't be called ringht in confirmation coordinator as after successfully sent transaction coordinator dismissed
+    private func askUserToRateAppOrSubscribeToNewsletter() {
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                self.showTransactionSent(transaction: transaction)
-            }
-        case .sentRawTransaction, .signedTransaction:
-            break
+        let hostViewController: UIViewController
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            hostViewController = controller
+        } else {
+            hostViewController = navigationController
         }
+
+        let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
+        coordinator.rateUsOrSubscribeToNewsletter()
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
@@ -1048,14 +1053,7 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
 
     func didFinish(_ result: ConfirmResult, in coordinator: ReplaceTransactionCoordinator) {
         removeCoordinator(coordinator)
-        switch result {
-        case .sentTransaction(let transaction):
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                self.showTransactionSent(transaction: transaction)
-            }
-        case .sentRawTransaction, .signedTransaction:
-            break
-        }
+        askUserToRateAppOrSubscribeToNewsletter()
     }
 
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: ReplaceTransactionCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource) {

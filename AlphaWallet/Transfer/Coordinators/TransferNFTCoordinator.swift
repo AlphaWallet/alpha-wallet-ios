@@ -22,6 +22,8 @@ class TransferNFTCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
     private var transactionConfirmationResult: ConfirmResult? = .none
     private let transactionType: TransactionType
+    private var lastViewControllerInNavigationStack: UIViewController?
+    
     weak var delegate: TransferNFTCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -45,6 +47,7 @@ class TransferNFTCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -129,8 +132,9 @@ extension TransferNFTCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.localizedDescription)
+        UIApplication.shared
+            .presentedViewController(navigationController)
+            .displayError(message: error.prettyError)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
@@ -163,8 +167,10 @@ extension TransferNFTCoordinator: TransactionConfirmationCoordinatorDelegate {
 extension TransferNFTCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+        
         switch transactionConfirmationResult {
         case .some(let result):
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

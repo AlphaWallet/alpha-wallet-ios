@@ -119,8 +119,9 @@ class ReplaceTransactionCoordinator: Coordinator {
 
 extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.prettyError)
+        UIApplication.shared
+            .presentedViewController(presentingViewController)
+            .displayError(message: error.prettyError)
     }
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
@@ -159,7 +160,10 @@ extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDeleg
 }
 
 extension ReplaceTransactionCoordinator: TransactionInProgressCoordinatorDelegate {
+    
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
+        removeCoordinator(coordinator)
+
         switch transactionConfirmationResult {
         case .some(let result):
             delegate?.didFinish(result, in: self)

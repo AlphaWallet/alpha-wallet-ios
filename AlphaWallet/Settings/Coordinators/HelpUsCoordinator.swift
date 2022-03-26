@@ -4,7 +4,7 @@ import UIKit
 import StoreKit
 
 class HelpUsCoordinator: Coordinator {
-    private let navigationController: UINavigationController
+    private let hostViewController: UIViewController
     private let appTracker: AppTracker
     private let viewModel = HelpUsViewModel()
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -12,12 +12,11 @@ class HelpUsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     init(
-        navigationController: UINavigationController = UINavigationController(),
+        hostViewController: UIViewController = UIViewController(),
         appTracker: AppTracker = AppTracker(),
         analyticsCoordinator: AnalyticsCoordinator
     ) {
-        self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
+        self.hostViewController = hostViewController
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
     }
@@ -48,7 +47,7 @@ class HelpUsCoordinator: Coordinator {
         controller._delegate = self
         controller.configure(viewModel: .init())
 
-        navigationController.present(controller, animated: true)
+        hostViewController.present(controller, animated: true)
     }
 
     private func rateUs() {
@@ -63,11 +62,11 @@ class HelpUsCoordinator: Coordinator {
         controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
         nav.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(nav, animated: true, completion: nil)
+        hostViewController.present(nav, animated: true)
     }
 
     @objc private func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
+        hostViewController.dismiss(animated: true, completion: nil)
     }
 
     func presentSharing(in viewController: UIViewController, from sender: UIView) {

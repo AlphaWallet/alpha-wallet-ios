@@ -65,17 +65,15 @@ extension TransactionConfirmationCoordinatorBridgeToPromise: TransactionConfirma
     }
 
     func didFinish(_ result: ConfirmResult, in coordinator: TransactionConfirmationCoordinator) {
-        coordinator.close().done { _ in
+        coordinator.close {
             self.seal.fulfill(result)
-        }.cauterize()
+        }
     }
 
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        coordinator.close().done { _ in
-            //no op
-        }.ensure {
+        coordinator.close {
             self.seal.reject(error)
-        }.cauterize()
+        } 
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {

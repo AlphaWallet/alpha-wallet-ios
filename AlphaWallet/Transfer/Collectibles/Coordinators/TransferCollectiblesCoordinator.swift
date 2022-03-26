@@ -29,6 +29,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let filteredTokenHolders: [TokenHolder]
     private var transactionConfirmationResult: ConfirmResult? = .none
+    private var lastViewControllerInNavigationStack: UIViewController?
     
     weak var delegate: TransferCollectiblesCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -51,6 +52,7 @@ class TransferCollectiblesCoordinator: Coordinator {
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -144,8 +146,9 @@ extension TransferCollectiblesCoordinator: ScanQRCodeCoordinatorDelegate {
 
 extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.localizedDescription)
+        UIApplication.shared
+            .presentedViewController(navigationController)
+            .displayError(message: error.localizedDescription)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
@@ -178,8 +181,10 @@ extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDel
 extension TransferCollectiblesCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+
         switch transactionConfirmationResult {
         case .some(let result):
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

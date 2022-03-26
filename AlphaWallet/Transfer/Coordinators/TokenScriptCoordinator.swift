@@ -31,10 +31,12 @@ class TokenScriptCoordinator: Coordinator {
     private let action: TokenInstanceAction
     private let tokensStorage: TokensDataStore
     private let eventsDataStore: NonActivityEventsDataStore
+    private var lastViewControllerInNavigationStack: UIViewController?
+    private var cancelable = Set<AnyCancellable>()
+
     weak var delegate: TokenScriptCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    private var cancelable = Set<AnyCancellable>()
 
     init(
             session: WalletSession,
@@ -59,6 +61,7 @@ class TokenScriptCoordinator: Coordinator {
         self.analyticsCoordinator = analyticsCoordinator
         self.tokensStorage = tokensStorage
         navigationController.navigationBar.isTranslucent = false
+        self.lastViewControllerInNavigationStack = navigationController.viewControllers.last
     }
 
     func start() {
@@ -160,8 +163,9 @@ extension TokenScriptCoordinator: StaticHTMLViewControllerDelegate {
 extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
-        //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.localizedDescription)
+        UIApplication.shared
+            .presentedViewController(navigationController)
+            .displayError(message: error.prettyError)
     }
 
     func didClose(in coordinator: TransactionConfirmationCoordinator) {
@@ -194,8 +198,10 @@ extension TokenScriptCoordinator: TransactionConfirmationCoordinatorDelegate {
 extension TokenScriptCoordinator: TransactionInProgressCoordinatorDelegate {
     func didDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+        
         switch transactionConfirmationResult {
         case .some(let result):
+            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

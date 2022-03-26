@@ -50,59 +50,7 @@ class SendTransactionErrorViewController: UIViewController {
         return stackView
     }()
 
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(stackView)
-        return scrollView
-    }()
-
-    private var contentSizeObservation: NSKeyValueObservation?
-
-    private lazy var footerBar: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = viewModel.footerBackgroundColor
-        view.addSubview(buttonsBar)
-
-        return view
-    }()
-
-    private lazy var backgroundView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .clear
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissViewController))
-        view.isUserInteractionEnabled = true
-        view.addGestureRecognizer(tap)
-
-        return view
-    }()
-
-    private lazy var containerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white
-        view.cornerRadius = 12
-
-        view.addSubview(scrollView)
-        view.addSubview(footerBar)
-        view.addSubview(headerView)
-
-        return view
-    }()
-
-    private lazy var heightConstraint: NSLayoutConstraint = {
-        return containerView.heightAnchor.constraint(equalToConstant: preferredContentSize.height)
-    }()
-
-    private lazy var bottomConstraint: NSLayoutConstraint = {
-        containerView.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-    }()
-
-    private var allowPresentationAnimation: Bool = true
-    private var allowDismissalAnimation: Bool = true
+    private lazy var footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0)
 
     weak var delegate: SendTransactionErrorViewControllerDelegate?
 
@@ -112,121 +60,21 @@ class SendTransactionErrorViewController: UIViewController {
         self.error = error
         super.init(nibName: nil, bundle: nil)
 
-        view.addSubview(backgroundView)
-        view.addSubview(containerView)
-
-        //Can't move this into the closure for creating the button, it'll compile, but tapping button becomes a no-op
-        linkButton.addTarget(self, action: #selector(linkButtonTapped), for: .touchUpInside)
+        view.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            backgroundView.bottomAnchor.constraint(equalTo: containerView.topAnchor),
-            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
-            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            heightConstraint,
-            bottomConstraint,
-            containerView.safeAreaLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            headerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            headerView.topAnchor.constraint(equalTo: containerView.topAnchor),
-
-            scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 26),
-            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -26),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-
-            footerBar.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: DataEntry.Metric.TransactionConfirmation.footerHeight),
-            footerBar.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
-
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor, constant: 20),
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            stackView.anchorsConstraint(to: view)
         ])
-        headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
-
-        contentSizeObservation = scrollView.observe(\.contentSize, options: [.new, .initial]) { [weak self] scrollView, _ in
-            guard let strongSelf = self, strongSelf.allowDismissalAnimation else { return }
-
-            let statusBarHeight = UIApplication.shared.firstKeyWindow?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
-            let contentHeight = scrollView.contentSize.height + DataEntry.Metric.TransactionConfirmation.footerHeight + DataEntry.Metric.TransactionConfirmation.headerHeight + UIApplication.shared.bottomSafeAreaHeight
-            let newHeight = min(UIScreen.main.bounds.height - statusBarHeight, contentHeight)
-
-            let fillScreenPercentage = strongSelf.heightConstraint.constant / strongSelf.view.bounds.height
-
-            if fillScreenPercentage >= 0.9 {
-                strongSelf.heightConstraint.constant = strongSelf.containerView.bounds.height
-            } else {
-                strongSelf.heightConstraint.constant = newHeight
-            }
-        }
 
         generateSubviews()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configure()
 
-        //NOTE: to display animation correctly we can take 'view.frame.height' and bottom view will smoothly slide up from button ;)
-        bottomConstraint.constant = view.frame.height
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        if let navigationController = navigationController {
-            navigationController.setNavigationBarHidden(true, animated: false)
-        }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        presentViewAnimated()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        if let navigationController = navigationController {
-            navigationController.setNavigationBarHidden(false, animated: false)
-        }
-    }
-
-    private func presentViewAnimated() {
-        guard allowPresentationAnimation else { return }
-        allowPresentationAnimation = false
-
-        bottomConstraint.constant = 0
-
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        }
-    }
-
-    func dismissViewAnimated(with completion: @escaping () -> Void) {
-        guard allowDismissalAnimation else { return }
-        allowDismissalAnimation = false
-
-        bottomConstraint.constant = heightConstraint.constant
-
-        UIView.animate(withDuration: 0.4, animations: {
-            self.view.layoutIfNeeded()
-        }, completion: { _ in
-            completion()
-        })
+        headerView.closeButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
+        linkButton.addTarget(self, action: #selector(linkButtonTapped), for: .touchUpInside)
     }
 
     @objc private func dismissViewController() {
@@ -248,7 +96,6 @@ class SendTransactionErrorViewController: UIViewController {
     }
 
     private func configure() {
-        scrollView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
 
         titleLabel.text = viewModel.title
@@ -286,13 +133,17 @@ class SendTransactionErrorViewController: UIViewController {
 extension SendTransactionErrorViewController {
     private func generateSubviews() {
         stackView.removeAllArrangedSubviews()
+        
         let views: [UIView] = [
-            titleLabel,
+            headerView,
+            [.spacerWidth(15), titleLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
             .spacer(height: 20),
-            descriptionLabel,
+            [.spacerWidth(15), descriptionLabel, .spacerWidth(15)].asStackView(axis: .horizontal),
             .spacer(height: 20),
             linkButton,
+            footerBar
         ]
+
         stackView.addArrangedSubviews(views)
     }
 }
