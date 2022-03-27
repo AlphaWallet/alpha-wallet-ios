@@ -180,7 +180,7 @@ open class EtherKeystore: NSObject, Keystore {
                 let isSuccessful = savePrivateKeyForNonHdWallet(privateKey, forAccount: address, withUserPresence: false)
                 guard isSuccessful else { return .failure(.failedToCreateWallet) }
             }
-            addToListOfEthereumAddressesWithPrivateKeys(address)
+            walletAddressesStore.addToListOfEthereumAddressesWithPrivateKeys(address)
             return .success(Wallet(type: .real(address)))
         case .mnemonic(let mnemonic, _):
             let mnemonicString = mnemonic.joined(separator: " ")
@@ -201,33 +201,16 @@ open class EtherKeystore: NSObject, Keystore {
                 let isSuccessful = saveSeedForHdWallet(seed, forAccount: address, withUserPresence: false)
                 guard isSuccessful else { return .failure(.failedToCreateWallet) }
             }
-            addToListOfEthereumAddressesWithSeed(address)
+            walletAddressesStore.addToListOfEthereumAddressesWithSeed(address)
             return .success(Wallet(type: .real(address)))
         case .watch(let address):
             guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
-            walletAddressesStore.watchAddresses = [walletAddressesStore.watchAddresses, [address.eip55String]].flatMap {
-                $0
-            }
+            walletAddressesStore.addToListOfWatchEthereumAddresses(address)
 
             return .success(Wallet(type: .watch(address)))
         }
-    }
-
-    private func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
-        let updatedOwnedAddresses = Array(Set(walletAddressesStore.ethereumAddressesWithPrivateKeys + [address.eip55String]))
-        walletAddressesStore.ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
-    }
-
-    private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
-        let updated = Array(Set(walletAddressesStore.ethereumAddressesWithSeed + [address.eip55String]))
-        walletAddressesStore.ethereumAddressesWithSeed = updated
-    }
-
-    private func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
-        let updated = Array(Set(walletAddressesStore.ethereumAddressesProtectedByUserPresence + [address.eip55String]))
-        walletAddressesStore.ethereumAddressesProtectedByUserPresence = updated
     }
 
     private func generateMnemonic() -> String {
@@ -364,20 +347,13 @@ open class EtherKeystore: NSObject, Keystore {
     @discardableResult func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
         switch wallet.type {
         case .real(let account):
-            //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been deleted
-            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init(), analyticsCoordinator: analyticsCoordinator).deleteWallet()
-
-            removeAccountFromBookkeeping(account)
+            removeAccountFromBookkeeping(wallet)
             deleteKeysAndSeedCipherTextFromKeychain(forAccount: account)
             deletePrivateKeysFromSecureEnclave(forAccount: account)
-            //TODO: pass in Config instance instead
-            Config().deleteWalletName(forAccount: account)
-        case .watch(let address):
-            removeAccountFromBookkeeping(address)
-            //TODO: pass in Config instance instead
-            Config().deleteWalletName(forAccount: address)
+        case .watch:
+            removeAccountFromBookkeeping(wallet)
         }
-        (try? LegacyFileBasedKeystore(keystore: self))?.delete(wallet: wallet)
+
         return .success(())
     }
 
@@ -396,7 +372,7 @@ open class EtherKeystore: NSObject, Keystore {
         keychain.delete("\(Keys.ethereumSeedUserPresenceRequiredPrefix)\(account.eip55String)")
     }
 
-    private func removeAccountFromBookkeeping(_ account: AlphaWallet.Address) {
+    private func removeAccountFromBookkeeping(_ account: Wallet) {
         walletAddressesStore.removeAddress(account)
     }
 
@@ -813,7 +789,7 @@ open class EtherKeystore: NSObject, Keystore {
             }
         }
         if isSuccessful {
-            addToListOfEthereumAddressesProtectedByUserPresence(account)
+            walletAddressesStore.addToListOfEthereumAddressesProtectedByUserPresence(account)
             let secureEnclave = SecureEnclave()
             if isHdWallet(account: account) {
                 secureEnclave.deletePrivateKeys(withName: encryptionKeyForSeedLabel(fromAccount: account, withUserPresence: false))

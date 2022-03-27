@@ -671,11 +671,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         return delegate?.assetDefinitionsOverrideViewController(for: self)
     }
 
-    func delete(account: Wallet, in coordinator: SettingsCoordinator) {
-        Erc1155TokenIdsFetcher.deleteForWallet(account.address)
-        TransactionDataStore.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account), config: config)
-    }
-
     func restartToReloadServersQueued(in coordinator: SettingsCoordinator) {
         processRestartQueueAndRestartUI()
     }

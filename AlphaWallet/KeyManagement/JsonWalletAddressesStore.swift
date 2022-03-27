@@ -41,22 +41,20 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
 
     private var storage: StorageType
     private var walletAddresses: WalletAddresses
+    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never>
+    private var didAddWalletSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
+    private var didRemoveWalletSubject: PassthroughSubject<Wallet, Never> = .init()
 
     var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
         walletsSubject.eraseToAnyPublisher()
     }
 
-    private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never>
+    var didAddWalletPublisher: AnyPublisher<AlphaWallet.Address, Never> {
+        didAddWalletSubject.eraseToAnyPublisher()
+    }
 
-    init(storage: StorageType = JsonWalletAddressesStore.createStorage()) {
-        self.storage = storage
-
-        if let value: WalletAddresses = storage.load(forKey: Keys.walletAddresses) {
-            walletAddresses = value
-        } else {
-            walletAddresses = WalletAddresses()
-        }
-        walletsSubject = .init(Set(walletAddresses.wallets))
+    var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> {
+        didRemoveWalletSubject.eraseToAnyPublisher()
     }
 
     var hasAnyStoredData: Bool {
@@ -119,12 +117,60 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
         }
     }
 
+    init(storage: StorageType = JsonWalletAddressesStore.createStorage()) {
+        self.storage = storage
+
+        if let value: WalletAddresses = storage.load(forKey: Keys.walletAddresses) {
+            walletAddresses = value
+        } else {
+            walletAddresses = WalletAddresses()
+        }
+        walletsSubject = .init(Set(walletAddresses.wallets))
+    }
+
     mutating private func saveWalletCollectionToFile() {
         guard let data = try? JSONEncoder().encode(walletAddresses) else { return }
         storage.setData(data, forKey: Keys.walletAddresses)
 
         walletsSubject.send(walletAddresses.wallets)
     }
+
+    mutating func addToListOfWatchEthereumAddresses(_ address: AlphaWallet.Address) {
+        watchAddresses = [watchAddresses, [address.eip55String]].flatMap { $0 }
+
+        didAddWalletSubject.send(address)
+    }
+
+    mutating func addToListOfEthereumAddressesWithPrivateKeys(_ address: AlphaWallet.Address) {
+        let updatedOwnedAddresses = Array(Set(ethereumAddressesWithPrivateKeys + [address.eip55String]))
+        ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
+
+        didAddWalletSubject.send(address)
+    }
+
+    mutating func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
+        let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
+        ethereumAddressesWithSeed = updated
+
+        didAddWalletSubject.send(address)
+    }
+
+    mutating func addToListOfEthereumAddressesProtectedByUserPresence(_ address: AlphaWallet.Address) {
+        let updated = Array(Set(ethereumAddressesProtectedByUserPresence + [address.eip55String]))
+        ethereumAddressesProtectedByUserPresence = updated
+
+        didAddWalletSubject.send(address)
+    }
+
+    mutating func removeAddress(_ account: Wallet) {
+        ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter { $0 != account.address.eip55String }
+        ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
+        ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
+        watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
+
+        didRemoveWalletSubject.send(account)
+    }
+
 }
 
 extension EtherKeystore {

@@ -9,4 +9,9 @@ class FakeTransactionsStorage: TransactionDataStore {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm"))
         self.init(realm: realm, delegate: nil)
     }
+
+    convenience init(server: RPCServer = .main, wallet: Wallet) {
+        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: wallet.address.eip55String))
+        self.init(realm: realm, delegate: nil)
+    }
 }
