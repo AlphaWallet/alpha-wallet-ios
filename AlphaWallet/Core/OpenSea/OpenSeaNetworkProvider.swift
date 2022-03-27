@@ -165,6 +165,9 @@ final class OpenSeaNetworkProvider {
                 privatePerformRequest(url: url).map { _, json -> JSON in
                     json
                 }
+            }.recover { error -> Promise<JSON> in
+                infoLog("[OpenSea] API error: \(error)")
+                throw error
             }
         }
     }
