@@ -60,7 +60,7 @@ final class OpenSeaNetworkProvider {
                     result[each.key] = updatedElements
                 }
                 let hasError = assetsExcludingUefa.hasError || collections.hasError
-                
+
                 return .init(hasError: hasError, result: result)
             })
             .recover({ _ -> Promise<OpenSea.Response<OpenSeaNonFungiblesToAddress>> in
@@ -130,30 +130,40 @@ final class OpenSeaNetworkProvider {
     }
 
     private func performRequestWithRetry(url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
-        struct OpenSeaRequestTrottled: Error {}
+        enum OpenSeaApiError: Error {
+            case rateLimited
+            case invalidApiKey
+        }
 
         func privatePerformRequest(url: URL) -> Promise<(HTTPURLResponse, JSON)> {
+            //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
                 .request(url, method: .get, headers: ["X-API-KEY": Constants.Credentials.openseaKey])
-                .responseJSON(queue: queue, options: .allowFragments)
-                .map(on: queue, { response -> (HTTPURLResponse, JSON) in
-                    guard let data = response.response.data, let json = try? JSON(data: data), let httpResponse = response.response.response else {
+                .responseData()
+                .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
+                    if let response: HTTPURLResponse = response.response {
+                        let statusCode = response.statusCode
+                        if statusCode == 401 {
+                            throw OpenSeaApiError.invalidApiKey
+                        } else if statusCode == 429 {
+                            throw OpenSeaApiError.rateLimited
+                        }
+                        if let json = try? JSON(data: data) {
+                            return (response, json)
+                        } else {
+                            throw AnyError(OpenSeaError(localizedDescription: "Error calling \(url)"))
+                        }
+                    } else {
                         throw AnyError(OpenSeaError(localizedDescription: "Error calling \(url)"))
                     }
-                    return (httpResponse, json)
                 })
         }
 
-        var delayUpperRangeValueFrom0To: Int = delayMultiplayer
+        let delayUpperRangeValueFrom0To: Int = delayMultiplayer
         return firstly {
             attempt(maximumRetryCount: maximumRetryCount, delayBeforeRetry: retryDelay, delayUpperRangeValueFrom0To: delayUpperRangeValueFrom0To) {
-                privatePerformRequest(url: url).map { (httpResponse, json) -> JSON in
-                    guard httpResponse.statusCode != 429 else {
-                        delayUpperRangeValueFrom0To += delayMultiplayer
-                        throw OpenSeaRequestTrottled()
-                    }
-
-                    return json
+                privatePerformRequest(url: url).map { _, json -> JSON in
+                    json
                 }
             }
         }
