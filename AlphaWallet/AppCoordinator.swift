@@ -389,11 +389,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     func didCancel(in coordinator: InCoordinator) {
         removeCoordinator(coordinator)
         reset()
-    }
-
-    func didUpdateAccounts(in coordinator: InCoordinator) {
-        //no-op
-    }
+    } 
 
     func didShowWallet(in coordinator: InCoordinator) {
         pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)

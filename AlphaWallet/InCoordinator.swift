@@ -8,7 +8,6 @@ import Combine
 // swiftlint:disable file_length
 protocol InCoordinatorDelegate: AnyObject {
     func didCancel(in coordinator: InCoordinator)
-    func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
@@ -655,10 +654,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {
         restartUI(withReason: reason, account: account)
-    }
-
-    func didUpdateAccounts(in coordinator: SettingsCoordinator) {
-        delegate?.didUpdateAccounts(in: self)
     }
 
     func didPressShowWallet(in coordinator: SettingsCoordinator) {

@@ -12,7 +12,6 @@ enum RestartReason {
 
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
     func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
-	func didUpdateAccounts(in coordinator: SettingsCoordinator)
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
@@ -218,11 +217,10 @@ extension SettingsCoordinator: CanOpenURL {
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
 	func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-		delegate?.didUpdateAccounts(in: self)
+        //no-op
 	}
 
 	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-		delegate?.didUpdateAccounts(in: self)
 		guard !coordinator.accountsViewController.hasWallets else { return }
         coordinator.navigationController.popViewController(animated: true)
 		delegate?.didCancel(in: self)
