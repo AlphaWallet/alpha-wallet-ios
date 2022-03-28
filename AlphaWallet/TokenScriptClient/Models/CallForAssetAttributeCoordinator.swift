@@ -8,14 +8,7 @@ import web3swift
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 class CallForAssetAttributeCoordinator {
-    private let server: RPCServer
-    private let assetDefinitionStore: AssetDefinitionStore
     private var promiseCache = [AssetFunctionCall: Promise<AssetInternalValue>]()
-
-    init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
-        self.server = server 
-        self.assetDefinitionStore = assetDefinitionStore
-    }
 
     func getValue(
             forAttributeId attributeId: AttributeId,
@@ -58,7 +51,7 @@ class CallForAssetAttributeCoordinator {
             let contract = functionCall.contract
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            callSmartContract(withServer: server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
+            callSmartContract(withServer: functionCall.server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .address:

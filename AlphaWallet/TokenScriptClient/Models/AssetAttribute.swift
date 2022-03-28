@@ -165,9 +165,7 @@ extension Dictionary where Key == AttributeId, Value == AssetAttribute {
     func resolve(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, userEntryValues: [AttributeId: String], server: RPCServer, account: Wallet, additionalValues: [AttributeId: AssetAttributeSyntaxValue], localRefs: [AttributeId: AssetInternalValue]) -> [AttributeId: AssetAttributeSyntaxValue] {
         var attributeNameValues = [AttributeId: AssetAttributeSyntaxValue]()
         let (tokenIdBased, userEntryBased, functionBased, eventBased) = splitAttributesByOrigin
-        guard let callForAssetAttributeCoordinator = XMLHandler.callForAssetAttributeCoordinators?[server] else {
-            return [:]
-        }
+        let callForAssetAttributeCoordinator = XMLHandler.callForAssetAttributeCoordinator
         for (attributeId, attribute) in tokenIdBased {
             let value = attribute.value(from: tokenIdOrEvent, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: .init(), localRefs: localRefs)
             attributeNameValues[attributeId] = value

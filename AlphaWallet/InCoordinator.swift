@@ -24,11 +24,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private let appTracker: AppTracker
     private let analyticsCoordinator: AnalyticsCoordinator
     private let restartQueue: RestartTaskQueue
-    private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
-        didSet {
-            XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
-        }
-    }
     private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
@@ -169,7 +164,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     }
 
     deinit {
-        XMLHandler.callForAssetAttributeCoordinators = nil
         //NOTE: Clear all smart contract calls
         clearSmartContractCallsCache()
     }
@@ -241,13 +235,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         migration.oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: assetDefinitionStore)
     }
 
-    private func setupCallForAssetAttributeCoordinators() {
-        callForAssetAttributeCoordinators = .init()
-        for each in config.enabledServers {
-            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, assetDefinitionStore: self.assetDefinitionStore)
-        }
-    }
-
     private func removeFailedOrPendingTransactions() {
         //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
         transactionDataStore.removeTransactions(for: [.failed, .pending, .unknown], servers: config.enabledServers)
@@ -270,7 +257,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupWalletSessions()
         removeFailedOrPendingTransactions()
-        setupCallForAssetAttributeCoordinators()
     }
 
     //Internal for test purposes
