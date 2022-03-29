@@ -96,6 +96,16 @@ func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Addre
     return result
 }
 
+func getSmartContractCallData(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], timeout: TimeInterval? = nil) -> Data? {
+    //TODO should be extracted. Duplicated
+    let timeout: TimeInterval = 60
+    guard let web3 = try? getCachedWeb3(forServer: server, timeout: timeout) else { return nil }
+    let contractAddress = EthereumAddress(address: contract)
+    guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else { return nil }
+    guard let promiseCreator = contractInstance.method(functionName, parameters: parameters, options: nil) else { return nil }
+    return promiseCreator.transaction.data
+}
+
 func getEventLogs(
         withServer server: RPCServer,
         contract: AlphaWallet.Address,
@@ -117,5 +127,5 @@ func getEventLogs(
         }
 
         return contractInstance.getIndexedEventsPromise(eventName: eventName, filter: filter)
-    } 
+    }
 }
