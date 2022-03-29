@@ -79,8 +79,8 @@ final class OpenSeaNetworkProvider {
         }
     }
 
-    func fetchAssetImageUrl(for value: Eip155URL) -> Promise<URL> {
-        let baseURL = getBaseURLForOpensea(for: .main)
+    func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
+        let baseURL = getBaseURLForOpensea(for: server)
         guard let url = URL(string: "\(baseURL)api/v1/asset/\(value.path)") else {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
@@ -94,8 +94,8 @@ final class OpenSeaNetworkProvider {
         }
     }
 
-    func collectionStats(slug: String) -> Promise<OpenSea.Stats> {
-        let baseURL = getBaseURLForOpensea(for: .main)
+    func collectionStats(slug: String, server: RPCServer) -> Promise<OpenSea.Stats> {
+        let baseURL = getBaseURLForOpensea(for: server)
         guard let url = URL(string: "\(baseURL)api/v1/collection/\(slug)/stats") else {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
@@ -199,17 +199,6 @@ final class OpenSeaNetworkProvider {
                 let assetsExcludingUefa = assets.filter { !$0.key.isUEFATicketContract }
                 return .value(.init(hasError: true, result: assetsExcludingUefa))
             }
-    }
-}
-
-fileprivate extension PromiseKit.Result {
-    var isRejected: Bool {
-        switch self {
-        case .fulfilled:
-            return false
-        case .rejected:
-            return true
-        }
     }
 }
 
