@@ -25,7 +25,6 @@ class AppCoordinator: NSObject, Coordinator {
     var promptBackupCoordinator: PromptBackupCoordinator? {
         return coordinators.compactMap { $0 as? PromptBackupCoordinator }.first
     }
-
     private lazy var universalLinkCoordinator: UniversalLinkCoordinatorType = {
         let coordinator = UniversalLinkCoordinator()
         coordinator.delegate = self
@@ -135,17 +134,10 @@ class AppCoordinator: NSObject, Coordinator {
         if isRunningTests() {
             try! RealmConfiguration.removeWalletsFolderForTests()
             JsonWalletAddressesStore.removeWalletsFolderForTests()
-            startImpl()
         } else {
-            DispatchQueue.main.async {
-                let succeeded = self.startImpl()
-                if succeeded {
-                    return
-                } else {
-                    self.retryStart()
-                }
-            }
+            //no-op
         }
+        startImpl()
     }
 
     private func setupSplashViewController(on navigationController: UINavigationController) {
@@ -155,23 +147,7 @@ class AppCoordinator: NSObject, Coordinator {
         navigationController.setNavigationBarHidden(true, animated: false)
     }
 
-    private func retryStart() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let succeeded = self.startImpl()
-            if succeeded {
-                return
-            } else {
-                self.retryStart()
-            }
-        }
-    }
-
-    //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
-    @discardableResult private func startImpl() -> Bool {
-        if MigrationInitializer.hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
-            return false
-        }
-
+    private func startImpl() {
         MigrationInitializer.removeWalletsIfRealmFilesMissed(keystore: keystore)
 
         initializers()
@@ -194,7 +170,6 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
-        return true
     }
 
     private func migrateToStoringRawPrivateKeysInKeychain() {
@@ -541,8 +516,7 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
     }
 
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        TransactionDataStore.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account), config: config)
-        TransactionsTracker.resetFetchingState(account: account, config: config)
+        //no-op
     }
 
     func didCancel(in coordinator: AccountsCoordinator) {
