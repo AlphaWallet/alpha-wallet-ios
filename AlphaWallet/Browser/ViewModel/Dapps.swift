@@ -79,6 +79,8 @@ enum OriginalDapps {
         Dapp(name: "Gas Now", description: "Eth Gas Price forecast system", url: "https://www.gasnow.org/", cat: "Tool")
         Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool")
         Dapp(name: ".bit (Previously DAS)", description: "Your decentralized identity for Web3.0 life", url: "https://did.id/", cat: "Tool")
+        Dapp(name: “CNCUK”, description: “CNCUK Tokenomics”, url: “https://alpha.cynocoin.co.uk”, cat: “Tool”
+),
     ]
 
     struct Category {
