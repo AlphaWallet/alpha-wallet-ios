@@ -78,21 +78,18 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         }
 
         config.enabledServersPublisher
-            .filter { !$0.isEmpty }
-            .removeDuplicates()
             .receive(on: RunLoop.main)
             .sink { servers in
                 self.update(servers: servers)
             }.store(in: &cancelable)
 
-        coinTickersFetcher.tickersSubscribable.subscribe { [weak self] _ in
-            guard let strongSelf = self else { return }
-
-            DispatchQueue.main.async {
-                strongSelf.reloadWalletBalance()
-                strongSelf.triggerUpdateBalance()
-            }
-        }
+        coinTickersFetcher
+            .tickersUpdatedPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.reloadWalletBalance()
+                self?.triggerUpdateBalance()
+            }.store(in: &cancelable)
     } 
 
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
