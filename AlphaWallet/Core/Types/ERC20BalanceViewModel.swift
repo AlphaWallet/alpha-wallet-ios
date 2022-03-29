@@ -43,10 +43,7 @@ struct ERC20BalanceViewModel: BalanceBaseViewModel {
     }
 
     var currencyAmountWithoutSymbol: Double? {
-        guard let ticker = ticker else { return nil }
-        let rate = ticker.rate
-        let symbol = mapSymbolToVersionInRates(ticker.symbol.lowercased())
-        guard let currentRate = (rate.rates.filter { $0.code == symbol }.first), currentRate.price > 0, amount > 0 else { return nil }
+        guard let currentRate = cryptoRate(forServer: server) else { return nil }
         return amount * currentRate.price
     }
 
@@ -60,10 +57,5 @@ struct ERC20BalanceViewModel: BalanceBaseViewModel {
 
     var symbol: String {
         return server.symbol
-    }
-
-    private func mapSymbolToVersionInRates(_ symbol: String) -> String {
-        let mapping = ["xdai": "dai"]
-        return mapping[symbol] ?? symbol
-    }
+    } 
 }
