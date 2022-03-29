@@ -677,7 +677,7 @@ private class PrivateXMLHandler {
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
-    static var callForAssetAttributeCoordinators: ServerDictionary<CallForAssetAttributeCoordinator>?
+    static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
     fileprivate static var xmlHandlers = [AlphaWallet.Address: PrivateXMLHandler]()
     fileprivate static var baseXmlHandlers = [String: PrivateXMLHandler]()
     private let privateXMLHandler: PrivateXMLHandler
