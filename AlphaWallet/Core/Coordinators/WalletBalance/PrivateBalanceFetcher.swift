@@ -118,7 +118,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 seal.fulfill(tokenObjects)
             }
         }.then(on: queue, { tokenObjects in
-            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: .all, force: force)
+            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: updatePolicy, force: force)
         }).recover(on: queue, { e -> Promise<Void> in
             error(value: e)
             throw e
