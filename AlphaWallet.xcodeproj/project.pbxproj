@@ -10,6 +10,7 @@
 		021746122763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */; };
 		02220CFC273A9A02006A09BF /* SaveCustomRpcCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */; };
 		0224D26727980664003D022A /* FormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0224D26627980664003D022A /* FormatterTests.swift */; };
+		0225192727EB667D00CC1C8B /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 0225192627EB667D00CC1C8B /* tokens.json */; };
 		022CED7E277B01E10043287F /* ScrollableSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */; };
 		022CED7F277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */; };
 		022CED80277B01E10043287F /* ScrollableSegmentedControlCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */; };
@@ -20,6 +21,8 @@
 		0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */; };
 		0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */; };
 		02425FB327852B85007ECF94 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 02425FB227852B85007ECF94 /* chains.zip */; };
+		0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */; };
+		0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */; };
 		025F5D162760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */; };
 		025F5D182760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */; };
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
@@ -1098,6 +1101,7 @@
 		021746112763311D00BAF19C /* ExportJsonKeystoreFileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreFileViewModel.swift; sourceTree = "<group>"; };
 		02220CFB273A9A02006A09BF /* SaveCustomRpcCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcCoordinator.swift; sourceTree = "<group>"; };
 		0224D26627980664003D022A /* FormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterTests.swift; sourceTree = "<group>"; };
+		0225192627EB667D00CC1C8B /* tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tokens.json; sourceTree = "<group>"; };
 		022CED7B277B01E10043287F /* ScrollableSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControl.swift; sourceTree = "<group>"; };
 		022CED7C277B01E10043287F /* ScrollableSegmentedControlHighlightableLineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlHighlightableLineView.swift; sourceTree = "<group>"; };
 		022CED7D277B01E10043287F /* ScrollableSegmentedControlCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollableSegmentedControlCell.swift; sourceTree = "<group>"; };
@@ -1108,6 +1112,8 @@
 		0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewModel.swift; sourceTree = "<group>"; };
 		0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecuteOnceOnly.swift; sourceTree = "<group>"; };
 		02425FB227852B85007ECF94 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = chains.zip; sourceTree = "<group>"; };
+		0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifier.swift; sourceTree = "<group>"; };
+		0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifierTest.swift; sourceTree = "<group>"; };
 		025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewModel.swift; sourceTree = "<group>"; };
 		025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreCoordinator.swift; sourceTree = "<group>"; };
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
@@ -2201,6 +2207,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0225192527EB665300CC1C8B /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				0225192627EB667D00CC1C8B /* tokens.json */,
+				0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
 		022CED7A277B01E10043287F /* ScrollableSegmentedControl */ = {
 			isa = PBXGroup;
 			children = (
@@ -2594,6 +2609,7 @@
 		296106C01F7640240006164B /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
+				0225192527EB665300CC1C8B /* JSON */,
 				8739BB5226CCECB90045CFED /* Collectibles */,
 				29F114EA1FA448DE00114A29 /* Coordinators */,
 				2977CAF31F7E0C5D009682A0 /* Types */,
@@ -3993,9 +4009,10 @@
 		5E7C78E79A2C45A2124F259D /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C7DB349EEDBC8AE9AD500 /* Helpers */,
+				0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */,
 				5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */,
 				5E7C76AB57FE8E8E084CF4A8 /* Coordinators */,
+				5E7C7DB349EEDBC8AE9AD500 /* Helpers */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -5450,6 +5467,7 @@
 				290B2B541F8F50030053C83E /* Localizable.strings in Resources */,
 				87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */,
 				87DB61C3264A9611009FBDDE /* ERC20.json in Resources */,
+				0225192727EB667D00CC1C8B /* tokens.json in Resources */,
 				2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */,
 				C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */,
 				C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */,
@@ -6566,6 +6584,7 @@
 				5E7C70275E403AADE88BD17F /* RPCServerOrAny.swift in Sources */,
 				5E7C77110B4DC617991BD0D8 /* Activity.swift in Sources */,
 				5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */,
+				0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */,
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				879FD3A1273BF64900D9747D /* WalletConnectV2Provider.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,
@@ -6697,6 +6716,7 @@
 				732E0F522022754600B39C1F /* FakeLockProtocol.swift in Sources */,
 				2961BD091FB14B6D00C4B840 /* Config.swift in Sources */,
 				290B2B6E1F92C3980053C83E /* UserDefaults.swift in Sources */,
+				0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */,
 				77872D2D202514AD0032D687 /* EnterPasswordCoordinatorTests.swift in Sources */,
 				771A8485203242B400528D28 /* InCoordinatorViewModelTests.swift in Sources */,
 				73CBC761202139FB00374666 /* FakeGetBalanceCoordinator(.swift in Sources */,
