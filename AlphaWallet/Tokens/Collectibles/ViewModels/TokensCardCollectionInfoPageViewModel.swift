@@ -18,7 +18,7 @@ struct TokensCardCollectionInfoPageViewModel {
         return R.string.localizable.tokenTabInfo()
     }
 
-    private let tokenObject: TokenObject
+    let tokenObject: TokenObject
 
     let server: RPCServer
     var contractAddress: AlphaWallet.Address {

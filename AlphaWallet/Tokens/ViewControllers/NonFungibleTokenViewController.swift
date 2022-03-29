@@ -77,7 +77,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
         let values = viewModel.tokenHolder.values
         if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
             var viewModel = viewModel
-            OpenSea.collectionStats(slug: openSeaSlug).done { stats in
+            OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
                 viewModel.configure(overiddenOpenSeaStats: stats)
                 self.configure(viewModel: viewModel)
             }.cauterize()

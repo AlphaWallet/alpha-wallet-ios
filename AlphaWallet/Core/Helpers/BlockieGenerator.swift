@@ -116,7 +116,7 @@ class BlockiesGenerator {
     }
 
     private static func fetchOpenSeaAssetImageUrl(from value: Eip155URL) -> Promise<URL> {
-        return OpenSea.fetchAssetImageUrl(for: value)
+        return OpenSea.fetchAssetImageUrl(for: value, server: .main)
     }
 
     private static func decodeEip155URL(url: String) -> Promise<Eip155URL> {

@@ -74,11 +74,11 @@ final class OpenSea: NFTProvider {
             }
     }
 
-    static func fetchAssetImageUrl(for value: Eip155URL) -> Promise<URL> {
-        OpenSea().networkProvider.fetchAssetImageUrl(for: value)
+    static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
+        OpenSea().networkProvider.fetchAssetImageUrl(for: value, server: server)
     }
 
-    static func collectionStats(slug: String) -> Promise<Stats> {
-        OpenSea().networkProvider.collectionStats(slug: slug)
+    static func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
+        OpenSea().networkProvider.collectionStats(slug: slug, server: server)
     }
 }
