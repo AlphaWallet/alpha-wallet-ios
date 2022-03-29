@@ -325,19 +325,17 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return coordinator
     }
 
-    private func createTransactionCoordinator(promptBackupCoordinator: PromptBackupCoordinator, transactionDataStore: TransactionDataStore) -> TransactionCoordinator {
-        let transactionDataCoordinator = TransactionDataCoordinator(
+    private func createTransactionCoordinator(transactionDataStore: TransactionDataStore) -> TransactionCoordinator {
+        let transactionsService = TransactionsService(
             sessions: sessionsSubject.value,
             transactionDataStore: transactionDataStore,
-            tokensDataStore: tokensDataStore,
-            promptBackupCoordinator: promptBackupCoordinator
+            tokensDataStore: tokensDataStore
         )
 
         let coordinator = TransactionCoordinator(
                 analyticsCoordinator: analyticsCoordinator,
                 sessions: sessionsSubject.value,
-                transactionDataStore: transactionDataStore,
-                dataCoordinator: transactionDataCoordinator
+                transactionsService: transactionsService
         )
         coordinator.rootViewController.tabBarItem = UITabBarController.Tabs.transactions.tabBarItem
         coordinator.navigationController.configureForLargeTitles()
@@ -394,7 +392,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
 
         viewControllers.append(tokensCoordinator.navigationController)
 
-        let transactionCoordinator = createTransactionCoordinator(promptBackupCoordinator: promptBackupCoordinator, transactionDataStore: transactionDataStore)
+        let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionDataStore)
 
         if Features.isActivityEnabled {
             let activityCoordinator = createActivityCoordinator(activitiesService: activitiesService)

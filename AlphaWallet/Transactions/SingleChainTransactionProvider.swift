@@ -2,7 +2,7 @@
 
 import Foundation
 
-protocol SingleChainTransactionDataCoordinator: Coordinator {
+protocol SingleChainTransactionProvider: AnyObject {
     init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue)
     
     func start()

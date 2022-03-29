@@ -8,7 +8,7 @@ import JSONRPCKit
 import Moya
 import PromiseKit
 
-class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionDataCoordinator {
+class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
@@ -24,7 +24,6 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private var isAutoDetectingERC20Transactions: Bool = false
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
-    var coordinators: [Coordinator] = []
 
     lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
 
@@ -298,7 +297,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     //This inner class reaches into the internals of its outer coordinator class to call some methods. It exists so we can wrap operations into an Operation class and feed it into a queue, so we don't put much logic into it
     class FetchLatestTransactionsOperation: Operation {
         private let session: WalletSession
-        weak private var coordinator: SingleChainTransactionEtherscanDataCoordinator?
+        weak private var coordinator: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: AlphaWalletService.SortOrder
         override var isExecuting: Bool {
@@ -312,7 +311,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
         private let queue: DispatchQueue
 
-        init(forSession session: WalletSession, coordinator: SingleChainTransactionEtherscanDataCoordinator, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
+        init(forSession session: WalletSession, coordinator: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
             self.session = session
             self.coordinator = coordinator
             self.startBlock = startBlock
@@ -326,7 +325,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             guard let coordinator = self.coordinator else { return }
 
             firstly {
-                SingleChainTransactionEtherscanDataCoordinator.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
+                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
             }.done(on: queue, { transactions in
                 coordinator.update(transaction: transactions)
             }).catch { e in
@@ -346,11 +345,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 }
 
-extension SingleChainTransactionEtherscanDataCoordinator {
+extension EtherscanSingleChainTransactionProvider {
     class functional {}
 }
 
-extension SingleChainTransactionEtherscanDataCoordinator.functional {
+extension EtherscanSingleChainTransactionProvider.functional {
     static func extractBoundingBlockNumbers(fromTransactions transactions: [TransactionInstance]) -> (transactions: [TransactionInstance], min: Int, max: Int) {
         let blockNumbers = transactions.map(\.blockNumber)
         if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {
