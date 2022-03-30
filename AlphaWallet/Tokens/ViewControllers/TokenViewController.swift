@@ -164,18 +164,15 @@ class TokenViewController: UIViewController {
     }
 
     private func refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType transactionType: TransactionType) {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self, contract.sameContract(as: transactionType.contract) else { return }
+        assetDefinitionStore
+            .assetBodyChanged(for: transactionType.contract)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
 
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
-            strongSelf.configure(viewModel: viewModel)
-        }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            guard let strongSelf = self, contract.sameContract(as: transactionType.contract) else { return }
-
-            let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
-            strongSelf.configure(viewModel: viewModel)
-        }
+                let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                strongSelf.configure(viewModel: viewModel)
+            }.store(in: &cancelable)
     }
 
     private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
