@@ -10,14 +10,13 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 
 class TransactionCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
 
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
     }()
 
-    private var dataCoordinator: TransactionDataCoordinator
+    private var transactionsService: TransactionsService
 
     weak var delegate: TransactionCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -29,14 +28,12 @@ class TransactionCoordinator: NSObject, Coordinator {
         analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = .withOverridenBarAppearence(),
-        transactionDataStore: TransactionDataStore,
-        dataCoordinator: TransactionDataCoordinator
+        transactionsService: TransactionsService
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.sessions = sessions
         self.navigationController = navigationController
-        self.transactionDataStore = transactionDataStore
-        self.dataCoordinator = dataCoordinator
+        self.transactionsService = transactionsService
 
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
@@ -44,18 +41,8 @@ class TransactionCoordinator: NSObject, Coordinator {
         //NOTE: Reduce copies of unused transaction instances, `TransactionsViewController` isn't using when activities enabled.
         guard !Features.isActivityEnabled else { return }
 
-        transactionDataStore
-            .transactionsChangesetPublisher(forFilter: .all, servers: Config().enabledServers)
-            .map { change -> [TransactionInstance] in
-                switch change {
-                case .initial(let transactions):
-                    return Array(transactions).map { TransactionInstance(transaction: $0) }
-                case .update(let transactions, _, _, _):
-                    return Array(transactions).map { TransactionInstance(transaction: $0) }
-                case .error:
-                    return []
-                }
-            }
+        transactionsService
+            .transactionsChangesetPublisher
             .map { TransactionsViewModel.mapTransactions(transactions: $0) }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] transactions in
@@ -68,12 +55,12 @@ class TransactionCoordinator: NSObject, Coordinator {
     }
 
     func addSentTransaction(_ transaction: SentTransaction) {
-        dataCoordinator.addSentTransaction(transaction)
+        transactionsService.addSentTransaction(transaction)
     }
 
     private func makeTransactionsController() -> TransactionsViewController {
         let viewModel = TransactionsViewModel()
-        let controller = TransactionsViewController(dataCoordinator: dataCoordinator, sessions: sessions, viewModel: viewModel)
+        let controller = TransactionsViewController(dataCoordinator: transactionsService, sessions: sessions, viewModel: viewModel)
         controller.delegate = self
 
         return controller
@@ -96,7 +83,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
         //Quite likely we should have the transaction already
         //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
-        guard let transaction = transactionDataStore.transaction(withTransactionId: transactionId, forServer: server) else { return }
+        guard let transaction = transactionsService.transaction(withTransactionId: transactionId, forServer: server) else { return }
         if transaction.localizedOperations.count > 1 {
             showTransaction(.group(transaction), inViewController: viewController)
         } else {
@@ -109,7 +96,7 @@ class TransactionCoordinator: NSObject, Coordinator {
     }
 
     func stop() {
-        dataCoordinator.stop()
+        transactionsService.stop()
         //TODO seems not good to stop here because others call stop too
         for each in sessions.values {
             each.stop()

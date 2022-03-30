@@ -14,13 +14,13 @@ class TransactionsViewController: UIViewController {
     private var viewModel: TransactionsViewModel
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let refreshControl = UIRefreshControl()
-    private let dataCoordinator: TransactionDataCoordinator
+    private let dataCoordinator: TransactionsService
     private let sessions: ServerDictionary<WalletSession>
 
     weak var delegate: TransactionsViewControllerDelegate?
 
     init(
-        dataCoordinator: TransactionDataCoordinator,
+        dataCoordinator: TransactionsService,
         sessions: ServerDictionary<WalletSession>,
         viewModel: TransactionsViewModel
     ) {

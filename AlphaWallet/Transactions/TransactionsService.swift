@@ -2,26 +2,18 @@
 
 import Foundation
 import UIKit
+import Combine
 
 enum TransactionError: Error {
     case failedToFetch
 }
 
-class TransactionDataCoordinator: Coordinator {
-    static let deleteMissingInternalSeconds: Double = 60.0
-    static let delayedTransactionInternalSeconds: Double = 60.0
-
-    private let transactionDataStore: TransactionDataStore
+class TransactionsService {
+    let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
-    private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
-    private let promptBackupCoordinator: PromptBackupCoordinator
-    private var singleChainTransactionDataCoordinators: [SingleChainTransactionDataCoordinator] {
-        return coordinators.compactMap { $0 as? SingleChainTransactionDataCoordinator }
-    }
-    private var config: Config {
-        return sessions.anyValue.config
-    }
+    private var providers: [SingleChainTransactionProvider] = []
+    private var config: Config { return sessions.anyValue.config }
     private let fetchLatestTransactionsQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Fetch Latest Transactions"
@@ -30,41 +22,48 @@ class TransactionDataCoordinator: Coordinator {
         return queue
     }()
 
-    var coordinators: [Coordinator] = []
-    init(
-            sessions: ServerDictionary<WalletSession>,
-            transactionDataStore: TransactionDataStore,
-            keystore: Keystore,
-            tokensDataStore: TokensDataStore,
-            promptBackupCoordinator: PromptBackupCoordinator
-    ) {
+    var transactionsChangesetPublisher: AnyPublisher<[TransactionInstance], Never> {
+        let servers = sessions.values.map { $0.server }
+        return transactionDataStore
+            .transactionsChangesetPublisher(forFilter: .all, servers: servers)
+            .map { change -> [TransactionInstance] in
+                switch change {
+                case .initial(let transactions):
+                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                case .update(let transactions, _, _, _):
+                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                case .error:
+                    return []
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore ) {
         self.sessions = sessions
         self.transactionDataStore = transactionDataStore
-        self.keystore = keystore
         self.tokensDataStore = tokensDataStore
-        self.promptBackupCoordinator = promptBackupCoordinator
-        setupSingleChainTransactionDataCoordinators()
+
+        setupSingleChainTransactionProviders()
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    private func setupSingleChainTransactionDataCoordinators() {
-        for each in sessions.values {
-            let coordinatorType = each.server.transactionDataCoordinatorType
-            let coordinator = coordinatorType.init(session: each, transactionDataStore: transactionDataStore, keystore: keystore, tokensDataStore: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
-
-            addCoordinator(coordinator)
+    private func setupSingleChainTransactionProviders() {
+        providers = sessions.values.map { each in
+            let providerType = each.server.transactionProviderType
+            return providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
         }
     }
 
     func start() {
-        for each in singleChainTransactionDataCoordinators {
+        for each in providers {
             each.start()
         }
     }
 
     @objc private func stopTimers() {
-        for each in singleChainTransactionDataCoordinators {
+        for each in providers {
             each.stopTimers()
         }
     }
@@ -72,7 +71,7 @@ class TransactionDataCoordinator: Coordinator {
     @objc private func restartTimers() {
         guard !config.development.isAutoFetchingDisabled else { return }
 
-        for each in singleChainTransactionDataCoordinators {
+        for each in providers {
             each.runScheduledTimers()
         }
     }
@@ -80,9 +79,13 @@ class TransactionDataCoordinator: Coordinator {
     func fetch() {
         guard !config.development.isAutoFetchingDisabled else { return }
 
-        for each in singleChainTransactionDataCoordinators {
+        for each in providers {
             each.fetch()
         }
+    }
+
+    func transaction(withTransactionId transactionId: String, forServer server: RPCServer) -> TransactionInstance? {
+        transactionDataStore.transaction(withTransactionId: transactionId, forServer: server)
     }
 
     func addSentTransaction(_ transaction: SentTransaction) {
@@ -94,12 +97,8 @@ class TransactionDataCoordinator: Coordinator {
     }
 
     func stop() {
-        for each in singleChainTransactionDataCoordinators {
+        for each in providers {
             each.stop()
         }
-    }
-
-    private func singleChainTransactionDataCoordinator(forServer server: RPCServer) -> SingleChainTransactionDataCoordinator? {
-        return singleChainTransactionDataCoordinators.first { $0.isServer(server) }
     }
 }

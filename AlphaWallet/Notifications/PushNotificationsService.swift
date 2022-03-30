@@ -4,24 +4,29 @@ import Foundation
 import UIKit
 import UserNotifications
 
-class PushNotificationsCoordinator: NSObject, Coordinator {
+final class PushNotificationsService: NSObject {
     private var notificationCenter: UNUserNotificationCenter {
         return .current()
     }
 
-    var coordinators: [Coordinator] = []
+    private var presentationViewController: UIViewController? {
+        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return nil }
 
-    func start() {
+        if let controller = keyWindow.rootViewController?.presentedViewController {
+            return controller
+        } else {
+            return nil
+        }
+    }
+
+    func registerForReceivingRemoteNotifications() {
+        UIApplication.shared.applicationIconBadgeNumber = 0
         notificationCenter.delegate = self
     }
 
-    func didShowWallet(in navigationController: UINavigationController) {
-        promptToEnableNotification(in: navigationController)
-    }
-
-    private func promptToEnableNotification(in navigationController: UINavigationController) {
+    func requestToEnableNotification() {
         authorizationNotDetermined { [weak self] in
-            navigationController.visibleViewController?.confirm(
+            self?.presentationViewController?.confirm(
                     //TODO We'll just say "Ether" in the prompt. Note that this is not the push notification itself. We could refer to it as "native cryptocurrency", but that's vague. Could be xDai!
                     title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(RPCServer.main.cryptoCurrencyName),
                     message: nil,
@@ -66,7 +71,7 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
     }
 }
 
-extension PushNotificationsCoordinator: UNUserNotificationCenterDelegate {
+extension PushNotificationsService: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.badge, .alert, .sound])
     }

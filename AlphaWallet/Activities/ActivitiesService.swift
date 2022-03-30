@@ -127,6 +127,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                         seal.fulfill(tokenObjects)
                     case .filter(_, let tokenObject):
                         seal.fulfill([tokenObject])
+                    case .predicate:
+                        //NOTE: not supported here
+                        seal.fulfill([])
                     }
                 }
             }

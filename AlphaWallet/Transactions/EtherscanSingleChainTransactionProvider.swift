@@ -6,15 +6,12 @@ import APIKit
 import BigInt
 import JSONRPCKit
 import Moya
-import PromiseKit 
-import UserNotifications
+import PromiseKit
 
-class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionDataCoordinator {
+class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private let transactionDataStore: TransactionDataStore
     private let session: WalletSession
-    private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
-    private let promptBackupCoordinator: PromptBackupCoordinator
     private let fetchLatestTransactionsQueue: OperationQueue
     private let queue = DispatchQueue(label: "com.SingleChainTransaction.updateQueue")
     private var timer: Timer?
@@ -27,23 +24,18 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     private var isAutoDetectingERC20Transactions: Bool = false
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
-    var coordinators: [Coordinator] = []
 
     lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
 
     required init(
             session: WalletSession,
             transactionDataStore: TransactionDataStore,
-            keystore: Keystore,
             tokensDataStore: TokensDataStore,
-            promptBackupCoordinator: PromptBackupCoordinator,
-            onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue
+            fetchLatestTransactionsQueue: OperationQueue
     ) {
         self.session = session
         self.transactionDataStore = transactionDataStore
-        self.keystore = keystore
         self.tokensDataStore = tokensDataStore
-        self.promptBackupCoordinator = promptBackupCoordinator
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
     }
 
@@ -266,78 +258,6 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         fetchLatestTransactionsQueue.addOperation(operation)
     }
 
-    //TODO notify user of received tokens too
-    private func notifyUserEtherReceived(inNewTransactions transactions: [TransactionInstance]) {
-        guard !transactions.isEmpty else { return }
-
-        let wallet = keystore.currentWallet
-        var toNotify: [TransactionInstance]
-        if let newestCached = transactionDataStore.firstTransactions(forServer: session.server) {
-            toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
-        } else {
-            toNotify = transactions
-        }
-
-        //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
-        let maximumNumberOfNotifications = 10
-        if toNotify.count > maximumNumberOfNotifications {
-            toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
-        }
-        let toNotifyUnique: [TransactionInstance] = filterUniqueTransactions(toNotify)
-        let newIncomingEthTransactions = toNotifyUnique.filter { wallet.address.sameContract(as: $0.to) }
-        let formatter = EtherNumberFormatter.short
-        let thresholdToShowNotification = Date.yesterday
-        for each in newIncomingEthTransactions {
-            let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
-            if each.date > thresholdToShowNotification {
-                notifyUserEtherReceived(for: each.id, amount: amount)
-            }
-        }
-        let etherReceivedUsedForBackupPrompt = newIncomingEthTransactions
-                .last { wallet.address.sameContract(as: $0.to) }
-                .flatMap { BigInt($0.value) }
-
-        switch session.server {
-        //TODO make this work for other mainnets
-        case .main:
-            etherReceivedUsedForBackupPrompt.flatMap {
-                promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0)
-            }
-        case .classic, .xDai, .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
-            break
-        }
-    }
-
-    //Etherscan for Ropsten returns the same transaction twice. Normally Realm will take care of this, but since we are showing user a notification, we don't want to show duplicates
-    private func filterUniqueTransactions(_ transactions: [TransactionInstance]) -> [TransactionInstance] {
-        var results = [TransactionInstance]()
-        for each in transactions {
-            if !results.contains(where: { each.id == $0.id }) {
-                results.append(each)
-            }
-        }
-        return results
-    }
-
-    private func notifyUserEtherReceived(for transactionId: String, amount: String) {
-        let notificationCenter = UNUserNotificationCenter.current()
-        let content = UNMutableNotificationContent()
-        //TODO support other mainnets too
-        switch session.server {
-        case .main, .xDai:
-            content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
-            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)
-        }
-        content.sound = .default
-        let identifier = Constants.etherReceivedNotificationIdentifier
-        let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
-
-        DispatchQueue.main.async {
-            notificationCenter.add(request)
-        }
-    }
-
     private func fetchOlderTransactions(for address: AlphaWallet.Address) {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
@@ -377,7 +297,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     //This inner class reaches into the internals of its outer coordinator class to call some methods. It exists so we can wrap operations into an Operation class and feed it into a queue, so we don't put much logic into it
     class FetchLatestTransactionsOperation: Operation {
         private let session: WalletSession
-        weak private var coordinator: SingleChainTransactionEtherscanDataCoordinator?
+        weak private var coordinator: EtherscanSingleChainTransactionProvider?
         private let startBlock: Int
         private let sortOrder: AlphaWalletService.SortOrder
         override var isExecuting: Bool {
@@ -391,7 +311,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         }
         private let queue: DispatchQueue
 
-        init(forSession session: WalletSession, coordinator: SingleChainTransactionEtherscanDataCoordinator, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
+        init(forSession session: WalletSession, coordinator: EtherscanSingleChainTransactionProvider, startBlock: Int, sortOrder: AlphaWalletService.SortOrder, queue: DispatchQueue) {
             self.session = session
             self.coordinator = coordinator
             self.startBlock = startBlock
@@ -405,13 +325,8 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
             guard let coordinator = self.coordinator else { return }
 
             firstly {
-                SingleChainTransactionEtherscanDataCoordinator.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
-            }.then(on: .main, { transactions -> Promise<[TransactionInstance]> in
-                //NOTE: we want to perform notification creating on main thread
-                coordinator.notifyUserEtherReceived(inNewTransactions: transactions)
-
-                return .value(transactions)
-            }).done(on: queue, { transactions in
+                EtherscanSingleChainTransactionProvider.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
+            }.done(on: queue, { transactions in
                 coordinator.update(transaction: transactions)
             }).catch { e in
                 error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
@@ -430,11 +345,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 }
 
-extension SingleChainTransactionEtherscanDataCoordinator {
+extension EtherscanSingleChainTransactionProvider {
     class functional {}
 }
 
-extension SingleChainTransactionEtherscanDataCoordinator.functional {
+extension EtherscanSingleChainTransactionProvider.functional {
     static func extractBoundingBlockNumbers(fromTransactions transactions: [TransactionInstance]) -> (transactions: [TransactionInstance], min: Int, max: Int) {
         let blockNumbers = transactions.map(\.blockNumber)
         if let minBlockNumber = blockNumbers.min(), let maxBlockNumber = blockNumbers.max() {

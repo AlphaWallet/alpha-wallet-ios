@@ -16,9 +16,6 @@ class AppCoordinator: NSObject, Coordinator {
     private var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
         return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
     }
-    private var pushNotificationsCoordinator: PushNotificationsCoordinator? {
-        return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
-    }
     private var initialWalletCreationCoordinator: InitialWalletCreationCoordinator? {
         return coordinators.compactMap { $0 as? InitialWalletCreationCoordinator }.first
     }
@@ -97,6 +94,10 @@ class AppCoordinator: NSObject, Coordinator {
     private var walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
 
+    private lazy var notificationService: NotificationService = {
+        return NotificationService(sources: [], walletBalanceService: walletBalanceService)
+    }()
+
     init(window: UIWindow, analyticsService: AnalyticsServiceType, keystore: Keystore, walletAddressesStore: WalletAddressesStore, navigationController: UINavigationController = .withOverridenBarAppearence()) throws {
         self.navigationController = navigationController
         self.window = window
@@ -152,7 +153,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         initializers()
         appTracker.start()
-        handleNotifications()
+        notificationService.registerForReceivingRemoteNotifications()
         applyStyle()
 
         setupAssetDefinitionStoreCoordinator()
@@ -213,8 +214,8 @@ class AppCoordinator: NSObject, Coordinator {
                 coinTickersFetcher: coinTickersFetcher,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
-                sessionsSubject: walletSessionsSubject
-        )
+                sessionsSubject: walletSessionsSubject,
+                notificationService: notificationService)
 
         coordinator.delegate = self
 
@@ -238,13 +239,6 @@ class AppCoordinator: NSObject, Coordinator {
         if !keystore.hasWallets {
             lock.clear()
         }
-    }
-
-    private func handleNotifications() {
-        UIApplication.shared.applicationIconBadgeNumber = 0
-        let coordinator = PushNotificationsCoordinator()
-        coordinator.start()
-        addCoordinator(coordinator)
     }
 
     @objc func reset() {
@@ -367,7 +361,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     } 
 
     func didShowWallet(in coordinator: InCoordinator) {
-        pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)
+        notificationService.requestToEnableNotification()
     }
 
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
