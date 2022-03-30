@@ -9,8 +9,7 @@ import Foundation
 
 public class ThreadSafeDictionary<Key: Hashable, Value> {
     private var cache = [Key: Value]()
-    
-    private let queue = DispatchQueue(label: "SynchronizedArrayAccess", qos: .background)
+    private let queue: DispatchQueue
 
     public subscript(server: Key) -> Value? {
         get {
@@ -28,8 +27,9 @@ public class ThreadSafeDictionary<Key: Hashable, Value> {
             }
         }
     }
-    public init() {
-        
+    
+    public init(queue: DispatchQueue = DispatchQueue(label: "SynchronizedArrayAccess", qos: .background)) {
+        self.queue = queue
     }
 
     public func removeAll() {

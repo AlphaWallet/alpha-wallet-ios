@@ -216,7 +216,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         } else {
             startBlock = 1
             sortOrder = .desc
-        }
+        } 
 
         let operation = FetchLatestTransactionsOperation(forSession: session, coordinator: self, startBlock: startBlock, sortOrder: sortOrder, queue: queue)
         fetchLatestTransactionsQueue.addOperation(operation)

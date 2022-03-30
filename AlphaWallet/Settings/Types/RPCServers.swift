@@ -732,7 +732,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return EtherscanSingleChainTransactionProvider.self
         case .klaytnCypress, .klaytnBaobabTestnet:
-            return EtherscanSingleChainTransactionProvider.self
+            return CovalentSingleChainTransactionProvider.self
         }
     }
 
@@ -892,7 +892,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .main, .kovan, .ropsten, .rinkeby, .poa, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .optimisticKovan, .sokol, .custom, .palm, .palmTestnet:
             return .latest
         case .klaytnCypress, .klaytnBaobabTestnet:
-                //These not allow range more than 10,000
+            //These not allow range more than 10,000
             return .blockNumber(fromBlockNumber + 9999)
         }
     }

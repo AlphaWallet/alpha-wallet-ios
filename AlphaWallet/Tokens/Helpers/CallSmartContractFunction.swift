@@ -29,7 +29,7 @@ private func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServ
     }
 
     return web3swift.web3(provider: webProvider, queue: web3Queue, requestDispatcher: requestDispatcher)
-}
+} 
 
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
     if let result = web3s[server]?[timeout] {

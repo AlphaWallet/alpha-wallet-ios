@@ -208,6 +208,15 @@ public struct Constants {
         static let exchangeUrl = URL(string: "https://api-instant.ramp.network")!
     }
 
+    enum Covalent {
+        static let apiBaseUrl = URL(string: "https://api.covalenthq.com")!
+        static let newlyAddedTransactionUpdateInterval: TimeInterval = 15
+        static let newlyAddedTransactionsPerPage = 100
+        static let oldestTransactionUpdateInterval: TimeInterval = 25
+        static let oldestAddedTransactionsPerPage = 500
+        static let pendingTransactionUpdateInterval: TimeInterval = 5
+    }
+
     enum WalletConnect {
         static let relayURL = URL(string: "https://relay.walletconnect.com")!
         static let server = "AlphaWallet"
