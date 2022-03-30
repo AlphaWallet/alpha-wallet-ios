@@ -7,47 +7,10 @@
 
 import PromiseKit
 import Moya
-
-struct TokenMappedToTicker: Hashable {
-    let symbol: String
-    let name: String
-    let contractAddress: AlphaWallet.Address
-    let server: RPCServer
-
-    init(token: Activity.AssignedToken) {
-        symbol = token.symbol
-        name = token.name
-        contractAddress = token.contractAddress
-        server = token.server
-    }
-
-    var canPassFiltering: Bool {
-        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    func overridenCoinGeckoTickerId(tickerId: String) -> String {
-        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return "avalanche-2"
-        } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return "fantom"
-        } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return "binancecoin"
-        } else {
-            return tickerId
-        }
-    }
-}
+import Combine
 
 protocol CoinTickersFetcherType {
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
+    var tickersUpdatedPublisher: AnyPublisher<Void, Never> { get }
 
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
     func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void>
@@ -65,15 +28,17 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         case alreadyFetchingPrices
     }
 
-    private static var fetchSupportedTokensPromise: Promise<[Ticker]>?
-    private static var coinGeckoTickers: [Ticker] = []
+    private var fetchSupportedTickerIdsPromise: Promise<[TickerId]>?
 
     private let pricesCacheLifetime: TimeInterval = 60 * 60
     private let dayChartHistoryCacheLifetime: TimeInterval = 60 * 60
     private var isFetchingPrices = false
 
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> {
-        return cache.tickersSubscribable
+    var tickersUpdatedPublisher: AnyPublisher<Void, Never> {
+        return cache
+            .tickersPublisher
+            .map { _ in }
+            .eraseToAnyPublisher()
     }
 
     private static let queue: DispatchQueue = DispatchQueue(label: "com.CoinTickersFetcher.updateQueue")
@@ -99,28 +64,22 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     }
 
     //Important in implementation to not cache the returned promise (which is used to further fetch prices). We only want to cache the promise/request for fetching supported tickers
-    private static func fetchSupportedTickers(config: Config, provider: MoyaProvider<AlphaWalletService>, shouldRetry: Bool = true) -> Promise<[Ticker]> {
-        if let promise = fetchSupportedTokensPromise { return promise }
+    private func fetchSupportedTickerIds(shouldRetry: Bool = true) -> Promise<[TickerId]> {
+        if let promise = fetchSupportedTickerIdsPromise { return promise }
 
-        let promise: Promise<[Ticker]> = firstly {
+        let promise: Promise<[TickerId]> = firstly {
             provider.request(.tokensThatHasPrices(config: config))
-        }.map(on: CoinTickersFetcher.queue, { response -> [Ticker] in
-            return try response.map([Ticker].self, using: JSONDecoder())
-        }).get(on: CoinTickersFetcher.queue, { tickers in
-            CoinTickersFetcher.coinGeckoTickers = tickers
-        }).recover { _ -> Promise<[Ticker]> in
+        }.map(on: CoinTickersFetcher.queue, { response -> [TickerId] in
+            return try response.map([TickerId].self, using: JSONDecoder())
+        }).recover { _ -> Promise<[TickerId]> in
             if shouldRetry {
-                return fetchSupportedTickers(config: config, provider: provider, shouldRetry: false)
+                return self.fetchSupportedTickerIds(shouldRetry: false)
             } else {
                 return .value([])
             }
         }
-        fetchSupportedTokensPromise = promise
+        fetchSupportedTickerIdsPromise = promise
         return promise
-    }
-
-    private func fetchSupportedTickers() -> Promise<[Ticker]> {
-        Self.fetchSupportedTickers(config: config, provider: provider)
     }
 
     func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
@@ -193,18 +152,19 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         let provider = self.provider
         let config = self.config
         let spamTokens = SpamTokens()
+        let tickerIdFilter = TickerIdFilter()
 
         return firstly {
-            fetchSupportedTickers()
-        }.compactMap(on: CoinTickersFetcher.queue, { tickers -> [MappedCoinTickerId] in
+            fetchSupportedTickerIds()
+        }.compactMap(on: CoinTickersFetcher.queue, { tickerIds -> [MappedCoinTickerId] in
             let mappedTokensToCoinTickerIds = tokens.compactMap { tokenObject -> MappedCoinTickerId? in
                let spamNeedle = AddressAndRPCServer(address: tokenObject.contractAddress, server: tokenObject.server)
                 if spamTokens.isSpamToken(spamNeedle) {
                     return nil
                 }
 
-                if let ticker = tickers.first(where: { $0.matches(tokenObject: tokenObject) }) {
-                    let tickerId = tokenObject.overridenCoinGeckoTickerId(tickerId: ticker.id)
+                if let tickerId = tickerIds.first(where: { tickerIdFilter.matches(tokenObject: tokenObject, tickerId: $0) }) {
+                    let tickerId = tokenObject.overridenCoinGeckoTickerId(tickerId: tickerId.id)
                     return MappedCoinTickerId(tickerId: tickerId, contractAddress: tokenObject.contractAddress, server: tokenObject.server)
                 } else {
                     return nil
@@ -269,115 +229,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 return .value(.init())
             }
         })
-    }
-}
-
-fileprivate struct Ticker: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case symbol
-        case name
-        case platforms
-    }
-
-    //https://polygonscan.com/address/0x0000000000000000000000000000000000001010
-    static private let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
-
-    let id: String
-    let symbol: String
-    let name: String
-    let platforms: [String: String]
-
-    func matches(tokenObject: TokenMappedToTicker) -> Bool {
-        //We just filter out those that we don't think are supported by the API. One problem this helps to alleviate is in the API output, certain tickers have a non-empty platform yet the platform list might not be complete, eg. Ether on Ethereum mainnet:
-        //{
-        //   "symbol" : "eth",
-        //   "id" : "ethereum",
-        //   "name" : "Ethereum",
-        //   "platforms" : {
-        //      "huobi-token" : "0x64ff637fb478863b7468bc97d30a5bf3a428a1fd",
-        //      "binance-smart-chain" : "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
-        //   }
-        //},
-        //This means we can only match solely by symbol, ignoring platform matches. But this means it's easy to match the wrong ticker (by symbol only). Hence, we at least remove those chains we don't think are supported
-        //NOTE maybe its need to handle values like: `"0x270DE58F54649608D316fAa795a9941b355A2Bd0/token-transfers"`
-
-        guard isServerSupported(tokenObject.server) else { return false }
-        if let (_, maybeContractValue) = platforms.first(where: { platformMatches($0.key, server: tokenObject.server) }) {
-            func maybeAddressValue(from str: String) -> AlphaWallet.Address? {
-                let rawValue = str.trimmed
-                if rawValue.isEmpty {
-                    //CoinGecko returns nullAddress as the value (contract) in `platforms` for tokens is sometimes an empty string: `"platforms" : { "ethereum" : "" }`, so we use the 0x0..0 address to represent them
-                    return Constants.nullAddress
-                } else if let value = AlphaWallet.Address(string: rawValue) {
-                    //NOTE: trimmed to avoid values like `"0xFbdd194376de19a88118e84E279b977f165d01b8 "`
-                    return value
-                } else {
-                    return nil
-                }
-            }
-            guard let contract = maybeAddressValue(from: maybeContractValue) else {
-                return false
-            }
-
-            if contract.sameContract(as: Constants.nullAddress) {
-                return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
-            } else if contract.sameContract(as: tokenObject.contractAddress) {
-                return true
-            } else if tokenObject.server == .polygon && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
-                return true
-            } else {
-                return tokenObject.canPassFiltering
-            }
-        } else {
-            return symbol.localizedLowercase == tokenObject.symbol.localizedLowercase && name.localizedLowercase == tokenObject.name.localizedLowercase
-        }
-    }
-
-    init(from decoder: Decoder) throws {
-        enum AnyError: Swift.Error {
-            case invalid
-        }
-
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        id = try container.decode(String.self, forKey: .id)
-        symbol = try container.decode(String.self, forKey: .symbol)
-        name = try container.decode(String.self, forKey: .name)
-        //NOTE: Don't want to store Addresses, as creating address instance takes a lot of resources, its easier to check for an address when `func matches(tokenObject: TokenMappedToTicker) -> Bool {` is called
-        platforms = container.decode([String: String].self, forKey: .platforms, defaultValue: [:])
-    }
-
-    //Mapping created by examining CoinGecko API output empirically
-    private func platformMatches(_ platform: String, server: RPCServer) -> Bool {
-        switch server {
-        case .main: return platform == "ethereum"
-        case .classic: return platform == "ethereum-classic"
-        case .xDai: return platform == "xdai"
-        case .binance_smart_chain: return platform == "binance-smart-chain"
-        case .avalanche: return platform == "avalanche"
-        case .polygon: return platform == "polygon-pos"
-        case .fantom: return platform == "fantom"
-        case .arbitrum: return platform == "arbitrum-one"
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby:
-            return false
-        }
-    }
-
-    private func isServerSupported(_ server: RPCServer) -> Bool {
-        switch server {
-        case .main: return true
-        case .classic: return true
-        case .xDai: return true
-        case .binance_smart_chain: return true
-        case .avalanche: return true
-        case .polygon: return true
-        case .arbitrum: return true
-        case .fantom: return true
-        case .palm: return true
-        case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby:
-            return false
-        }
     }
 }
 

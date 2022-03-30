@@ -7,13 +7,14 @@
 
 import Foundation
 import PromiseKit
+import Combine
 
 protocol CoinTickersFetcherCacheType: AnyObject {
     var tickers: [AddressAndRPCServer: CoinTicker] { get set }
     var historyCache: [CoinTicker: [ChartHistoryPeriod: MappedChartHistory]] { get set }
     var lastFetchedDate: Date? { get set }
     var lastFetchedTickerIds: [String]? { get set }
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> { get }
+    var tickersPublisher: AnyPublisher<[AddressAndRPCServer: CoinTicker], Never> { get }
 
     func getCachedChartHistory(period: ChartHistoryPeriod, for key: AddressAndRPCServer, dayChartHistoryCacheLifetime: TimeInterval) -> Promise<(ticker: CoinTicker, history: ChartHistory?)>
     func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker)
@@ -32,7 +33,11 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
         static let lastFetchedTickerIdsKey = "lastFetchedTickerIdsKey"
     }
 
-    let tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
+    var tickersPublisher: AnyPublisher<[AddressAndRPCServer: CoinTicker], Never> {
+        tickersSubscribableSubject.eraseToAnyPublisher()
+    }
+
+    private let tickersSubscribableSubject: CurrentValueSubject<[AddressAndRPCServer: CoinTicker], Never> = .init([:])
 
     func cacheChartHistory(result: ChartHistory, period: ChartHistoryPeriod, for ticker: CoinTicker) {
         guard !result.prices.isEmpty else { return }
@@ -99,19 +104,13 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
     //NOTE: in memory cache, should avoid crash while fetching tickers from file, `malloc: can't allocate region` received one time
     var tickers: [AddressAndRPCServer: CoinTicker] {
         get {
-            if let value = tickersSubscribable.value {
-                return value
-            } else {
-                let value: [AddressAndRPCServer: CoinTicker] = load(url: tickersJsonPath, defaultValue: [:])
-                tickersSubscribable.value = value
-                return value
-            }
+            return tickersSubscribableSubject.value
         }
         set {
             guard let data = try? JSONEncoder().encode(newValue) else { return }
 
             save(data: data, url: tickersJsonPath)
-            tickersSubscribable.value = newValue
+            tickersSubscribableSubject.value = newValue
         }
     }
 
@@ -161,7 +160,7 @@ class CoinTickersFetcherFileCache: NSObject, CoinTickersFetcherCacheType {
 
     override init() {
         super .init()
-        tickersSubscribable.value = load(url: tickersJsonPath, defaultValue: [:])
+        tickersSubscribableSubject.value = load(url: tickersJsonPath, defaultValue: [:])
         _historyCache = load(url: historyJsonPath, defaultValue: [:])
     }
 

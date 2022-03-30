@@ -261,7 +261,10 @@ struct Config {
     }
 
     var enabledServersPublisher: AnyPublisher<[RPCServer], Never> {
-        Self.enabledServersSubject.eraseToAnyPublisher()
+        Self.enabledServersSubject
+            .filter { !$0.isEmpty }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
     //NOTE: keep static while not reduce amount of created instances of `Config`, need to reduce up it to using single instance of Config
     private static var enabledServersSubject: CurrentValueSubject<[RPCServer], Never> = .init([])

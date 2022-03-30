@@ -267,6 +267,7 @@ class InCoordinatorTests: XCTestCase {
 }
 
 import PromiseKit
+import Combine
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
 
@@ -274,7 +275,10 @@ final class FakeCoinTickersFetcher: CoinTickersFetcherType {
         return .value(())
     }
 
-    var tickersSubscribable: Subscribable<[AddressAndRPCServer: CoinTicker]> = .init(nil)
+    var tickersUpdatedPublisher: AnyPublisher<Void, Never> {
+        Just(())
+            .eraseToAnyPublisher()
+    }
 
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer) -> Promise<[ChartHistory]> {
         return .value([])
