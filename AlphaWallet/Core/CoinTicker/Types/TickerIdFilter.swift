@@ -50,6 +50,8 @@ struct TickerIdFilter {
                 return true
             } else if tokenObject.server == .polygon && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
                 return true
+            } else if tokenObject.server == .klaytnCypress && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase {
+                return true
             } else {
                 return tokenObject.canPassFiltering
             }
@@ -69,6 +71,7 @@ struct TickerIdFilter {
         case .polygon: return platform == "polygon-pos"
         case .fantom: return platform == "fantom"
         case .arbitrum: return platform == "arbitrum-one"
+        case .klaytnCypress, .klaytnBaobabTestnet: return platform == "klay-token"
         case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palm, .palmTestnet, .arbitrumRinkeby:
             return false
         }
@@ -85,6 +88,7 @@ struct TickerIdFilter {
         case .arbitrum: return true
         case .fantom: return true
         case .palm: return true
+        case .klaytnCypress, .klaytnBaobabTestnet: return true
         case .poa, .kovan, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .ropsten, .rinkeby, .heco, .heco_testnet, .fantom_testnet, .avalanche_testnet, .mumbai_testnet, .custom, .optimistic, .optimisticKovan, .cronosTestnet, .palmTestnet, .arbitrumRinkeby:
             return false
         }

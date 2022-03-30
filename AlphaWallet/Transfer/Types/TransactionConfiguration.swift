@@ -34,10 +34,13 @@ struct TransactionConfiguration {
         self.nonce = nonce
     }
 
-    init(transaction: UnconfirmedTransaction) {
+    init(transaction: UnconfirmedTransaction, server: RPCServer) {
+        let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
+        let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
+        let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
         self.init(
-            gasPrice: min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice),
-            gasLimit: min(transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, GasLimitConfiguration.maxGasLimit),
+            gasPrice: min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice),
+            gasLimit: min(transaction.gasLimit ?? maxGasLimit, maxGasLimit),
             data: transaction.data ?? Data()
         )
     }

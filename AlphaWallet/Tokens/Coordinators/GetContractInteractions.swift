@@ -17,16 +17,16 @@ class GetContractInteractions {
         self.queue = queue
     }
 
-    func getErc20Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
-        functional.getErc20Interactions(address: address, server: server, startBlock: startBlock, queue: queue)
+    func getErc20Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
+        return functional.getErc20Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
     }
 
-    func getErc721Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
-        functional.getErc721Interactions(address: address, server: server, startBlock: startBlock, queue: queue)
+    func getErc721Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil) -> Promise<[TransactionInstance]> {
+        return functional.getErc721Interactions(walletAddress: walletAddress, server: server, startBlock: startBlock, queue: queue)
     }
 
-    func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> Promise<([AlphaWallet.Address], Int?)> {
-        functional.getContractList(address: address, server: server, startBlock: startBlock, erc20: erc20, queue: queue)
+    func getContractList(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool) -> Promise<([AlphaWallet.Address], Int?)> {
+        return functional.getContractList(walletAddress: walletAddress, server: server, startBlock: startBlock, erc20: erc20, queue: queue)
     }
 }
 
@@ -35,9 +35,10 @@ extension GetContractInteractions {
 }
 
 extension GetContractInteractions.functional {
+
     //TODO rename this since it might include ERC721 (blockscout and compatible like Polygon's). Or can we make this really fetch ERC20, maybe by filtering the results?
-    static func getErc20Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
-        guard let etherscanURL = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) else { return .value([]) }
+    static func getErc20Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+        guard let etherscanURL = server.getEtherscanURLForTokenTransactionHistory(for: walletAddress, startBlock: startBlock) else { return .value([]) }
         return firstly {
             Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [])
         }.map(on: queue) { rawJson, _ in
@@ -98,8 +99,8 @@ extension GetContractInteractions.functional {
 
     //TODO Almost a duplicate of the the ERC20 version. De-dup maybe?
     //TODO what's the point of passing in a queue here? Should be controlled by this class, not the user of this class
-    static func getErc721Interactions(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
-        guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: address, startBlock: startBlock) else { return .value([]) }
+    static func getErc721Interactions(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
+        guard let etherscanURL = server.getEtherscanURLForERC721TransactionHistory(for: walletAddress, startBlock: startBlock) else { return .value([]) }
         return firstly {
             Alamofire.request(etherscanURL).validate().responseJSON(queue: queue, options: [])
         }.map(on: queue) { rawJson, _ in
@@ -173,16 +174,16 @@ extension GetContractInteractions.functional {
         return results
     }
 
-    static func getContractList(address: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, queue: DispatchQueue) -> Promise<([AlphaWallet.Address], Int?)> {
+    static func getContractList(walletAddress: AlphaWallet.Address, server: RPCServer, startBlock: Int? = nil, erc20: Bool, queue: DispatchQueue) -> Promise<([AlphaWallet.Address], Int?)> {
         let etherscanURL: URL
         if erc20 {
-            if let url = server.getEtherscanURLForTokenTransactionHistory(for: address, startBlock: startBlock) {
+            if let url = server.getEtherscanURLForTokenTransactionHistory(for: walletAddress, startBlock: startBlock) {
                 etherscanURL = url
             } else {
                 return Promise(error: GetContractInteractions.E())
             }
         } else {
-            if let url = server.getEtherscanURLForGeneralTransactionHistory(for: address, startBlock: startBlock) {
+            if let url = server.getEtherscanURLForGeneralTransactionHistory(for: walletAddress, startBlock: startBlock) {
                 etherscanURL = url
             } else {
                 return Promise(error: GetContractInteractions.E())

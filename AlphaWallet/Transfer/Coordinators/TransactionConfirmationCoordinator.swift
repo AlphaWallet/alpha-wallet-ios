@@ -271,7 +271,7 @@ extension TransactionConfirmationCoordinator: TransactionConfiguratorDelegate {
     }
 
     func gasLimitEstimateUpdated(to estimate: BigInt, in configurator: TransactionConfigurator) {
-        configureTransactionViewController?.configure(withEstimatedGasLimit: estimate)
+        configureTransactionViewController?.configure(withEstimatedGasLimit: estimate, configurator: configurator)
         rootViewController.reloadViewWithGasChanges()
         rootViewController.reloadViewWithCurrentBalanceValue()
     }

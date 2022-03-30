@@ -87,7 +87,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let wallet = session.account.address
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
-            GetContractInteractions(queue: queue).getErc20Interactions(address: wallet, server: server, startBlock: startBlock)
+            GetContractInteractions(queue: queue)
+                .getErc20Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
         }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -115,7 +116,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let wallet = session.account.address
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
-            GetContractInteractions(queue: queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock)
+            GetContractInteractions(queue: queue)
+                .getErc721Interactions(walletAddress: wallet, server: server, startBlock: startBlock)
         }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)

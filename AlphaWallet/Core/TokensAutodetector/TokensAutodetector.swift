@@ -110,7 +110,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
         return firstly {
             GetContractInteractions(queue: queue)
-                .getContractList(address: wallet, server: server, startBlock: startBlock, erc20: erc20)
+                .getContractList(walletAddress: wallet, server: server, startBlock: startBlock, erc20: erc20)
         }.map(on: queue) { contracts, maxBlockNumber -> [AlphaWallet.Address] in
             if let maxBlockNumber = maxBlockNumber {
                 if erc20 {
@@ -153,7 +153,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
             autoDetectXDaiPartnerTokens()
         case .rinkeby:
             autoDetectRinkebyPartnerTokens()
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .heco_testnet, .heco, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom, .heco_testnet, .heco, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             break
         }
     }

@@ -118,7 +118,7 @@ extension AlphaWalletService: TargetType {
 
     var headers: [String: String]? {
         switch self {
-        case .getTransactions(let server, _, _, _, _):
+        case .getTransactions:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",
