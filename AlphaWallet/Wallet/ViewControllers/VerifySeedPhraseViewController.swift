@@ -307,8 +307,7 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         }
         clearError()
         if collectionView.viewModel.isEveryWordSelected {
-            //Deliberately hide the Clear button after user has chosen all the words, as they are likely to want to verify now and we don't want them to accidentally hit the Clear button
-            clearChooseSeedPhraseButton.isHidden = true
+            clearChooseSeedPhraseButton.isHidden = false
             continueButton.isEnabled = true
         } else {
             clearChooseSeedPhraseButton.isHidden = false
