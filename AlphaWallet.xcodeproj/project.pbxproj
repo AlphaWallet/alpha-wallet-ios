@@ -36,10 +36,13 @@
 		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */; };
+		02D7F8CE27D8AAC900CA1140 /* VerticalButtonsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */; };
 		02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */; };
 		02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */; };
 		02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */; };
 		02E7B6782795352E00311218 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E7B6772795352E00311218 /* Formatter.swift */; };
+		02EFD0FA27DF0785008B5808 /* Repeat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EFD0F927DF0785008B5808 /* Repeat.swift */; };
+		02EFD0FC27DF0815008B5808 /* RepeatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EFD0FB27DF0815008B5808 /* RepeatTests.swift */; };
 		02F4E8B627715EA000D89C19 /* SaveCustomRpcOverallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */; };
 		02F4E8B827715EC100D89C19 /* SaveCustomRpcOverallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */; };
 		02F4E8BC2771763800D89C19 /* SaveCustomRpcOverallModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */; };
@@ -1133,10 +1136,13 @@
 		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableRpcNetwork.swift; sourceTree = "<group>"; };
+		02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalButtonsBar.swift; sourceTree = "<group>"; };
 		02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewModel.swift; sourceTree = "<group>"; };
 		02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewController.swift; sourceTree = "<group>"; };
 		02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryView.swift; sourceTree = "<group>"; };
 		02E7B6772795352E00311218 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
+		02EFD0F927DF0785008B5808 /* Repeat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repeat.swift; sourceTree = "<group>"; };
+		02EFD0FB27DF0815008B5808 /* RepeatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatTests.swift; sourceTree = "<group>"; };
 		02F4E8B527715EA000D89C19 /* SaveCustomRpcOverallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallViewController.swift; sourceTree = "<group>"; };
 		02F4E8B727715EC100D89C19 /* SaveCustomRpcOverallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallView.swift; sourceTree = "<group>"; };
 		02F4E8BB2771763800D89C19 /* SaveCustomRpcOverallModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcOverallModel.swift; sourceTree = "<group>"; };
@@ -2954,6 +2960,7 @@
 				61FC5ED01FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift */,
 				73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */,
 				0224D26627980664003D022A /* FormatterTests.swift */,
+				02EFD0FB27DF0815008B5808 /* RepeatTests.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3093,6 +3100,7 @@
 				5E7C7AE608A39793F8BA3911 /* Eip681Parser.swift */,
 				5E7C7C4A58D1A4361E4F66E0 /* AddressOrEnsName.swift */,
 				02E7B6772795352E00311218 /* Formatter.swift */,
+				02EFD0F927DF0785008B5808 /* Repeat.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -4968,6 +4976,7 @@
 				879F185D26E74512000602F2 /* ButtonsBarBackgroundView.swift */,
 				879F185F26E74543000602F2 /* ToolButtonsBarView.swift */,
 				02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */,
+				02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */,
 			);
 			path = ButtonsBar;
 			sourceTree = "<group>";
@@ -6449,6 +6458,7 @@
 				875F867F27ABC7A60071ABD1 /* NonFungibleTraitViewModel.swift in Sources */,
 				87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */,
 				8712A38326F475830009C376 /* PriceAlert.swift in Sources */,
+				02EFD0FA27DF0785008B5808 /* Repeat.swift in Sources */,
 				5E7C73092E428F9519787284 /* Core.swift in Sources */,
 				5E7C70397E7E3A9C88E995B1 /* WKWebViewExtension.swift in Sources */,
 				5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */,
@@ -6671,6 +6681,7 @@
 				87584FAC27EB8139006A7CD1 /* OpenSeaNetworkProvider.swift in Sources */,
 				5E7C71FA0D6A918598005EF3 /* SendTransactionError.swift in Sources */,
 				5E7C715B5921162B65A9A706 /* PromptViewController.swift in Sources */,
+				02D7F8CE27D8AAC900CA1140 /* VerticalButtonsBar.swift in Sources */,
 				02D8BF8D277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift in Sources */,
 				5E7C785C39CC8243BEC1219C /* PromptViewModel.swift in Sources */,
 				87509A6026F8D63600D3EE85 /* ModalViewController.swift in Sources */,
@@ -6751,6 +6762,7 @@
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
 				29E14FD71F7F490000185568 /* Transaction.swift in Sources */,
 				296106CC1F776FD00006164B /* WalletCoordinatorTests.swift in Sources */,
+				02EFD0FC27DF0815008B5808 /* RepeatTests.swift in Sources */,
 				295B61D61FE7FC8300642E60 /* FakeTokensDataStore.swift in Sources */,
 				291E8FBF1F7DEA85003F0ECF /* EtherKeystoreTests.swift in Sources */,
 				732E0F542022786400B39C1F /* LockCreatePasscodeCoordinatorTest.swift in Sources */,

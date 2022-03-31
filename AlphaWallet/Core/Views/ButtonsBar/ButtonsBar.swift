@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-enum ButtonsBarConfiguration {
+enum HorizontalButtonsBarConfiguration {
     case empty
     case combined(buttons: Int)
     case primary(buttons: Int)
@@ -22,7 +22,7 @@ enum ButtonsBarConfiguration {
             return types
         case .combined(let buttons):
             let buttonsToShow: [ButtonsBarButtonType] = [.primary, .secondary]
-            if buttons > ButtonsBarConfiguration.maxCombinedButtons {
+            if buttons > HorizontalButtonsBarConfiguration.maxCombinedButtons {
                 let hiddenButtonsCount = buttons - buttonsToShow.count
 
                 return buttonsToShow + [ButtonsBarButtonType].init(repeating: .secondary, count: hiddenButtonsCount)
@@ -41,7 +41,7 @@ enum ButtonsBarConfiguration {
         case .custom:
             return false
         case .combined(let buttons):
-            return buttons >= ButtonsBarConfiguration.maxCombinedButtons && index >= ButtonsBarConfiguration.maxCombinedButtons
+            return buttons >= HorizontalButtonsBarConfiguration.maxCombinedButtons && index >= HorizontalButtonsBarConfiguration.maxCombinedButtons
         case .empty:
             return false
         }
@@ -54,7 +54,7 @@ enum ButtonsBarConfiguration {
         case .custom:
             return false
         case .combined(let buttons):
-            return buttons > ButtonsBarConfiguration.maxCombinedButtons
+            return buttons > HorizontalButtonsBarConfiguration.maxCombinedButtons
         case .empty:
             return false
         }
@@ -102,8 +102,8 @@ protocol ButtonsBarViewType: UIView, ButtonObservationProtocol {
     var buttons: [BarButton] { get }
 }
 
-class ButtonsBar: UIView, ButtonsBarViewType {
-    var height: CGFloat { ButtonsBar.buttonsHeight }
+class HorizontalButtonsBar: UIView, ButtonsBarViewType {
+    var height: CGFloat { HorizontalButtonsBar.buttonsHeight }
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
@@ -131,7 +131,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
         return configuration.barButtonTypes.isEmpty
     }
 
-    var configuration: ButtonsBarConfiguration = .empty {
+    var configuration: HorizontalButtonsBarConfiguration = .empty {
         didSet {
             didUpdateView(with: configuration)
         }
@@ -139,7 +139,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
     weak var viewController: UIViewController?
 
-    init(configuration: ButtonsBarConfiguration = .primary(buttons: 1)) {
+    init(configuration: HorizontalButtonsBarConfiguration = .primary(buttons: 1)) {
         buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 7)
         innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
 
@@ -157,7 +157,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
 
         let margin = CGFloat(20)
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
             innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
 
@@ -184,10 +184,10 @@ class ButtonsBar: UIView, ButtonsBarViewType {
         observation.flatMap { $0.invalidate() }
     }
 
-    private func didUpdateView(with configuration: ButtonsBarConfiguration) {
+    private func didUpdateView(with configuration: HorizontalButtonsBarConfiguration) {
         willChangeValue(for: \.buttons)
 
-        buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.barButtonTypes.count)
+        buttonContainerViews = HorizontalButtonsBar.bar(numberOfButtons: configuration.barButtonTypes.count)
         resetIsHiddenObservers()
 
         for view in buttonContainerViews {
@@ -197,7 +197,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
             observations.append(observation)
         }
 
-        moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
+        moreButtonContainerViews = HorizontalButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
 
         for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
             each.removeFromSuperview()
@@ -240,7 +240,7 @@ class ButtonsBar: UIView, ButtonsBarViewType {
         observations.removeAll()
     }
 
-    func configure(_ newConfiguration: ButtonsBarConfiguration? = nil) {
+    func configure(_ newConfiguration: HorizontalButtonsBarConfiguration? = nil) {
         if let newConfiguration = newConfiguration {
             configuration = newConfiguration
         }
@@ -376,7 +376,7 @@ struct ButtonsBarViewModel {
     var disabledButtonTitleColor: UIColor = Colors.appWhite
 
     var buttonCornerRadius: CGFloat {
-        return ButtonsBar.buttonsHeight / 2.0
+        return HorizontalButtonsBar.buttonsHeight / 2.0
     }
 
     var buttonShadowColor: UIColor {

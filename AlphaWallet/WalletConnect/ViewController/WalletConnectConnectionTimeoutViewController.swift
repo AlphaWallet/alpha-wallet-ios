@@ -50,8 +50,8 @@ class WalletConnectConnectionTimeoutViewController: ModalViewController {
         return v
     }()
 
-    private lazy var buttonsBar: ButtonsBar = {
-        let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private lazy var buttonsBar: HorizontalButtonsBar = {
+        let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
         return buttonsBar
     }()
 

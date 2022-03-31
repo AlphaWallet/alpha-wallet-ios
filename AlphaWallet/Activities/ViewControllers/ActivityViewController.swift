@@ -16,7 +16,7 @@ class ActivityViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private let tokenImageView = TokenImageView()
     private let stateView = ActivityStateView()
     private let titleLabel = UILabel()

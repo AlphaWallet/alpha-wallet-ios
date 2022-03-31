@@ -141,7 +141,7 @@ class ImportWalletViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
     private var mnemonicSuggestions: [String] = .init() {
@@ -257,7 +257,7 @@ class ImportWalletViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            footerBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
             footerBottomConstraint,
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

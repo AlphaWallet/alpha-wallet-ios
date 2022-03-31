@@ -48,7 +48,7 @@ class WalletConnectSessionViewController: UIViewController {
     private let dappUrlRow = WalletConnectRowView()
     private let chainRow = WalletConnectRowView()
     private let methodsRow = WalletConnectRowView()
-    private let buttonsBar = ButtonsBar(configuration: .empty)
+    private let buttonsBar = HorizontalButtonsBar(configuration: .empty)
     var rpcServers: [RPCServer] {
         viewModel.rpcServers
     }

@@ -20,7 +20,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
     private let analyticsCoordinator: AnalyticsCoordinator
     private (set) var viewModel: NonFungibleTokenViewModel
     private let bigImageView = WebImageView()
-    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode
     private lazy var attributesStackView = GridStackView(viewModel: .init(edgeInsets: .init(top: 0, left: 20, bottom: 15, right: 20)))

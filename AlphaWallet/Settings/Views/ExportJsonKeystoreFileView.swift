@@ -36,7 +36,7 @@ class ExportJsonKeystoreFileView: UIView {
         textView.autocorrectionType = .no
         return textView
     }()
-    private lazy var buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private lazy var buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
 
     convenience init() {
         self.init(frame: .zero)

@@ -29,7 +29,7 @@ class RenameWalletViewController: UIViewController {
 
         return textField
     }()
-    private let buttonsBar = ButtonsBar(configuration: .primary(buttons: 1))
+    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
     private let roundedBackground = RoundedBackground()
