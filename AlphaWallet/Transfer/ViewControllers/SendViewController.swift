@@ -37,7 +37,7 @@ class SendViewController: UIViewController {
     }()
 
     lazy var amountTextField: AmountTextField = {
-        let amountTextField = AmountTextField(tokenObject: transactionType.tokenObject)
+        let amountTextField = AmountTextField(tokenObject: transactionType.tokenObject, buttonType: .next)
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         amountTextField.accessoryButtonTitle = .next

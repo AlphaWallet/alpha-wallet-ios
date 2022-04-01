@@ -389,7 +389,7 @@ class AmountTextField: UIControl {
 
     weak var delegate: AmountTextFieldDelegate?
 
-    init(tokenObject: TokenObject) {
+    init(tokenObject: TokenObject, buttonType: AmountTextField.AccessoryButtonTitle = .done) {
         cryptoCurrency = .cryptoCurrency(tokenObject)
         currentPair = Pair(left: cryptoCurrency, right: .usd)
 
@@ -407,6 +407,8 @@ class AmountTextField: UIControl {
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
         ])
+
+        updateTextFieldInputAccessoryView(buttonType: buttonType)
 
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
     }
@@ -448,6 +450,15 @@ class AmountTextField: UIControl {
         }
     }
 
+    private func updateTextFieldInputAccessoryView(buttonType: AmountTextField.AccessoryButtonTitle) {
+        switch buttonType {
+        case .done:
+            textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
+        case .next:
+            textField.inputAccessoryView = UIToolbar.nextToolbarButton(#selector(closeKeyboard), self)
+        }
+    }
+    
     @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
