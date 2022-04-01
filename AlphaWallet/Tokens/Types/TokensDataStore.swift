@@ -67,14 +67,13 @@ enum TokenUpdateAction {
             .map { change in
                 switch change {
                 case .initial(let tokenObjects):
-                    return .initial(Array(tokenObjects))
+                    return .initial(Array(tokenObjects.map { $0.freeze() }))
                 case .update(let tokenObjects, let deletions, let insertions, let modifications):
-                    return .update(Array(tokenObjects), deletions: deletions, insertions: insertions, modifications: modifications)
+                    return .update(Array(tokenObjects.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
                 case .error(let error):
                     return .error(error)
                 }
             }
-            .share()
             .eraseToAnyPublisher()
     }
 
@@ -364,7 +363,7 @@ enum TokenUpdateAction {
             .functional
             .nonEmptyContractTokenPredicateWithErc20AddressForNativeTokenFilter(servers: servers, isDisabled: false)
 
-        return realm.objects(TokenObject.self)
+        return realm.threadSafe.objects(TokenObject.self)
             .filter(predicate)
     }
 }

@@ -48,21 +48,20 @@ class TransactionDataStore {
             predicate = TransactionDataStore.functional.nonEmptyIdTransactionPredicate(servers: servers)
         }
 
-        return realm.objects(Transaction.self)
+        return realm.threadSafe.objects(Transaction.self)
             .filter(predicate)
             .sorted(byKeyPath: "date", ascending: false)
             .changesetPublisher
             .map { change in
                 switch change {
                 case .initial(let transactions):
-                    return .initial(Array(transactions))
+                    return .initial(Array(transactions.map { $0.freeze() }))
                 case .update(let transactions, let deletions, let insertions, let modifications):
-                    return .update(Array(transactions), deletions: deletions, insertions: insertions, modifications: modifications)
+                    return .update(Array(transactions.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
                 case .error(let error):
                     return .error(error)
                 }
-            }
-            .share()
+            } 
             .eraseToAnyPublisher()
     }
 
@@ -83,12 +82,11 @@ class TransactionDataStore {
             predicate = p
         }
 
-        return realm.objects(Transaction.self)
+        return realm.threadSafe.objects(Transaction.self)
             .filter(predicate)
             .sorted(byKeyPath: "date", ascending: false)
             .collectionPublisher
-            .map { Array($0) }
-            .share()
+            .map { Array($0.freeze()) }
             .eraseToAnyPublisher()
     }
 
@@ -475,5 +473,11 @@ extension TransactionDataStore.functional {
 extension TransactionState {
     static func predicate(state: TransactionState) -> NSPredicate {
         return NSPredicate(format: "internalState == \(state.rawValue)")
+    }
+}
+
+extension Realm {
+    var threadSafe: Realm {
+         try! Realm(configuration: configuration)
     }
 }
