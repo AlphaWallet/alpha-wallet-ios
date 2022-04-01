@@ -242,7 +242,7 @@ class AddHideTokensViewModel {
             return .init(error: RetrieveSingleChainTokenCoordinator())
         }
 
-        return coordinator.addImportedTokenPromise(forContract: address, onlyIfThereIsABalance: false)
+        return coordinator.addImportedToken(forContract: address, onlyIfThereIsABalance: false)
     }
 
     private struct RetrieveSingleChainTokenCoordinator: Error { }
