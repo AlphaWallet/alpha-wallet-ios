@@ -41,7 +41,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private let queue: DispatchQueue
     private let coinTickersFetcher: CoinTickersFetcherType
     private lazy var tokensDataStore: TokensDataStore = {
-        return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: config.enabledServers)
+        return MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
     }()
     private let nftProvider: NFTProvider
     private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)

@@ -33,7 +33,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private let coinTickersFetcher: CoinTickersFetcherType
 
     lazy var tokensDataStore: TokensDataStore = {
-        return MultipleChainsTokensDataStore(realm: realm, account: wallet, servers: config.enabledServers)
+        return MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
     }()
 
     private lazy var eventSourceCoordinator: EventSourceCoordinatorType = {

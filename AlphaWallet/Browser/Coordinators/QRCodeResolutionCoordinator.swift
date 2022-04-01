@@ -97,13 +97,15 @@ final class QRCodeResolutionCoordinator: Coordinator {
         scanQRCodeCoordinator.parentNavigationController
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
+    private let account: Wallet
     var coordinators: [Coordinator] = []
     weak var delegate: QRCodeResolutionCoordinatorDelegate?
 
-    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage) {
+    init(config: Config, coordinator: ScanQRCodeCoordinator, usage: Usage, account: Wallet) {
         self.config = config
         self.usage = usage
         self.scanQRCodeCoordinator = coordinator
+        self.account = account
     }
 
     func start(fromSource source: Analytics.ScanQRCodeSource) {
@@ -249,7 +251,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 return .value((transactionType, token))
             } else {
                 return Promise { resolver in
-                    ContractDataDetector(address: contract, account: tokensDatastore.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { result in
+                    ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { result in
                         switch result {
                         case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                             resolver.reject(CheckEIP681Error.contractInvalid)

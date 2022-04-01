@@ -127,6 +127,7 @@ class AppCoordinator: NSObject, Coordinator {
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 TransactionDataStore.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account), config: self.config)
+                MultipleChainsTokensDataStore.deleteAll(realm: Wallet.functional.realm(forAccount: account), config: self.config)
                 self.legacyFileBasedKeystore.delete(wallet: account)
             }.store(in: &cancelable)
     }
@@ -432,7 +433,8 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
             guard let coordinator = assetDefinitionStoreCoordinator else { return }
             coordinator.handleOpen(url: url)
         case .eip681(let url):
-            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, assetDefinitionStore: assetDefinitionStore, config: config)
+            let account = resolver.sessions.anyValue.account
+            let paymentFlowResolver = PaymentFlowFromEip681UrlResolver(tokensDataStore: resolver.tokensDataStore, account: account, assetDefinitionStore: assetDefinitionStore, config: config)
             guard let promise = paymentFlowResolver.resolve(url: url) else { return }
             firstly {
                 promise
