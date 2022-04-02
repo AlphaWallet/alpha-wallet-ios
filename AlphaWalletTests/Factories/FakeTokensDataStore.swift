@@ -5,8 +5,8 @@ import Foundation
 import RealmSwift
 
 class FakeTokensDataStore: MultipleChainsTokensDataStore {
-    convenience init(account: Wallet = .make()) {
-        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest"))
-        self.init(realm: realm, account: account, servers: [.main])
+    convenience init(account: Wallet = .make(), servers: [RPCServer] = [.main]) {
+        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest-\(account.address.eip55String)"))
+        self.init(realm: realm, servers: servers)
     }
 }

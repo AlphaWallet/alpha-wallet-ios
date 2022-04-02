@@ -12,8 +12,6 @@ enum TokenError: Error {
 
 /// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
-    var account: Wallet { get }
-
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never>
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject]
 
@@ -48,16 +46,24 @@ enum TokenUpdateAction {
 /// Should be `final`, but removed for test purposes
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let realm: Realm
-    let account: Wallet
 
-    init(realm: Realm, account: Wallet, servers: [RPCServer]) {
-        self.account = account
+    init(realm: Realm, servers: [RPCServer]) {
         self.realm = realm
 
         super.init()
 
         for each in servers {
             addEthToken(forServer: each)
+        }
+    }
+
+    static func deleteAll(realm: Realm, config: Config) {
+        MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers).deleteAll()
+    }
+
+    func deleteAll() {
+        try! realm.write {
+            realm.delete(realm.objects(TokenObject.self))
         }
     }
 

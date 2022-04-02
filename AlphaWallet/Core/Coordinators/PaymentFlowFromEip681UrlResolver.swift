@@ -8,10 +8,12 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let config: Config
+    private let account: Wallet
     var coordinators: [Coordinator] = []
 
-    init(tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, config: Config) {
+    init(tokensDataStore: TokensDataStore, account: Wallet, assetDefinitionStore: AssetDefinitionStore, config: Config) {
         self.tokensDataStore = tokensDataStore
+        self.account = account
         self.assetDefinitionStore = assetDefinitionStore
         self.config = config
     }
@@ -57,7 +59,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
                     } else {
-                        ContractDataDetector(address: contract, account: tokensDataStore.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { data in
+                        ContractDataDetector(address: contract, account: self.account, server: server, assetDefinitionStore: assetDefinitionStore).fetch { data in
                             switch data {
                             case .name, .symbol, .balance, .decimals, .nonFungibleTokenComplete, .delegateTokenComplete, .failed:
                                 //seal.reject(PMKError.cancelled)
