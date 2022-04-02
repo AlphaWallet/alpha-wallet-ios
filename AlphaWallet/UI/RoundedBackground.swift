@@ -17,7 +17,6 @@ class RoundedBackground: UIView {
     }
 
     func createConstraintsWithContainer(view: UIView) -> [NSLayoutConstraint] {
-        let marginToHideBottomRoundedCorners = CGFloat(30)
-        return view.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: marginToHideBottomRoundedCorners, right: 0))
+        return view.anchorsConstraint(to: self)
     }
 }
