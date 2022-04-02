@@ -21,8 +21,6 @@ class SendViewController: UIViewController {
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: SendViewModel
     private let session: WalletSession
-    private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
-    private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     //We use weak link to make sure that token alert will be deallocated by close button tapping.
     //We storing link to make sure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
@@ -235,7 +233,7 @@ class SendViewController: UIViewController {
                     guard celf.tokensDataStore.token(forContract: celf.viewModel.transactionType.contract, server: celf.session.server) != nil else { return }
                     celf.configureFor(contract: celf.viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
                 }
-            session.refresh(.ethBalance)
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
         case .erc20Token(let token, let recipient, let amount):
             let amount = amount.flatMap { EtherNumberFormatter.plain.number(from: $0, decimals: token.decimals) }
             configureFor(contract: viewModel.transactionType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)

@@ -21,14 +21,10 @@ protocol WalletBalanceFetcherType: AnyObject {
     var balance: WalletBalance { get }
     var walletBalance: AnyPublisher<WalletBalance, Never> { get }
 
-    var isRunning: Bool { get }
-
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never>
     func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel
     func start()
-    func stop()
-    func refreshEthBalance() -> Promise<Void>
-    func refreshBalance() -> Promise<Void>
+    func stop() 
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
@@ -192,14 +188,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return .init(wallet: wallet, values: balances)
     }
 
-    var isRunning: Bool {
-        if let timer = timer {
-            return timer.isValid
-        } else {
-            return false
-        }
-    }
-
     func start() {
         timedCallForBalanceRefresh().done { _ in
 
@@ -227,21 +215,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         let promises = balanceFetchers.map { each in
             each.value.refreshBalance(updatePolicy: updatePolicy, force: force)
         }
-        return when(resolved: promises).asVoid()
-    }
-
-    func refreshEthBalance() -> Promise<Void> {
-        let promises = balanceFetchers.map { each in
-            each.value.refreshBalance(updatePolicy: .eth, force: true)
-        }
-        return when(resolved: promises).asVoid()
-    }
-
-    func refreshBalance() -> Promise<Void> {
-        let promises = balanceFetchers.map { each in
-            each.value.refreshBalance(updatePolicy: .ercTokens, force: true)
-        }
-
         return when(resolved: promises).asVoid()
     }
 

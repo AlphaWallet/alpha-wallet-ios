@@ -17,20 +17,14 @@ protocol CoinTickerProvider: AnyObject {
 protocol TokenBalanceProvider: AnyObject {
     func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never>
-    func refreshBalance(for wallet: Wallet) -> Promise<Void>
-    func refreshEthBalance(for wallet: Wallet) -> Promise<Void>
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void>
 }
 
 protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
     var walletsSummary: AnyPublisher<WalletSummary, Never> { get }
 
     func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never>
     func start()
-    func refreshBalance(for wallet: Wallet) -> Promise<Void>
-    func refreshEthBalance(for wallet: Wallet) -> Promise<Void>
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void>
 }
 
 class MultiWalletBalanceService: NSObject, WalletBalanceService {
@@ -109,19 +103,9 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         return coinTickersFetcher.ticker(for: addressAndRPCServer)
     }
 
-    func refreshBalance(for wallet: Wallet) -> Promise<Void> {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .refreshBalance()
-    }
-
-    func refreshEthBalance(for wallet: Wallet) -> Promise<Void> {
-        return getOrCreateBalanceFetcher(for: wallet)
-            .refreshEthBalance()
-    }
-
     ///Refreshes available wallets balances
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
-        let promises = keystore.wallets.map { wallet in
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void> {
+        let promises = wallets.map { wallet in
             return getOrCreateBalanceFetcher(for: wallet)
                 .refreshBalance(updatePolicy: updatePolicy, force: force)
         }

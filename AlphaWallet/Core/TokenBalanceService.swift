@@ -10,8 +10,8 @@ protocol TokenBalanceService {
     var etherToFiatRatePublisher: AnyPublisher<Double?, Never> { get }
     var etherToFiatRate: Double? { get }
 
-    func refresh()
-    func refreshEthBalance()
+    func start()
+    func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy)
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel, Never>
 }
@@ -55,7 +55,9 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         self.server = server
         self.balanceProvider = tokenBalanceProvider
         super.init()
+    }
 
+    func start() {
         tokenBalancePublisher(etherToken.addressAndRPCServer)
             .assign(to: \.value, on: etherBalanceSubject)
             .store(in: &cancelable)
@@ -69,15 +71,9 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         balanceProvider.tokenBalancePublisher(addressAndRPCServer, wallet: wallet)
     }
 
-    func refresh() {
-        balanceProvider.refreshBalance(for: wallet).done { _ in
-            //no-op
-        }.cauterize()
-    }
-
-    func refreshEthBalance() {
-        balanceProvider.refreshEthBalance(for: wallet).done { _ in
-            //no-op
-        }.cauterize()
+    func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy) {
+        balanceProvider.refreshBalance(updatePolicy: refreshBalancePolicy, wallets: [wallet], force: true)
+            .done { _ in }
+            .cauterize()
     }
 }

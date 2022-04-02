@@ -150,7 +150,7 @@ final class FakeMultiWalletBalanceService: WalletBalanceService {
         return .value(())
     }
 
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void> {
         return .value(())
     }
 }

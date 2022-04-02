@@ -101,11 +101,12 @@ class AccountsViewController: UIViewController {
 
     @objc private func pullToRefresh(_ sender: UIRefreshControl) {
         tableViewRefreshControl.beginRefreshing()
-        walletBalanceService.refreshBalance(updatePolicy: .all, force: true).done { _ in
-            // no-op
-        }.cauterize().finally { [weak self] in
-            self?.tableViewRefreshControl.endRefreshing()
-        }
+        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: viewModel.wallets, force: true)
+            .done { _ in }
+            .cauterize()
+            .finally { [weak self] in
+                self?.tableViewRefreshControl.endRefreshing()
+            }
     }
 
     private func delete(account: Wallet) {
