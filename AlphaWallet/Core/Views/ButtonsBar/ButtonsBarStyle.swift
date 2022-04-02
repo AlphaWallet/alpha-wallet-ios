@@ -27,6 +27,9 @@ enum ButtonsBarStyle {
         static var primaryBorderInactive: UIColor {
             return R.color.mike()!
         }
+        static var primaryHighlightedBackground: UIColor {
+            return R.color.black()!
+        }
         static var secondaryBackgroundActive: UIColor {
             return R.color.white()!
         }
@@ -44,6 +47,9 @@ enum ButtonsBarStyle {
         }
         static var secondaryBorderInactive: UIColor {
             return R.color.alto()!
+        }
+        static var secondaryHighlightedBackground: UIColor {
+            return R.color.concrete()!
         }
     }
 }

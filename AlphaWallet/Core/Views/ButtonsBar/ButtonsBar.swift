@@ -253,7 +253,9 @@ class HorizontalButtonsBar: UIView, ButtonsBarViewType {
             view.childView.setContentHuggingPriority(.required, for: .horizontal)
             view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-            view.childView.setBackgroundImage(R.image.more(), for: .normal)
+             view.childView.setBackgroundImage(R.image.moreLightActive()!, for: .normal)
+             view.childView.setBackgroundImage(R.image.moreLightPressed()!, for: .highlighted)
+
             view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
 
             NSLayoutConstraint.activate([
@@ -337,6 +339,7 @@ struct ButtonsBarViewModel {
 
     static let primaryButton = ButtonsBarViewModel(
         buttonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundActive,
+        highlightedButtonBackgroundColor: ButtonsBarStyle.Colors.primaryHighlightedBackground,
         disabledButtonBackgroundColor: ButtonsBarStyle.Colors.primaryBackgroundInactive,
         disabledButtonBorderColor: ButtonsBarStyle.Colors.primaryBorderInactive,
         buttonTitleColor: ButtonsBarStyle.Colors.primaryTextActive,
@@ -346,6 +349,7 @@ struct ButtonsBarViewModel {
 
     static let secondaryButton = ButtonsBarViewModel(
         buttonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundActive,
+        highlightedButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryHighlightedBackground,
         disabledButtonBackgroundColor: ButtonsBarStyle.Colors.secondaryBackgroundInactive,
         disabledButtonBorderColor: ButtonsBarStyle.Colors.secondaryBorderInactive,
         buttonTitleColor: ButtonsBarStyle.Colors.secondaryTextActive,
