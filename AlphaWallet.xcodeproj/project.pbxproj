@@ -23,6 +23,8 @@
 		02425FB327852B85007ECF94 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 02425FB227852B85007ECF94 /* chains.zip */; };
 		0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */; };
 		0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */; };
+		0256B64127F73EBF008AF8CF /* StringValidatorRuleTestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0256B63F27F73EBF008AF8CF /* StringValidatorRuleTestCases.swift */; };
+		0256B64227F73EBF008AF8CF /* StringValidatorTestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0256B64027F73EBF008AF8CF /* StringValidatorTestCases.swift */; };
 		025F5D162760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */; };
 		025F5D182760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */; };
 		025F5D1B2760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */; };
@@ -1123,6 +1125,8 @@
 		02425FB227852B85007ECF94 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = chains.zip; sourceTree = "<group>"; };
 		0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifier.swift; sourceTree = "<group>"; };
 		0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifierTest.swift; sourceTree = "<group>"; };
+		0256B63F27F73EBF008AF8CF /* StringValidatorRuleTestCases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidatorRuleTestCases.swift; sourceTree = "<group>"; };
+		0256B64027F73EBF008AF8CF /* StringValidatorTestCases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringValidatorTestCases.swift; sourceTree = "<group>"; };
 		025F5D152760C73300B2A3BC /* ExportJsonKeystorePasswordViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewModel.swift; sourceTree = "<group>"; };
 		025F5D172760C74400B2A3BC /* ExportJsonKeystoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystoreCoordinator.swift; sourceTree = "<group>"; };
 		025F5D192760C75800B2A3BC /* ExportJsonKeystorePasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportJsonKeystorePasswordViewController.swift; sourceTree = "<group>"; };
@@ -2256,6 +2260,16 @@
 			path = AddMultipleCustomRpc;
 			sourceTree = "<group>";
 		};
+		0256B63E27F73EBF008AF8CF /* Verifications */ = {
+			isa = PBXGroup;
+			children = (
+				0256B63F27F73EBF008AF8CF /* StringValidatorRuleTestCases.swift */,
+				0256B64027F73EBF008AF8CF /* StringValidatorTestCases.swift */,
+			);
+			name = Verifications;
+			path = AlphaWalletTests/Verifications;
+			sourceTree = SOURCE_ROOT;
+		};
 		02C7AF6D2770C3E4005367EE /* Rpc Network */ = {
 			isa = PBXGroup;
 			children = (
@@ -2415,6 +2429,7 @@
 				5E7C7154AC0FD950F01278EA /* Models */,
 				5E7C76A2DAB62A6824F37749 /* Sell */,
 				5E7C73DFF2B3DB4C228F8510 /* Activitities */,
+				0256B63E27F73EBF008AF8CF /* Verifications */,
 			);
 			path = AlphaWalletTests;
 			sourceTree = "<group>";
@@ -6742,6 +6757,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				29F1C85620036887003780D8 /* AppTrackerTests.swift in Sources */,
+				0256B64227F73EBF008AF8CF /* StringValidatorTestCases.swift in Sources */,
 				290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */,
 				290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */,
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
@@ -6810,6 +6826,7 @@
 				87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */,
 				5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */,
 				5E7C7EAED92E4AE8B99217AB /* TransferTokensCardQuantitySelectionViewControllerTests.swift in Sources */,
+				0256B64127F73EBF008AF8CF /* StringValidatorRuleTestCases.swift in Sources */,
 				5E7C7B4E3DEA90147A5A9E0A /* TokensDataStoreTest.swift in Sources */,
 				5E7C793F7E346402CDAF771F /* AssetDefinitionStoreTests.swift in Sources */,
 				5E7C7705B09D780E84E2FDA5 /* XMLHandlerTest.swift in Sources */,
