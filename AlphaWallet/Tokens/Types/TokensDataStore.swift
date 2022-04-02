@@ -25,8 +25,8 @@ protocol TokensDataStore: NSObjectProtocol {
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
     func add(hiddenContracts: [HiddenContract])
     @discardableResult func add(tokens: [TokenObject]) -> [TokenObject]
-    func delete(tokens: [TokenObject])
-    func delete(hiddenContracts: [HiddenContract])
+
+    func deleteTestsOnly(tokens: [TokenObject])
     func updateOrderedTokens(with orderedTokens: [TokenObject])
 
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
@@ -229,21 +229,13 @@ enum TokenUpdateAction {
         return tokens
     }
 
-    func delete(tokens: [TokenObject]) {
+    func deleteTestsOnly(tokens: [TokenObject]) {
         guard !tokens.isEmpty else { return }
 
         realm.beginWrite()
         realm.delete(tokens)
         try! realm.commitWrite()
-    }
-
-    func delete(hiddenContracts: [HiddenContract]) {
-        guard !hiddenContracts.isEmpty else { return }
-
-        realm.beginWrite()
-        realm.delete(hiddenContracts)
-        try! realm.commitWrite()
-    }
+    } 
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
         guard !orderedTokens.isEmpty else { return }

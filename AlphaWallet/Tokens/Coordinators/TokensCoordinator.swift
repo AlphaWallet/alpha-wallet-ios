@@ -192,12 +192,16 @@ class TokensCoordinator: Coordinator {
     func addImportedToken(forContract contract: AlphaWallet.Address, server: RPCServer) {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: contract)
+            .done { _ in }
+            .cauterize()
     }
 
     private func addUefaTokenIfAny() {
         let server = Constants.uefaRpcServer
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: Constants.uefaMainnet, onlyIfThereIsABalance: true)
+            .done { _ in }
+            .cauterize()
     }
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {

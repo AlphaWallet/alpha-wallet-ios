@@ -82,51 +82,20 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) {
-        firstly {
-            addImportedTokenPromise(forContract: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.done { _ in
-            // no-op
-        }.cauterize()
-    }
-
-    //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedTokenPromise(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenObject> {
+    func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) -> Promise<TokenObject> {
         struct ImportTokenError: Error { }
 
         return firstly {
-            delete(hiddenContract: contract)
-        }.then(on: .main, { [weak self] _ -> Promise<TokenObject> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-
-            return firstly {
-                strongSelf.tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-            }.map(on: .main, { operation -> [TokenObject] in
-                return strongSelf.tokensDataStore.addTokenObjects(values: [operation])
-            }).map(on: .main, { tokenObjects -> TokenObject in
-                if let tokenObject = tokenObjects.first {
-                    return tokenObject
-                } else {
-                    throw ImportTokenError()
-                }
-            })
-        })
-    }
-
-    private func delete(hiddenContract contract: AlphaWallet.Address) -> Promise<Void> {
-        return Promise<Void> { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-
-                if let hiddenContract = strongSelf.tokensDataStore.hiddenContracts(forServer: strongSelf.server).first(where: { contract.sameContract(as: $0.contract) }) {
-                    strongSelf.tokensDataStore.delete(hiddenContracts: [hiddenContract])
-                } else {
-                    //no-op
-                }
-
-                seal.fulfill(())
+            tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
+        }.map(on: .main, { operation -> [TokenObject] in
+            return self.tokensDataStore.addTokenObjects(values: [operation])
+        }).map(on: .main, { tokenObjects -> TokenObject in
+            if let tokenObject = tokenObjects.first {
+                return tokenObject
+            } else {
+                throw ImportTokenError()
             }
-        }
+        })
     }
 
     func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
@@ -219,12 +188,6 @@ class SingleChainTokenCoordinator: Coordinator {
         })
 
         navigationController.pushViewController(viewController, animated: true)
-    }
-    //NOTE: check and remove if not using
-    func delete(token: TokenObject) {
-        assetDefinitionStore.contractDeleted(token.contractAddress)
-        tokensDataStore.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: server)])
-        tokensDataStore.delete(tokens: [token])
     }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
