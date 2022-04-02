@@ -343,7 +343,7 @@ extension EIP712TypedData.JSON: CustomDebugStringConvertible {
         case .string(let str):
             return str.debugDescription
         case .number(let num):
-            return num.debugDescription
+            return num.description
         case .bool(let bool):
             return bool.description
         case .null:

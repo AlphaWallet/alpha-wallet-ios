@@ -9,7 +9,28 @@ import EthereumAddress
 import EthereumABI
 import BigInt
 
+fileprivate typealias EthereumAddress_fromEthereumAddressPod = EthereumAddress
+extension EthereumAddress_fromEthereumAddressPod: CustomStringConvertible {
+    public var description: String {
+        return address
+    }
+}
+
 //NOTE: extracted to separated file to avoid missunderstanding with EthereumAddress address, web3swift and EthereumAddress contains the same struct for EthereumAddress. it causes types comparison issue
+extension FunctionCall.Argument {
+
+    init(type: ABIType, anyValue: Any?) {
+        self.type = type
+        if let address = anyValue as? EthereumAddress_fromEthereumAddressPod {
+            self.value = AlphaWallet.Address.ethereumAddress(eip55String: address.address)
+        } else if let address = anyValue as? EthereumAddress_fromWeb3SwiftPod {
+            self.value = AlphaWallet.Address.ethereumAddress(eip55String: address.address)
+        } else {
+            self.value = anyValue
+        }
+    }
+}
+
 extension DecodedFunctionCall {
 
     private static func contract(abi: Data) -> [ABI.Element]? {
@@ -34,10 +55,10 @@ extension DecodedFunctionCall {
                 guard let functionName = function.name else { return nil }
 
                 if functionToResearch == function.methodEncoding.hex(), let inputs = element.decodeInputData(data) {
-                    let arguments: [(type: ABIType, value: AnyObject)] = function.inputs.compactMap { inputParam in
+                    let arguments: [FunctionCall.Argument] = function.inputs.compactMap { inputParam in
                         let value = inputs[inputParam.name]
                         if let type = ABIType(abiParam: inputParam.type) {
-                            return (type: type, value: value as AnyObject)
+                            return FunctionCall.Argument(type: type, anyValue: value)
                         } else {
                             return nil
                         }
@@ -79,29 +100,29 @@ extension ABIType {
         case .string:
             self = .string
         case .tuple(let types):
-            let values = types.compactMap { ABIType.init(abiParam: $0) }
+            let values = types.compactMap { ABIType(abiParam: $0) }
             self = .tuple(values)
         }
     }
 }
 
 extension DecodedFunctionCall.FunctionType {
-    init(name: String, arguments: [(type: ABIType, value: AnyObject)]) {
-        if name == DecodedFunctionCall.erc20Transfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
-            self = .erc20Transfer(recipient: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
-        } else if name == DecodedFunctionCall.erc20Approve.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
-            self = .erc20Approve(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address), value: value)
-        } else if name == DecodedFunctionCall.erc1155SafeTransfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0) {
-            self = .erc1155SafeTransfer(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address))
-        } else if name == DecodedFunctionCall.erc1155SafeBatchTransfer.name, let address: EthereumAddress = arguments.get(type: .address, atIndex: 0) {
-            self = .erc1155SafeBatchTransfer(spender: AlphaWallet.Address.ethereumAddress(eip55String: address.address))
+    init(name: String, arguments: [FunctionCall.Argument]) {
+        if name == DecodedFunctionCall.erc20Transfer.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
+            self = .erc20Transfer(recipient: address, value: value)
+        } else if name == DecodedFunctionCall.erc20Approve.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0), let value: BigUInt = arguments.get(type: .uint(bits: 256), atIndex: 1) {
+            self = .erc20Approve(spender: address, value: value)
+        } else if name == DecodedFunctionCall.erc1155SafeTransfer.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0) {
+            self = .erc1155SafeTransfer(spender: address)
+        } else if name == DecodedFunctionCall.erc1155SafeBatchTransfer.name, let address: AlphaWallet.Address = arguments.get(type: .address, atIndex: 0) {
+            self = .erc1155SafeBatchTransfer(spender: address)
         } else {
-            self = .others
+            self = .others(name: name, arguments: arguments)
         }
     }
 }
 
-private extension Collection where Element == (type: ABIType, value: AnyObject) {
+private extension Collection where Element == FunctionCall.Argument {
     func get<T>(type: ABIType, atIndex index: Self.Index) -> T? {
         guard indices.contains(index) else { return nil }
         let element = self[index]

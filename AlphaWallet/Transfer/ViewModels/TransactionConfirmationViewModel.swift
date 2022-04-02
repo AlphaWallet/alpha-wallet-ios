@@ -3,7 +3,6 @@
 import Foundation
 import BigInt
 
-
 protocol CryptoToFiatRateUpdatable: class {
     var cryptoToDollarRate: Double? { get set }
 }
