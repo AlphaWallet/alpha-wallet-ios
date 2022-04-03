@@ -891,6 +891,7 @@
 		879702F927EE47770056CA71 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879702F827EE47770056CA71 /* NotificationService.swift */; };
 		879702FC27EE47B60056CA71 /* LocalNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879702FB27EE47B60056CA71 /* LocalNotification.swift */; };
 		8797362524E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */; };
+		879CA41127FD5A98004461FE /* RealmStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CA41027FD5A98004461FE /* RealmStore.swift */; };
 		879E1E40264BDD5C006CD362 /* TokenHistoryChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */; };
 		879E1E42264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */; };
 		879E1E44264C0717006CD362 /* TickerFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E43264C0717006CD362 /* TickerFieldValueView.swift */; };
@@ -2004,6 +2005,7 @@
 		879702F827EE47770056CA71 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		879702FB27EE47B60056CA71 /* LocalNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotification.swift; sourceTree = "<group>"; };
 		8797362424E6C20C0042BBCC /* TransactionConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationCoordinator.swift; sourceTree = "<group>"; };
+		879CA41027FD5A98004461FE /* RealmStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStore.swift; sourceTree = "<group>"; };
 		879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenHistoryChartView.swift; sourceTree = "<group>"; };
 		879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenHistoryPeriodSelectorView.swift; sourceTree = "<group>"; };
 		879E1E43264C0717006CD362 /* TickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerFieldValueView.swift; sourceTree = "<group>"; };
@@ -3343,6 +3345,7 @@
 				87CC3852273E7980005BE9B8 /* eip155URLDecoder.swift */,
 				87D6E5DE2791934D00B9DEE3 /* DeepLink.swift */,
 				8780FDBE27C3CC0F00BBE9DD /* ChangeSet.swift */,
+				879CA41027FD5A98004461FE /* RealmStore.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -6492,6 +6495,7 @@
 				5E7C70E4C7053E9794A8FE30 /* CallForAssetAttribute.swift in Sources */,
 				5E7C78374AD8C536E0DF264C /* AssetDefinitionDiskBackingStoreWithOverrides.swift in Sources */,
 				874C6D8325E3FF3B00AD8380 /* ConfirmationHeaderViewModel.swift in Sources */,
+				879CA41127FD5A98004461FE /* RealmStore.swift in Sources */,
 				87D163A2242CD811002662D2 /* AddHideTokensViewModel.swift in Sources */,
 				87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */,
 				5E7C716F9A06085DF5F903E8 /* UserEntryOrigin.swift in Sources */,

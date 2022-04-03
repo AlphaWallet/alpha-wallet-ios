@@ -19,7 +19,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func delegateContracts(forServer server: RPCServer) -> [DelegateContract]
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract]
     func addEthToken(forServer server: RPCServer)
-    func tokenObjectPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?>
+    func tokenObject(forContract contract: AlphaWallet.Address) -> TokenObject?
     func tokenObjectPromise(forContract contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenObject?>
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
@@ -47,10 +47,12 @@ enum TokenUpdateAction {
 /// Should be `final`, but removed for test purposes
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     private let realm: Realm
+    //NOTE: adds synchronized access to realm, to make requests from different threads. Replace other calls
+    private let store: RealmStore
 
     init(realm: Realm, servers: [RPCServer]) {
         self.realm = realm
-
+        self.store = RealmStore(realm: realm)
         super.init()
 
         for each in servers {
@@ -85,7 +87,7 @@ enum TokenUpdateAction {
     }
 
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject] {
-        let tokenObjects = Array(enabledObjectResults(forServers: servers).map { $0 })
+        let tokenObjects = Array(enabledObjectResults(forServers: servers).map { $0.freeze() })
         return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
     }
 
@@ -133,20 +135,20 @@ enum TokenUpdateAction {
         } 
     }
 
-    func tokenObjectPromise(forContract contract: AlphaWallet.Address) -> Promise<TokenObject?> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = MultipleChainsTokensDataStore
-                    .functional
-                    .tokenPredicate(contract: contract)
-                let token = strongSelf.realm.objects(TokenObject.self)
-                    .filter(predicate)
-                    .first
+    func tokenObject(forContract contract: AlphaWallet.Address) -> TokenObject? {
+        let predicate = MultipleChainsTokensDataStore
+            .functional
+            .tokenPredicate(contract: contract)
 
-                seal.fulfill(token)
-            }
+        var token: TokenObject?
+        store.performSync { realm in
+            token = realm.objects(TokenObject.self)
+                .filter(predicate)
+                .freeze()
+                .first
         }
+
+        return token
     }
 
     func tokenObjectPromise(forContract contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenObject?> {
@@ -170,9 +172,15 @@ enum TokenUpdateAction {
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        return realm.objects(TokenObject.self)
-            .filter(predicate)
-            .first
+        var token: TokenObject?
+        store.performSync { realm in
+            token = realm.objects(TokenObject.self)
+                .filter(predicate)
+                .freeze()
+                .first
+        }
+
+        return token
     }
 
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject] {
