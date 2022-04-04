@@ -39,7 +39,7 @@ class TransactionsService {
             .eraseToAnyPublisher()
     }
 
-    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore ) {
+    init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore) {
         self.sessions = sessions
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
@@ -92,7 +92,8 @@ class TransactionsService {
         let session = sessions[transaction.original.server]
         
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
-        let transaction = Transaction.from(from: session.account.address, transaction: transaction, tokensDataStore: tokensDataStore, server: transaction.original.server)
+        let token = transaction.original.to.flatMap { tokensDataStore.token(forContract: $0, server: transaction.original.server) }
+        let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
         transactionDataStore.add(transactions: [transaction])
     }
 
