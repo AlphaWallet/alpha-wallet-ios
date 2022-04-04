@@ -4,6 +4,41 @@ import Foundation
 import BigInt
 import web3swift
 
+typealias EthereumAddress_fromWeb3SwiftPod = EthereumAddress
+extension EthereumAddress_fromWeb3SwiftPod: CustomStringConvertible {
+    public var description: String {
+        return address
+    }
+}
+
+struct FunctionCall {
+    struct Argument: CustomStringConvertible {
+        let type: ABIType
+        let value: Any?
+
+        //NOTE: tuples are presented as array, the rest of types are able to be represented with `CustomStringConvertible` here we handle only array values
+        // and single types, Maybe `.function` value also need to be handled
+        var description: String {
+            if let value = value as? [Any] {
+                let value = value.map { toString($0) }.joined(separator: ", ")
+                return "[" + value + "]"
+            } else {
+                return toString(value)
+            }
+        }
+
+        private func toString(_ value: Any?) -> String {
+            if let value = value as? AlphaWallet.Address {
+                return value.eip55String
+            } else if let value = value as? CustomStringConvertible {
+                return value.description
+            } else {
+                return String()
+            }
+        }
+    }
+}
+
 struct DecodedFunctionCall {
     enum FunctionType {
 //NOTE: Not sure if we need these functions
@@ -21,7 +56,7 @@ struct DecodedFunctionCall {
         case erc1155SafeTransfer(spender: AlphaWallet.Address)
         case erc1155SafeBatchTransfer(spender: AlphaWallet.Address)
 
-        case others
+        case others(name: String, arguments: [FunctionCall.Argument])
     }
 
     static let erc20Transfer = (name: "transfer", interfaceHash: "a9059cbb", byteCount: 68)
@@ -30,7 +65,7 @@ struct DecodedFunctionCall {
     static let erc1155SafeBatchTransfer = (name: "safeBatchTransferFrom", interfaceHash: "2eb2c2d6", byteCount: 68)
 
     let name: String
-    let arguments: [(type: ABIType, value: AnyObject)]
+    let arguments: [FunctionCall.Argument]
     let type: FunctionType
 
     init?(data: Data) {
@@ -38,7 +73,7 @@ struct DecodedFunctionCall {
         self = decoded
     }
 
-    init(name: String, arguments: [(type: ABIType, value: AnyObject)], type: FunctionType) {
+    init(name: String, arguments: [FunctionCall.Argument], type: FunctionType) {
         self.name = name
         self.arguments = arguments
         self.type = type
@@ -48,7 +83,7 @@ struct DecodedFunctionCall {
         .init(name: "Transfer", arguments: .init(), type: .nativeCryptoTransfer(value: value))
     }
 
-    init(name: String, arguments: [(type: ABIType, value: AnyObject)]) {
+    init(name: String, arguments: [FunctionCall.Argument]) {
         self.name = name
         self.arguments = arguments
         self.type = DecodedFunctionCall.FunctionType(name: name, arguments: arguments)

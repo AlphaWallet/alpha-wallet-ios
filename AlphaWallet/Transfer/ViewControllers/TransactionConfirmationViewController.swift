@@ -292,8 +292,8 @@ extension TransactionConfirmationViewController {
                     view.isHidden = isSubViewsHidden
                     children.append(view)
 
-                    for (type, value) in functionCallMetaData.arguments {
-                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                    for arg in functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: arg.type.description, subtitle: arg.description))
                         view.isHidden = isSubViewsHidden
                         children.append(view)
                     }
@@ -320,8 +320,8 @@ extension TransactionConfirmationViewController {
                     view.isHidden = isSubViewsHidden
                     children.append(view)
 
-                    for (type, value) in viewModel.functionCallMetaData.arguments {
-                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: type.description, subtitle: value.description))
+                    for arg in viewModel.functionCallMetaData.arguments {
+                        let view = TransactionConfirmationRowInfoView(viewModel: .init(title: arg.type.description, subtitle: arg.description))
                         view.isHidden = isSubViewsHidden
                         children.append(view)
                     }

@@ -754,6 +754,7 @@
 		8712A39026F476900009C376 /* EditPriceAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */; };
 		8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */; };
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
+		871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */; };
 		8717D37327B2947000FB789D /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 8717D37227B2947000FB789D /* WalletConnect */; };
 		8717D37627B415C500FB789D /* SingleServerWalletConnectSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717D37527B415C500FB789D /* SingleServerWalletConnectSession.swift */; };
 		8717DA37273A714E002D3D66 /* WalletConnectServerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */; };
@@ -1865,6 +1866,7 @@
 		8712A38F26F476900009C376 /* EditPriceAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPriceAlertCoordinator.swift; sourceTree = "<group>"; };
 		8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageViewModel.swift; sourceTree = "<group>"; };
 		8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryTableViewCell.swift; sourceTree = "<group>"; };
+		871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionCallArgumentTests.swift; sourceTree = "<group>"; };
 		8717D37527B415C500FB789D /* SingleServerWalletConnectSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleServerWalletConnectSession.swift; sourceTree = "<group>"; };
 		8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServerProvider.swift; sourceTree = "<group>"; };
 		8717DA38273A7E83002D3D66 /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
@@ -3395,6 +3397,7 @@
 				5E7C7570889AD33EA942D9A6 /* AlphaWalletAddressTests.swift */,
 				5E7C75DE215F0AAEF284948F /* HDWalletTest.swift */,
 				87DD0C43279980E500460260 /* ValidatorsTests.swift */,
+				871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -6769,6 +6772,7 @@
 				61DCE17D2001A7A20053939F /* RLPTests.swift in Sources */,
 				299573A41FA27A15006F17FD /* TestKeyStore.swift in Sources */,
 				CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */,
+				871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */,
 				29F114F81FA8165200114A29 /* SendCoordinatorTests.swift in Sources */,
 				877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */,
 				299573A21FA1F369006F17FD /* QRCodeValueParserTests.swift in Sources */,

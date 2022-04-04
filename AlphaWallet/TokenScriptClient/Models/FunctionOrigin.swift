@@ -219,7 +219,7 @@ struct FunctionOrigin {
         do {
             try encoder.encode(function: functionEncoder, arguments: arguments)
             let data = encoder.data
-            let argumentsMetaData: [(type: ABIType, value: AnyObject)] = Array(zip(parameters, arguments))
+            let argumentsMetaData: [FunctionCall.Argument] = Array(zip(parameters, arguments)).map { .init(type: $0, value: $1) }
             let functionCallMetaData: DecodedFunctionCall = .init(name: functionName, arguments: argumentsMetaData)
             return (data: data, function: functionCallMetaData)
         } catch {
