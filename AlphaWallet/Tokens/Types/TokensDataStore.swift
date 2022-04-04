@@ -29,6 +29,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func deleteTestsOnly(tokens: [TokenObject])
     func updateOrderedTokens(with orderedTokens: [TokenObject])
 
+    func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
     @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject]
     @discardableResult func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
@@ -101,6 +102,24 @@ enum TokenUpdateAction {
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract] {
         return Array(realm.objects(HiddenContract.self)
             .filter("chainId = \(server.chainID)"))
+    }
+
+    func add(tokenUpdates updates: [TokenUpdate]) {
+        realm.beginWrite()
+        for token in updates {
+            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
+            let update: [String: Any] = [
+                "primaryKey": token.primaryKey,
+                "contract": token.address.eip55String,
+                "chainId": token.server.chainID,
+                "name": token.name,
+                "symbol": token.symbol,
+                "decimals": token.decimals,
+                "rawType": token.tokenType.rawValue,
+            ]
+            realm.create(TokenObject.self, value: update, update: .all)
+        }
+        try? realm.commitWrite()
     }
 
     func addEthToken(forServer server: RPCServer) {

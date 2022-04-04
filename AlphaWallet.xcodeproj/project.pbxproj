@@ -755,6 +755,7 @@
 		8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */; };
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
 		871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */; };
+		8714430627FB3663008819D1 /* TokensFromTransactionsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8714430527FB3663008819D1 /* TokensFromTransactionsFetcher.swift */; };
 		8717D37327B2947000FB789D /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 8717D37227B2947000FB789D /* WalletConnect */; };
 		8717D37627B415C500FB789D /* SingleServerWalletConnectSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717D37527B415C500FB789D /* SingleServerWalletConnectSession.swift */; };
 		8717DA37273A714E002D3D66 /* WalletConnectServerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */; };
@@ -1867,6 +1868,7 @@
 		8712A39126F476EF0009C376 /* PriceAlertsPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceAlertsPageViewModel.swift; sourceTree = "<group>"; };
 		8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryTableViewCell.swift; sourceTree = "<group>"; };
 		871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionCallArgumentTests.swift; sourceTree = "<group>"; };
+		8714430527FB3663008819D1 /* TokensFromTransactionsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensFromTransactionsFetcher.swift; sourceTree = "<group>"; };
 		8717D37527B415C500FB789D /* SingleServerWalletConnectSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleServerWalletConnectSession.swift; sourceTree = "<group>"; };
 		8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServerProvider.swift; sourceTree = "<group>"; };
 		8717DA38273A7E83002D3D66 /* WalletConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnect.swift; sourceTree = "<group>"; };
@@ -2460,6 +2462,7 @@
 				2977CAEC1F7E0BE2009682A0 /* ViewControllers */,
 				2977CAEB1F7E0BC3009682A0 /* ViewModels */,
 				29B6AECF1F7C881100EC6DE3 /* Types */,
+				8714430527FB3663008819D1 /* TokensFromTransactionsFetcher.swift */,
 			);
 			path = Transactions;
 			sourceTree = "<group>";
@@ -6139,6 +6142,7 @@
 				87BBF9942563DD7600FF4846 /* WalletConnectRowView.swift in Sources */,
 				879F185726E74077000602F2 /* TokensCardCollectionInfoPageViewModel.swift in Sources */,
 				442FCE0DAE5527A93F54022C /* RedeemTokenCardQuantitySelectionViewController.swift in Sources */,
+				8714430627FB3663008819D1 /* TokensFromTransactionsFetcher.swift in Sources */,
 				442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */,
 				87713EB6264BAB6E00B1B9CB /* PriceAlertsPageView.swift in Sources */,
 				442FCE2BEE8D475C7DEB39C1 /* RedeemTokenCardQuantitySelectionViewModel.swift in Sources */,

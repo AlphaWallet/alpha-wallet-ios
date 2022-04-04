@@ -40,9 +40,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         EventSourceCoordinator(wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
     }()
 
-    private lazy var transactionDataStore: TransactionDataStore = {
-        return TransactionDataStore(realm: realm, delegate: self)
-    }()
+    private lazy var transactionDataStore: TransactionDataStore = TransactionDataStore(realm: realm)
 
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
@@ -331,7 +329,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
             transactionDataStore: transactionDataStore,
             tokensDataStore: tokensDataStore
         )
-
+        transactionsService.delegate = self
         let coordinator = TransactionCoordinator(
                 analyticsCoordinator: analyticsCoordinator,
                 sessions: sessionsSubject.value,
@@ -949,14 +947,6 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
 extension InCoordinator: StaticHTMLViewControllerDelegate {
 }
 
-extension InCoordinator: TransactionDataStoreDelegate {
-    func didAddTokensWith(contracts: [AlphaWallet.Address], in transactionsStorage: TransactionDataStore) {
-        for each in contracts {
-            assetDefinitionStore.fetchXML(forContract: each)
-        }
-    }
-}
-
 extension InCoordinator: ActivitiesCoordinatorDelegate {
 
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
@@ -1066,4 +1056,11 @@ extension InCoordinator: BlockscanChatServiceDelegate {
     }
 }
 
+extension InCoordinator: TransactionsServiceDelegate {
+    func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address]) {
+        for each in contracts {
+            assetDefinitionStore.fetchXML(forContract: each)
+        }
+    }
+}
 // swiftlint:enable file_length

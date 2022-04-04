@@ -44,7 +44,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
     }()
     private let nftProvider: NFTProvider
-    private lazy var transactionsStorage = TransactionDataStore(realm: realm, delegate: self)
+    private lazy var transactionsStorage = TransactionDataStore(realm: realm)
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var cancelable = Set<AnyCancellable>()
     private let config: Config
@@ -260,14 +260,6 @@ extension WalletBalanceFetcher: PrivateTokensDataStoreDelegate {
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher) {
         DispatchQueue.main.async {
             self.reloadWalletBalance()
-        }
-    }
-}
-
-extension WalletBalanceFetcher: TransactionDataStoreDelegate {
-    func didAddTokensWith(contracts: [AlphaWallet.Address], in transactionsStorage: TransactionDataStore) {
-        for each in contracts {
-            assetDefinitionStore.fetchXML(forContract: each)
         }
     }
 }

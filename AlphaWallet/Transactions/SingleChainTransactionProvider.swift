@@ -3,7 +3,7 @@
 import Foundation
 
 protocol SingleChainTransactionProvider: AnyObject {
-    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue)
+    init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher)
     
     func start()
     func stopTimers()
