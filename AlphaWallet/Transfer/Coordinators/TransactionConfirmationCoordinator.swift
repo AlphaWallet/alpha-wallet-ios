@@ -77,6 +77,8 @@ class TransactionConfirmationCoordinator: Coordinator {
     private lazy var hostViewController: FloatingPanelController = {
         let panel = FloatingPanelController(isPanEnabled: false)
         panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
+        panel.shouldDismissOnBackdrop = true
+        panel.delegate = self
         panel.set(contentViewController: rootViewController)
 
         return panel
@@ -140,6 +142,12 @@ class TransactionConfirmationCoordinator: Coordinator {
         case .executionReverted:
             break
         }
+    }
+}
+
+extension TransactionConfirmationCoordinator: FloatingPanelControllerDelegate {
+    func floatingPanelDidRemove(_ fpc: FloatingPanelController) {
+        delegate?.didClose(in: self)
     }
 }
 
@@ -210,6 +218,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 
             let panel = FloatingPanelController(isPanEnabled: false)
             panel.layout = SelfSizingPanelLayout(referenceGuide: .superview)
+            panel.shouldDismissOnBackdrop = true
             panel.set(contentViewController: errorViewController)
 
             rootViewController.present(panel, animated: true)
