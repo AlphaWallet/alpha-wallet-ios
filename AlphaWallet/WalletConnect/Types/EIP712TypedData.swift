@@ -148,8 +148,13 @@ extension EIP712TypedData {
 
             guard size > 0 else { return nil }
 
-            if let value = data?.floatValue {
-                return try? ABIValue(Int(value), type: .uint(bits: size))
+            if let numberValue = data?.numberValue {
+                switch numberValue {
+                case let .int(value):
+                    return try? ABIValue(value, type: .uint(bits: size))
+                case let .double(value):
+                    return try? ABIValue(Int(value), type: .uint(bits: size))
+                }
             } else if let value = data?.stringValue,
                       let bigInt = BigUInt(value: value) {
                 return try? ABIValue(bigInt, type: .uint(bits: size))
@@ -159,8 +164,13 @@ extension EIP712TypedData {
 
             guard size > 0 else { return nil }
 
-            if let value = data?.floatValue {
-                return try? ABIValue(Int(value), type: .int(bits: size))
+            if let numberValue = data?.numberValue {
+                switch numberValue {
+                case let .int(value):
+                    return try? ABIValue(value, type: .uint(bits: size))
+                case let .double(value):
+                    return try? ABIValue(Int(value), type: .uint(bits: size))
+                }
             } else if let value = data?.stringValue,
                       let bigInt = BigInt(value: value) {
                 return try? ABIValue(bigInt, type: .int(bits: size))
@@ -235,9 +245,47 @@ class Crypto {
 /// and `Codable`, so that you can compare values for equality and code and decode them into data
 /// or strings.
 extension EIP712TypedData {
+    enum NumberValue: Equatable, Codable, CustomStringConvertible {
+        case double(Double)
+        case int(Int)
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+
+            if let value = try? container.decode(Int.self) {
+                self = .int(value)
+            } else if let value = try? container.decode(Double.self) {
+                self = .double(value)
+            } else {
+                throw DecodingError.dataCorrupted(
+                    .init(codingPath: decoder.codingPath, debugDescription: "Invalid JSON value.")
+                )
+            }
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case let .int(value):
+                try container.encode(value)
+            case let .double(value):
+                try container.encode(value)
+            }
+        }
+
+        var description: String {
+            switch self {
+            case let .int(value):
+                return value.description
+            case let .double(value):
+                return value.description
+            }
+        }
+    }
+
     enum JSON: Equatable {
         case string(String)
-        case number(Float)
+        case number(EIP712TypedData.NumberValue)
         case object([String: JSON])
         case array([JSON])
         case bool(Bool)
@@ -276,7 +324,7 @@ extension EIP712TypedData.JSON: Codable {
             self = .string(string)
         } else if let bool = try? container.decode(Bool.self) {
             self = .bool(bool)
-        } else if let number = try? container.decode(Float.self) {
+        } else if let number = try? container.decode(EIP712TypedData.NumberValue.self) {
             self = .number(number)
         } else if container.decodeNil() {
             self = .null
@@ -318,7 +366,7 @@ extension EIP712TypedData.JSON {
     }
 
     /// Return the float value if this is a `.number`, otherwise `nil`
-    var floatValue: Float? {
+    var numberValue: EIP712TypedData.NumberValue? {
         if case .number(let value) = self {
             return value
         }

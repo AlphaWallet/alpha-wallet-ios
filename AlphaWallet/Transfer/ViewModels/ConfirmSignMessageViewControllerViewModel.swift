@@ -258,7 +258,7 @@ extension EIP712TypedData.JSON {
             return NSAttributedString(string: fittedString.indented(indentationLevel), attributes: valueAttributes)
 
         case .number(let value):
-            return NSAttributedString(string: String(value).indented(indentationLevel), attributes: valueAttributes)
+            return NSAttributedString(string: value.description.indented(indentationLevel), attributes: valueAttributes)
         case .array(let array):
             let str = NSMutableAttributedString(string: "[\n".indented(indentationLevel), attributes: nameAttributes)
             str.append(array.map { $0.formattedString(indentationLevel: indentationLevel + 1) }.joined(separator: NSAttributedString(string: ",\n", attributes: nameAttributes)))
