@@ -94,7 +94,7 @@ final class DDLogger: Logger {
         fileLogger.rollingFrequency = 60 * 60 * 24
         fileLogger.logFileManager.maximumNumberOfLogFiles = 7
 
-        logger.add(DDASLLogger.sharedInstance, with: .debug)
+        logger.add(DDOSLogger.sharedInstance, with: .debug)
         logger.add(fileLogger, with: .info)
     }
 
