@@ -705,8 +705,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .fantom_testnet: return .red
         case .avalanche: return .red
         case .avalanche_testnet: return .red
-        case .polygon: return .red
-        case .mumbai_testnet: return .red
+        case .polygon, .mumbai_testnet: return .init(red: 130, green: 71, blue: 229)
         case .optimistic: return .red
         case .optimisticKovan: return .red
         case .cronosTestnet: return .red
@@ -750,10 +749,8 @@ enum RPCServer: Hashable, CaseIterable {
             return R.image.iconsTokensFantom()
         case .avalanche, .avalanche_testnet:
             return R.image.iconsTokensAvalanche()
-        case .polygon:
+        case .polygon, .mumbai_testnet:
             return R.image.iconsTokensPolygon()
-        case .mumbai_testnet:
-            return nil
         case .optimistic:
             return R.image.iconsTokensOptimistic()
         case .optimisticKovan:
