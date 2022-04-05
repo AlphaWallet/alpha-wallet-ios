@@ -112,8 +112,12 @@ extension Transaction {
 }
 
 extension Transaction {
-    static func from(from: AlphaWallet.Address, transaction: SentTransaction, tokensDataStore: TokensDataStore, server: RPCServer) -> Transaction {
-        let (operations: operations, isErc20Interaction: isErc20Interaction) = decodeOperations(fromData: transaction.original.data, from: transaction.original.account, contractOrRecipient: transaction.original.to, tokensDataStore: tokensDataStore, server: server)
+
+    static func from(from: AlphaWallet.Address, transaction: SentTransaction, token: TokenObject?) -> Transaction {
+        let (operations: operations, isErc20Interaction: isErc20Interaction) = decodeOperations(
+            fromData: transaction.original.data,
+            from: transaction.original.account,
+            token: token)
 
         return Transaction(
                 id: transaction.id,
@@ -135,13 +139,13 @@ extension Transaction {
     }
 
     //TODO add support for more types of pending transactions
-    fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, contractOrRecipient: AlphaWallet.Address?, tokensDataStore: TokensDataStore, server: RPCServer) -> (operations: [LocalizedOperationObject], isErc20Interaction: Bool) {
-        if let functionCallMetaData = DecodedFunctionCall(data: data), let contract = contractOrRecipient, let token = tokensDataStore.token(forContract: contract, server: server) {
+    fileprivate static func decodeOperations(fromData data: Data, from: AlphaWallet.Address, token: TokenObject?) -> (operations: [LocalizedOperationObject], isErc20Interaction: Bool) {
+        if let functionCallMetaData = DecodedFunctionCall(data: data), let token = token {
             switch functionCallMetaData.type {
             case .erc20Approve(let spender, let value):
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: contract, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: spender.eip55String, contract: token.contractAddress, type: OperationType.erc20TokenApprove.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .erc20Transfer(let recipient, let value):
-                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: contract, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
+                return (operations: [LocalizedOperationObject(from: from.eip55String, to: recipient.eip55String, contract: token.contractAddress, type: OperationType.erc20TokenTransfer.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)], isErc20Interaction: true)
             case .nativeCryptoTransfer, .others, .erc1155SafeBatchTransfer, .erc1155SafeTransfer:
                 break
             }
