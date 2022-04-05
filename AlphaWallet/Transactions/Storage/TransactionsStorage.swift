@@ -4,21 +4,14 @@ import RealmSwift
 import PromiseKit
 import Combine
 
-protocol TransactionDataStoreDelegate: AnyObject {
-    func didAddTokensWith(contracts: [AlphaWallet.Address], in transactionsStorage: TransactionDataStore)
-}
-
 class TransactionDataStore {
     //TODO if we move this to instance-side, we have to be careful it's the same instance we are accessing, otherwise we wouldn't find the pending transaction information when we need it
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let realm: Realm
 
-    weak var delegate: TransactionDataStoreDelegate?
-
-    init(realm: Realm, delegate: TransactionDataStoreDelegate?) {
+    init(realm: Realm) {
         self.realm = realm
-        self.delegate = delegate
     }
 
     func transactionCount(forServer server: RPCServer) -> Int {
@@ -177,44 +170,15 @@ class TransactionDataStore {
         try? realm.commitWrite()
     }
 
-    func add(transactions: [TransactionInstance], transactionsToPullContractsFrom: [TransactionInstance], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
-        guard !transactions.isEmpty else { return }
+    func addOrUpdate(transactions: [TransactionInstance]) {
         let newTransactions = transactions.map { Transaction(object: $0) }
-        let newTransactionsToPullContractsFrom = transactionsToPullContractsFrom.map { Transaction(object: $0) }
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
         guard !transactionsToCommit.isEmpty else { return }
 
         realm.beginWrite()
         realm.add(transactionsToCommit, update: .all)
-        //NOTE: move adding transactions under single write realm transaction
-        addTokensWithContractAddresses(fromTransactions: newTransactionsToPullContractsFrom, server: transactions[0].server, contractsAndTokenTypes: contractsAndTokenTypes, realm: realm)
 
         try! realm.commitWrite()
-    }
-
-    private func updateTransactionsWithoutCommitWrite(in realm: Realm, tokens: [TokenUpdate]) {
-        for token in tokens {
-            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
-            let update: [String: Any] = [
-                "primaryKey": token.primaryKey,
-                "contract": token.address.eip55String,
-                "chainId": token.server.chainID,
-                "name": token.name,
-                "symbol": token.symbol,
-                "decimals": token.decimals,
-                "rawType": token.tokenType.rawValue,
-            ]
-            realm.create(TokenObject.self, value: update, update: .all)
-        }
-    }
-
-    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType], realm: Realm) {
-        let tokens = TransactionDataStore.functional.tokens(from: transactions, server: server, contractsAndTokenTypes: contractsAndTokenTypes)
-        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), in: self)
-
-        if !tokens.isEmpty {
-            updateTransactionsWithoutCommitWrite(in: realm, tokens: tokens)
-        }
     }
 
     //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
@@ -275,7 +239,7 @@ class TransactionDataStore {
     }
 
     static func deleteAllTransactions(realm: Realm, config: Config) {
-        let transactionsStorage = TransactionDataStore(realm: realm, delegate: nil)
+        let transactionsStorage = TransactionDataStore(realm: realm)
         transactionsStorage.deleteAll()
     }
 }
@@ -320,47 +284,6 @@ extension TransactionDataStore {
 }
 
 extension TransactionDataStore.functional {
-
-    static func tokens(from transactions: [Transaction], server: RPCServer, contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
-        let tokens: [TokenUpdate] = transactions.flatMap { transaction -> [TokenUpdate] in
-            let tokenUpdates: [TokenUpdate] = transaction.localizedOperations.compactMap { operation in
-                guard let contract = operation.contractAddress else { return nil }
-                guard let name = operation.name else { return nil }
-                guard let symbol = operation.symbol else { return nil }
-                let tokenType: TokenType
-                if let t = contractsAndTokenTypes[contract] {
-                    tokenType = t
-                } else {
-                    switch operation.operationType {
-                    case .nativeCurrencyTokenTransfer:
-                        tokenType = .nativeCryptocurrency
-                    case .erc20TokenTransfer:
-                        tokenType = .erc20
-                    case .erc20TokenApprove:
-                        tokenType = .erc20
-                    case .erc721TokenTransfer:
-                        tokenType = .erc721
-                    case .erc875TokenTransfer:
-                        tokenType = .erc875
-                    case .erc1155TokenTransfer:
-                        tokenType = .erc1155
-                    case .unknown:
-                        tokenType = .erc20
-                    }
-                }
-                return TokenUpdate(
-                        address: contract,
-                        server: server,
-                        name: name,
-                        symbol: symbol,
-                        decimals: operation.decimals,
-                        tokenType: tokenType
-                )
-            }
-            return tokenUpdates
-        }
-        return tokens
-    }
 
     static func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
         return .filter(strategy: strategy, tokenObject: tokenObject)

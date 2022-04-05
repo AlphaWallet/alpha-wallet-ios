@@ -8,6 +8,10 @@ enum TransactionError: Error {
     case failedToFetch
 }
 
+protocol TransactionsServiceDelegate: AnyObject {
+    func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address])
+}
+
 class TransactionsService {
     let transactionDataStore: TransactionDataStore
     private let sessions: ServerDictionary<WalletSession>
@@ -21,6 +25,8 @@ class TransactionsService {
         queue.maxConcurrentOperationCount = 3
         return queue
     }()
+
+    weak var delegate: TransactionsServiceDelegate?
 
     var transactionsChangesetPublisher: AnyPublisher<[TransactionInstance], Never> {
         let servers = sessions.values.map { $0.server }
@@ -52,7 +58,9 @@ class TransactionsService {
     private func setupSingleChainTransactionProviders() {
         providers = sessions.values.map { each in
             let providerType = each.server.transactionProviderType
-            return providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(tokensDataStore: tokensDataStore, session: each)
+            tokensFromTransactionsFetcher.delegate = self
+            return providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
         }
     }
 
@@ -101,5 +109,12 @@ class TransactionsService {
         for each in providers {
             each.stop()
         }
+    }
+}
+
+extension TransactionsService: TokensFromTransactionsFetcherDelegate {
+    func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contracts: [AlphaWallet.Address], tokenUpdates: [TokenUpdate]) {
+        tokensDataStore.add(tokenUpdates: tokenUpdates)
+        delegate?.didExtractNewContracts(in: self, contracts: contracts)
     }
 }

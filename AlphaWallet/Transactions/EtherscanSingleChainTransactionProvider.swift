@@ -20,23 +20,25 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
     private let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
-
+    private let tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     private var isAutoDetectingERC20Transactions: Bool = false
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
 
-    lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
+    private lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
 
     required init(
-            session: WalletSession,
-            transactionDataStore: TransactionDataStore,
-            tokensDataStore: TokensDataStore,
-            fetchLatestTransactionsQueue: OperationQueue
+        session: WalletSession,
+        transactionDataStore: TransactionDataStore,
+        tokensDataStore: TokensDataStore,
+        fetchLatestTransactionsQueue: OperationQueue,
+        tokensFromTransactionsFetcher: TokensFromTransactionsFetcher
     ) {
         self.session = session
         self.transactionDataStore = transactionDataStore
         self.tokensDataStore = tokensDataStore
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
+        self.tokensFromTransactionsFetcher = tokensFromTransactionsFetcher
     }
 
     func start() {
@@ -92,13 +94,13 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
             return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensDataStore: strongSelf.tokensDataStore, tokenProvider: strongSelf.tokenProvider, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
-        }).done(on: queue) { [weak self] backFilledTransactions, maxBlockNumber in
+        }).done { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
                 Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
-            strongSelf.update(transaction: backFilledTransactions)
+            strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }.catch({ e in
             error(value: e, function: #function, rpcServer: server, address: wallet)
         })
@@ -120,13 +122,13 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         }).then(on: queue, { [weak self] result, minBlockNumber, maxBlockNumber -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
             return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensDataStore: strongSelf.tokensDataStore, tokenProvider: strongSelf.tokenProvider, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
-        }).done(on: queue) { [weak self] backFilledTransactions, maxBlockNumber in
+        }).done { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
                 Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
-            strongSelf.update(transaction: backFilledTransactions)
+            strongSelf.addOrUpdate(transactions: backFilledTransactions)
         }.catch({ e in
             error(value: e, rpcServer: server, address: wallet)
         })
@@ -141,51 +143,11 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         fetchPendingTransactions()
     }
 
-    private func update(transaction: [TransactionInstance]) {
-        guard !transaction.isEmpty else { return }
+    private func addOrUpdate(transactions: [TransactionInstance]) {
+        guard !transactions.isEmpty else { return }
 
-        filterTransactionsToPullContractsFrom(transaction).done(on: .main, { [weak self] transactionsToPullContractsFrom, contractsAndTokenTypes in
-            guard let strongSelf = self else { return }
-            strongSelf.transactionDataStore.add(transactions: transaction, transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
-        }).cauterize()
-    }
-
-    private func detectContractsToAvoid(for tokensStorage: TokensDataStore, forServer server: RPCServer) -> Promise<[AlphaWallet.Address]> {
-        return Promise { seal in
-            DispatchQueue.main.async {
-                let deletedContracts = tokensStorage.deletedContracts(forServer: server).map { $0.contractAddress }
-                let hiddenContracts = tokensStorage.hiddenContracts(forServer: server).map { $0.contractAddress }
-                let delegateContracts = tokensStorage.delegateContracts(forServer: server).map { $0.contractAddress }
-                let alreadyAddedContracts = tokensStorage.enabledTokenObjects(forServers: [server]).map { $0.contractAddress }
-
-                seal.fulfill(alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts)
-            }
-        }
-    }
-
-    private func filterTransactionsToPullContractsFrom(_ transactions: [TransactionInstance]) -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> {
-        return detectContractsToAvoid(for: tokensDataStore, forServer: session.server).then(on: queue, { [weak self] contractsToAvoid -> Promise<(transactions: [TransactionInstance], contractTypes: [AlphaWallet.Address: TokenType])> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
-
-            let filteredTransactions = transactions.filter {
-                if let toAddressToCheck = AlphaWallet.Address(string: $0.to), contractsToAvoid.contains(toAddressToCheck) {
-                    return false
-                }
-                if let contractAddressToCheck = $0.operation?.contractAddress, contractsToAvoid.contains(contractAddressToCheck) {
-                    return false
-                }
-                return true
-            }
-
-            //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-            let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-            let tokenTypePromises = contracts.map { strongSelf.tokenProvider.getTokenType(for: $0) }
-
-            return when(fulfilled: tokenTypePromises).map(on: strongSelf.queue, { tokenTypes in
-                let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
-                return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            })
-        })
+        transactionDataStore.addOrUpdate(transactions: transactions)
+        tokensFromTransactionsFetcher.extractNewTokens(from: transactions)
     }
 
     private func fetchPendingTransactions() {
@@ -203,9 +165,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             guard let strongSelf = self else { return }
 
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
-                //NOTE: We dont want to call function handleUpdateItems: twice because it will be updated in update(items:
-                strongSelf.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction, shouldUpdateItems: false)
-                strongSelf.update(transaction: [transaction])
+                strongSelf.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction)
+                strongSelf.addOrUpdate(transactions: [transaction])
             }
         }.catch { [weak self] error in
             guard let strongSelf = self else { return }
@@ -234,7 +195,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         transactionDataStore.delete(transactions: transactions)
     }
 
-    private func update(state: TransactionState, for transaction: TransactionInstance, withPendingTransaction pendingTransaction: PendingTransaction?, shouldUpdateItems: Bool = true) {
+    private func update(state: TransactionState, for transaction: TransactionInstance, withPendingTransaction pendingTransaction: PendingTransaction?) {
         transactionDataStore.update(state: state, for: transaction.primaryKey, withPendingTransaction: pendingTransaction)
     }
 
@@ -262,10 +223,10 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
         let promise = functional.fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, alphaWalletProvider: alphaWalletProvider, tokensDataStore: tokensDataStore, tokenProvider: tokenProvider, queue: queue)
-        promise.done(on: queue, { [weak self] transactions in
+        promise.done { [weak self] transactions in
             guard let strongSelf = self else { return }
 
-            strongSelf.update(transaction: transactions)
+            strongSelf.addOrUpdate(transactions: transactions)
 
             if transactions.isEmpty {
                 strongSelf.transactionsTracker.fetchingState = .done
@@ -275,7 +236,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     strongSelf.fetchOlderTransactions(for: address)
                 }
             }
-        }).catch(on: queue, { [weak self] _ in
+        }.catch(on: queue, { [weak self] _ in
             guard let strongSelf = self else { return }
 
             strongSelf.transactionsTracker.fetchingState = .failed
@@ -326,9 +287,9 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
             firstly {
                 EtherscanSingleChainTransactionProvider.functional.fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, tokenProvider: coordinator.tokenProvider, queue: coordinator.queue)
-            }.done(on: queue, { transactions in
-                coordinator.update(transaction: transactions)
-            }).catch { e in
+            }.done { transactions in
+                coordinator.addOrUpdate(transactions: transactions)
+            }.catch { e in
                 error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
             }.finally { [weak self] in
                 guard let strongSelf = self else { return }
