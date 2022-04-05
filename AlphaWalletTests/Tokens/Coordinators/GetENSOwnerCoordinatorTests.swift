@@ -52,6 +52,26 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         wait(for: expectations, timeout: 20)
     }
 
+    func testEnsIp10WildcardAndEip3668CcipRead() {
+        var expectations = [XCTestExpectation]()
+        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
+        expectations.append(expectation)
+        let ensName = "1.offchainexample.eth"
+        let server = makeServerForMainnet()
+        firstly {
+            GetENSAddressCoordinator(server: server).getENSAddressFromResolver(for: ensName)
+        }.done { address in
+            if address.sameContract(as: "0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5") {
+                expectation.fulfill()
+            } else {
+                XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
+            }
+        }.catch { error in
+            XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
+        }
+        wait(for: expectations, timeout: 20)
+    }
+
     private func makeServerForMainnet() -> RPCServer {
         return .main
     }
