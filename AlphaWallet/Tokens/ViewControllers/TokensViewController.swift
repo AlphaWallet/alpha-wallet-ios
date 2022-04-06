@@ -35,7 +35,7 @@ class TokensViewController: UIViewController {
             ScrollableSegmentedControlCell(frame: .zero, title: title, configuration: cellConfiguration)
         }
         let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
-        control.setSelection(cellIndex: 0)
+        control.setSelection(cellIndex: 0, animated: false)
         return control
     }()
     private let emptyTableView: EmptyTableView = {
