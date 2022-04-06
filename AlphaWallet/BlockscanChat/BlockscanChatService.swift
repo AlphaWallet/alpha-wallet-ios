@@ -37,8 +37,8 @@ class BlockscanChatService {
 
         watchForWalletChanges()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
-        periodicRefreshTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
-            self?.periodicallyRefreshUnreadCountsForAllWallets()
+        periodicRefreshTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            self?.periodicallyRefreshUnreadCountForCurrentWallet()
         }
     }
     deinit {
@@ -84,6 +84,10 @@ class BlockscanChatService {
         let isCurrentRealAccount = account.address == address
         guard isCurrentRealAccount else { return }
         delegate?.openBlockscanChat(url: Constants.BlockscanChat.blockscanChatWebUrl.appendingPathComponent(address.eip55String), for: self)
+        let delayForUserToClearChats = 10
+        DispatchQueue.main.asyncAfter(deadline: .now() + delayForUserToClearChats) { [weak self] in
+            self?.refreshUnreadCountForCurrentWallet()
+        }
     }
 
     private func watchForWalletChanges() {
@@ -97,15 +101,25 @@ class BlockscanChatService {
                 }.store(in: &cancelable)
     }
 
+    //TODO display unread count in Accounts for all users if non-zero?
     private func refreshUnreadCountsForAllWallets() {
+        var delay: Double = 0
+        let increments: Double = 0.2
         for each in realWalletAddresses {
-            getBlockscanChat(forAddress: each).flatMap { refreshUnreadCount(forBlockscanChat: $0) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                self?.getBlockscanChat(forAddress: each).flatMap { self?.refreshUnreadCount(forBlockscanChat: $0) }
+            }
+            delay += increments
         }
     }
 
-    private func periodicallyRefreshUnreadCountsForAllWallets() {
-        infoLog("[BlockscanChat] periodicallyRefreshUnreadCountsForAllWallets")
+    private func periodicallyRefreshUnreadCountForCurrentWallet() {
+        infoLog("[BlockscanChat] periodicallyRefreshUnreadCountForCurrentWallet")
         //TODO refresh for all wallets (maybe less often as the current wallet). Not doing it yet because we don't have a way to show the unread count for inactive wallets
+        refreshUnreadCountForCurrentWallet()
+    }
+
+    private func refreshUnreadCountForCurrentWallet() {
         getBlockscanChat(forAddress: account.address).flatMap { refreshUnreadCount(forBlockscanChat: $0) }
     }
 
