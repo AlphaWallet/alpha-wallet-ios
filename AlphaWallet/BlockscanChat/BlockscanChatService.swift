@@ -37,7 +37,7 @@ class BlockscanChatService {
 
         watchForWalletChanges()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
-        self.periodicRefreshTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+        periodicRefreshTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             self?.periodicallyRefreshUnreadCountsForAllWallets()
         }
     }
