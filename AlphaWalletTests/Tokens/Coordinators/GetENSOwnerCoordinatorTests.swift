@@ -46,7 +46,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
             } else {
                 XCTFail("ENS name did not resolve correctly")
             }
-        }.catch { error in
+        }.catch { _ in
             XCTFail("ENS name did not resolve correctly")
         }
         wait(for: expectations, timeout: 20)
@@ -66,7 +66,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
             } else {
                 XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
             }
-        }.catch { error in
+        }.catch { _ in
             XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
         }
         wait(for: expectations, timeout: 20)

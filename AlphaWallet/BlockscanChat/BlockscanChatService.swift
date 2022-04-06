@@ -90,7 +90,7 @@ class BlockscanChatService {
         walletAddressesStore
                 .walletsPublisher
                 .receive(on: RunLoop.main)
-                .sink { [weak self] wallets in
+                .sink { [weak self] _ in
                     guard let strongSelf = self else { return }
                     strongSelf.configureBlockscanChats()
                     strongSelf.refreshUnreadCountsForAllWallets()
@@ -114,14 +114,14 @@ class BlockscanChatService {
     }
 }
 
-//MARK: Application State
+// MARK: Application State
 extension BlockscanChatService {
     @objc private func applicationWillEnterForeground(_ notification: Notification) {
         refreshUnreadCountsForAllWallets()
     }
 }
 
-//MARK: Analytics
+// MARK: Analytics
 extension BlockscanChatService {
     private func logUnreadAnalytics(resultType: Analytics.BlockscanChatResultType) {
         analyticsCoordinator.log(stat: Analytics.Stat.blockscanChatFetchUnread, properties: [Analytics.Properties.resultType.rawValue: resultType.rawValue])

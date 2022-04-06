@@ -501,7 +501,7 @@ fileprivate extension PrivateBalanceFetcher.functional {
                 Erc1155BalanceFetcher(address: account.address, server: server)
                     .fetch(contract: contract, tokenIds: Set(tokenIds))
                     .map { (contract: contract, balances: $0) }
-                    .recover { _ in return .value((contract: contract, balances: [:]))}
+                    .recover { _ in return .value((contract: contract, balances: [:])) }
             }
             return firstly {
                 when(fulfilled: promises)
@@ -595,7 +595,7 @@ fileprivate extension PrivateBalanceFetcher.functional {
                     //no op
                 }
             }
-            
+
             let tokenType: TokenType
             if let anyNonFungible = anyNonFungible {
                 tokenType = anyNonFungible.tokenType.asTokenType

@@ -33,7 +33,7 @@ struct CheckTransactionStateViewModel {
     }
 
     let title: String = R.string.localizable.checkTransactionStateTitle()
-    var actionButtonTitle: String { return R.string.localizable.checkTransactionStateActionButtonTitle()}
+    var actionButtonTitle: String { return R.string.localizable.checkTransactionStateActionButtonTitle() }
     var serverViewTitle: String { return R.string.localizable.checkTransactionStateFieldServerTitle() }
 
     var selectedServerString: String {

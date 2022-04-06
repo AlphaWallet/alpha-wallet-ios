@@ -787,7 +787,7 @@ extension TokensViewController {
     }
 }
 
-//MARK: Search
+// MARK: Search
 extension TokensViewController {
     override var keyCommands: [UIKeyCommand]? {
         return [UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(enterSearchMode), discoverabilityTitle: "Filter")]
