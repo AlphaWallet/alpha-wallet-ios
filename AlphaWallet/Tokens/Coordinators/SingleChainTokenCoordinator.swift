@@ -24,7 +24,6 @@ protocol SingleChainTokenCoordinatorDelegate: CanOpenURL, SendTransactionDelegat
     func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator)
 }
 
-// swiftlint:disable type_body_length
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
@@ -217,7 +216,6 @@ class SingleChainTokenCoordinator: Coordinator {
         delegate?.didPress(for: .send(type: .tokenScript(action: action, tokenObject: tokenObject, tokenHolder: tokenHolder)), inViewController: navigationController, in: self)
     }
 }
-// swiftlint:enable type_body_length
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     func didTap(transaction: TransactionInstance, in coordinator: TokensCardCoordinator) {

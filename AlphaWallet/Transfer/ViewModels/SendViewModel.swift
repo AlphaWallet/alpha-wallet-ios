@@ -187,7 +187,6 @@ struct SendViewModel {
         return value
     }
 
-
     //This function is required because BigInt.init(String) doesn't handle scientific notation
     func convertMaybeScientificAmountToBigInt(_ maybeScientificAmountString: String) -> BigInt? {
         let numberFormatter = Formatter.scientificAmount

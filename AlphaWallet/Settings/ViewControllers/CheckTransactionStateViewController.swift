@@ -52,7 +52,6 @@ class CheckTransactionStateViewController: ModalViewController {
     }()
 
     private var viewModel: CheckTransactionStateViewModel
-    
 
     init(viewModel: CheckTransactionStateViewModel) {
         self.viewModel = viewModel

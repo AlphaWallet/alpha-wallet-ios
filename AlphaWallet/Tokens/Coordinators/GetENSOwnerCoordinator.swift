@@ -56,7 +56,7 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
         return firstly {
             getResolver(input: input)
         }.then { resolver -> Promise<(AlphaWallet.Address, Bool)> in
-            self.isSupportEnsIp10(resolver: resolver).map { (resolver, $0)}
+            self.isSupportEnsIp10(resolver: resolver).map { (resolver, $0) }
         }.then { resolver, supportsEnsIp10 -> Promise<AlphaWallet.Address> in
             verboseLog("[ENS] Fetch resolver: \(resolver.eip55String) supports ENSIP-10? \(supportsEnsIp10) for input: \(input)")
             if supportsEnsIp10 {
