@@ -7,7 +7,7 @@ import web3swift
 import Combine
 
 protocol EventSourceCoordinatorForActivitiesType: AnyObject {
-    func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] 
+    func fetchEvents(forToken token: TokenObject) -> [Promise<Void>]
     func start()
 }
 
@@ -46,7 +46,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         let xmlHandler = XMLHandler(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
         return xmlHandler.activityCards.compactMap {
-            EventSourceCoordinatorForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet)
+            EventSourceCoordinatorForActivities.functional.fetchEvents(config: config, tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet)
         }
     }
 
@@ -54,7 +54,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
         let xmlHandler = XMLHandler(contract: contract, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
         return xmlHandler.activityCards.compactMap {
-            EventSourceCoordinatorForActivities.functional.fetchEvents(tokenContract: contract, server: rpcServer, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet)
+            EventSourceCoordinatorForActivities.functional.fetchEvents(config: config, tokenContract: contract, server: rpcServer, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet)
         }
     }
 
@@ -109,7 +109,11 @@ extension EventSourceCoordinatorForActivities {
 }
 
 extension EventSourceCoordinatorForActivities.functional {
-    static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
+    static func fetchEvents(config: Config, tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
+        if config.development.isAutoFetchingDisabled {
+            return Promise { _ in }
+        }
+
         let (promise, seal) = Promise<Void>.pending()
 
         queue.async {

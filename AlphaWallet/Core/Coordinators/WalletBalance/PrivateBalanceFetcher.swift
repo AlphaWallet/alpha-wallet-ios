@@ -39,6 +39,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let nftProvider: NFTProvider
     private let queue: DispatchQueue
     private let server: RPCServer
+    private let config: Config
     private lazy var etherToken = Activity.AssignedToken(tokenObject: MultipleChainsTokensDataStore.functional.etherToken(forServer: server))
     private var isRefeshingBalance: Bool = false
     weak var delegate: PrivateTokensDataStoreDelegate?
@@ -48,10 +49,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private var cachedErc1155TokenIdsFetchers: [AddressAndRPCServer: Erc1155TokenIdsFetcher] = [:]
     private var cancelable = Set<AnyCancellable>()
 
-    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
+    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
         self.nftProvider = nftProvider
         self.account = account
         self.server = server
+        self.config = config
         self.queue = queue
         self.enjin = EnjinProvider.createInstance(with: AddressAndRPCServer(address: account.address, server: server))
         self.tokensDataStore = tokensDataStore
@@ -285,13 +287,14 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             results.compactMap { $0 }.flatMap { $0 }
         })
     }
+
     //NOTE: avoid memory leak while creating a lot of `Erc1155TokenIdsFetcher` instances
     private func createOrGetErc1155TokenIdsFetcher(address: AlphaWallet.Address, server: RPCServer) -> Erc1155TokenIdsFetcher {
         let key = AddressAndRPCServer(address: address, server: server)
         if let value = cachedErc1155TokenIdsFetchers[key] {
             return value
         } else {
-            let fetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, queue: queue)
+            let fetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
             cachedErc1155TokenIdsFetchers[key] = fetcher
 
             return fetcher
