@@ -124,16 +124,16 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
     // MARK: - Set selection
     // MARK: Public
 
-    func setSelection(cellIndex: Int) {
+    func setSelection(cellIndex: Int, animated: Bool = true) {
         guard cellIndex < cells.count, cellIndex >= 0 else { return }
         _selectedSegment = .selected(UInt(cellIndex))
-        highlightCell(cellIndex: cellIndex)
+        animated ? highlightCellWithAnimation(cellIndex: cellIndex) : highlightCellWithoutAnimation(cellIndex: cellIndex)
     }
 
-    func setSelection(cell: ScrollableSegmentedControlCell) {
+    func setSelection(cell: ScrollableSegmentedControlCell, animated: Bool = true) {
         guard let cellIndex = cells.firstIndex(of: cell) else { return }
         _selectedSegment = .selected(UInt(cellIndex))
-        highlightCell(cellIndex: cellIndex)
+        animated ? highlightCellWithAnimation(cellIndex: cellIndex) : highlightCellWithoutAnimation(cellIndex: cellIndex)
     }
 
     func unselect() {
@@ -143,7 +143,7 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
 
     // MARK: Private
 
-    private func highlightCell(cellIndex: Int) {
+    private func highlightCellWithAnimation(cellIndex: Int) {
         guard cellIndex >= 0, cellIndex < cells.count else { return }
         let animation = UIViewPropertyAnimator(duration: configuration.animationDuration, curve: configuration.animationCurve) {
             self.unhighlightAllCells()
@@ -151,7 +151,7 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
             if highlightedCell.frame.size == .zero {
                 // Cell is not yet rendered so we loop until it is. This only happens the first time the control is rendered in a tableview as a header.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.highlightCell(cellIndex: cellIndex)
+                    self.highlightCellWithAnimation(cellIndex: cellIndex)
                 }
                 return
             }
@@ -163,6 +163,25 @@ class ScrollableSegmentedControl: UIControl, ReusableTableHeaderViewType {
             self.scrollView.scrollRectToVisible(highlightedCell.frame, animated: true)
         }
         animation.startAnimation()
+    }
+
+    private func highlightCellWithoutAnimation(cellIndex: Int) {
+        guard cellIndex >= 0, cellIndex < cells.count else { return }
+        let highlightedCell = self.cells[cellIndex]
+        if highlightedCell.frame.size == .zero {
+            // Cell is not yet rendered so we loop until it is. This only happens the first time the control is rendered in a tableview as a header.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.highlightCellWithoutAnimation(cellIndex: cellIndex)
+            }
+            return
+        }
+        self.unhighlightAllCells()
+        highlightedCell.highlighted = true
+        let frame = self.line.convert(highlightedCell.bounds, from: highlightedCell)
+        self.line.lineStartOffset = frame.minX
+        self.line.lineEndOffset = frame.maxX
+        self.line.layoutIfNeeded()
+        self.scrollView.scrollRectToVisible(highlightedCell.frame, animated: false)
     }
 
     private func unhighlightLine() {
