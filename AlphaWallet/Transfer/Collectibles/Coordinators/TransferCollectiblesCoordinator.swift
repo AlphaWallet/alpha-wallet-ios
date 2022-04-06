@@ -184,7 +184,7 @@ extension TransferCollectiblesCoordinator: TransactionInProgressCoordinatorDeleg
 
         switch transactionConfirmationResult {
         case .some(let result):
-            lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
+            let _ = lastViewControllerInNavigationStack.flatMap { navigationController.popToViewController($0, animated: true) }
             delegate?.didFinish(result, in: self)
         case .none:
             break

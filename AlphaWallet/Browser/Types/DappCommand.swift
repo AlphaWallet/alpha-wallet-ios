@@ -153,7 +153,7 @@ struct WalletAddEthereumChainObject: Decodable, CustomStringConvertible {
     let rpcUrls: [String]?
 
     var description: String {
-        return "{ blockExplorerUrls: \(blockExplorerUrls), chainName: \(chainName), chainId: \(chainId), rpcUrls: \(rpcUrls), nativeCurrency: \(nativeCurrency) }"
+        return "{ blockExplorerUrls: \(String(describing: blockExplorerUrls)), chainName: \(String(describing: chainName)), chainId: \(String(describing: chainId)), rpcUrls: \(String(describing: rpcUrls)), nativeCurrency: \(String(describing: nativeCurrency)) }"
     }
 }
 

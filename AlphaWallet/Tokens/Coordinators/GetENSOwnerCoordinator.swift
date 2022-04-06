@@ -52,7 +52,6 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
             return .value(cachedResult)
         }
 
-        let server = server
         return firstly {
             getResolver(input: input)
         }.then { resolver -> Promise<(AlphaWallet.Address, Bool)> in
