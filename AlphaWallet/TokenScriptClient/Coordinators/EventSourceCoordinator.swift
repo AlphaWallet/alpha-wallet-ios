@@ -29,6 +29,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
+    private let config: Config
     private var isFetching = false
     private var rateLimitedUpdater: RateLimiter?
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
@@ -40,6 +41,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.config = config
         self.enabledServers = config.enabledServers
 
         super.init()
@@ -67,7 +69,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
 
             for eachTokenHolder in tokenHolders {
                 guard let tokenId = eachTokenHolder.tokenIds.first else { continue }
-                let promise = EventSourceCoordinator.functional.fetchEvents(forTokenId: tokenId, token: token, eventOrigin: eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
+                let promise = EventSourceCoordinator.functional.fetchEvents(config: config, forTokenId: tokenId, token: token, eventOrigin: eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
                 fetchPromises.append(promise)
             }
         }
@@ -99,7 +101,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
 
                     seal.fulfill(values)
                 }
-            } 
+            }
         }.then(on: .main, { tokens -> Promise<Void> in
             let promises = tokens.map { self.fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
             return when(resolved: promises).asVoid()
@@ -115,7 +117,11 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(config: Config, forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+        if config.development.isAutoFetchingDisabled {
+            return Promise { _ in }
+        }
+
         //Important to not access `token` in the queue or another thread. Do it outside
         //TODO better to pass in a non-Realm representation of the TokenObject instead
         let contractAddress = token.contractAddress

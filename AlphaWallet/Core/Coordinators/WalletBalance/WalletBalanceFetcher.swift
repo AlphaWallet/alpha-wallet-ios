@@ -90,10 +90,10 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                 self?.reloadWalletBalance()
                 self?.triggerUpdateBalance()
             }.store(in: &cancelable)
-    } 
+    }
 
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, server: server, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, server: server, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
@@ -112,7 +112,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func update(servers: [RPCServer]) {
         for each in servers {
-            //NOTE: when we change servers it might happen the case when native 
+            //NOTE: when we change servers it might happen the case when native
             tokensDataStore.addEthToken(forServer: each)
             getOrCreateBalanceFetcher(server: each)
         }

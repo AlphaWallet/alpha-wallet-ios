@@ -51,11 +51,13 @@ class Erc1155TokenIdsFetcher {
 
     private let address: AlphaWallet.Address
     private let server: RPCServer
+    private let config: Config
     private let queue: DispatchQueue
 
-    init(address: AlphaWallet.Address, server: RPCServer, queue: DispatchQueue) {
+    init(address: AlphaWallet.Address, server: RPCServer, config: Config, queue: DispatchQueue) {
         self.address = address
         self.server = server
+        self.config = config
         self.queue = queue
         try? FileManager.default.createDirectory(at: Self.documentDirectory, withIntermediateDirectories: true)
     }
@@ -68,7 +70,7 @@ class Erc1155TokenIdsFetcher {
         let fromBlockNumber = fromPreviousRead.lastBlockNumber + 1
         let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: UInt64(fromBlockNumber))
         return firstly {
-            functional.fetchEvents(forAddress: address, server: server, fromBlock: .blockNumber(UInt64(fromBlockNumber)), toBlock: toBlock, queue: queue)
+            functional.fetchEvents(config: config, forAddress: address, server: server, fromBlock: .blockNumber(UInt64(fromBlockNumber)), toBlock: toBlock, queue: queue)
         }.map(on: queue, { fetched -> Erc1155TokenIds in
             let tokens = fetched.tokens
             let deltaSinceLastCheck: Erc1155TokenIds
@@ -135,17 +137,17 @@ extension Erc1155TokenIdsFetcher {
 }
 
 extension Erc1155TokenIdsFetcher.functional {
-    static func fetchEvents(forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<Erc1155TokenIds> {
+    static func fetchEvents(config: Config, forAddress address: AlphaWallet.Address, server: RPCServer, fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<Erc1155TokenIds> {
         let recipientAddress = EthereumAddress(address.eip55String)!
         let nullFilter: [EventFilterable]? = nil
         let singleTransferEventName = "TransferSingle"
         let batchTransferEventName = "TransferBatch"
         let sendParameterFilters: [[EventFilterable]?] = [nullFilter, [recipientAddress], nullFilter]
         let receiveParameterFilters: [[EventFilterable]?] = [nullFilter, nullFilter, [recipientAddress]]
-        let sendSinglePromise = fetchEvents(server: server, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
-        let receiveSinglePromise = fetchEvents(server: server, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
-        let sendBulkPromise = fetchEvents(server: server, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
-        let receiveBulkPromise = fetchEvents(server: server, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
+        let sendSinglePromise = fetchEvents(config: config, server: server, transferType: .send, eventName: singleTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
+        let receiveSinglePromise = fetchEvents(config: config, server: server, transferType: .receive, eventName: singleTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
+        let sendBulkPromise = fetchEvents(config: config, server: server, transferType: .send, eventName: batchTransferEventName, parameterFilters: sendParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
+        let receiveBulkPromise = fetchEvents(config: config, server: server, transferType: .receive, eventName: batchTransferEventName, parameterFilters: receiveParameterFilters, fromBlock: fromBlock, toBlock: toBlock, queue: queue)
         return firstly {
             when(fulfilled: sendSinglePromise, receiveSinglePromise, sendBulkPromise, receiveBulkPromise)
         }.map(on: queue, { a, b, c, d -> Erc1155TokenIds in
@@ -173,7 +175,11 @@ extension Erc1155TokenIdsFetcher.functional {
         })
     }
 
-    fileprivate static func fetchEvents(server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<[Erc1155TransferEvent]> {
+    fileprivate static func fetchEvents(config: Config, server: RPCServer, transferType: Erc1155TransferEvent.TransferType, eventName: String, parameterFilters: [[EventFilterable]?], fromBlock: EventFilter.Block, toBlock: EventFilter.Block, queue: DispatchQueue) -> Promise<[Erc1155TransferEvent]> {
+        if config.development.isAutoFetchingDisabled {
+            return Promise { _ in }
+        }
+
         //We just need any contract for the Swift API to get events, it's not actually used
         let dummyContract = Constants.nullAddress
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: toBlock, addresses: nil, parameterFilters: parameterFilters)
