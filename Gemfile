@@ -12,6 +12,7 @@ gem "excon", ">= 0.71.0"
 gem "json", ">= 2.3.0"
 #guard against rubyzip vulnerability
 gem "addressable", ">= 2.8.0"
+gem "cocoapods-downloader", ">= 1.6.0"
 
 plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
 eval_gemfile(plugins_path) if File.exist?(plugins_path)
