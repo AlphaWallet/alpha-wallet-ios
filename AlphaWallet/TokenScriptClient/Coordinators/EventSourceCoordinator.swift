@@ -17,9 +17,8 @@ extension PromiseKit.Result {
     }
 }
 
-protocol EventSourceCoordinatorType: class {
+protocol EventSourceCoordinatorType: AnyObject {
     func start()
-    @discardableResult func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>]
 }
 
 //TODO: Create XMLHandler store and pass it everwhere we use it
@@ -35,7 +34,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
-
+    
     init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
         self.tokensDataStore = tokensDataStore
@@ -48,16 +47,50 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
     }
 
     func start() {
+        setupWatchingTokenChangesToFetchEvents()
+        setupWatchingTokenScriptFileChangesToFetchEvents()
+    }
+
+    private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
             .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
-            .subscribe(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                guard let strongSelf = self else { return }
-                strongSelf.fetchEthereumEvents()
+                self?.fetchEthereumEvents()
             }.store(in: &cancellable)
     }
 
-    func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
+    private func setupWatchingTokenScriptFileChangesToFetchEvents() {
+        //TODO this is firing twice for each contract. We can be more efficient
+        assetDefinitionStore.bodyChange
+            .receive(on: RunLoop.main)
+            .compactMap { self.tokensDataStore.tokenObject(forContract: $0) }
+            .sink { [weak self] token in
+                guard let strongSelf = self else { return }
+
+                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
+                switch server {
+                case .any:
+                    for each in strongSelf.config.enabledServers {
+                        strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: each)
+                    }
+                case .server(let server):
+                    strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: server)
+                }
+            }.store(in: &cancellable)
+    }
+
+    private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
+        guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
+        eventsDataStore.deleteEvents(forTokenContract: contract)
+
+        when(resolved: fetchEventsByTokenId(forToken: token))
+            .done { _ in }
+            .cauterize()
+    }
+
+    private func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return .init() }
         guard !xmlHandler.attributesWithEventSource.isEmpty else { return .init() }
@@ -77,12 +110,10 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
         return fetchPromises
     }
 
-    func fetchEthereumEvents() {
+    private func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
-                self?.queue.async {
-                    self?.fetchEthereumEventsImpl()
-                }
+                self?.fetchEthereumEventsImpl()
             }
         } else {
             rateLimitedUpdater?.run()
@@ -93,21 +124,11 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
         guard !isFetching else { return }
         isFetching = true
 
-        firstly {
-            return Promise<[TokenObject]> { seal in
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                    let values = strongSelf.tokensDataStore.enabledTokenObjects(forServers: strongSelf.enabledServers)
-
-                    seal.fulfill(values)
-                }
-            }
-        }.then(on: .main, { tokens -> Promise<Void> in
-            let promises = tokens.map { self.fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
-            return when(resolved: promises).asVoid()
-        }).done(on: queue, { _ in
-            self.isFetching = false
-        }).cauterize()
+        let tokens = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
+        let promises = tokens.map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
+        when(resolved: promises).done { [weak self] _ in
+            self?.isFetching = false
+        }
     }
 }
 
@@ -126,42 +147,41 @@ extension EventSourceCoordinator.functional {
         //TODO better to pass in a non-Realm representation of the TokenObject instead
         let contractAddress = token.contractAddress
         let tokenServer = token.server
-        return Promise<Void> { seal in
-            queue.async {
-                let (filterName, filterValue) = eventOrigin.eventFilter
-                let filterParam = eventOrigin
-                    .parameters
-                    .filter { $0.isIndexed }
-                    .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
+        let (promise, seal) = Promise<Void>.pending()
+        let (filterName, filterValue) = eventOrigin.eventFilter
+        let filterParam = eventOrigin
+            .parameters
+            .filter { $0.isIndexed }
+            .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
-                eventsDataStore
-                    .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName)
-                    .map(on: queue, { oldEvent -> EventFilter in
-                        let fromBlock: EventFilter.Block
-                        if let newestEvent = oldEvent {
-                            fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
-                        } else {
-                            fromBlock = .blockNumber(0)
-                        }
-                        let addresses = [EthereumAddress(address: eventOrigin.contract)]
-                        let parameterFilters = filterParam.map { $0?.filter }
+        eventsDataStore
+            .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName)
+            .map(on: queue, { oldEvent -> EventFilter in
+                let fromBlock: EventFilter.Block
+                if let newestEvent = oldEvent {
+                    fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
+                } else {
+                    fromBlock = .blockNumber(0)
+                }
+                let addresses = [EthereumAddress(address: eventOrigin.contract)]
+                let parameterFilters = filterParam.map { $0?.filter }
 
-                        return EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
-                    }).then(on: queue, { eventFilter in
-                        getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-                    }).map(on: queue, { result -> [EventInstanceValue] in
-                        result.compactMap {
-                            Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
-                        }
-                    }).done(on: .main, { events in
-                        eventsDataStore.add(events: events)
-                        seal.fulfill(())
-                    }).catch(on: queue, { e in
-                        error(value: e, rpcServer: tokenServer, address: contractAddress)
-                        seal.reject(e)
-                    })
-            }
-        }
+                return EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
+            }).then(on: queue, { eventFilter in
+                getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+            }).map(on: queue, { result -> [EventInstanceValue] in
+                result.compactMap {
+                    Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
+                }
+            }).done(on: .main, { events in
+                eventsDataStore.add(events: events)
+                seal.fulfill(())
+            }).catch(on: queue, { e in
+                error(value: e, rpcServer: tokenServer, address: contractAddress)
+                seal.reject(e)
+            })
+
+        return promise
     }
 
     static func convertToImplicitAttribute(string: String) -> AssetImplicitAttributes? {

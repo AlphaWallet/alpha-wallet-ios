@@ -55,6 +55,20 @@ class AssetDefinitionStore {
     private var signatureChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var bodyChangeSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
 
+    var signatureChange: AnyPublisher<AlphaWallet.Address, Never> {
+        signatureChangeSubject.eraseToAnyPublisher()
+    }
+
+    var bodyChange: AnyPublisher<AlphaWallet.Address, Never> {
+        bodyChangeSubject.eraseToAnyPublisher()
+    }
+
+    var assetsSignatureOrBodyChange: AnyPublisher<AlphaWallet.Address, Never> {
+        return Publishers
+            .Merge(signatureChange, bodyChange)
+            .eraseToAnyPublisher()
+    }
+
     func assetBodyChanged(for contract: AlphaWallet.Address) -> AnyPublisher<Void, Never> {
         return bodyChangeSubject
             .filter { $0.sameContract(as: contract) }

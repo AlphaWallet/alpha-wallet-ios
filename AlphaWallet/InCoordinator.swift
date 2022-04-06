@@ -181,7 +181,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         showHelpUs()
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
-        setupWatchingTokenScriptFileChangesToFetchEvents()
 
         RestartQueueHandler(config: config).processRestartQueueAfterRestart(provider: self, restartQueue: restartQueue)
 
@@ -205,34 +204,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
 
     func launchUniversalScanner() {
         tokensCoordinator?.launchUniversalScanner(fromSource: .quickAction)
-    }
-
-    private func setupWatchingTokenScriptFileChangesToFetchEvents() {
-        //TODO this is firing twice for each contract. We can be more efficient
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.tokensDataStore.tokenObjectPromise(forContract: contract).done { tokenObject in
-                //Assume same contract don't exist in multiple chains
-                guard let token = tokenObject else { return }
-                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
-                guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
-                switch server {
-                case .any:
-                    for each in strongSelf.config.enabledServers {
-                        strongSelf.fetchEvents(forTokenContract: contract, server: each)
-                    }
-                case .server(let server):
-                    strongSelf.fetchEvents(forTokenContract: contract, server: server)
-                }
-            }.cauterize()
-        }
-    }
-
-    private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
-        guard let token = tokensDataStore.token(forContract: contract, server: server) else { return }
-        eventsDataStore.deleteEvents(forTokenContract: contract)
-        let _ = eventSourceCoordinator.fetchEventsByTokenId(forToken: token)
-        let _ = eventSourceCoordinatorForActivities?.fetchEvents(forToken: token)
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {

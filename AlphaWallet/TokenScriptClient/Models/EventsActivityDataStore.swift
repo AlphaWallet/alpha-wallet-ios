@@ -35,9 +35,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             .functional
             .matchingEventPredicate(forContract: contract, server: server, eventName: eventName, interpolatedFilter: interpolatedFilter)
 
-        return realm.objects(EventActivity.self)
+        return realm.threadSafe.objects(EventActivity.self)
             .filter(predicate)
             .sorted(byKeyPath: "blockNumber", ascending: false)
+            .freeze()
     }
 
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventActivityInstance?> {
