@@ -739,11 +739,14 @@ extension InCoordinator: WhereAreMyTokensCoordinatorDelegate {
 extension InCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
+        //NOTE: need to figure out creating xml handlers, object creating takes a lot of resources
         eventSourceCoordinator.start()
         eventSourceCoordinatorForActivities?.start()
-        walletBalanceService.refreshBalance(for: wallet).done { _ in
-            //no-op
-        }.cauterize()
+
+        for each in sessions.values {
+            each.start()
+        }
+        sessions.anyValue.tokenBalanceService.refresh(refreshBalancePolicy: .all)
     }
 
     func whereAreMyTokensSelected(in coordinator: TokensCoordinator) {

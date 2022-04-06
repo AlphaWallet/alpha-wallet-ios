@@ -138,7 +138,6 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     }
 
     func fetch() {
-        session.refresh(.balance)
         fetchLatestTransactions()
         fetchPendingTransactions()
     }

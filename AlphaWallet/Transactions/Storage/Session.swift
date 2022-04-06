@@ -2,11 +2,6 @@
 
 import Foundation
 
-enum RefreshType {
-    case balance
-    case ethBalance
-}
-
 class WalletSession {
     let account: Wallet
     let server: RPCServer
@@ -15,15 +10,10 @@ class WalletSession {
     let chainState: ChainState
 
     var sessionID: String {
-        return Self.functional.sessionID(account: account, server: server)
+        return WalletSession.functional.sessionID(account: account, server: server)
     }
 
-    init(
-        account: Wallet,
-        server: RPCServer,
-        config: Config,
-        tokenBalanceService: TokenBalanceService
-    ) {
+    init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService) {
         self.account = account
         self.server = server
         self.config = config
@@ -37,13 +27,8 @@ class WalletSession {
         }
     }
 
-    func refresh(_ type: RefreshType) {
-        switch type {
-        case .balance:
-            tokenBalanceService.refresh()
-        case .ethBalance:
-            tokenBalanceService.refreshEthBalance()
-        }
+    func start() {
+        tokenBalanceService.start()
     }
 
     func stop() {

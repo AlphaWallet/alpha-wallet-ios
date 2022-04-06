@@ -19,7 +19,10 @@ class SendViewControllerTests: XCTestCase {
         return .nativeCryptocurrency(token, destination: nil, amount: nil)
     }()
 
-    private lazy var session: WalletSession = .make(tokenBalanceService: tokenBalanceService)
+    private lazy var session: WalletSession = {
+        tokenBalanceService.start()
+        return .make(tokenBalanceService: tokenBalanceService)
+    }()
 
     func testNativeCryptocurrencyAllFundsValueSpanish() {
         let vc = createSendViewControllerAndSetLocale(locale: .spanish, transactionType: nativeCryptocurrencyTransactionType)

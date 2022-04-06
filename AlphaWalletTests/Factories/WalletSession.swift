@@ -53,7 +53,9 @@ private final class FakeTokenBalanceProvider: TokenBalanceProvider, CoinTickerPr
     private var balanceSubject = CurrentValueSubject<Balance?, Never>(nil)
 
     var balance: Balance? {
-        didSet { balanceSubject.value = balance }
+        didSet {
+            balanceSubject.value = balance
+        }
     }
 
     func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
@@ -69,6 +71,7 @@ private final class FakeTokenBalanceProvider: TokenBalanceProvider, CoinTickerPr
         return balanceSubject
             .map { $0 ?? Balance(value: .zero) }
             .map { NativecryptoBalanceViewModel(server: addressAndRPCServer.server, balance: $0, ticker: nil) }
+            .print("XXX.tokenBalancePublisher")
             .eraseToAnyPublisher()
     }
 
@@ -80,7 +83,7 @@ private final class FakeTokenBalanceProvider: TokenBalanceProvider, CoinTickerPr
         return .init()
     }
 
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
+    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void> {
         return .init()
     }
 }
@@ -93,8 +96,6 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
     }
 
     init(wallet: Wallet, server: RPCServer) {
-        let coinTickersFetcher = FakeCoinTickersFetcher()
-
         super.init(wallet: wallet, server: server, tokenBalanceProvider: balanceProvider)
     }
 }

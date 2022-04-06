@@ -143,7 +143,8 @@ class TransactionConfirmationViewController: UIViewController {
                         sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                         self?.generateSubviews()
                     }.store(in: &cancelable)
-                sendFungiblesViewModel.session.refresh(.ethBalance)
+                
+                sendFungiblesViewModel.session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
             case .erc20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
             case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:

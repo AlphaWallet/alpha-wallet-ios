@@ -114,6 +114,15 @@ class TokenViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         hideNavigationBarTopSeparatorLine()
+
+        switch transactionType {
+        case .nativeCryptocurrency:
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
+        case .erc20Token(let token, _, _):
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: token))
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            break
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -219,8 +228,6 @@ class TokenViewController: UIViewController {
 
                     celf.configure(viewModel: celf.viewModel)
                 }.store(in: &cancelable)
-
-            session.refresh(.ethBalance)
         case .erc20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             tokenInfoPageView.viewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"

@@ -21,9 +21,7 @@ struct AccountsViewModel {
     }
 
     let configuration: AccountsCoordinatorViewModel.Configuration
-    var addresses: [AlphaWallet.Address] {
-        return (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
-    }
+    var wallets: [Wallet]
 
     var subscribeForBalanceUpdates: Bool {
         switch configuration {
@@ -35,6 +33,7 @@ struct AccountsViewModel {
     }
 
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
+        self.wallets = keystore.wallets
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
