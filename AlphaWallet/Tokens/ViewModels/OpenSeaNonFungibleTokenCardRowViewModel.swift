@@ -169,6 +169,10 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         return convertDescriptionToAttributedString(asHTML: true)
     }
 
+    var hasImageUrl: Bool {
+        tokenHolder.values.imageUrlUrlValue != nil
+    }
+
     //This is needed because conversion from HTML to NSAttributedString is problematic if we do it while we are animating UI (force touch + peek as of writing this
     var descriptionWithoutConvertingHtml: NSAttributedString {
         return convertDescriptionToAttributedString(asHTML: false)
@@ -205,7 +209,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var areImagesHidden: Bool {
-        return tokenHolder.status == .availableButDataUnavailable || imageUrl == nil
+        return tokenHolder.status == .availableButDataUnavailable || hasImageUrl
     }
 
     var isDescriptionHidden: Bool {
