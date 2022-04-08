@@ -82,6 +82,8 @@ class AddHideTokensViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItem = UIBarButtonItem.addButton(self, selector: #selector(addToken))
+
+        edgesForExtendedLayout = []
     }
 
     override func viewWillAppear(_ animated: Bool) {
