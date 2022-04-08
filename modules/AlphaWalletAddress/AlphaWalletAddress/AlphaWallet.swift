@@ -72,6 +72,10 @@ extension AlphaWallet {
             return Data(hexString: eip55String)!
         }
 
+        public var isNull: Bool {
+            eip55String == "0x0000000000000000000000000000000000000000"
+        }
+
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: Key.self)
             try container.encode(eip55String, forKey: .ethereumAddress)

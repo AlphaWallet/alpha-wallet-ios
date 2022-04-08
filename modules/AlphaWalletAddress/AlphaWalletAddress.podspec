@@ -27,5 +27,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'TrustKeystore'
   s.dependency 'TrustWalletCore'
-  
+  s.dependency 'web3swift'
 end
