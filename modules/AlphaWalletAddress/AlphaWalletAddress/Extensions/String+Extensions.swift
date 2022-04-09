@@ -29,7 +29,7 @@ extension String {
         return value.count == 64
     }
 
-    internal var drop0x: String {
+    public var drop0x: String {
         if count > 2 && substring(with: 0..<2) == "0x" {
             return String(dropFirst(2))
         }
