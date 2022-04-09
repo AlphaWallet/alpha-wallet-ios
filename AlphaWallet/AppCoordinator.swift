@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
-import UIKit
-import PromiseKit
 import Combine
+import UIKit
+import AlphaWalletENS
+import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -133,6 +133,9 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        //TODO move to better place
+        ENS.isLoggingEnabled = true
+
         if isRunningTests() {
             try! RealmConfiguration.removeWalletsFolderForTests()
             JsonWalletAddressesStore.removeWalletsFolderForTests()
@@ -359,7 +362,7 @@ extension AppCoordinator: InCoordinatorDelegate {
     func didCancel(in coordinator: InCoordinator) {
         removeCoordinator(coordinator)
         reset()
-    } 
+    }
 
     func didShowWallet(in coordinator: InCoordinator) {
         notificationService.requestToEnableNotification()
