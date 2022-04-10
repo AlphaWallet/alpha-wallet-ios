@@ -95,10 +95,10 @@ class BlockiesGenerator {
 
         if let ens = ens {
             promise = GetENSTextRecordsCoordinator(server: .forResolvingEns)
-                .getENSRecord(for: ens, record: .avatar)
+                .getENSRecord(forName: ens, record: .avatar)
         } else {
             promise = GetENSTextRecordsCoordinator(server: .forResolvingEns)
-                .getENSRecord(for: address, record: .avatar)
+                .getENSRecord(forAddress: address, record: .avatar)
         }
 
         return firstly {

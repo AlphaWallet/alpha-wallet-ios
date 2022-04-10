@@ -39,19 +39,19 @@ class UnstoppableDomainsV2Resolver {
         UnstoppableDomainsV2Resolver.domainsCache[ENSLookupKey(name: node, server: server)] = domain
     }
 
-    func resolveAddress(for input: String) -> Promise<AlphaWallet.Address> {
-        if let value = AlphaWallet.Address(string: input) {
+    func resolveAddress(forName name: String) -> Promise<AlphaWallet.Address> {
+        if let value = AlphaWallet.Address(string: name) {
             return .value(value)
         }
 
         let server = server
-        let node = input.lowercased().nameHash
+        let node = name.lowercased().nameHash
         if let value = UnstoppableDomainsV2Resolver.cachedAddress(forNode: node, server: server) {
             return .value(value)
         }
 
         let baseURL = Constants.unstoppableDomainsV2API
-        guard let url = URL(string: "\(baseURL)/domains/\(input)") else {
+        guard let url = URL(string: "\(baseURL)/domains/\(name)") else {
             return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))
         }
 
@@ -106,14 +106,14 @@ class UnstoppableDomainsV2Resolver {
 
 extension UnstoppableDomainsV2Resolver: CachebleAddressResolutionServiceType {
 
-    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
-        return UnstoppableDomainsV2Resolver.cachedAddress(forNode: input.lowercased().nameHash, server: server)
+    func cachedAddressValue(forName name: String) -> AlphaWallet.Address? {
+        return UnstoppableDomainsV2Resolver.cachedAddress(forNode: name.lowercased().nameHash, server: server)
     }
 }
 
 extension UnstoppableDomainsV2Resolver: CachedEnsResolutionServiceType {
 
-    func cachedEnsValue(for address: AlphaWallet.Address) -> String? {
+    func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
         return UnstoppableDomainsV2Resolver.cachedDomain(forNode: address.eip55String, server: server)
     }
 

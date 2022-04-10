@@ -4,7 +4,7 @@ import Foundation
 import AlphaWalletENS
 import PromiseKit
 
-class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateImpl {
+class ENSReverseLookupCoordinator: ENSDelegateImpl {
     private static var resultsCache = [ENSLookupKey: String]()
 
     private let server: RPCServer
@@ -13,22 +13,17 @@ class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateIm
         self.server = server
     }
 
-    func cachedEnsValue(for input: AlphaWallet.Address) -> String? {
-        let node = input.nameHash
-        return cachedResult(forNode: node)
-    }
-
     //TODO make calls from multiple callers at the same time for the same address more efficient
-    func getENSNameFromResolver(forAddress input: AlphaWallet.Address) -> Promise<String> {
-        //TODO caching should be based on input instead
-        if let cachedResult = cachedEnsValue(for: input) {
+    func getENSNameFromResolver(forAddress address: AlphaWallet.Address) -> Promise<String> {
+        //TODO caching should be based on address instead of node
+        if let cachedResult = cachedEnsValue(forAddress: address) {
             return .value(cachedResult)
         }
 
         return firstly {
-            ENS(delegate: self, chainId: server.chainID).getName(fromAddress: input)
+            ENS(delegate: self, chainId: server.chainID).getName(fromAddress: address)
         }.get { name in
-            let node = input.nameHash
+            let node = address.nameHash
             Self.cache(forNode: node, result: name, server: self.server)
         }
     }
@@ -39,5 +34,12 @@ class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateIm
 
     private static func cache(forNode node: String, result: String, server: RPCServer) {
         ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
+    }
+}
+
+extension ENSReverseLookupCoordinator: CachedEnsResolutionServiceType {
+    func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
+        let node = address.nameHash
+        return cachedResult(forNode: node)
     }
 }
