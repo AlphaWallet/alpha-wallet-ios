@@ -5,26 +5,14 @@
 //  Created by Vladyslav Shepitko on 11.05.2021.
 //
 
-import EthereumAddress
-import EthereumABI
 import BigInt
+import EthereumABI
 
-fileprivate typealias EthereumAddress_fromEthereumAddressPod = EthereumAddress
-extension EthereumAddress_fromEthereumAddressPod: CustomStringConvertible {
-    public var description: String {
-        return address
-    }
-}
-
-//NOTE: extracted to separated file to avoid missunderstanding with EthereumAddress address, web3swift and EthereumAddress contains the same struct for EthereumAddress. it causes types comparison issue
 extension FunctionCall.Argument {
-
     init(type: ABIType, anyValue: Any?) {
         self.type = type
-        if let address = anyValue as? EthereumAddress_fromEthereumAddressPod {
-            self.value = AlphaWallet.Address.ethereumAddress(eip55String: address.address)
-        } else if let address = anyValue as? EthereumAddress_fromWeb3SwiftPod {
-            self.value = AlphaWallet.Address.ethereumAddress(eip55String: address.address)
+        if let address = AlphaWallet.Address(possibleAddress: anyValue) {
+            self.value = address
         } else {
             self.value = anyValue
         }

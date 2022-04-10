@@ -14,6 +14,18 @@ extension AlphaWallet.Address {
         self = .ethereumAddress(eip55String: address.eip55String)
     }
 
+    public init?(possibleAddress: Any?) {
+        if let address = possibleAddress as? AlphaWallet.Address {
+            self = address
+        } else if let address = possibleAddress as? EthereumAddress_fromEthereumAddressPod {
+            self = .ethereumAddress(eip55String: address.address)
+        } else if let address = possibleAddress as? web3swift.EthereumAddress {
+            self = .ethereumAddress(eip55String: address.address)
+        } else {
+            return nil
+        }
+    }
+
     public func sameContract(as contract: web3swift.EthereumAddress) -> Bool {
         return eip55String == contract.address
     }

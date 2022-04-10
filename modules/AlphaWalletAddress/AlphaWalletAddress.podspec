@@ -27,4 +27,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'TrustKeystore'
   s.dependency 'web3swift'
+  s.dependency 'EthereumAddress'
 end
