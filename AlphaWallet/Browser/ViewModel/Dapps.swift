@@ -80,7 +80,8 @@ enum OriginalDapps {
         Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool")
         Dapp(name: ".bit (Previously DAS)", description: "Your decentralized identity for Web3.0 life", url: "https://did.id/", cat: "Tool")
         Dapp(name: “CNCUK”, description: “CNCUK Tokenomics”, url: “https://alpha.cynocoin.co.uk”, cat: “Tool”,
-        Dapp(name: "Swapzone", description: "Swapzone is a custody-free cryptocurrency exchange aggregator with no registration needed.", url: "https://swapzone.io/", cat: "Exchange")
+        Dapp(name: "Swapzone", description: "Swapzone is a custody-free cryptocurrency exchange aggregator with no registration needed.", url: "https://swapzone.io/", cat: "Exchange"),
+        Dapp(name: "AirCash", description: "AirCash is the first and largest decentralized OTC platform in the galaxy.", url: "https://aircash.finance", cat: "Exchange"}
 ),
     ]
 
