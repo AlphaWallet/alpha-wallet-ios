@@ -9,7 +9,7 @@ import PromiseKit
 import RealmSwift
 import Result
 
-protocol DappBrowserCoordinatorDelegate: class, CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider {
+protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)
