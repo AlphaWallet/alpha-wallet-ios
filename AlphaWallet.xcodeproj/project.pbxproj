@@ -700,7 +700,6 @@
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
-		76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */; };
 		76F1DBCA8BAAA42BAEB14719 /* GetERC721BalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */; };
 		76F1DBF9F5359160063625B2 /* BrowserHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DAFCBB43B6639472A229 /* BrowserHistoryViewController.swift */; };
 		76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */; };
@@ -1808,7 +1807,6 @@
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
 		76F1DAFCBB43B6639472A229 /* BrowserHistoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryViewController.swift; sourceTree = "<group>"; };
 		76F1DB8034ACC2FC91F818F9 /* MyDappsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappsViewController.swift; sourceTree = "<group>"; };
-		76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSInfoEncode.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DD09B44FD653C1500DA8 /* DappsHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewController.swift; sourceTree = "<group>"; };
 		76F1DE7BEE799DDFB68D0F54 /* GetENSOwnerCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSOwnerCoordinator.swift; sourceTree = "<group>"; };
@@ -4319,7 +4317,6 @@
 				5E7C7251DB61EB9468910C81 /* GetERC875Balance.swift */,
 				5E7C7DCB0BDDD30D10130AE7 /* GetIsERC875Encode.swift */,
 				5E7C72CD0C22247A6AF7C95E /* GetERC721BalanceEncode.swift */,
-				76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */,
 				8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */,
 				8499D5AD5EA8967FDB7FA6E2 /* GetInterfaceSupported165Encode.swift */,
 				5E7C7870764B15D5E213604B /* GetTokenUri.swift */,
@@ -6380,7 +6377,6 @@
 				5E7C7E7AEF01B9D170228342 /* TimeEntryField.swift in Sources */,
 				76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */,
 				87DD0C42279979F900460260 /* EnterKeystorePasswordViewModel.swift in Sources */,
-				76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */,
 				8703F66726135B330082EE25 /* ChartHistory.swift in Sources */,
 				025F5D2F2760CDE600B2A3BC /* StringValidator.swift in Sources */,
 				87584FA727E9F8A2006A7CD1 /* NFTBalanceViewModel.swift in Sources */,
