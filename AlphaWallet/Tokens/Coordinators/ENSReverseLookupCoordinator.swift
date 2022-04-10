@@ -29,7 +29,7 @@ class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateIm
             ENS(delegate: self, chainId: server.chainID).getName(fromAddress: input)
         }.get { name in
             let node = input.nameHash
-            Self.cache(forNode: node, result:name, server: self.server)
+            Self.cache(forNode: node, result: name, server: self.server)
         }
     }
 
