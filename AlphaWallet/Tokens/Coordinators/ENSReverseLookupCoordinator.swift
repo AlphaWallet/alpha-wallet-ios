@@ -4,18 +4,13 @@ import Foundation
 import AlphaWalletENS
 import PromiseKit
 
-class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateImpl {
+class ENSReverseLookupCoordinator: ENSDelegateImpl {
     private static var resultsCache = [ENSLookupKey: String]()
 
     private let server: RPCServer
 
     init(server: RPCServer) {
         self.server = server
-    }
-
-    func cachedEnsValue(for input: AlphaWallet.Address) -> String? {
-        let node = input.nameHash
-        return cachedResult(forNode: node)
     }
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
@@ -39,5 +34,12 @@ class ENSReverseLookupCoordinator: CachedEnsResolutionServiceType, ENSDelegateIm
 
     private static func cache(forNode node: String, result: String, server: RPCServer) {
         ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
+    }
+}
+
+extension ENSReverseLookupCoordinator: CachedEnsResolutionServiceType {
+    func cachedEnsValue(for input: AlphaWallet.Address) -> String? {
+        let node = input.nameHash
+        return cachedResult(forNode: node)
     }
 }

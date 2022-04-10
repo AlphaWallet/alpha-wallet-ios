@@ -8,9 +8,11 @@
 import Foundation
 import PromiseKit
 
-class DomainResolutionService: DomainResolutionServiceType {
+class DomainResolutionService {
     let server: RPCServer = .forResolvingEns
+}
 
+extension DomainResolutionService: DomainResolutionServiceType {
     func resolveAddress(string value: String) -> Promise<BlockieAndAddressOrEnsResolution> {
 
         func resolveBlockieImage(addr: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution> {

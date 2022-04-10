@@ -5,18 +5,13 @@ import Foundation
 import AlphaWalletENS
 import PromiseKit
 
-class GetENSAddressCoordinator: CachebleAddressResolutionServiceType, ENSDelegateImpl {
+class GetENSAddressCoordinator: ENSDelegateImpl {
 
     private static var resultsCache: [ENSLookupKey: AlphaWallet.Address] = [:]
     private (set) var server: RPCServer
 
     init(server: RPCServer) {
         self.server = server
-    }
-
-    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
-        let node = input.lowercased().nameHash
-        return cachedResult(forNode: node)
     }
 
     func getENSAddressFromResolver(for input: String) -> Promise<AlphaWallet.Address> {
@@ -39,5 +34,12 @@ class GetENSAddressCoordinator: CachebleAddressResolutionServiceType, ENSDelegat
 
     private static func cache(forNode node: String, result: AlphaWallet.Address, server: RPCServer) {
         GetENSAddressCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
+    }
+}
+
+extension GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
+    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
+        let node = input.lowercased().nameHash
+        return cachedResult(forNode: node)
     }
 }
