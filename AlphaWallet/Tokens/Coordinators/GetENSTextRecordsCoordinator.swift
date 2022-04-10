@@ -27,23 +27,23 @@ final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
         ensReverseLookup = ENSReverseLookupCoordinator(server: server)
     }
 
-    func getENSRecord(for address: AlphaWallet.Address, record: ENSTextRecordKey) -> Promise<String> {
+    func getENSRecord(forAddress address: AlphaWallet.Address, record: ENSTextRecordKey) -> Promise<String> {
         firstly {
             ensReverseLookup.getENSNameFromResolver(forAddress: address)
         }.then { ens -> Promise<String> in
-            self.getENSRecord(for: ens, record: record)
+            self.getENSRecord(forName: ens, record: record)
         }
     }
 
-    func getENSRecord(for input: String, record: ENSTextRecordKey) -> Promise<String> {
-        //TODO caching should be based on input instead
-        let addr = input.lowercased().nameHash
+    func getENSRecord(forName name: String, record: ENSTextRecordKey) -> Promise<String> {
+        //TODO caching should be based on name instead
+        let addr = name.lowercased().nameHash
         if let cachedResult = cachedResult(forNode: addr, record: record) {
             return .value(cachedResult)
         }
 
         return firstly {
-            ENS(delegate: self, chainId: server.chainID).getTextRecord(forName: input, recordKey: record)
+            ENS(delegate: self, chainId: server.chainID).getTextRecord(forName: name, recordKey: record)
         }.get { value in
             self.cache(forNode: addr, record: record, result: value)
         }

@@ -14,16 +14,16 @@ class ENSReverseLookupCoordinator: ENSDelegateImpl {
     }
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
-    func getENSNameFromResolver(forAddress input: AlphaWallet.Address) -> Promise<String> {
-        //TODO caching should be based on input instead
-        if let cachedResult = cachedEnsValue(for: input) {
+    func getENSNameFromResolver(forAddress address: AlphaWallet.Address) -> Promise<String> {
+        //TODO caching should be based on address instead of node
+        if let cachedResult = cachedEnsValue(forAddress: address) {
             return .value(cachedResult)
         }
 
         return firstly {
-            ENS(delegate: self, chainId: server.chainID).getName(fromAddress: input)
+            ENS(delegate: self, chainId: server.chainID).getName(fromAddress: address)
         }.get { name in
-            let node = input.nameHash
+            let node = address.nameHash
             Self.cache(forNode: node, result: name, server: self.server)
         }
     }
@@ -38,8 +38,8 @@ class ENSReverseLookupCoordinator: ENSDelegateImpl {
 }
 
 extension ENSReverseLookupCoordinator: CachedEnsResolutionServiceType {
-    func cachedEnsValue(for input: AlphaWallet.Address) -> String? {
-        let node = input.nameHash
+    func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
+        let node = address.nameHash
         return cachedResult(forNode: node)
     }
 }

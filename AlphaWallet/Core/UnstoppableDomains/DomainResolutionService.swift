@@ -33,15 +33,14 @@ extension DomainResolutionService: DomainResolutionServiceType {
             unstoppableDomainsV2Resolver
         ]
 
-        if let cached = services.compactMap({ $0.cachedAddressValue(for: value) }).first {
+        if let cached = services.compactMap({ $0.cachedAddressValue(forName: value) }).first {
             return resolveBlockieImage(addr: cached)
         }
 
         return getEnsAddressCoordinator
-            .getENSAddressFromResolver(for: value)
+            .getENSAddressFromResolver(forName: value)
             .recover { _ -> Promise<AlphaWallet.Address> in
-                unstoppableDomainsV2Resolver
-                    .resolveAddress(for: value)
+                unstoppableDomainsV2Resolver.resolveAddress(forName: value)
             }.then { addr -> Promise<BlockieAndAddressOrEnsResolution> in
                 resolveBlockieImage(addr: addr)
             }
@@ -67,7 +66,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
             unstoppableDomainsV2Resolver
         ]
 
-        if let cached = services.compactMap({ $0.cachedEnsValue(for: address) }).first {
+        if let cached = services.compactMap({ $0.cachedEnsValue(forAddress: address) }).first {
             return resolveBlockieImage(ens: cached)
         }
 

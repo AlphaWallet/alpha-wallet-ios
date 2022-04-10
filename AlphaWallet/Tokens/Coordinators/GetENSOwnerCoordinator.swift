@@ -14,16 +14,16 @@ class GetENSAddressCoordinator: ENSDelegateImpl {
         self.server = server
     }
 
-    func getENSAddressFromResolver(for input: String) -> Promise<AlphaWallet.Address> {
-        //TODO caching should be based on input instead
-        if let cachedResult = cachedAddressValue(for: input) {
+    func getENSAddressFromResolver(forName name: String) -> Promise<AlphaWallet.Address> {
+        //TODO caching should be based on name instead
+        if let cachedResult = cachedAddressValue(forName: name) {
             return .value(cachedResult)
         }
 
         return firstly {
-            ENS(delegate: self, chainId: server.chainID).getENSAddress(fromName: input)
+            ENS(delegate: self, chainId: server.chainID).getENSAddress(fromName: name)
         }.get { address in
-            let node = input.lowercased().nameHash
+            let node = name.lowercased().nameHash
             Self.cache(forNode: node, result: address, server: self.server)
         }
     }
@@ -38,8 +38,8 @@ class GetENSAddressCoordinator: ENSDelegateImpl {
 }
 
 extension GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
-    func cachedAddressValue(for input: String) -> AlphaWallet.Address? {
-        let node = input.lowercased().nameHash
+    func cachedAddressValue(forName name: String) -> AlphaWallet.Address? {
+        let node = name.lowercased().nameHash
         return cachedResult(forNode: node)
     }
 }
