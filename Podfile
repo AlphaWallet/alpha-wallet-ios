@@ -30,7 +30,6 @@ target 'AlphaWallet' do
   pod 'AWSSNS', '2.18.0'
   pod 'Mixpanel-swift', '2.8.0'
   pod 'EthereumABI', '1.3.0'
-  pod 'EthereumAddress', '1.3.0'
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'

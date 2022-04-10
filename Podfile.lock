@@ -3,6 +3,7 @@ PODS:
   - Alamofire-Synchronous (4.0.0):
     - Alamofire (~> 4.0)
   - AlphaWalletAddress (1.0.1):
+    - EthereumAddress
     - TrustKeystore
     - web3swift
   - AlphaWalletCore (1.0.1)
@@ -137,7 +138,6 @@ DEPENDENCIES:
   - CocoaLumberjack (= 3.7.0)
   - CryptoSwift (~> 1.4)
   - EthereumABI (= 1.3.0)
-  - EthereumAddress (= 1.3.0)
   - FloatingPanel
   - iOSSnapshotTestCase (= 6.2.0)
   - JSONRPCKit (~> 2.0.0)
@@ -268,7 +268,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
-  AlphaWalletAddress: 1a9b66128e764472bcf97f334e0b3accec6e165d
+  AlphaWalletAddress: d742c9b77d0a798c6711de5c32b573e474b64d8e
   AlphaWalletCore: f0dc8f3f6c6600b9419596b944deb4145f00f7e1
   AlphaWalletENS: df3cb79a2def496f78b06a838d0a111528e473db
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
@@ -318,6 +318,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: e82a1d7ccab29ff427668269c80f4a8d5720381a
+PODFILE CHECKSUM: 9113af2e2571299baf345600ebb01a26d5ded8d5
 
 COCOAPODS: 1.11.2
