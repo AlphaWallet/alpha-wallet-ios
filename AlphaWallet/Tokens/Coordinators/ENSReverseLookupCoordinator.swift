@@ -23,23 +23,21 @@ class ENSReverseLookupCoordinator: ENSDelegateImpl {
         return firstly {
             ENS(delegate: self, chainId: server.chainID).getName(fromAddress: address)
         }.get { name in
-            let node = address.nameHash
-            Self.cache(forNode: node, result: name, server: self.server)
+            Self.cache(forAddress: address, result: name, server: self.server)
         }
     }
 
-    private func cachedResult(forNode node: String) -> String? {
-        return ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(name: node, server: server)]
+    private func cachedResult(forAddress address: AlphaWallet.Address) -> String? {
+        return ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)]
     }
 
-    private static func cache(forNode node: String, result: String, server: RPCServer) {
-        ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
+    private static func cache(forAddress address: AlphaWallet.Address, result: String, server: RPCServer) {
+        ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)] = result
     }
 }
 
 extension ENSReverseLookupCoordinator: CachedEnsResolutionServiceType {
     func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
-        let node = address.nameHash
-        return cachedResult(forNode: node)
+        return cachedResult(forAddress: address)
     }
 }

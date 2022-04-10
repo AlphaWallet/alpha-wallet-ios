@@ -38,6 +38,12 @@ protocol CachedEnsResolutionServiceType {
 }
 
 struct ENSLookupKey: Hashable {
-    let name: String
+    let nameOrAddress: String
     let server: RPCServer
+
+    init(nameOrAddress: String, server: RPCServer) {
+        //Lowercase for case-insensitive lookups
+        self.nameOrAddress = nameOrAddress.lowercased()
+        self.server = server
+    }
 }
