@@ -12,9 +12,16 @@ import PromiseKit
 /// https://eips.ethereum.org/EIPS/eip-634
 final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
     private struct ENSLookupKey: Hashable {
-        let name: String
+        let nameOrAddress: String
         let server: RPCServer
         let record: ENSTextRecordKey
+
+        init(nameOrAddress: String, server: RPCServer, record: ENSTextRecordKey) {
+            //Lowercase for case-insensitive lookups
+            self.nameOrAddress = nameOrAddress.lowercased()
+            self.server = server
+            self.record = record
+        }
     }
 
     private static var resultsCache = [ENSLookupKey: String]()
@@ -37,23 +44,22 @@ final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
 
     func getENSRecord(forName name: String, record: ENSTextRecordKey) -> Promise<String> {
         //TODO caching should be based on name instead
-        let addr = name.lowercased().nameHash
-        if let cachedResult = cachedResult(forNode: addr, record: record) {
+        if let cachedResult = cachedResult(forName: name, record: record) {
             return .value(cachedResult)
         }
 
         return firstly {
             ENS(delegate: self, chainId: server.chainID).getTextRecord(forName: name, recordKey: record)
         }.get { value in
-            self.cache(forNode: addr, record: record, result: value)
+            self.cache(forName: name, record: record, result: value)
         }
     }
 
-    private func cachedResult(forNode node: String, record: ENSTextRecordKey) -> String? {
-        return GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(name: node, server: server, record: record)]
+    private func cachedResult(forName name: String, record: ENSTextRecordKey) -> String? {
+        return GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)]
     }
 
-    private func cache(forNode node: String, record: ENSTextRecordKey, result: String) {
-        GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(name: node, server: server, record: record)] = result
+    private func cache(forName name: String, record: ENSTextRecordKey, result: String) {
+        GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)] = result
     }
 }

@@ -23,20 +23,20 @@ class UnstoppableDomainsV2Resolver {
         self.server = server
     }
 
-    private static func cachedAddress(forNode node: String, server: RPCServer) -> AlphaWallet.Address? {
-        return UnstoppableDomainsV2Resolver.addressesCache[ENSLookupKey(name: node, server: server)]
+    private static func cachedAddress(forName name: String, server: RPCServer) -> AlphaWallet.Address? {
+        return UnstoppableDomainsV2Resolver.addressesCache[ENSLookupKey(nameOrAddress: name, server: server)]
     }
 
-    private static func cache(forNode node: String, address: AlphaWallet.Address, server: RPCServer) {
-        UnstoppableDomainsV2Resolver.addressesCache[ENSLookupKey(name: node, server: server)] = address
+    private static func cache(forName name: String, address: AlphaWallet.Address, server: RPCServer) {
+        UnstoppableDomainsV2Resolver.addressesCache[ENSLookupKey(nameOrAddress: name, server: server)] = address
     }
 
-    private static func cachedDomain(forNode node: String, server: RPCServer) -> String? {
-        return UnstoppableDomainsV2Resolver.domainsCache[ENSLookupKey(name: node, server: server)]
+    private static func cachedDomain(forAddress address: AlphaWallet.Address, server: RPCServer) -> String? {
+        return UnstoppableDomainsV2Resolver.domainsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)]
     }
 
-    private static func cache(forNode node: String, domain: String, server: RPCServer) {
-        UnstoppableDomainsV2Resolver.domainsCache[ENSLookupKey(name: node, server: server)] = domain
+    private static func cache(forAddress address: AlphaWallet.Address, domain: String, server: RPCServer) {
+        UnstoppableDomainsV2Resolver.domainsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)] = domain
     }
 
     func resolveAddress(forName name: String) -> Promise<AlphaWallet.Address> {
@@ -45,8 +45,7 @@ class UnstoppableDomainsV2Resolver {
         }
 
         let server = server
-        let node = name.lowercased().nameHash
-        if let value = UnstoppableDomainsV2Resolver.cachedAddress(forNode: node, server: server) {
+        if let value = UnstoppableDomainsV2Resolver.cachedAddress(forName: name, server: server) {
             return .value(value)
         }
 
@@ -69,14 +68,13 @@ class UnstoppableDomainsV2Resolver {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
             }.get { address in
-                UnstoppableDomainsV2Resolver.cache(forNode: node, address: address, server: server)
+                UnstoppableDomainsV2Resolver.cache(forName: name, address: address, server: server)
             }
     }
 
     func resolveDomain(address: AlphaWallet.Address) -> Promise<String> {
         let server = server
-        let node = address.eip55String
-        if let value = UnstoppableDomainsV2Resolver.cachedDomain(forNode: node, server: server) {
+        if let value = UnstoppableDomainsV2Resolver.cachedDomain(forAddress: address, server: server) {
             return .value(value)
         }
 
@@ -99,7 +97,7 @@ class UnstoppableDomainsV2Resolver {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
                 }
             }.get { domain in
-                UnstoppableDomainsV2Resolver.cache(forNode: node, domain: domain, server: server)
+                UnstoppableDomainsV2Resolver.cache(forAddress: address, domain: domain, server: server)
             }
     }
 }
@@ -107,14 +105,14 @@ class UnstoppableDomainsV2Resolver {
 extension UnstoppableDomainsV2Resolver: CachebleAddressResolutionServiceType {
 
     func cachedAddressValue(forName name: String) -> AlphaWallet.Address? {
-        return UnstoppableDomainsV2Resolver.cachedAddress(forNode: name.lowercased().nameHash, server: server)
+        return UnstoppableDomainsV2Resolver.cachedAddress(forName: name, server: server)
     }
 }
 
 extension UnstoppableDomainsV2Resolver: CachedEnsResolutionServiceType {
 
     func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
-        return UnstoppableDomainsV2Resolver.cachedDomain(forNode: address.eip55String, server: server)
+        return UnstoppableDomainsV2Resolver.cachedDomain(forAddress: address, server: server)
     }
 
 }

@@ -8,8 +8,8 @@ import Foundation
 import AlphaWalletAddress
 
 extension AlphaWallet.Address {
-    //Hash based on the EIP655 address. So not really https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
-    public var nameHash: String {
+    //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
+    var nameHash: String {
         "\(eip55String.drop0x).addr.reverse".lowercased().nameHash
     }
 }
