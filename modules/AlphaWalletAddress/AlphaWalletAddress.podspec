@@ -13,13 +13,13 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
   Lightweight library representing the Alpha Wallet Address with its functionality
                        DESC
-  s.homepage         = 'https://github.com/vladyslav-iosdev/AlphaWalletAddress'
+  s.homepage         = "https://github.com/AlphaWallet/alpha-wallet-ios/tree/master/modules/AlphaWalletCore"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Vladyslav Shepitko' => 'vladyslav.shepitko@gmail.com' }
   s.ios.deployment_target = '12.0'
   s.swift_version    = '4.0'
   s.platform         = :ios, "12.0"
-  s.source           = { :git => 'https://github.com/vladyslav-iosdev/AlphaWalletAddress.git', :tag => s.version.to_s }
+  s.source           = { :git => 'git@github.com:AlphaWallet/alpha-wallet-ios.git', :tag => "#{s.version}" }
   s.source_files     = 'AlphaWalletAddress/**/*.{h,m,swift}'
   s.pod_target_xcconfig = { 'SWIFT_OPTIMIZATION_LEVEL' => '-Owholemodule' }
 
