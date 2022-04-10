@@ -2,7 +2,6 @@
 
 import Foundation
 import TrustKeystore
-import WalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}
