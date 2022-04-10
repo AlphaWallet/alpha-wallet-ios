@@ -5599,7 +5599,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#if [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    #\"${PODS_ROOT}/SwiftLint/swiftlint\"\n#else\n    #\"${PODS_ROOT}/SwiftLint/swiftlint\"\n#fi\n";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    \"${PODS_ROOT}/SwiftLint/swiftlint\"\nfi\n";
 		};
 		29336FE81F6B24FF005E3BFC /* R.Swift */ = {
 			isa = PBXShellScriptBuildPhase;
