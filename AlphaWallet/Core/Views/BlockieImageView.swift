@@ -9,7 +9,11 @@ import UIKit
 
 class BlockieImageView: UIView {
     private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
-    private lazy var imageView = WebImageView()
+    private lazy var imageView: WebImageView = {
+        let imageView = WebImageView()
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
 
     var subscribable: Subscribable<BlockiesImage>? {
         didSet {

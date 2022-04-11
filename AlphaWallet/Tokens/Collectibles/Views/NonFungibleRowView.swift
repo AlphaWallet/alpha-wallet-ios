@@ -24,7 +24,7 @@ class NonFungibleRowView: TokenCardViewType {
     }
 
     private var thumbnailImageView: WebImageView = {
-        let imageView = WebImageView(scale: .bestFill)
+        let imageView = WebImageView()
         return imageView
     }()
 
@@ -75,7 +75,7 @@ class NonFungibleRowView: TokenCardViewType {
             cornerRadius = 0
             col1.alignment = .fill
             descriptionCo1.isHidden = false
-
+            contentMode = .scaleAspectFit
             let stackView = [
                 col0,
                 col1,
@@ -89,7 +89,7 @@ class NonFungibleRowView: TokenCardViewType {
             cornerRadius = Metrics.CornerRadius.nftBox
             col1.alignment = .center
             descriptionCo1.isHidden = true
-            
+            contentMode = .scaleAspectFit
             let stackView = [
                 col0,
                 .spacer(height: 12),

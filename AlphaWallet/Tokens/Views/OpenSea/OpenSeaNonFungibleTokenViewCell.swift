@@ -6,9 +6,10 @@ import UIKit
 class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
     private let imageView: TokenImageView = {
-        let imageView: TokenImageView = TokenImageView(scale: .bestFill)
+        let imageView: TokenImageView = TokenImageView()
         imageView.isRoundingEnabled = false
         imageView.isChainOverlayHidden = true
+        imageView.contentMode = .scaleToFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
 
         return imageView
@@ -29,7 +30,6 @@ class OpenSeaNonFungibleTokenView: UIView {
 
         return countLabel
     }()
-    private var tokenAddress: AlphaWallet.Address?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -85,24 +85,13 @@ class OpenSeaNonFungibleTokenView: UIView {
         background.borderColor = R.color.mercury()
 
         imageHolder.clipsToBounds = true
-
-        if let tokenAddress = tokenAddress {
-            if tokenAddress.sameContract(as: viewModel.tokenAddress) {
-                //no-op
-            } else {
-                imageView.subscribable = viewModel.tokenIcon
-            }
-        } else {
-            imageView.subscribable = viewModel.tokenIcon
-        }
+        imageView.subscribable = viewModel.tokenIcon
 
         label.textAlignment = .center
         label.attributedText = viewModel.tickersTitleAttributedString
 
         countLabel.textAlignment = .center
         countLabel.attributedText = viewModel.tickersAmountAttributedString
-
-        tokenAddress = viewModel.tokenAddress
     }
 }
 
