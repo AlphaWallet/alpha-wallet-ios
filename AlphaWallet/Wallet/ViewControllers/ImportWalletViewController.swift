@@ -133,7 +133,6 @@ class ImportWalletViewController: UIViewController {
         watchAddressTextField.defaultLayout(edgeInsets: .zero)
     }()
 
-    private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private lazy var importSeedDescriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -141,7 +140,6 @@ class ImportWalletViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var footerBottomConstraint: NSLayoutConstraint!
     private lazy var keyboardChecker = KeyboardChecker(self)
     private var mnemonicSuggestions: [String] = .init() {
@@ -168,6 +166,16 @@ class ImportWalletViewController: UIViewController {
 
     private var mnemonicInputString: String {
         mnemonicTextView.value.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private let buttonsBar = VerticalButtonsBar(numberOfButtons: 2)
+
+    private var importButton: UIButton {
+        return buttonsBar.buttons[0]
+    }
+
+    private var importKeystoreJsonFromCloudButton: UIButton {
+        return buttonsBar.buttons[1]
     }
 
     weak var delegate: ImportWalletViewControllerDelegate?
@@ -200,9 +208,8 @@ class ImportWalletViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
-        importKeystoreJsonFromCloudButton.isHidden = true
-        importKeystoreJsonFromCloudButton.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(importKeystoreJsonFromCloudButton)
+        // importKeystoreJsonFromCloudButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         roundedBackground.addSubview(importSeedDescriptionLabel)
 
         mnemonicSuggestionsCollectionView.frame = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.mnemonicSuggestionsBarHeight)
@@ -247,17 +254,17 @@ class ImportWalletViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
-            importKeystoreJsonFromCloudButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
-            importKeystoreJsonFromCloudButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
-            importKeystoreJsonFromCloudButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelButtonInset),
-
             importSeedDescriptionLabel.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 30),
             importSeedDescriptionLabel.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -30),
             importSeedDescriptionLabel.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelButtonInset),
 
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20),
+
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
             footerBottomConstraint,
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -265,7 +272,7 @@ class ImportWalletViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-        ] + roundedBackground.createConstraintsWithContainer(view: view) + buttonsBar.anchorsConstraint(to: footerBar))
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
         showMnemonicControlsOnly()
@@ -350,14 +357,11 @@ class ImportWalletViewController: UIViewController {
 
         importSeedDescriptionLabel.attributedText = viewModel.importSeedAttributedText
 
-        buttonsBar.configure()
-        let importButton = buttonsBar.buttons[0]
         importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
     }
 
     private func configureImportButtonTitle(_ title: String) {
-        let importButton = buttonsBar.buttons[0]
         importButton.setTitle(title, for: .normal)
     }
 
@@ -556,9 +560,9 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
-        importKeystoreJsonFromCloudButton.isHidden = true
+        // importKeystoreJsonFromCloudButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = false
-        let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !mnemonicTextView.value.isEmpty
         mnemonicTextView.textView.inputAccessoryView = mnemonicSuggestionsCollectionView
         mnemonicTextView.textView.reloadInputViews()
@@ -570,9 +574,9 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
-        importKeystoreJsonFromCloudButton.isHidden = false
+        // importKeystoreJsonFromCloudButton.isHidden = false
+        buttonsBar.showButtonInStack(button: importKeystoreJsonFromCloudButton, position: 1)
         importSeedDescriptionLabel.isHidden = true
-        let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !keystoreJSONTextView.value.isEmpty && !passwordTextField.value.isEmpty
         mnemonicTextView.textView.inputAccessoryView = nil
         mnemonicTextView.textView.reloadInputViews()
@@ -584,9 +588,9 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsStackView.isHidden = false
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
-        importKeystoreJsonFromCloudButton.isHidden = true
+        // importKeystoreJsonFromCloudButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = true
-        let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !privateKeyTextView.value.isEmpty
         mnemonicTextView.textView.inputAccessoryView = nil
         mnemonicTextView.textView.reloadInputViews()
@@ -598,9 +602,9 @@ class ImportWalletViewController: UIViewController {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = false
         configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
-        importKeystoreJsonFromCloudButton.isHidden = true
+        // importKeystoreJsonFromCloudButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: importKeystoreJsonFromCloudButton)
         importSeedDescriptionLabel.isHidden = true
-        let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !watchAddressTextField.value.isEmpty
         mnemonicTextView.textView.inputAccessoryView = nil
         mnemonicTextView.textView.reloadInputViews()
