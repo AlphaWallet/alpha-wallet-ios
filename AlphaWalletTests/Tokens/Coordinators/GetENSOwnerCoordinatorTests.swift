@@ -19,7 +19,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         let ensName = "b00n.thisisme.eth"
         let server = makeServerForMainnet()
         firstly {
-            GetENSAddressCoordinator(server: server).getENSAddressFromResolver(forName: ensName)
+            ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
             if address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
                 expectation.fulfill()
@@ -39,7 +39,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         let ensName = "ethereum.eth"
         let server = makeServerForMainnet()
         firstly {
-            GetENSAddressCoordinator(server: server).getENSAddressFromResolver(forName: ensName)
+            ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
             if address.sameContract(as: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe") {
                 expectation.fulfill()
@@ -59,7 +59,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         let ensName = "1.offchainexample.eth"
         let server = makeServerForMainnet()
         firstly {
-            GetENSAddressCoordinator(server: server).getENSAddressFromResolver(forName: ensName)
+            ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
             if address.sameContract(as: "0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5") {
                 expectation.fulfill()

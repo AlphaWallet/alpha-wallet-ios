@@ -4,7 +4,7 @@ import Foundation
 import AlphaWalletENS
 import PromiseKit
 
-class ENSReverseLookupCoordinator: ENSDelegateImpl {
+class ENSReverseResolver: ENSDelegateImpl {
     private static var resultsCache = [ENSLookupKey: String]()
 
     private let server: RPCServer
@@ -28,15 +28,15 @@ class ENSReverseLookupCoordinator: ENSDelegateImpl {
     }
 
     private func cachedResult(forAddress address: AlphaWallet.Address) -> String? {
-        return ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)]
+        return ENSReverseResolver.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)]
     }
 
     private static func cache(forAddress address: AlphaWallet.Address, result: String, server: RPCServer) {
-        ENSReverseLookupCoordinator.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)] = result
+        ENSReverseResolver.resultsCache[ENSLookupKey(nameOrAddress: address.eip55String, server: server)] = result
     }
 }
 
-extension ENSReverseLookupCoordinator: CachedEnsResolutionServiceType {
+extension ENSReverseResolver: CachedEnsResolutionServiceType {
     func cachedEnsValue(forAddress address: AlphaWallet.Address) -> String? {
         return cachedResult(forAddress: address)
     }

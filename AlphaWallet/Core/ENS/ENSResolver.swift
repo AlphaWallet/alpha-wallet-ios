@@ -5,7 +5,7 @@ import Foundation
 import AlphaWalletENS
 import PromiseKit
 
-class GetENSAddressCoordinator: ENSDelegateImpl {
+class ENSResolver: ENSDelegateImpl {
 
     private static var resultsCache: [ENSLookupKey: AlphaWallet.Address] = [:]
     private (set) var server: RPCServer
@@ -28,15 +28,15 @@ class GetENSAddressCoordinator: ENSDelegateImpl {
     }
 
     private func cachedResult(forName name: String) -> AlphaWallet.Address? {
-        return GetENSAddressCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server)]
+        return ENSResolver.resultsCache[ENSLookupKey(nameOrAddress: name, server: server)]
     }
 
     private static func cache(forName name: String, result: AlphaWallet.Address, server: RPCServer) {
-        GetENSAddressCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server)] = result
+        ENSResolver.resultsCache[ENSLookupKey(nameOrAddress: name, server: server)] = result
     }
 }
 
-extension GetENSAddressCoordinator: CachebleAddressResolutionServiceType {
+extension ENSResolver: CachebleAddressResolutionServiceType {
     func cachedAddressValue(forName name: String) -> AlphaWallet.Address? {
         return cachedResult(forName: name)
     }

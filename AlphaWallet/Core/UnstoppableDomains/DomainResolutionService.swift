@@ -25,7 +25,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
                 }
         }
 
-        let getEnsAddressCoordinator = GetENSAddressCoordinator(server: server)
+        let getEnsAddressCoordinator = ENSResolver(server: server)
         let unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server)
 
         let services: [CachebleAddressResolutionServiceType] = [
@@ -58,7 +58,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
                 }
         }
 
-        let ensReverseLookupCoordinator = ENSReverseLookupCoordinator(server: server)
+        let ensReverseLookupCoordinator = ENSReverseResolver(server: server)
         let unstoppableDomainsV2Resolver = UnstoppableDomainsV2Resolver(server: server)
 
         let services: [CachedEnsResolutionServiceType] = [
