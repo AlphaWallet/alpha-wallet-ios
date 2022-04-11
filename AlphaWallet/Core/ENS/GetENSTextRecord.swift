@@ -1,5 +1,4 @@
 //
-//  GetENSTextRecordsCoordinator.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 24.09.2021.
@@ -10,7 +9,7 @@ import AlphaWalletENS
 import PromiseKit
 
 /// https://eips.ethereum.org/EIPS/eip-634
-final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
+final class GetENSTextRecord: ENSDelegateImpl {
     private struct ENSLookupKey: Hashable {
         let nameOrAddress: String
         let server: RPCServer
@@ -27,11 +26,11 @@ final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
     private static var resultsCache = [ENSLookupKey: String]()
 
     private (set) var server: RPCServer
-    private let ensReverseLookup: ENSReverseLookupCoordinator
+    private let ensReverseLookup: ENSReverseResolver
 
     init(server: RPCServer) {
         self.server = server
-        ensReverseLookup = ENSReverseLookupCoordinator(server: server)
+        ensReverseLookup = ENSReverseResolver(server: server)
     }
 
     func getENSRecord(forAddress address: AlphaWallet.Address, record: ENSTextRecordKey) -> Promise<String> {
@@ -56,10 +55,10 @@ final class GetENSTextRecordsCoordinator: ENSDelegateImpl {
     }
 
     private func cachedResult(forName name: String, record: ENSTextRecordKey) -> String? {
-        return GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)]
+        return GetENSTextRecord.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)]
     }
 
     private func cache(forName name: String, record: ENSTextRecordKey, result: String) {
-        GetENSTextRecordsCoordinator.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)] = result
+        GetENSTextRecord.resultsCache[ENSLookupKey(nameOrAddress: name, server: server, record: record)] = result
     }
 }
