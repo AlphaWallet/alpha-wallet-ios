@@ -2,13 +2,8 @@
 
 import Foundation
 import BigInt
-import PromiseKit
 import RealmSwift
 import Combine
-
-enum TokenError: Error {
-    case failedToFetch
-}
 
 /// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
@@ -19,12 +14,10 @@ protocol TokensDataStore: NSObjectProtocol {
     func delegateContracts(forServer server: RPCServer) -> [DelegateContract]
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract]
     func addEthToken(forServer server: RPCServer)
-    func tokenObject(forContract contract: AlphaWallet.Address) -> TokenObject?
-    func tokenObjectPromise(forContract contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenObject?>
+    func token(forContract contract: AlphaWallet.Address) -> TokenObject?
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
     func add(hiddenContracts: [HiddenContract])
-    @discardableResult func add(tokens: [TokenObject]) -> [TokenObject]
 
     func deleteTestsOnly(tokens: [TokenObject])
     func updateOrderedTokens(with orderedTokens: [TokenObject])
@@ -32,7 +25,7 @@ protocol TokensDataStore: NSObjectProtocol {
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
     @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject]
-    @discardableResult func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
+    @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
 }
 
 enum TokenUpdateAction {
@@ -46,12 +39,10 @@ enum TokenUpdateAction {
 
 /// Should be `final`, but removed for test purposes
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
-    private let realm: Realm
     //NOTE: adds synchronized access to realm, to make requests from different threads. Replace other calls
     private let store: RealmStore
 
     init(realm: Realm, servers: [RPCServer]) {
-        self.realm = realm
         self.store = RealmStore(realm: realm)
         super.init()
 
@@ -65,77 +56,106 @@ enum TokenUpdateAction {
     }
 
     func deleteAll() {
-        try! realm.write {
-            realm.delete(realm.objects(TokenObject.self))
+        store.performSync { realm in
+            try? realm.safeWrite {
+                realm.delete(realm.objects(TokenObject.self))
+            }
         }
     }
 
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never> {
-        return enabledObjectResults(forServers: servers)
-            .changesetPublisher
-            .map { change in
-                switch change {
-                case .initial(let tokenObjects):
-                    return .initial(Array(tokenObjects.map { $0.freeze() }))
-                case .update(let tokenObjects, let deletions, let insertions, let modifications):
-                    return .update(Array(tokenObjects.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
-                case .error(let error):
-                    return .error(error)
+        var publisher: AnyPublisher<ChangeSet<[TokenObject]>, Never>!
+        store.performSync { realm in
+            publisher = enabledTokenObjectResults(forServers: servers, realm: realm)
+                .changesetPublisher
+                .map { change in
+                    switch change {
+                    case .initial(let tokenObjects):
+                        return .initial(Array(tokenObjects.map { $0.freeze() }))
+                    case .update(let tokenObjects, let deletions, let insertions, let modifications):
+                        return .update(Array(tokenObjects.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                    case .error(let error):
+                        return .error(error)
+                    }
                 }
-            }
-            .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
+        }
+        
+        return publisher
     }
 
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject] {
-        let tokenObjects = Array(enabledObjectResults(forServers: servers).map { $0.freeze() })
-        return MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
+        var tokens: [TokenObject] = []
+        store.performSync { realm in
+            let tokenObjects = Array(enabledTokenObjectResults(forServers: servers, realm: realm).map { $0.freeze() })
+            tokens = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
+        }
+
+        return tokens
     }
 
     func deletedContracts(forServer server: RPCServer) -> [DeletedContract] {
-        return Array(realm.objects(DeletedContract.self)
-            .filter("chainId = \(server.chainID)"))
+        var deletedContracts: [DeletedContract] = []
+        store.performSync { realm in
+            deletedContracts = Array(realm.objects(DeletedContract.self).filter("chainId = \(server.chainID)"))
+        }
+
+        return deletedContracts
     }
 
     func delegateContracts(forServer server: RPCServer) -> [DelegateContract] {
-        return Array(realm.objects(DelegateContract.self)
-            .filter("chainId = \(server.chainID)"))
+        var delegateContracts: [DelegateContract] = []
+        store.performSync { realm in
+            delegateContracts = Array(realm.objects(DelegateContract.self).filter("chainId = \(server.chainID)"))
+        }
+        return delegateContracts
     }
 
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract] {
-        return Array(realm.objects(HiddenContract.self)
-            .filter("chainId = \(server.chainID)"))
+        var hiddenContracts: [HiddenContract] = []
+        store.performSync { realm in
+            hiddenContracts = Array(realm.objects(HiddenContract.self).filter("chainId = \(server.chainID)"))
+        }
+        return hiddenContracts
     }
 
     func add(tokenUpdates updates: [TokenUpdate]) {
-        realm.beginWrite()
-        for token in updates {
-            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
-            let update: [String: Any] = [
-                "primaryKey": token.primaryKey,
-                "contract": token.address.eip55String,
-                "chainId": token.server.chainID,
-                "name": token.name,
-                "symbol": token.symbol,
-                "decimals": token.decimals,
-                "rawType": token.tokenType.rawValue,
-            ]
-            realm.create(TokenObject.self, value: update, update: .all)
+        store.performSync { realm in
+            try? realm.safeWrite {
+                for token in updates {
+                    //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
+                    let update: [String: Any] = [
+                        "primaryKey": token.primaryKey,
+                        "contract": token.address.eip55String,
+                        "chainId": token.server.chainID,
+                        "name": token.name,
+                        "symbol": token.symbol,
+                        "decimals": token.decimals,
+                        "rawType": token.tokenType.rawValue,
+                    ]
+                    realm.create(TokenObject.self, value: update, update: .all)
+                }
+            }
         }
-        try? realm.commitWrite()
     }
 
     func addEthToken(forServer server: RPCServer) {
-        //Check if we have previous values.
-        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        let tokenObjects = realm.objects(TokenObject.self)
-            .filter(MultipleChainsTokensDataStore.functional.nonEmptyContractTokenPredicate(server: server))
+        var tokenObjects: [TokenObject] = []
+        store.performSync { realm in
+            tokenObjects = realm.objects(TokenObject.self)
+                .filter(MultipleChainsTokensDataStore.functional.nonEmptyContractTokenPredicate(server: server))
+                .freeze()
+                .map { $0 }
+        }
 
+            //Check if we have previous values.
+        let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
         if !tokenObjects.contains(where: { $0 == etherToken }) {
             add(tokens: [etherToken])
-        } 
+        }
     }
 
-    func tokenObject(forContract contract: AlphaWallet.Address) -> TokenObject? {
+    func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(contract: contract)
@@ -151,36 +171,24 @@ enum TokenUpdateAction {
         return token
     }
 
-    func tokenObjectPromise(forContract contract: AlphaWallet.Address, server: RPCServer) -> Promise<TokenObject?> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = MultipleChainsTokensDataStore
-                    .functional
-                    .tokenPredicate(server: server, contract: contract)
-                let token = strongSelf.realm.objects(TokenObject.self)
-                    .filter(predicate)
-                    .first
-
-                seal.fulfill(token)
-            }
+    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject? {
+        var token: TokenObject?
+        store.performSync { realm in
+            token = self.token(forContract: contract, server: server, realm: realm)
         }
+
+        return token
     }
 
-    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject? {
+    private func token(forContract contract: AlphaWallet.Address, server: RPCServer, realm: Realm) -> TokenObject? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        var token: TokenObject?
-        store.performSync { realm in
-            token = realm.objects(TokenObject.self)
-                .filter(predicate)
-                .freeze()
-                .first
-        }
-
-        return token
+        return realm.objects(TokenObject.self)
+            .filter(predicate)
+            .freeze()
+            .first
     }
 
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject] {
@@ -192,127 +200,139 @@ enum TokenUpdateAction {
 
     @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject] {
         guard !values.isEmpty else { return [] }
-        var tokenObjects: [TokenObject] = []
 
-        try! realm.write {
-            for each in values {
-                switch each {
-                case .delegateContracts(let delegateContract):
-                    realm.add(delegateContract, update: .all)
-                case .ercToken(let token):
-                    let newToken = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
-                    addTokenUnsafe(tokenObject: newToken, realm: realm)
-                    tokenObjects += [newToken]
-                case .tokenObject(let tokenObject):
-                    addTokenUnsafe(tokenObject: tokenObject, realm: realm)
-                    tokenObjects += [tokenObject]
-                case .deletedContracts(let deadContracts):
-                    realm.add(deadContracts, update: .all)
-                case .fungibleTokenComplete(let name, let symbol, let decimals, let contract, let server, let onlyIfThereIsABalance):
-                    let existedTokenObject = token(forContract: contract, server: server)
+        store.performSync { realm in
+            try? realm.safeWrite {
+                for each in values {
+                    switch each {
+                    case .delegateContracts(let delegateContract):
+                        realm.add(delegateContract, update: .all)
+                    case .ercToken(let token):
+                        let newToken = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: token.type.shouldUpdateBalanceWhenDetected)
+                        addTokenWithoutCommitWrite(tokenObject: newToken, realm: realm)
+                    case .tokenObject(let tokenObject):
+                        addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
+                    case .deletedContracts(let deadContracts):
+                        realm.add(deadContracts, update: .all)
+                    case .fungibleTokenComplete(let name, let symbol, let decimals, let contract, let server, let onlyIfThereIsABalance):
+                        let existedTokenObject = token(forContract: contract, server: server, realm: realm)
 
-                    let value = existedTokenObject?.value ?? "0"
-                    guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
-                        continue
+                        let value = existedTokenObject?.value ?? "0"
+                        guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else {
+                            continue
+                        }
+                        let tokenObject = TokenObject(
+                                contract: contract,
+                                server: server,
+                                name: name,
+                                symbol: symbol,
+                                decimals: Int(decimals),
+                                value: value,
+                                type: .erc20
+                        )
+                        addTokenWithoutCommitWrite(tokenObject: tokenObject, realm: realm)
+                    case .none:
+                        break
                     }
-                    let tokenObject = TokenObject(
-                            contract: contract,
-                            server: server,
-                            name: name,
-                            symbol: symbol,
-                            decimals: Int(decimals),
-                            value: value,
-                            type: .erc20
-                    )
-                    addTokenUnsafe(tokenObject: tokenObject, realm: realm)
-                    tokenObjects += [tokenObject]
-                case .none:
-                    break
                 }
             }
         }
+
+        let tokenObjects = values
+            .compactMap { $0.addressAndRPCServer }
+            .compactMap { token(forContract: $0.address, server: $0.server) }
 
         return tokenObjects
     }
 
     func add(hiddenContracts: [HiddenContract]) {
-        try! realm.write {
-            realm.add(hiddenContracts, update: .all)
+        store.performSync { realm in
+            try? realm.safeWrite {
+                realm.add(hiddenContracts, update: .all)
+            }
         }
     }
 
     @discardableResult func add(tokens: [TokenObject]) -> [TokenObject] {
         guard !tokens.isEmpty else { return [] }
-        realm.beginWrite()
-
-        //TODO: save existed sort index and displaying state
-        for token in tokens {
-            addTokenUnsafe(tokenObject: token, realm: realm)
+        var tokensToReturn: [TokenObject] = []
+        store.performSync { realm in
+            try? realm.safeWrite {
+                //TODO: save existed sort index and displaying state
+                for token in tokens {
+                    tokensToReturn += [addTokenWithoutCommitWrite(tokenObject: token, realm: realm)]
+                }
+            }
         }
 
-        try! realm.commitWrite()
-
-        return tokens
+        return tokensToReturn
     }
 
     func deleteTestsOnly(tokens: [TokenObject]) {
         guard !tokens.isEmpty else { return }
 
-        realm.beginWrite()
-        realm.delete(tokens)
-        try! realm.commitWrite()
+        store.performSync { realm in
+            try? realm.safeWrite {
+                realm.delete(tokens)
+            }
+        }
     } 
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
         guard !orderedTokens.isEmpty else { return }
-        let orderedTokensIds = orderedTokens.map { $0.primaryKey }
+        store.performSync { realm in
+            let orderedTokensIds = orderedTokens.map { $0.primaryKey }
 
-        let storedTokens = realm.objects(TokenObject.self)
+            let storedTokens = Array(realm.objects(TokenObject.self))
+            guard !storedTokens.isEmpty else { return }
 
-        for token in storedTokens {
-            try! realm.write {
-                token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
+            try? realm.safeWrite {
+                for token in storedTokens {
+                    token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
+                }
             }
         }
     }
 
-    @discardableResult func batchUpdateTokenPromise(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool? {
-        realm.beginWrite()
+    @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool? {
+        guard !actions.isEmpty else { return nil }
+        
         var result: Bool?
+        store.performSync { realm in
+            try? realm.safeWrite {
+                for each in actions {
+                    var value: Bool?
+                    switch each {
+                    case .add(let token, let shouldUpdateBalance):
+                        let newToken = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
+                        addTokenWithoutCommitWrite(tokenObject: newToken, realm: realm)
+                        value = true
+                    case .update(let tokenObject, let action):
+                        value = updateTokenWithoutCommitWrite(primaryKey: tokenObject.primaryKey, action: action, realm: realm)
+                    }
 
-        for each in actions {
-            var value: Bool?
-            switch each {
-            case .add(let token, let shouldUpdateBalance):
-                let newToken = MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: token, shouldUpdateBalance: shouldUpdateBalance)
-                addTokenUnsafe(tokenObject: newToken, realm: realm)
-                value = true
-            case .update(let tokenObject, let action):
-                value = updateTokenUnsafe(primaryKey: tokenObject.primaryKey, action: action)
-            }
-
-            if result == nil {
-                result = value
+                    if result == nil {
+                        result = value
+                    }
+                }
             }
         }
-
-        try! realm.commitWrite()
-
         return result
     }
 
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool? {
         var result: Bool?
-        realm.beginWrite()
-        result = updateTokenUnsafe(primaryKey: primaryKey, action: action)
-
-        try! realm.commitWrite()
+        store.performSync { realm in
+            try? realm.safeWrite {
+                result = updateTokenWithoutCommitWrite(primaryKey: primaryKey, action: action, realm: realm)
+            }
+        }
 
         return result
     }
 
     //TODO: Group private and internal functions, mark private everithing
-    @discardableResult private func addTokenUnsafe(tokenObject: TokenObject, realm: Realm) -> TokenObject {
+    @discardableResult private func addTokenWithoutCommitWrite(tokenObject: TokenObject, realm: Realm) -> TokenObject {
         //TODO: save existed sort index and displaying state
         if let object = realm.object(ofType: TokenObject.self, forPrimaryKey: tokenObject.primaryKey) {
             tokenObject.sortIndex = object.sortIndex
@@ -324,7 +344,7 @@ enum TokenUpdateAction {
         return tokenObject
     }
 
-    @discardableResult private func updateTokenUnsafe(primaryKey: String, action: TokenUpdateAction) -> Bool? {
+    @discardableResult private func updateTokenWithoutCommitWrite(primaryKey: String, action: TokenUpdateAction, realm: Realm) -> Bool? {
         guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else {
             return nil
         }
@@ -383,12 +403,13 @@ enum TokenUpdateAction {
         return result
     }
 
-    private func enabledObjectResults(forServers servers: [RPCServer]) -> Results<TokenObject> {
+    private func enabledTokenObjectResults(forServers servers: [RPCServer], realm: Realm) -> Results<TokenObject> {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .nonEmptyContractTokenPredicateWithErc20AddressForNativeTokenFilter(servers: servers, isDisabled: false)
 
-        return realm.threadSafe.objects(TokenObject.self)
+        return realm
+            .objects(TokenObject.self)
             .filter(predicate)
     }
 }

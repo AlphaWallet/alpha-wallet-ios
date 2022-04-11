@@ -17,7 +17,21 @@ extension SingleChainTokensAutodetector {
         ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
         case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8, contract: AlphaWallet.Address, server: RPCServer, onlyIfThereIsABalance: Bool)
         case none
+
+        var addressAndRPCServer: AddressAndRPCServer? {
+            switch self {
+            case .ercToken(let eRCToken):
+                return .init(address: eRCToken.contract, server: eRCToken.server)
+            case .tokenObject(let tokenObject):
+                return .init(address: tokenObject.contractAddress, server: tokenObject.server)
+            case .delegateContracts, .deletedContracts, .none:
+                return nil
+            case .fungibleTokenComplete(_, _, _, let contract, let server, _):
+                return .init(address: contract, server: server)
+            }
+        }
     }
+
 }
 
 protocol TokensAutodetector: NSObjectProtocol {
