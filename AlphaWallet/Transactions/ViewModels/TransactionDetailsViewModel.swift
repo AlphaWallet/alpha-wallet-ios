@@ -18,7 +18,7 @@ struct TransactionDetailsViewModel {
     init(
             transactionRow: TransactionRow,
             chainState: ChainState,
-            currentWallet: Wallet,
+            wallet: Wallet,
             currencyRate: CurrencyRate?
     ) {
         self.transactionRow = transactionRow
@@ -27,7 +27,7 @@ struct TransactionDetailsViewModel {
         self.transactionViewModel = TransactionViewModel(
             transactionRow: transactionRow,
             chainState: chainState,
-            currentWallet: currentWallet
+            wallet: wallet
         )
     }
 

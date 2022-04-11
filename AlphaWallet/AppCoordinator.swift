@@ -466,12 +466,11 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
         case .magicLink(_, let server, let url):
             guard hasImportMagicLinkCoordinator == nil else { return }
 
-            if config.enabledServers.contains(server) {
+            if resolver.sessions[safe: server] != nil {
                 let coordinator = ImportMagicLinkCoordinator(
                     analyticsCoordinator: analyticsService,
-                    wallet: keystore.currentWallet,
+                    sessions: resolver.sessions,
                     config: config,
-                    tokenBalanceService: resolver.sessions[server].tokenBalanceService,
                     tokensDatastore: resolver.tokensDataStore,
                     assetDefinitionStore: assetDefinitionStore,
                     url: url,

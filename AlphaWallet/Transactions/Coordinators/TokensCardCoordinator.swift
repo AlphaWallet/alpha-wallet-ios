@@ -227,7 +227,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeRedeemTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
         let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = RedeemTokenCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let controller = RedeemTokenCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
         controller.delegate = self
         return controller
@@ -243,7 +243,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterTransferTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
         let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = SetTransferTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let controller = SetTransferTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
         controller.delegate = self
         return controller
@@ -251,7 +251,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
         let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
-        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let controller = SetSellTokensCardExpiryDateViewController(analyticsCoordinator: analyticsCoordinator, storage: tokensDataStore, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
         controller.delegate = self
         return controller
@@ -267,7 +267,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTransferTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
         let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = TransferTokensCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let controller = TransferTokensCardQuantitySelectionViewController(analyticsCoordinator: analyticsCoordinator, paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         controller.configure()
         controller.delegate = self
         return controller
@@ -275,7 +275,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeChooseTokenCardTransferModeViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
         let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let controller = ChooseTokenCardTransferModeViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        let controller = ChooseTokenCardTransferModeViewController(analyticsCoordinator: analyticsCoordinator, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: session)
         controller.configure()
         controller.delegate = self
         return controller
@@ -294,7 +294,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
             nativeCurrencyDrop: false
         )
         let orders = [order]
-        let address = keystore.currentWallet.address
+        let address = session.account.address
         let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
@@ -319,7 +319,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 nativeCurrencyDrop: false
         )
         let orders = [order]
-        let address = keystore.currentWallet.address
+        let address = session.account.address
         let signedOrders = try! OrderHandler(keystore: keystore).signOrders(orders: orders, account: address, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }

@@ -33,7 +33,14 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
+    init(
+        analyticsCoordinator: AnalyticsCoordinator,
+        token: TokenObject,
+        viewModel: RedeemTokenCardQuantitySelectionViewModel,
+        assetDefinitionStore: AssetDefinitionStore,
+        keystore: Keystore,
+        session: WalletSession
+    ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.token = token
         self.viewModel = viewModel
@@ -44,7 +51,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
         }
 
         super.init(nibName: nil, bundle: nil)

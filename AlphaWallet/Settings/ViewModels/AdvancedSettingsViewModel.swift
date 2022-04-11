@@ -11,8 +11,8 @@ import UIKit
 struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow]
 
-    init(keystore: Keystore) {
-        let canExportToJSONKeystore = Features.isExportJsonKeystoreEnabled && keystore.currentWallet.isReal()
+    init(wallet: Wallet) {
+        let canExportToJSONKeystore = Features.isExportJsonKeystoreEnabled && wallet.isReal()
         self.rows = [
             .clearBrowserCache,
             .tokenScript,

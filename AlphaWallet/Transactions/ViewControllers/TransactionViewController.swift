@@ -14,7 +14,7 @@ class TransactionViewController: UIViewController {
         return .init(
             transactionRow: transactionRow,
             chainState: session.chainState,
-            currentWallet: session.account,
+            wallet: session.account,
             currencyRate: session.tokenBalanceService.ethBalanceViewModel.currencyRate
         )
     }()

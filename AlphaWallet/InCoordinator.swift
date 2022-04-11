@@ -842,7 +842,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
-        guard keystore.currentWallet != account else { return }
+        guard self.wallet != account else { return }
         restartUI(withReason: .walletChange, account: account)
     }
 }

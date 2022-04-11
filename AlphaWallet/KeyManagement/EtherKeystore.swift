@@ -123,7 +123,6 @@ open class EtherKeystore: NSObject, Keystore {
         self.analyticsCoordinator = analyticsCoordinator
         self.walletAddressesStore = walletAddressesStore
         super.init()
-
     }
 
     func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {

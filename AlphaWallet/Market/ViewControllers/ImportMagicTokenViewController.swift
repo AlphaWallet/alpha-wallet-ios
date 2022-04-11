@@ -17,7 +17,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let analyticsCoordinator: AnalyticsCoordinator
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
-    lazy private var tokenCardRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
+    lazy private var tokenCardRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: session.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: session.account)
     private let statusLabel = UILabel()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private var costStackView: UIStackView?
@@ -28,7 +28,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 2))
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
-    let server: RPCServer
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ImportMagicTokenViewControllerDelegate?
 
@@ -38,6 +37,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)
         }
     }
+    var server: RPCServer { session.server }
     var url: URL? {
         didSet {
             updateNavigationRightBarButtons(withTokenScriptFileStatus: nil, hasShowInfoButton: false)
@@ -51,12 +51,13 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
     private let keystore: Keystore
-    
-    init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
+    private let session: WalletSession
+
+    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore, session: WalletSession) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.server = server
         self.assetDefinitionStore = assetDefinitionStore
         self.keystore = keystore
+        self.session = session
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = .clear
