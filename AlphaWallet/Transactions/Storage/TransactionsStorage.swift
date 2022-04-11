@@ -397,10 +397,4 @@ extension TransactionState {
     static func predicate(state: TransactionState) -> NSPredicate {
         return NSPredicate(format: "internalState == \(state.rawValue)")
     }
-}
-
-extension Realm {
-    var threadSafe: Realm {
-         try! Realm(configuration: configuration)
-    }
-}
+} 

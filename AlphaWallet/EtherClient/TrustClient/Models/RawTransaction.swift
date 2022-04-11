@@ -98,27 +98,25 @@ extension TransactionInstance {
         }
 
         func generateLocalizedOperation(value: BigUInt, contract: AlphaWallet.Address, to recipient: AlphaWallet.Address, functionCall: DecodedFunctionCall, server: RPCServer) -> Promise<[LocalizedOperationObjectInstance]> {
-            tokensDataStore.tokenObjectPromise(forContract: contract, server: server).then { token -> Promise<[LocalizedOperationObjectInstance]> in
-                if let token = token {
-                    let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
-                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
-                    return .value([result])
-                } else {
-                    let getContractName = tokenProvider.getContractName(for: contract)
-                    let getContractSymbol = tokenProvider.getContractSymbol(for: contract)
-                    let getDecimals = tokenProvider.getDecimals(for: contract)
-                    let getTokenType = tokenProvider.getTokenType(for: contract)
+            if let token = tokensDataStore.token(forContract: contract, server: server) {
+                let operationType = mapTokenTypeToTransferOperationType(token.type, functionCall: functionCall)
+                let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: token.symbol, name: token.name, decimals: token.decimals)
+                return .value([result])
+            } else {
+                let getContractName = tokenProvider.getContractName(for: contract)
+                let getContractSymbol = tokenProvider.getContractSymbol(for: contract)
+                let getDecimals = tokenProvider.getDecimals(for: contract)
+                let getTokenType = tokenProvider.getTokenType(for: contract)
 
-                    return firstly {
-                        when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
-                    }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
-                        let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
-                        let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
-                        return .value([result])
-                    }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
-                        //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
-                        return Promise.value([])
-                    }
+                return firstly {
+                    when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
+                }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
+                    let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
+                    let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
+                    return .value([result])
+                }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
+                    //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
+                    return Promise.value([])
                 }
             }
         }

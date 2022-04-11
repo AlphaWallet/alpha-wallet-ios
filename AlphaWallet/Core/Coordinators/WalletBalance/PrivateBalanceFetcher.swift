@@ -106,26 +106,20 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     func refreshBalance(updatePolicy: RefreshBalancePolicy, force: Bool = false) -> Promise<Void> {
-        Promise<[TokenObject]> { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let tokenObjects: [TokenObject]
+        let tokenObjects: [TokenObject]
 
-                switch updatePolicy {
-                case .all, .eth:
-                    tokenObjects = strongSelf.tokensDataStore.enabledTokenObjects(forServers: [strongSelf.server])
-                case .token(let tokenObject):
-                    tokenObjects = [tokenObject]
-                }
+        switch updatePolicy {
+        case .all, .eth:
+            tokenObjects = tokensDataStore.enabledTokenObjects(forServers: [server])
+        case .token(let tokenObject):
+            tokenObjects = [tokenObject]
+        }
 
-                seal.fulfill(tokenObjects)
-            }
-        }.then(on: queue, { tokenObjects in
-            return self.refreshBalance(tokenObjects: tokenObjects, updatePolicy: updatePolicy, force: force)
-        }).recover(on: queue, { e -> Promise<Void> in
-            error(value: e)
-            throw e
-        })
+        return refreshBalance(tokenObjects: tokenObjects, updatePolicy: updatePolicy, force: force)
+            .recover(on: queue, { e -> Promise<Void> in
+                error(value: e)
+                throw e
+            })
     }
 
     private func refreshBalanceForNonErc721Or1155Tokens(tokens: [TokenObject]) -> Promise<[PrivateBalanceFetcher.TokenBatchOperation]> {
@@ -177,7 +171,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
         return TokenProvider(account: account, server: server, queue: queue)
             .getEthBalance(for: account.address)
-            .then(on: .main, { balance -> Promise<Bool?> in
+            .then(on: queue, { balance -> Promise<Bool?> in
                 let tokenHasUpdated = tokensDataStore.updateToken(primaryKey: etherToken.primaryKey, action: .value(balance.value))
                 return .value(tokenHasUpdated)
             }).recover(on: queue, { _ -> Guarantee<Bool?> in
@@ -196,9 +190,9 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let tokensDatastore = self.tokensDataStore
 
         return when(resolved: [promise1, promise2])
-            .then(on: .main, { value -> Promise<Bool?> in
+            .then(on: queue, { value -> Promise<Bool?> in
                 let resolved: [TokenBatchOperation] = value.compactMap { $0.optionalValue }.flatMap { $0 }
-                let result = tokensDatastore.batchUpdateTokenPromise(resolved)
+                let result = tokensDatastore.batchUpdateToken(resolved)
                 return .value(result)
             })
     }
@@ -376,7 +370,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         let tokensDatastore = self.tokensDataStore
         return firstly {
             functional.fetchUnknownErc1155ContractsDetails(contractsAndTokenIds: contractsAndTokenIds, tokens: tokens, server: server, account: account, assetDefinitionStore: assetDefinitionStore)
-        }.then(on: .main, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
+        }.then(on: queue, { tokensToAdd -> Promise<Erc1155TokenIds.ContractsAndTokenIds> in
             tokensDatastore.addCustom(tokens: tokensToAdd, shouldUpdateBalance: false)
 
             return .value(contractsAndTokenIds)

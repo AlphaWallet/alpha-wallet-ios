@@ -48,7 +48,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         assetDefinitionStore.bodyChange
             .receive(on: RunLoop.main)
-            .compactMap { self.tokensDataStore.tokenObject(forContract: $0) }
+            .compactMap { self.tokensDataStore.token(forContract: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 

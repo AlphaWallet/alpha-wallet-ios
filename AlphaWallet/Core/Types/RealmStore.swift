@@ -20,8 +20,24 @@ final class RealmStore {
     func performSync(_ callback: (Realm) -> Void) {
         dispatchPrecondition(condition: .notOnQueue(queue))
         queue.sync { [unowned self] in
-            let realm = self.realm.threadSafe
-            callback(realm)
+            autoreleasepool {
+                let realm = self.realm.threadSafe
+                callback(realm)
+            }
+        }
+    }
+}
+
+extension Realm {
+    var threadSafe: Realm {
+         try! Realm(configuration: configuration)
+    }
+
+    public func safeWrite(_ block: (() throws -> Void)) throws {
+        if isInWriteTransaction {
+            try block()
+        } else {
+            try write(block)
         }
     }
 }
