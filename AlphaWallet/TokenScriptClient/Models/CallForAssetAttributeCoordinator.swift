@@ -51,7 +51,7 @@ class CallForAssetAttributeCoordinator {
             let contract = functionCall.contract
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            callSmartContract(withServer: functionCall.server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
+            callSmartContract(withServer: functionCall.server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments, shouldDelayIfCached: true).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .address:
