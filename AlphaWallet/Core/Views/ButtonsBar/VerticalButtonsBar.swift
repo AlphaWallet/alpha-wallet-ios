@@ -24,7 +24,16 @@ class VerticalButtonsBar: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    func hideButtonInStack(button: UIButton) {
+        stackView.removeArrangedSubview(button)
+        button.removeFromSuperview()
+    }
+
+    func showButtonInStack(button: UIButton, position: Int) {
+        stackView.insertArrangedSubview(button, at: position)
+    }
+
     // MARK: - Setup and creation
     private func setup(numberOfButtons: Int) {
         var buttonViews: [ContainerViewWithShadow<BarButton>] = [ContainerViewWithShadow<BarButton>]()
