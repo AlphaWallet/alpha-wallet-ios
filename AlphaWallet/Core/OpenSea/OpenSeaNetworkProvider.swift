@@ -112,7 +112,7 @@ final class OpenSeaNetworkProvider {
         }
 
         return performRequestWithRetry(url: url, queue: queue)
-            .then({ [weak self] json -> Promise<OpenSea.Response<[OpenSea.CollectionKey: OpenSea.Collection]>> in
+            .then(on: queue, { [weak self] json -> Promise<OpenSea.Response<[OpenSea.CollectionKey: OpenSea.Collection]>> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
                 let results = OpenSeaCollectionDecoder.decode(json: json, results: sum)
