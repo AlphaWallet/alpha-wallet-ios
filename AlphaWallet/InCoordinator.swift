@@ -23,7 +23,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private let appTracker: AppTracker
     private let analyticsCoordinator: AnalyticsCoordinator
     private let restartQueue: RestartTaskQueue
-    private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
     private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
@@ -71,7 +70,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     }()
 
     private lazy var activitiesService: ActivitiesServiceType = {
-        return ActivitiesService(config: config, sessions: sessionsSubject.value, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, queue: queue, tokensDataStore: tokensDataStore)
+        return ActivitiesService(config: config, sessions: sessionsSubject.value, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore)
     }()
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -94,7 +93,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return tabBarController
     }()
     private let accountsCoordinator: AccountsCoordinator
-    private var cancellable = Set<AnyCancellable>()
     private let sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never>
 
     var presentationNavigationController: UINavigationController {
