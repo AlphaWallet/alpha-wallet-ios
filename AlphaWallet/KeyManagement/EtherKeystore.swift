@@ -103,14 +103,14 @@ open class EtherKeystore: NSObject, Keystore {
         }
     }
 
-    var currentWallet: Wallet {
-        //Better crash now instead of populating callers with optionals
+    var currentWallet: Wallet? {
         if let wallet = recentlyUsedWallet {
             return wallet
-        } else if wallets.count == 1 {
-            return wallets.first!
+        } else if let wallet = wallets.first {
+            recentlyUsedWallet = wallet
+            return wallet
         } else {
-            fatalError("No wallet")
+            return nil
         }
     }
 

@@ -168,8 +168,8 @@ class AppCoordinator: NSObject, Coordinator {
 
         addCoordinator(walletConnectCoordinator)
 
-        if keystore.hasWallets {
-            showTransactions(for: keystore.currentWallet, animated: false)
+        if let wallet = keystore.currentWallet, keystore.hasWallets {
+            showTransactions(for: wallet, animated: false)
         } else {
             showInitialWalletCoordinator()
         }
@@ -330,8 +330,8 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
-
-        showTransactions(for: keystore.currentWallet, animated: false)
+        guard let wallet = keystore.currentWallet else { return }
+        showTransactions(for: wallet, animated: false)
     }
 }
 
@@ -345,7 +345,8 @@ extension AppCoordinator: InCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
 
-        showTransactions(for: keystore.currentWallet, animated: false)
+        guard let wallet = keystore.currentWallet else { return }
+        showTransactions(for: wallet, animated: false)
     }
 
     func showWallets(in coordinator: InCoordinator) {

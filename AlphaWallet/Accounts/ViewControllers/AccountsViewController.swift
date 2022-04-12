@@ -73,7 +73,7 @@ class AccountsViewController: UIViewController {
     }
 
     private func scrollCurrentWalletIntoView() {
-        guard let indexPath = viewModel.indexPath(for: keystore.currentWallet) else { return }
+        guard let indexPath = viewModel.activeWalletIndexPath else { return }
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
 
