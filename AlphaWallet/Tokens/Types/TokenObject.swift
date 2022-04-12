@@ -383,6 +383,20 @@ extension Wallet.functional {
     static func realm(forAccount account: Wallet) -> Realm {
         let migration = MigrationInitializer(account: account)
         migration.perform()
-        return try! Realm(configuration: migration.config)
+        
+        let realm = try! Realm(configuration: migration.config)
+
+        let realmUrl = migration.config.fileURL!
+        let realmUrls = [
+            realmUrl,
+            realmUrl.appendingPathExtension("lock"),
+            realmUrl.appendingPathExtension("note"),
+            realmUrl.appendingPathExtension("management")
+        ]
+        for each in realmUrls {
+            try? FileManager.default.setAttributes([FileAttributeKey.protectionKey: FileProtectionType.none], ofItemAtPath: each.relativePath)
+        }
+
+        return realm
     }
 }
