@@ -167,8 +167,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     }
 
     deinit {
-        //NOTE: Clear all smart contract calls
-        clearSmartContractCallsCache()
         notificationService.unregister(source: transactionNotificationService)
     }
 

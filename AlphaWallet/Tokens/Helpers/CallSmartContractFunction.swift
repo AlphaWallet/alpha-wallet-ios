@@ -12,11 +12,6 @@ fileprivate var smartContractCallsCache = ThreadSafeDictionary<String, (promise:
 fileprivate var web3s = ThreadSafeDictionary<RPCServer, [TimeInterval: web3]>()
 // swiftlint:enable private_over_fileprivate
 
-func clearSmartContractCallsCache() {
-    web3s.removeAll()
-    smartContractCallsCache.removeAll()
-}
-
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
     if let result = web3s[server]?[timeout] {
         return result
