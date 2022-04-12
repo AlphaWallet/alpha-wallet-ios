@@ -12,7 +12,7 @@ enum DappAction {
     case signTransaction(UnconfirmedTransaction)
     case sendTransaction(UnconfirmedTransaction)
     case sendRawTransaction(String)
-    case ethCall(from: String, to: String, data: String)
+    case ethCall(from: String, to: String, value: String?, data: String)
     case walletAddEthereumChain(WalletAddEthereumChainObject)
     case walletSwitchEthereumChain(WalletSwitchEthereumChainObject)
     case unknown
@@ -47,7 +47,8 @@ extension DappAction {
                 let from = command.object["from"]?.value ?? ""
                 let to = command.object["to"]?.value ?? ""
                 let data = command.object["data"]?.value ?? ""
-                return .ethCall(from: from, to: to, data: data)
+                let value: String? = command.object["value"]?.value
+                return .ethCall(from: from, to: to, value: value, data: data)
             case .unknown:
                 return .unknown
             }
