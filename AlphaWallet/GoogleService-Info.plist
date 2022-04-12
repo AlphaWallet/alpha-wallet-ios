@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>659563182697-9vhoedkqo2tcguu0ruq9961f0ks5ns4h.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.659563182697-9vhoedkqo2tcguu0ruq9961f0ks5ns4h</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAY_ZZhfFv3sJU8Wii2wbaqaMYg8-siBMI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>659563182697</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.stormbird.alphawallet</string>
+	<key>PROJECT_ID</key>
+	<string>alphawallet-668d1</string>
+	<key>STORAGE_BUCKET</key>
+	<string>alphawallet-668d1.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:659563182697:ios:6c3d5ed76672b8bf03c0f8</string>
+</dict>
+</plist>

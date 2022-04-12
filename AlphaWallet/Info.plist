@@ -58,10 +58,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleURLName</key>
-			<string></string>
 			<key>CFBundleTypeRole</key>
 			<string>WalletConnect Links</string>
+			<key>CFBundleURLName</key>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>wc</string>
@@ -90,16 +90,20 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>$(ALPHAWALLET_PRODUCT_NAME) uses the camera to scan QR codes</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>$(ALPHAWALLET_PRODUCT_NAME) might capture audio if a website needs to perform KYC (with your permission)</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Access your wallet</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location data may be accessed when you are using the in-app browser and tap on a link to retrieve your current location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>$(ALPHAWALLET_PRODUCT_NAME) might capture audio if a website needs to perform KYC (with your permission)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Sending QR Code to your contacts</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Sending QR Code to your contacts</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>com.alphawallet.ethereum-wallet-qr-code</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SourceSansPro-Black.otf</string>
@@ -183,9 +187,5 @@
 	</array>
 	<key>com.apple.security.get-task-allow</key>
 	<true/>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>com.alphawallet.ethereum-wallet-qr-code</string>
-	</array>
 </dict>
 </plist>

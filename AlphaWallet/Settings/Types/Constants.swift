@@ -215,4 +215,9 @@ public struct Constants {
     static let fetchContractDataTimeout = TimeInterval(4)
 
     static let refreshTokensThresholdSec: Int = 1
+
+    static let googleServiceInfoPlistContent: String? = {
+        return Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist")
+    }()
+
 }
