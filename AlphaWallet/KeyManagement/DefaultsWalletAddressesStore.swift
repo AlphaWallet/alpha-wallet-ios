@@ -34,6 +34,15 @@ struct DefaultsWalletAddressesStore: WalletAddressesStore {
         self.userDefaults = userDefaults
     }
 
+    var recentlyUsedWallet: Wallet? {
+        get {
+            return nil
+        }
+        set {
+            //no-op
+        }
+    }
+
     var wallets: [Wallet] {
         let watchAddresses = self.watchAddresses.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
         let addressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real($0)) }
