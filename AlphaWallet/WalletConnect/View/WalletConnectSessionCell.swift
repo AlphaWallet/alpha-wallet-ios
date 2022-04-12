@@ -74,6 +74,5 @@ class WalletConnectSessionCell: UITableViewCell {
         nameLabel.attributedText = viewModel.sessionNameAttributedString
         urlLabel.attributedText = viewModel.sessionURLAttributedString
         iconImageView.setImage(url: viewModel.sessionIconURL, placeholder: R.image.walletConnectIcon())
-//        serverIconImageView.subscribable = viewModel.serverIconImage
     }
 }

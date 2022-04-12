@@ -45,13 +45,10 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         sessions.anyValue.account
     }
 
-    private let queue: DispatchQueue
-
+    private let queue: DispatchQueue = DispatchQueue(label: "com.Background.updateQueue", qos: .userInitiated)
     private let activitiesFilterStrategy: ActivitiesFilterStrategy
-    private var filteredTransactionsSubscriptionKey: Subscribable<[TransactionInstance]>.SubscribableKey!
     private let transactionDataStore: TransactionDataStore
     private let transactionsFilterStrategy: TransactionsFilterStrategy
-
     private typealias ContractsAndCards = [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]
     private typealias ActivityTokenObjectTokenHolder = (activity: Activity, tokenObject: Activity.AssignedToken, tokenHolder: TokenHolder)
     private typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)]
@@ -60,6 +57,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     //Cache tokens lookup for performance
     private var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
     private let activitiesThreadSafeQueue = DispatchQueue(label: "ActivitiesSynchronizedAccessQueue", qos: .background)
+
     private var cancelable = Set<AnyCancellable>()
 
     init(
@@ -71,10 +69,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         transactionDataStore: TransactionDataStore,
         activitiesFilterStrategy: ActivitiesFilterStrategy = .none,
         transactionsFilterStrategy: TransactionsFilterStrategy = .all,
-        queue: DispatchQueue,
         tokensDataStore: TokensDataStore
     ) {
-        self.queue = queue
         self.config = config
         self.sessions = sessions
         self.assetDefinitionStore = assetDefinitionStore
@@ -102,7 +98,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType {
-        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, queue: queue, tokensDataStore: tokensDataStore)
+        return ActivitiesService(config: config, sessions: sessions, assetDefinitionStore: assetDefinitionStore, eventsActivityDataStore: eventsActivityDataStore, eventsDataStore: eventsDataStore, transactionDataStore: transactionDataStore, activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: transactionsFilterStrategy, tokensDataStore: tokensDataStore)
     }
 
     func stop() {
