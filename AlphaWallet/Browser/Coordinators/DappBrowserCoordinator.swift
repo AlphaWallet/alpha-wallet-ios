@@ -165,8 +165,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         coordinator.start(fromSource: .browser)
     }
 
-    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, data: String, server: RPCServer) {
-        let request = EthCallRequest(from: from, to: to, data: data)
+    private func ethCall(callbackID: Int, from: AlphaWallet.Address?, to: AlphaWallet.Address?, value: String?, data: String, server: RPCServer) {
+        let request = EthCallRequest(from: from, to: to, value: value, data: data)
         firstly {
             Session.send(EtherServiceRequest(server: server, batch: BatchFactory().create(request)))
         }.done { result in
@@ -490,11 +490,11 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
                 signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
             case .signTypedMessageV3(let typedData):
                 signMessage(with: .eip712v3And4(typedData), account: account, callbackID: callbackID)
-            case .ethCall(from: let from, to: let to, data: let data):
+            case .ethCall(from: let from, to: let to, value: let value, data: let data):
                 //Must use unchecked form for `Address `because `from` and `to` might be 0x0..0. We assume the dapp author knows what they are doing
                 let from = AlphaWallet.Address(uncheckedAgainstNullAddress: from)
                 let to = AlphaWallet.Address(uncheckedAgainstNullAddress: to)
-                ethCall(callbackID: callbackID, from: from, to: to, data: data, server: server)
+                ethCall(callbackID: callbackID, from: from, to: to, value: value, data: data, server: server)
             case .walletAddEthereumChain(let customChain):
                 addCustomChain(callbackID: callbackID, customChain: customChain, inViewController: viewController)
             case .walletSwitchEthereumChain(let targetChain):

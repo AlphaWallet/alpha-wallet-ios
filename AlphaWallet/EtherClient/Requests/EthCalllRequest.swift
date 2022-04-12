@@ -8,6 +8,7 @@ struct EthCallRequest: JSONRPCKit.Request {
 
     let from: AlphaWallet.Address?
     let to: AlphaWallet.Address?
+    let value: String?
     let data: String
 
     var method: String {
@@ -24,6 +25,9 @@ struct EthCallRequest: JSONRPCKit.Request {
         }
         if let from = from {
             payload["from"] = from.eip55String
+        }
+        if let value = value {
+            payload["value"] = value
         }
         let results: [Any] = [
             payload,
