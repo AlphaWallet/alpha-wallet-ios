@@ -15,7 +15,7 @@ protocol TokensFromTransactionsFetcherDelegate: AnyObject {
 final class TokensFromTransactionsFetcher {
     private let tokensDataStore: TokensDataStore
     private let session: WalletSession
-    private lazy var tokenProvider: TokenProviderType = TokenProvider(account: session.account, server: session.server)
+    
     weak var delegate: TokensFromTransactionsFetcherDelegate?
 
     init(tokensDataStore: TokensDataStore, session: WalletSession) {
@@ -62,7 +62,7 @@ final class TokensFromTransactionsFetcher {
 
         //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
         let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
-        let tokenTypePromises = contracts.map { tokenProvider.getTokenType(for: $0) }
+        let tokenTypePromises = contracts.map { session.tokenProvider.getTokenType(for: $0) }
 
         return when(fulfilled: tokenTypePromises)
             .map { tokenTypes in
