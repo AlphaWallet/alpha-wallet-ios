@@ -49,19 +49,7 @@ enum TokenUpdateAction {
         for each in servers {
             addEthToken(forServer: each)
         }
-    }
-
-    static func deleteAll(realm: Realm, config: Config) {
-        MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers).deleteAll()
-    }
-
-    func deleteAll() {
-        store.performSync { realm in
-            try? realm.safeWrite {
-                realm.delete(realm.objects(TokenObject.self))
-            }
-        }
-    }
+    } 
 
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[TokenObject]>, Never>!
