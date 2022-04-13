@@ -28,6 +28,11 @@ class Erc875NonFungibleRowView: TokenCardViewType {
         let imageView = WebImageView()
         return imageView
     }()
+
+    override var contentMode: UIView.ContentMode {
+        didSet { thumbnailImageView.contentMode = contentMode }
+    }
+
     private var imageSmallSizeContraints: [NSLayoutConstraint] = []
     private var imageLargeSizeContraints: [NSLayoutConstraint] = []
 
@@ -72,7 +77,7 @@ class Erc875NonFungibleRowView: TokenCardViewType {
         switch layout {
         case .list:
             _constraints = imageSmallSizeContraints
-
+            contentMode = .scaleAspectFit
             borderWidth = 0
             cornerRadius = 0
             col1.alignment = .fill
@@ -86,6 +91,7 @@ class Erc875NonFungibleRowView: TokenCardViewType {
             addSubview(stackView)
             _constraints = imageSmallSizeContraints + stackView.anchorsConstraint(to: self, edgeInsets: listEdgeInsets)
         case .grid:
+            contentMode = .scaleAspectFill
             borderWidth = 1
             cornerRadius = Metrics.CornerRadius.nftBox
             col1.alignment = .center

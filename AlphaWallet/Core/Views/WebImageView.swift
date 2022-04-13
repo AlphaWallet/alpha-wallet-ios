@@ -2,6 +2,7 @@
 
 import UIKit
 import WebKit
+import Kingfisher
 
 enum WebImageViewImage: Hashable, Equatable {
     case url(WebImageURL)
@@ -28,303 +29,151 @@ enum WebImageViewImage: Hashable, Equatable {
     }
 }
 
-//TODO should we be downloading and caching images ourselves and then displaying HTML with the image data embedded?
-class WebImageView: UIView {
-
-    enum WebImageError: Error {
-        case loadURL(url: URL)
-        case invalidURL
+final class FixedContentModeImageView: UIImageView {
+    var fixedContentMode: UIView.ContentMode {
+        didSet { self.layoutSubviews() }
     }
 
-    private lazy var webView: _WebImageView = {
-        let webView = _WebImageView(scale: scale, align: align)
-        return webView
-    }()
-
-    private let imageView: UIImageView = {
-        let v = UIImageView()
-        v.backgroundColor = .clear
-        v.contentMode = .scaleAspectFill
-        v.clipsToBounds = true
-        v.translatesAutoresizingMaskIntoConstraints = false
-
-        return v
-    }()
-
-    func setImage(image: UIImage) {
-        setImage(rawUIImage: image)
-    }
-
-    func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
-        self.placeholder = placeholder
-
-        if let url = url {
-            setWebViewURL(url: url)
-        } else if let placeholder = self.placeholder {
-            setImage(rawUIImage: placeholder)
-        } else {
-            setWebViewURL(url: url)
-        }
-    }
-
-    private func setImage(rawUIImage image: UIImage) {
-        imageView.image = image
-
-        setIsLoadingImageFromURL(false)
-    }
-
-    private func setIsLoadingImageFromURL(_ value: Bool) {
-        imageView.isHidden = value
-        webView.isHidden = !imageView.isHidden
-    }
-
-    private var placeholder: UIImage?
-    private let scale: WebImageView.Scale
-    private let align: WebImageView.Align
-
-    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge(), scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
-        self.placeholder = placeholder
-        self.scale = scale
-        self.align = align
+    init(fixedContentMode contentMode: UIView.ContentMode) {
+        self.fixedContentMode = contentMode
         super.init(frame: .zero)
-
-        addSubview(webView)
-        addSubview(imageView)
-
-        NSLayoutConstraint.activate([
-            webView.anchorsConstraint(to: self),
-            imageView.anchorsConstraint(to: self)
-        ])
-
-        setWebViewURL(url: nil)
-    }
-
-    private func setWebViewURL(url: WebImageURL?) {
-        func resetToDisplayPlaceholder() {
-            imageView.image = placeholder
-            setIsLoadingImageFromURL(false)
-        }
-
-        func loadHtmlForImage(url: String) {
-            webView.setImage(url: url, handlePageEventClosure: { [weak self] action in
-                switch action {
-                case .pageDidLoad:
-                    break
-                case .imageDidLoad, .imageAlreadyLoaded:
-                    self?.imageView.image = nil
-                    self?.setIsLoadingImageFromURL(true)
-                case .imageLoadFailure:
-                    resetToDisplayPlaceholder()
-                    verboseLog("Loading token icon URL: \(url) error")
-                }
-            })
-        }
-
-        guard let imageURL = url.flatMap({ $0.absoluteString }) else {
-            return resetToDisplayPlaceholder()
-        }
-
-        loadHtmlForImage(url: imageURL)
-    }
-
-    deinit {
-        webView.invalidate()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-extension WebImageView {
-    enum Align: String {
-        case left = "left"
-        case right = "right"
-        case center = "center"
-        case top = "top"
-        case bottom = "bottom"
-        case topLeft = "top-left"
-        case topRight = "top-right"
-        case bottomLeft = "bottom-left"
-        case bottomRight = "bottom-right"
-    }
-
-    enum Scale: String {
-        case fill = "fill"
-        case bestFill = "best-fill"
-        case bestFit = "best-fit"
-        case bestFitDown = "best-fit-down"
-        case none = "none"
-    }
-}
-
-private class _WebImageView: UIView {
-    private static let folder = "WebImage"
-
-    enum WebImageError: Error {
-        case loadURL(url: URL)
-        case invalidURL
-    }
-
-    private lazy var webView: WKWebView = {
-        let webView = WKWebView()
-        webView.scrollView.isScrollEnabled = false
-        webView.isUserInteractionEnabled = false
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        webView.contentMode = .scaleToFill
-        webView.autoresizesSubviews = true
-
-        return webView
-    }()
-
-    private var frameObservation: NSKeyValueObservation?
-    private var privateHandlePageEventClosure: ((WebPageAction) -> Void)?
-    private var handlePageEventClosure: ((WebPageAction) -> Void)?
-    private var pageDidLoad: Bool = false
-    private var pendingToLoadURL: String?
-
-    init(scale: WebImageView.Scale = .bestFitDown, align: WebImageView.Align = .center) {
-        super.init(frame: .zero)
-
-        webView.configuration.userContentController.add(ScriptMessageProxy(delegate: self), name: "WebImage")
-
-        translatesAutoresizingMaskIntoConstraints = false
-        addSubview(webView)
-
-        NSLayoutConstraint.activate([
-            webView.anchorsConstraint(to: self)
-        ])
-
-        func loadHtmlForImage() {
-            let resourceURL = Bundle.main.resourceURL?.appendingPathComponent(_WebImageView.folder)
-            let html = generateBaseHtmlPage(scale: scale, align: align)
-            webView.loadHTMLString(html, baseURL: resourceURL)
-        }
-
-        privateHandlePageEventClosure = { [weak self] action in
-            guard let strongSelf = self else { return }
-
-            switch action {
-            case .pageDidLoad:
-                guard !strongSelf.pageDidLoad else { return }
-                strongSelf.pageDidLoad = true
-
-                strongSelf.subscribeForFrameChange(completion: {
-                    if let url = strongSelf.pendingToLoadURL {
-                        strongSelf.pendingToLoadURL = .none
-
-                        strongSelf.loadImageFor(url: url)
-                    }
-                })
-            case .imageLoadFailure, .imageDidLoad, .imageAlreadyLoaded:
-                break
-            }
-            strongSelf.handlePageEventClosure?(action)
-        }
-
-        loadHtmlForImage()
-    }
-
-    func setImage(url: String, handlePageEventClosure: @escaping (WebPageAction) -> Void) {
-        self.handlePageEventClosure = handlePageEventClosure
-
-        guard pageDidLoad else {
-            pendingToLoadURL = url
-            return
-        }
-
-        loadImageFor(url: url)
-    }
-
-    private func loadImageFor(url: String) {
-        let js = """
-            setImage("\(url)");
-         """
-
-        execute(script: js)
-    }
-
-    private func subscribeForFrameChange(completion: @escaping () -> Void) {
-        frameObservation.flatMap { $0.invalidate() }
-
-        frameObservation = observe(\.bounds, options: [.new, .initial]) { [weak self] observer, _ in
-            guard let strongSelf = self else { return }
-
-            let size = observer.frame.size
-            guard size.width != 0 && size.height != 0 else { return }
-
-            let js = """
-                document.getElementById("container").style.width = '\((size.width).rounded(.up))px';
-                document.getElementById("container").style.height = '\((size.height).rounded(.up))px';
-             """
-
-            strongSelf.execute(script: js, completion: { _ in
-                completion()
-            })
-        }
     }
 
     required init?(coder: NSCoder) {
         return nil
     }
 
-    func invalidate() {
-        webView.stopLoading()
-        webView.configuration.userContentController.removeScriptMessageHandler(forName: "WebImage")
-        frameObservation.flatMap { $0.invalidate() }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        contentMode = fixedContentMode
+        layer.masksToBounds = true
+        clipsToBounds = true
+    }
+}
+
+final class WebImageView: UIView {
+
+    private lazy var imageView: FixedContentModeImageView = {
+        let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = Colors.appBackground
+
+        return imageView
+    }()
+
+    private lazy var webView: WKWebView = {
+        let webView = WKWebView()
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.isUserInteractionEnabled = false
+
+        return webView
+    }()
+
+    override var contentMode: UIView.ContentMode {
+        didSet { imageView.fixedContentMode = contentMode }
     }
 
-    private func generateBaseHtmlPage(scale: WebImageView.Scale, align: WebImageView.Align) -> String {
-        guard let filePath = Bundle.main.path(forResource: "web_image", ofType: "html", inDirectory: _WebImageView.folder) else { return "" }
-        guard var html = try? String(contentsOfFile: filePath, encoding: .utf8) else { return "" }
-        html = html.replacingOccurrences(of: "<scale>", with: scale.rawValue)
-        html = html.replacingOccurrences(of: "<align>", with: align.rawValue)
+    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        isUserInteractionEnabled = false
+        clipsToBounds = true
 
-        return html
+        addSubview(imageView)
+        addSubview(webView)
+
+        NSLayoutConstraint.activate([
+            webView.anchorsConstraint(to: self),
+            imageView.anchorsConstraint(to: self)
+        ])
     }
 
-    private func execute(script: String, completion: @escaping (Error?) -> Void = { _ in }) {
-        webView.evaluateJavaScript(script) { (_, error: Error?) in
-            completion(error)
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setImage(image: UIImage) {
+        webView.alpha = 0
+        imageView.image = image
+    }
+    private var pendingLoadWebViewOperation: BlockOperation?
+
+    func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+        guard let url = url?.url else {
+            webView.alpha = 0
+            imageView.image = placeholder
+            return
+        }
+
+        if url.pathExtension == "svg" {
+            imageView.image = nil
+
+            if let data = try? ImageCache.default.diskStorage.value(forKey: url.absoluteString), let svgString = data.flatMap({ String(data: $0, encoding: .utf8) }) {
+                webView.alpha = 1
+                webView.loadHTMLString(html(svgString: svgString), baseURL: nil)
+            } else {
+                webView.alpha = 0
+
+                DispatchQueue.global(qos: .utility).async {
+                    if let data = try? Data(contentsOf: url), let svgString = String(data: data, encoding: .utf8) {
+                        if let op = self.pendingLoadWebViewOperation {
+                            op.cancel()
+                        }
+
+                        let op = BlockOperation {
+                            self.webView.loadHTMLString(self.html(svgString: svgString), baseURL: nil)
+                            self.webView.alpha = 1
+                            UIView.animate(withDuration: 0.1) { self.webView.alpha = 1 }
+                        }
+                        self.pendingLoadWebViewOperation = op
+
+                        OperationQueue.main.addOperations([op], waitUntilFinished: false)
+
+                        try? ImageCache.default.diskStorage.store(value: data, forKey: url.absoluteString)
+                    }
+                }
+            }
+        } else {
+            webView.alpha = 0
+
+            imageView.kf.setImage(with: url, placeholder: placeholder, options: [
+                .transition(.fade(0.1)),
+                .backgroundDecode,
+            ])
         }
     }
 }
 
-extension _WebImageView: WKScriptMessageHandler {
+extension WebImageView {
 
-    enum WebPageAction {
-        private static let loadImageFailureKey = "loadImageFailure"
-        private static let loadImageSucceedKey = "loadImageSucceed"
-        private static let pageDidLoadKey = "pageDidLoad"
-
-        case imageDidLoad(url: URL)
-        case imageLoadFailure(url: URL)
-        case pageDidLoad
-        case imageAlreadyLoaded
-
-        init?(string: String) {
-            let components = string.components(separatedBy: " aw_separator ")
-
-            if components[0] == WebPageAction.loadImageSucceedKey {
-                guard components.count == 2 else { return nil }
-                guard let url = URL(string: components[1]) else { return nil }
-
-                self = .imageDidLoad(url: url)
-            } else if components[0] == WebPageAction.loadImageFailureKey {
-                guard components.count == 2 else { return nil }
-                guard let url = URL(string: components[1]) else { return nil }
-
-                self = .imageLoadFailure(url: url)
-            } else if components[0] == WebPageAction.pageDidLoadKey {
-                self = .pageDidLoad
-            } else {
-                return nil
-            }
-        }
-    }
-
-    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let action = (message.body as? String).flatMap({ WebPageAction(string: $0) }) else { return }
-        privateHandlePageEventClosure?(action)
+    func html(svgString: String) -> String {
+        """
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                <title></title>
+                <style type="text/css">
+                    body {
+                        height: 100%;
+                        width: 100%;
+                        position: absolute;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    svg {
+                        /*height: 100%;*/
+                        width: 100%;
+                    }
+                </style>
+            </head>
+            <body>
+                \(svgString)
+            </body>
+        </html>
+        """
     }
 }

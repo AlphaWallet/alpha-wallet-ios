@@ -19,7 +19,12 @@ protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
 class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private (set) var viewModel: NonFungibleTokenViewModel
-    private let bigImageView = WebImageView()
+    private let bigImageView: WebImageView = {
+        let imageView = WebImageView()
+        imageView.contentMode = .scaleAspectFit
+
+        return imageView
+    }()
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))
     private lazy var containerView: ScrollableStackView = ScrollableStackView()
     private let mode: TokenInstanceViewMode

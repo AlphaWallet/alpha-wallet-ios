@@ -20,12 +20,12 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     }
 
     private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView(scale: .bestFitDown)
+        let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
         imageView.isRoundingEnabled = false
         imageView.isChainOverlayHidden = true
-        
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 

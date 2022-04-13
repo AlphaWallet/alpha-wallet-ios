@@ -320,7 +320,6 @@
 		5E7C7273B231AD10F5DD80B1 /* ActivitiesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EEA3015F451B066D78D /* ActivitiesViewModel.swift */; };
 		5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C794F8EBAEE5E8F2821C2 /* MarketplaceViewController.swift */; };
 		5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */; };
-		5E7C729FA0EC60113B031391 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C772DC28C5110021894E3 /* ImageCache.swift */; };
 		5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */; };
 		5E7C72AF95DCE8BC65490BCA /* StatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */; };
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
@@ -925,7 +924,6 @@
 		87A5D53E26B9767300856995 /* QuickSwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A5D53D26B9767300856995 /* QuickSwap.swift */; };
 		87AA56DF270F1B6E00A9EE3F /* config.js in Resources */ = {isa = PBXBuildFile; fileRef = 87AA56DE270F1B6E00A9EE3F /* config.js */; };
 		87AA5DCC27303C89000A2DEA /* EnjinOauth.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87AA5DCB27303C89000A2DEA /* EnjinOauth.graphql */; };
-		87AB4251276755400099DF9F /* WebImage in Resources */ = {isa = PBXBuildFile; fileRef = 87AB4250276755400099DF9F /* WebImage */; };
 		87AB425D2767A2C00099DF9F /* TokenScriptCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AB425C2767A2C00099DF9F /* TokenScriptCoordinator.swift */; };
 		87AE2736273D701A00E184D4 /* WalletConnectV2Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */; };
 		87B651F7256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */; };
@@ -1531,7 +1529,6 @@
 		5E7C7716E500124CA910FB2C /* AssetDefinitionStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionStore.swift; sourceTree = "<group>"; };
 		5E7C771FE9E98CDEBB012C28 /* EthereumSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumSigner.swift; sourceTree = "<group>"; };
 		5E7C7721E0E4D4EFDD35E196 /* ScanQRCodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanQRCodeCoordinator.swift; sourceTree = "<group>"; };
-		5E7C772DC28C5110021894E3 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TokensCardViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C775FD95FE80B0F1CEA33 /* TokenAdaptorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenAdaptorTest.swift; sourceTree = "<group>"; };
@@ -2041,7 +2038,6 @@
 		87A5D53D26B9767300856995 /* QuickSwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSwap.swift; sourceTree = "<group>"; };
 		87AA56DE270F1B6E00A9EE3F /* config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		87AA5DCB27303C89000A2DEA /* EnjinOauth.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinOauth.graphql; sourceTree = "<group>"; };
-		87AB4250276755400099DF9F /* WebImage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebImage; sourceTree = "<group>"; };
 		87AB425C2767A2C00099DF9F /* TokenScriptCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScriptCoordinator.swift; sourceTree = "<group>"; };
 		87AE2735273D701A00E184D4 /* WalletConnectV2Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Types.swift; sourceTree = "<group>"; };
 		87B651F6256D4BFE000EF927 /* ClaimPaidOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimPaidOrderCoordinator.swift; sourceTree = "<group>"; };
@@ -2350,7 +2346,6 @@
 			isa = PBXGroup;
 			children = (
 				87FBF2B628056B8E00616B7D /* GoogleService-Info.plist */,
-				87AB4250276755400099DF9F /* WebImage */,
 				87741F1B2770C3AD007F4604 /* WhereAreMyTokens */,
 				87D5BBD82727D9B20053E6D2 /* API.swift */,
 				87D5BBCA2727D2910053E6D2 /* schema.json */,
@@ -3427,7 +3422,6 @@
 				CCCD74FF1FD2D95F004A087D /* Coordinators */,
 				2931120E1FC4ADBE00966EEA /* ViewModels */,
 				29FC9BC41F830880000209CD /* Initializers */,
-				5E7C772DC28C5110021894E3 /* ImageCache.swift */,
 				5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */,
 				5E7C799E4784815CB0202820 /* Core.swift */,
 				5E7C7543079DF1C7CA998A2D /* Views */,
@@ -5545,7 +5539,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
-				87AB4251276755400099DF9F /* WebImage in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
 				87B93B142726C79400F6EA73 /* helpers.js in Resources */,
 				C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */,
@@ -6413,7 +6406,6 @@
 				5E7C773E3E3BBEB65C51DF2A /* UIStackView.swift in Sources */,
 				5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */,
 				873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */,
-				5E7C729FA0EC60113B031391 /* ImageCache.swift in Sources */,
 				5E7C74438E1FBF28ADFAFAD1 /* BaseTokenCardTableViewCellViewModel.swift in Sources */,
 				87CA8495253DDFF200BF8443 /* TransitionButton.swift in Sources */,
 				8762002C266E150B0059B05A /* WalletTokenViewCellViewModel.swift in Sources */,
