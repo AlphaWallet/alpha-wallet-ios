@@ -17,7 +17,6 @@ protocol BrowserViewControllerDelegate: AnyObject {
 final class BrowserViewController: UIViewController {
     static let locationChangedEventName = "locationChanged"
 
-    private var myContext = 0
     private let account: Wallet
     private let server: RPCServer
 
