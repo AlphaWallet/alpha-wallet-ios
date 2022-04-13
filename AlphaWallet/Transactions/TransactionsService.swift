@@ -55,6 +55,10 @@ class TransactionsService {
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
+    deinit {
+        fetchLatestTransactionsQueue.cancelAllOperations()
+    }
+
     private func setupSingleChainTransactionProviders() {
         providers = sessions.values.map { each in
             let providerType = each.server.transactionProviderType

@@ -11,13 +11,11 @@ import PromiseKit
 protocol AutoDetectTokensOperationDelegate: class {
     var isAutoDetectingTokens: Bool { get set }
 
-    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<Void>
+    func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], server: RPCServer) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]>
 }
 
-class AutoDetectTokensOperation: Operation {
-    private let wallet: AlphaWallet.Address
+final class AutoDetectTokensOperation: Operation {
     private let tokens: [(name: String, contract: AlphaWallet.Address)]
-    private let server: RPCServer
 
     weak private var delegate: AutoDetectTokensOperationDelegate?
     override var isExecuting: Bool {
@@ -29,20 +27,22 @@ class AutoDetectTokensOperation: Operation {
     override var isAsynchronous: Bool {
         return true
     }
-
-    init(forServer server: RPCServer, delegate: AutoDetectTokensOperationDelegate, wallet: AlphaWallet.Address, tokens: [(name: String, contract: AlphaWallet.Address)]) {
+    private let session: WalletSession
+    private let tokensDataStore: TokensDataStore
+    
+    init(session: WalletSession, tokensDataStore: TokensDataStore, delegate: AutoDetectTokensOperationDelegate, tokens: [(name: String, contract: AlphaWallet.Address)]) {
         self.delegate = delegate
-        self.wallet = wallet
+        self.session = session
         self.tokens = tokens
-        self.server = server
+        self.tokensDataStore = tokensDataStore
         super.init()
-        self.queuePriority = server.networkRequestsQueuePriority
+        self.queuePriority = session.server.networkRequestsQueuePriority
     } 
 
     override func main() {
         guard let strongDelegate = delegate else { return }
 
-        strongDelegate.autoDetectTokensImpl(withContracts: tokens, server: server).done { [weak self] in
+        strongDelegate.autoDetectTokensImpl(withContracts: tokens, server: session.server).done { [weak self] values in
             guard let strongSelf = self else { return }
 
             strongSelf.willChangeValue(forKey: "isExecuting")
@@ -50,6 +50,9 @@ class AutoDetectTokensOperation: Operation {
             strongDelegate.isAutoDetectingTokens = false
             strongSelf.didChangeValue(forKey: "isExecuting")
             strongSelf.didChangeValue(forKey: "isFinished")
+
+            guard !strongSelf.isCancelled else { return }
+            strongSelf.tokensDataStore.addTokenObjects(values: values)
         }.cauterize()
-    }
+    } 
 }

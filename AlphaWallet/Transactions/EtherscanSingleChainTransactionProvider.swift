@@ -46,7 +46,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             autoDetectERC20Transactions()
             autoDetectErc721Transactions()
         }
-    }
+    } 
 
     func stopTimers() {
         timer?.invalidate()
@@ -282,7 +282,9 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
             firstly {
                 EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, queue: coordinator.queue)
-            }.done { transactions in
+            }.done { [weak self] transactions in
+                guard let strongSelf = self else { return }
+                guard !strongSelf.isCancelled else { return }
                 coordinator.addOrUpdate(transactions: transactions)
             }.catch { e in
                 error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
@@ -297,7 +299,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                 strongSelf.didChangeValue(forKey: "isExecuting")
                 strongSelf.didChangeValue(forKey: "isFinished")
             }
-        }
+        } 
     }
 }
 
