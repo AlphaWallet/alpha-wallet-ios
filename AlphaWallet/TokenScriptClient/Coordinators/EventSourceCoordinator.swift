@@ -142,44 +142,41 @@ extension EventSourceCoordinator.functional {
         if config.development.isAutoFetchingDisabled {
             return Promise { _ in }
         }
-
-        //Important to not access `token` in the queue or another thread. Do it outside
-        //TODO better to pass in a non-Realm representation of the TokenObject instead
-        let contractAddress = token.contractAddress
-        let tokenServer = token.server
         let (promise, seal) = Promise<Void>.pending()
-        let (filterName, filterValue) = eventOrigin.eventFilter
-        let filterParam = eventOrigin
-            .parameters
-            .filter { $0.isIndexed }
-            .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
-        eventsDataStore
-            .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: contractAddress, server: tokenServer, eventName: eventOrigin.eventName)
-            .map(on: queue, { oldEvent -> EventFilter in
-                let fromBlock: EventFilter.Block
-                if let newestEvent = oldEvent {
-                    fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
-                } else {
-                    fromBlock = .blockNumber(0)
-                }
-                let addresses = [EthereumAddress(address: eventOrigin.contract)]
-                let parameterFilters = filterParam.map { $0?.filter }
+        queue.async {
+            let (filterName, filterValue) = eventOrigin.eventFilter
+            let filterParam = eventOrigin
+                .parameters
+                .filter { $0.isIndexed }
+                .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
-                return EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
-            }).then(on: queue, { eventFilter in
-                getEventLogs(withServer: tokenServer, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-            }).map(on: queue, { result -> [EventInstanceValue] in
-                result.compactMap {
-                    Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: contractAddress, server: tokenServer)
+            let oldEvent = eventsDataStore
+                .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+            let fromBlock: EventFilter.Block
+            if let newestEvent = oldEvent {
+                fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
+            } else {
+                fromBlock = .blockNumber(0)
+            }
+            let addresses = [EthereumAddress(address: eventOrigin.contract)]
+            let parameterFilters = filterParam.map { $0?.filter }
+
+            let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
+
+            getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+            .done(on: queue, { result in
+                let events = result.compactMap {
+                    Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
                 }
-            }).done(on: .main, { events in
+
                 eventsDataStore.add(events: events)
                 seal.fulfill(())
             }).catch(on: queue, { e in
-                error(value: e, rpcServer: tokenServer, address: contractAddress)
+                error(value: e, rpcServer: token.server, address: token.contractAddress)
                 seal.reject(e)
             })
+        }
 
         return promise
     }

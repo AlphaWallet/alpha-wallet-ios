@@ -2,22 +2,21 @@
 
 import Foundation
 import RealmSwift 
-import Combine
-import PromiseKit
+import Combine 
 
 protocol NonActivityEventsDataStore {
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?>
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstance?
     func add(events: [EventInstanceValue])
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance?
-    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never>
+    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<ChangeSet<[EventInstance]>, Never>
 }
 
 class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
-    private let realm: Realm
+    private let store: RealmStore
 
     init(realm: Realm) {
-        self.realm = realm
+        self.store = RealmStore(realm: realm)
     }
 
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {
@@ -25,56 +24,74 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
             .functional
             .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
 
-        return realm.objects(EventInstance.self)
-            .filter(predicate)
-            .first
+        var event: EventInstance?
+        store.performSync { realm in
+            event = realm.objects(EventInstance.self)
+                .filter(predicate)
+                .freeze()
+                .first
+        }
+        return event
     }
 
     func deleteEvents(forTokenContract contract: AlphaWallet.Address) {
-        let events = realm.objects(EventInstance.self)
-            .filter("tokenContract = '\(contract.eip55String)'")
-        delete(events: events)
-    }
-
-    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<RealmCollectionChange<Results<EventInstance>>, Never> {
-        return realm.objects(EventInstance.self)
-            .filter("tokenContract = '\(tokenContract.eip55String)'")
-            .changesetPublisher
-            .eraseToAnyPublisher()
-    }
-
-    private func delete<S: Sequence>(events: S) where S.Element: EventInstance {
-        try? realm.write {
-            realm.delete(events)
-        }
-    }
-
-    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Promise<EventInstanceValue?> {
-        return Promise { seal in
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let predicate = NonActivityMultiChainEventsDataStore
-                    .functional
-                    .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName)
-
-                let event = Array(strongSelf.realm.objects(EventInstance.self)
-                    .filter(predicate)
-                    .sorted(byKeyPath: "blockNumber"))
-                    .map { EventInstanceValue(event: $0) }
-                    .last
-
-                seal.fulfill(event)
+        store.performSync { realm in
+            try? realm.safeWrite {
+                let events = realm.objects(EventInstance.self)
+                    .filter("tokenContract = '\(contract.eip55String)'")
+                realm.delete(events)
             }
         }
+    }
+
+    func recentEvents(forTokenContract tokenContract: AlphaWallet.Address) -> AnyPublisher<ChangeSet<[EventInstance]>, Never> {
+        var publisher: AnyPublisher<ChangeSet<[EventInstance]>, Never>!
+        store.performSync { realm in
+            publisher = realm.objects(EventInstance.self)
+                .filter("tokenContract = '\(tokenContract.eip55String)'")
+                .changesetPublisher
+                .map { change in
+                    switch change {
+                    case .initial(let eventActivities):
+                        return .initial(Array(eventActivities.map { $0.freeze() }))
+                    case .update(let eventActivities, let deletions, let insertions, let modifications):
+                        return .update(Array(eventActivities.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                    case .error(let error):
+                        return .error(error)
+                    }
+                }
+                .eraseToAnyPublisher()
+        }
+
+        return publisher
+    }
+
+    func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstance? {
+        let predicate = NonActivityMultiChainEventsDataStore
+            .functional
+            .matchingEventPredicate(forContract: contract, tokenContract: tokenContract, server: server, eventName: eventName)
+
+        var event: EventInstance?
+        store.performSync { realm in
+            event = realm.objects(EventInstance.self)
+                .filter(predicate)
+                .sorted(byKeyPath: "blockNumber")
+                .freeze()
+                .last
+        }
+
+        return event
     }
 
     func add(events: [EventInstanceValue]) {
         guard !events.isEmpty else { return }
         let eventsToSave = events.map { EventInstance(event: $0) }
 
-        realm.beginWrite()
-        realm.add(eventsToSave, update: .all)
-        try? realm.commitWrite()
+        store.performSync { realm in
+            try? realm.safeWrite {
+                realm.add(eventsToSave, update: .all)
+            }
+        }
     }
 }
 
