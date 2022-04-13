@@ -187,7 +187,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     }
 
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
-        let controller = AdvancedSettingsViewController(keystore: keystore, config: config)
+        let controller = AdvancedSettingsViewController(wallet: account, config: config)
         controller.delegate = self
         controller.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(controller, animated: true)
@@ -234,7 +234,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.popViewController(animated: true)
         removeCoordinator(coordinator)
-        if keystore.currentWallet == account {
+        if self.account == account {
             //no-op
         } else {
             restart(for: account, reason: .walletChange)
@@ -325,7 +325,7 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
     }
 
     func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController) {
-        let coordinator = ExportJsonKeystoreCoordinator(keystore: keystore, navigationController: navigationController)
+        let coordinator = ExportJsonKeystoreCoordinator(keystore: keystore, wallet: account, navigationController: navigationController)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()

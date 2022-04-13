@@ -161,6 +161,11 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         super.init()
         blockscanChatService.delegate = self
 
+        self.keystore.recentlyUsedWallet = wallet
+        if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
+            service.configure(account: wallet)
+        }
+
         notificationService.register(source: transactionNotificationService)
     }
 
@@ -171,10 +176,15 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     func start(animated: Bool) {
         donateWalletShortcut()
 
-        showTabBar(for: wallet, animated: animated)
-        checkDevice()
+        setupResourcesOnMultiChain()
+        walletConnectCoordinator.delegate = self
+        setupTabBarController()
 
+        showTabBar(animated: animated)
+
+        checkDevice()
         showHelpUs()
+
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
 
@@ -229,22 +239,6 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupWalletSessions()
         removeUnknownTransactions()
-    }
-
-    //Internal for test purposes
-    func showTabBar(for account: Wallet, animated: Bool) {
-        keystore.recentlyUsedWallet = account
-
-        if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
-            service.configure(account: account)
-        }
-
-        wallet = account
-        setupResourcesOnMultiChain()
-        walletConnectCoordinator.delegate = self
-        setupTabBarController()
-
-        showTabBar(animated: animated)
     }
 
     func showTabBar(animated: Bool) {
@@ -842,7 +836,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didSelectAccount(account: Wallet, in coordinator: TokensCoordinator) {
-        guard keystore.currentWallet != account else { return }
+        guard self.wallet != account else { return }
         restartUI(withReason: .walletChange, account: account)
     }
 }

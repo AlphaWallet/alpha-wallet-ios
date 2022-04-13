@@ -7,7 +7,7 @@ import BigInt
 struct TransactionRowViewModel {
     private let transactionRow: TransactionRow
     private let chainState: ChainState
-    private let currentWallet: Wallet
+    private let wallet: Wallet
     private let shortFormatter = EtherNumberFormatter.short
     private let fullFormatter = EtherNumberFormatter.full
 
@@ -18,15 +18,15 @@ struct TransactionRowViewModel {
     init(
             transactionRow: TransactionRow,
             chainState: ChainState,
-            currentWallet: Wallet
+            wallet: Wallet
     ) {
         self.transactionRow = transactionRow
         self.chainState = chainState
-        self.currentWallet = currentWallet
+        self.wallet = wallet
     }
 
     var direction: TransactionDirection {
-        if currentWallet.address.sameContract(as: transactionRow.from) {
+        if wallet.address.sameContract(as: transactionRow.from) {
             return .outgoing
         } else {
             return .incoming

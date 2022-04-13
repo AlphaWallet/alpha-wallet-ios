@@ -6,24 +6,24 @@ import Foundation
 struct TransactionRowCellViewModel {
     private let transactionRow: TransactionRow
     private let chainState: ChainState
-    private let currentWallet: Wallet
+    private let wallet: Wallet
     private let transactionRowViewModel: TransactionRowViewModel
     private let server: RPCServer
 
     init(
             transactionRow: TransactionRow,
             chainState: ChainState,
-            currentWallet: Wallet,
+            wallet: Wallet,
             server: RPCServer
     ) {
         self.transactionRow = transactionRow
         self.chainState = chainState
-        self.currentWallet = currentWallet
+        self.wallet = wallet
         self.server = server
         self.transactionRowViewModel = TransactionRowViewModel(
             transactionRow: transactionRow,
             chainState: chainState,
-            currentWallet: currentWallet
+            wallet: wallet
         )
     }
 

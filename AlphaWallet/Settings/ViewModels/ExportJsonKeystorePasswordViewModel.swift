@@ -9,19 +9,16 @@ import Foundation
 
 class ExportJsonKeystorePasswordViewModel {
     private let validator: StringValidator
-    private let keystore: Keystore
 
-    init(keystore: Keystore) {
+    init() {
         self.validator = StringValidator(rules: [
             .lengthMoreThanOrEqualTo(6),
             .canOnlyContain(CharacterSet.alphanumerics)
         ])
-        self.keystore = keystore
     }
 
-    init(keystore: Keystore, validator: StringValidator) {
+    init(validator: StringValidator) {
         self.validator = validator
-        self.keystore = keystore
     }
 
     func validate(password: String) -> StringValidatorResult {

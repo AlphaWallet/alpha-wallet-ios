@@ -39,14 +39,13 @@ protocol TokensAutodetector: NSObjectProtocol {
 }
 
 class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
-    private let keystore: Keystore
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
     private let server: RPCServer
     private let config: Config
-    private let account: Wallet
+    private let wallet: Wallet
     private let queue: DispatchQueue
     private let tokenObjectFetcher: TokenObjectFetcher
 
@@ -54,10 +53,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     var isAutoDetectingTokens = false
 
     init(
-            account: Wallet,
+            wallet: Wallet,
             server: RPCServer,
             config: Config,
-            keystore: Keystore,
             tokensDataStore: TokensDataStore,
             assetDefinitionStore: AssetDefinitionStore,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
@@ -67,10 +65,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     ) {
         self.tokenObjectFetcher = tokenObjectFetcher
         self.queue = queue
-        self.account = account
+        self.wallet = wallet
         self.server = server
         self.config = config
-        self.keystore = keystore
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinitionStore
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
@@ -93,7 +90,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         guard !isAutoDetectingTransactedTokens else { return }
 
         isAutoDetectingTransactedTokens = true
-        let operation = AutoDetectTransactedTokensOperation(forServer: server, delegate: self, wallet: keystore.currentWallet.address)
+        let operation = AutoDetectTransactedTokensOperation(forServer: server, delegate: self, wallet: wallet.address)
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
@@ -117,9 +114,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         return firstly {
             GetContractInteractions(queue: queue)
                 .getContractList(address: wallet, server: server, startBlock: startBlock, erc20: erc20)
-        }.map(on: queue) { [weak self] contracts, maxBlockNumber -> [AlphaWallet.Address] in
-            guard let strongSelf = self else { return [] }
-
+        }.map(on: queue) { contracts, maxBlockNumber -> [AlphaWallet.Address] in
             if let maxBlockNumber = maxBlockNumber {
                 if erc20 {
                     Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
@@ -127,9 +122,6 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                     Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: server, wallet: wallet)
                 }
             }
-            //NOTE: Guard safe to protect tokens data store with writing tokens from different user, in case when autodetector stays in memory
-            let currentAddress = strongSelf.keystore.currentWallet.address
-            guard currentAddress.sameContract(as: wallet) else { return [] }
 
             return contracts
         }
@@ -185,7 +177,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
         guard !isAutoDetectingTokens else { return }
 
         isAutoDetectingTokens = true
-        let operation = AutoDetectTokensOperation(forServer: server, delegate: self, wallet: keystore.currentWallet.address, tokens: contractsToDetect)
+        let operation = AutoDetectTokensOperation(forServer: server, delegate: self, wallet: wallet.address, tokens: contractsToDetect)
         autoDetectTokensQueue.addOperation(operation)
     }
 
@@ -199,10 +191,10 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func fetchCreateErc875OrErc20Token(forContract contract: AlphaWallet.Address, forServer server: RPCServer) -> Promise<AddTokenObjectOperation> {
-        let accountAddress = account.address
+        let accountAddress = wallet.address
         let queue = queue
 
-        return TokenProvider(account: keystore.currentWallet, server: server)
+        return TokenProvider(account: wallet, server: server)
             .getTokenType(for: contract)
             .then(on: queue, { [weak tokenObjectFetcher] tokenType -> Promise<AddTokenObjectOperation> in
                 guard let tokenObjectFetcher = tokenObjectFetcher else { return .init(error: PMKError.cancelled) }

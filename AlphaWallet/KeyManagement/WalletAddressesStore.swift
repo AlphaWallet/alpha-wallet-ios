@@ -20,6 +20,7 @@ protocol WalletAddressesStore: WalletAddressesStoreMigration {
     var hasWallets: Bool { get }
     var wallets: [Wallet] { get }
     var hasMigratedFromKeystoreFiles: Bool { get }
+    var recentlyUsedWallet: Wallet? { get set }
     var walletsPublisher: AnyPublisher<Set<Wallet>, Never> { get }
     var didAddWalletPublisher: AnyPublisher<AlphaWallet.Address, Never> { get }
     var didRemoveWalletPublisher: AnyPublisher<Wallet, Never> { get }

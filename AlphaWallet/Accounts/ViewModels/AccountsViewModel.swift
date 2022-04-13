@@ -32,6 +32,11 @@ struct AccountsViewModel {
         }
     }
 
+    var activeWalletIndexPath: IndexPath? {
+        guard let wallet = keystore.currentWallet, let indexPath = indexPath(for: wallet) else { return nil }
+        return indexPath
+    }
+
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
         self.wallets = keystore.wallets
         self.config = config

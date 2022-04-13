@@ -19,8 +19,10 @@ class ExportJsonKeystoreCoordinator: NSObject, Coordinator {
     private var keystore: Keystore
     private var navigationController: UINavigationController
     private weak var initialViewController: UIViewController?
+    private let wallet: Wallet
 
-    init(keystore: Keystore, navigationController: UINavigationController) {
+    init(keystore: Keystore, wallet: Wallet, navigationController: UINavigationController) {
+        self.wallet = wallet
         self.keystore = keystore
         self.navigationController = navigationController
         initialViewController = navigationController.topViewController
@@ -31,13 +33,13 @@ class ExportJsonKeystoreCoordinator: NSObject, Coordinator {
     }
 
     private func startFileViewController(buttonTitle: String, password: String) {
-        let controller = ExportJsonKeystoreFileViewController(viewModel: ExportJsonKeystoreFileViewModel(keystore: keystore), buttonTitle: buttonTitle, password: password)
+        let controller = ExportJsonKeystoreFileViewController(viewModel: ExportJsonKeystoreFileViewModel(keystore: keystore, wallet: wallet), buttonTitle: buttonTitle, password: password)
         controller.fileDelegate = self
         navigationController.pushViewController(controller, animated: true)
     }
 
     private func startPasswordViewController(buttonTitle: String) {
-        let controller = ExportJsonKeystorePasswordViewController(viewModel: ExportJsonKeystorePasswordViewModel(keystore: keystore), buttonTitle: buttonTitle)
+        let controller = ExportJsonKeystorePasswordViewController(viewModel: ExportJsonKeystorePasswordViewModel(), buttonTitle: buttonTitle)
         controller.passwordDelegate = self
         navigationController.pushViewController(controller, animated: true)
     }

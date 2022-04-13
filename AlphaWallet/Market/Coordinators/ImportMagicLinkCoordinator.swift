@@ -22,7 +22,9 @@ class ImportMagicLinkCoordinator: Coordinator {
     }
 
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let wallet: Wallet
+    private var wallet: Wallet {
+        sessions.anyValue.account
+    }
     private let config: Config
 	private var importTokenViewController: ImportMagicTokenViewController?
     private var hasCompleted = false
@@ -59,17 +61,18 @@ class ImportMagicLinkCoordinator: Coordinator {
     private var cryptoToFiatRateWhenHandlePaidImportCancelable: AnyCancellable?
     private var cryptoToFiatRateWhenNotEnoughEthForPaidImportCancelable: AnyCancellable?
     private var balanceWhenHandlePaidImportsCancelable: AnyCancellable?
+    private let sessions: ServerDictionary<WalletSession>
 
-    init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, config: Config, tokenBalanceService: TokenBalanceService, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
+    init(analyticsCoordinator: AnalyticsCoordinator, sessions: ServerDictionary<WalletSession>, config: Config, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, url: URL, server: RPCServer, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.wallet = wallet
+        self.sessions = sessions
         self.config = config
-        self.tokenBalanceService = tokenBalanceService
         self.tokensDataStore = tokensDatastore
         self.assetDefinitionStore = assetDefinitionStore
         self.url = url
         self.server = server
         self.keystore = keystore
+        self.tokenBalanceService = sessions[server].tokenBalanceService
     }
 
     func start(url: URL) -> Bool {
@@ -519,7 +522,7 @@ class ImportMagicLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, server: server, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
+        importTokenViewController = ImportMagicTokenViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, keystore: keystore, session: sessions[server])
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))

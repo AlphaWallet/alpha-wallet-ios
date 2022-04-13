@@ -91,26 +91,22 @@ open class EtherKeystore: NSObject, Keystore {
     }
 
     var recentlyUsedWallet: Wallet? {
-        //Use `currentWallet` wherever possible instead of this getter to avoid optionals
         get {
-            guard let address = keychain.get(Keys.recentlyUsedAddress) else {
-                return nil
-            }
-            return wallets.filter { $0.address.sameContract(as: address) }.first
+            return walletAddressesStore.recentlyUsedWallet
         }
         set {
-            keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccessUserPresenceNotRequired)
+            walletAddressesStore.recentlyUsedWallet = newValue
         }
     }
 
-    var currentWallet: Wallet {
-        //Better crash now instead of populating callers with optionals
+    var currentWallet: Wallet? {
         if let wallet = recentlyUsedWallet {
             return wallet
-        } else if wallets.count == 1 {
-            return wallets.first!
+        } else if let wallet = wallets.first {
+            recentlyUsedWallet = wallet
+            return wallet
         } else {
-            fatalError("No wallet")
+            return nil
         }
     }
 
@@ -124,6 +120,9 @@ open class EtherKeystore: NSObject, Keystore {
         self.walletAddressesStore = walletAddressesStore
         super.init()
 
+        if walletAddressesStore.recentlyUsedWallet == nil {
+            self.walletAddressesStore.recentlyUsedWallet = walletAddressesStore.wallets.first
+        }
     }
 
     func createAccount(completion: @escaping (Result<AlphaWallet.Address, KeystoreError>) -> Void) {

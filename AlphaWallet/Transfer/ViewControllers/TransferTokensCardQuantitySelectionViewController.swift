@@ -34,7 +34,8 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
             token: TokenObject,
             viewModel: TransferTokensCardQuantitySelectionViewModel,
             assetDefinitionStore: AssetDefinitionStore,
-            keystore: Keystore
+            keystore: Keystore,
+            wallet: Wallet
     ) {
         self.analyticsCoordinator = analyticsCoordinator
         self.paymentFlow = paymentFlow
@@ -47,7 +48,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notBackedByOpenSea:
-            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: keystore.currentWallet)
+            tokenRowView = TokenCardRowView(analyticsCoordinator: analyticsCoordinator, server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore, keystore: keystore, wallet: wallet)
         }
 
         super.init(nibName: nil, bundle: nil)

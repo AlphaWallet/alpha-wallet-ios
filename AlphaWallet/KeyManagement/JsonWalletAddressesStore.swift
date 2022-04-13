@@ -45,6 +45,20 @@ struct JsonWalletAddressesStore: WalletAddressesStore {
     private var didAddWalletSubject: PassthroughSubject<AlphaWallet.Address, Never> = .init()
     private var didRemoveWalletSubject: PassthroughSubject<Wallet, Never> = .init()
 
+    var recentlyUsedWallet: Wallet? {
+        get {
+            guard let address = walletAddresses.recentlyUsedWallet else { return nil }
+            return wallets.filter { $0.address.sameContract(as: address) }.first
+        }
+        set {
+            let value = newValue?.address.eip55String
+            guard walletAddresses.recentlyUsedWallet != value else { return }
+            walletAddresses.recentlyUsedWallet = value
+
+            saveWalletCollectionToFile()
+        }
+    }
+    
     var walletsPublisher: AnyPublisher<Set<Wallet>, Never> {
         walletsSubject.eraseToAnyPublisher()
     }
@@ -204,12 +218,14 @@ private struct WalletAddresses: Codable {
     var ethereumAddressesWithPrivateKeys: [String]?
     var ethereumAddressesWithSeed: [String]?
     var ethereumAddressesProtectedByUserPresence: [String]?
+    var recentlyUsedWallet: String?
 
     init() {
         watchAddresses = []
         ethereumAddressesWithPrivateKeys = []
         ethereumAddressesWithSeed = []
         ethereumAddressesProtectedByUserPresence = []
+        recentlyUsedWallet = nil
     }
 
     var wallets: Set<Wallet> {

@@ -80,10 +80,10 @@ class InCoordinatorTests: XCTestCase {
         let pbc = PromptBackupCoordinator(keystore: keystore, wallet: account1, config: .make(), analyticsCoordinator: fas)
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
-        let coordinator = InCoordinator(
+        let c1 = InCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
-            wallet: .make(),
+            wallet: account1,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make(),
@@ -99,13 +99,32 @@ class InCoordinatorTests: XCTestCase {
             notificationService: FakeNotificationService()
         )
 
-        coordinator.showTabBar(for: account1, animated: false)
+        c1.start(animated: false)
 
-        XCTAssertEqual(coordinator.keystore.currentWallet, account1)
+        XCTAssertEqual(c1.keystore.currentWallet, account1)
 
-        coordinator.showTabBar(for: account2, animated: false)
+        let c2 = InCoordinator(
+            navigationController: FakeNavigationController(),
+            walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            wallet: account2,
+            keystore: keystore,
+            assetDefinitionStore: AssetDefinitionStore(),
+            config: .make(),
+            analyticsCoordinator: FakeAnalyticsService(),
+            restartQueue: .init(),
+            universalLinkCoordinator: FakeUniversalLinkCoordinator.make(),
+            promptBackupCoordinator: pbc,
+            accountsCoordinator: ac,
+            walletBalanceService: FakeMultiWalletBalanceService(),
+            coinTickersFetcher: FakeCoinTickersFetcher(),
+            tokenActionsService: FakeSwapTokenService(),
+            walletConnectCoordinator: .fake(),
+            notificationService: FakeNotificationService()
+        )
 
-        XCTAssertEqual(coordinator.keystore.currentWallet, account2)
+        c1.start(animated: false)
+
+        XCTAssertEqual(c2.keystore.currentWallet, account1)
     }
 
     func testShowSendFlow() {
@@ -134,7 +153,7 @@ class InCoordinatorTests: XCTestCase {
                 walletConnectCoordinator: .fake(),
                 notificationService: FakeNotificationService()
         )
-        coordinator.showTabBar(for: .make(), animated: false)
+        coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .send(type: .transaction(TransactionType.nativeCryptocurrency(TokenObject(), destination: .none, amount: nil))), server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
@@ -167,8 +186,7 @@ class InCoordinatorTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService()
         )
-        coordinator.showTabBar(for: .make(), animated: false)
-
+        coordinator.start(animated: false)
         coordinator.showPaymentFlow(for: .request, server: .main, navigationController: coordinator.navigationController)
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
@@ -201,7 +219,7 @@ class InCoordinatorTests: XCTestCase {
             walletConnectCoordinator: .fake(),
             notificationService: FakeNotificationService()
         )
-        coordinator.showTabBar(for: .make(), animated: false)
+        coordinator.start(animated: false)
 
         let viewController = (coordinator.tabBarController.selectedViewController as? UINavigationController)?.viewControllers[0]
 
@@ -253,7 +271,7 @@ class InCoordinatorTests: XCTestCase {
                     walletConnectCoordinator: .fake(),
                     notificationService: FakeNotificationService()
             )
-            coordinator.showTabBar(for: wallet, animated: false)
+            coordinator.start(animated: false) 
 
             coordinator.showTab(.tokens)
 

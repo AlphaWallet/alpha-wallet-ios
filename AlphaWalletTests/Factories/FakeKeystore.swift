@@ -29,15 +29,13 @@ struct FakeKeystore: Keystore {
     }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
-    var currentWallet: Wallet {
+    var currentWallet: Wallet? {
         //Better crash now instead of populating callers with optionals
         if let wallet = recentlyUsedWallet {
             return wallet
-        } else if wallets.count == 1 {
-            return wallets.first!
         } else {
-            fatalError("No wallet")
-        }
+            return wallets.first
+        } 
     }
     
     init(wallets: [Wallet] = [], recentlyUsedWallet: Wallet? = .none, assumeAllWalletsType: AssumeAllWalletsType = .hdWallet) {

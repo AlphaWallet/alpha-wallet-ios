@@ -20,7 +20,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
 
 class AdvancedSettingsViewController: UIViewController {
 
-    private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel(keystore: keystore)
+    private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel(wallet: wallet)
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
@@ -35,12 +35,12 @@ class AdvancedSettingsViewController: UIViewController {
     }()
     private let roundedBackground = RoundedBackground()
     private var config: Config
-    private let keystore: Keystore
+    private let wallet: Wallet
     weak var delegate: AdvancedSettingsViewControllerDelegate?
 
-    init(keystore: Keystore, config: Config) {
+    init(wallet: Wallet, config: Config) {
         self.config = config
-        self.keystore = keystore
+        self.wallet = wallet
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background

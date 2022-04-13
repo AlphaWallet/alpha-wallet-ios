@@ -141,7 +141,7 @@ extension TransactionsViewController: UITableViewDataSource {
         let transactionRow = viewModel.item(for: indexPath.row, section: indexPath.section)
         let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
         let session = sessions[transactionRow.server]
-        let viewModel: TransactionRowCellViewModel = .init(transactionRow: transactionRow, chainState: session.chainState, currentWallet: session.account, server: transactionRow.server)
+        let viewModel: TransactionRowCellViewModel = .init(transactionRow: transactionRow, chainState: session.chainState, wallet: session.account, server: transactionRow.server)
         cell.configure(viewModel: viewModel)
 
         return cell
