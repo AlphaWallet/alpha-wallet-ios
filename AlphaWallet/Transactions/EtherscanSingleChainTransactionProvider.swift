@@ -88,20 +88,19 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
             GetContractInteractions(queue: queue).getErc20Interactions(address: wallet, server: server, startBlock: startBlock)
-        }.map(on: queue, { result -> (transactions: [TransactionInstance], min: Int, max: Int) in
-            return functional.extractBoundingBlockNumbers(fromTransactions: result)
-        }).then(on: queue, { [weak self] result, minBlockNumber, maxBlockNumber -> Promise<([TransactionInstance], Int)> in
+        }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
+            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
             return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensDataStore: strongSelf.tokensDataStore, tokenProvider: strongSelf.tokenProvider, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
-        }).done { [weak self] backFilledTransactions, maxBlockNumber in
+        }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
                 Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
-        }.catch({ e in
+        }).catch({ e in
             error(value: e, function: #function, rpcServer: server, address: wallet)
         })
         .finally { [weak self] in
@@ -117,19 +116,18 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         let startBlock = Config.getLastFetchedErc721InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         firstly {
             GetContractInteractions(queue: queue).getErc721Interactions(address: wallet, server: server, startBlock: startBlock)
-        }.map(on: queue, { result in
-            functional.extractBoundingBlockNumbers(fromTransactions: result)
-        }).then(on: queue, { [weak self] result, minBlockNumber, maxBlockNumber -> Promise<([TransactionInstance], Int)> in
+        }.then(on: queue, { [weak self] result -> Promise<([TransactionInstance], Int)> in
             guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
+            let (result, minBlockNumber, maxBlockNumber) = functional.extractBoundingBlockNumbers(fromTransactions: result)
             return functional.backFillTransactionGroup(result, startBlock: minBlockNumber, endBlock: maxBlockNumber, session: strongSelf.session, alphaWalletProvider: strongSelf.alphaWalletProvider, tokensDataStore: strongSelf.tokensDataStore, tokenProvider: strongSelf.tokenProvider, queue: strongSelf.queue).map { ($0, maxBlockNumber) }
-        }).done { [weak self] backFilledTransactions, maxBlockNumber in
+        }).done(on: queue, { [weak self] backFilledTransactions, maxBlockNumber in
             guard let strongSelf = self else { return }
             //Just to be sure, we don't want any kind of strange errors to clear our progress by resetting blockNumber = 0
             if maxBlockNumber > 0 {
                 Config.setLastFetchedErc721InteractionBlockNumber(maxBlockNumber, server: server, wallet: wallet)
             }
             strongSelf.addOrUpdate(transactions: backFilledTransactions)
-        }.catch({ e in
+        }).catch({ e in
             error(value: e, rpcServer: server, address: wallet)
         })
         .finally { [weak self] in
@@ -160,14 +158,14 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
         firstly {
             Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
-        }.done { [weak self] pendingTransaction in
+        }.done(on: queue, { [weak self] pendingTransaction in
             guard let strongSelf = self else { return }
 
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 strongSelf.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction)
                 strongSelf.addOrUpdate(transactions: [transaction])
             }
-        }.catch { [weak self] error in
+        }).catch(on: queue, { [weak self] error in
             guard let strongSelf = self else { return }
 
             switch error as? SessionTaskError {
@@ -187,7 +185,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             case .connectionError, .requestError, .none:
                 break
             }
-        }
+        })
     }
 
     private func delete(transactions: [TransactionInstance]) {
@@ -222,7 +220,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
         guard let oldestCachedTransaction = transactionDataStore.lastTransaction(forServer: session.server, withTransactionState: .completed) else { return }
 
         let promise = functional.fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc, session: session, alphaWalletProvider: alphaWalletProvider, tokensDataStore: tokensDataStore, tokenProvider: tokenProvider, queue: queue)
-        promise.done { [weak self] transactions in
+        promise.done(on: queue, { [weak self] transactions in
             guard let strongSelf = self else { return }
 
             strongSelf.addOrUpdate(transactions: transactions)
@@ -235,7 +233,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
                     strongSelf.fetchOlderTransactions(for: address)
                 }
             }
-        }.catch(on: queue, { [weak self] _ in
+        }).catch(on: queue, { [weak self] _ in
             guard let strongSelf = self else { return }
 
             strongSelf.transactionsTracker.fetchingState = .failed
@@ -323,7 +321,7 @@ extension EtherscanSingleChainTransactionProvider.functional {
         let target: AlphaWalletService = .getTransactions(config: session.config, server: session.server, address: address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)
         return firstly {
             alphaWalletProvider.request(target)
-        }.map(on: queue) { response -> [Promise<TransactionInstance?>] in
+        }.then(on: queue) { response -> Promise<[TransactionInstance]> in
             if response.statusCode == 404 {
                 //Clearer than a JSON deserialization error when it's a 404
                 enum E: Error {
@@ -331,11 +329,11 @@ extension EtherscanSingleChainTransactionProvider.functional {
                 }
                 throw E.statusCode404
             }
-            return try response.map(ArrayResponse<RawTransaction>.self).result.map {
+            let promises = try response.map(ArrayResponse<RawTransaction>.self).result.map {
                 TransactionInstance.from(transaction: $0, tokensDataStore: tokensDataStore, tokenProvider: tokenProvider, server: session.server)
             }
-        }.then(on: queue) {
-            when(fulfilled: $0).compactMap(on: queue) {
+
+            return when(fulfilled: promises).compactMap(on: queue) {
                 $0.compactMap { $0 }
             }
         }
