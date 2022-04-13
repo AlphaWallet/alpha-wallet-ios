@@ -16,7 +16,7 @@ class WalletConnectV2Provider: WalletConnectServer {
     private var client: WalletConnectClient = {
         let metadata = AppMetadata(
             name: Constants.WalletConnect.server,
-            description: nil,
+            description: "",
             url: Constants.WalletConnect.websiteUrl.absoluteString,
             icons: Constants.WalletConnect.icons)
         let projectId = Constants.Credentials.walletConnectProjectId
@@ -73,7 +73,7 @@ class WalletConnectV2Provider: WalletConnectServer {
             let accounts = Set(allAccountsInEip155(sessionServers: each.servers).compactMap { Account($0) })
             guard !accounts.isEmpty else { return }
 
-            try? client.update(topic: each.identifier.description, accounts: accounts)
+            try? client.updateAccounts(topic: each.identifier.description, accounts: accounts)
         }
     }
 
@@ -91,7 +91,8 @@ class WalletConnectV2Provider: WalletConnectServer {
         session.servers = servers
         storage.value[index] = session
 
-        try client.upgrade(topic: topic, permissions: session.permissions)
+        let accounts = Set(session.blockchains.compactMap { Account($0) })
+        try client.updateAccounts(topic: topic, accounts: accounts)
     }
 
     func reconnectSession(session: AlphaWallet.WalletConnect.Session) throws {
@@ -116,7 +117,10 @@ class WalletConnectV2Provider: WalletConnectServer {
                 let leftServers = session.servers.filter { !each.serversToDisconnect.contains($0) }
                 storage.value[index].servers = leftServers
 
-                try client.upgrade(topic: session.identifier.description, permissions: storage.value[index].permissions)
+                let accounts = Set(allAccountsInEip155(sessionServers: leftServers).compactMap { Account($0) })
+                guard !accounts.isEmpty else { return }
+
+                try? client.updateAccounts(topic: session.identifier.description, accounts: accounts)
             }
         }
     }
@@ -152,17 +156,33 @@ fileprivate extension AlphaWallet.WalletConnect.SessionProposal {
     init(sessionProposal: Session.Proposal) {
         let appMetadata = sessionProposal.proposer
 
-        self.name = appMetadata.name ?? ""
-        self.dappUrl = appMetadata.url.flatMap({ URL(string: $0) })!
+        self.name = appMetadata.name
+        self.dappUrl = URL(string: appMetadata.url)!
         self.description = appMetadata.description
-        self.iconUrl = appMetadata.icons?.first.flatMap({ URL(string: $0) })
-        self.servers = RPCServer.decodeEip155Array(values: sessionProposal.permissions.blockchains)
-        methods = Array(sessionProposal.permissions.methods)
+        self.iconUrl = appMetadata.icons.first.flatMap { URL(string: $0) }
+        self.servers = RPCServer.decodeEip155Array(values: Set(sessionProposal.chains.map { $0.absoluteString }))
+        methods = Array(sessionProposal.methods)
         isServerEditingAvailable = nil
     }
 }
 
 extension WalletConnectV2Provider: WalletConnectClientDelegate {
+
+    func didUpdate(sessionTopic: String, methods: Set<String>) {
+        debugLog("[RESPONDER] WC: Did receive session upgrate")
+
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+
+            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
+                strongSelf.storage.value[index].update(methods: methods)
+            }
+        }
+    }
+
+    func didUpdate(sessionTopic: String, events: Set<String>) {
+        debugLog("[RESPONDER] WC: Did receive session request")
+    }
 
     func didReceive(sessionProposal: Session.Proposal) {
         guard pendingSessionProposal == nil else {
@@ -231,18 +251,6 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
         }
     }
 
-    func didUpgrade(sessionTopic: String, permissions: Session.Permissions) {
-        debugLog("[RESPONDER] WC: Did receive session upgrate")
-
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            if let index = strongSelf.storage.value.firstIndex(where: { $0.identifier == .topic(string: sessionTopic) }) {
-                strongSelf.storage.value[index].update(permissions: permissions)
-            }
-        }
-    }
-
     func didUpdate(sessionTopic: String, accounts: Set<Account>) {
         debugLog("[RESPONDER] WC: Did receive session update")
     }
@@ -265,10 +273,6 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
 
     func didSettle(pairing: Pairing) {
         debugLog("[RESPONDER] WC: Did sattle pairing topic")
-    }
-
-    func didReceive(notification: Session.Notification, sessionTopic: String) {
-        debugLog("[RESPONDER] WC: Did receive notification")
     }
 
     func didReject(pendingSessionTopic: String, reason: Reason) {
@@ -347,7 +351,7 @@ extension WalletConnectV2Provider: WalletConnectClientDelegate {
     private static func validatePendingProposal(_ proposal: Session.Proposal) throws {
         struct MixedMainnetsOrTestnetsError: Error {}
 
-        let servers = RPCServer.decodeEip155Array(values: proposal.permissions.blockchains)
+        let servers = RPCServer.decodeEip155Array(values: Set(proposal.chains.map { $0.absoluteString }))
         let allAreTestnets = servers.allSatisfy { $0.isTestnet }
         if allAreTestnets {
             //no-op

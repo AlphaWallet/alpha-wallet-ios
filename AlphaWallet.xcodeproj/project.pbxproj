@@ -7488,8 +7488,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
+				branch = develop;
+				kind = branch;
 			};
 		};
 		87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
