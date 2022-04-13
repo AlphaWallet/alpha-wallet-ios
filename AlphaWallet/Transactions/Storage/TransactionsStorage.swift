@@ -283,6 +283,15 @@ class TransactionDataStore {
         }
     }
 
+    func deleteAllForTestsOnly() {
+        store.performSync { realm in
+            try? realm.safeWrite {
+                realm.delete(realm.objects(LocalizedOperationObject.self))
+                realm.delete(realm.objects(Transaction.self))
+            }
+        }
+    }
+
     func writeJsonForTransactions(toUrl url: URL, server: RPCServer) {
         do {
             let data = try functional.generateJsonForTransactions(transactionStorage: self, server: server, toUrl: url)
@@ -291,7 +300,7 @@ class TransactionDataStore {
         } catch {
             verboseLog("Error writing transactions for \(server) to JSON: \(url.absoluteString) error: \(error)")
         }
-    }
+    } 
 }
 
 extension TransactionDataStore: Erc721TokenIdsFetcher {

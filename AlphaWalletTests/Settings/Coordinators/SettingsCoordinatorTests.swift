@@ -34,7 +34,7 @@ class SettingsCoordinatorTests: XCTestCase {
             .sink { value in
                 deletedWallet = value
                 expectation.fulfill()
-                storage.deleteAll()
+                storage.deleteAllForTestsOnly()
             }
 
         walletAddressesStore.removeAddress(wallet)
