@@ -88,7 +88,7 @@ install_bundle:
 	@$(gem_cmd) install --install-dir=$(vendor_path) $(bundle_gem)
 
 test15:
-	@xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.2' test | $(beautify_cmd)
+	@xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.4' test | $(beautify_cmd)
 
 test14:
 	@xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' test | $(beautify_cmd)
@@ -97,6 +97,6 @@ test: test15
 
 build_and_run_booted:
 	#The simulator "name" specified doesn't matter
-	@xcrun xcodebuild -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.2' -derivedDataPath ./build
+	@xcrun xcodebuild -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.4' -derivedDataPath ./build
 	@xcrun simctl install booted ./build/Build/Products/Debug-iphonesimulator/AlphaWallet.app
 	@xcrun simctl launch booted com.stormbird.alphawallet
