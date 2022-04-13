@@ -124,7 +124,7 @@ class InCoordinatorTests: XCTestCase {
 
         c1.start(animated: false)
 
-        XCTAssertEqual(c2.keystore.currentWallet, account1)
+        XCTAssertEqual(c2.keystore.currentWallet, account2)
     }
 
     func testShowSendFlow() {

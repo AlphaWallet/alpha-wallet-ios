@@ -67,7 +67,7 @@ class TransactionsStorageTests: XCTestCase {
 
         XCTAssertEqual(1, storage.count)
 
-        XCTAssertEqual(two, storage.transactions(forServer: .main).first)
+        XCTAssertEqual(two.primaryKey, storage.transactions(forServer: .main).first!.primaryKey)
     }
 
     func testDeleteAll() {
@@ -80,7 +80,7 @@ class TransactionsStorageTests: XCTestCase {
 
         XCTAssertEqual(2, storage.count)
 
-        storage.deleteAll()
+        storage.deleteAllForTestsOnly()
 
         XCTAssertEqual(0, storage.count)
     }
