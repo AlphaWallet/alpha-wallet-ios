@@ -217,7 +217,7 @@ public struct Constants {
     static let refreshTokensThresholdSec: Int = 1
 
     static let googleServiceInfoPlistContent: String? = {
-        return Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist")
+        R.file.googleServiceInfoPlist()?.path
     }()
 
 }
