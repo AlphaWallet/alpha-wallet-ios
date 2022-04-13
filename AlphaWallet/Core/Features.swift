@@ -31,5 +31,5 @@ enum Features {
     static let isJsonFileBasedStorageForWalletAddressesEnabled = true
     static let isBlockscanChatEnabled = true
     static let isTokenScriptSignatureStatusEnabled = false
-    static let isFirebaseEnabled = false
+    static let isFirebaseEnabled = true
 }
