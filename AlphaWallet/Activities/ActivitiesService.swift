@@ -314,50 +314,31 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     private func reloadViewControllerImpl() {
-        Promise<[TransactionInstance]> { seal in
-            if !activities.isEmpty {
-                hasLoadedActivitiesTheFirstTime = true
-            }
+        if !activities.isEmpty {
+            hasLoadedActivitiesTheFirstTime = true
+        }
 
-            DispatchQueue.main.async {
-                self.fetchTransactionsCancelable?.cancel()
-                self.fetchTransactionsCancelable = self.transactionDataStore
-                    .transactionsPublisher(forFilter: self.transactionsFilterStrategy, servers: self.config.enabledServers, oldestBlockNumber: self.activities.last?.blockNumber)
-                    .replaceError(with: [])
-                    .map { result -> [TransactionInstance] in
-                        return result.map { TransactionInstance(transaction: $0) }
-                    }
-                    .receive(on: self.queue)
-                    .sink { transactions in
-                        seal.fulfill(transactions)
-                    }
-            }
-        }.then(on: queue, { [weak self] transactions -> Promise<[ActivityRowModel]> in
-            guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
+        let transactions = transactionDataStore
+            .transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
+            .map { TransactionInstance(transaction: $0) }
 
-            return strongSelf.combine(activities: strongSelf.activities, withTransactions: transactions)
-        }).map(on: queue, { items in
-            return ActivitiesViewModel.sorted(activities: items)
-        }).done(on: .main, { [weak self] activities in
-            self?.subscribableViewModel.value = .init(activities: activities)
-        }).cauterize()
+        let items = combine(activities: activities, withTransactions: transactions)
+        let activities = ActivitiesViewModel.sorted(activities: items)
+
+        DispatchQueue.main.async {
+            self.subscribableViewModel.value = .init(activities: activities)
+        }
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
-    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> Promise<[ActivityRowModel]> {
-        return Promise<[Int: [ActivityOrTransactionInstance]]> { seal in
-            let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
-            let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
-            let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
+    private func combine(activities: [Activity], withTransactions transactionInstances: [TransactionInstance]) -> [ActivityRowModel] {
+        let all: [ActivityOrTransactionInstance] = activities.map { .activity($0) } + transactionInstances.map { .transaction($0) }
+        let sortedAll: [ActivityOrTransactionInstance] = all.sorted { $0.blockNumber < $1.blockNumber }
+        let counters = Dictionary(grouping: sortedAll, by: \.blockNumber)
 
-            seal.fulfill(counters)
-        }.map(on: .main, { [weak self] counters -> [ActivityRowModel] in
-            guard let strongSelf = self else { throw PMKError.cancelled }
-
-            return counters.map {
-                strongSelf.generateRowModels(fromActivityOrTransactions: $0.value, withBlockNumber: $0.key)
-            }.flatMap { $0 }
-        })
+        return counters.map {
+            generateRowModels(fromActivityOrTransactions: $0.value, withBlockNumber: $0.key)
+        }.flatMap { $0 }
     }
 
     private func generateRowModels(fromActivityOrTransactions activityOrTransactions: [ActivityOrTransactionInstance], withBlockNumber blockNumber: Int) -> [ActivityRowModel] {
