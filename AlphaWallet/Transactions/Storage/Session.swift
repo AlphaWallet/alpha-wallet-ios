@@ -8,17 +8,18 @@ class WalletSession {
     let tokenBalanceService: TokenBalanceService
     let config: Config
     let chainState: ChainState
-
+    let tokenProvider: TokenProviderType
     var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
-
+    
     init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService) {
         self.account = account
         self.server = server
         self.config = config
         self.chainState = ChainState(config: config, server: server)
         self.tokenBalanceService = tokenBalanceService
+        self.tokenProvider = TokenProvider(account: account, server: server)
 
         if config.development.isAutoFetchingDisabled {
             //no-op
