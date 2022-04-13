@@ -126,8 +126,7 @@ class AppCoordinator: NSObject, Coordinator {
                 PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analyticsCoordinator: self.analyticsService).deleteWallet()
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
-                TransactionDataStore.deleteAllTransactions(realm: Wallet.functional.realm(forAccount: account), config: self.config)
-                MultipleChainsTokensDataStore.deleteAll(realm: Wallet.functional.realm(forAccount: account), config: self.config)
+                MigrationInitializer.removeRealmFiles(account: account)
                 self.legacyFileBasedKeystore.delete(wallet: account)
             }.store(in: &cancelable)
     }

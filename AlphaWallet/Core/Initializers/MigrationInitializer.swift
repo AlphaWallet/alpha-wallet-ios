@@ -90,6 +90,26 @@ class MigrationInitializer: Initializer {
 
 extension MigrationInitializer {
 
+    static func removeRealmFiles(account: Wallet) {
+        for each in realmFilesUrls(account: account) {
+            try? FileManager.default.removeItem(at: each)
+        }
+    }
+
+    static func realmFilesUrls(account: Wallet) -> [URL] {
+        let config = RealmConfiguration.configuration(for: account)
+        guard let realmUrl = config.fileURL else { return [] }
+
+        let realmUrls = [
+            realmUrl,
+            realmUrl.appendingPathExtension("lock"),
+            realmUrl.appendingPathExtension("note"),
+            realmUrl.appendingPathExtension("management")
+        ]
+
+        return realmUrls
+    }
+
     //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
     static var hasRealmDatabasesForWallet: Bool {
         let directory = RealmConfiguration.defaultRealmFolderUrl
@@ -104,9 +124,9 @@ extension MigrationInitializer {
     //NOTE: This function is using to make sure that wallets in user defaults will be removed after restoring backup from iCloud. Realm files don't backup to iCloud but user defaults does backed up.
     static func removeWalletsIfRealmFilesMissed(keystore: Keystore) {
         for wallet in keystore.wallets {
-            let migration = MigrationInitializer(account: wallet)
+            let config = RealmConfiguration.configuration(for: wallet)
 
-            guard let path = migration.config.fileURL else { continue }
+            guard let path = config.fileURL else { continue }
 
             //NOTE: make sure realm files exists, if not then delete this wallets from user defaults.
             if FileManager.default.fileExists(atPath: path.path) {
