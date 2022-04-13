@@ -57,7 +57,7 @@ We want to give businesses the whitelabel tools they need to develop their ether
 
 # Getting Started
 
-1. [Download  Xcode 13](https://developer.apple.com/download/more/)
+1. [Download Xcode](https://developer.apple.com/download/more/). Check [here](.xcode-version) for the Xcode we are building with.
 2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
 4. Open the `AlphaWallet.xcworkspace` file (not `AlphaWallet.xcodeproj`) to begin.
