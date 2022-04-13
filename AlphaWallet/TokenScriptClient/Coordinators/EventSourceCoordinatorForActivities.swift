@@ -6,11 +6,7 @@ import PromiseKit
 import web3swift
 import Combine
 
-protocol EventSourceCoordinatorForActivitiesType: AnyObject {
-    func start()
-}
-
-class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesType {
+final class EventSourceCoordinatorForActivities {
     private var wallet: Wallet
     private let config: Config
     private let tokensDataStore: TokensDataStore
@@ -34,7 +30,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     func start() {
         setupWatchingTokenChangesToFetchEvents()
         setupWatchingTokenScriptFileChangesToFetchEvents()
-    }
+    } 
 
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
@@ -48,7 +44,7 @@ class EventSourceCoordinatorForActivities: EventSourceCoordinatorForActivitiesTy
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         assetDefinitionStore.bodyChange
             .receive(on: RunLoop.main)
-            .compactMap { self.tokensDataStore.token(forContract: $0) }
+            .compactMap { [weak self] in self?.tokensDataStore.token(forContract: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 

@@ -17,13 +17,7 @@ extension PromiseKit.Result {
     }
 }
 
-protocol EventSourceCoordinatorType: AnyObject {
-    func start()
-}
-
-//TODO: Create XMLHandler store and pass it everwhere we use it
-//TODO: Rename this generic name to reflect that it's for event instances, not for event activity
-class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
+final class EventSourceCoordinator: NSObject {
     private var wallet: Wallet
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
@@ -49,7 +43,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
     func start() {
         setupWatchingTokenChangesToFetchEvents()
         setupWatchingTokenScriptFileChangesToFetchEvents()
-    }
+    } 
 
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
@@ -64,7 +58,7 @@ class EventSourceCoordinator: NSObject, EventSourceCoordinatorType {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.bodyChange
             .receive(on: RunLoop.main)
-            .compactMap { self.tokensDataStore.token(forContract: $0) }
+            .compactMap { [weak self] in self?.tokensDataStore.token(forContract: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 

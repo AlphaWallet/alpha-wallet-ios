@@ -165,6 +165,11 @@ class TokensCoordinator: Coordinator {
         showTokens()
         alertService.start()
     }
+    
+    deinit {
+        autoDetectTransactedTokensQueue.cancelAllOperations()
+        autoDetectTokensQueue.cancelAllOperations()
+    }
 
     private func setupSingleChainTokenCoordinators() {
         for session in sessions.values {
@@ -175,7 +180,7 @@ class TokensCoordinator: Coordinator {
             }()
 
             let tokensAutodetector: TokensAutodetector = {
-                SingleChainTokensAutodetector(wallet: session.account, server: server, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, tokenObjectFetcher: tokenObjectFetcher)
+                SingleChainTokensAutodetector(session: session, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, withAutoDetectTransactedTokensQueue: autoDetectTransactedTokensQueue, withAutoDetectTokensQueue: autoDetectTokensQueue, queue: tokensAutoDetectionQueue, tokenObjectFetcher: tokenObjectFetcher)
             }()
 
             let coordinator = SingleChainTokenCoordinator(session: session, keystore: keystore, tokensStorage: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, analyticsCoordinator: analyticsCoordinator, tokenActionsProvider: tokenActionsService, coinTickersFetcher: coinTickersFetcher, activitiesService: activitiesService, alertService: alertService, tokensAutodetector: tokensAutodetector)

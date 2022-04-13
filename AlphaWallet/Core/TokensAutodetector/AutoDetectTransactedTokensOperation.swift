@@ -11,13 +11,11 @@ import PromiseKit
 protocol AutoDetectTransactedTokensOperationDelegate: class {
     var isAutoDetectingTransactedTokens: Bool { get set }
 
-    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<Void>
+    func autoDetectTransactedErc20AndNonErc20Tokens(wallet: AlphaWallet.Address) -> Promise<[SingleChainTokensAutodetector.AddTokenObjectOperation]>
 }
 
-class AutoDetectTransactedTokensOperation: Operation {
+final class AutoDetectTransactedTokensOperation: Operation {
     
-    private let wallet: AlphaWallet.Address
-
     weak private var delegate: AutoDetectTransactedTokensOperationDelegate?
     override var isExecuting: Bool {
         return delegate?.isAutoDetectingTransactedTokens ?? false
@@ -29,17 +27,21 @@ class AutoDetectTransactedTokensOperation: Operation {
         return true
     }
 
-    init(forServer server: RPCServer, delegate: AutoDetectTransactedTokensOperationDelegate, wallet: AlphaWallet.Address) {
+    private let session: WalletSession
+    private let tokensDataStore: TokensDataStore
+
+    init(session: WalletSession, tokensDataStore: TokensDataStore, delegate: AutoDetectTransactedTokensOperationDelegate) {
         self.delegate = delegate
-        self.wallet = wallet
+        self.session = session
+        self.tokensDataStore = tokensDataStore
         super.init()
-        self.queuePriority = server.networkRequestsQueuePriority
+        self.queuePriority = session.server.networkRequestsQueuePriority
     } 
 
     override func main() {
         guard let delegate = delegate else { return }
 
-        delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: wallet).done { [weak self] _ in
+        delegate.autoDetectTransactedErc20AndNonErc20Tokens(wallet: session.account.address).done { [weak self] values in
             guard let strongSelf = self else { return }
 
             strongSelf.willChangeValue(forKey: "isExecuting")
@@ -47,6 +49,9 @@ class AutoDetectTransactedTokensOperation: Operation {
             delegate.isAutoDetectingTransactedTokens = false
             strongSelf.didChangeValue(forKey: "isExecuting")
             strongSelf.didChangeValue(forKey: "isFinished")
+
+            guard !strongSelf.isCancelled else { return }
+            strongSelf.tokensDataStore.addTokenObjects(values: values)
         }.cauterize()
     }
 }

@@ -35,7 +35,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
         return MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
     }()
 
-    private lazy var eventSourceCoordinator: EventSourceCoordinatorType = {
+    private lazy var eventSourceCoordinator: EventSourceCoordinator = {
         EventSourceCoordinator(wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
     }()
 
