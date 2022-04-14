@@ -19,9 +19,3 @@ struct AddressAndRPCServer: Hashable, Codable, CustomStringConvertible {
         hasher.combine(description)
     }
 }
-
-extension AddressAndRPCServer: Equatable {
-    static func == (lhs: AddressAndRPCServer, rhs: AddressAndRPCServer) -> Bool {
-        lhs.address.sameContract(as: rhs.address) && lhs.server == rhs.server
-    }
-}

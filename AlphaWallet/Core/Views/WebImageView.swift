@@ -7,26 +7,6 @@ import Kingfisher
 enum WebImageViewImage: Hashable, Equatable {
     case url(WebImageURL)
     case image(UIImage)
-
-    static func == (lhs: WebImageViewImage, rhs: WebImageViewImage) -> Bool {
-        switch (lhs, rhs) {
-        case (.url(let v1), .url(let v2)):
-            return v1 == v2
-        case (.image(let v1), .image(let v2)):
-            return v1 == v2
-        case (_, _):
-            return false
-        }
-    }
-
-    func hash(into hasher: inout Hasher) {
-        switch self {
-        case .url(let uRL):
-            hasher.combine(uRL)
-        case .image(let uIImage):
-            hasher.combine(uIImage)
-        }
-    }
 }
 
 final class FixedContentModeImageView: UIImageView {

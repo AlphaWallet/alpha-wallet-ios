@@ -91,12 +91,6 @@ extension AlphaWallet {
     }
 }
 
-extension AlphaWallet.Address {
-    public static func == (lsh: AlphaWallet.Address, rhs: AlphaWallet.Address) -> Bool {
-        return lsh.sameContract(as: rhs)
-    }
-}
-
 extension AlphaWallet.Address: CustomStringConvertible {
     //TODO should not be using this in production code
     public var description: String {

@@ -436,6 +436,7 @@
 		5E7C76AFBBACDD13BEF25DA9 /* ToolsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F970B01399530F62569 /* ToolsViewModel.swift */; };
 		5E7C76B7DDF7BB124B12A738 /* DappButtonViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C754BF8B4CC2DA82B1025 /* DappButtonViewModel.swift */; };
 		5E7C76B917517C93D1E26B0A /* LockEnterPasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7981AB6584B25C72D46B /* LockEnterPasscodeCoordinator.swift */; };
+		5E7C76C4BDFB2FA2F6289AF0 /* AddressAndRPCServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72CDD54E5A0C5BB23C89 /* AddressAndRPCServerTests.swift */; };
 		5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C704499C81ACA3B08A752 /* TokenInstanceWebView.swift */; };
 		5E7C76D28BB14C7685296BEF /* DappsHomeEmptyViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B424FB5DE3A4D6A2F4 /* DappsHomeEmptyViewViewModel.swift */; };
 		5E7C76D464BD797FF3A962F8 /* Origin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C786486937661D0DCD4E2 /* Origin.swift */; };
@@ -1417,6 +1418,7 @@
 		5E7C72B3371522B5C1B1B5BE /* GeneralisedTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralisedTime.swift; sourceTree = "<group>"; };
 		5E7C72BEB789700C49FF64A6 /* DeletedContract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeletedContract.swift; sourceTree = "<group>"; };
 		5E7C72CD0C22247A6AF7C95E /* GetERC721BalanceEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceEncode.swift; sourceTree = "<group>"; };
+		5E7C72CDD54E5A0C5BB23C89 /* AddressAndRPCServerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressAndRPCServerTests.swift; sourceTree = "<group>"; };
 		5E7C72D0003C5C2C385DBFC9 /* ENSReverseResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ENSReverseResolver.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportMagicTokenViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C72DDBF109139E4C661D5 /* DelegateContract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateContract.swift; sourceTree = "<group>"; };
@@ -4068,6 +4070,7 @@
 				5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */,
 				5E7C76AB57FE8E8E084CF4A8 /* Coordinators */,
 				5E7C7DB349EEDBC8AE9AD500 /* Helpers */,
+				5E7C72CDD54E5A0C5BB23C89 /* AddressAndRPCServerTests.swift */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -6927,6 +6930,7 @@
 				5E7C7264B6B898A90F1761F0 /* AlphaWalletAddressTests.swift in Sources */,
 				5E7C7BA90D4D854B33D0E355 /* WebImageUrlTests.swift in Sources */,
 				5E7C7900E8FF0E478376861B /* URLTests.swift in Sources */,
+				5E7C76C4BDFB2FA2F6289AF0 /* AddressAndRPCServerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
