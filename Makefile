@@ -53,7 +53,7 @@ install_gems: check_bundle setup_path
 	fi
 
 install_pods: check_gems
-	@$(bundle_cmd) exec pod install; \
+	@$(bundle_cmd) exec pod install --repo-update; \
 	if [ $$? -eq 0 ]; then \
 		echo "All pods installed."; \
 	else \
@@ -100,3 +100,4 @@ build_and_run_booted:
 	@xcrun xcodebuild -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.4' -derivedDataPath ./build
 	@xcrun simctl install booted ./build/Build/Products/Debug-iphonesimulator/AlphaWallet.app
 	@xcrun simctl launch booted com.stormbird.alphawallet
+
