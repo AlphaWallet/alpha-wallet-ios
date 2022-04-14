@@ -55,6 +55,10 @@ protocol TransactionConfirmationCoordinatorDelegate: CanOpenURL, SendTransaction
 }
 
 extension UIApplication {
+    var firstKeyWindow: UIWindow? {
+        windows.filter { $0.isKeyWindow }.first
+    }
+
     func presentedViewController(_ defaultViewControler: UIViewController) -> UIViewController {
         guard let keyWindow = UIApplication.shared.firstKeyWindow else { return defaultViewControler }
 
@@ -101,13 +105,8 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
-        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
-
-        if let controller = keyWindow.rootViewController?.presentedViewController {
-            controller.present(hostViewController, animated: true)
-        } else {
-            navigationController.present(hostViewController, animated: true)
-        }
+        let presenter = UIApplication.shared.presentedViewController(navigationController)
+        presenter.present(hostViewController, animated: true)
 
         configurator.delegate = self
         configurator.start()
