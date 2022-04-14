@@ -221,7 +221,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 	}
 
 	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-		guard !coordinator.accountsViewController.hasWallets else { return }
+        guard !coordinator.accountsViewController.viewModel.hasWallets else { return }
         coordinator.navigationController.popViewController(animated: true)
 		delegate?.didCancel(in: self)
 	}

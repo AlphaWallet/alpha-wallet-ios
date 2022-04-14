@@ -2,15 +2,19 @@
 
 import Foundation
 import Combine
+import Result
 
-struct AccountsViewModel {
+class AccountsViewModel {
     private var config: Config
-    private let hdWallets: [Wallet]
-    private let keystoreWallets: [Wallet]
-    private let watchedWallets: [Wallet]
+    private var hdWallets: [Wallet] = []
+    private var keystoreWallets: [Wallet] = []
+    private var watchedWallets: [Wallet] = []
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let walletBalanceService: WalletBalanceService
+    private let generator = BlockiesGenerator()
+    private var reloadBalanceSubject: PassthroughSubject<ReloadState, Never> = .init()
+    private let resolver: DomainResolutionServiceType = DomainResolutionService()
 
     var sections: [AccountsSectionType] {
         switch configuration {
@@ -22,8 +26,7 @@ struct AccountsViewModel {
     }
 
     let configuration: AccountsCoordinatorViewModel.Configuration
-    var wallets: [Wallet]
-
+    var allowsAccountDeletion: Bool = false
     var subscribeForBalanceUpdates: Bool {
         switch configuration {
         case .changeWallets:
@@ -37,24 +40,58 @@ struct AccountsViewModel {
         guard let wallet = keystore.currentWallet, let indexPath = indexPath(for: wallet) else { return nil }
         return indexPath
     }
-    private let generator = BlockiesGenerator()
+
+    var walletSummaryViewModel: WalletSummaryViewModel {
+        .init(walletSummary: walletBalanceService.walletsSummary, config: config)
+    }
+
+    var hasWallets: Bool {
+        return keystore.hasWallets
+    }
+
+    var reloadBalancePublisher: AnyPublisher<ReloadState, Never> {
+        reloadBalanceSubject.eraseToAnyPublisher()
+    }
+
+    var title: String {
+        return configuration.navigationTitle
+    }
 
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
-        self.wallets = keystore.wallets
+
         self.config = config
         self.keystore = keystore
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
         self.walletBalanceService = walletBalanceService
+
+        reloadWallets()
+    }
+
+    func reloadWallets() {
         hdWallets = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         keystoreWallets = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
         watchedWallets = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
     }
 
+    func reloadBalance() {
+        reloadBalanceSubject.send(.fetching)
+        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets, force: true)
+            .done { [weak reloadBalanceSubject] _ in
+                reloadBalanceSubject?.send(.done)
+            }.catch { [weak reloadBalanceSubject] error in
+                reloadBalanceSubject?.send(.failure(error: error))
+            }
+    }
+
+    func delete(account: Wallet) -> Result<Void, KeystoreError> {
+        return keystore.delete(wallet: account)
+    }
+
     subscript(indexPath: IndexPath) -> AccountViewModel? {
         guard let account = account(for: indexPath) else { return nil }
 
-        let walletName = self.walletName(forAccount: account)
+        let walletName = config.walletNames[account.address]
         let apprecation24hour = walletBalanceService
             .walletBalance(wallet: account)
             .map { balance -> NSAttributedString in
@@ -74,22 +111,20 @@ struct AccountsViewModel {
             .publisher
             .prepend(BlockiesImage.defaulBlockieImage)
             .replaceError(with: BlockiesImage.defaulBlockieImage)
-            .handleEvents(receiveOutput: { value in
+            .handleEvents(receiveOutput: { [weak self] value in
                 guard value.isEnsAvatar else { return }
-                analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+                self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
             })
             .eraseToAnyPublisher()
 
-        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, apprecation24hour: apprecation24hour, balance: balance, blockiesImage: blockiesImage)
-    } 
+        let ensName = resolver.resolveEns(address: account.address)
+            .publisher
+            .prepend((image: nil, resolution: .resolved(nil)))
+            .replaceError(with: (image: nil, resolution: .resolved(nil)))
+            .map { $0.resolution.value }
+            .eraseToAnyPublisher()
 
-    var title: String {
-        return configuration.navigationTitle
-    } 
-
-    func walletName(forAccount account: Wallet) -> String? {
-        let walletNames = config.walletNames
-        return walletNames[account.address]
+        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, ensName: ensName, apprecation24hour: apprecation24hour, balance: balance, blockiesImage: blockiesImage)
     }
 
     func numberOfItems(section: Int) -> Int {
@@ -106,6 +141,7 @@ struct AccountsViewModel {
     }
 
     func canEditCell(indexPath: IndexPath) -> Bool {
+        guard allowsAccountDeletion else { return false }
         switch sections[indexPath.section] {
         case .hdWallet:
             return keystore.currentWallet != hdWallets[indexPath.row]
@@ -116,17 +152,6 @@ struct AccountsViewModel {
         case .summary:
             return false
         }
-    }
-
-    //We don't show the section headers unless there are 2 "types" of wallets
-    private func shouldHideAllSectionHeaders() -> Bool {
-        if keystoreWallets.isEmpty && watchedWallets.isEmpty {
-            return true
-        }
-        if hdWallets.isEmpty && watchedWallets.isEmpty {
-            return true
-        }
-        return false
     }
 
     func shouldHideHeader(in section: Int) -> (shouldHide: Bool, section: AccountsSectionType) {
@@ -153,6 +178,17 @@ struct AccountsViewModel {
         }
     }
 
+    //We don't show the section headers unless there are 2 "types" of wallets
+    private func shouldHideAllSectionHeaders() -> Bool {
+        if keystoreWallets.isEmpty && watchedWallets.isEmpty {
+            return true
+        }
+        if hdWallets.isEmpty && watchedWallets.isEmpty {
+            return true
+        }
+        return false
+    }
+
     func account(for indexPath: IndexPath) -> Wallet? {
         switch sections[indexPath.section] {
         case .hdWallet:
@@ -166,7 +202,7 @@ struct AccountsViewModel {
         }
     }
 
-    func indexPath(for wallet: Wallet) -> IndexPath? {
+    private func indexPath(for wallet: Wallet) -> IndexPath? {
         guard let sectionIndex = sections.firstIndex(where: { sectionType in
             switch sectionType {
             case .summary:
@@ -220,4 +256,10 @@ enum AccountsSectionType: Int, CaseIterable {
             return R.string.localizable.walletTypesWatchedWallets().uppercased()
         }
     }
+}
+
+enum ReloadState {
+    case fetching
+    case done
+    case failure(error: Error)
 }

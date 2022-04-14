@@ -2,6 +2,7 @@
 
 import UIKit
 import Combine
+
 class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
     private let apprecation24hourLabel = UILabel()
@@ -62,11 +63,18 @@ class AccountViewCell: UITableViewCell {
         cancelable.cancellAll()
         backgroundColor = viewModel.backgroundColor
 
-        addressLabel.attributedText = viewModel.addressesAttrinutedString
+//        addressLabel.attributedText = viewModel.addressesAttrinutedString
 
         accessoryView = Style.AccessoryView.chevron
 
         selectedIndicator.isHidden = !viewModel.isSelected
+
+        viewModel
+            .addressesAttrinutedString
+            .receive(on: RunLoop.main)
+            .sink { [weak addressLabel] value in
+                addressLabel?.attributedText = value
+            }.store(in: &cancelable)
 
         viewModel
             .blockiesImage
