@@ -49,9 +49,7 @@ PODS:
     - Result (~> 3.0)
   - Kanna (5.0.0)
   - KeychainSwift (10.0.0)
-  - Kingfisher (5.15.7):
-    - Kingfisher/Core (= 5.15.7)
-  - Kingfisher/Core (5.15.7)
+  - Kingfisher (7.2.1)
   - libsodium (1.0.12)
   - MailchimpSDK (2.0.4)
   - MBProgressHUD (1.2.0)
@@ -143,7 +141,7 @@ DEPENDENCIES:
   - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, commit `b797d40a9d08ec509db4335140cf2259b226e6a2`)
-  - Kingfisher (= 5.15.7)
+  - Kingfisher (~> 7.0)
   - MailchimpSDK
   - MBProgressHUD
   - Mixpanel-swift (= 2.8.0)
@@ -289,7 +287,7 @@ SPEC CHECKSUMS:
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
-  Kingfisher: 6e1a13523fcb1c86924ce53affe4ac957e544d59
+  Kingfisher: 7c084bebf7d548c623ad41bcf765fb200efed369
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   MailchimpSDK: 794fd7cb1095e55c764d8a699eb11fb61849ed76
   MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
@@ -318,6 +316,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 9113af2e2571299baf345600ebb01a26d5ded8d5
+PODFILE CHECKSUM: b78a8b75569fce6aa1c8a2313fd41e9a4236f96e
 
 COCOAPODS: 1.11.2
