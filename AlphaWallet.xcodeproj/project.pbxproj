@@ -5373,6 +5373,7 @@
 				7C3903F7FBE1023CAA5AED0C /* [CP] Check Pods Manifest.lock */,
 				87D5BBC12727CBB70053E6D2 /* Apollo */,
 				C83F787024A1C1DB00783B67 /* Check correct credentials used for API keys */,
+				C887FD5D280806C20030E4BA /* Check correct GoogleService-Info.plist (for Crashlytics) */,
 				29336FE81F6B24FF005E3BFC /* R.Swift */,
 				2912CCF11F6A830700C6CBE3 /* Sources */,
 				2912CCF21F6A830700C6CBE3 /* Frameworks */,
@@ -5842,6 +5843,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  if [ \"${PRODUCT_BUNDLE_IDENTIFIER}\" = \"com.stormbird.alphawallet\" ]; then\n    if grep -q 'static let infuraKey = \"3f22' \"AlphaWallet/Settings/Types/Constants+Credentials.swift\"; then\n        exit 0\n    else\n        echo \"Make sure Constants+Credentials.swift has the correct keys for production builds\"\n        exit 1\n    fi\n  fi\nfi\n\n\n";
+		};
+		C887FD5D280806C20030E4BA /* Check correct GoogleService-Info.plist (for Crashlytics) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Check correct GoogleService-Info.plist (for Crashlytics)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  if [ \"${PRODUCT_BUNDLE_IDENTIFIER}\" = \"com.stormbird.alphawallet\" ]; then\n    if grep -q '598539835570' \"AlphaWallet/GoogleService-Info.plist\"; then\n        exit 0\n    else\n        echo \"Make sure GoogleService-Info.plist is for production builds\"\n        exit 1\n    fi\n  fi\nfi\n";
 		};
 		C8FC0401219E9CC000445E21 /* R.swift */ = {
 			isa = PBXShellScriptBuildPhase;
