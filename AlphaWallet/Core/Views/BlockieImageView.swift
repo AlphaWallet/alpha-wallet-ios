@@ -12,6 +12,9 @@ class BlockieImageView: UIView {
     private lazy var imageView: WebImageView = {
         let imageView = WebImageView()
         imageView.contentMode = .scaleAspectFill
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isUserInteractionEnabled = true
+
         return imageView
     }()
 
@@ -33,12 +36,8 @@ class BlockieImageView: UIView {
     }
 
     var image: BlockiesImage? {
-        get {
-            return nil
-        }
-        set {
-            setBlockieImage(image: newValue)
-        }
+        get { return nil }
+        set { setBlockieImage(image: newValue) }
     }
 
     ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
@@ -47,15 +46,12 @@ class BlockieImageView: UIView {
 
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(imageView)
-
-        NSLayoutConstraint.activate([imageView.anchorsConstraint(to: self)])
-
-        imageView.isUserInteractionEnabled = true
         isUserInteractionEnabled = true
 
+        addSubview(imageView)
+
         NSLayoutConstraint.activate([
+            imageView.anchorsConstraint(to: self),
             imageView.widthAnchor.constraint(equalToConstant: size.width),
             imageView.heightAnchor.constraint(equalToConstant: size.height)
         ])

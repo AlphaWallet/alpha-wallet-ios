@@ -4,6 +4,7 @@ import Foundation
 import UIKit
 import PromiseKit
 import AlphaWalletAddress
+import Combine
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
@@ -93,6 +94,9 @@ class TokensCoordinator: Coordinator {
     private let tokensDataStore: TokensDataStore
     private let tokensAutoDetectionQueue: DispatchQueue = DispatchQueue(label: "com.TokensAutoDetection.updateQueue")
     private var viewWillAppearHandled = false
+    private var cancelable = Set<AnyCancellable>()
+    private let generator = BlockiesGenerator()
+
     init(
             navigationController: UINavigationController = .withOverridenBarAppearence(),
             sessions: ServerDictionary<WalletSession>,
@@ -222,7 +226,7 @@ class TokensCoordinator: Coordinator {
         let account = sessions.anyValue.account
         let scanQRCodeCoordinator = ScanQRCodeCoordinator(analyticsCoordinator: analyticsCoordinator, navigationController: navigationController, account: account)
 
-        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastore: tokensDataStore, assetDefinitionStore: assetDefinitionStore), account: sessions.anyValue.account)
+        let coordinator = QRCodeResolutionCoordinator(config: config, coordinator: scanQRCodeCoordinator, usage: .all(tokensDatastore: tokensDataStore, assetDefinitionStore: assetDefinitionStore), account: account)
         coordinator.delegate = self
 
         addCoordinator(coordinator)
@@ -253,12 +257,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     private func getWalletBlockie() {
-        let generator = BlockiesGenerator()
-        generator.promise(address: sessions.anyValue.account.address).done { [weak self] value in
-            self?.tokensViewController.blockieImageView.image = value
-        }.catch { [weak self] _ in
-            self?.tokensViewController.blockieImageView.image = nil
-        }
+        generator.promise(address: sessions.anyValue.account.address, size: 8, scale: 5)
+            .publisher
+            .prepend(BlockiesImage.defaulBlockieImage)
+            .replaceError(with: BlockiesImage.defaulBlockieImage)
+            .sink(receiveValue: { [weak tokensViewController] image in
+                tokensViewController?.blockieImageView.setBlockieImage(image: image)
+            }).store(in: &cancelable)
     }
 
     func viewWillAppear(in viewController: UIViewController) {

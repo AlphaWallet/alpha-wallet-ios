@@ -4,36 +4,22 @@ import UIKit
 import Combine
 
 struct AccountViewModel {
-    private let analyticsCoordinator: AnalyticsCoordinator
-
     let wallet: Wallet
     let current: Wallet?
     let walletName: String?
     var ensName: String?
-    let icon: Subscribable<BlockiesImage> = Subscribable<BlockiesImage>(nil)
     let apprecation24hour: AnyPublisher<NSAttributedString, Never>
     let balance: AnyPublisher<NSAttributedString, Never>
-    
-    init(wallet: Wallet, current: Wallet?, walletName: String?, analyticsCoordinator: AnalyticsCoordinator, apprecation24hour: AnyPublisher<NSAttributedString, Never>, balance: AnyPublisher<NSAttributedString, Never>) {
+    let blockiesImage: AnyPublisher<BlockiesImage, Never>
+
+    init(wallet: Wallet, current: Wallet?, walletName: String?, apprecation24hour: AnyPublisher<NSAttributedString, Never>, balance: AnyPublisher<NSAttributedString, Never>, blockiesImage: AnyPublisher<BlockiesImage, Never>) {
         self.wallet = wallet
         self.current = current
         self.ensName = nil
         self.walletName = walletName
-        self.analyticsCoordinator = analyticsCoordinator
         self.apprecation24hour = apprecation24hour
         self.balance = balance
-        switch wallet.type {
-        case .real:
-            icon.subscribe { value in
-                guard let value = value else { return }
-                guard value.isEnsAvatar else { return }
-                analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
-            }
-        case .watch:
-            break
-        }
-
-        AccountViewModel.resolveBlockie(for: self, size: 8, scale: 5)
+        self.blockiesImage = blockiesImage
     }
 
     var showWatchIcon: Bool {
@@ -86,16 +72,4 @@ struct AccountViewModel {
             return wallet.address.eip55String
         }
     }
-}
-
-extension AccountViewModel {
-    //Because struct can't capture self in closure we using static func to resolve blockie
-    static func resolveBlockie(for viewModel: AccountViewModel, size: Int = 8, scale: Int = 3) {
-        let generator = BlockiesGenerator()
-        generator.promise(address: viewModel.address, size: size, scale: scale).done { image in
-            viewModel.icon.value = image
-        }.catch { _ in
-            viewModel.icon.value = nil
-        }
-    }
-}
+} 

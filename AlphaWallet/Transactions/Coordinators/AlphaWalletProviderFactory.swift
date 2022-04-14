@@ -4,6 +4,7 @@ import Alamofire
 import Foundation
 import Moya
 import PromiseKit
+import Combine
 
 struct AlphaWalletProviderFactory {
     static let policies: [String: ServerTrustPolicy] = [:]
@@ -74,5 +75,27 @@ private extension DispatchTimeInterval {
         case .seconds(let value):
             return .seconds(value + jitter)
         }
+    }
+}
+
+extension Promise {
+    var publisher: AnyPublisher<T, Error> {
+        var isCanceled: Bool = false
+        let publisher = Deferred {
+            Future<T, Error> { seal in
+                guard !isCanceled else { return }
+
+                self.done { value in
+                    seal(.success((value)))
+                }.catch { error in
+                    seal(.failure(error))
+                }
+            }
+        }.handleEvents(receiveCancel: {
+            isCanceled = true
+        })
+
+        return publisher
+            .eraseToAnyPublisher()
     }
 }

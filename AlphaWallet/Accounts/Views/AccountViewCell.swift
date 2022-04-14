@@ -68,19 +68,23 @@ class AccountViewCell: UITableViewCell {
 
         selectedIndicator.isHidden = !viewModel.isSelected
 
-        blockieImageView.subscribable = viewModel.icon
+        viewModel
+            .blockiesImage
+            .receive(on: RunLoop.main)
+            .sink { [weak blockieImageView] image in
+                blockieImageView?.setBlockieImage(image: image)
+            }.store(in: &cancelable)
+
         viewModel.balance
             .receive(on: RunLoop.main)
             .sink { [weak balanceLabel] value in
                 balanceLabel?.attributedText = value
-            }
-            .store(in: &cancelable)
+            }.store(in: &cancelable)
 
         viewModel.apprecation24hour
             .receive(on: RunLoop.main)
             .sink { [weak apprecation24hourLabel] value in
                 apprecation24hourLabel?.attributedText = value
-            }
-            .store(in: &cancelable)
+            }.store(in: &cancelable)
     }
 }

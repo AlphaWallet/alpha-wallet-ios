@@ -22,6 +22,10 @@ enum BlockiesImage {
             return isEnsAvatar
         }
     }
+
+    static var defaulBlockieImage: BlockiesImage {
+        return .image(image: R.image.tokenPlaceholderLarge()!, isEnsAvatar: false)
+    }
 }
 
 class BlockiesGenerator {
