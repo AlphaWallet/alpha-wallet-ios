@@ -44,27 +44,6 @@ struct CollectiblePairs: Hashable {
 
 extension TokensViewModel {
     enum Section: Equatable {
-        static func == (lhs: Section, rhs: Section) -> Bool {
-            switch (lhs, rhs) {
-            case (.walletSummary, .walletSummary):
-                return true
-            case (.filters, .filters):
-                return true
-            case (.testnetTokens, .testnetTokens):
-                return true
-            case (.search, .search):
-                return true
-            case (.tokens, .tokens):
-                return true
-            case (.collectiblePairs, .collectiblePairs):
-                return true
-            case (.activeWalletSession(let count1), .activeWalletSession(let count2)):
-                return count1 == count2
-            case (_, _):
-                return false
-            }
-        }
-
         case walletSummary
         case filters
         case testnetTokens
@@ -161,15 +140,15 @@ class TokensViewModel {
         switch filter {
         case .all, .keyword:
             return true
-        case .assets, .collectiblesOnly, .type, .defi, .governance: 
+        case .assets, .collectiblesOnly, .type, .defi, .governance:
             return false
         }
-    } 
+    }
 
     var hasContent: Bool {
         return !collectiblePairs.isEmpty
     }
-    
+
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
         case .all, .defi, .governance, .assets, .keyword, .type:
