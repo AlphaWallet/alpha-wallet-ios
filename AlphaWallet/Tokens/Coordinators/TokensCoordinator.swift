@@ -36,7 +36,8 @@ class TokensCoordinator: Coordinator {
     private let eventsDataStore: NonActivityEventsDataStore
     private let promptBackupCoordinator: PromptBackupCoordinator
     private lazy var tokensFilter: TokensFilter = {
-        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher)
+        let tokenGroupIdentifier: TokenGroupIdentifierProtocol = TokenGroupIdentifier.identifier(fromFileName: "tokens")!
+        return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
     private let analyticsCoordinator: AnalyticsCoordinator
     private let tokenActionsService: TokenActionsServiceType

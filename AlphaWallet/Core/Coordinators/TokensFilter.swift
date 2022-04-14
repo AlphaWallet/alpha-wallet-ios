@@ -23,11 +23,13 @@ class TokensFilter {
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokenActionsService: TokenActionsServiceType
     private let coinTickersFetcher: CoinTickersFetcherType
+    private let tokenGroupIdentifier: TokenGroupIdentifierProtocol
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsServiceType, coinTickersFetcher: CoinTickersFetcherType) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsServiceType, coinTickersFetcher: CoinTickersFetcherType, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsService = tokenActionsService
         self.coinTickersFetcher = coinTickersFetcher
+        self.tokenGroupIdentifier = tokenGroupIdentifier
     }
 
     func filterTokens(tokens: [TokenObject], filter: WalletFilter) -> [TokenObject] {
@@ -37,10 +39,12 @@ class TokensFilter {
             filteredTokens = tokens
         case .type(let types):
             filteredTokens = tokens.filter { types.contains($0.type) }
-        case .currencyOnly:
-             filteredTokens = tokens.filter { $0.type == .nativeCryptocurrency || $0.type == .erc20 }
-        case .assetsOnly:
-            filteredTokens = tokens.filter { $0.type != .nativeCryptocurrency && $0.type != .erc20 }
+        case .defi:
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .defi }
+        case .governance:
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .governance }
+        case .assets:
+            filteredTokens = tokens.filter { tokenGroupIdentifier.identify(tokenObject: $0) == .assets }
         case .collectiblesOnly:
             filteredTokens = tokens.filter { ($0.type == .erc721 || $0.type == .erc1155) && !$0.balance.isEmpty }
         case .keyword(let keyword):
@@ -91,7 +95,7 @@ class TokensFilter {
         switch filter {
         case .all:
             break //no-op
-        case .type, .currencyOnly, .assetsOnly, .collectiblesOnly:
+        case .type, .defi, .governance, .assets, .collectiblesOnly:
             filteredTokens = []
         case .keyword(let keyword):
             let lowercasedKeyword = keyword.trimmed.lowercased()

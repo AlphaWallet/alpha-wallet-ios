@@ -565,12 +565,14 @@ extension TokensViewController: UITableViewDataSource {
         let isEmpty = rows == 0
         let title: String
         switch viewModel.filter {
-        case .assetsOnly:
+        case .assets:
             title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterAssetsOnlyTitle())
         case .collectiblesOnly:
             title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle())
-        case .currencyOnly:
-            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle())
+        case .defi:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterDefiTitle())
+        case .governance:
+            title = R.string.localizable.emptyTableViewWalletTitle(R.string.localizable.aWalletContentsFilterGovernanceTitle())
         case .keyword:
             title = R.string.localizable.emptyTableViewSearchTitle()
         case .all:
@@ -633,7 +635,7 @@ extension TokensViewController {
             //do nothing
         } else {
             switch filter {
-            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
                 searchController.isActive = false
             case .keyword:
                 break
@@ -669,7 +671,7 @@ extension TokensViewController: UISearchResultsUpdating {
         shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = searchController.isActive
         guard searchController.isActive else {
             switch viewModel.filter {
-            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly, .type:
+            case .all, .defi, .governance, .assets, .collectiblesOnly, .type:
                 break
             case .keyword:
                 //Handle when user taps Cancel button to stop search

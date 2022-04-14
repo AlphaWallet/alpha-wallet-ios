@@ -97,7 +97,7 @@ class TokensViewModel {
     private func refreshSections(walletConnectSessions count: Int) {
         let varyTokenOrCollectiblePeirsSection: Section = {
             switch filter {
-            case .all, .currencyOnly, .keyword, .assetsOnly, .type:
+            case .all, .defi, .governance, .keyword, .assets, .type:
                 return .tokens
             case .collectiblesOnly:
                 return .collectiblePairs
@@ -159,9 +159,9 @@ class TokensViewModel {
     var shouldShowBackupPromptViewHolder: Bool {
         //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filter {
-        case .all, .currencyOnly, .keyword:
+        case .all, .keyword:
             return true
-        case .assetsOnly, .collectiblesOnly, .type:
+        case .assets, .collectiblesOnly, .type, .defi, .governance: 
             return false
         }
     } 
@@ -172,7 +172,7 @@ class TokensViewModel {
     
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
-        case .all, .currencyOnly, .assetsOnly, .keyword, .type:
+        case .all, .defi, .governance, .assets, .keyword, .type:
             return false
         case .collectiblesOnly:
             return hasContent
@@ -200,7 +200,7 @@ class TokensViewModel {
             return 0
         case .tokens, .collectiblePairs:
             switch filter {
-            case .all, .currencyOnly, .keyword, .assetsOnly, .type:
+            case .all, .defi, .governance, .keyword, .assets, .type:
                 return filteredTokens.count
             case .collectiblesOnly:
                 return collectiblePairs.count
@@ -263,7 +263,7 @@ class TokensViewModel {
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         let tokens = tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
         switch filter {
-        case .all, .type, .currencyOnly, .assetsOnly, .keyword:
+        case .all, .type, .defi, .governance, .assets, .keyword:
             return TokensViewModel.functional.groupTokenObjectsWithServers(tokens: tokens)
         case .collectiblesOnly:
             return tokens.map { .tokenObject($0) }
@@ -334,8 +334,9 @@ fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
-            .currencyOnly,
-            .assetsOnly,
+            .defi,
+            .governance,
+            .assets,
             .collectiblesOnly,
         ]
     }
@@ -348,9 +349,11 @@ fileprivate extension WalletFilter {
         switch self {
         case .all:
             return R.string.localizable.aWalletContentsFilterAllTitle()
-        case .currencyOnly:
-            return R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle()
-        case .assetsOnly:
+        case .defi:
+            return R.string.localizable.aWalletContentsFilterDefiTitle()
+        case .governance:
+            return R.string.localizable.aWalletContentsFilterGovernanceTitle()
+        case .assets:
             return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
         case .collectiblesOnly:
             return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
