@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import Combine
 
 struct AccountsViewModel {
     private var config: Config
@@ -36,6 +37,7 @@ struct AccountsViewModel {
         guard let wallet = keystore.currentWallet, let indexPath = indexPath(for: wallet) else { return nil }
         return indexPath
     }
+    private let generator = BlockiesGenerator()
 
     init(keystore: Keystore, config: Config, configuration: AccountsCoordinatorViewModel.Configuration, analyticsCoordinator: AnalyticsCoordinator, walletBalanceService: WalletBalanceService) {
         self.wallets = keystore.wallets
@@ -68,12 +70,22 @@ struct AccountsViewModel {
                 return AccountViewModel.balanceAttributedString(for: balance.totalAmountString)
             }.eraseToAnyPublisher()
 
-        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, analyticsCoordinator: analyticsCoordinator, apprecation24hour: apprecation24hour, balance: balance)
-    }
+        let blockiesImage = generator.promise(address: account.address, size: 8, scale: 5)
+            .publisher
+            .prepend(BlockiesImage.defaulBlockieImage)
+            .replaceError(with: BlockiesImage.defaulBlockieImage)
+            .handleEvents(receiveOutput: { value in
+                guard value.isEnsAvatar else { return }
+                analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
+            })
+            .eraseToAnyPublisher()
+
+        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, apprecation24hour: apprecation24hour, balance: balance, blockiesImage: blockiesImage)
+    } 
 
     var title: String {
         return configuration.navigationTitle
-    }
+    } 
 
     func walletName(forAccount account: Wallet) -> String? {
         let walletNames = config.walletNames
