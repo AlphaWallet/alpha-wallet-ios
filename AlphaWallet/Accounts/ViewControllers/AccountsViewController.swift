@@ -2,6 +2,7 @@
 
 import UIKit
 import PromiseKit
+import Combine
 
 protocol AccountsViewControllerDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)
@@ -25,23 +26,13 @@ class AccountsViewController: UIViewController {
         tableView.addSubview(tableViewRefreshControl)
         return tableView
     }()
-    private var viewModel: AccountsViewModel
-    private let config: Config
-    private let keystore: Keystore
-    private let analyticsCoordinator: AnalyticsCoordinator
-    weak var delegate: AccountsViewControllerDelegate?
-    var allowsAccountDeletion: Bool = false
-    var hasWallets: Bool {
-        return !keystore.wallets.isEmpty
-    }
-    private let walletBalanceService: WalletBalanceService
+    let viewModel: AccountsViewModel
+    private var cancelable = Set<AnyCancellable>()
 
-    init(config: Config, keystore: Keystore, viewModel: AccountsViewModel, walletBalanceService: WalletBalanceService, analyticsCoordinator: AnalyticsCoordinator) {
-        self.config = config
-        self.keystore = keystore
+    weak var delegate: AccountsViewControllerDelegate?
+
+    init(viewModel: AccountsViewModel) {
         self.viewModel = viewModel
-        self.walletBalanceService = walletBalanceService
-        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.backgroundColor = GroupedTable.Color.background
@@ -53,6 +44,20 @@ class AccountsViewController: UIViewController {
             tableView.anchorsConstraintSafeArea(to: roundedBackground) +
             roundedBackground.createConstraintsWithContainer(view: view)
         )
+        bindViewModel()
+    }
+
+    private func bindViewModel() {
+        viewModel.reloadBalancePublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak tableViewRefreshControl] state in
+                switch state {
+                case .fetching:
+                    tableViewRefreshControl?.beginRefreshing()
+                case .done, .failure:
+                    tableViewRefreshControl?.endRefreshing()
+                }
+            }.store(in: &cancelable)
     }
 
     private lazy var tableViewRefreshControl: UIRefreshControl = {
@@ -63,8 +68,7 @@ class AccountsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        configure(viewModel: .init(keystore: keystore, config: config, configuration: viewModel.configuration, analyticsCoordinator: analyticsCoordinator, walletBalanceService: walletBalanceService))
+        configure()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -77,8 +81,8 @@ class AccountsViewController: UIViewController {
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
 
-    func configure(viewModel: AccountsViewModel) {
-        self.viewModel = viewModel
+    func configure() {
+        viewModel.reloadWallets()
         title = viewModel.title
         tableView.reloadData()
     }
@@ -100,18 +104,12 @@ class AccountsViewController: UIViewController {
     }
 
     @objc private func pullToRefresh(_ sender: UIRefreshControl) {
-        tableViewRefreshControl.beginRefreshing()
-        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: viewModel.wallets, force: true)
-            .done { _ in }
-            .cauterize()
-            .finally { [weak self] in
-                self?.tableViewRefreshControl.endRefreshing()
-            }
+        viewModel.reloadBalance()
     }
 
     private func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
-        let result = keystore.delete(wallet: account)
+        let result = viewModel.delete(account: account)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
             guard let strongSelf = self else { return }
@@ -120,7 +118,7 @@ class AccountsViewController: UIViewController {
 
             switch result {
             case .success:
-                strongSelf.configure(viewModel: .init(keystore: strongSelf.keystore, config: strongSelf.config, configuration: strongSelf.viewModel.configuration, analyticsCoordinator: strongSelf.analyticsCoordinator, walletBalanceService: strongSelf.walletBalanceService))
+                self?.configure()
                 strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
             case .failure(let error):
                 strongSelf.displayError(error: error)
@@ -149,38 +147,23 @@ extension AccountsViewController: UITableViewDataSource {
         switch viewModel.sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
             let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
-            guard var cellViewModel = viewModel[indexPath] else {
-                //NOTE: this should never happen here
-                return UITableViewCell()
-            }
-            cell.configure(viewModel: cellViewModel)
-            cell.account = cellViewModel.wallet
+            guard let viewModel = viewModel[indexPath] else { return UITableViewCell() }
+            cell.configure(viewModel: viewModel)
 
             let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
             gesture.minimumPressDuration = 0.6
             cell.addGestureRecognizer(gesture)
 
-            let address = cellViewModel.address
-            let resolver: DomainResolutionServiceType = DomainResolutionService()
-            resolver.resolveEns(address: address).done { resolution in
-                guard let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
-
-                cellViewModel.ensName = resolution.resolution.value
-                cell.configure(viewModel: cellViewModel)
-            }.cauterize()
-
             return cell
         case .summary:
-            let config = self.config
             let cell: WalletSummaryTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(walletSummary: walletBalanceService.walletsSummary, config: config))
+            cell.configure(viewModel: viewModel.walletSummaryViewModel)
 
             return cell
         }
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        guard allowsAccountDeletion else { return false }
         return viewModel.canEditCell(indexPath: indexPath)
     }
 

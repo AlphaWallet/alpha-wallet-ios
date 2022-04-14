@@ -7,19 +7,27 @@ struct AccountViewModel {
     let wallet: Wallet
     let current: Wallet?
     let walletName: String?
-    var ensName: String?
     let apprecation24hour: AnyPublisher<NSAttributedString, Never>
     let balance: AnyPublisher<NSAttributedString, Never>
     let blockiesImage: AnyPublisher<BlockiesImage, Never>
+    let ensName: AnyPublisher<String?, Never>
 
-    init(wallet: Wallet, current: Wallet?, walletName: String?, apprecation24hour: AnyPublisher<NSAttributedString, Never>, balance: AnyPublisher<NSAttributedString, Never>, blockiesImage: AnyPublisher<BlockiesImage, Never>) {
+    init(
+        wallet: Wallet,
+        current: Wallet?,
+        walletName: String?,
+        ensName: AnyPublisher<String?, Never>,
+        apprecation24hour: AnyPublisher<NSAttributedString, Never>,
+        balance: AnyPublisher<NSAttributedString, Never>,
+        blockiesImage: AnyPublisher<BlockiesImage, Never>
+    ) {
         self.wallet = wallet
         self.current = current
-        self.ensName = nil
         self.walletName = walletName
         self.apprecation24hour = apprecation24hour
         self.balance = balance
         self.blockiesImage = blockiesImage
+        self.ensName = ensName
     }
 
     var showWatchIcon: Bool {
@@ -56,14 +64,17 @@ struct AccountViewModel {
         ])
     }
 
-    var addressesAttrinutedString: NSAttributedString {
-        return .init(string: addresses, attributes: [
-            .font: Fonts.regular(size: 12),
-            .foregroundColor: R.color.dove()!
-        ])
+    var addressesAttrinutedString: AnyPublisher<NSAttributedString, Never> {
+        ensName.map { ensName -> NSAttributedString in
+            let addresses = self.addresses(ensName: ensName)
+            return .init(string: addresses, attributes: [
+                .font: Fonts.regular(size: 12),
+                .foregroundColor: R.color.dove()!
+            ])
+        }.eraseToAnyPublisher()
     }
 
-    private var addresses: String {
+    private func addresses(ensName: String?) -> String {
         if let walletName = walletName {
             return "\(walletName) | \(wallet.address.truncateMiddle)"
         } else if let ensName = ensName {
