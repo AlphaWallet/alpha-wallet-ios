@@ -47,7 +47,7 @@ extension AlphaWallet.WalletConnect {
         var description: String {
             switch self {
             case .value(let data):
-                return "{value: {data: \(data)}}"
+                return "{value: {data: \(String(describing: data ?? .init()))}}"
             case .error(let code, let message):
                 return "{error: {code: \(code), message: \(message)}}"
             }
