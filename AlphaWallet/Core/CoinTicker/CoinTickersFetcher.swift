@@ -68,7 +68,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         if let promise = fetchSupportedTickerIdsPromise { return promise }
 
         let promise: Promise<[TickerId]> = firstly {
-            provider.request(.tokensThatHasPrices(config: config))
+            provider.request(.tokensThatHasPrices)
         }.map(on: CoinTickersFetcher.queue, { response -> [TickerId] in
             return try response.map([TickerId].self, using: JSONDecoder())
         }).recover { _ -> Promise<[TickerId]> in
@@ -110,7 +110,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private func fetchChartHistory(period: ChartHistoryPeriod, ticker: CoinTicker) -> Promise<ChartHistory> {
         firstly {
-            provider.request(.priceHistoryOfToken(config: config, id: ticker.id, currency: Constants.Currency.usd, days: period.rawValue))
+            provider.request(.priceHistoryOfToken(id: ticker.id, currency: Constants.Currency.usd, days: period.rawValue))
         }.map(on: CoinTickersFetcher.queue, { response -> ChartHistory in
             try response.map(ChartHistory.self, using: JSONDecoder())
         }).recover(on: CoinTickersFetcher.queue, { _ -> Promise<ChartHistory> in
@@ -208,7 +208,7 @@ class CoinTickersFetcher: CoinTickersFetcherType {
 
     private static func fetchPricesPage(provider: MoyaProvider<AlphaWalletService>, config: Config, ids: String, mappedCoinTickerIds: [MappedCoinTickerId], tickerIds: [String], page: Int, shouldRetry: Bool) -> Promise<[AddressAndRPCServer: CoinTicker]> {
         firstly {
-            provider.request(.pricesOfTokens(config: config, ids: ids, currency: Constants.Currency.usd, page: page))
+            provider.request(.pricesOfTokens(ids: ids, currency: Constants.Currency.usd, page: page))
         }.map(on: CoinTickersFetcher.queue, { response -> [AddressAndRPCServer: CoinTicker] in
             let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
             var resultTickers: [AddressAndRPCServer: CoinTicker] = [:]
