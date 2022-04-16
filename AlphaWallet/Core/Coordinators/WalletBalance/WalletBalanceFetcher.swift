@@ -212,10 +212,16 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, force: Bool) -> Promise<Void> {
-        let promises = balanceFetchers.map { each in
-            each.value.refreshBalance(updatePolicy: updatePolicy, force: force)
+        switch updatePolicy {
+        case .token(let token):
+            guard let fetcher = balanceFetchers[safe: token.server] else { return .value(()) }
+            return fetcher.refreshBalance(updatePolicy: updatePolicy, force: force)
+        case .all, .eth:
+            let promises = balanceFetchers.map { each in
+                each.value.refreshBalance(updatePolicy: updatePolicy, force: force)
+            }
+            return when(resolved: promises).asVoid()
         }
-        return when(resolved: promises).asVoid()
     }
 
     func stop() {
