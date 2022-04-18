@@ -2,7 +2,6 @@
 
 import UIKit
 import Result
-import StatefulViewController
 import PromiseKit
 import Combine
 
@@ -215,16 +214,6 @@ class TokensViewController: UIViewController {
             heightConstraint
         ])
 
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.startLoading()
-            self?.tokenCollection.fetch()
-        })
-        loadingView = LoadingView()
-        emptyView = EmptyView.tokensEmptyView(completion: { [weak self] in
-            self?.startLoading()
-            self?.tokenCollection.fetch()
-        })
-
         refreshView(viewModel: viewModel)
 
         setupFilteringWithKeyword()
@@ -288,7 +277,6 @@ class TokensViewController: UIViewController {
     }
 
     func fetch() {
-        startLoading()
         tokenCollection.fetch()
     }
 
@@ -322,7 +310,6 @@ class TokensViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel = viewModel
                 strongSelf.refreshView(viewModel: viewModel)
-                strongSelf.endLoading()
                 strongSelf.reload()
 
                 if strongSelf.tableViewRefreshControl.isRefreshing {
@@ -352,13 +339,6 @@ class TokensViewController: UIViewController {
                 searchController.searchBar.becomeFirstResponder()
             }
         }
-    }
-}
-
-extension TokensViewController: StatefulViewController {
-    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
-    func hasContent() -> Bool {
-        return true
     }
 }
 
