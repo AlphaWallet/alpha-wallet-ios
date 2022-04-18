@@ -96,8 +96,8 @@ test14:
 test: test15
 
 build_and_run_booted:
-#The simulator "name" specified doesn't matter
-	@xcrun xcodebuild -disableAutomaticPackageResolution -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.4' -derivedDataPath ./build 
+	#The simulator "name" specified doesn't matter
+	@xcrun xcodebuild -disableAutomaticPackageResolution -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.4' -derivedDataPath ./build | $(beautify_cmd)
 	@xcrun simctl install booted ./build/Build/Products/Debug-iphonesimulator/AlphaWallet.app
 	@xcrun simctl launch booted com.stormbird.alphawallet
 
