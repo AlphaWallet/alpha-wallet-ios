@@ -86,15 +86,13 @@ class SingleChainTokenCoordinator: Coordinator {
 
         return firstly {
             tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance)
-        }.map(on: .main, { operation -> [TokenObject] in
-            return self.tokensDataStore.addTokenObjects(values: [operation])
-        }).map(on: .main, { tokenObjects -> TokenObject in
-            if let tokenObject = tokenObjects.first {
+        }.map { operation -> TokenObject in
+            if let tokenObject = self.tokensDataStore.addTokenObjects(values: [operation]).first {
                 return tokenObject
             } else {
                 throw ImportTokenError()
             }
-        })
+        }
     }
 
     func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
