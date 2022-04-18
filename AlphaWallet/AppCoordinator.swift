@@ -47,7 +47,6 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-                promptBackupCoordinator: promptBackupCoordinator,
                 analyticsCoordinator: analyticsService,
                 viewModel: .init(configuration: .summary),
                 walletBalanceService: walletBalanceService
@@ -190,14 +189,6 @@ class AppCoordinator: NSObject, Coordinator {
             removeCoordinator(coordinator)
         }
 
-        if let coordinator = promptBackupCoordinator {
-            removeCoordinator(coordinator)
-        }
-
-        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsService)
-        promptBackupCoordinator.start()
-        addCoordinator(promptBackupCoordinator)
-
         let coordinator = ActiveWalletCoordinator(
                 navigationController: navigationController,
                 walletAddressesStore: walletAddressesStore,
@@ -209,7 +200,6 @@ class AppCoordinator: NSObject, Coordinator {
                 analyticsCoordinator: analyticsService,
                 restartQueue: restartQueue,
                 universalLinkCoordinator: universalLinkCoordinator,
-                promptBackupCoordinator: promptBackupCoordinator,
                 accountsCoordinator: accountsCoordinator,
                 walletBalanceService: walletBalanceService,
                 coinTickersFetcher: coinTickersFetcher,
@@ -352,9 +342,6 @@ extension AppCoordinator: ActiveWalletCoordinatorDelegate {
     func showWallets(in coordinator: ActiveWalletCoordinator) {
         pendingActiveWalletCoordinator = coordinator
         removeCoordinator(coordinator)
-
-        //NOTE: refactor with more better solution
-        accountsCoordinator.promptBackupCoordinator = promptBackupCoordinator
 
         coordinator.navigationController.popViewController(animated: true)
         coordinator.navigationController.setNavigationBarHidden(false, animated: false)
@@ -520,6 +507,10 @@ extension AppCoordinator: AccountsCoordinatorDelegate {
 
     func didCancel(in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
+    }
+
+    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator) {
+        activeWalletCoordinator?.didFinishBackup(account: account)
     }
 
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {

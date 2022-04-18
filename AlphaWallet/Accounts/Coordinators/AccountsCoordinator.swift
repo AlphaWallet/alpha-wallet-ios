@@ -8,6 +8,7 @@ protocol AccountsCoordinatorDelegate: AnyObject {
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator)
     func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator)
     func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator)
+    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator)
 }
 
 struct AccountsCoordinatorViewModel {
@@ -46,7 +47,6 @@ class AccountsCoordinator: Coordinator {
 
     private let config: Config
     private let keystore: Keystore
-    var promptBackupCoordinator: PromptBackupCoordinator?
     private let analyticsCoordinator: AnalyticsCoordinator
     private let walletBalanceService: WalletBalanceService
     let navigationController: UINavigationController
@@ -78,7 +78,6 @@ class AccountsCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
-        promptBackupCoordinator: PromptBackupCoordinator?,
         analyticsCoordinator: AnalyticsCoordinator,
         viewModel: AccountsCoordinatorViewModel,
         walletBalanceService: WalletBalanceService
@@ -86,7 +85,6 @@ class AccountsCoordinator: Coordinator {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
-        self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
         self.viewModel = viewModel
         self.walletBalanceService = walletBalanceService
@@ -292,11 +290,8 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
     }
 
     func didFinish(account: AlphaWallet.Address, in coordinator: BackupCoordinator) {
-        if let coordinator = promptBackupCoordinator {
-            coordinator.markBackupDone()
-            coordinator.showHideCurrentPrompt()
-        }
-
+        delegate?.didFinishBackup(account: account, in: self)
+        
         removeCoordinator(coordinator)
     }
 }
