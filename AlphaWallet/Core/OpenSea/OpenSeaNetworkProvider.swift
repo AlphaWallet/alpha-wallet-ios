@@ -85,7 +85,7 @@ final class OpenSeaNetworkProvider {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
 
-        return performRequestWithRetry(url: url, queue: .main).map { json -> URL in
+        return performRequestWithRetry(server: server, url: url, queue: .main).map { json -> URL in
             let image: String = json["image_url"].string ?? json["image_preview_url"].string ?? json["image_thumbnail_url"].string ?? json["image_original_url"].string ?? ""
             guard let url = URL(string: image) else {
                 throw AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL)"))
@@ -100,7 +100,7 @@ final class OpenSeaNetworkProvider {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
 
-        return performRequestWithRetry(url: url, queue: .main).map { json -> OpenSea.Stats in
+        return performRequestWithRetry(server: server, url: url, queue: .main).map { json -> OpenSea.Stats in
             return try OpenSea.Stats(json: json)
         }
     }
@@ -111,7 +111,7 @@ final class OpenSeaNetworkProvider {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
 
-        return performRequestWithRetry(url: url, queue: queue)
+        return performRequestWithRetry(server: server, url: url, queue: queue)
             .then(on: queue, { [weak self] json -> Promise<OpenSea.Response<[OpenSea.CollectionKey: OpenSea.Collection]>> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
@@ -129,16 +129,31 @@ final class OpenSeaNetworkProvider {
             }
     }
 
-    private func performRequestWithRetry(url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
+    private func openSeaKey(forServer server: RPCServer) -> String? {
+        switch server {
+        case .main:
+            return Constants.Credentials.openseaKey
+        case .rinkeby:
+            //We don't return the key because OpenSea API returns a `401` with body "Invalid API key" when a key is used with Rinkeby
+            return nil
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+            //We are just being safe here, returning the key anyway
+            return Constants.Credentials.openseaKey
+        }
+    }
+
+    private func performRequestWithRetry(server: RPCServer, url: URL, maximumRetryCount: Int = 3, delayMultiplayer: Int = 5, retryDelay: DispatchTimeInterval = .seconds(2), queue: DispatchQueue) -> Promise<JSON> {
         enum OpenSeaApiError: Error {
             case rateLimited
             case invalidApiKey
         }
 
         func privatePerformRequest(url: URL) -> Promise<(HTTPURLResponse, JSON)> {
+            var headers: [String: String] = .init()
+            headers["X-API-KEY"] = openSeaKey(forServer: server)
             //Using responseData() instead of responseJSON() below because `PromiseKit`'s `responseJSON()` resolves to failure if body isn't JSON. But OpenSea returns a non-JSON when the status code is 401 (unauthorized, aka. wrong API key) and we want to detect that.
             return sessionManagerWithDefaultHttpHeaders
-                .request(url, method: .get, headers: ["X-API-KEY": Constants.Credentials.openseaKey])
+                .request(url, method: .get, headers: headers)
                 .responseData()
                 .map(on: queue, { data, response -> (HTTPURLResponse, JSON) in
                     if let response: HTTPURLResponse = response.response {
@@ -179,7 +194,7 @@ final class OpenSeaNetworkProvider {
             return .init(error: AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)")))
         }
 
-        return performRequestWithRetry(url: url, queue: queue)
+        return performRequestWithRetry(server: server, url: url, queue: queue)
             .then({ [weak self] json -> Promise<OpenSea.Response<OpenSeaNonFungiblesToAddress>> in
                 guard let strongSelf = self else { return .init(error: PMKError.cancelled) }
 
