@@ -6,17 +6,17 @@ import Result
 import Combine
 
 // swiftlint:disable file_length
-protocol InCoordinatorDelegate: AnyObject {
-    func didCancel(in coordinator: InCoordinator)
-    func didShowWallet(in coordinator: InCoordinator)
-    func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
-    func handleUniversalLink(_ url: URL, forCoordinator coordinator: InCoordinator)
-    func showWallets(in coordinator: InCoordinator)
-    func didRestart(in coordinator: InCoordinator, reason: RestartReason, wallet: Wallet)
+protocol ActiveWalletCoordinatorDelegate: AnyObject {
+    func didCancel(in coordinator: ActiveWalletCoordinator)
+    func didShowWallet(in coordinator: ActiveWalletCoordinator)
+    func assetDefinitionsOverrideViewController(for coordinator: ActiveWalletCoordinator) -> UIViewController?
+    func handleUniversalLink(_ url: URL, forCoordinator coordinator: ActiveWalletCoordinator)
+    func showWallets(in coordinator: ActiveWalletCoordinator)
+    func didRestart(in coordinator: ActiveWalletCoordinator, reason: RestartReason, wallet: Wallet)
 }
 
 // swiftlint:disable type_body_length
-class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
+class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     private var wallet: Wallet
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
@@ -77,7 +77,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     var keystore: Keystore
     var universalLinkCoordinator: UniversalLinkCoordinatorType
 
-    weak var delegate: InCoordinatorDelegate?
+    weak var delegate: ActiveWalletCoordinatorDelegate?
 
     private let walletAddressesStore: WalletAddressesStore
     private let walletBalanceService: WalletBalanceService
@@ -510,7 +510,7 @@ class InCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate {
     }
 }
 
-extension InCoordinator {
+extension ActiveWalletCoordinator {
     func requestSwitchChain(server: RPCServer, currentUrl: URL?, callbackID: SwitchCustomChainCallbackId, targetChain: WalletSwitchEthereumChainObject) {
         let coordinator = DappRequestSwitchExistingChainCoordinator(config: config, server: server, callbackId: callbackID, targetChain: targetChain, restartQueue: restartQueue, analyticsCoordinator: analyticsCoordinator, currentUrl: currentUrl, inViewController: presentationViewController)
         coordinator.delegate = dappRequestHandler
@@ -527,7 +527,7 @@ extension InCoordinator {
 }
 
 // swiftlint:enable type_body_length
-extension InCoordinator: WalletConnectCoordinatorDelegate {
+extension ActiveWalletCoordinator: WalletConnectCoordinatorDelegate {
 
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: TransactionConfirmationCoordinator) {
         handlePendingTransaction(transaction: transaction)
@@ -542,7 +542,7 @@ extension InCoordinator: WalletConnectCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: CanOpenURL {
+extension ActiveWalletCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
         let browserCoordinator = createBrowserCoordinator(sessions: sessionsSubject.value, browserOnly: true, analyticsCoordinator: analyticsCoordinator)
@@ -573,16 +573,16 @@ extension InCoordinator: CanOpenURL {
     }
 }
 
-extension InCoordinator: TransactionCoordinatorDelegate {
+extension ActiveWalletCoordinator: TransactionCoordinatorDelegate {
 }
 
-extension InCoordinator: ConsoleCoordinatorDelegate {
+extension ActiveWalletCoordinator: ConsoleCoordinatorDelegate {
     func didCancel(in coordinator: ConsoleCoordinator) {
         removeCoordinator(coordinator)
     }
 }
 
-extension InCoordinator: SettingsCoordinatorDelegate {
+extension ActiveWalletCoordinator: SettingsCoordinatorDelegate {
 
     private func showConsole(navigationController: UINavigationController) {
         let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore, navigationController: navigationController)
@@ -621,7 +621,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: UrlSchemeResolver {
+extension ActiveWalletCoordinator: UrlSchemeResolver {
     var sessions: ServerDictionary<WalletSession> {
         sessionsSubject.value
     }
@@ -637,7 +637,7 @@ extension InCoordinator: UrlSchemeResolver {
     }
 }
 
-extension InCoordinator: ActivityViewControllerDelegate {
+extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
     func reinject(viewController: ActivityViewController) {
         activitiesService.reinject(activity: viewController.viewModel.activity)
     }
@@ -677,7 +677,7 @@ extension InCoordinator: ActivityViewControllerDelegate {
     }
 }
 
-extension InCoordinator: UITabBarControllerDelegate {
+extension ActiveWalletCoordinator: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if isViewControllerDappBrowserTab(viewController) && viewController == tabBarController.selectedViewController {
             loadHomePageIfNeeded()
@@ -714,7 +714,7 @@ extension InCoordinator: UITabBarControllerDelegate {
     }
 }
 
-extension InCoordinator: WhereAreMyTokensCoordinatorDelegate {
+extension ActiveWalletCoordinator: WhereAreMyTokensCoordinatorDelegate {
 
     func switchToMainnetSelected(in coordinator: WhereAreMyTokensCoordinator) {
         restartQueue.add(.reloadServers(Constants.defaultEnabledServers))
@@ -726,7 +726,7 @@ extension InCoordinator: WhereAreMyTokensCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: TokensCoordinatorDelegate {
+extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
 
     func viewWillAppearOnce(in coordinator: TokensCoordinator) {
         //NOTE: need to figure out creating xml handlers, object creating takes a lot of resources
@@ -841,7 +841,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: PaymentCoordinatorDelegate {
+extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
     func didSelectTokenHolder(tokenHolder: TokenHolder, in coordinator: PaymentCoordinator) {
         guard let coordinator = coordinatorOfType(type: TokensCardCollectionCoordinator.self) else { return }
 
@@ -883,10 +883,10 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: FiatOnRampCoordinatorDelegate {
+extension ActiveWalletCoordinator: FiatOnRampCoordinatorDelegate {
 }
 
-extension InCoordinator: DappBrowserCoordinatorDelegate {
+extension ActiveWalletCoordinator: DappBrowserCoordinatorDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
@@ -908,10 +908,10 @@ extension InCoordinator: DappBrowserCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: StaticHTMLViewControllerDelegate {
+extension ActiveWalletCoordinator: StaticHTMLViewControllerDelegate {
 }
 
-extension InCoordinator: ActivitiesCoordinatorDelegate {
+extension ActiveWalletCoordinator: ActivitiesCoordinatorDelegate {
 
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
         guard let navigationController = viewController.navigationController else { return }
@@ -928,7 +928,7 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: ClaimOrderCoordinatorDelegate {
+extension ActiveWalletCoordinator: ClaimOrderCoordinatorDelegate {
     func coordinator(_ coordinator: ClaimPaidOrderCoordinator, didFailTransaction error: AnyError) {
         claimOrderCoordinatorCompletionBlock?(false)
     }
@@ -950,7 +950,7 @@ extension InCoordinator: ClaimOrderCoordinatorDelegate {
 }
 
 // MARK: Analytics
-extension InCoordinator {
+extension ActiveWalletCoordinator {
     private func logEnabledChains() {
         let list = config.enabledServers.map(\.chainID).sorted()
         analyticsCoordinator.setUser(property: Analytics.UserProperties.enabledChains, value: list)
@@ -981,7 +981,7 @@ extension InCoordinator {
     }
 }
 
-extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
+extension ActiveWalletCoordinator: ReplaceTransactionCoordinatorDelegate {
     func didSendTransaction(_ transaction: SentTransaction, inCoordinator coordinator: ReplaceTransactionCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
@@ -996,20 +996,20 @@ extension InCoordinator: ReplaceTransactionCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: WhatsNewExperimentCoordinatorDelegate {
+extension ActiveWalletCoordinator: WhatsNewExperimentCoordinatorDelegate {
     func didEnd(in coordinator: WhatsNewExperimentCoordinator) {
         removeCoordinator(coordinator)
     }
 }
 
-extension InCoordinator: LoadUrlInDappBrowserProvider {
+extension ActiveWalletCoordinator: LoadUrlInDappBrowserProvider {
     func didLoadUrlInDappBrowser(url: URL, in handler: RestartQueueHandler) {
         showTab(.browser)
         dappBrowserCoordinator?.open(url: url, animated: false)
     }
 }
 
-extension InCoordinator: BlockscanChatServiceDelegate {
+extension ActiveWalletCoordinator: BlockscanChatServiceDelegate {
     func openBlockscanChat(url: URL, for: BlockscanChatService) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.blockscanChat)
         open(for: url)
@@ -1020,7 +1020,7 @@ extension InCoordinator: BlockscanChatServiceDelegate {
     }
 }
 
-extension InCoordinator: TransactionsServiceDelegate {
+extension ActiveWalletCoordinator: TransactionsServiceDelegate {
     func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address]) {
         for each in contracts {
             assetDefinitionStore.fetchXML(forContract: each)

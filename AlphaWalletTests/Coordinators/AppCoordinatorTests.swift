@@ -101,7 +101,7 @@ class AppCoordinatorTests: XCTestCase {
             )
             coordinator.start()
 
-            coordinator.showTransactions(for: .make(), animated: true)
+            coordinator.showActiveWallet(for: .make(), animated: true)
 
             XCTAssertEqual(7, coordinator.coordinators.count)
             XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AccountsViewController)
@@ -125,7 +125,7 @@ class AppCoordinatorTests: XCTestCase {
 
             coordinator.start()
 
-            XCTAssertNotNil(coordinator.inCoordinator)
+            XCTAssertNotNil(coordinator.activeWalletCoordinator)
         } catch {
             XCTAssertThrowsError(error)
         }
@@ -142,7 +142,7 @@ class AppCoordinatorTests: XCTestCase {
 
             coordinator.start()
 
-            XCTAssertNil(coordinator.inCoordinator)
+            XCTAssertNil(coordinator.activeWalletCoordinator)
         } catch {
             XCTAssertThrowsError(error)
         }

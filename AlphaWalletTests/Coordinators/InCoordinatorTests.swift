@@ -31,7 +31,7 @@ class InCoordinatorTests: XCTestCase {
         let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
-        let coordinator = InCoordinator(
+        let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: .make(),
@@ -80,7 +80,7 @@ class InCoordinatorTests: XCTestCase {
         let pbc = PromptBackupCoordinator(keystore: keystore, wallet: account1, config: .make(), analyticsCoordinator: fas)
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
-        let c1 = InCoordinator(
+        let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: account1,
@@ -103,7 +103,7 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(c1.keystore.currentWallet, account1)
 
-        let c2 = InCoordinator(
+        let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: account2,
@@ -135,7 +135,7 @@ class InCoordinatorTests: XCTestCase {
         let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
-        let coordinator = InCoordinator(
+        let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                 wallet: wallet,
@@ -168,7 +168,7 @@ class InCoordinatorTests: XCTestCase {
         let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
-        let coordinator = InCoordinator(
+        let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: wallet,
@@ -201,7 +201,7 @@ class InCoordinatorTests: XCTestCase {
         let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets),
         walletBalanceService: FakeMultiWalletBalanceService())
 
-        let coordinator = InCoordinator(
+        let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
             wallet: .make(),
@@ -228,7 +228,7 @@ class InCoordinatorTests: XCTestCase {
 
 	//Commented out because the tokens tab has been moved to be under the More tab and will be moved
 //    func testShowTabTokens() {
-//        let coordinator = InCoordinator(
+//        let coordinator = ActiveWalletCoordinator(
 //            navigationController: FakeNavigationController(),
 //            wallet: .make(),
 //            keystore: FakeEtherKeystore(),
@@ -253,7 +253,7 @@ class InCoordinatorTests: XCTestCase {
             let fas = FakeAnalyticsService()
             let pbc = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: .make(), analyticsCoordinator: fas)
             let ac = AccountsCoordinator(config: .make(), navigationController: navigationController, keystore: keystore, promptBackupCoordinator: pbc, analyticsCoordinator: fas, viewModel: .init(configuration: .changeWallets), walletBalanceService: FakeMultiWalletBalanceService())
-            let coordinator = InCoordinator(
+            let coordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
                     wallet: wallet,
