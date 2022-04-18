@@ -15,10 +15,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
         return textView
     }()
 
-    private var viewModel: SignatureConfirmationDetailsViewModel
-    private var stackView: UIStackView {
-        return containerView.stackView
-    }
+    private var viewModel: SignatureConfirmationDetailsViewModel 
 
     lazy var containerView: ScrollableStackView = {
         let view = ScrollableStackView()
@@ -42,7 +39,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
     }
 
     private func generateView(viewModel: SignatureConfirmationDetailsViewModel) {
-        stackView.removeAllArrangedSubviews()
+        containerView.stackView.removeAllArrangedSubviews()
 
         var subviews: [UIView]
 
@@ -76,7 +73,7 @@ class SignatureConfirmationDetailsViewController: UIViewController {
             }
         }
 
-        stackView.addArrangedSubviews(subviews)
+        containerView.stackView.addArrangedSubviews(subviews)
     }
 
     override func viewDidLoad() {
