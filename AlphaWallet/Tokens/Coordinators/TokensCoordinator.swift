@@ -261,6 +261,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             .publisher
             .prepend(BlockiesImage.defaulBlockieImage)
             .replaceError(with: BlockiesImage.defaulBlockieImage)
+            .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak tokensViewController] image in
                 tokensViewController?.blockieImageView.setBlockieImage(image: image)
             }).store(in: &cancelable)
