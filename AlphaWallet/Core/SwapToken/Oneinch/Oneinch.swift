@@ -75,10 +75,9 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
     }
 
     func fetchSupportedTokens() {
-        let config = Config()
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.oneInchTokens(config: config), callbackQueue: queue).map(on: queue, { response -> [String: Oneinch.ERC20Token] in
+        provider.request(.oneInchTokens, callbackQueue: queue).map(on: queue, { response -> [String: Oneinch.ERC20Token] in
             try JSONDecoder().decode(ApiResponsePayload.self, from: response.data).tokens
         }).map(on: queue, { data -> [Oneinch.ERC20Token] in
             data.map { $0.value }
@@ -87,7 +86,7 @@ class Oneinch: TokenActionsProvider, SwapTokenURLProviderType {
                 self.availableTokens[token.address] = token
             }
         }).catch(on: queue, { error in
-            let service = AlphaWalletService.oneInchTokens(config: config)
+            let service = AlphaWalletService.oneInchTokens
             let url = service.baseURL.appendingPathComponent(service.path)
             RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: url.absoluteString)
         })

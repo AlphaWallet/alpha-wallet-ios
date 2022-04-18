@@ -66,17 +66,16 @@ class Ramp: TokenActionsProvider, BuyTokenURLProviderType {
     private static var assets: [Asset] = []
 
     func fetchSupportedTokens() {
-        let config = Config()
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.rampAssets(config: config), callbackQueue: queue).map(on: queue, { response -> RampAssetsResponse in
+        provider.request(.rampAssets, callbackQueue: queue).map(on: queue, { response -> RampAssetsResponse in
             try JSONDecoder().decode(RampAssetsResponse.self, from: response.data)
         }).map(on: queue, { data -> [Asset] in
             return data.assets
         }).done(on: queue, { response in
             Self.assets = response
         }).catch(on: queue, { error in
-            let service = AlphaWalletService.rampAssets(config: config)
+            let service = AlphaWalletService.rampAssets
             let url = service.baseURL.appendingPathComponent(service.path)
             RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
         })

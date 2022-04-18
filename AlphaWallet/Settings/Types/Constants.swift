@@ -189,6 +189,22 @@ public struct Constants {
         static let unreadCountEndpoint = URL(string: "https://blockscan-chat-proxy.herokuapp.com/blockscanchat/unreadcount")!
     }
 
+    enum Coingecko {
+        static let baseUrl = URL(string: "https://api.coingecko.com")!
+    }
+
+    enum OneInch {
+        static let exchangeUrl = URL(string: "https://api.1inch.exchange")!
+    }
+
+    enum HoneySwap {
+        static let exchangeUrl = URL(string: "https://tokens.honeyswap.org/")!
+    }
+    
+    enum Ramp {
+        static let exchangeUrl = URL(string: "https://api-instant.ramp.network")!
+    }
+
     enum WalletConnect {
         static let relayURL = URL(string: "https://relay.walletconnect.com")!
         static let server = "AlphaWallet"

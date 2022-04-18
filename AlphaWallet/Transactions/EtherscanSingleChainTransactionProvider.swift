@@ -318,7 +318,7 @@ extension EtherscanSingleChainTransactionProvider.functional {
     }
 
     static func fetchTransactions(startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder, session: WalletSession, alphaWalletProvider: MoyaProvider<AlphaWalletService>, tokensDataStore: TokensDataStore, queue: DispatchQueue) -> Promise<[TransactionInstance]> {
-        let target: AlphaWalletService = .getTransactions(config: session.config, server: session.server, address: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)
+        let target: AlphaWalletService = .getTransactions(server: session.server, address: session.account.address, startBlock: startBlock, endBlock: endBlock, sortOrder: sortOrder)
         return firstly {
             alphaWalletProvider.request(target)
         }.then(on: queue) { response -> Promise<[TransactionInstance]> in

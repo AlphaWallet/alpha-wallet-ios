@@ -273,8 +273,6 @@ struct Config {
         self.defaults = defaults
     }
 
-    let priceInfoEndpoints = URL(string: "https://api.coingecko.com")!
-
     var oldWalletAddressesAlreadyPromptedForBackUp: [String] {
         //We hard code the key here because it's used for migrating off the old value, there should be no reason why this key will change in the next line
         //There *is* a trailing space in the key
@@ -295,10 +293,6 @@ struct Config {
         addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
     }
-
-    let oneInch = URL(string: "https://api.1inch.exchange")!
-    let honeySwapTokens = URL(string: "https://tokens.honeyswap.org/")!
-    let rampAssets = URL(string: "https://api-instant.ramp.network")!
 
     func anyEnabledServer() -> RPCServer {
         let servers = enabledServers
