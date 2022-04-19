@@ -11,7 +11,7 @@ protocol DappRequestHandlerDelegate: class {
     func processRestartQueueAndRestartUI()
 }
 
-extension InCoordinator {
+extension ActiveWalletCoordinator {
     /// Wraps DappRequestSwitchCustomChainCoordinatorDelegate and DappRequestSwitchExistingChainCoordinatorDelegate to reduce in coordinator size
     class DappRequestHandler: Coordinator {
         private let walletConnectCoordinator: WalletConnectCoordinator
@@ -30,7 +30,7 @@ extension InCoordinator {
         }
     }
 }
-extension InCoordinator.DappRequestHandler: DappRequestSwitchCustomChainCoordinatorDelegate {
+extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchCustomChainCoordinatorDelegate {
 
     func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchCustomChainCoordinator) {
         switch callbackId {
@@ -117,7 +117,7 @@ extension InCoordinator.DappRequestHandler: DappRequestSwitchCustomChainCoordina
     }
 }
 
-extension InCoordinator.DappRequestHandler: DappRequestSwitchExistingChainCoordinatorDelegate {
+extension ActiveWalletCoordinator.DappRequestHandler: DappRequestSwitchExistingChainCoordinatorDelegate {
 
     func notifySuccessful(withCallbackId callbackId: SwitchCustomChainCallbackId, inCoordinator coordinator: DappRequestSwitchExistingChainCoordinator) {
         switch callbackId {
