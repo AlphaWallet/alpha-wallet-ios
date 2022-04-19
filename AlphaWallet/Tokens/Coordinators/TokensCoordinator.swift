@@ -22,9 +22,6 @@ protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
     func viewWillAppearOnce(in coordinator: TokensCoordinator)
 }
 
-private struct NoContractDetailsDetected: Error {
-}
-
 class TokensCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
@@ -72,7 +69,6 @@ class TokensCoordinator: Coordinator {
         return controller
     }()
 
-    private var addressToAutoDetectServerFor: AlphaWallet.Address?
     private var sendToAddress: AlphaWallet.Address? = .none
     private var singleChainTokenCoordinators: [SingleChainTokenCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
@@ -468,11 +464,6 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         coordinator.start()
     }
 
-    private enum SendToAddressState {
-        case pending(address: AlphaWallet.Address)
-        case none
-    }
-
     private func handleSendToAddress(_ address: AlphaWallet.Address) {
         sendToAddress = address
 
@@ -580,10 +571,6 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator) {
         delegate?.shouldOpen(url: url, shouldSwitchServer: shouldSwitchServer, forTransactionType: transactionType, in: self)
-    }
-
-    func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator) {
-        tokensViewController.fetch()
     }
 
     func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
