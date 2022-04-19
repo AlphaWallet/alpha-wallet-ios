@@ -5,11 +5,28 @@ import BigInt
 import RealmSwift
 import Combine
 
+enum DataStoreError: Error {
+    case objectTypeMismatch
+    case objectNotFound
+    case objectDeleted
+    case general(error: Error)
+}
+
+struct TokenChange {
+    let token: TokenObject
+    let change: TokenPropertiesChange
+}
+
+enum TokenPropertiesChange {
+    case initial
+    case changed(properties: [PropertyChange])
+}
+
 /// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never>
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject]
-
+    func tokenValuePublisher(forContract contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenObject?, DataStoreError>
     func deletedContracts(forServer server: RPCServer) -> [DeletedContract]
     func delegateContracts(forServer server: RPCServer) -> [DelegateContract]
     func hiddenContracts(forServer server: RPCServer) -> [HiddenContract]
@@ -18,10 +35,8 @@ protocol TokensDataStore: NSObjectProtocol {
     func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
     @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [TokenObject]
     func add(hiddenContracts: [HiddenContract])
-
     func deleteTestsOnly(tokens: [TokenObject])
     func updateOrderedTokens(with orderedTokens: [TokenObject])
-
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
     @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [TokenObject]
@@ -71,6 +86,39 @@ enum TokenUpdateAction {
         
         return publisher
     }
+
+    func tokenValuePublisher(forContract contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<TokenObject?, DataStoreError> {
+            let predicate = MultipleChainsTokensDataStore
+                .functional
+                .tokenPredicate(server: server, contract: contract)
+
+            let publisher: CurrentValueSubject<TokenObject?, DataStoreError> = .init(nil)
+            var cancelable: AnyCancellable?
+
+            store.performSync { realm in
+                guard let token = realm.objects(TokenObject.self).filter(predicate).first else {
+                    publisher.send(completion: .failure(DataStoreError.objectNotFound))
+                    return
+                }
+                let valuePublisher = token
+                    .publisher(for: \.value, options: [.initial, .new])
+                    .map { _ -> TokenObject in return token }
+                    .setFailureType(to: DataStoreError.self)
+
+                cancelable = valuePublisher
+                    .sink(receiveCompletion: { compl in
+                        publisher.send(completion: compl)
+                    }, receiveValue: { token in
+                        publisher.send(token)
+                    })
+            }
+
+            return publisher
+                .handleEvents(receiveCancel: {
+                    cancelable?.cancel()
+                })
+                .eraseToAnyPublisher()
+        }
 
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject] {
         var tokens: [TokenObject] = []

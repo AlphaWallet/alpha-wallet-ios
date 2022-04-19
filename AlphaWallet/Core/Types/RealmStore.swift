@@ -35,10 +35,6 @@ final class RealmStore {
 }
 
 extension Realm {
-    var threadSafe: Realm {
-         try! Realm(configuration: configuration)
-    }
-
     public func safeWrite(_ block: (() throws -> Void)) throws {
         if isInWriteTransaction {
             try block()

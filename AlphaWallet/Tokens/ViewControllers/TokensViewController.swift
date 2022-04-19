@@ -438,7 +438,7 @@ extension TokensViewController: UITableViewDataSource {
                     cell.configure(viewModel: .init(
                         token: token,
                         ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer),
-                        currencyAmount: session.tokenBalanceService.ethBalanceViewModel.currencyAmountWithoutSymbol,
+                        currencyAmount: session.tokenBalanceService.ethBalanceViewModel?.currencyAmountWithoutSymbol,
                         assetDefinitionStore: assetDefinitionStore
                     ))
 

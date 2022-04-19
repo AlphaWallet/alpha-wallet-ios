@@ -1,6 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import PromiseKit
+import Combine
+import RealmSwift
 @testable import AlphaWallet
 
 extension WalletSession {
@@ -23,11 +26,12 @@ extension WalletSession {
         server: RPCServer = .main,
         config: Config = .make()
     ) -> WalletSession {
+        let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: account, server: server, etherToken: TokenObject(contract: AlphaWallet.Address.make(), server: server, value: "0", type: .nativeCryptocurrency))
         return WalletSession(
             account: account,
             server: server,
             config: config,
-            tokenBalanceService: FakeSingleChainTokenBalanceService(wallet: account, server: server)
+            tokenBalanceService: tokenBalanceService
         )
     }
 
@@ -37,65 +41,81 @@ extension WalletSession {
         config: Config = .make(),
         tokenBalanceService: TokenBalanceService
     ) -> WalletSession {
+        let tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: account, server: server, etherToken: TokenObject(contract: AlphaWallet.Address.make(), server: server, value: "0", type: .nativeCryptocurrency))
         return WalletSession(
             account: account,
             server: server,
             config: config,
-            tokenBalanceService: FakeSingleChainTokenBalanceService(wallet: account, server: server)
+            tokenBalanceService: tokenBalanceService
         )
     }
 }
 
-import PromiseKit
-import Combine
+private class FakeNftProvider: NFTProvider {
+    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+        return .value([:])
+    }
+}
 
-private final class FakeTokenBalanceProvider: TokenBalanceProvider, CoinTickerProvider {
-    private var balanceSubject = CurrentValueSubject<Balance?, Never>(nil)
+extension Realm {
+    static func fake(forWallet wallet: Wallet) -> Realm {
+        return try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm-\(wallet.address.eip55String)"))
+    }
+}
 
-    var balance: Balance? {
-        didSet {
-            balanceSubject.value = balance
-        }
+class FakeMultiWalletBalanceService: MultiWalletBalanceService {
+    private var servers: [RPCServer] = []
+    private let wallet: Wallet
+    lazy var tokensDataStore = FakeTokensDataStore(account: wallet, servers: servers)
+
+    init(wallet: Wallet = .make(), servers: [RPCServer] = [.main]) {
+        self.servers = servers
+        self.wallet = wallet
+
+        let tickersFetcher = FakeCoinTickersFetcher()
+        var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
+        walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
+
+        let keystore = FakeKeystore(wallets: [wallet], recentlyUsedWallet: wallet)
+        super.init(keystore: keystore, config: .make(), assetDefinitionStore: .init(), coinTickersFetcher: tickersFetcher, walletAddressesStore: walletAddressesStore)
     }
 
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
-        let b: Balance = balance ?? .init(value: .zero)
-        return NativecryptoBalanceViewModel(server: key.server, balance: b, ticker: nil)
-    }
+    override func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
+        let nftProvider = FakeNftProvider()
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: servers, tokensDataStore: tokensDataStore, transactionsStorage: FakeTransactionsStorage(), nftProvider: nftProvider, config: .make(), assetDefinitionStore: assetDefinitionStore, queue: .main, coinTickersFetcher: coinTickersFetcher)
+        fetcher.delegate = self
 
-    func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker? {
-        return nil
-    }
-
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never> {
-        return balanceSubject
-            .map { $0 ?? Balance(value: .zero) }
-            .map { NativecryptoBalanceViewModel(server: addressAndRPCServer.server, balance: $0, ticker: nil) }
-            .print("XXX.tokenBalancePublisher")
-            .eraseToAnyPublisher()
-    }
-
-    func refreshBalance(for wallet: Wallet) -> Promise<Void> {
-        return .init()
-    }
-
-    func refreshEthBalance(for wallet: Wallet) -> Promise<Void> {
-        return .init()
-    }
-
-    func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void> {
-        return .init()
+        return fetcher
     }
 }
 
 class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
-    private let balanceProvider = FakeTokenBalanceProvider()
+    private let balanceService: FakeMultiWalletBalanceService
+    private let wallet: Wallet
 
-    var balance: Balance? {
-        didSet { balanceProvider.balance = balance }
+    var tokensDataStore: TokensDataStore {
+        balanceService.tokensDataStore
     }
 
-    init(wallet: Wallet, server: RPCServer) {
-        super.init(wallet: wallet, server: server, tokenBalanceProvider: balanceProvider)
+    init(wallet: Wallet, server: RPCServer, etherToken: TokenObject) {
+        self.wallet = wallet
+        balanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [server])
+        super.init(wallet: wallet, server: server, etherToken: etherToken, tokenBalanceProvider: balanceService)
+    }
+
+    func setBalanceTestsOnly(balance: Balance, forToken token: TokenObject) {
+        balanceService.setBalanceTestsOnly(balance.value, forToken: token, wallet: wallet)
+    }
+
+    func addOrUpdateTokenTestsOnly(token: TokenObject) {
+        balanceService.addOrUpdateTokenTestsOnly(token: token, wallet: wallet)
+    }
+
+    func deleteTokenTestsOnly(token: TokenObject) {
+        balanceService.deleteTokenTestsOnly(token: token, wallet: wallet)
+    }
+
+    override func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy) {
+        //no-op
     }
 }

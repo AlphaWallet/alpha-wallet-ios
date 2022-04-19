@@ -9,14 +9,21 @@ import UIKit
 import BigInt
 import PromiseKit
 import Combine
+import RealmSwift
 
 protocol CoinTickerProvider: AnyObject {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
 }
 
-protocol TokenBalanceProvider: AnyObject {
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never>
+protocol TokenBalanceProviderTests {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet)
+    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet)
+    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet)
+}
+
+protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet], force: Bool) -> Promise<Void>
 }
 
@@ -30,8 +37,8 @@ protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
 class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let keystore: Keystore
     private let config: Config
-    private let assetDefinitionStore: AssetDefinitionStore
-    private var coinTickersFetcher: CoinTickersFetcherType
+    let assetDefinitionStore: AssetDefinitionStore
+    var coinTickersFetcher: CoinTickersFetcherType
     private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
     private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
         let balances = balanceFetchers.map { $0.value.balance }
@@ -74,14 +81,25 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
 
                 strongSelf.notifyWalletsSummary()
             }.store(in: &cancelable)
+
+        config.enabledServersPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] servers in
+                guard let strongSelf = self else { return }
+
+                for wallet in strongSelf.walletAddressesStore.wallets {
+                    let fetcher = strongSelf.getOrCreateBalanceFetcher(for: wallet)
+                    fetcher.update(servers: servers)
+                }
+            }.store(in: &cancelable)
     }
 
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel {
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel? {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalance(key)
     }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel, Never> {
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never> {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalancePublisher(addressAndRPCServer)
     }
@@ -153,8 +171,12 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         })
     }
 
-    private func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let fetcher = WalletBalanceFetcher(wallet: wallet, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
+    /// NOTE: internal for test ourposes
+    func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
+        let realm: Realm = Wallet.functional.realm(forAccount: wallet)
+        let tokensDataStore = MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
+        let transactionsStorage = TransactionDataStore(realm: realm)
+        let fetcher = WalletBalanceFetcher(wallet: wallet, servers: config.enabledServers, tokensDataStore: tokensDataStore, transactionsStorage: transactionsStorage, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 
         return fetcher
@@ -180,6 +202,23 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private func notifyWalletsSummary() {
         let balances = balanceFetchers.map { $0.value.balance }
         walletsSummarySubject.value = WalletSummary(balances: balances)
+    }
+}
+
+extension MultiWalletBalanceService {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .setBalanceTestsOnly(value, forToken: token)
+    }
+
+    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .deleteTokenTestsOnly(token: token)
+    }
+
+    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .addOrUpdateTokenTestsOnly(token: token)
     }
 }
 

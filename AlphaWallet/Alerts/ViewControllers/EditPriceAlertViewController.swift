@@ -101,7 +101,7 @@ class EditPriceAlertViewController: UIViewController {
                 .sink { [weak self] viewModel in
                     guard let strongSelf = self else { return }
 
-                    strongSelf.viewModel.set(marketPrice: viewModel.ticker?.price_usd)
+                    strongSelf.viewModel.set(marketPrice: viewModel?.ticker?.price_usd)
                     strongSelf.configure(viewModel: strongSelf.viewModel)
                 }.store(in: &cancelable)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
