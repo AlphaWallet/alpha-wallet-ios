@@ -113,7 +113,7 @@ extension TokenObject {
 }
 
 extension Activity.AssignedToken {
-    
+
     func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
         let name = symbol.nilIfEmpty ?? name
         let nftBalance = nftBalanceValue.first
@@ -288,8 +288,17 @@ class GithubAssetsURLResolver {
     static let file = "logo.png"
 
     enum Source: String {
-        case alphaWallet = "https://raw.githubusercontent.com/alphawallet/iconassets/master/"
+        case alphaWallet = "https://raw.githubusercontent.com/AlphaWallet/iconassets/lowercased/"
         case thirdParty = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/"
+
+        func url(forContract contract: AlphaWallet.Address) -> String {
+            switch self {
+            case .alphaWallet:
+                return rawValue + contract.eip55String.lowercased() + "/" + GithubAssetsURLResolver.file
+            case .thirdParty:
+                return rawValue + contract.eip55String + "/" + GithubAssetsURLResolver.file
+            }
+        }
     }
 
     enum AnyError: Error {
@@ -297,8 +306,7 @@ class GithubAssetsURLResolver {
     }
 
     func resolve(for githubAssetsSource: GithubAssetsURLResolver.Source, contractAddress: AlphaWallet.Address) -> Promise<URLRequest> {
-        let value = githubAssetsSource.rawValue + contractAddress.eip55String + "/" + GithubAssetsURLResolver.file
-
+        let value = githubAssetsSource.url(forContract: contractAddress)
         guard let url = URL(string: value) else {
             verboseLog("Loading token icon URL: \(value) error")
             return .init(error: AnyError.case1)
