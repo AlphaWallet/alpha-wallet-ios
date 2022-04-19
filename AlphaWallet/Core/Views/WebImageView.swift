@@ -4,7 +4,7 @@ import UIKit
 import WebKit
 import Kingfisher
 
-enum WebImageViewImage: Hashable, Equatable {
+enum WebImageViewImage {
     case url(WebImageURL)
     case image(UIImage)
 }
