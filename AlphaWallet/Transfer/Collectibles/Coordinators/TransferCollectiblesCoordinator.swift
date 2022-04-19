@@ -147,7 +147,7 @@ extension TransferCollectiblesCoordinator: ScanQRCodeCoordinatorDelegate {
 extension TransferCollectiblesCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         UIApplication.shared
-            .presentedViewController(navigationController)
+            .presentedViewController(or: navigationController)
             .displayError(message: error.localizedDescription)
     }
 

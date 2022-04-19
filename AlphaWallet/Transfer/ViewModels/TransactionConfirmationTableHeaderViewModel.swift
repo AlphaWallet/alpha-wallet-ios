@@ -17,14 +17,14 @@ struct TransactionConfirmationHeaderViewModel {
     let headerName: String?
     let details: String?
     var configuration: TransactionConfirmationHeaderView.Configuration
-    let titleIcon: UIImage?
+    let titleIcon: Subscribable<UIImage>
     var chevronImage: UIImage? {
         let image = configuration.isOpened ? R.image.expand() : R.image.not_expand()
         return image?.withRenderingMode(.alwaysTemplate)
     }
 
     var isTitleIconHidden: Bool {
-        return titleIcon == nil
+        return titleIcon.value == nil
     }
 
     var titleAlpha: CGFloat {
@@ -66,14 +66,14 @@ struct TransactionConfirmationHeaderViewModel {
         return Colors.appBackground
     }
 
-    init(title: Title, headerName: String?, details: String? = nil, titleIcon: UIImage? = nil, configuration: TransactionConfirmationHeaderView.Configuration) {
+    init(title: Title, headerName: String?, details: String? = nil, titleIcon: Subscribable<UIImage> = .init(nil), configuration: TransactionConfirmationHeaderView.Configuration) {
         switch title {
         case .normal(let title):
             self.title = title
             self.titleIcon = titleIcon
         case .warning(let title):
             self.title = title
-            self.titleIcon = R.image.gasWarning()
+            self.titleIcon = .init(R.image.gasWarning())
         }
         self.headerName = headerName
         self.details = details

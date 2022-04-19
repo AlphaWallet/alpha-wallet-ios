@@ -37,8 +37,9 @@ class TransactionConfirmationHeaderView: UIView {
         return label
     }()
 
-    private let titleIconImageView: UIImageView = {
-        return UIImageView()
+    private let titleIconImageView: RoundedImageView = {
+        let imageView = RoundedImageView(size: .init(width: 24, height: 24))
+        return imageView
     }()
 
     private let detailsLabel: UILabel = {
@@ -129,9 +130,6 @@ class TransactionConfirmationHeaderView: UIView {
 
             titleLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
 
-            titleIconImageView.widthAnchor.constraint(equalToConstant: 24),
-            titleIconImageView.widthAnchor.constraint(equalTo: titleIconImageView.heightAnchor),
-
             col1.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: ScreenChecker().isNarrowScreen ? 8 : 16),
             col1.trailingAnchor.constraint(equalTo: contents.trailingAnchor),
             col1.topAnchor.constraint(lessThanOrEqualTo: nameLabel.topAnchor),
@@ -159,12 +157,12 @@ class TransactionConfirmationHeaderView: UIView {
         backgroundColor = viewModel.backgroundColor
 
         chevronView.isHidden = viewModel.configuration.shouldHideChevron
-
         chevronImageView.image = viewModel.chevronImage
 
         titleIconImageView.isHidden = viewModel.isTitleIconHidden
-        titleIconImageView.image = viewModel.titleIcon
+        titleIconImageView.subscribable = viewModel.titleIcon
 
+        titleIconImageView.alpha = viewModel.titleAlpha
         titleLabel.alpha = viewModel.titleAlpha
         titleLabel.attributedText = viewModel.titleAttributedString
         titleLabel.isHidden = titleLabel.attributedText == nil
@@ -184,7 +182,8 @@ class TransactionConfirmationHeaderView: UIView {
 
             chevronImageView.image = viewModel.chevronImage
             titleLabel.alpha = viewModel.titleAlpha
-
+            titleIconImageView.alpha = viewModel.titleAlpha
+            
             delegate?.headerView(self, openStateChanged: viewModel.configuration.section)
         }
     }

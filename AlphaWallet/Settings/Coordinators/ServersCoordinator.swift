@@ -50,7 +50,7 @@ class ServersCoordinator: Coordinator {
     }
 
     let viewModel: ServersViewModel
-    private lazy var serversViewController: ServersViewController = {
+    lazy var serversViewController: ServersViewController = {
         let controller = ServersViewController(viewModel: viewModel)
         controller.delegate = self
 

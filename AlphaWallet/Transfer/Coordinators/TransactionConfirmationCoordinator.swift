@@ -59,7 +59,7 @@ extension UIApplication {
         windows.filter { $0.isKeyWindow }.first
     }
 
-    func presentedViewController(_ defaultViewControler: UIViewController) -> UIViewController {
+    func presentedViewController(or defaultViewControler: UIViewController) -> UIViewController {
         guard let keyWindow = UIApplication.shared.firstKeyWindow else { return defaultViewControler }
 
         if let controller = keyWindow.rootViewController?.presentedViewController {
@@ -105,7 +105,7 @@ class TransactionConfirmationCoordinator: Coordinator {
     }
 
     func start(fromSource source: Analytics.TransactionConfirmationSource) {
-        let presenter = UIApplication.shared.presentedViewController(navigationController)
+        let presenter = UIApplication.shared.presentedViewController(or: navigationController)
         presenter.present(hostViewController, animated: true)
 
         configurator.delegate = self
