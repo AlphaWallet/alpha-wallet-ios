@@ -758,7 +758,6 @@
 		8712F337265BCAEF0043493B /* WalletSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8712F336265BCAEF0043493B /* WalletSummaryTableViewCell.swift */; };
 		871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */; };
 		8714430627FB3663008819D1 /* TokensFromTransactionsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8714430527FB3663008819D1 /* TokensFromTransactionsFetcher.swift */; };
-		8717D37327B2947000FB789D /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 8717D37227B2947000FB789D /* WalletConnect */; };
 		8717D37627B415C500FB789D /* SingleServerWalletConnectSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717D37527B415C500FB789D /* SingleServerWalletConnectSession.swift */; };
 		8717DA37273A714E002D3D66 /* WalletConnectServerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA36273A714E002D3D66 /* WalletConnectServerProvider.swift */; };
 		8717DA39273A7E83002D3D66 /* WalletConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8717DA38273A7E83002D3D66 /* WalletConnect.swift */; };
@@ -792,6 +791,7 @@
 		8736214E264D3B0000AAF794 /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8736214C264D3AFF00AAF794 /* BalloonMarker.swift */; };
 		87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4225DFAF7800267160 /* HoneySwap.swift */; };
 		87374A4525DFB17600267160 /* HoneySwapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */; };
+		87381A35280E71B100B5A734 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 87381A34280E71B100B5A734 /* WalletConnect */; };
 		8738DDDC2652B98200064CCA /* ActivitiesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8738DDDB2652B98200064CCA /* ActivitiesService.swift */; };
 		8739BB5526CCECD10045CFED /* Erc875NonFungibleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */; };
 		8739BB6026CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8739BB5F26CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift */; };
@@ -1906,6 +1906,7 @@
 		8736214C264D3AFF00AAF794 /* BalloonMarker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		87374A4225DFAF7800267160 /* HoneySwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwap.swift; sourceTree = "<group>"; };
 		87374A4425DFB17600267160 /* HoneySwapERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwapERC20Token.swift; sourceTree = "<group>"; };
+		87381A33280E71A300B5A734 /* WalletConnectSwiftV2-0.5.0 */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "WalletConnectSwiftV2-0.5.0"; path = "modules/WalletConnectSwiftV2-0.5.0"; sourceTree = "<group>"; };
 		8738DDDB2652B98200064CCA /* ActivitiesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitiesService.swift; sourceTree = "<group>"; };
 		8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Erc875NonFungibleRowView.swift; sourceTree = "<group>"; };
 		8739BB5F26CCED010045CFED /* SelectableTokenCardContainerTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableTokenCardContainerTableViewCellViewModel.swift; sourceTree = "<group>"; };
@@ -2207,8 +2208,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				87FBF2B128056AC200616B7D /* FirebaseCrashlytics in Frameworks */,
-				8717D37327B2947000FB789D /* WalletConnect in Frameworks */,
 				2A669F5585899E890EF26C57 /* Pods_AlphaWallet.framework in Frameworks */,
+				87381A35280E71B100B5A734 /* WalletConnect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2323,6 +2324,7 @@
 		2912CCEC1F6A830700C6CBE3 = {
 			isa = PBXGroup;
 			children = (
+				87381A32280E71A300B5A734 /* Packages */,
 				2912CCF71F6A830700C6CBE3 /* AlphaWallet */,
 				2912CD0E1F6A830700C6CBE3 /* AlphaWalletTests */,
 				878EE8EC255ADA49000210DE /* AlphaWalletShare */,
@@ -4807,6 +4809,14 @@
 			path = HoneySwap;
 			sourceTree = "<group>";
 		};
+		87381A32280E71A300B5A734 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				87381A33280E71A300B5A734 /* WalletConnectSwiftV2-0.5.0 */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 		8739BB5226CCECB90045CFED /* Collectibles */ = {
 			isa = PBXGroup;
 			children = (
@@ -5395,8 +5405,8 @@
 			);
 			name = AlphaWallet;
 			packageProductDependencies = (
-				8717D37227B2947000FB789D /* WalletConnect */,
 				87FBF2B028056AC200616B7D /* FirebaseCrashlytics */,
+				87381A34280E71B100B5A734 /* WalletConnect */,
 			);
 			productName = etherwallet;
 			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
@@ -5522,7 +5532,6 @@
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			packageReferences = (
-				8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 				87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
@@ -7499,14 +7508,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
-			};
-		};
 		87FBF2AF28056AC200616B7D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -7518,9 +7519,8 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8717D37227B2947000FB789D /* WalletConnect */ = {
+		87381A34280E71B100B5A734 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8717D37127B2947000FB789D /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
 			productName = WalletConnect;
 		};
 		87FBF2B028056AC200616B7D /* FirebaseCrashlytics */ = {

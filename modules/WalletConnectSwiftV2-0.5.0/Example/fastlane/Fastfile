@@ -1,0 +1,14 @@
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Test Example Wallet"
+  lane :test_wallet do
+    scan(xcargs: "-allowProvisioningUpdates", scheme: "Wallet")
+  end
+
+  desc "Test Example dapp"
+  lane :test_dapp do
+    scan(xcargs: "-allowProvisioningUpdates", scheme: "DApp")
+  end
+end
