@@ -93,7 +93,7 @@ class RPCServerImageFetcher {
             let sub = Subscribable<Image>(nil)
             Self.subscribables[server.chainID] = sub
 
-            if let value = server.staticOverlayIcon {
+            if let value = server.iconImage {
                 sub.value = value
             } else {
                 sub.value = Self.programmaticallyGenerateIcon(for: server)
