@@ -148,7 +148,6 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-                promptBackupCoordinator: promptBackupCoordinator,
 				analyticsCoordinator: analyticsCoordinator,
                 viewModel: .init(configuration: .changeWallets, animatedPresentation: true),
                 walletBalanceService: walletBalanceService
@@ -216,6 +215,12 @@ extension SettingsCoordinator: CanOpenURL {
 }
 
 extension SettingsCoordinator: AccountsCoordinatorDelegate {
+
+    func didFinishBackup(account: AlphaWallet.Address, in coordinator: AccountsCoordinator) {
+        promptBackupCoordinator.markBackupDone()
+        promptBackupCoordinator.showHideCurrentPrompt()
+    }
+
 	func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         //no-op
 	}

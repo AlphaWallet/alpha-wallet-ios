@@ -84,7 +84,9 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var tokenActionsService: TokenActionsServiceType
     private let walletConnectCoordinator: WalletConnectCoordinator
-    private let promptBackupCoordinator: PromptBackupCoordinator
+    private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
+        return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
+    }()
 
     lazy var tabBarController: UITabBarController = {
         let tabBarController: UITabBarController = .withOverridenBarAppearence()
@@ -128,7 +130,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             analyticsCoordinator: AnalyticsCoordinator,
             restartQueue: RestartTaskQueue,
             universalLinkCoordinator: UniversalLinkCoordinatorType,
-            promptBackupCoordinator: PromptBackupCoordinator,
             accountsCoordinator: AccountsCoordinator,
             walletBalanceService: WalletBalanceService,
             coinTickersFetcher: CoinTickersFetcherType,
@@ -149,7 +150,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         self.restartQueue = restartQueue
         self.assetDefinitionStore = assetDefinitionStore
         self.universalLinkCoordinator = universalLinkCoordinator
-        self.promptBackupCoordinator = promptBackupCoordinator
         self.accountsCoordinator = accountsCoordinator
         self.walletBalanceService = walletBalanceService
         self.coinTickersFetcher = coinTickersFetcher
@@ -173,6 +173,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         notificationService.unregister(source: transactionNotificationService)
     }
 
+    private func shartPromptBackup() {
+        promptBackupCoordinator.start()
+        addCoordinator(promptBackupCoordinator)
+    }
+
     func start(animated: Bool) {
         donateWalletShortcut()
 
@@ -184,6 +189,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         checkDevice()
         showHelpUs()
+        shartPromptBackup()
 
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
@@ -206,6 +212,11 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private func donateWalletShortcut() {
         WalletQrCodeDonation(address: wallet.address).donate()
+    }
+
+    func didFinishBackup(account: AlphaWallet.Address) {
+        promptBackupCoordinator.markBackupDone()
+        promptBackupCoordinator.showHideCurrentPrompt()
     }
 
     func launchUniversalScanner() {
