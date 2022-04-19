@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum WalletConnectError: Error {
     case callbackIdMissing
@@ -17,7 +18,8 @@ protocol WalletConnectResponder {
 }
 
 protocol WalletConnectServer: WalletConnectResponder {
-    var sessionsSubscribable: Subscribable<[AlphaWallet.WalletConnect.Session]> { get }
+    var sessions: AnyPublisher<[AlphaWallet.WalletConnect.Session], Never> { get }
+
     var delegate: WalletConnectServerDelegate? { get set }
 
     func connect(url: AlphaWallet.WalletConnect.ConnectionUrl) throws
