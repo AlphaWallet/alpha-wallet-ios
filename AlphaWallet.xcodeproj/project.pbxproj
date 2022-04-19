@@ -7187,7 +7187,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 423;
+				CURRENT_PROJECT_VERSION = 424;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = YES;
@@ -7233,7 +7233,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 423;
+				CURRENT_PROJECT_VERSION = 424;
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
