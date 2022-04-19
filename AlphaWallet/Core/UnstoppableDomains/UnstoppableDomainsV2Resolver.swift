@@ -54,6 +54,7 @@ class UnstoppableDomainsV2Resolver {
             return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))
         }
 
+        verboseLog("[UnstoppableDomains] resolving name: \(name)…")
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
             .responseJSON(queue: .main, options: .allowFragments).map { response -> AlphaWallet.Address in
@@ -63,6 +64,7 @@ class UnstoppableDomainsV2Resolver {
 
                 let value = try AddressResolution.Response(json: json)
                 if let owner = value.meta.owner {
+                    verboseLog("[UnstoppableDomains] resolved name: \(name) result: \(owner.eip55String)")
                     return owner
                 } else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
@@ -83,6 +85,7 @@ class UnstoppableDomainsV2Resolver {
             return .init(error: UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)"))
         }
 
+        verboseLog("[UnstoppableDomains] resolving address: \(address.eip55String)…")
         return Alamofire
             .request(url, method: .get, headers: ["Authorization": Constants.Credentials.unstoppableDomainsV2ApiKey])
             .responseJSON(queue: .main, options: .allowFragments).map { response -> String in
@@ -92,6 +95,7 @@ class UnstoppableDomainsV2Resolver {
 
                 let value = try DomainResolution.Response(json: json)
                 if let record = value.data.first {
+                    verboseLog("[UnstoppableDomains] resolved address: \(address.eip55String) result: \(record.id)")
                     return record.id
                 } else {
                     throw UnstoppableDomainsV2ApiError(localizedDescription: "Error calling \(baseURL) API isMainThread: \(Thread.isMainThread)")
