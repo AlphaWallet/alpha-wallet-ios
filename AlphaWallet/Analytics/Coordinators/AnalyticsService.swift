@@ -14,8 +14,6 @@ protocol AnalyticsServiceType: AnalyticsCoordinator {
     func application(open url: URL, sourceApplication: String?, annotation: Any)
     func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any])
     func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any])
-
-    func add(pushDeviceToken token: Data)
 }
 
 class AnalyticsService: NSObject, AnalyticsServiceType {
@@ -32,10 +30,6 @@ class AnalyticsService: NSObject, AnalyticsServiceType {
         if Constants.Credentials.analyticsKey.nonEmpty && !Environment.isTestFlight {
             mixpanelService = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
         }
-    }
-
-    func add(pushDeviceToken token: Data) {
-        mixpanelService?.add(pushDeviceToken: token)
     }
 
     func applicationDidBecomeActive() {

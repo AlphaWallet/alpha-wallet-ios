@@ -13,10 +13,6 @@ class MixpanelCoordinator {
         mixpanelInstance.identify(distinctId: mixpanelInstance.distinctId)
     }
 
-    func add(pushDeviceToken token: Data) {
-        mixpanelInstance.people.addPushDeviceToken(token)
-    }
-
     func convertParameterToSdkSpecificVersion(_ parameter: AnalyticsEventPropertyValue) -> MixpanelType? {
         return parameter.value as? MixpanelType
     }

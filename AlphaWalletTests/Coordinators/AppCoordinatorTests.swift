@@ -158,7 +158,6 @@ class FakeAnalyticsService: AnalyticsServiceType {
     func application(open url: URL, sourceApplication: String?, annotation: Any) { }
     func application(open url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) { }
     func application(didReceiveRemoteNotification userInfo: [AnyHashable: Any]) { }
-    func add(pushDeviceToken token: Data) { }
     func log(navigation: AnalyticsNavigation, properties: [String: AnalyticsEventPropertyValue]?) {}
     func setUser(property: AnalyticsUserProperty, value: AnalyticsEventPropertyValue) { }
     func incrementUser(property: AnalyticsUserProperty, by value: Int) { }
