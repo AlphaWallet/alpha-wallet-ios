@@ -28,7 +28,7 @@ target 'AlphaWallet' do
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore', '2.6.34'
   pod 'AWSSNS', '2.18.0'
-  pod 'Mixpanel-swift', '2.8.0'
+  pod 'Mixpanel-swift', '~> 3.1'
   pod 'EthereumABI', '1.3.0'
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
