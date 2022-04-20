@@ -469,4 +469,7 @@ enum Style {
         static let appreciated: UIColor = R.color.green()!
         static let depreciated: UIColor = R.color.danger()!
     }
+    enum insets {
+        static let safeBottom: CGFloat = 2.0
+    }
 }

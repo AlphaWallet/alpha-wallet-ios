@@ -51,6 +51,7 @@
 		02F4E8BE27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */; };
 		02F4E8C027717A5200D89C19 /* SaveCustomRpcBrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */; };
 		02F4E8C42771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */; };
+		02FEA8EF280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02FEA8EE280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift */; };
 		0DF46B4002E13613F768E7AE /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E36AB2DC7832A980726A4AB1 /* Pods_AlphaWalletTests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
@@ -1158,6 +1159,7 @@
 		02F4E8BD27717A1500D89C19 /* SaveCustomRpcBrowseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseViewController.swift; sourceTree = "<group>"; };
 		02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseView.swift; sourceTree = "<group>"; };
 		02F4E8C32771C07500D89C19 /* SaveCustomRpcBrowseDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcBrowseDataController.swift; sourceTree = "<group>"; };
+		02FEA8EE280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLayoutConstraintExtension.swift; sourceTree = "<group>"; };
 		0B5A03D1E5E417FE79607D0F /* Pods_AlphaWallet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWallet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		120A2B8C48180E93DBCCC2EE /* Pods-AlphaWalletUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.release.xcconfig"; sourceTree = "<group>"; };
 		290B2B551F8F50030053C83E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3043,6 +3045,7 @@
 				87BC89B726B82287005482F4 /* UIBarButtonItem.swift */,
 				874015BE270DBB4800B3515F /* MimeType+Extension.swift */,
 				87D84748274533F500EDBA80 /* UIImageView+Extension.swift */,
+				02FEA8EE280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -6243,6 +6246,7 @@
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,
 				0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */,
+				02FEA8EF280FE1B7006C3CA9 /* NSLayoutConstraintExtension.swift in Sources */,
 				5E7C7D03D745BF5C202A2CD1 /* TokensCoordinator.swift in Sources */,
 				5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */,
 				5E7C7FC0770A411DB09F8C09 /* FungibleTokenViewCell.swift in Sources */,
