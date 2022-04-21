@@ -10,6 +10,7 @@ class TokenBalance: Object {
             _nonFungibleBalance = balance.data(using: .utf8).flatMap { nonFungible(fromJsonData: $0) }
         }
     }
+    //NOTE: Check if its still using
     @objc dynamic var json: String = "{}"
 
     convenience init(balance: String = "0", json: String = "{}") {

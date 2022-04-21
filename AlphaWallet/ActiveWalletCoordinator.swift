@@ -1035,9 +1035,7 @@ extension ActiveWalletCoordinator: BlockscanChatServiceDelegate {
 extension ActiveWalletCoordinator: TransactionsServiceDelegate {
 
     func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance) {
-        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: [wallet], force: true)
-            .done { _ in }
-            .cauterize()
+        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: [wallet])
     }
 
     func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address]) {

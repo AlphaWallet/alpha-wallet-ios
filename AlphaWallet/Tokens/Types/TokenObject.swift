@@ -166,6 +166,7 @@ class TokenObject: Object {
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
     @objc dynamic var shouldDisplay: Bool = true
     var sortIndex = RealmOptional<Int>()
+    //NOTE: Refactor with renaming to nft balance or something similar
     let balance = List<TokenBalance>()
 
     var nonZeroBalance: [TokenBalance] {

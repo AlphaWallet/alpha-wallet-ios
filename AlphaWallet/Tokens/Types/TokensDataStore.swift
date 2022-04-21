@@ -63,8 +63,10 @@ enum TokenUpdateAction {
         self.store = RealmStore(realm: realm)
         super.init()
 
-        for each in servers {
-            addEthToken(forServer: each)
+        queue.async {
+            for each in servers {
+                self.addEthToken(forServer: each)
+            }
         }
     }
 
@@ -106,6 +108,7 @@ enum TokenUpdateAction {
                 let valuePublisher = token
                     .publisher(for: \.value, options: [.initial, .new])
                     .map { _ -> TokenObject in return token.detached() }
+                    .receive(on: queue)
                     .setFailureType(to: DataStoreError.self)
 
                 cancelable = valuePublisher
@@ -383,37 +386,15 @@ enum TokenUpdateAction {
     }
 
     @discardableResult private func updateTokenWithoutCommitWrite(primaryKey: String, action: TokenUpdateAction, realm: Realm) -> Bool? {
-        guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else {
-            return nil
-        }
+        guard let tokenObject = realm.object(ofType: TokenObject.self, forPrimaryKey: primaryKey) else { return nil }
 
         var result: Bool = false
 
         switch action {
         case .value(let value):
-            if tokenObject.value != value.description {
-                tokenObject.value = value.description
-
-                result = true
-            }
-        case .nonFungibleBalance(let balance):
-            var newBalance = [TokenBalance]()
-            if !balance.isEmpty {
-                for i in 0...balance.count - 1 {
-                    if let oldBalance = tokenObject.balance.first(where: { $0.balance == balance[i] }) {
-                        newBalance.append(TokenBalance(balance: balance[i], json: oldBalance.json))
-                    } else {
-                        newBalance.append(TokenBalance(balance: balance[i]))
-                    }
-                }
-            }
-
-            tokenObject.balance.removeAll()
-            if !newBalance.isEmpty {
-                tokenObject.balance.append(objectsIn: newBalance)
-            }
-
-            result = true
+            return updateFungibleBalance(balance: value, token: tokenObject)
+        case .nonFungibleBalance(let balances):
+            return updateNonFungibleBalance(balances: balances, token: tokenObject)
         case .name(let name):
             if tokenObject.name != name {
                 tokenObject.name = name
@@ -438,6 +419,38 @@ enum TokenUpdateAction {
         }
 
         return result
+    }
+
+    private func updateFungibleBalance(balance value: BigInt, token: TokenObject) -> Bool {
+        if token.value != value.description {
+            token.value = value.description
+            return true
+        }
+
+        return false
+    }
+
+    private func updateNonFungibleBalance(balances: [String], token: TokenObject) -> Bool {
+        //NOTE: add new balances
+        let balancesToAdd = balances
+            .filter { b in !token.balance.contains(where: { v in v.balance == b }) }
+            .map { TokenBalance(balance: $0) }
+
+        //NOTE: remove old balances if something has changed
+        let balancesToDelete = token.balance
+            .filter { !balances.contains($0.balance) }
+            .compactMap { token.balance.index(of: $0) }
+
+        if !balancesToAdd.isEmpty || !balancesToDelete.isEmpty {
+            token.balance.append(objectsIn: balancesToAdd)
+
+            for index in balancesToDelete {
+                token.balance.remove(at: index)
+            }
+            return true
+        }
+
+        return false
     }
 
     private func enabledTokenObjectResults(forServers servers: [RPCServer], realm: Realm) -> Results<TokenObject> {
