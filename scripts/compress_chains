@@ -1,0 +1,24 @@
+#!/usr/bin/env swift
+
+import Foundation
+
+let selectedCompressionAlgorithm = NSData.CompressionAlgorithm.lzma
+
+func compressChainFile(inputFileName: String, outputFileName: String) throws {
+    let inputFileHandle = FileHandle(forReadingAtPath: inputFileName)!
+    let inputData = inputFileHandle.readDataToEndOfFile() as NSData
+    let outputData = try inputData.compressed(using: selectedCompressionAlgorithm) as Data
+    FileManager.default.createFile(atPath: outputFileName, contents: outputData, attributes: nil)
+    try inputFileHandle.close()
+}
+
+do {
+    try compressChainFile(inputFileName: "scripts/chains.json", outputFileName: "scripts/chains.json.zip")
+    exit(0)
+} catch {
+    print("An error occurred: \(error)")
+    exit(-1)
+}
+
+
+

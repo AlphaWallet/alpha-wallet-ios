@@ -4,21 +4,24 @@ gem_cmd = gem
 bundle_gem = "bundler:2.2.33"
 vendor_path = ./vendor/bundle
 beautify_cmd = ./Pods/xcbeautify/xcbeautify
+curl_cmd = /usr/bin/curl
+compress_cmd = ./scripts/compress_chains
 
 all: target
 	@echo "Please specify a target. Please use 'make target' to show targets."
 
 target:
-	@echo "install_bundle : install the correct version of bundle."
-	@echo "install_gems  : install all the required gems."
-	@echo "install_pods  : install all the cocoapods."
-	@echo "install_all   : install gems then pods."
-	@echo "check_gems    : check to see if all the gems in the Gemfile are installed in the vendor directory."
-	@echo "bootstrap     : install bundle followed by install all."
-	@echo "test14        : run tests for iOS 14.5."
-	@echo "test15        : run tests for iOS 15.2."
-	@echo "test          : run the tests for latest iOS (15.2)."
-	@echo "clean         : Remove all the pods and gems."
+	@echo "install_bundle     : install the correct version of bundle."
+	@echo "install_gems       : install all the required gems."
+	@echo "install_pods       : install all the cocoapods."
+	@echo "install_all        : install gems then pods."
+	@echo "check_gems         : check to see if all the gems in the Gemfile are installed in the vendor directory."
+	@echo "bootstrap          : install bundle followed by install all."
+	@echo "test14             : run tests for iOS 14.5."
+	@echo "test15             : run tests for iOS 15.2."
+	@echo "test               : run the tests for latest iOS (15.2)."
+	@echo "clean              : remove all the pods and gems."
+	@echo "update_chains_file : update the chains.zip file in the project."
 
 check_brew:
 	@$(brew_cmd) --version 1>/dev/null 2>/dev/null; \
@@ -102,4 +105,17 @@ build_and_run_booted:
 	@xcrun xcodebuild -disableAutomaticPackageResolution -scheme AlphaWallet -workspace AlphaWallet.xcworkspace -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 12 Pro,OS=15.4' -derivedDataPath ./build | $(beautify_cmd)
 	@xcrun simctl install booted ./build/Build/Products/Debug-iphonesimulator/AlphaWallet.app
 	@xcrun simctl launch booted com.stormbird.alphawallet
+
+update_chains_file:
+	@echo "Deleting chains file in scripts folder."
+	@rm -f ./scripts/chains.json
+	@rm -f ./scripts/chains.json.zip
+	@echo "Downloading chains file."
+	@$(curl_cmd) --output ./scripts/chains.json https://chainid.network/chains.json
+	@echo "Compressing."
+	@$(compress_cmd)
+	@echo "Moving compressed file into project."
+	@mv scripts/chains.json.zip AlphaWallet/Rpc\ Network/chains.zip
+	@rm -f ./scripts/chains.json
+	@echo "Update completed."
 
