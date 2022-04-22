@@ -13,6 +13,21 @@ protocol ServerTableViewCellViewModelType {
     var selectionStyle: UITableViewCell.SelectionStyle { get set }
 }
 
+protocol ServerImageTableViewCellViewModelType {
+    var backgroundColor: UIColor { get }
+    var isSelected: Bool { get }
+    var isTopSeparatorHidden: Bool { get }
+    var primaryFont: UIFont { get }
+    var primaryText: String { get }
+    var primaryFontColor: UIColor { get }
+    var secondaryFont: UIFont { get }
+    var secondaryText: String { get }
+    var secondaryFontColor: UIColor { get }
+    var selectionStyle: UITableViewCell.SelectionStyle { get set }
+    var server: RPCServer { get }
+    var serverColor: UIColor { get }
+}
+
 struct ServerViewModel: ServerTableViewCellViewModelType {
     private let server: RPCServerOrAuto
     private let isSelected: Bool
@@ -46,6 +61,35 @@ struct ServerViewModel: ServerTableViewCellViewModelType {
         return server.displayName
     }
     var selectionStyle: UITableViewCell.SelectionStyle = .default
+}
+
+struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
+
+    let isSelected: Bool
+    let server: RPCServer
+    let isTopSeparatorHidden: Bool
+
+    init(server: RPCServer, selected: Bool) {
+        self.server = server
+        self.isSelected = selected
+        self.isTopSeparatorHidden = true
+    }
+
+    var backgroundColor: UIColor = Colors.appBackground
+    var serverColor: UIColor = Colors.black
+    var selectionStyle: UITableViewCell.SelectionStyle = .default
+
+    var primaryText: String {
+        return server.displayName
+    }
+    var primaryFont: UIFont = R.font.sourceSansProRegular(size: 20.0)!
+    var primaryFontColor: UIColor = R.color.black()!
+
+    var secondaryText: String {
+        return "ChainID: \(server.chainID)"
+    }
+    var secondaryFont: UIFont = R.font.sourceSansProRegular(size: 15.0)!
+    var secondaryFontColor: UIColor = R.color.dove()!
 }
 
 struct TokenListServerTableViewCellViewModel: ServerTableViewCellViewModelType {

@@ -22,7 +22,7 @@ class EnabledServersViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(ServerTableViewCell.self)
+        tableView.register(ServerImageTableViewCell.self)
         tableView.dataSource = self
         tableView.isEditing = false
         
@@ -166,10 +166,14 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         nil
     }
 
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: ServerImageTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let server = viewModel.server(for: indexPath)
-        let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
+        let cellViewModel = ServerImageViewModel(server: server, selected: viewModel.isServerSelected(server))
         cell.configure(viewModel: cellViewModel)
 
         return cell

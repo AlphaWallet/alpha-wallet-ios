@@ -20,6 +20,7 @@
 		02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */; };
 		0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */; };
 		0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */; };
+		0235A795280D470000E65C61 /* ServerImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */; };
 		02425FB327852B85007ECF94 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 02425FB227852B85007ECF94 /* chains.zip */; };
 		0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */; };
 		0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */; };
@@ -1127,6 +1128,7 @@
 		02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcModel.swift; sourceTree = "<group>"; };
 		0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewModel.swift; sourceTree = "<group>"; };
 		0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecuteOnceOnly.swift; sourceTree = "<group>"; };
+		0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerImageTableViewCell.swift; sourceTree = "<group>"; };
 		02425FB227852B85007ECF94 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = chains.zip; sourceTree = "<group>"; };
 		0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifier.swift; sourceTree = "<group>"; };
 		0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifierTest.swift; sourceTree = "<group>"; };
@@ -4232,6 +4234,7 @@
 				02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */,
 				02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */,
 				028D4E59277309ED00E7418D /* EmptyTableView.swift */,
+				0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6120,6 +6123,7 @@
 				87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */,
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
+				0235A795280D470000E65C61 /* ServerImageTableViewCell.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
 				874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */,
 				2963B6AD1F981A96003063C1 /* TransactionAppearance.swift in Sources */,
