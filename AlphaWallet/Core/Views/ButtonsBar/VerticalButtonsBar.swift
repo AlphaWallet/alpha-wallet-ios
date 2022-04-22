@@ -8,30 +8,53 @@
 import UIKit
 
 class VerticalButtonsBar: UIView {
-    
-    // MARK: - Public properties
+
+    // MARK: - Properties
+
+    // MARK: Private
+    private lazy var heightConstraint: NSLayoutConstraint = {
+        return NSLayoutConstraint(item: stackView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 0.0)
+    }()
+    private lazy var stackView: UIStackView = UIStackView()
+    private let maxButtonCount: Int
+    private let spacing: CGFloat = 16.0
+    private var buttonCount: Int = 0
+
+    // MARK: Public
     var buttons: [UIButton] = []
-    
-    // MARK: Private properties
-    private var stackView: UIStackView = UIStackView()
-    
+
     // MARK: - Init
+
     init(numberOfButtons: Int) {
+        buttonCount = numberOfButtons
+        maxButtonCount = numberOfButtons
         super.init(frame: .zero)
         setup(numberOfButtons: numberOfButtons)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Public interface
+
     func hideButtonInStack(button: UIButton) {
         stackView.removeArrangedSubview(button)
         button.removeFromSuperview()
+        buttonCount -= 1
+        if buttonCount < 1 {
+            buttonCount = 1
+        }
+        adjustHeight()
     }
 
     func showButtonInStack(button: UIButton, position: Int) {
         stackView.insertArrangedSubview(button, at: position)
+        buttonCount += 1
+        if buttonCount > maxButtonCount {
+            buttonCount = maxButtonCount
+        }
+        adjustHeight()
     }
 
     // MARK: - Setup and creation
@@ -56,13 +79,14 @@ class VerticalButtonsBar: UIView {
         stackView.addArrangedSubviews(views)
         stackView.axis = .vertical
         stackView.distribution = .equalSpacing
-        stackView.spacing = 16.0
+        stackView.spacing = 0.0
         addSubview(stackView)
         NSLayoutConstraint.activate([
             topAnchor.constraint(equalTo: stackView.topAnchor),
             bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
             leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            heightConstraint,
         ])
     }
 
@@ -113,5 +137,15 @@ class VerticalButtonsBar: UIView {
         button.cornerRadius = viewModel.buttonCornerRadius
         button.borderColor = viewModel.buttonBorderColor
         button.borderWidth = viewModel.buttonBorderWidth
+    }
+
+    // MARK: - Configuration
+
+    private func adjustHeight() {
+        let buttonsHeight = HorizontalButtonsBar.buttonsHeight * CGFloat(buttonCount)
+        let spacingHeight = spacing * CGFloat(buttonCount - 1)
+        heightConstraint.constant = buttonsHeight + spacingHeight
+        // stackView.spacing = (buttonCount == 1) ? 0.0 : spacing
+        setNeedsLayout()
     }
 }

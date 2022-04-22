@@ -45,8 +45,12 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar, separatorHeight: 0.0)
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
+
+        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
@@ -56,7 +60,17 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: footerBar.topAnchor),
 
-            footerBar.anchorsConstraint(to: view)
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).set(priority: .defaultHigh),
+            footerBar.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -Style.insets.safeBottom).set(priority: .required),
+            footerBar.topAnchor.constraint(equalTo: buttonsBar.topAnchor),
+
         ] + roundedBackground.anchorsConstraint(to: view))
     }
 

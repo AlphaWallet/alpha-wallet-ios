@@ -64,7 +64,7 @@ class VerifySeedPhraseViewController: UIViewController {
             case .notDisplayedSeedPhrase:
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
                 seedPhraseTextView.text = ""
-                clearChooseSeedPhraseButton.isHidden = true
+                buttonsBar.hideButtonInStack(button: clearChooseSeedPhraseButton)
                 continueButton.isEnabled = false
             case .errorDisplaySeedPhrase(let error):
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
@@ -112,7 +112,6 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseCollectionView.seedPhraseDelegate = self
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
 
         seedPhraseTextView.isEditable = false
         //Disable copying
@@ -131,23 +130,37 @@ class VerifySeedPhraseViewController: UIViewController {
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
+        view.addSubview(roundedBackground)
 
-        clearChooseSeedPhraseButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: clearChooseSeedPhraseButton)
         continueButton.isEnabled = false
         roundedBackground.addSubview(buttonsBar)
         seedPhraseTextView.becomeFirstResponder()
 
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        roundedBackground.addSubview(footerBar)
+
+        footerBar.addSubview(buttonsBar)
+
         NSLayoutConstraint.activate([
             seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20.0),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20.0),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: buttonsBar.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16.0),
-            buttonsBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16.0),
-            buttonsBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20.0),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20.0),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).set(priority: .defaultHigh),
+            footerBar.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -Style.insets.safeBottom).set(priority: .required),
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
@@ -241,7 +254,7 @@ class VerifySeedPhraseViewController: UIViewController {
     @objc func clearChosenSeedPhrases() {
         seedPhraseTextView.text = ""
         seedPhraseCollectionView.viewModel.clearSelectedWords()
-        clearChooseSeedPhraseButton.isHidden = true
+        buttonsBar.hideButtonInStack(button: clearChooseSeedPhraseButton)
         continueButton.isEnabled = false
         state = .editingSeedPhrase(words: state.words)
     }
@@ -307,10 +320,10 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         }
         clearError()
         if collectionView.viewModel.isEveryWordSelected {
-            clearChooseSeedPhraseButton.isHidden = false
+            buttonsBar.showButtonInStack(button: clearChooseSeedPhraseButton, position: 1)
             continueButton.isEnabled = true
         } else {
-            clearChooseSeedPhraseButton.isHidden = false
+            buttonsBar.showButtonInStack(button: clearChooseSeedPhraseButton, position: 1)
             continueButton.isEnabled = false
         }
     }
