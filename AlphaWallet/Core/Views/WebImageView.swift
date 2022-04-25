@@ -51,9 +51,13 @@ final class WebImageView: UIView {
         return webView
     }()
 
+    private var pendingLoadWebViewOperation: BlockOperation?
+
     override var contentMode: UIView.ContentMode {
         didSet { imageView.fixedContentMode = contentMode }
     }
+
+    var make100PercentHeightForWebView: Bool = false
 
     init(placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         super.init(frame: .zero)
@@ -78,7 +82,6 @@ final class WebImageView: UIView {
         webView.alpha = 0
         imageView.image = image
     }
-    private var pendingLoadWebViewOperation: BlockOperation?
 
     func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         guard let url = url?.url else {
@@ -143,10 +146,14 @@ extension WebImageView {
                         position: absolute;
                         margin: 0;
                         padding: 0;
+                        /*box-sizing: content-box;
+                        border: solid #5B6DCD 1px;*/
                     }
                     svg {
-                        /*height: 100%;*/
+                        \(make100PercentHeightForWebView ? "height: 100%;" : "/*height: 100%;*/")
                         width: 100%;
+                        \(make100PercentHeightForWebView ? "max-width: 100%;" : "/*max-width: 100%;*/")
+                        \(make100PercentHeightForWebView ? "max-height: 100%;" : "/*max-height: 100%;*/")
                     }
                 </style>
             </head>

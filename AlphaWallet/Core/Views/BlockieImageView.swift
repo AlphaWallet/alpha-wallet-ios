@@ -8,36 +8,23 @@
 import UIKit
 
 class BlockieImageView: UIView {
-    private var subscriptionKey: Subscribable<BlockiesImage>.SubscribableKey?
     private lazy var imageView: WebImageView = {
         let imageView = WebImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
+        imageView.make100PercentHeightForWebView = true
 
         return imageView
     }()
 
-    var subscribable: Subscribable<BlockiesImage>? {
-        didSet {
-            if let previousSubscribable = oldValue, let subscriptionKey = subscriptionKey {
-                previousSubscribable.unsubscribe(subscriptionKey)
-            }
-
-            if let subscribable = subscribable {
-                subscriptionKey = subscribable.subscribe { [weak self] image in
-                    self?.setBlockieImage(image: image)
-                }
-            } else {
-                subscriptionKey = nil
-                self.setBlockieImage(image: nil)
-            }
-        }
-    }
-
     var image: BlockiesImage? {
         get { return nil }
         set { setBlockieImage(image: newValue) }
+    }
+
+    override var contentMode: UIView.ContentMode {
+        didSet { imageView.contentMode = contentMode }
     }
 
     ///Web view specific size, seems like it cant be the same as view size, each size should be specified manually via brute, for 24x24 image its anougth 100x100 web image view size
@@ -47,7 +34,7 @@ class BlockieImageView: UIView {
         clipsToBounds = true
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
-
+        contentMode = .scaleAspectFit
         addSubview(imageView)
 
         NSLayoutConstraint.activate([
@@ -81,11 +68,5 @@ class BlockieImageView: UIView {
     func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
         let gesture = UITapGestureRecognizer(target: target, action: action)
         imageView.addGestureRecognizer(gesture)
-    }
-}
-
-extension BlockieImageView {
-    static var defaultBlockieImageView: BlockieImageView {
-        return BlockieImageView(size: .init(width: 24, height: 24))
     }
 }
