@@ -427,11 +427,15 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, tokenObject: tokenObject, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
             //Ugly, but should be safe
-            executeThreadSafe({ [unowned self] in
-                self.activities[index] = updatedActivity
-                self.reloadViewController(reloadImmediately: false)
+            executeThreadSafe({ [weak self] in
+                guard let strongSelf = self else { return }
+                
+                if strongSelf.activities.indices.contains(index) {
+                    strongSelf.activities[index] = updatedActivity
+                    strongSelf.reloadViewController(reloadImmediately: false)
 
-                self.subscribableUpdatedActivity.value = updatedActivity
+                    strongSelf.subscribableUpdatedActivity.value = updatedActivity
+                }
             }, queue: activitiesThreadSafeQueue)
         } else {
             //no-op. We should be able to find it unless the list of activities has changed
