@@ -62,11 +62,7 @@ class AccountViewCell: UITableViewCell {
         self.viewModel = viewModel
         cancelable.cancellAll()
         backgroundColor = viewModel.backgroundColor
-
-//        addressLabel.attributedText = viewModel.addressesAttrinutedString
-
         accessoryView = Style.AccessoryView.chevron
-
         selectedIndicator.isHidden = !viewModel.isSelected
 
         viewModel
