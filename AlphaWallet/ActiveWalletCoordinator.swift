@@ -1033,6 +1033,13 @@ extension ActiveWalletCoordinator: BlockscanChatServiceDelegate {
 }
 
 extension ActiveWalletCoordinator: TransactionsServiceDelegate {
+
+    func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance) {
+        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: [wallet], force: true)
+            .done { _ in }
+            .cauterize()
+    }
+
     func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address]) {
         for each in contracts {
             assetDefinitionStore.fetchXML(forContract: each)

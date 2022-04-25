@@ -2,7 +2,13 @@
 
 import Foundation
 
+protocol SingleChainTransactionProviderDelegate: AnyObject {
+    func didCompleteTransaction(transaction: TransactionInstance, in provider: SingleChainTransactionProvider)
+}
+
 protocol SingleChainTransactionProvider: AnyObject {
+    var delegate: SingleChainTransactionProviderDelegate? { get set }
+
     init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore, fetchLatestTransactionsQueue: OperationQueue, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher)
     
     func start()

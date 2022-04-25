@@ -9,6 +9,7 @@ enum TransactionError: Error {
 }
 
 protocol TransactionsServiceDelegate: AnyObject {
+    func didCompleteTransaction(in service: TransactionsService, transaction: TransactionInstance)
     func didExtractNewContracts(in service: TransactionsService, contracts: [AlphaWallet.Address])
 }
 
@@ -64,7 +65,10 @@ class TransactionsService {
             let providerType = each.server.transactionProviderType
             let tokensFromTransactionsFetcher = TokensFromTransactionsFetcher(tokensDataStore: tokensDataStore, session: each)
             tokensFromTransactionsFetcher.delegate = self
-            return providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            let provider = providerType.init(session: each, transactionDataStore: transactionDataStore, tokensDataStore: tokensDataStore, fetchLatestTransactionsQueue: fetchLatestTransactionsQueue, tokensFromTransactionsFetcher: tokensFromTransactionsFetcher)
+            provider.delegate = self
+            
+            return provider
         }
     }
 
@@ -120,5 +124,11 @@ extension TransactionsService: TokensFromTransactionsFetcherDelegate {
     func didExtractTokens(in fetcher: TokensFromTransactionsFetcher, contracts: [AlphaWallet.Address], tokenUpdates: [TokenUpdate]) {
         tokensDataStore.add(tokenUpdates: tokenUpdates)
         delegate?.didExtractNewContracts(in: self, contracts: contracts)
+    }
+}
+
+extension TransactionsService: SingleChainTransactionProviderDelegate {
+    func didCompleteTransaction(transaction: TransactionInstance, in provider: SingleChainTransactionProvider) {
+        delegate?.didCompleteTransaction(in: self, transaction: transaction)
     }
 }

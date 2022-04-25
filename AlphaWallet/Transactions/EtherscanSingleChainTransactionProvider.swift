@@ -25,6 +25,8 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
     private var isAutoDetectingErc721Transactions: Bool = false
     private var isFetchingLatestTransactions = false
 
+    weak var delegate: SingleChainTransactionProviderDelegate?
+
     required init(
         session: WalletSession,
         transactionDataStore: TransactionDataStore,
@@ -162,6 +164,10 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
             if let blockNumber = Int(pendingTransaction.blockNumber), blockNumber > 0 {
                 strongSelf.update(state: .completed, for: transaction, withPendingTransaction: pendingTransaction)
                 strongSelf.addOrUpdate(transactions: [transaction])
+
+                if let tx = strongSelf.transactionDataStore.transaction(withTransactionId: transaction.id, forServer: transaction.server) {
+                    strongSelf.delegate?.didCompleteTransaction(transaction: tx, in: strongSelf)
+                }
             }
         }).catch(on: queue, { [weak self] error in
             guard let strongSelf = self else { return }
