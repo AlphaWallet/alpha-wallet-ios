@@ -61,7 +61,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         firstly {
             ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
-            if address.sameContract(as: "0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5") {
+            if address.sameContract(as: "41563129cdbbd0c5d3e1c86cf9563926b243834d") {
                 expectation.fulfill()
             } else {
                 XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
