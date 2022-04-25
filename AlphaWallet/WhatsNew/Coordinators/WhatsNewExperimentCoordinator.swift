@@ -53,7 +53,7 @@ class WhatsNewExperimentCoordinator: Coordinator {
         let listings = WhatsNewListing(listing: [
             WhatsNew(
                     //TODO localize later. Might not keep this longer term
-                    title: "You can get to your wallet address QR code from Siri/Spotlight?",
+                    title: "You can get to your wallet address QR code from Siri/Spotlight",
                     changes: [
                         "1. Go to homescreen",
                         "2. Pull down to reveal search bar",
