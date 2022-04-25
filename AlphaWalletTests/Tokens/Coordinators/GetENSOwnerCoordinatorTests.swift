@@ -21,13 +21,11 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         firstly {
             ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
-            if address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
-                expectation.fulfill()
-            } else {
-                XCTFail("ENS name did not resolve correctly")
-            }
+            XCTAssertTrue(address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362"), "ENS name did not resolve correctly")
+        }.ensure {
+            expectation.fulfill()
         }.catch { error in
-            XCTFail("ENS name did not resolve correctly: \(error)")
+            XCTFail("Unknown error: \(error)")
         }
         wait(for: expectations, timeout: 20)
     }
@@ -41,13 +39,11 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         firstly {
             ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
-            if address.sameContract(as: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe") {
-                expectation.fulfill()
-            } else {
-                XCTFail("ENS name did not resolve correctly")
-            }
-        }.catch { _ in
-            XCTFail("ENS name did not resolve correctly")
+            XCTAssertTrue(address.sameContract(as: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"), "ENS name did not resolve correctly")
+        }.ensure {
+            expectation.fulfill()
+        }.catch {error in
+            XCTFail("Unknown error: \(error)")
         }
         wait(for: expectations, timeout: 20)
     }
@@ -61,13 +57,11 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         firstly {
             ENSResolver(server: server).getENSAddressFromResolver(forName: ensName)
         }.done { address in
-            if address.sameContract(as: "41563129cdbbd0c5d3e1c86cf9563926b243834d") {
-                expectation.fulfill()
-            } else {
-                XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
-            }
-        }.catch { _ in
-            XCTFail("ENS name relying on ENSIP-10 did not resolve correctly")
+            XCTAssertTrue(address.sameContract(as: "41563129cdbbd0c5d3e1c86cf9563926b243834d"), "ENS name did not resolve correctly")
+        }.ensure {
+            expectation.fulfill()
+        }.catch {error in
+            XCTFail("Unknown error: \(error)")
         }
         wait(for: expectations, timeout: 20)
     }
