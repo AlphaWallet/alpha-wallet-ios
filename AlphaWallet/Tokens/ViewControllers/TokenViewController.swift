@@ -220,7 +220,7 @@ class TokenViewController: UIViewController {
                 .etherBalance
                 .receive(on: RunLoop.main)
                 .sink { [weak self] viewModel in
-                    guard let celf = self else { return }
+                    guard let celf = self, let viewModel = viewModel else { return }
 
                     celf.tokenInfoPageView.viewModel.title = "\(viewModel.amountShort) \(viewModel.symbol)"
                     celf.tokenInfoPageView.viewModel.ticker = viewModel.ticker
@@ -237,7 +237,7 @@ class TokenViewController: UIViewController {
                 .tokenBalancePublisher(token.addressAndRPCServer)
                 .receive(on: RunLoop.main)
                 .sink { [weak self] viewModel in
-                    guard let strongSelf = self else { return }
+                    guard let strongSelf = self, let viewModel = viewModel else { return }
 
                     strongSelf.tokenInfoPageView.viewModel.currencyAmount = viewModel.currencyAmount
                     strongSelf.configure(viewModel: strongSelf.viewModel)

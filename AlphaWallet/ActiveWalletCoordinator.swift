@@ -236,7 +236,8 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private func setupWalletSessions() {
         var walletSessions: ServerDictionary<WalletSession> = .init()
         for each in config.enabledServers {
-            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, tokenBalanceProvider: walletBalanceService)
+            let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: each)
+            let tokenBalanceService = SingleChainTokenBalanceService(wallet: wallet, server: each, etherToken: etherToken, tokenBalanceProvider: walletBalanceService)
             let session = WalletSession(account: wallet, server: each, config: config, tokenBalanceService: tokenBalanceService)
 
             walletSessions[each] = session

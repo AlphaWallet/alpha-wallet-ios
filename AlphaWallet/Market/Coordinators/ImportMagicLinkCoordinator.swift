@@ -403,10 +403,10 @@ class ImportMagicLinkCoordinator: Coordinator {
             .etherBalance
             .first()
             .receive(on: RunLoop.main)
-            .sink { [weak self] balance in
-                guard let celf = self else { return }
+            .sink { [weak self] viewModel in
+                guard let celf = self, let viewModel = viewModel else { return }
 
-                if balance.value > signedOrder.order.price {
+                if viewModel.value > signedOrder.order.price {
                     celf.handlePaidImportsImpl(signedOrder: signedOrder)
                 } else {
                     celf.notEnoughEthForPaidImport(signedOrder: signedOrder)

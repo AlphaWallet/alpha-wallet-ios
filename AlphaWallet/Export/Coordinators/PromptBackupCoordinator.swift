@@ -115,7 +115,7 @@ class PromptBackupCoordinator: Coordinator {
             .receive(on: RunLoop.main)
             .sink { [weak self] viewModel in
                 guard let strongSelf = self else { return }
-                let dollarValue = viewModel.currencyAmountWithoutSymbol ?? 0
+                let dollarValue = viewModel?.currencyAmountWithoutSymbol ?? 0
                 if !dollarValue.isZero {
                     strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
                 }

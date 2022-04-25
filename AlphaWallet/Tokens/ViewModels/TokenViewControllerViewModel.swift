@@ -95,7 +95,7 @@ struct TokenViewControllerViewModel {
     var fungibleBalance: BigInt? {
         switch transactionType {
         case .nativeCryptocurrency:
-            return session.tokenBalanceService.ethBalanceViewModel.value
+            return session.tokenBalanceService.ethBalanceViewModel?.value
         case .erc20Token(let tokenObject, _, _):
             return tokenObject.valueBigInt
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:

@@ -15,7 +15,7 @@ class TransactionViewController: UIViewController {
             transactionRow: transactionRow,
             chainState: session.chainState,
             wallet: session.account,
-            currencyRate: session.tokenBalanceService.ethBalanceViewModel.currencyRate
+            currencyRate: session.tokenBalanceService.ethBalanceViewModel?.currencyRate
         )
     }()
     private let roundedBackground = RoundedBackground()
