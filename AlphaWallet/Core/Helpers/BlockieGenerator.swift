@@ -110,10 +110,12 @@ class BlockiesGenerator {
         return firstly {
             promise
         }.then { url -> Promise<BlockiesImage> in
-            return Self.decodeEip155URL(url: url).then { value -> Promise<BlockiesImage> in
-                Self.fetchOpenSeaAssetImageUrl(from: value).then { url -> Promise<BlockiesImage> in
-                    return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
-                }
+            return firstly {
+                Self.decodeEip155URL(url: url)
+            }.then { value -> Promise<URL> in
+                Self.fetchOpenSeaAssetImageUrl(from: value)
+            }.then { url -> Promise<BlockiesImage> in
+                Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
             }.recover { _ -> Promise<BlockiesImage> in
                 guard let url = URL(string: url) else { return .init(error: AnyError.blockieCreateFailure) }
                 return Self.fetchEnsAvatar(request: URLRequest(url: url), queue: .main)
