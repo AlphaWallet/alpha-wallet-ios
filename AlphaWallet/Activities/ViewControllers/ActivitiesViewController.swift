@@ -13,7 +13,9 @@ class ActivitiesViewController: UIViewController {
     private var viewModel: ActivitiesViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
-    private var bottomConstraint: NSLayoutConstraint!
+    private lazy var bottomConstraint: NSLayoutConstraint = {
+        return activitiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+    }()
     private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0, ignoreBottomSafeArea: true)
     private var activitiesView: ActivitiesView
     weak var delegate: ActivitiesViewControllerDelegate?
@@ -24,11 +26,7 @@ class ActivitiesViewController: UIViewController {
         activitiesView = ActivitiesView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions)
         super.init(nibName: nil, bundle: nil)
 
-        title = R.string.localizable.activityTabbarItemTitle()
         activitiesView.delegate = self
-        view.backgroundColor = viewModel.backgroundColor
-
-        bottomConstraint = activitiesView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         keyboardChecker.constraints = [bottomConstraint]
 
         view.addSubview(activitiesView)
@@ -41,6 +39,11 @@ class ActivitiesViewController: UIViewController {
         ])
 
         setupFilteringWithKeyword()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
         configure(viewModel: viewModel)
     }
 
@@ -70,6 +73,8 @@ class ActivitiesViewController: UIViewController {
     func configure(viewModel: ActivitiesViewModel) {
         self.viewModel = viewModel
 
+        title = R.string.localizable.activityTabbarItemTitle()
+        view.backgroundColor = viewModel.backgroundColor
         activitiesView.configure(viewModel: viewModel)
         activitiesView.applySearch(keyword: searchController.searchBar.text)
 

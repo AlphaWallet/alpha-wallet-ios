@@ -10,7 +10,7 @@ protocol ActivitiesCoordinatorDelegate: AnyObject {
 class ActivitiesCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
-    private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey!
+    private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
     private let keystore: Keystore
     private let wallet: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
@@ -38,16 +38,11 @@ class ActivitiesCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.wallet = wallet
         super.init()
-
-        subscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak self] viewModel in
-            guard let strongSelf = self, let viewModel = viewModel else { return }
-
-            strongSelf.rootViewController.configure(viewModel: viewModel)
-        }
     }
 
     func start() {
         navigationController.viewControllers = [rootViewController]
+        subscribeForActivitiesUpdates()
     }
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
@@ -68,6 +63,17 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 }
 
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
+
+    func subscribeForActivitiesUpdates() {
+        subscriptionKey.flatMap { activitiesService.subscribableViewModel.unsubscribe($0) }
+
+        subscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak rootViewController] viewModel in
+            guard let viewController = rootViewController, let viewModel = viewModel else { return }
+
+            viewController.configure(viewModel: viewModel)
+        }
+    }
+
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
         delegate?.didPressActivity(activity: activity, in: viewController)
     }
