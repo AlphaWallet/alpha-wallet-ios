@@ -18,6 +18,7 @@ class Ramp: TokenActionsProvider, BuyTokenURLProviderType {
     init(account: Wallet? = nil) {
         self.account = account
     }
+
     func configure(account: Wallet) {
         self.account = account
     }
@@ -31,7 +32,7 @@ class Ramp: TokenActionsProvider, BuyTokenURLProviderType {
         case .xDai:
             return URL(string: "\(Constants.buyXDaiWitRampUrl)&userAddress=\(account.address.eip55String)")
         //TODO need to check if Ramp supports these? Or is it taken care of elsehwere
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             return asset(for: token).flatMap {
                 return URL(string: "\(Constants.buyWitRampUrl(asset: $0.symbol))&userAddress=\(account.address.eip55String)")
             }
@@ -48,8 +49,9 @@ class Ramp: TokenActionsProvider, BuyTokenURLProviderType {
         switch token.server {
         case .xDai:
             return true
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             return asset(for: token) != nil
+
         }
     }
 

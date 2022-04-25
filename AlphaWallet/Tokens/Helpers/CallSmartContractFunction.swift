@@ -12,6 +12,25 @@ fileprivate var smartContractCallsCache = ThreadSafeDictionary<String, (promise:
 fileprivate var web3s = ThreadSafeDictionary<RPCServer, [TimeInterval: web3]>()
 // swiftlint:enable private_over_fileprivate
 
+private let web3Queue: OperationQueue = {
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 32
+    queue.underlyingQueue = DispatchQueue.global(qos: .userInteractive)
+
+    return queue
+}()
+
+private func createWeb3(webProvider: Web3HttpProvider, forServer server: RPCServer) -> web3 {
+    var requestDispatcher: JSONRPCrequestDispatcher
+    if server == .klaytnCypress || server == .klaytnBaobabTestnet {
+        requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: .NoBatching)
+    } else {
+        requestDispatcher = JSONRPCrequestDispatcher(provider: webProvider, queue: web3Queue.underlyingQueue!, policy: .Batch(32))
+    }
+
+    return web3swift.web3(provider: webProvider, queue: web3Queue, requestDispatcher: requestDispatcher)
+}
+
 func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws -> web3 {
     if let result = web3s[server]?[timeout] {
         return result
@@ -25,7 +44,7 @@ func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws ->
         let session = URLSession(configuration: configuration)
         webProvider.session = session
 
-        let result = web3swift.web3(provider: webProvider)
+        let result = createWeb3(webProvider: webProvider, forServer: server)
         if var timeoutsAndWeb3s = web3s[server] {
             timeoutsAndWeb3s[timeout] = result
             web3s[server] = timeoutsAndWeb3s

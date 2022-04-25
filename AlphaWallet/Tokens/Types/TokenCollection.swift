@@ -86,6 +86,8 @@ extension RPCServer {
         case .arbitrumRinkeby: return 26
         case .palm: return 27
         case .palmTestnet: return 28
+        case .klaytnCypress: return 29
+        case .klaytnBaobabTestnet: return 30 
         }
     }
 }

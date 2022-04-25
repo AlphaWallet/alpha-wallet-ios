@@ -94,6 +94,10 @@ class TransactionConfigurator {
         return currentConfiguration.gasPrice * currentConfiguration.gasLimit
     }
 
+    private var maxGasLimit: BigInt {
+        GasLimitConfiguration.maxGasLimit(forServer: session.server)
+    }
+
     var toAddress: AlphaWallet.Address? {
         switch transaction.transactionType {
         case .nativeCryptocurrency:
@@ -158,7 +162,7 @@ class TransactionConfigurator {
                 if limit == GasLimitConfiguration.minGasLimit {
                     return limit
                 }
-                return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
+                return min(limit + (limit * 20 / 100), self.maxGasLimit)
             }()
             infoLog("Using gas limit: \(gasLimit)")
             var customConfig = self.configurations.custom
@@ -229,7 +233,7 @@ class TransactionConfigurator {
             switch server {
             case .xDai:
                 return estimateGasPriceForXDai()
-            case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+            case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
                 return Promise(estimateGasPriceForUseRpcNode(server: server))
             }
         }
@@ -257,13 +261,16 @@ class TransactionConfigurator {
 
     private static func estimateGasPriceForUseRpcNode(server: RPCServer) -> Guarantee<GasEstimates> {
         let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
+        let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
+        let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
+
         return firstly {
             Session.send(request)
         }.map {
             if let gasPrice = BigInt($0.drop0x, radix: 16) {
-                if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
+                if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
                     // Guard against really high prices
-                    return GasEstimates(standard: GasPriceConfiguration.maxPrice)
+                    return GasEstimates(standard: maxPrice)
                 } else {
                     if server.canUserChangeGas {
                         //Add an extra gwei because the estimate is sometimes too low
@@ -273,10 +280,10 @@ class TransactionConfigurator {
                     }
                 }
             } else {
-                return GasEstimates(standard: GasPriceConfiguration.defaultPrice)
+                return GasEstimates(standard: defaultPrice)
             }
         }.recover { _ in
-            .value(GasEstimates(standard: GasPriceConfiguration.defaultPrice))
+            .value(GasEstimates(standard: defaultPrice))
         }
     }
 
@@ -307,7 +314,7 @@ class TransactionConfigurator {
             if (configurations.standard.gasPrice / BigInt(EthereumUnit.gwei.rawValue)) > Constants.highStandardEthereumMainnetGasThresholdGwei {
                 return .networkCongested
             }
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .fantom, .fantom_testnet, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .fantom, .fantom_testnet, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             break
         }
         return nil
@@ -318,11 +325,13 @@ class TransactionConfigurator {
         case .xDai:
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
+            let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
+            let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
             if let gasPrice = transaction.gasPrice, gasPrice > 0 {
-                return min(max(gasPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice)
+                return min(max(gasPrice, GasPriceConfiguration.minPrice), maxPrice)
             } else {
-                let defaultGasPrice = min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice)
+                let defaultGasPrice = min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice)
                 return defaultGasPrice
             }
         }
@@ -334,20 +343,21 @@ class TransactionConfigurator {
 
 // swiftlint:disable function_body_length
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, account: AlphaWallet.Address) -> TransactionConfiguration {
+        let maxGasLimit = GasLimitConfiguration.maxGasLimit(forServer: server)
         do {
             switch transaction.transactionType {
             case .dapp:
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: transaction.data ?? .init())
             case .nativeCryptocurrency:
                 return createConfiguration(server: server, transaction: transaction, gasLimit: GasLimitConfiguration.minGasLimit, data: transaction.data ?? .init())
             case .tokenScript:
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: transaction.data ?? .init())
             case .erc20Token:
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: [transaction.recipient!, BigUInt(transaction.value)])
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
             case .erc875Token(let token, _):
                 let parameters: [Any] = [transaction.recipient!, transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
@@ -359,7 +369,7 @@ class TransactionConfigurator {
                 let functionEncoder = Function(name: "transfer", parameters: [.address, .dynamicArray(arrayType)])
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
             case .erc875TokenOrder(let token, _):
                 let parameters: [Any] = [
                     transaction.expiry!,
@@ -385,7 +395,7 @@ class TransactionConfigurator {
                 ])
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
             case .erc721Token(let token, _), .erc721ForTicketToken(let token, _):
                 let function: Function
                 let parameters: [Any]
@@ -405,7 +415,7 @@ class TransactionConfigurator {
                 }
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
             case .erc1155Token(_, let transferType, _):
                 switch transferType {
                 case .singleTransfer:
@@ -419,7 +429,7 @@ class TransactionConfigurator {
                     ]
                     let encoder = ABIEncoder()
                     try encoder.encode(function: function, arguments: parameters)
-                    return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                    return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
                 case .batchTransfer:
                     let tokenIds = transaction.tokenIdsAndValues!.compactMap { $0.tokenId }
                     let values = transaction.tokenIdsAndValues!.compactMap { $0.value }
@@ -440,15 +450,15 @@ class TransactionConfigurator {
                     ]
                     let encoder = ABIEncoder()
                     try encoder.encode(function: function, arguments: parameters)
-                    return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: encoder.data)
+                    return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: encoder.data)
                 }
             case .claimPaidErc875MagicLink:
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: transaction.data ?? .init())
             case .prebuilt:
-                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, data: transaction.data ?? .init())
+                return createConfiguration(server: server, transaction: transaction, gasLimit: transaction.gasLimit ?? maxGasLimit, data: transaction.data ?? .init())
             }
         } catch {
-            return .init(transaction: transaction)
+            return .init(transaction: transaction, server: server)
         }
     }
 // swiftlint:enable function_body_length

@@ -33,8 +33,8 @@ struct EditedTransactionConfiguration {
     let defaultMinGasLimit = Int(GasLimitConfiguration.minGasLimit)
     let defaultMinGasPrice = Int(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
 
-    private let defaultMaxGasLimit: Int = Int(GasLimitConfiguration.maxGasLimit)
-    private let defaultMaxGasPrice: Int = Int(GasPriceConfiguration.maxPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+    private let defaultMaxGasLimit: Int
+    private let defaultMaxGasPrice: Int
 
     var maxGasPrice: Int {
         if let overriddenValue = overriddenMaxGasPrice {
@@ -68,11 +68,13 @@ struct EditedTransactionConfiguration {
         }
     }
 
-    init(configuration: TransactionConfiguration) {
+    init(configuration: TransactionConfiguration, server: RPCServer) {
+        defaultMaxGasLimit = Int(GasLimitConfiguration.maxGasLimit(forServer: server))
         gasLimitRawValue = Int(configuration.gasLimit.description) ?? 21000
         gasPriceRawValue = Int(configuration.gasPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
         nonceRawValue = Int(configuration.nonce.flatMap { String($0) } ?? "")
         dataRawValue = configuration.data.hexEncoded.add0x
+        defaultMaxGasPrice = Int(GasPriceConfiguration.maxPrice(forServer: server) / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
 
         updateMaxGasLimitIfNeeded(gasLimitRawValue)
         updateMaxGasPriceIfNeeded(gasPriceRawValue)

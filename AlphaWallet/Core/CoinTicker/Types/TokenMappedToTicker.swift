@@ -39,6 +39,8 @@ struct TokenMappedToTicker: Hashable {
             return "fantom"
         } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "binancecoin"
+        } else if server == .klaytnCypress && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "klay-token"
         } else {
             return tickerId
         }

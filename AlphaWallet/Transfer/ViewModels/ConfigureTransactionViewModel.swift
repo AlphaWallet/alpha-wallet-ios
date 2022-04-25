@@ -156,7 +156,7 @@ struct ConfigureTransactionViewModel {
         case .none:
             selectedConfigurationType = configurator.selectedConfigurationType
         }
-        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom)
+        configurationToEdit = EditedTransactionConfiguration(configuration: configurator.configurations.custom, server: configurator.session.server)
     }
 
     static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
