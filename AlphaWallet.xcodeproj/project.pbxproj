@@ -39,6 +39,10 @@
 		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
 		02C7AF6F2770C405005367EE /* RpcNetworkTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */; };
 		02C91C822770143E00EB10FB /* AvailableRpcNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */; };
+		02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */; };
+		02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CEFAFA2808027E00CF8722 /* urlUtilities.swift */; };
+		02D2556F2807E56400B97A05 /* CachedERC1155ContractDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D2556E2807E56400B97A05 /* CachedERC1155ContractDictionary.swift */; };
+		02D255782807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D255772807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift */; };
 		02D7F8CE27D8AAC900CA1140 /* VerticalButtonsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */; };
 		02D8BF89277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */; };
 		02D8BF8B277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */; };
@@ -1148,6 +1152,10 @@
 		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
 		02C7AF6E2770C405005367EE /* RpcNetworkTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RpcNetworkTestCase.swift; sourceTree = "<group>"; };
 		02C91C812770143E00EB10FB /* AvailableRpcNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableRpcNetwork.swift; sourceTree = "<group>"; };
+		02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetIsERC1155ContractCoordinatorTestCase.swift; sourceTree = "<group>"; };
+		02CEFAFA2808027E00CF8722 /* urlUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = urlUtilities.swift; sourceTree = "<group>"; };
+		02D2556E2807E56400B97A05 /* CachedERC1155ContractDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachedERC1155ContractDictionary.swift; sourceTree = "<group>"; };
+		02D255772807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachedERC1155ContractDictionaryTestCase.swift; sourceTree = "<group>"; };
 		02D7F8CD27D8AAC900CA1140 /* VerticalButtonsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalButtonsBar.swift; sourceTree = "<group>"; };
 		02D8BF88277D56F700EEE8E9 /* SaveCustomRpcManualEntryViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewModel.swift; sourceTree = "<group>"; };
 		02D8BF8A277D570900EEE8E9 /* SaveCustomRpcManualEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveCustomRpcManualEntryViewController.swift; sourceTree = "<group>"; };
@@ -2301,6 +2309,14 @@
 			path = "Rpc Network";
 			sourceTree = "<group>";
 		};
+		02CEFAF92808024900CF8722 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				02CEFAFA2808027E00CF8722 /* urlUtilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		290B2B511F8F4F840053C83E /* Localization */ = {
 			isa = PBXGroup;
 			children = (
@@ -2443,6 +2459,7 @@
 				5E7C76A2DAB62A6824F37749 /* Sell */,
 				5E7C73DFF2B3DB4C228F8510 /* Activitities */,
 				0256B63E27F73EBF008AF8CF /* Verifications */,
+				02CEFAF92808024900CF8722 /* Utilities */,
 				5E7C754A9D6320C933F675A9 /* modules */,
 			);
 			path = AlphaWalletTests;
@@ -3606,6 +3623,7 @@
 		442FCB1A0F74A68425907AC9 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				02D2556E2807E56400B97A05 /* CachedERC1155ContractDictionary.swift */,
 				5E7C7C85E24A82DBF37E3F76 /* UiTweaks.swift */,
 				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
 				5E7C77C2844B3579A59C3F2F /* CallSmartContractFunction.swift */,
@@ -3944,6 +3962,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7E9A5E7D36AA3BC108A4 /* GetENSOwnerCoordinatorTests.swift */,
+				02CEFAF72807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -4073,6 +4092,7 @@
 		5E7C78E79A2C45A2124F259D /* Tokens */ = {
 			isa = PBXGroup;
 			children = (
+				02D255772807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift */,
 				0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */,
 				5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */,
 				5E7C76AB57FE8E8E084CF4A8 /* Coordinators */,
@@ -6555,6 +6575,7 @@
 				5E7C77E30FA9E84DA58C937E /* Optional.swift in Sources */,
 				5E7C784B592A446BE35D3DE9 /* AlphaWalletAddress.swift in Sources */,
 				5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */,
+				02D2556F2807E56400B97A05 /* CachedERC1155ContractDictionary.swift in Sources */,
 				5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */,
 				8712A39226F476EF0009C376 /* PriceAlertsPageViewModel.swift in Sources */,
 				875F867F27ABC7A60071ABD1 /* NonFungibleTraitViewModel.swift in Sources */,
@@ -6859,7 +6880,9 @@
 				61DCE17D2001A7A20053939F /* RLPTests.swift in Sources */,
 				299573A41FA27A15006F17FD /* TestKeyStore.swift in Sources */,
 				CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */,
+				02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */,
 				871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */,
+				02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */,
 				29F114F81FA8165200114A29 /* SendCoordinatorTests.swift in Sources */,
 				877D00AF25ADF60A008E22CC /* TransactionConfiguratorTransactionsTests.swift in Sources */,
 				299573A21FA1F369006F17FD /* QRCodeValueParserTests.swift in Sources */,
@@ -6933,6 +6956,7 @@
 				76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */,
 				5E7C7D7A68C7780C293301F7 /* HDWalletTest.swift in Sources */,
 				8499D13528C1FABDC27EA7B1 /* SmartContractHelperTests.swift in Sources */,
+				02D255782807E5B900B97A05 /* CachedERC1155ContractDictionaryTestCase.swift in Sources */,
 				5E7C7B89694C62A14CBE8105 /* FakeEventsDataStore.swift in Sources */,
 				5E7C7E5C76318C0E802F377F /* TokenScriptFilterParserTests.swift in Sources */,
 				5E7C7ADB4D80243679028A6D /* IntExtensionsTests.swift in Sources */,
