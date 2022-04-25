@@ -449,7 +449,8 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             guard each.shouldInclude(forAddress: contract, isFungible: true) else { continue }
             switch each {
             case .ownerAddress:
-                results[each.javaScriptName] = .address(sessions[server].account.address)
+                guard let session = sessions[safe: server] else { continue }
+                results[each.javaScriptName] = .address(session.account.address)
             case .tokenId:
                 //We aren't going to add `tokenId` as an implicit attribute even for ERC721s, because we don't know it
                 break
