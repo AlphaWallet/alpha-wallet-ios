@@ -15,7 +15,6 @@ class ENSResolver: ENSDelegateImpl {
     }
 
     func getENSAddressFromResolver(forName name: String) -> Promise<AlphaWallet.Address> {
-        //TODO caching should be based on name instead
         if let cachedResult = cachedAddressValue(forName: name) {
             return .value(cachedResult)
         }

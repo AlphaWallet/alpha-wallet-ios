@@ -15,7 +15,6 @@ class ENSReverseResolver: ENSDelegateImpl {
 
     //TODO make calls from multiple callers at the same time for the same address more efficient
     func getENSNameFromResolver(forAddress address: AlphaWallet.Address) -> Promise<String> {
-        //TODO caching should be based on address instead of node
         if let cachedResult = cachedEnsValue(forAddress: address) {
             return .value(cachedResult)
         }

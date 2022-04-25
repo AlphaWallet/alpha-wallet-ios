@@ -42,7 +42,6 @@ final class GetENSTextRecord: ENSDelegateImpl {
     }
 
     func getENSRecord(forName name: String, record: ENSTextRecordKey) -> Promise<String> {
-        //TODO caching should be based on name instead
         if let cachedResult = cachedResult(forName: name, record: record) {
             return .value(cachedResult)
         }
