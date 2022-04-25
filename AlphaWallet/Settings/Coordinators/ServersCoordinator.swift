@@ -42,7 +42,7 @@ class ServersCoordinator: Coordinator {
             .klaytnCypress,
             .klaytnBaobabTestnet
         ] + RPCServer.customServers
-        if Features.isPalmEnabled {
+        if Features.default.isAvailable(.isPalmEnabled) {
             return all + [.palm, .palmTestnet]
         } else {
             return all

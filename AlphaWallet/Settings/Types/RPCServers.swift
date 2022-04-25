@@ -851,7 +851,7 @@ enum RPCServer: Hashable, CaseIterable {
             .klaytnCypress,
             .klaytnBaobabTestnet
         ]
-        if Features.isPalmEnabled {
+        if Features.default.isAvailable(.isPalmEnabled) {
             return all + [.palm, .palmTestnet]
         } else {
             return all

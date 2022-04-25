@@ -26,7 +26,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
     lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
     private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
-        guard Features.isActivityEnabled else { return nil }
+        guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
     }()
     private let coinTickersFetcher: CoinTickersFetcherType
@@ -365,7 +365,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
         let transactionCoordinator = createTransactionCoordinator(transactionDataStore: transactionDataStore)
 
-        if Features.isActivityEnabled {
+        if Features.default.isAvailable(.isActivityEnabled) {
             let activityCoordinator = createActivityCoordinator(activitiesService: activitiesService)
             viewControllers.append(activityCoordinator.navigationController)
         } else {

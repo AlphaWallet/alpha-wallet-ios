@@ -183,7 +183,7 @@ private class PrivateXMLHandler {
             }
         }
         if fromActionAsTopLevel.isEmpty {
-            if let baseTokenType = baseTokenType, Features.isActivityEnabled {
+            if let baseTokenType = baseTokenType, Features.default.isAvailable(.isActivityEnabled) {
                 results.append(contentsOf: defaultActions(forTokenType: baseTokenType))
             } else {
                 tokenType
@@ -387,7 +387,7 @@ private class PrivateXMLHandler {
                     hasValidTokenScriptFile = false
                 }
             } else {
-                if Features.shouldLoadTokenScriptWithFailedSignatures {
+                if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
                     xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
                     hasValidTokenScriptFile = true
                 } else {
@@ -815,7 +815,7 @@ public class XMLHandler {
             XMLHandler.xmlHandlers[contract] = privateXMLHandler
         }
 
-        if Features.isActivityEnabled, let tokenType = tokenType {
+        if Features.default.isAvailable(.isActivityEnabled), let tokenType = tokenType {
             let tokenTypeForBaseXml: TokenType
             if privateXMLHandler.hasValidTokenScriptFile, let tokenTypeInXml = privateXMLHandler.tokenType.flatMap({ TokenType(tokenInterfaceType: $0) }) {
                 tokenTypeForBaseXml = tokenTypeInXml

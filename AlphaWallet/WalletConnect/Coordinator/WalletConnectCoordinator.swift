@@ -442,7 +442,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     }
 
     func server(_ server: WalletConnectServer, tookTooLongToConnectToUrl url: AlphaWallet.WalletConnect.ConnectionUrl) {
-        if Features.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections {
+        if Features.default.isAvailable(.isUsingAppEnforcedTimeoutForMakingWalletConnectConnections) {
             infoLog("WalletConnect app-enforced timeout for waiting for new connection")
             analyticsCoordinator.log(action: Analytics.Action.walletConnectConnectionTimeout, properties: [
                 Analytics.WalletConnectAction.connectionUrl.rawValue: url.absoluteString

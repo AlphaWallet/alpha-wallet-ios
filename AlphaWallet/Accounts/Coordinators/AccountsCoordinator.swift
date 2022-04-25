@@ -167,7 +167,7 @@ class AccountsCoordinator: Coordinator {
                 self?.promptRenameWallet(account)
             }
 
-            if Features.isRenameWalletEnabledWhileLongPress {
+            if Features.default.isAvailable(.isRenameWalletEnabledWhileLongPress) {
                 controller.addAction(renameAction)
             }
 

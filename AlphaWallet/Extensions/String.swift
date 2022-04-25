@@ -159,6 +159,41 @@ extension String {
     func titleCasedWords() -> String {
         return split(separator: " ").map { String($0).capitalizingFirstLetter() }.joined(separator: " ")
     }
+
+    func insertSpaceBeforeCapitals() -> String {
+        var buffer = [String]()
+        var word: String = ""
+        for character in self {
+            guard let lastLetter = word.last else {
+                word.append(character)
+                continue
+            }
+            if !character.isUppercase, lastLetter.isUppercase {
+                if !word.isEmpty, word.count > 1 {
+                    word.removeLast()
+                    buffer.append(word)
+                    word = ""
+                    word.append(lastLetter)
+                }
+                word.append(character)
+                continue
+            }
+            if character.isUppercase, !lastLetter.isUppercase {
+                if !word.isEmpty {
+                    buffer.append(word)
+                    word = ""
+                }
+                word.append(character)
+                continue
+            }
+            word.append(character)
+        }
+        if !word.isEmpty {
+            buffer.append(word)
+        }
+        return buffer.joined(separator: " ")
+    }
+
 }
 
 extension StringProtocol {

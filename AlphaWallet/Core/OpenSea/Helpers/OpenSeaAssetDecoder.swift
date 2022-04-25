@@ -40,7 +40,7 @@ struct OpenSeaAssetDecoder {
             guard let tokenType = NonFungibleFromJsonTokenType(rawString: assetContractJson["schema_name"].stringValue) else {
                 continue
             }
-            if !Features.isErc1155Enabled && tokenType == .erc1155 { continue }
+            if !Features.default.isAvailable(.isErc1155Enabled) && tokenType == .erc1155 { continue }
             let tokenId = each["token_id"].stringValue
             let contractName = assetContractJson["name"].stringValue
             //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too

@@ -21,6 +21,11 @@
 		0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */; };
 		0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */; };
 		0235A795280D470000E65C61 /* ServerImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */; };
+		024255182816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */; };
+		0242551A28168B84009D626E /* FeaturesTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551928168B84009D626E /* FeaturesTestCase.swift */; };
+		0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551B28168C28009D626E /* EnvironmentTestCase.swift */; };
+		0242551E2816CB8E009D626E /* FeaturesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551D2816CB8E009D626E /* FeaturesViewController.swift */; };
+		024255202816DB6B009D626E /* FeaturesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551F2816DB6B009D626E /* FeaturesTableViewController.swift */; };
 		02425FB327852B85007ECF94 /* chains.zip in Resources */ = {isa = PBXBuildFile; fileRef = 02425FB227852B85007ECF94 /* chains.zip */; };
 		0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */; };
 		0251BE9527ED493A00B4F328 /* TokenGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */; };
@@ -1135,6 +1140,11 @@
 		0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewModel.swift; sourceTree = "<group>"; };
 		0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecuteOnceOnly.swift; sourceTree = "<group>"; };
 		0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerImageTableViewCell.swift; sourceTree = "<group>"; };
+		024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringInsertSpaceBeforeCapitalsTestCase.swift; sourceTree = "<group>"; };
+		0242551928168B84009D626E /* FeaturesTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesTestCase.swift; sourceTree = "<group>"; };
+		0242551B28168C28009D626E /* EnvironmentTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentTestCase.swift; sourceTree = "<group>"; };
+		0242551D2816CB8E009D626E /* FeaturesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesViewController.swift; sourceTree = "<group>"; };
+		0242551F2816DB6B009D626E /* FeaturesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesTableViewController.swift; sourceTree = "<group>"; };
 		02425FB227852B85007ECF94 /* chains.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = chains.zip; sourceTree = "<group>"; };
 		0251BE9227EC341F00B4F328 /* TokenGroupIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifier.swift; sourceTree = "<group>"; };
 		0251BE9427ED493A00B4F328 /* TokenGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenGroupIdentifierTest.swift; sourceTree = "<group>"; };
@@ -2319,6 +2329,16 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		02FA3F632818E11F005EDD63 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C70526F00B835220DC0E2 /* Features.swift */,
+				0242551D2816CB8E009D626E /* FeaturesViewController.swift */,
+				0242551F2816DB6B009D626E /* FeaturesTableViewController.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		290B2B511F8F4F840053C83E /* Localization */ = {
 			isa = PBXGroup;
 			children = (
@@ -2376,6 +2396,7 @@
 				87D5BBD82727D9B20053E6D2 /* API.swift */,
 				87D5BBCA2727D2910053E6D2 /* schema.json */,
 				02C91C80277013B100EB10FB /* Rpc Network */,
+				02FA3F632818E11F005EDD63 /* Features */,
 				8712A37A26F314EF0009C376 /* Alerts */,
 				87BBF9682563DD7500FF4846 /* WalletConnect */,
 				878EE942255BC352000210DE /* Share */,
@@ -3426,6 +3447,8 @@
 				5E7C75DE215F0AAEF284948F /* HDWalletTest.swift */,
 				87DD0C43279980E500460260 /* ValidatorsTests.swift */,
 				871442FC27FB1EE6008819D1 /* FunctionCallArgumentTests.swift */,
+				0242551928168B84009D626E /* FeaturesTestCase.swift */,
+				0242551B28168C28009D626E /* EnvironmentTestCase.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3453,7 +3476,6 @@
 				5E7C7914F01B5FEA5B20398B /* Collection+UIView.swift */,
 				5E7C799E4784815CB0202820 /* Core.swift */,
 				5E7C7543079DF1C7CA998A2D /* Views */,
-				5E7C70526F00B835220DC0E2 /* Features.swift */,
 				5E7C7A71851FA227231270BD /* DecodedFunctionCall.swift */,
 				5E7C77BAC05F2F2417098707 /* ViewControllers */,
 				5E7C7B097096FC37B68A399B /* EmailList.swift */,
@@ -4389,6 +4411,7 @@
 			children = (
 				5E7C76D132F4BEA5CE4FFD0A /* StringExtensionTests.swift */,
 				5E7C7F4F209C6EE3828E18EC /* IntExtensionsTests.swift */,
+				024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -6080,6 +6103,7 @@
 				023286E0277D793A007D33C5 /* AddMultipleCustomRpcViewController.swift in Sources */,
 				29F114EE1FA65DEF00114A29 /* ImportType.swift in Sources */,
 				8717DA39273A7E83002D3D66 /* WalletConnect.swift in Sources */,
+				0242551E2816CB8E009D626E /* FeaturesViewController.swift in Sources */,
 				29BDF1981FEE4DB00023A45F /* GasPriceConfiguration.swift in Sources */,
 				29FA00CC201CA63C002F7DC5 /* Method.swift in Sources */,
 				2963A28A1FC402940095447D /* LocalizedOperationObject.swift in Sources */,
@@ -6407,6 +6431,7 @@
 				87F15B1227F365F000EB9787 /* TokenMappedToTicker.swift in Sources */,
 				5E7C75CE1F8F94D538A48FAD /* Web3Error.swift in Sources */,
 				5E7C78A31A16600FBA5C9956 /* ScanQRCodeCoordinator.swift in Sources */,
+				024255202816DB6B009D626E /* FeaturesTableViewController.swift in Sources */,
 				5E7C7B129C55A8458AEF3F61 /* URLViewModel.swift in Sources */,
 				5E7C716AB8079EA1283B2317 /* Bookmark.swift in Sources */,
 				5E7C7B8242E31B4DA0263BE5 /* EthTypedData.swift in Sources */,
@@ -6893,6 +6918,7 @@
 				87DD0C44279980E500460260 /* ValidatorsTests.swift in Sources */,
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,
+				0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */,
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
 				29E14FD71F7F490000185568 /* Transaction.swift in Sources */,
 				296106CC1F776FD00006164B /* WalletCoordinatorTests.swift in Sources */,
@@ -6904,6 +6930,7 @@
 				29AD8A0E1F93FF28008E10E7 /* WalletSession.swift in Sources */,
 				870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */,
 				CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */,
+				024255182816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift in Sources */,
 				29FF13011F75EAD900AFD326 /* FakeKeystore.swift in Sources */,
 				29FC9BCC1F831860000209CD /* PaymentCoordinatorTests.swift in Sources */,
 				732E0F522022754600B39C1F /* FakeLockProtocol.swift in Sources */,
@@ -6932,6 +6959,7 @@
 				29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */,
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
 				76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */,
+				0242551A28168B84009D626E /* FeaturesTestCase.swift in Sources */,
 				76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */,
 				0224D26727980664003D022A /* FormatterTests.swift in Sources */,
 				76F1DD10DF9A6C844E5F57D6 /* CreateRedeemTests.swift in Sources */,

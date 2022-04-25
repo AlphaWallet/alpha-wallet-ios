@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window?.tintColor = Colors.appTint
 
         do {
-            if Features.isFirebaseEnabled {
+            if Features.default.isAvailable(.isFirebaseEnabled) {
                 reportProvider.start()
             }
 

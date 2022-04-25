@@ -9,7 +9,7 @@ struct MnemonicLengthValidator {
 
     init() {
         var msg: String
-        if Features.is24SeedWordPhraseAllowed {
+        if Features.default.isAvailable(.is24SeedWordPhraseAllowed) {
             msg = R.string.localizable.importWalletImportInvalidMnemonicCount24()
         } else {
             msg = R.string.localizable.importWalletImportInvalidMnemonicCount12()
@@ -23,7 +23,7 @@ struct MnemonicLengthValidator {
     }
 
     func isValidSeedPhraseLength(count: Int) -> Bool {
-        if Features.is24SeedWordPhraseAllowed {
+        if Features.default.isAvailable(.is24SeedWordPhraseAllowed) {
             return HDWallet.validSeedPhraseCounts.contains(count)
         }
         return count == HDWallet.SeedPhraseCount.word12.count

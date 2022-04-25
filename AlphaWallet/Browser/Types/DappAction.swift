@@ -106,13 +106,13 @@ extension DappAction {
         if let command = try? decoder.decode(DappCommand.self, from: data) {
             return .eth(command)
         } else if let command = try? decoder.decode(AddCustomChainCommand.self, from: data) {
-            if Features.isEip3085AddEthereumChainEnabled {
+            if Features.default.isAvailable(.isEip3085AddEthereumChainEnabled) {
                 return .walletAddEthereumChain(command)
             } else {
                 return nil
             }
         } else if let command = try? decoder.decode(SwitchChainCommand.self, from: data) {
-            if Features.isEip3326SwitchEthereumChainEnabled {
+            if Features.default.isAvailable(.isEip3326SwitchEthereumChainEnabled) {
                 return .walletSwitchEthereumChain(command)
             } else {
                 return nil

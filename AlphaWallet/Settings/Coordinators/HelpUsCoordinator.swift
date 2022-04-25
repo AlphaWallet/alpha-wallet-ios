@@ -32,7 +32,7 @@ class HelpUsCoordinator: Coordinator {
     }
 
     func rateUsOrSubscribeToNewsletter() {
-        if Features.isPromptForEmailListSubscriptionEnabled && appTracker.launchCountForCurrentBuild > 3 && !appTracker.hasCompletedPromptForNewsletter {
+        if Features.default.isAvailable(.isPromptForEmailListSubscriptionEnabled) && appTracker.launchCountForCurrentBuild > 3 && !appTracker.hasCompletedPromptForNewsletter {
             promptSubscribeToNewsletter()
         } else {
             rateUs()
