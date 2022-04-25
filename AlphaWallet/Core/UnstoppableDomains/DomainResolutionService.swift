@@ -17,7 +17,7 @@ extension DomainResolutionService: DomainResolutionServiceType {
 
         func resolveBlockieImage(addr: AlphaWallet.Address) -> Promise<BlockieAndAddressOrEnsResolution> {
             BlockiesGenerator()
-                .promise(address: addr)
+                .promise(address: addr, ens: value)
                 .map { image -> BlockieAndAddressOrEnsResolution in
                     return (image, .resolved(.address(addr)))
                 }.recover { _ -> Promise<BlockieAndAddressOrEnsResolution> in
