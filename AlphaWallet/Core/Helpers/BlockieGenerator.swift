@@ -60,14 +60,15 @@ class BlockiesGenerator {
         return firstly {
             cachedBlockie(address: address, size: .sized(size: size, scale: scale))
         }.recover { _ -> Promise<BlockiesImage> in
-            self.fetchEnsAvatar(from: address, ens: nil)
-                .get { blockie in
-                    self.cacheBlockie(address: address, blockie: blockie, size: .none)
-                }.recover { _ -> Promise<BlockiesImage> in
-                    self.createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
-                        self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
-                    }
+            firstly {
+                self.fetchEnsAvatar(from: address, ens: nil)
+            }.get { blockie in
+                self.cacheBlockie(address: address, blockie: blockie, size: .none)
+            }.recover { _ -> Promise<BlockiesImage> in
+                self.createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
+                    self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
                 }
+            }
         }
     }
 
