@@ -146,7 +146,7 @@ extension AccountsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch viewModel.sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
-            guard let viewModel = viewModel[indexPath] else { return UITableViewCell() }
+            guard let viewModel = viewModel.accountViewModel(forIndexPath: indexPath) else { return UITableViewCell() }
 
             let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)

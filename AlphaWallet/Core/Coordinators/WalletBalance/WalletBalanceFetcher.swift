@@ -24,7 +24,8 @@ protocol WalletBalanceFetcherTypeTests {
 protocol WalletBalanceFetcherType: AnyObject, WalletBalanceFetcherTypeTests {
     var tokenObjects: [Activity.AssignedToken] { get }
     var balance: WalletBalance { get }
-    var walletBalance: AnyPublisher<WalletBalance, Never> { get }
+    var walletBalancePublisher: AnyPublisher<WalletBalance, Never> { get }
+    var walletBalance: WalletBalance { get }
 
     func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never>
     func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel?
@@ -59,9 +60,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .map { Activity.AssignedToken(tokenObject: $0) }
     }
 
-    var walletBalance: AnyPublisher<WalletBalance, Never> {
+    var walletBalancePublisher: AnyPublisher<WalletBalance, Never> {
         return walletBalanceSubject
             .eraseToAnyPublisher()
+    }
+
+    var walletBalance: WalletBalance {
+        return walletBalanceSubject.value
     }
 
     required init(wallet: Wallet, servers: [RPCServer], tokensDataStore: TokensDataStore, transactionsStorage: TransactionDataStore, nftProvider: NFTProvider, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue, coinTickersFetcher: CoinTickersFetcherType) {

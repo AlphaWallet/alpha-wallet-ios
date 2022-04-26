@@ -28,9 +28,11 @@ protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
 }
 
 protocol WalletBalanceService: TokenBalanceProvider, CoinTickerProvider {
-    var walletsSummary: AnyPublisher<WalletSummary, Never> { get }
+    var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> { get }
+    var walletsSummary: WalletSummary { get }
 
-    func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
+    func walletBalancePublisher(wallet: Wallet) -> AnyPublisher<WalletBalance, Never>
+    func walletBalance(wallet: Wallet) -> WalletBalance
     func start()
 }
 
@@ -50,9 +52,13 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private var cancelable = Set<AnyCancellable>()
     private let nftProvider: NFTProvider = OpenSea()
     
-    var walletsSummary: AnyPublisher<WalletSummary, Never> {
+    var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject
             .eraseToAnyPublisher()
+    }
+
+    var walletsSummary: WalletSummary {
+        return walletsSummarySubject.value
     }
 
     init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
@@ -182,7 +188,12 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         return fetcher
     }
 
-    func walletBalance(wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
+    func walletBalancePublisher(wallet: Wallet) -> AnyPublisher<WalletBalance, Never> {
+        return getOrCreateBalanceFetcher(for: wallet)
+            .walletBalancePublisher
+    }
+
+    func walletBalance(wallet: Wallet) -> WalletBalance {
         return getOrCreateBalanceFetcher(for: wallet)
             .walletBalance
     }

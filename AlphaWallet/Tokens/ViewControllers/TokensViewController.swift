@@ -230,9 +230,13 @@ class TokensViewController: UIViewController {
                 strongSelf.tableView.reloadData()
             }.store(in: &cancellable)
 
+        let initialWalletSummary = WalletSummary(balances: [walletBalanceService.walletBalance(wallet: account)])
+
         let walletSummary = walletBalanceService
-            .walletBalance(wallet: account)
+            .walletBalancePublisher(wallet: account)
             .map { return WalletSummary(balances: [$0]) }
+            .receive(on: RunLoop.main)
+            .prepend(initialWalletSummary)
             .eraseToAnyPublisher()
 
         walletSummaryView.configure(viewModel: .init(walletSummary: walletSummary, config: config, alignment: .center))
