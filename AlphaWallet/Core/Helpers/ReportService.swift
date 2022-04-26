@@ -16,7 +16,8 @@ class ReportProvider: NSObject {
 
     override init() {
         super.init()
-
+        
+        guard !isRunningTests() else { return }
         if let service = AlphaWallet.FirebaseReportService() {
             register(service)
         }
