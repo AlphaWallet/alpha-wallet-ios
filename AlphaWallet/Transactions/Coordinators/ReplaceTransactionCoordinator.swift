@@ -120,7 +120,7 @@ class ReplaceTransactionCoordinator: Coordinator {
 extension ReplaceTransactionCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         UIApplication.shared
-            .presentedViewController(presentingViewController)
+            .presentedViewController(or: presentingViewController)
             .displayError(message: error.prettyError)
     }
 

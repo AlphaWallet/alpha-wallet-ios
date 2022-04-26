@@ -59,7 +59,7 @@ class SignMessageCoordinator: Coordinator {
     func start() {
         analyticsCoordinator.log(navigation: Analytics.Navigation.signMessageRequest, properties: [Analytics.Properties.source.rawValue: source.rawValue, Analytics.Properties.messageType.rawValue: mapMessageToAnalyticsType(message).rawValue])
 
-        let presenter = UIApplication.shared.presentedViewController(navigationController)
+        let presenter = UIApplication.shared.presentedViewController(or: navigationController)
         presenter.present(hostViewController, animated: true)
 
         rootViewController.reloadView()

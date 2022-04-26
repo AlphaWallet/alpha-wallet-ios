@@ -125,9 +125,13 @@ struct WalletConnectToSessionViewModel: SectionProtocol {
             return .init(title: .normal(sessionProposal.name), headerName: sections[section].title, configuration: .init(section: section))
         case .networks:
             let servers = serversToConnect.map { $0.displayName }.joined(separator: ", ")
-            let configuration: TransactionConfirmationHeaderView.Configuration = .init(isOpened: isOpened, section: section, shouldHideChevron: sessionProposal.isV1SessionProposal)
-
-            return .init(title: .normal(servers), headerName: serversSectionTitle, configuration: configuration)
+            let configuration: TransactionConfirmationHeaderView.Configuration = .init(
+                isOpened: isOpened,
+                section: section,
+                shouldHideChevron: sessionProposal.isV1SessionProposal)
+            let serverIcon = serversToConnect.first?.walletConnectIconImage ?? .init(nil)
+            
+            return .init(title: .normal(servers), headerName: serversSectionTitle, titleIcon: serverIcon, configuration: configuration)
         case .url:
             let dappUrl = sessionProposal.dappUrl.absoluteString
             return .init(title: .normal(dappUrl), headerName: sections[section].title, configuration: .init(section: section))

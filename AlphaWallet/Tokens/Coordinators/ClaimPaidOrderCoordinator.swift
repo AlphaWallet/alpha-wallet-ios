@@ -202,7 +202,7 @@ class ClaimPaidOrderCoordinator: Coordinator {
 extension ClaimPaidOrderCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         UIApplication.shared
-            .presentedViewController(navigationController)
+            .presentedViewController(or: navigationController)
             .displayError(message: error.prettyError)
         
         delegate?.coordinator(self, didFailTransaction: error)

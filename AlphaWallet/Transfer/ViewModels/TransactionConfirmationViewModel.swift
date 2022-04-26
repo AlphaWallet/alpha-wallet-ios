@@ -280,7 +280,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
             case .balance:
                 let title = R.string.localizable.tokenTransactionConfirmationDefault()
                 return .init(title: .normal(balance ?? title), headerName: headerName, details: newBalance, configuration: configuration)
@@ -382,7 +382,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 if let warning = configurator.gasPriceWarning {
@@ -480,7 +480,7 @@ extension TransactionConfirmationViewModel {
             case .amount:
                 return .init(title: .normal(formattedAmountValue), headerName: headerName, configuration: configuration)
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
             }
         }
 
@@ -590,7 +590,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
             case .gas:
                 let gasFee = gasFeeString(withConfigurator: configurator, cryptoToDollarRate: cryptoToDollarRate)
                 if let warning = configurator.gasPriceWarning {
@@ -689,7 +689,7 @@ extension TransactionConfirmationViewModel {
             let headerName = sections[section].title
             switch sections[section] {
             case .network:
-                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: session.server.iconImage, configuration: configuration)
+                return .init(title: .normal(session.server.displayName), headerName: headerName, titleIcon: .init(session.server.iconImage), configuration: configuration)
             case .gas:
                 if let warning = configurator.gasPriceWarning {
                     return .init(title: .warning(warning.shortTitle), headerName: headerName, configuration: configuration)
