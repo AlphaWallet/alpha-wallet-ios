@@ -30,20 +30,23 @@ class GetIsERC1155ContractCoordinatorTestCase: XCTestCase {
     func testgetIsERC1155Contract() throws {
         let coordinator = GetIsERC1155ContractCoordinator(forServer: .main, cacheName: fileName)
         let expectation = expectation(description: "Waiting for server response")
-        coordinator.getIsERC1155Contract(for: address1)
-            .done { returnValue in
-                self.result = returnValue
-                expectation.fulfill()
-            }
-            .cauterize()
-        wait(for: [expectation], timeout: 10 * 60)
+        firstly {
+            coordinator.getIsERC1155Contract(for: address1)
+        }.done { returnValue in
+            self.result = returnValue
+        }.ensure {
+            expectation.fulfill()
+        }.catch {error in
+            XCTFail("Unknown error: \(error)")
+        }
+        wait(for: [expectation], timeout: 20)
         let cache = CachedERC1155ContractDictionary(fileName: fileName)
         XCTAssertNotNil(cache)
         XCTAssertNotNil(result)
-        let cachedResult = cache!.isERC1155Contract(for: address1)
+        let cachedResult = cache?.isERC1155Contract(for: address1)
         XCTAssertNotNil(cachedResult)
-        XCTAssertEqual(cachedResult!, result!)
-        cache!.remove()
+        XCTAssertEqual(cachedResult, result)
+        cache?.remove()
     }
 
 }
