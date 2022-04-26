@@ -130,7 +130,7 @@ class WalletConnectCoordinator: NSObject, Coordinator {
             navigationController.setNavigationBarHidden(false, animated: true)
         }
 
-        showSessions(state: .loading, navigationController: navigationController) {
+        showSessions(state: .waitingForSessionConnection, navigationController: navigationController) {
             do {
                 try self.provider.connect(url: url)
             } catch {
@@ -170,14 +170,13 @@ class WalletConnectCoordinator: NSObject, Coordinator {
             }
     }
 
-    private func showSessions(state: WalletConnectSessionsViewController.State, navigationController: UINavigationController, completion: @escaping () -> Void = {}) {
+    private func showSessions(state: WalletConnectSessionsViewModel.State, navigationController: UINavigationController, completion: @escaping () -> Void = {}) {
         if let viewController = sessionsViewController {
-            viewController.configure(state: state)
+            viewController.viewModel.set(state: state)
             completion()
         } else {
-            let viewController = WalletConnectSessionsViewController(provider: provider)
+            let viewController = WalletConnectSessionsViewController(viewModel: .init(provider: provider, state: state))
             viewController.delegate = self
-            viewController.configure(state: state)
 
             sessionsViewController = viewController
 
@@ -268,7 +267,7 @@ extension WalletConnectCoordinator: WalletConnectServerDelegate {
     
     private func resetSessionsToRemoveLoadingIfNeeded() {
         if let viewController = sessionsViewController {
-            viewController.set(state: .sessions)
+            viewController.viewModel.set(state: .sessions)
         }
     }
 
