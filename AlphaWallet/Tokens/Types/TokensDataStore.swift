@@ -406,12 +406,11 @@ enum TokenUpdateAction {
                 }
             }
 
-            result = true
+            tokenObject.balance.removeAll()
+            if !newBalance.isEmpty {
+                tokenObject.balance.append(objectsIn: newBalance)
+            }
 
-            realm.delete(tokenObject.balance)
-            tokenObject.balance.append(objectsIn: newBalance)
-
-            //NOTE: for now we mark balance as hasn't changed for nonFungibleBalance, How to check that balance has update?
             result = true
         case .name(let name):
             if tokenObject.name != name {
