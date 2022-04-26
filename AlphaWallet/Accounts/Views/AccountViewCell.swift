@@ -10,7 +10,7 @@ class AccountViewCell: UITableViewCell {
     private let blockieImageView = BlockieImageView(size: .init(width: 40, height: 40))
     lazy private var selectedIndicator: UIView = {
         let indicator = UIView()
-        indicator.layer.cornerRadius = Style.SelectionIndicator.width/2.0
+        indicator.layer.cornerRadius = Style.SelectionIndicator.width / 2.0
         indicator.borderWidth = 0.0
         indicator.backgroundColor = Style.SelectionIndicator.color
         NSLayoutConstraint.activate([
@@ -21,8 +21,6 @@ class AccountViewCell: UITableViewCell {
         indicator.isHidden = true
         return indicator
     }()
-    var viewModel: AccountViewModel?
-    var account: Wallet?
 
     private var cancelable = Set<AnyCancellable>()
 
@@ -59,8 +57,8 @@ class AccountViewCell: UITableViewCell {
     }
 
     func configure(viewModel: AccountViewModel) {
-        self.viewModel = viewModel
         cancelable.cancellAll()
+
         backgroundColor = viewModel.backgroundColor
         accessoryView = Style.AccessoryView.chevron
         selectedIndicator.isHidden = !viewModel.isSelected
