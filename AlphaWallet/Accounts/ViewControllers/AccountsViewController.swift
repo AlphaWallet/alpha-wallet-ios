@@ -146,13 +146,12 @@ extension AccountsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch viewModel.sections[indexPath.section] {
         case .hdWallet, .keystoreWallet, .watchedWallet:
-            let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
             guard let viewModel = viewModel[indexPath] else { return UITableViewCell() }
+
+            let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: viewModel)
 
-            let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
-            gesture.minimumPressDuration = 0.6
-            cell.addGestureRecognizer(gesture)
+            addLongPressGestureRecognizer(toView: cell)
 
             return cell
         case .summary:
@@ -163,12 +162,19 @@ extension AccountsViewController: UITableViewDataSource {
         }
     }
 
+    private func addLongPressGestureRecognizer(toView view: UIView) {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
+        gesture.minimumPressDuration = 0.6
+        view.addGestureRecognizer(gesture)
+    }
+
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return viewModel.canEditCell(indexPath: indexPath)
     }
 
     @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
-        guard let cell = recognizer.view as? AccountViewCell, let account = cell.account, recognizer.state == .began else { return }
+        guard let cell = recognizer.view as? AccountViewCell, let indexPath = cell.indexPath, recognizer.state == .began else { return }
+        guard let account = viewModel.account(for: indexPath) else { return }
 
         delegate?.didSelectInfoForAccount(account: account, sender: cell, in: self)
     }
