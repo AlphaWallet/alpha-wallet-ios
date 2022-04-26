@@ -8,6 +8,10 @@ class DeviceChecker: JailbreakChecker {
             return false
         }
 
+        if isRunningOnMac() {
+            return false
+        }
+
         let list: [String] = [
             "/Applications/Cydia.app",
             "/Library/MobileSubstrate/MobileSubstrate.dylib",
