@@ -9,7 +9,9 @@ import PromiseKit
 import RealmSwift
 import Result
 
+// swiftlint:disable class_delegate_protocol
 protocol DappBrowserCoordinatorDelegate: CanOpenURL, RequestAddCustomChainProvider, RequestSwitchChainProvider {
+// swiftlint:enable class_delegate_protocol
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
     func handleUniversalLink(_ url: URL, forCoordinator coordinator: DappBrowserCoordinator)
     func openFiatOnRamp(wallet: Wallet, server: RPCServer, inCoordinator coordinator: DappBrowserCoordinator, viewController: UIViewController, source: Analytics.FiatOnRampSource)

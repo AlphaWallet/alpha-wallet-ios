@@ -14,7 +14,7 @@ struct DefaultsWalletAddressesStore: WalletAddressesStore {
     }
 
     private var walletsSubject: CurrentValueSubject<Set<Wallet>, Never> = .init([])
-    
+
     private struct Keys {
         static let watchAddresses = "watchAddresses"
         static let ethereumAddressesWithPrivateKeys = "ethereumAddressesWithPrivateKeys"
@@ -34,14 +34,8 @@ struct DefaultsWalletAddressesStore: WalletAddressesStore {
         self.userDefaults = userDefaults
     }
 
-    var recentlyUsedWallet: Wallet? {
-        get {
-            return nil
-        }
-        set {
-            //no-op
-        }
-    }
+    //This might not work correctly (since it doesn't read or store the wallet) if we switch back to this class (but we shouldn't because we use it for migrating away from the old wallet storage)
+    var recentlyUsedWallet: Wallet?
 
     var wallets: [Wallet] {
         let watchAddresses = self.watchAddresses.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
@@ -51,7 +45,7 @@ struct DefaultsWalletAddressesStore: WalletAddressesStore {
     }
 
     var watchAddresses: [String] {
-        get { 
+        get {
             return userDefaults.data(forKey: Keys.watchAddresses)
                 .flatMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? [String] }
                 .flatMap { $0 } ?? []
