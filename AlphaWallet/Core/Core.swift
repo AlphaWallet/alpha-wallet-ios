@@ -14,6 +14,10 @@ func isRunningTests() -> Bool {
     return ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil
 }
 
+func isAlphaWallet() -> Bool {
+    Bundle.main.bundleIdentifier == "com.stormbird.alphawallet"
+}
+
 func isRunningOnMac() -> Bool {
     if ProcessInfo.processInfo.isMacCatalystApp {
         return true
