@@ -210,7 +210,9 @@ extension SaveCustomRpcManualEntryView: KeyboardNavigationDelegateProtocol {
     }
 
     func addHttpsText() {
+        // swiftlint:disable empty_enum_arguments
         guard let currentTextField = currentTextField(), let inputString = currentTextField.textField.text, !inputString.lowercased().starts(with: "https://") else { return }
+        // swiftlint:enable empty_enum_arguments
         currentTextField.textField.text = "https://" + inputString
     }
 
