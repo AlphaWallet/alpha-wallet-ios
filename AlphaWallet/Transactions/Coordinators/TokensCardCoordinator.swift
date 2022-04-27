@@ -38,7 +38,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     private var cancelable = Set<AnyCancellable>()
-    
+
     init(
             session: WalletSession,
             navigationController: UINavigationController,
@@ -407,8 +407,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
         delegate?.didPress(for: .send(type: .tokenScript(action: action, tokenObject: token, tokenHolder: tokenHolder)), inViewController: viewController, in: self)
     }
-    
-} 
+}
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 
@@ -464,16 +463,6 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 
     func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
         showNonFungibleTokenViewController(tokenHolder: tokenHolder, in: viewController)
-    }
-
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardViewController) {
-        switch action.type {
-        case .tokenScript:
-            showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .buy, .bridge:
-            //Couldn't have reached here
-            break
-        }
     }
 }
 
