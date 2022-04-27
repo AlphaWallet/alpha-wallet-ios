@@ -179,7 +179,7 @@ class ActivityViewController: UIViewController {
         }
 
         buttonsBar.viewController = self
-        if Features.isSpeedupAndCancelEnabled && viewModel.isPendingTransaction {
+        if Features.default.isAvailable(.isSpeedupAndCancelEnabled) && viewModel.isPendingTransaction {
             buttonsBar.configure(.combined(buttons: 3))
             configureSpeedupButton(buttonsBar.buttons[0])
             configureCancelButton(buttonsBar.buttons[1])

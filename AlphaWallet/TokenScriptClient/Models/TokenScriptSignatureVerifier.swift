@@ -14,7 +14,7 @@ class TokenScriptSignatureVerifier {
 
     func verify(xml: String) -> Promise<TokenScriptSignatureVerificationType> {
         return Promise { seal in
-            if Features.isActivityEnabled {
+            if Features.default.isAvailable(.isActivityEnabled) {
                 if TokenScript.baseTokenScriptFiles.values.contains(xml) {
                     seal.fulfill(.verified(domainName: "*.aw.app"))
                     return

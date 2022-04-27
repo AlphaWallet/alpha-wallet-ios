@@ -16,7 +16,7 @@ struct AlphaWalletProviderFactory {
         )
         var plugins: [PluginType] = []
 
-        if Features.shouldPrintCURLForOutgoingRequest {
+        if Features.default.isAvailable(.shouldPrintCURLForOutgoingRequest) {
             plugins.append(NetworkLoggerPlugin(cURL: true))
         }
 

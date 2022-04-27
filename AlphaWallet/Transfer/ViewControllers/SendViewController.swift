@@ -41,7 +41,7 @@ class SendViewController: UIViewController {
         amountTextField.accessoryButtonTitle = .next
         amountTextField.errorState = .none
         amountTextField.isAlternativeAmountEnabled = false
-        amountTextField.allFundsAvailable = Features.isSendAllFundsFungibleEnabled
+        amountTextField.allFundsAvailable = Features.default.isAvailable(.isSendAllFundsFungibleEnabled)
 
         return amountTextField
     }()

@@ -67,7 +67,7 @@ class TokenViewController: UIViewController {
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         let pageWithFooter = PageViewWithFooter(pageView: tokenInfoPageView, footerBar: footerBar)
         let pages: [PageViewType]
-        if Features.isAlertsEnabled && viewModel.hasCoinTicker {
+        if Features.default.isAvailable(.isAlertsEnabled) && viewModel.hasCoinTicker {
             pages = [pageWithFooter, activitiesPageView, alertsPageView]
         } else {
             pages = [pageWithFooter, activitiesPageView]
@@ -195,7 +195,7 @@ class TokenViewController: UIViewController {
             }.cauterize()
         }
 
-        if Features.isTokenScriptSignatureStatusEnabled {
+        if Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) {
             if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
                 switch status {
                 case .type0NoTokenScript:

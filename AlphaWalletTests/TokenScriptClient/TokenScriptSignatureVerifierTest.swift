@@ -9,7 +9,7 @@ import XCTest
 class TokenScriptSignatureVerifierTest: XCTestCase {
 
     func testValidatorAPIPassed() {
-        if Features.shouldLoadTokenScriptWithFailedSignatures {
+        if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
             return
         }
 
@@ -30,7 +30,7 @@ class TokenScriptSignatureVerifierTest: XCTestCase {
     }
 
     func testValidatorAPIFailed() {
-        if Features.shouldLoadTokenScriptWithFailedSignatures {
+        if Features.default.isAvailable(.shouldLoadTokenScriptWithFailedSignatures) {
             return
         }
 

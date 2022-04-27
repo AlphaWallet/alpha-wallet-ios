@@ -191,7 +191,7 @@ extension EtherKeystore {
     private static let rawJsonWalletStore = JsonWalletAddressesStore.createStorage()
     
     static func migratedWalletAddressesStore(userDefaults: UserDefaults) -> WalletAddressesStore {
-        if Features.isJsonFileBasedStorageForWalletAddressesEnabled {
+        if Features.default.isAvailable(.isJsonFileBasedStorageForWalletAddressesEnabled) {
             //NOTE: its quite important to remove test wallets right before fetching, otherwise tests will fails, especially Keystore related
             JsonWalletAddressesStore.removeWalletsFolderForTests()
 

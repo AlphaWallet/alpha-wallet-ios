@@ -844,3 +844,4 @@
 "transactionState.failed" = "Failed";
 "transactionState.unknown" = "Unknown";
 "settings.checkTransactionState" = "Check Transaction State";
+"advanced.settings.features.title" = "Features";

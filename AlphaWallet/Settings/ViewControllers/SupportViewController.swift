@@ -135,7 +135,7 @@ extension SupportViewController: UITableViewDelegate {
             logAccessGithub()
             openURL(.github)
         case .email:
-            let attachments = Features.isAttachingLogFilesToSupportEmailEnabled ? DDLogger.logFilesAttachments : []
+            let attachments = Features.default.isAvailable(.isAttachingLogFilesToSupportEmailEnabled) ? DDLogger.logFilesAttachments : []
             resolver.present(from: self, attachments: attachments)
         }
     }

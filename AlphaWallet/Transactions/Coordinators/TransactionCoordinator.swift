@@ -39,7 +39,7 @@ class TransactionCoordinator: NSObject, Coordinator {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
 
         //NOTE: Reduce copies of unused transaction instances, `TransactionsViewController` isn't using when activities enabled.
-        guard !Features.isActivityEnabled else { return }
+        guard !Features.default.isAvailable(.isActivityEnabled) else { return }
 
         transactionsService
             .transactionsChangesetPublisher

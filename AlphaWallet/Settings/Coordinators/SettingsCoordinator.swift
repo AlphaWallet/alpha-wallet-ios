@@ -335,6 +335,13 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         coordinator.delegate = self
         coordinator.start()
     }
+
+    func advancedSettingsViewControllerFeaturesSelected(in controller: AdvancedSettingsViewController) {
+        let controller = FeaturesViewController()
+        controller.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(controller, animated: true)
+    }
+
 }
 
 extension SettingsCoordinator: ChooseSendPrivateTransactionsProviderViewControllerDelegate {

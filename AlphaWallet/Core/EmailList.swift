@@ -17,7 +17,7 @@ class EmailList {
 
     ///We skip email validation since MailChimp does it, and this is low volume
     func subscribe(email: String) {
-        guard Features.isPromptForEmailListSubscriptionEnabled else { return }
+        guard Features.default.isAvailable(.isPromptForEmailListSubscriptionEnabled) else { return }
         #if targetEnvironment(simulator)
         //no-op
         #else

@@ -198,7 +198,7 @@ class TokensCardViewController: UIViewController {
             }.cauterize()
         }
 
-        if Features.isTokenScriptSignatureStatusEnabled {
+        if Features.default.isAvailable(.isTokenScriptSignatureStatusEnabled) {
             if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
                 switch status {
                 case .type0NoTokenScript:

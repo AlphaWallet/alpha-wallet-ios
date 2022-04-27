@@ -25,7 +25,7 @@ class AnalyticsService: NSObject, AnalyticsServiceType {
         super.init()
         //NOTE: set default state of sending analytics events
         if self.config.sendAnalyticsEnabled == nil {
-            self.config.sendAnalyticsEnabled = Features.isAnalyticsUIEnabled
+            self.config.sendAnalyticsEnabled = Features.default.isAvailable(.isAnalyticsUIEnabled)
         }
         if Constants.Credentials.analyticsKey.nonEmpty && !Environment.isTestFlight {
             mixpanelService = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)

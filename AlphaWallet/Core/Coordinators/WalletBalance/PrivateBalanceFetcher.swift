@@ -323,7 +323,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     private func updateNonOpenSeaErc1155Balance(tokens: [TokenObject], enjinTokens: EnjinSemiFungibleTokens, queue: DispatchQueue) -> Promise<[TokenBatchOperation]> {
-        guard Features.isErc1155Enabled else { return .value([]) }
+        guard Features.default.isAvailable(.isErc1155Enabled) else { return .value([]) }
         //Local copies so we don't access the wrong ones during async operation
         let account = self.account
         let server = self.server

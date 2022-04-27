@@ -12,15 +12,16 @@ struct AdvancedSettingsViewModel {
     var rows: [AdvancedSettingsRow]
 
     init(wallet: Wallet) {
-        let canExportToJSONKeystore = Features.isExportJsonKeystoreEnabled && wallet.isReal()
+        let canExportToJSONKeystore = Features.default.isAvailable(.isExportJsonKeystoreEnabled) && wallet.isReal()
         self.rows = [
             .clearBrowserCache,
             .tokenScript,
-            Features.isUsingPrivateNetwork ? .usePrivateNetwork : nil,
-            Features.isAnalyticsUIEnabled ? .analytics : nil,
-            Features.isLanguageSwitcherDisabled ? nil : .changeLanguage,
+            Features.default.isAvailable(.isUsingPrivateNetwork) ? .usePrivateNetwork : nil,
+            Features.default.isAvailable(.isAnalyticsUIEnabled) ? .analytics : nil,
+            Features.default.isAvailable(.isLanguageSwitcherDisabled) ? nil : .changeLanguage,
             canExportToJSONKeystore ? .exportJSONKeystore : nil,
-            .tools
+            .tools,
+            (Environment.isDebug || Environment.isTestFlight) ? .features : nil,
         ].compactMap { $0 }
     }
 
@@ -38,6 +39,7 @@ enum AdvancedSettingsRow: CaseIterable {
     case analytics
     case usePrivateNetwork
     case exportJSONKeystore
+    case features
     
     var title: String {
         switch self {
@@ -57,6 +59,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.string.localizable.settingsChooseSendPrivateTransactionsProviderButtonTitle()
         case .exportJSONKeystore:
             return R.string.localizable.settingsAdvancedExportJSONKeystoreTitle()
+        case .features:
+            return R.string.localizable.advancedSettingsFeaturesTitle()
         }
     }
 
@@ -78,6 +82,8 @@ enum AdvancedSettingsRow: CaseIterable {
             return R.image.iconsSettingsEthermine()!
         case .exportJSONKeystore:
             return R.image.iconsSettingsJson()!
+        case .features:
+            return R.image.ticket_bundle_checked()!
         }
     }
 }

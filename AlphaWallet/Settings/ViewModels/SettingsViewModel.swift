@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 struct SettingsViewModel {
     private let account: Wallet
@@ -71,9 +72,10 @@ extension SettingsViewModel.functional {
         } else {
             walletRows = [.showMyWallet, .changeWallet, .nameWallet, .walletConnect, .blockscanChat(blockscanChatUnreadCount: blockscanChatUnreadCount)]
         }
+        let systemRows: [SettingsSystemRow] = [.passcode, .selectActiveNetworks, .advanced]
         return [
             .wallet(rows: walletRows),
-            .system(rows: [.passcode, .selectActiveNetworks, .advanced]),
+            .system(rows: systemRows),
             .help,
             .version(value: Bundle.main.fullVersion),
             .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")

@@ -16,6 +16,7 @@ protocol AdvancedSettingsViewControllerDelegate: AnyObject {
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerUsePrivateNetworkSelected(in controller: AdvancedSettingsViewController)
     func advancedSettingsViewControllerExportJSONKeystoreSelected(in controller: AdvancedSettingsViewController)
+    func advancedSettingsViewControllerFeaturesSelected(in controller: AdvancedSettingsViewController)
 }
 
 class AdvancedSettingsViewController: UIViewController {
@@ -81,7 +82,7 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let row = viewModel.rows[indexPath.row]
         switch row {
-        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore:
+        case .analytics, .changeCurrency, .changeLanguage, .clearBrowserCache, .tools, .tokenScript, .exportJSONKeystore, .features:
             let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(titleText: row.title, subTitleText: nil, icon: row.icon))
             return cell
@@ -136,6 +137,8 @@ extension AdvancedSettingsViewController: UITableViewDelegate {
             delegate?.advancedSettingsViewControllerUsePrivateNetworkSelected(in: self)
         case .exportJSONKeystore:
             delegate?.advancedSettingsViewControllerExportJSONKeystoreSelected(in: self)
+        case .features:
+            delegate?.advancedSettingsViewControllerFeaturesSelected(in: self)
         }
     }
 }
