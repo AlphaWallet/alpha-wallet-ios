@@ -1,17 +1,13 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import Alamofire
-import BigInt
-import PromiseKit
-import Result
-import SwiftyJSON 
+import PromiseKit 
 
 typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
 final class OpenSea: NFTProvider {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private var promiseCache: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
+    private var cachedPromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
     private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
     private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
 
@@ -28,50 +24,50 @@ final class OpenSea: NFTProvider {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard OpenSea.isServerSupported(key.server) else {
-            promiseCache[key] = .value([:])
-            return promiseCache[key]!
+            cachedPromises[key] = .value([:])
+            return cachedPromises[key]!
         }
 
         return makeFetchPromise(for: key)
     }
 
     private func makeFetchPromise(for key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
-        if let promise = promiseCache[key] {
+        if let promise = cachedPromises[key] {
             if promise.isResolved {
-                let promise = makeFetchFromLocalAndRemotePromise(key: key)
-                promiseCache[key] = promise
+                let promise = fetchFromLocalAndRemotePromise(key: key)
+                cachedPromises[key] = promise
 
                 return promise
             } else {
                 return promise
             }
         } else {
-            let promise = makeFetchFromLocalAndRemotePromise(key: key)
-            promiseCache[key] = promise
+            let promise = fetchFromLocalAndRemotePromise(key: key)
+            cachedPromises[key] = promise
 
             return promise
         }
     }
 
-    private func makeFetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
+    private func fetchFromLocalAndRemotePromise(key: AddressAndRPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
         return networkProvider
             .fetchAssetsPromise(address: key.address, server: key.server)
-            .map { result in
+            .map(on: queue, { [weak storage] result in
                 if result.hasError {
-                    let merged = (self.storage.value[key] ?? [:])
+                    let merged = (storage?.value[key] ?? [:])
                         .merging(result.result) { Array(Set($0 + $1)) }
 
                     if merged.isEmpty {
                         //no-op
                     } else {
-                        self.storage.value[key] = merged
+                        storage?.value[key] = merged
                     }
                 } else {
-                    self.storage.value[key] = result.result
+                    storage?.value[key] = result.result
                 }
                 
-                return self.storage.value[key] ?? result.result
-            }
+                return storage?.value[key] ?? result.result
+            })
     }
 
     static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
