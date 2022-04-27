@@ -33,10 +33,10 @@ private class EnjinUserManager {
 
     private var config = Config()
     private let graphqlClient: ApolloClient = {
-        let provider = InterceptorProviderForAuthorization(client: EnjinProvider.client, store: EnjinProvider.store)
-        let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.enjinApiUrl)
+        let provider = InterceptorProviderForAuthorization(client: EnjinNetworkProvider.client, store: EnjinNetworkProvider.store)
+        let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: Constants.Enjin.apiUrl)
 
-        return ApolloClient(networkTransport: transport, store: EnjinProvider.store)
+        return ApolloClient(networkTransport: transport, store: EnjinNetworkProvider.store)
     }()
 
     enum EnjinUserManagerError: Error {
@@ -53,7 +53,7 @@ private class EnjinUserManager {
     }
 
     private func enjinAuthorize(email: String, password: String) -> Promise<AccessToken> {
-        return EnjinProvider.functional.authorize(graphqlClient: graphqlClient, email: email, password: password).map { oauth -> AccessToken in
+        return Enjin.functional.authorize(graphqlClient: graphqlClient, email: email, password: password).map { oauth -> AccessToken in
             if let accessToken = oauth.accessTokens?.compactMap({ $0 }).first {
                 return accessToken
             } else {
