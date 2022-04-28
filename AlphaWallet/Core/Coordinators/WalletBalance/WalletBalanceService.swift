@@ -50,7 +50,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let queue: DispatchQueue = DispatchQueue(label: "com.MultiWalletBalanceService.updateQueue")
     private let walletAddressesStore: WalletAddressesStore
     private var cancelable = Set<AnyCancellable>()
-    private let nftProvider: NFTProvider = OpenSea()
+    private let nftProvider: NFTProvider = AlphaWalletNFTProvider()
     
     var walletsSummaryPublisher: AnyPublisher<WalletSummary, Never> {
         return walletsSummarySubject

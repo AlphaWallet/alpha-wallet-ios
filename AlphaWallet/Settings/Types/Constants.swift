@@ -184,7 +184,11 @@ public struct Constants {
 
     static let launchShortcutKey = "com.stormbird.alphawallet.qrScanner"
 
-    static let enjinApiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
+    enum Enjin {
+        static let apiUrl = URL(string: "https://cloud.enjin.io/graphql/default")!
+        //TODO: add support Kovan
+        //static let apiUrl = URL(string: "https://kovan.cloud.enjin.io/graphql/default")!
+    }
 
     enum BlockscanChat {
         static let blockscanChatWebUrl = URL(string: "https://chat.blockscan.com/login")!

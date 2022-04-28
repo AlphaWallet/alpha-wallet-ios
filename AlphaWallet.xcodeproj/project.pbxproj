@@ -799,6 +799,8 @@
 		8731E6E22565269400A6A7DA /* Oneinch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DE2565269400A6A7DA /* Oneinch.swift */; };
 		8731E6E32565269400A6A7DA /* ERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8731E6DF2565269400A6A7DA /* ERC20Token.swift */; };
 		8733474E24ED008A002D649D /* TransactionConfirmationRowInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8733474D24ED008A002D649D /* TransactionConfirmationRowInfoView.swift */; };
+		8736024A28194E1A002A5ED5 /* EnjinNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8736024928194E1A002A5ED5 /* EnjinNetworkProvider.swift */; };
+		8736024C28194E4F002A5ED5 /* WeakRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8736024B28194E4F002A5ED5 /* WeakRef.swift */; };
 		8736214D264D3B0000AAF794 /* XYMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8736214B264D3AFF00AAF794 /* XYMarkerView.swift */; };
 		8736214E264D3B0000AAF794 /* BalloonMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8736214C264D3AFF00AAF794 /* BalloonMarker.swift */; };
 		87374A4325DFAF7800267160 /* HoneySwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87374A4225DFAF7800267160 /* HoneySwap.swift */; };
@@ -992,7 +994,7 @@
 		87D457F526677CBF00BA1442 /* ERC20BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */; };
 		87D457F726677CD300BA1442 /* NativecryptoBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */; };
 		87D5BBCC2727D2920053E6D2 /* schema.json in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBCA2727D2910053E6D2 /* schema.json */; };
-		87D5BBD72727D69E0053E6D2 /* EnjinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */; };
+		87D5BBD72727D69E0053E6D2 /* Enjin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD62727D69E0053E6D2 /* Enjin.swift */; };
 		87D5BBD92727D9B20053E6D2 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D5BBD82727D9B20053E6D2 /* API.swift */; };
 		87D5BBDB2727DA7B0053E6D2 /* EnjinToken.graphql in Resources */ = {isa = PBXBuildFile; fileRef = 87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */; };
 		87D6E5D4278DBB7400B9DEE3 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D6E5D3278DBB7400B9DEE3 /* Device.swift */; };
@@ -1926,6 +1928,8 @@
 		8731E6DE2565269400A6A7DA /* Oneinch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Oneinch.swift; sourceTree = "<group>"; };
 		8731E6DF2565269400A6A7DA /* ERC20Token.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC20Token.swift; sourceTree = "<group>"; };
 		8733474D24ED008A002D649D /* TransactionConfirmationRowInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationRowInfoView.swift; sourceTree = "<group>"; };
+		8736024928194E1A002A5ED5 /* EnjinNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjinNetworkProvider.swift; sourceTree = "<group>"; };
+		8736024B28194E4F002A5ED5 /* WeakRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakRef.swift; sourceTree = "<group>"; };
 		8736214B264D3AFF00AAF794 /* XYMarkerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XYMarkerView.swift; sourceTree = "<group>"; };
 		8736214C264D3AFF00AAF794 /* BalloonMarker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalloonMarker.swift; sourceTree = "<group>"; };
 		87374A4225DFAF7800267160 /* HoneySwap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoneySwap.swift; sourceTree = "<group>"; };
@@ -2117,7 +2121,7 @@
 		87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20BalanceViewModel.swift; sourceTree = "<group>"; };
 		87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativecryptoBalanceViewModel.swift; sourceTree = "<group>"; };
 		87D5BBCA2727D2910053E6D2 /* schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = schema.json; sourceTree = "<group>"; };
-		87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjinProvider.swift; sourceTree = "<group>"; };
+		87D5BBD62727D69E0053E6D2 /* Enjin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enjin.swift; sourceTree = "<group>"; };
 		87D5BBD82727D9B20053E6D2 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinToken.graphql; sourceTree = "<group>"; };
 		87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = EnjinBalances.graphql; sourceTree = "<group>"; };
@@ -3395,6 +3399,7 @@
 				87D6E5DE2791934D00B9DEE3 /* DeepLink.swift */,
 				8780FDBE27C3CC0F00BBE9DD /* ChangeSet.swift */,
 				879CA41027FD5A98004461FE /* RealmStore.swift */,
+				8736024B28194E4F002A5ED5 /* WeakRef.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3460,9 +3465,7 @@
 				2932045D1F8EEE760095B7C1 /* TokenBalanceService.swift */,
 				870CC47727C6560800A19380 /* TokensAutodetector */,
 				874D2F7C27A2B14C005459DA /* UnstoppableDomains */,
-				87C2008927A483A100338D26 /* OpenSea */,
 				87D6E5D3278DBB7400B9DEE3 /* Device.swift */,
-				87D5BBD52727D68C0053E6D2 /* Enjin */,
 				874BD2B72669766C00E62E02 /* PopularTokens */,
 				87DB61BE264A94A6009FBDDE /* Ethereum */,
 				879599482604A5A2006722B2 /* CoinTicker */,
@@ -4964,6 +4967,8 @@
 			isa = PBXGroup;
 			children = (
 				87584FA927EA2185006A7CD1 /* NFTProvider.swift */,
+				87C2008927A483A100338D26 /* OpenSea */,
+				87D5BBD52727D68C0053E6D2 /* Enjin */,
 			);
 			path = NFT;
 			sourceTree = "<group>";
@@ -5257,8 +5262,9 @@
 				87AA5DCB27303C89000A2DEA /* EnjinOauth.graphql */,
 				87D5BBDA2727DA7B0053E6D2 /* EnjinToken.graphql */,
 				87D5BBDC2727DCB40053E6D2 /* EnjinBalances.graphql */,
-				87D5BBD62727D69E0053E6D2 /* EnjinProvider.swift */,
+				87D5BBD62727D69E0053E6D2 /* Enjin.swift */,
 				87FF649827355FDD00D59E20 /* EnjinUserManagementInterceptor.swift */,
+				8736024928194E1A002A5ED5 /* EnjinNetworkProvider.swift */,
 			);
 			path = Enjin;
 			sourceTree = "<group>";
@@ -6241,7 +6247,7 @@
 				291F52BF1F6C874E00B369AB /* AccountsViewController.swift in Sources */,
 				2963B6AF1F9823E6003063C1 /* UnconfirmedTransaction.swift in Sources */,
 				87C2008E27A8802900338D26 /* OpenSeaStats.swift in Sources */,
-				87D5BBD72727D69E0053E6D2 /* EnjinProvider.swift in Sources */,
+				87D5BBD72727D69E0053E6D2 /* Enjin.swift in Sources */,
 				2996F1431F6C96FF005C33AE /* ImportWalletViewModel.swift in Sources */,
 				291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
@@ -6566,6 +6572,7 @@
 				5E7C76D28BB14C7685296BEF /* DappsHomeEmptyViewViewModel.swift in Sources */,
 				5E7C741CA88EFAC66756DE7F /* EditMyDappViewControllerViewModel.swift in Sources */,
 				87584B4125EF911D0070063B /* ShowSeedPhraseCoordinator.swift in Sources */,
+				8736024C28194E4F002A5ED5 /* WeakRef.swift in Sources */,
 				5E7C71AE5E97BDA5BB685A9F /* Dapp.swift in Sources */,
 				5E7C7DC485AD4401A3F6D071 /* TokenViewController.swift in Sources */,
 				5E7C7EC8E473526629825ADA /* TokenViewControllerViewModel.swift in Sources */,
@@ -6857,6 +6864,7 @@
 				879F185526E74042000602F2 /* TokensCardCollectionInfoPageView.swift in Sources */,
 				5E7C732AA43385E80681B24F /* EmailList.swift in Sources */,
 				5E7C776B88B6CDC18CA39D72 /* Environment.swift in Sources */,
+				8736024A28194E1A002A5ED5 /* EnjinNetworkProvider.swift in Sources */,
 				87D7326727636D7E00375C18 /* TransferCollectiblesCoordinator.swift in Sources */,
 				5E7C7DE51E4829295CABDC21 /* ContractDataDetector.swift in Sources */,
 				5E7C7883FB31565411F7C928 /* NonFungibleFromJsonTokenType.swift in Sources */,

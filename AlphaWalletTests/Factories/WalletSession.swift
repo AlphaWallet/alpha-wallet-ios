@@ -52,8 +52,8 @@ extension WalletSession {
 }
 
 private class FakeNftProvider: NFTProvider {
-    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<OpenSeaNonFungiblesToAddress> {
-        return .value([:])
+    func nonFungible(wallet: Wallet, server: RPCServer) -> Promise<NonFungiblesTokens> {
+        return .value((openSea: [:], enjin: [:]))
     }
 }
 

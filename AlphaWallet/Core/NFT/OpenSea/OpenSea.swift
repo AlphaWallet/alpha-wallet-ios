@@ -5,7 +5,7 @@ import PromiseKit
 
 typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
 
-final class OpenSea: NFTProvider {
+final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private var cachedPromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
     private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
