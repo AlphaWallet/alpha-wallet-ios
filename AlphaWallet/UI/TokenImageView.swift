@@ -42,20 +42,20 @@ class TokenImageView: UIView {
         return imageView
     }()
 
-    private var tokenImagePlaceholder: UIImage? {
+    private var tokenImagePlaceholder: UIImage? = {
         return R.image.tokenPlaceholderLarge()
-    }
+    }()
 
     var isChainOverlayHidden: Bool = false {
-        didSet {
-            chainOverlayImageView.isHidden = isChainOverlayHidden
-        }
+        didSet { chainOverlayImageView.isHidden = isChainOverlayHidden }
+    }
+
+    var isSymbolLabelHidden: Bool = false {
+        didSet { symbolLabel.isHidden = isSymbolLabelHidden }
     }
     
     var isRoundingEnabled: Bool = true {
-        didSet {
-            self.layoutIfNeeded()
-        }
+        didSet { self.layoutIfNeeded() }
     }
 
     var subscribable: Subscribable<TokenImage>? {

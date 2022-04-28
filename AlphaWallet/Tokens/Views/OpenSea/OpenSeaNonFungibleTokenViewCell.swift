@@ -9,12 +9,12 @@ class OpenSeaNonFungibleTokenView: UIView {
         let imageView: TokenImageView = TokenImageView()
         imageView.isRoundingEnabled = false
         imageView.isChainOverlayHidden = true
-        imageView.contentMode = .scaleToFill
+        imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
-
+        imageView.isSymbolLabelHidden = true
+        
         return imageView
     }()
-    //Holder so UIMotionEffect don't reveal the background behind the image
     private let imageHolder = UIView()
     private let label: UILabel = {
         let label = UILabel()
@@ -65,14 +65,6 @@ class OpenSeaNonFungibleTokenView: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        DispatchQueue.main.async {
-            self.setupParallaxEffect(forView: self.imageView, max: 20)
-        }
     }
 
     func configure(viewModel: OpenSeaNonFungibleTokenViewCellViewModel) {
