@@ -14,7 +14,8 @@ protocol EventsActivityDataStoreProtocol {
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     private let store: RealmStore
-
+    private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
+    
     init(realm: Realm) {
         self.store = RealmStore(realm: realm)
     }
@@ -25,12 +26,13 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             publisher = realm.objects(EventActivity.self)
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
+                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):
-                        return .initial(Array(eventActivities.map { $0.freeze() }))
+                        return .initial(eventActivities.toArray())
                     case .update(let eventActivities, let deletions, let insertions, let modifications):
-                        return .update(Array(eventActivities.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(eventActivities.toArray(), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -47,10 +49,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
 
         var eventActivities: [EventActivity] = []
         store.performSync { realm in
-            eventActivities = Array(realm.objects(EventActivity.self)
+            eventActivities = realm.objects(EventActivity.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "blockNumber", ascending: false)
-                .freeze())
+                .toArray()
         }
 
         return eventActivities
@@ -66,7 +68,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             eventActivity = realm.objects(EventActivity.self)
                     .filter(predicate)
                     .sorted(byKeyPath: "blockNumber")
-                    .freeze()
+                    .toArray()
                     .last
         }
 

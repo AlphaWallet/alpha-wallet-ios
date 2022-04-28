@@ -9,6 +9,7 @@ class TransactionDataStore {
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let store: RealmStore
+    private let queue = DispatchQueue(label: "com.TransactionDataStore.UpdateQueue")
 
     init(realm: Realm) {
         self.store = RealmStore(realm: realm)
@@ -18,13 +19,13 @@ class TransactionDataStore {
         return transactions(forServer: server).count
     }
 
-    func transactions(forServer server: RPCServer) -> Results<Transaction> {
-        var results: Results<Transaction>!
+    func transactions(forServer server: RPCServer, sortedDateAscending: Bool = false) -> [Transaction] {
+        var results: [Transaction] = []
         store.performSync { realm in
             results = realm.objects(Transaction.self)
-            .filter(TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: server))
-            .sorted(byKeyPath: "date", ascending: false)
-            .freeze()
+                .filter(TransactionDataStore.functional.nonEmptyIdTransactionPredicate(server: server))
+                .sorted(byKeyPath: "date", ascending: sortedDateAscending)
+                .toArray()
         }
 
         return results
@@ -53,12 +54,13 @@ class TransactionDataStore {
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
+                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let transactions):
-                        return .initial(Array(transactions.map { $0.freeze() }))
+                        return .initial(Array(transactions.map { $0.detached() }))
                     case .update(let transactions, let deletions, let insertions, let modifications):
-                        return .update(Array(transactions.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(Array(transactions.map { $0.detached() }), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -88,10 +90,10 @@ class TransactionDataStore {
 
         var transactions: [Transaction] = []
         store.performSync { realm in
-            transactions = Array(realm.objects(Transaction.self)
+            transactions = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze())
+                .toArray()
         }
 
         return transactions
@@ -100,11 +102,11 @@ class TransactionDataStore {
     func transactions(forServer server: RPCServer, withTransactionState transactionState: TransactionState) -> [TransactionInstance] {
         var transactions: [TransactionInstance] = []
         store.performSync { realm in
-            transactions = Array(realm.objects(Transaction.self)
+            transactions = realm.objects(Transaction.self)
                 .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze()
-                .map { TransactionInstance(transaction: $0) })
+                .toArray()
+                .map { TransactionInstance(transaction: $0) }
         }
 
         return transactions
@@ -116,7 +118,7 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(TransactionDataStore.functional.transactionPredicate(server: server, transactionState: transactionState))
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze()
+                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .last
         }
@@ -149,7 +151,7 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze()
+                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -168,7 +170,7 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze()
+                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -185,7 +187,7 @@ class TransactionDataStore {
             transaction = realm.objects(Transaction.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
-                .freeze()
+                .toArray()
                 .map { TransactionInstance(transaction: $0) }
                 .first
         }
@@ -255,7 +257,7 @@ class TransactionDataStore {
             }
 
             transactionsToReturn = transactions
-                .compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)?.freeze() }
+                .compactMap { realm.object(ofType: Transaction.self, forPrimaryKey: $0.primaryKey)?.detached() }
         }
 
         return transactionsToReturn
@@ -360,7 +362,7 @@ extension TransactionDataStore.functional {
             let operations: [Operation]
         }
 
-        let transactions = transactionStorage.transactions(forServer: server).sorted(byKeyPath: "date", ascending: true)
+        let transactions = transactionStorage.transactions(forServer: server, sortedDateAscending: true)
         let transactionsToWrite: [Transaction] = transactions.map { eachTransaction in
             let operations = eachTransaction.localizedOperations
             let operationsToWrite: [Operation] = operations.map { eachOp in

@@ -56,6 +56,7 @@ enum TokenUpdateAction {
 /*final*/ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
     //NOTE: adds synchronized access to realm, to make requests from different threads. Replace other calls
     private let store: RealmStore
+    private let queue = DispatchQueue(label: "com.MultipleChainsTokensDataStore.UpdateQueue")
 
     init(realm: Realm, servers: [RPCServer]) {
         self.store = RealmStore(realm: realm)
@@ -71,12 +72,13 @@ enum TokenUpdateAction {
         store.performSync { realm in
             publisher = enabledTokenObjectResults(forServers: servers, realm: realm)
                 .changesetPublisher
+                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let tokenObjects):
-                        return .initial(Array(tokenObjects.map { $0.freeze() }))
+                        return .initial(tokenObjects.toArray())
                     case .update(let tokenObjects, let deletions, let insertions, let modifications):
-                        return .update(Array(tokenObjects.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(tokenObjects.toArray(), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -123,8 +125,8 @@ enum TokenUpdateAction {
     func enabledTokenObjects(forServers servers: [RPCServer]) -> [TokenObject] {
         var tokens: [TokenObject] = []
         store.performSync { realm in
-            let tokenObjects = Array(enabledTokenObjectResults(forServers: servers, realm: realm).map { $0.freeze() })
-            tokens = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokenObjects)
+            let _tokens = enabledTokenObjectResults(forServers: servers, realm: realm).toArray()
+            tokens = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: _tokens)
         }
 
         return tokens
@@ -180,8 +182,7 @@ enum TokenUpdateAction {
         store.performSync { realm in
             tokenObjects = realm.objects(TokenObject.self)
                 .filter(MultipleChainsTokensDataStore.functional.nonEmptyContractTokenPredicate(server: server))
-                .freeze()
-                .map { $0 }
+                .map { $0.detached() }
         }
 
             //Check if we have previous values.
@@ -200,7 +201,7 @@ enum TokenUpdateAction {
         store.performSync { realm in
             token = realm.objects(TokenObject.self)
                 .filter(predicate)
-                .freeze()
+                .toArray()
                 .first
         }
 
@@ -223,7 +224,7 @@ enum TokenUpdateAction {
 
         return realm.objects(TokenObject.self)
             .filter(predicate)
-            .freeze()
+            .toArray()
             .first
     }
 
