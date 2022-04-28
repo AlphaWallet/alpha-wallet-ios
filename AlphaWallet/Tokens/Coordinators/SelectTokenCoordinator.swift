@@ -19,6 +19,7 @@ class SelectTokenCoordinator: Coordinator {
         sessions: sessions,
         tokenCollection: tokenCollection,
         assetDefinitionStore: assetDefinitionStore,
+        eventsDataStore: eventsDataStore,
         tokensFilter: tokensFilter,
         filter: filter
     )
@@ -27,13 +28,15 @@ class SelectTokenCoordinator: Coordinator {
     private let tokensFilter: TokensFilter
     private let assetDefinitionStore: AssetDefinitionStore
     private let filter: WalletFilter
+    private let eventsDataStore: NonActivityEventsDataStore
 
     lazy var navigationController = UINavigationController(rootViewController: viewController)
     var coordinators: [Coordinator] = []
     weak var delegate: SelectTokenCoordinatorDelegate?
 
     //NOTE: `filter: WalletFilter` parameter allow us to to filter tokens we need
-    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency]), tokensFilter: TokensFilter) {
+    init(assetDefinitionStore: AssetDefinitionStore, sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, navigationController: UINavigationController, filter: WalletFilter = .type([.erc20, .nativeCryptocurrency]), tokensFilter: TokensFilter, eventsDataStore: NonActivityEventsDataStore) {
+        self.eventsDataStore = eventsDataStore
         self.sessions = sessions
         self.filter = filter
         self.parentsNavigationController = navigationController

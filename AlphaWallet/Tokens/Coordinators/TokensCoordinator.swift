@@ -63,7 +63,8 @@ class TokensCoordinator: Coordinator {
             tokensFilter: tokensFilter,
             config: config,
             walletConnectCoordinator: walletConnectCoordinator,
-            walletBalanceService: walletBalanceService
+            walletBalanceService: walletBalanceService,
+            eventsDataStore: eventsDataStore
         )
         controller.delegate = self
         return controller
@@ -472,7 +473,8 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
             sessions: sessions,
             tokenCollection: tokenCollection,
             navigationController: navigationController,
-            tokensFilter: tokensFilter
+            tokensFilter: tokensFilter,
+            eventsDataStore: eventsDataStore
         )
         coordinator.delegate = self
         addCoordinator(coordinator)

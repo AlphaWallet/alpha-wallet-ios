@@ -9,8 +9,12 @@ struct NonFungibleTokenViewCellViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
+    private let eventsDataStore: NonActivityEventsDataStore
+    private let wallet: Wallet
 
-    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
+    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true) {
+        self.eventsDataStore = eventsDataStore
+        self.wallet = wallet
         self.token = token
         self.server = server
         self.assetDefinitionStore = assetDefinitionStore
@@ -63,7 +67,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var titleAttributedString: NSAttributedString {
-        let title = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        let title = token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
         return .init(string: title, attributes: [
             .font: Screen.TokenCard.Font.title,
             .foregroundColor: Screen.TokenCard.Color.title

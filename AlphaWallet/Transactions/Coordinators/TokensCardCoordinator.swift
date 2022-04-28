@@ -102,7 +102,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
                 vc.configure(viewModel: viewModel)
             case let vc as NonFungibleTokenViewController:
-                let updatedTokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: session.account)
+                let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
                 let tokenHolder = vc.viewModel.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
                 if let tokenHolder = tokenHolder {
                     let viewModel = NonFungibleTokenViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)

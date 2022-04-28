@@ -13,7 +13,7 @@ struct WalletTokenViewCellViewModel {
     private let token: TokenObject
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
-
+    
     init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore

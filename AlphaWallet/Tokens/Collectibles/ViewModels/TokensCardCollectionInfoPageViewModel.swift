@@ -40,9 +40,8 @@ struct TokensCardCollectionInfoPageViewModel {
     }
 
     var wikiUrl: URL? {
-        tokenHolderHelper.wikiUrlViewModel?.value.flatMap {
-            URL(string: $0)
-        }
+        tokenHolderHelper.wikiUrlViewModel?.value
+            .flatMap { URL(string: $0) }
     }
 
     var instagramUrl: URL? {
@@ -73,7 +72,7 @@ struct TokensCardCollectionInfoPageViewModel {
     init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet wallet: Wallet) {
         self.server = server
         self.tokenObject = token
-        tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet)
+        tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
         let tokenHolder = tokenHolders[0]
         let tokenId = tokenHolder.tokenIds[0]
 

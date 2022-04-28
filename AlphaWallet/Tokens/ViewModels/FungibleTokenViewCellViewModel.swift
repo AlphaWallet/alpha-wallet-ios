@@ -10,16 +10,20 @@ struct FungibleTokenViewCellViewModel {
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
+    private let eventsDataStore: NonActivityEventsDataStore
+    private let wallet: Wallet
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true, ticker: CoinTicker?) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
+        self.eventsDataStore = eventsDataStore
+        self.wallet = wallet
     }
 
     private var title: String {
-        return token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        return token.shortTitleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
     }
 
     private var amount: String {

@@ -27,6 +27,7 @@ class SelectTokenViewController: UIViewController {
     private let tokensFilter: TokensFilter
     private var selectedToken: TokenObject?
     private let filter: WalletFilter
+    private let eventsDataStore: NonActivityEventsDataStore
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(FungibleTokenViewCell.self)
@@ -49,13 +50,13 @@ class SelectTokenViewController: UIViewController {
         view = tableView
     }
 
-    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, filter: WalletFilter) {
+    init(sessions: ServerDictionary<WalletSession>, tokenCollection: TokenCollection, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, tokensFilter: TokensFilter, filter: WalletFilter) {
         self.filter = filter
         self.sessions = sessions
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.tokensFilter = tokensFilter
-
+        self.eventsDataStore = eventsDataStore
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
 
@@ -154,6 +155,8 @@ extension SelectTokenViewController: UITableViewDataSource {
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token,
                 assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: eventsDataStore,
+                wallet: session.account,
                 ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
@@ -161,7 +164,7 @@ extension SelectTokenViewController: UITableViewDataSource {
             return cell
         case .erc721, .erc721ForTickets, .erc875, .erc1155:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 
             return cell

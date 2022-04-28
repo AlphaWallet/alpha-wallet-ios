@@ -161,6 +161,7 @@ class TokensViewController: UIViewController {
         return header
     }()
     private var cancellable = Set<AnyCancellable>()
+    private let eventsDataStore: NonActivityEventsDataStore
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -169,8 +170,10 @@ class TokensViewController: UIViewController {
          tokensFilter: TokensFilter,
          config: Config,
          walletConnectCoordinator: WalletConnectCoordinator,
-         walletBalanceService: WalletBalanceService
+         walletBalanceService: WalletBalanceService,
+         eventsDataStore: NonActivityEventsDataStore
     ) {
+        self.eventsDataStore = eventsDataStore
         self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
@@ -433,8 +436,7 @@ extension TokensViewController: UITableViewDataSource {
 
                 return cell
             case .tokenObject(let token):
-                let server = token.server
-                let session = sessions[server]
+                let session = sessions[token.server]
 
                 switch token.type {
                 case .nativeCryptocurrency:
@@ -451,17 +453,19 @@ extension TokensViewController: UITableViewDataSource {
                     let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
                     cell.configure(viewModel: .init(token: token,
                         assetDefinitionStore: assetDefinitionStore,
+                        eventsDataStore: eventsDataStore,
+                        wallet: session.account,
                         isVisible: isVisible,
                         ticker: session.tokenBalanceService.coinTicker(token.addressAndRPCServer)
                     ))
                     return cell
                 case .erc721, .erc721ForTickets, .erc1155:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell
                 case .erc875:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
+                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell
                 }
             }
@@ -471,9 +475,11 @@ extension TokensViewController: UITableViewDataSource {
             let cell: OpenSeaNonFungibleTokenPairTableCell = tableView.dequeueReusableCell(for: indexPath)
             cell.delegate = self
 
-            let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(token: pair.left)
+            let session = sessions[pair.left.server]
+            let left: OpenSeaNonFungibleTokenViewCellViewModel = .init(token: pair.left, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
             let right: OpenSeaNonFungibleTokenViewCellViewModel? = pair.right.flatMap { token in
-                return OpenSeaNonFungibleTokenViewCellViewModel(token: token)
+                let session = sessions[token.server]
+                return OpenSeaNonFungibleTokenViewCellViewModel(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account)
             }
 
             cell.configure(viewModel: .init(leftViewModel: left, rightViewModel: right))

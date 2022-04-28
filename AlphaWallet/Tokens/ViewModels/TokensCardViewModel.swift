@@ -28,23 +28,26 @@ struct TokensCardViewModel {
     }
 
     var navigationTitle: String {
-        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        if let name = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) {
+            return name
+        } else {
+            return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        }
     }
 
     private let eventsDataStore: NonActivityEventsDataStore
-    private let account: Wallet
+    private let wallet: Wallet
 
-    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
+    init(token: TokenObject, forWallet wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
-        self.account = account
+        self.wallet = wallet
         self.eventsDataStore = eventsDataStore
-        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account)
+        self.tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
         self.assetDefinitionStore = assetDefinitionStore
     }
 
     mutating func invalidateTokenHolders() {
-        tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
-            .getTokenHolders(forWallet: account)
+        tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
     }
 
     func tokenHolder(at indexPath: IndexPath) -> TokenHolder {
