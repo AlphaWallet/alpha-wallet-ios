@@ -69,7 +69,7 @@ class TokensViewController: UIViewController {
         control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         return control
     }()
-    private (set) lazy var blockieImageView: BlockieImageView = .defaultBlockieImageView
+    private (set) lazy var blockieImageView: BlockieImageView = BlockieImageView(size: .init(width: 24, height: 24))
     private let searchController: UISearchController
     private lazy var searchBar: DummySearchView = {
         return DummySearchView(closure: { [weak self] in
