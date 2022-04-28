@@ -66,7 +66,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         rootViewController.configure()
         rootViewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(closeButtonSelected))
         navigationController.pushViewController(rootViewController, animated: true)
-        refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
     }
 
@@ -76,26 +75,22 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func refreshUponEthereumEventChanges() {
-        let tokenContract = token.contractAddress
         eventsDataStore
-            .recentEvents(forTokenContract: tokenContract)
+            .recentEvents(forTokenContract: token.contractAddress)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
-                self?.refreshScreen(forContract: tokenContract)
+                self?.refreshScreen()
+            }).store(in: &cancelable)
+
+        assetDefinitionStore
+            .assetsSignatureOrBodyChange(for: token.contractAddress)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.refreshScreen()
             }).store(in: &cancelable)
     }
 
-    private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            self?.refreshScreen(forContract: contract)
-        }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            self?.refreshScreen(forContract: contract)
-        }
-    }
-
-    private func refreshScreen(forContract contract: AlphaWallet.Address) {
-        guard contract.sameContract(as: token.contractAddress) else { return }
+    private func refreshScreen() {
         for each in navigationController.viewControllers {
             switch each {
             case let vc as TokensCardViewController:

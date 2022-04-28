@@ -14,6 +14,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let wallet: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
+    private let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ActivitiesCoordinatorDelegate?
     private var cancelable = Set<AnyCancellable>()
 
@@ -30,8 +31,10 @@ class ActivitiesCoordinator: NSObject, Coordinator {
         navigationController: UINavigationController = .withOverridenBarAppearence(),
         activitiesService: ActivitiesServiceType,
         keystore: Keystore,
-        wallet: Wallet
+        wallet: Wallet,
+        assetDefinitionStore: AssetDefinitionStore
     ) {
+        self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
         self.sessions = sessions
@@ -48,7 +51,7 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 
     private func makeActivitiesViewController() -> ActivitiesViewController {
         let viewModel = ActivitiesViewModel()
-        let controller = ActivitiesViewController(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions)
+        let controller = ActivitiesViewController(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: wallet, viewModel: viewModel, sessions: sessions, assetDefinitionStore: assetDefinitionStore)
         controller.delegate = self
         
         return controller

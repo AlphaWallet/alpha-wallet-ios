@@ -67,34 +67,25 @@ class TokensCardCollectionCoordinator: NSObject, Coordinator {
         let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         rootViewController.configure(viewModel: viewModel)
         navigationController.pushViewController(rootViewController, animated: true)
-        refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
     }
 
     private func refreshUponEthereumEventChanges() {
-        let tokenContract = token.contractAddress
         eventsDataStore
-            .recentEvents(forTokenContract: tokenContract)
+            .recentEvents(forTokenContract: token.contractAddress)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
-                self?.refreshScreen(forContract: tokenContract)
+                self?.refreshScreen()
+            }).store(in: &cancelable)
+
+        assetDefinitionStore.assetsSignatureOrBodyChange(for: token.contractAddress)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.refreshScreen()
             }).store(in: &cancelable)
     }
 
-    private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
-        }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.refreshScreen(forContract: contract)
-        }
-    }
-
-    private func refreshScreen(forContract contract: AlphaWallet.Address) {
-        guard contract.sameContract(as: token.contractAddress) else { return }
-
+    private func refreshScreen() {
         for each in navigationController.viewControllers {
             switch each {
             case let vc as TokensCardViewController:

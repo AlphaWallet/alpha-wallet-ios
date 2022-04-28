@@ -4,20 +4,17 @@ import Alamofire
 import Combine 
 
 protocol AssetDefinitionStoreDelegate: AnyObject {
-    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore )
+    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore)
 }
 
 /// Manage access to and cache asset definition XML files
-class AssetDefinitionStore {
+class AssetDefinitionStore: NSObject {
     enum Result {
         case cached
         case updated
         case unmodified
         case error
     }
-
-    //TODO ugly hack. Check where it's read to know why it's needed
-    static var instance: AssetDefinitionStore!
 
     private var httpHeaders: HTTPHeaders = {
         guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
@@ -36,11 +33,9 @@ class AssetDefinitionStore {
         return df
     }()
     private var lastContractInPasteboard: String?
-    private var tokenScriptBodyChangedSubscribers: [(AlphaWallet.Address) -> Void] = []
-    private var tokenScriptSignatureChangedSubscribers: [(AlphaWallet.Address) -> Void] = []
     private var backingStore: AssetDefinitionBackingStore
 
-    lazy var assetAttributesCache: AssetAttributesCache = AssetAttributesCache(assetDefinitionStore: self)
+    lazy var assetAttributesCache: AssetAttributesCache = AssetAttributesCache()
     weak var delegate: AssetDefinitionStoreDelegate?
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
         return backingStore.badTokenScriptFileNames
@@ -123,11 +118,17 @@ class AssetDefinitionStore {
                </style>
                """
     }
+    private var cancelable = Set<AnyCancellable>()
 
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
+        super.init()
         self.backingStore.delegate = self
-        AssetDefinitionStore.instance = self
+        bodyChange
+            .receive(on: RunLoop.main)
+            .sink { [weak assetAttributesCache] contract in
+                assetAttributesCache?.clearCacheWhenTokenScriptChanges(forContract: contract)
+            }.store(in: &cancelable)
     }
 
     func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
@@ -168,14 +169,6 @@ class AssetDefinitionStore {
 
     func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
         return backingStore.isCanonicalized(contract: contract)
-    }
-
-    func subscribeToBodyChanges(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
-        tokenScriptBodyChangedSubscribers.append(subscribe)
-    }
-
-    func subscribeToSignatureChanges(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
-        tokenScriptSignatureChangedSubscribers.append(subscribe)
     }
 
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
@@ -228,12 +221,10 @@ class AssetDefinitionStore {
 
     private func triggerBodyChangedSubscribers(forContract contract: AlphaWallet.Address) {
         bodyChangeSubject.send(contract)
-        tokenScriptBodyChangedSubscribers.forEach { $0(contract) }
     }
 
     private func triggerSignatureChangedSubscribers(forContract contract: AlphaWallet.Address) {
         signatureChangeSubject.send(contract)
-        tokenScriptSignatureChangedSubscribers.forEach { $0(contract) }
     }
 
     @objc private func fetchXMLForContractInPasteboard() {
