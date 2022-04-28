@@ -256,9 +256,18 @@ final class TokenInstanceViewConfigurationHelper {
             }
     }
 
+    private var decimalsForTotalSupplyOrTotalSales: Int {
+        switch tokenHolder.tokenType(tokenId: tokenId) {
+        case .erc20, .erc721, .erc721ForTickets, .erc875, .nativeCryptocurrency, .none:
+            return 0
+        case .erc1155:
+            return 1
+        }
+    }
+
     var totalSales: TokenInstanceAttributeViewModel? {
         return openSeaStats
-            .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSales, currency: "") }
+            .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSales, currency: "", decimals: decimalsForTotalSupplyOrTotalSales) }
             .flatMap {
                 let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueTotalSales(), attributedValue: attributedValue)
@@ -267,7 +276,7 @@ final class TokenInstanceViewConfigurationHelper {
 
     var totalSupply: TokenInstanceAttributeViewModel? {
         return openSeaStats
-            .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSupply, currency: "") }
+            .flatMap { StringFormatter().largeNumberFormatter(for: $0.totalSupply, currency: "", decimals: decimalsForTotalSupplyOrTotalSales) }
             .flatMap {
                 let attributedValue = TokenInstanceAttributeViewModel.defaultValueAttributedString($0)
                 return .init(title: R.string.localizable.nonfungiblesValueTotalSupply(), attributedValue: attributedValue)
