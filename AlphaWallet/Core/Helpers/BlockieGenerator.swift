@@ -59,21 +59,17 @@ class BlockiesGenerator {
     }
 
     func promise(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
-        enum AnyError: Error {
-            case blockieCreateFailure
+        if let cached = cachedBlockie(address: address, size: .sized(size: size, scale: scale)) {
+            return .value(cached)
         }
 
         return firstly {
-            cachedBlockie(address: address, size: .sized(size: size, scale: scale))
+            fetchEnsAvatar(from: address, ens: ens)
+        }.get { blockie in
+            self.cacheBlockie(address: address, blockie: blockie, size: .none)
         }.recover { _ -> Promise<BlockiesImage> in
-            firstly {
-                self.fetchEnsAvatar(from: address, ens: ens)
-            }.get { blockie in
-                self.cacheBlockie(address: address, blockie: blockie, size: .none)
-            }.recover { _ -> Promise<BlockiesImage> in
-                self.createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
-                    self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
-                }
+            self.createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
+                self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
             }
         }
     }
@@ -158,30 +154,13 @@ class BlockiesGenerator {
         }
     }
 
-    private func cachedBlockie(address: AlphaWallet.Address, size: BlockieSize) -> Promise<BlockiesImage> {
-        enum AnyError: Error {
-            case cacheNotFound
-        }
-
-        return Promise { seal in
-            var value: BlockiesImage?
-            switch size {
-            case .sized(let size, let scale):
-                let key = BlockieKey(address: address, size: size, scale: scale)
-                value = BlockiesGenerator.cache[key]
-
-                if value == nil {
-                    value = BlockiesGenerator.sizeLessCache[address]
-                }
-            case .none:
-                value = BlockiesGenerator.sizeLessCache[address]
-            }
-
-            if let value = value {
-                seal.fulfill(value)
-            } else {
-                seal.reject(AnyError.cacheNotFound)
-            }
+    private func cachedBlockie(address: AlphaWallet.Address, size: BlockieSize) -> BlockiesImage? {
+        switch size {
+        case .sized(let size, let scale):
+            let key = BlockieKey(address: address, size: size, scale: scale)
+            return BlockiesGenerator.cache[key] ?? BlockiesGenerator.sizeLessCache[address]
+        case .none:
+            return BlockiesGenerator.sizeLessCache[address]
         }
     }
 
