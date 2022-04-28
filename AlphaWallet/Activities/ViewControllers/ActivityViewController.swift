@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import Combine
 
 protocol ActivityViewControllerDelegate: AnyObject {
     func reinject(viewController: ActivityViewController)
@@ -43,8 +44,8 @@ class ActivityViewController: UIViewController {
 
     weak var delegate: ActivityViewControllerDelegate?
     private let service: ActivitiesServiceType
-    private var subscriptionKey: Subscribable<Activity>.SubscribableKey?
     private let keystore: Keystore
+    private var cancelable = Set<AnyCancellable>()
 
     init(analyticsCoordinator: AnalyticsCoordinator, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, viewModel: ActivityViewModel, service: ActivitiesServiceType, keystore: Keystore) {
         self.keystore = keystore
@@ -117,11 +118,13 @@ class ActivityViewController: UIViewController {
 
         configure(viewModel: viewModel)
 
-        subscriptionKey = service.subscribableUpdatedActivity.subscribe { [weak self] activity in
-            guard let strongSelf = self, let activity = activity, strongSelf.isForActivity(activity) else { return }
+        service.didUpdateActivityPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] activity in
+                guard let strongSelf = self, strongSelf.isForActivity(activity) else { return }
 
-            strongSelf.configure(viewModel: .init(activity: activity))
-        }
+                strongSelf.configure(viewModel: .init(activity: activity))
+            }.store(in: &cancelable)
     }
 
     required init?(coder aDecoder: NSCoder) {

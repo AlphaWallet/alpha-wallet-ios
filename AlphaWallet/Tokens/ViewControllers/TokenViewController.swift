@@ -39,7 +39,6 @@ class TokenViewController: UIViewController {
     private var activitiesPageView: ActivitiesPageView
     private var alertsPageView: PriceAlertsPageView
     private let activitiesService: ActivitiesServiceType
-    private var activitiesSubscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
     private var alertsSubscriptionKey: Subscribable<[PriceAlert]>.SubscribableKey?
     private let alertService: PriceAlertServiceType
     private lazy var alertsSubscribable = alertService.alertsSubscribable(strategy: .token(tokenObject))
@@ -80,12 +79,6 @@ class TokenViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        activitiesSubscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak activitiesPageView] viewModel in
-            guard let view = activitiesPageView else { return }
-
-            view.configure(viewModel: .init(activitiesViewModel: viewModel ?? .init(activities: [])))
-        }
-
         alertsSubscriptionKey = alertsSubscribable.subscribe { [weak alertsPageView] alerts in
             guard let view = alertsPageView else { return }
 
@@ -101,7 +94,6 @@ class TokenViewController: UIViewController {
 
     deinit {
         alertsSubscriptionKey.flatMap { alertsSubscribable.unsubscribe($0) }
-        activitiesSubscriptionKey.flatMap { activitiesService.subscribableViewModel.unsubscribe($0) }
     }
 
     override func viewDidLoad() {
@@ -109,6 +101,12 @@ class TokenViewController: UIViewController {
 
         configureBalanceViewModel()
         configure(viewModel: viewModel)
+
+        activitiesService.viewModelPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak activitiesPageView] viewModel in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
+            }.store(in: &cancelable)
     }
 
     override func viewWillAppear(_ animated: Bool) {

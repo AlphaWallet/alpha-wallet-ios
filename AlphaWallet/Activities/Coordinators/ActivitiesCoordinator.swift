@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import Combine
 
 protocol ActivitiesCoordinatorDelegate: AnyObject {
     func didPressTransaction(transaction: TransactionInstance, in viewController: ActivitiesViewController)
@@ -10,11 +11,11 @@ protocol ActivitiesCoordinatorDelegate: AnyObject {
 class ActivitiesCoordinator: NSObject, Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let activitiesService: ActivitiesServiceType
-    private var subscriptionKey: Subscribable<ActivitiesViewModel>.SubscribableKey?
     private let keystore: Keystore
     private let wallet: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
     weak var delegate: ActivitiesCoordinatorDelegate?
+    private var cancelable = Set<AnyCancellable>()
 
     lazy var rootViewController: ActivitiesViewController = {
         makeActivitiesViewController()
@@ -65,13 +66,11 @@ class ActivitiesCoordinator: NSObject, Coordinator {
 extension ActivitiesCoordinator: ActivitiesViewControllerDelegate {
 
     func subscribeForActivitiesUpdates() {
-        subscriptionKey.flatMap { activitiesService.subscribableViewModel.unsubscribe($0) }
-
-        subscriptionKey = activitiesService.subscribableViewModel.subscribe { [weak rootViewController] viewModel in
-            guard let viewController = rootViewController, let viewModel = viewModel else { return }
-
-            viewController.configure(viewModel: viewModel)
-        }
+        activitiesService.viewModelPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak rootViewController] viewModel in
+                rootViewController?.configure(viewModel: viewModel)
+            }.store(in: &cancelable)
     }
 
     func didPressActivity(activity: Activity, in viewController: ActivitiesViewController) {
