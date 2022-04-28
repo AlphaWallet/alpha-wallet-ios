@@ -52,33 +52,13 @@ class BlockiesGenerator {
     /// Address related icons cache without image size. Cache is using for determine images without sizes and scales, fetched out from OpenSea
     private static var sizeLessCache: [AlphaWallet.Address: BlockiesImage] = [:]
 
-    func promise(address: AlphaWallet.Address, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
-        enum AnyError: Error {
-            case blockieCreateFailure
-        }
-
-        return firstly {
-            cachedBlockie(address: address, size: .sized(size: size, scale: scale))
-        }.recover { _ -> Promise<BlockiesImage> in
-            firstly {
-                self.fetchEnsAvatar(from: address, ens: nil)
-            }.get { blockie in
-                self.cacheBlockie(address: address, blockie: blockie, size: .none)
-            }.recover { _ -> Promise<BlockiesImage> in
-                self.createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
-                    self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
-                }
-            }
-        }
-    }
-
     func generatedImage(address: AlphaWallet.Address, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
         createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
             self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
         }
     }
-    
-    func promise(address: AlphaWallet.Address, ens: String, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
+
+    func promise(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
         enum AnyError: Error {
             case blockieCreateFailure
         }
