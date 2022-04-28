@@ -72,6 +72,12 @@ class BlockiesGenerator {
         }
     }
 
+    func generatedImage(address: AlphaWallet.Address, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
+        createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
+            self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
+        }
+    }
+    
     func promise(address: AlphaWallet.Address, ens: String, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {
         enum AnyError: Error {
             case blockieCreateFailure

@@ -53,13 +53,11 @@ class WalletSummaryView: UIView, ReusableTableHeaderViewType {
         cancelable.cancellAll()
 
         viewModel.balanceAttributedString
-            .receive(on: RunLoop.main)
             .sink { [weak balanceLabel] value in
                 balanceLabel?.attributedText = value
             }.store(in: &cancelable)
 
         viewModel.apprecation24HoursAttributedString
-            .receive(on: RunLoop.main)
             .sink { [weak apprecation24HoursLabel] value in
                 apprecation24HoursLabel?.attributedText = value
             }.store(in: &cancelable)

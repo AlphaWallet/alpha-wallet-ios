@@ -37,13 +37,17 @@ class AccountsViewModel {
     }
 
     var activeWalletIndexPath: IndexPath? {
-        guard let wallet = keystore.currentWallet, let indexPath = indexPath(for: wallet) else { return nil }
-        return indexPath
+        keystore.currentWallet.flatMap { indexPath(for: $0) }
     }
 
-    var walletSummaryViewModel: WalletSummaryViewModel {
-        .init(walletSummary: walletBalanceService.walletsSummary, config: config)
-    }
+    lazy var walletSummaryViewModel: WalletSummaryViewModel = {
+        let walletsSummary = walletBalanceService.walletsSummaryPublisher
+            .receive(on: RunLoop.main)
+            .prepend(walletBalanceService.walletsSummary)
+            .eraseToAnyPublisher()
+
+        return .init(walletSummary: walletsSummary, config: config)
+    }()
 
     var hasWallets: Bool {
         return keystore.hasWallets
@@ -88,43 +92,11 @@ class AccountsViewModel {
         return keystore.delete(wallet: account)
     }
 
-    subscript(indexPath: IndexPath) -> AccountViewModel? {
+    func accountViewModel(forIndexPath indexPath: IndexPath) -> AccountViewModel? {
         guard let account = account(for: indexPath) else { return nil }
+        let viewModel = AccountViewModel(analyticsCoordinator: analyticsCoordinator, domainResolver: resolver, generator: generator, subscribeForBalanceUpdates: subscribeForBalanceUpdates, walletBalanceService: walletBalanceService, config: config, wallet: account, current: keystore.currentWallet)
 
-        let walletName = config.walletNames[account.address]
-        let apprecation24hour = walletBalanceService
-            .walletBalance(wallet: account)
-            .map { balance -> NSAttributedString in
-                if self.subscribeForBalanceUpdates {
-                    return AccountViewModel.apprecation24hourAttributedString(for: balance)
-                } else {
-                    return .init()
-                }
-            }.eraseToAnyPublisher()
-
-        let balance = walletBalanceService.walletBalance(wallet: account)
-            .map { balance -> NSAttributedString in
-                return AccountViewModel.balanceAttributedString(for: balance.totalAmountString)
-            }.eraseToAnyPublisher()
-
-        let blockiesImage = generator.promise(address: account.address, size: 8, scale: 5)
-            .publisher
-            .prepend(BlockiesImage.defaulBlockieImage)
-            .replaceError(with: BlockiesImage.defaulBlockieImage)
-            .handleEvents(receiveOutput: { [weak self] value in
-                guard value.isEnsAvatar else { return }
-                self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
-            })
-            .eraseToAnyPublisher()
-
-        let ensName = resolver.resolveEns(address: account.address)
-            .publisher
-            .prepend((image: nil, resolution: .resolved(nil)))
-            .replaceError(with: (image: nil, resolution: .resolved(nil)))
-            .map { $0.resolution.value }
-            .eraseToAnyPublisher()
-
-        return AccountViewModel(wallet: account, current: keystore.currentWallet, walletName: walletName, ensName: ensName, apprecation24hour: apprecation24hour, balance: balance, blockiesImage: blockiesImage)
+        return viewModel
     }
 
     func numberOfItems(section: Int) -> Int {
