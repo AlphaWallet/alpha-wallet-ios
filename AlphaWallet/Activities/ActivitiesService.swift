@@ -271,8 +271,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     tokenHolders = [TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)]
                 } else {
                     guard let t = tokensDataStore.token(forContract: contract, server: server) else { return nil }
-
-                    tokenHolders = TokenAdaptor(token: t, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet)
+                    tokenHolders = t.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
                 }
                 tokensAndTokenHolders[contract] = (tokenObject: tokenObject, tokenHolders: tokenHolders)
             }

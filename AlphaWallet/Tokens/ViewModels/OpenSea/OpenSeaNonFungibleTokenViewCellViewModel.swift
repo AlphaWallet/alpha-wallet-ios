@@ -5,11 +5,16 @@ import UIKit
 
 class OpenSeaNonFungibleTokenViewCellViewModel {
     private let token: TokenObject
-    var tokenAddress: AlphaWallet.Address {
-        token.contractAddress
-    }
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: NonActivityEventsDataStore
+    private let wallet: Wallet
+
     private var title: String {
-        return token.name
+        if let name = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) {
+            return name
+        } else {
+            return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        }
     }
 
     private var amount: String {
@@ -34,8 +39,11 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
         token.icon(withSize: .s750)
     }
 
-    init(token: TokenObject) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
         self.token = token
+        self.assetDefinitionStore = assetDefinitionStore
+        self.eventsDataStore = eventsDataStore
+        self.wallet = wallet
     }
 
     var backgroundColor: UIColor {

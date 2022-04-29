@@ -9,6 +9,13 @@
 import Foundation
 import BigInt
 
+extension TokenObject {
+    func getTokenHolders(assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
+        let tokenAdaptor = TokenAdaptor(token: self, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+        return tokenAdaptor.getTokenHolders(forWallet: account, isSourcedFromEvents: isSourcedFromEvents)
+    }
+}
+
 class TokenAdaptor {
     private let token: TokenObject
     private let assetDefinitionStore: AssetDefinitionStore
@@ -77,8 +84,13 @@ class TokenAdaptor {
         }
         return bundle(tokens: tokens)
     }
+
     //NOTE: internal for testing purposes
-    func bundle(tokens: [Token]) -> [TokenHolder] {
+    func bundleTestsOnly(tokens: [Token]) -> [TokenHolder] {
+        bundle(tokens: tokens)
+    }
+
+    private func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875:
             if !tokens.isEmpty && tokens[0].isSpawnableMeetupContract {

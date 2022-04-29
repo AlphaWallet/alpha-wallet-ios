@@ -10,7 +10,8 @@ struct EthTokenViewCellViewModel {
     private let currencyAmount: Double?
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
-    private let isVisible: Bool
+    private let isVisible: Bool 
+    
     init(
         token: TokenObject,
         ticker: CoinTicker?,
