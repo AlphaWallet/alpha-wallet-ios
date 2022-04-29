@@ -1,11 +1,19 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 @testable import AlphaWallet
+import Combine
 
 class FakeActivitiesService: ActivitiesServiceType {
     var sessions: ServerDictionary<WalletSession> { .make() }
-    var subscribableViewModel: Subscribable<ActivitiesViewModel> { .init(nil) }
-    var subscribableUpdatedActivity: Subscribable<Activity> { .init(nil) }
+    
+    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
+        Just(ActivitiesViewModel.init(activities: []))
+            .eraseToAnyPublisher()
+    }
+    var didUpdateActivityPublisher: AnyPublisher<Activity, Never> {
+        Just(Activity())
+            .eraseToAnyPublisher()
+    }
 
     func stop() {}
     func reinject(activity: Activity) {}

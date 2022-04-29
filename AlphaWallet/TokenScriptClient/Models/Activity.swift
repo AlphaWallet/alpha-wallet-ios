@@ -1,7 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
+import BigInt 
 
 struct Activity {
     enum NativeViewType {
@@ -42,6 +42,10 @@ struct Activity {
     let itemView: (html: String, style: String)
     let isBaseCard: Bool
     let state: State
+
+    init() {
+        self.init(id: 0, rowType: .item, tokenObject: .init(), server: .main, name: "", eventName: "", blockNumber: 0, transactionId: "", transactionIndex: 0, logIndex: 0, date: Date(), values: (token: [:], card: [:]), view: (html: "", style: ""), itemView: (html: "", style: ""), isBaseCard: false, state: .completed)
+    }
 
     init(id: Int, rowType: ActivityRowType, tokenObject: AssignedToken, server: RPCServer, name: String, eventName: String, blockNumber: Int, transactionId: String, transactionIndex: Int, logIndex: Int, date: Date, values: (token: [AttributeId: AssetInternalValue], card: [AttributeId: AssetInternalValue]), view: (html: String, style: String), itemView: (html: String, style: String), isBaseCard: Bool, state: State) {
         self.id = id

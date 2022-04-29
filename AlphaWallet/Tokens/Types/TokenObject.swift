@@ -56,6 +56,19 @@ extension Activity {
             return .init(address: contractAddress, server: server)
         }
 
+        init() {
+            name = ""
+            primaryKey = ""
+            server = .main
+            contractAddress = Constants.nullAddress
+            symbol = ""
+            decimals = 0
+            type = .nativeCryptocurrency
+            shouldDisplay = false
+            sortIndex = nil
+            balance = .value(0)
+        }
+
         init(tokenObject: TokenObject) {
             name = tokenObject.name
             primaryKey = tokenObject.primaryKey

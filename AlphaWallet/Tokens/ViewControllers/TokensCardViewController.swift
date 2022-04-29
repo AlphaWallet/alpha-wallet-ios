@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Combine
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didSelectAssetSelection(in viewController: TokensCardViewController)
@@ -69,6 +70,7 @@ class TokensCardViewController: UIViewController {
     }()
     private let activitiesService: ActivitiesServiceType
     private let keystore: Keystore
+    private var cancelable = Set<AnyCancellable>()
 
     init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
@@ -94,12 +96,6 @@ class TokensCardViewController: UIViewController {
         NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
         navigationItem.largeTitleDisplayMode = .never
-
-        activitiesService.subscribableViewModel.subscribe { [weak activitiesPageView] viewModel in
-            guard let view = activitiesPageView, let viewModel = viewModel else { return }
-
-            view.configure(viewModel: .init(activitiesViewModel: viewModel))
-        }
 
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
         configure(assetsPageView: assetsPageView, viewModel: viewModel)
@@ -157,6 +153,12 @@ class TokensCardViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
 
         collectionInfoPageView.viewDidLoad()
+
+        activitiesService.viewModelPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak activitiesPageView] viewModel in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
+            }.store(in: &cancelable)
     }
 
     @objc private func didPullToRefresh(_ sender: UIRefreshControl) {

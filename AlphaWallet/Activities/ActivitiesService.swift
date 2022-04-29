@@ -12,8 +12,8 @@ import Combine
 
 protocol ActivitiesServiceType: class {
     var sessions: ServerDictionary<WalletSession> { get }
-    var subscribableViewModel: Subscribable<ActivitiesViewModel> { get }
-    var subscribableUpdatedActivity: Subscribable<Activity> { get }
+    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> { get }
+    var didUpdateActivityPublisher: AnyPublisher<Activity, Never> { get }
 
     func stop()
     func reinject(activity: Activity)
@@ -36,10 +36,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: Activity.AssignedToken, tokenHolders: [TokenHolder])] = .init()
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
-    private var fetchTransactionsCancelable: AnyCancellable?
 
-    let subscribableUpdatedActivity: Subscribable<Activity> = .init(nil)
-    let subscribableViewModel: Subscribable<ActivitiesViewModel> = .init(.init(activities: []))
+    private let didUpdateActivitySubject: PassthroughSubject<Activity, Never> = .init()
+    private let viewModelSubject: CurrentValueSubject<ActivitiesViewModel, Never> = .init(.init(activities: []))
 
     private var wallet: Wallet {
         sessions.anyValue.account
@@ -57,8 +56,15 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     //Cache tokens lookup for performance
     private var tokensCache: ThreadSafeDictionary<AlphaWallet.Address, Activity.AssignedToken> = .init()
     private let activitiesThreadSafeQueue = DispatchQueue(label: "ActivitiesSynchronizedAccessQueue", qos: .background)
-
     private var cancelable = Set<AnyCancellable>()
+
+    var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
+        viewModelSubject.eraseToAnyPublisher()
+    }
+
+    var didUpdateActivityPublisher: AnyPublisher<Activity, Never> {
+        didUpdateActivitySubject.eraseToAnyPublisher()
+    }
 
     init(
         config: Config,
@@ -325,9 +331,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         let items = combine(activities: activities, withTransactions: transactions)
         let activities = ActivitiesViewModel.sorted(activities: items)
 
-        DispatchQueue.main.async {
-            self.subscribableViewModel.value = .init(activities: activities)
-        }
+        viewModelSubject.send(.init(activities: activities))
     }
 
     //Combining includes filtering around activities (from events) for ERC20 send/receive transactions which are already covered by transactions
@@ -434,7 +438,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                     strongSelf.activities[index] = updatedActivity
                     strongSelf.reloadViewController(reloadImmediately: false)
 
-                    strongSelf.subscribableUpdatedActivity.value = updatedActivity
+                    strongSelf.didUpdateActivitySubject.send(updatedActivity)
                 }
             }, queue: activitiesThreadSafeQueue)
         } else {
