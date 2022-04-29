@@ -103,6 +103,10 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
         super.init(wallet: wallet, server: server, etherToken: etherToken, tokenBalanceProvider: balanceService)
     }
 
+    func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
+        balanceService.triggerUpdateBalanceSubjectTestsOnly(wallet: wallet)
+    }
+
     func setBalanceTestsOnly(balance: Balance, forToken token: TokenObject) {
         balanceService.setBalanceTestsOnly(balance.value, forToken: token, wallet: wallet)
     }
