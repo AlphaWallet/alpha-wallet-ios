@@ -242,7 +242,7 @@ extension NonFungibleTokenViewController: TokenInstanceAttributeViewDelegate {
             self.view.showCopiedToClipboard(title: R.string.localizable.copiedToClipboard())
         case .field(let vm) where viewModel.creatorViewModel == vm:
             guard let url = viewModel.creatorOnOpenSeaUrl else { return }
-            
+
             delegate?.didPressViewContractWebPage(url, in: self)
         case .field(let vm) where viewModel.contractViewModel == vm:
             guard let url = viewModel.contractOnExplorerUrl else { return }

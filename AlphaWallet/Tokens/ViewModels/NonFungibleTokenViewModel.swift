@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AlphaWalletOpenSea
 import BigInt
 
 struct AttributeCollectionViewModel {
@@ -54,7 +55,7 @@ struct NonFungibleTokenViewModel {
         self.contractViewModel = TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
     }
 
-    mutating func configure(overiddenOpenSeaStats: OpenSea.Stats?) {
+    mutating func configure(overiddenOpenSeaStats: Stats?) {
         self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
         self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }
@@ -162,7 +163,7 @@ struct NonFungibleTokenViewModel {
             configurations += [
                 .header(viewModel: .init(title: R.string.localizable.semifungiblesDescription())),
                 .field(viewModel: viewModel)
-            ] 
+            ]
         }
 
         if !tokenHolderHelper.attributes.isEmpty {
@@ -196,5 +197,5 @@ struct NonFungibleTokenViewModel {
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
         }
-    } 
+    }
 }

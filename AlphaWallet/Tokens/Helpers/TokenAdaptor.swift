@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AlphaWalletOpenSea
 import BigInt
 
 extension TokenObject {

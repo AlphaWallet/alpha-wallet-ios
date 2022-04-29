@@ -1,22 +1,19 @@
 //
-//  Decoder.swift
-//  AlphaWallet
+//  OpenSeaAssetDecoder.swift
+//  AlphaWalletOpenSea
 //
 //  Created by Vladyslav Shepitko on 31.01.2022.
 //
 
 import Foundation
-import SwiftyJSON
+import AlphaWalletAddress
 import BigInt
+import SwiftyJSON
 
-struct OpenSeaAssetDecoder {
-
+public struct OpenSeaAssetDecoder {
     enum DecoderError: Error {
         case jsonInvalidError
         case statsDecoding
-        case erc1155IsNotEnabled
-        case unsupportedTokenType
-        case buidUrl
         case requestWasThrottled
     }
 
@@ -40,7 +37,6 @@ struct OpenSeaAssetDecoder {
             guard let tokenType = NonFungibleFromJsonTokenType(rawString: assetContractJson["schema_name"].stringValue) else {
                 continue
             }
-            if !Features.default.isAvailable(.isErc1155Enabled) && tokenType == .erc1155 { continue }
             let tokenId = each["token_id"].stringValue
             let contractName = assetContractJson["name"].stringValue
             //So if it's null in OpenSea, we get a 0, as expected. And 0 works for ERC721 too
@@ -69,10 +65,10 @@ struct OpenSeaAssetDecoder {
             let traits = each["traits"].arrayValue.compactMap { OpenSeaNonFungibleTrait(json: $0) }
             let slug = collectionJson["slug"].stringValue
             let collectionCreatedDate = assetContractJson["created_date"].string
-                .flatMap { OpenSeaAssetDecoder.dateFormatter.date(from: $0) }
+                    .flatMap { OpenSeaAssetDecoder.dateFormatter.date(from: $0) }
             let collectionDescription = assetContractJson["description"].string
-            let creator = try? OpenSea.AssetCreator(json: each["creator"])
-            
+            let creator = try? AssetCreator(json: each["creator"])
+
             let cat = OpenSeaNonFungible(tokenId: tokenId, tokenType: tokenType, value: value, contractName: contractName, decimals: decimals, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits, collectionCreatedDate: collectionCreatedDate, collectionDescription: collectionDescription, creator: creator, slug: slug)
 
             if var list = assets[contract] {
@@ -85,28 +81,5 @@ struct OpenSeaAssetDecoder {
         }
 
         return assets
-    }
-}
-
-struct OpenSeaCollectionDecoder {
-
-    static func decode(json: JSON, results: [OpenSea.CollectionKey: OpenSea.Collection]) -> [OpenSea.CollectionKey: OpenSea.Collection] {
-        var results = results
-
-        for each in json.arrayValue {
-            guard let collection = try? OpenSea.Collection(json: each) else {
-                continue
-            }
-
-            if collection.contracts.isEmpty {
-                results[OpenSea.CollectionKey.slug(collection.slug)] = collection
-            } else {
-                for each in collection.contracts {
-                    results[OpenSea.CollectionKey.address(each.address)] = collection
-                }
-            }
-        }
-
-        return results
     }
 }

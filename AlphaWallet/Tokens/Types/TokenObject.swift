@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletOpenSea
 import RealmSwift
 import BigInt
 
@@ -242,7 +243,7 @@ class TokenObject: Object {
             return nil
         }
     }
-    
+
     func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
         let localizedNameFromAssetDefinition = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
         return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition, symbol: symbol)
@@ -454,7 +455,7 @@ extension Wallet.functional {
     static func realm(forAccount account: Wallet) -> Realm {
         let migration = MigrationInitializer(account: account)
         migration.perform()
-        
+
         let realm = try! Realm(configuration: migration.config)
 
         let realmUrl = migration.config.fileURL!

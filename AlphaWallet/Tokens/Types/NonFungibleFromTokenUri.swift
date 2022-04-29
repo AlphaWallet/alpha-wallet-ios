@@ -1,6 +1,7 @@
 // Copyright © 2021 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletOpenSea
 import BigInt
 
 //To store the output from ERC721's `tokenURI()`. The output has to be massaged to fit here as the properties was designed for OpenSea
@@ -9,11 +10,11 @@ struct NonFungibleFromTokenUri: Codable, NonFungibleFromJson {
         ""
     }
 
-    var creator: OpenSea.AssetCreator? {
+    var creator: AssetCreator? {
         return nil
     }
 
-    var collection: OpenSea.Collection? {
+    var collection: AlphaWalletOpenSea.Collection? {
         return nil
     }
 

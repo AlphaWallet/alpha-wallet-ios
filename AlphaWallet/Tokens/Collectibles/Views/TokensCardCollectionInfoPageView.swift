@@ -38,7 +38,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     weak var delegate: TokensCardCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
     private let session: WalletSession
-    
+
     init(viewModel: TokensCardCollectionInfoPageViewModel, session: WalletSession) {
         self.viewModel = viewModel
         self.session = session
@@ -65,7 +65,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         stackView.addArrangedSubview(UIView.spacer(height: 10))
         stackView.addArrangedSubview(tokenIconImageView)
         stackView.addArrangedSubview(UIView.spacer(height: 20))
-        
+
         for (index, each) in viewModel.configurations.enumerated() {
             switch each {
             case .header(let viewModel):
