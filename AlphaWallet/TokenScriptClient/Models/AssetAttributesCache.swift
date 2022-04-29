@@ -9,24 +9,17 @@ class AssetAttributesCache {
     private var resolvedAttributesData: AssetAttributesCacheData
     private var functionOriginAttributes: [AlphaWallet.Address: [AttributeId: AssetAttribute]] = .init()
     private var functionOriginSubscribables: [AlphaWallet.Address: [TokenId: [AttributeId: Subscribable<AssetInternalValue>]]] = .init()
-
-    weak var assetDefinitionStore: AssetDefinitionStore?
-
-    init(assetDefinitionStore: AssetDefinitionStore) {
-        self.assetDefinitionStore = assetDefinitionStore
+    
+    init() {
         let decoder = JSONDecoder()
         //TODO read from JSON file/database (if it exists)
         self.resolvedAttributesData = (try? decoder.decode(AssetAttributesCacheData.self, from: Data())) ?? .init()
-        setUpClearCacheWhenTokenScriptChanges()
     }
 
-    private func setUpClearCacheWhenTokenScriptChanges() {
-        assetDefinitionStore?.subscribeToBodyChanges { [weak self] contract in
-            guard let strongSelf = self else { return }
-            strongSelf.resolvedAttributesData.remove(contract: contract)
-            strongSelf.functionOriginAttributes.removeValue(forKey: contract)
-            strongSelf.functionOriginSubscribables.removeValue(forKey: contract)
-        }
+    func clearCacheWhenTokenScriptChanges(forContract contract: AlphaWallet.Address) {
+        resolvedAttributesData.remove(contract: contract)
+        functionOriginAttributes.removeValue(forKey: contract)
+        functionOriginSubscribables.removeValue(forKey: contract)
     }
 
     func cache(attribute: AssetAttribute, attributeId: AttributeId, value: AssetInternalValue, forContract contract: AlphaWallet.Address, tokenId: TokenId) {

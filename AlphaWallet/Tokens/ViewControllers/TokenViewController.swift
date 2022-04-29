@@ -54,7 +54,7 @@ class TokenViewController: UIViewController {
         self.activitiesService = activitiesService
         self.alertService = alertService
 
-        activitiesPageView = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions)
+        activitiesPageView = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions, assetDefinitionStore: assetDefinition)
         alertsPageView = PriceAlertsPageView(viewModel: .init(alerts: []))
 
         super.init(nibName: nil, bundle: nil)

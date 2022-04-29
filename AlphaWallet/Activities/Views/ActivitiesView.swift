@@ -21,10 +21,11 @@ class ActivitiesView: UIView {
     private let keystore: Keystore
     private let wallet: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator
-
+    private let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ActivitiesViewDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>) {
+    init(analyticsCoordinator: AnalyticsCoordinator, keystore: Keystore, wallet: Wallet, viewModel: ActivitiesViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) {
+        self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = viewModel
         self.sessions = sessions
         self.keystore = keystore
@@ -138,7 +139,7 @@ extension ActivitiesView: UITableViewDataSource {
 
         let tokenScriptRendererView: TokenInstanceWebView = {
             //TODO server value doesn't matter since we will change it later. But we should improve this
-            let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: .main, wallet: wallet, assetDefinitionStore: AssetDefinitionStore.instance, keystore: keystore)
+            let webView = TokenInstanceWebView(analyticsCoordinator: analyticsCoordinator, server: .main, wallet: wallet, assetDefinitionStore: assetDefinitionStore, keystore: keystore)
             //TODO needed? Seems like scary, performance-wise
             //webView.delegate = self
             return webView

@@ -32,9 +32,13 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
         self.config = config
     }
 
+    private let queue = DispatchQueue(label: "com.FetchAssetDefinitions.UpdateQueue")
+
     func start() {
-        let contracts = Array(Set(contractsInDatabase + contractsWithTokenScriptFileFromOfficialRepo))
-        assetDefinitionStore.fetchXMLs(forContracts: contracts)
+        queue.async {
+            let contracts = Array(Set(self.contractsInDatabase + self.contractsWithTokenScriptFileFromOfficialRepo))
+            self.assetDefinitionStore.fetchXMLs(forContracts: contracts)
+        }
     }
 
 }

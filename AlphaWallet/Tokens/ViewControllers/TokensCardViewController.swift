@@ -44,7 +44,7 @@ class TokensCardViewController: UIViewController {
 
     private lazy var activitiesPageView: ActivitiesPageView = {
         let viewModel: ActivityPageViewModel = .init(activitiesViewModel: .init())
-        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions)
+        let view = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: viewModel, sessions: activitiesService.sessions, assetDefinitionStore: assetDefinitionStore)
         view.delegate = self
 
         return view

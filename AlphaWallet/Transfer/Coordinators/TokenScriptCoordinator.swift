@@ -69,8 +69,7 @@ class TokenScriptCoordinator: Coordinator {
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         navigationController.pushViewController(viewController, animated: true)
 
-        refreshUponEthereumEventChanges()
-        refreshUponAssetDefinitionChanges()
+        refreshUponEthereumEventChanges() 
     }
 
     @objc private func dismiss() {
@@ -90,24 +89,17 @@ class TokenScriptCoordinator: Coordinator {
     private func refreshUponEthereumEventChanges() {
         eventsDataStore
             .recentEvents(forTokenContract: tokenObject.contractAddress)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.viewController.configure()
             }).store(in: &cancelable)
-    }
 
-    private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
-            self?.refreshScreen(forContract: contract)
-        }
-        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
-            self?.refreshScreen(forContract: contract)
-        }
-    }
-
-    private func refreshScreen(forContract contract: AlphaWallet.Address) {
-        guard contract.sameContract(as: tokenObject.contractAddress) else { return }
-
-        viewController.configure()
+        assetDefinitionStore
+            .assetsSignatureOrBodyChange(for: tokenObject.contractAddress)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] _ in
+                self?.viewController.configure()
+            }).store(in: &cancelable)
     }
 }
 
