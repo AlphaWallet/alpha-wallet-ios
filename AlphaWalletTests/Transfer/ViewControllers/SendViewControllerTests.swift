@@ -9,6 +9,7 @@ import UIKit
 @testable import AlphaWallet
 import XCTest
 import BigInt
+import Combine
 
 class SendViewControllerTests: XCTestCase {
     private lazy var tokenBalanceService = FakeSingleChainTokenBalanceService(wallet: .make(), server: .main, etherToken: token)
@@ -16,7 +17,7 @@ class SendViewControllerTests: XCTestCase {
     private lazy var nativeCryptocurrencyTransactionType: TransactionType = {
         return .nativeCryptocurrency(token, destination: nil, amount: nil)
     }()
-
+    private var cancelable = Set<AnyCancellable>()
     private lazy var session: WalletSession = {
         tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
         tokenBalanceService.start()
@@ -29,10 +30,10 @@ class SendViewControllerTests: XCTestCase {
         XCTAssertNil(balance)
 
         let isNilExpectation = self.expectation(description: "Non nil value")
-        _ = tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer).sink { value in
+        tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer).sink { value in
             guard value == nil else { return }
             isNilExpectation.fulfill()
-        }
+        }.store(in: &cancelable)
         waitForExpectations(timeout: 10)
 
         tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
@@ -42,12 +43,51 @@ class SendViewControllerTests: XCTestCase {
 
         let initialExpectation = self.expectation(description: "Initial value")
 
-        _ = tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer).sink { value in
+        tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer).sink { value in
             guard value != nil else { return }
             initialExpectation.fulfill()
-        }
+        }.store(in: &cancelable)
 
         waitForExpectations(timeout: 10)
+    }
+
+    func testBalanceUpdatesPublisher() {
+        let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2000000020224719101120", type: .erc20)
+        var balance = tokenBalanceService.tokenBalance(token.addressAndRPCServer)
+        XCTAssertNil(balance)
+
+        tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
+
+        balance = tokenBalanceService.tokenBalance(token.addressAndRPCServer)
+        XCTAssertNotNil(balance)
+
+        let initialExpectation = self.expectation(description: "did update token balance expectation")
+        var callbackCount: Int = 0
+        let callbaceExpectation: Int = 16 // initial + 10 + 5
+
+        tokenBalanceService.tokenBalancePublisher(token.addressAndRPCServer)
+            .sink { value in
+                guard value != nil else { return }
+                callbackCount += 1
+                if callbackCount == callbaceExpectation {
+                    initialExpectation.fulfill()
+                }
+            }.store(in: &cancelable)
+
+        for each in 0 ..< 10 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(each)) {
+                guard let testValue1 = BigInt("10000000000000000000\(each)") else { return }
+                self.tokenBalanceService.setBalanceTestsOnly(balance: .init(value: testValue1), forToken: token)
+            }
+        }
+
+        for each in 0 ..< 5 {
+            DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(each)) {
+                self.tokenBalanceService.triggerUpdateBalanceSubjectTestsOnly(wallet: .make())
+            }
+        }
+
+        waitForExpectations(timeout: 30)
     }
 
     func testUpdateNativeCryptoBalance() {

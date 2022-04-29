@@ -19,6 +19,7 @@ protocol WalletBalanceFetcherTypeTests {
     func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject)
     func deleteTokenTestsOnly(token: TokenObject)
     func addOrUpdateTokenTestsOnly(token: TokenObject)
+    func triggerUpdateBalanceSubjectTestsOnly()
 }
 
 protocol WalletBalanceFetcherType: AnyObject, WalletBalanceFetcherTypeTests {
@@ -92,6 +93,10 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                 self?.reloadWalletBalance()
                 self?.triggerUpdateBalance()
             }.store(in: &cancelable)
+    }
+
+    func triggerUpdateBalanceSubjectTestsOnly() {
+        triggerUpdateBalance()
     }
 
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcher {
@@ -169,11 +174,13 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .replaceError(with: nil)
 
         let forceReloadBalanceWhenServersChange = balanceUpdateSubject
-            .prepend(())
+            .map { [weak self] _ in self?.tokensDataStore.token(forContract: key.address, server: key.server) }
+            .replaceError(with: nil)
+            .prepend(tokensDataStore.token(forContract: key.address, server: key.server))
+            .eraseToAnyPublisher()
 
-        return Publishers.CombineLatest(forceReloadBalanceWhenServersChange, tokenPublisher)
-            .map { $1 }
-            .map { [weak self] in $0.flatMap { self?.balanceViewModel(forToken: $0) } }
+        return Publishers.Merge(forceReloadBalanceWhenServersChange, tokenPublisher)
+            .map { $0.flatMap { self.balanceViewModel(forToken: $0) } }
             .eraseToAnyPublisher()
     }
 

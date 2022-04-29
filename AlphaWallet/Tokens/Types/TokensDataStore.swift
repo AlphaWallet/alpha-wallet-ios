@@ -104,7 +104,7 @@ enum TokenUpdateAction {
                 }
                 let valuePublisher = token
                     .publisher(for: \.value, options: [.initial, .new])
-                    .map { _ -> TokenObject in return token }
+                    .map { _ -> TokenObject in return token.detached() }
                     .setFailureType(to: DataStoreError.self)
 
                 cancelable = valuePublisher

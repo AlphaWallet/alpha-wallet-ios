@@ -217,6 +217,11 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
 }
 
 extension MultiWalletBalanceService {
+    func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .triggerUpdateBalanceSubjectTestsOnly()
+    }
+
     func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .setBalanceTestsOnly(value, forToken: token)
