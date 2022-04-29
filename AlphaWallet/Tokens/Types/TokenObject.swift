@@ -85,7 +85,7 @@ extension Activity {
                 let fullValue = EtherNumberFormatter.plain.string(from: tokenObject.valueBigInt, decimals: decimals)
                 balance = .value(fullValue.optionalDecimalValue)
             case .erc721, .erc721ForTickets, .erc875, .erc1155:
-                balance = .nftBalance(tokenObject.balance.compactMap { $0.nonFungibleBalance })
+                balance = .nftBalance(tokenObject.balance.toArray().compactMap { $0.nonFungibleBalance })
             }
         }
 

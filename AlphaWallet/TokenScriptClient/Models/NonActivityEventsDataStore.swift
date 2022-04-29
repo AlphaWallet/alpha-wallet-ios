@@ -14,6 +14,7 @@ protocol NonActivityEventsDataStore {
 
 class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
     private let store: RealmStore
+    private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
 
     init(realm: Realm) {
         self.store = RealmStore(realm: realm)
@@ -28,7 +29,7 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
         store.performSync { realm in
             event = realm.objects(EventInstance.self)
                 .filter(predicate)
-                .freeze()
+                .toArray()
                 .first
         }
         return event
@@ -50,12 +51,13 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
             publisher = realm.objects(EventInstance.self)
                 .filter("tokenContract = '\(tokenContract.eip55String)'")
                 .changesetPublisher
+                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):
-                        return .initial(Array(eventActivities.map { $0.freeze() }))
+                        return .initial(eventActivities.toArray())
                     case .update(let eventActivities, let deletions, let insertions, let modifications):
-                        return .update(Array(eventActivities.map { $0.freeze() }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(eventActivities.toArray(), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
@@ -76,7 +78,7 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
             event = realm.objects(EventInstance.self)
                 .filter(predicate)
                 .sorted(byKeyPath: "blockNumber")
-                .freeze()
+                .toArray()
                 .last
         }
 
