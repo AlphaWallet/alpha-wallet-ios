@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import Combine
+import AlphaWalletCore
 import BigInt
 import PromiseKit
 import Result
 import SwiftyJSON
-import Combine
 
 protocol PrivateTokensDataStoreDelegate: AnyObject {
     func didUpdate(in tokensDataStore: PrivateBalanceFetcher)

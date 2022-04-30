@@ -6,17 +6,6 @@ import PromiseKit
 import web3swift
 import Combine
 
-extension PromiseKit.Result {
-    var optionalValue: T? {
-        switch self {
-        case .fulfilled(let value):
-            return value
-        case .rejected:
-            return nil
-        }
-    }
-}
-
 final class EventSourceCoordinator: NSObject {
     private var wallet: Wallet
     private let tokensDataStore: TokensDataStore
@@ -28,7 +17,7 @@ final class EventSourceCoordinator: NSObject {
     private let queue = DispatchQueue(label: "com.eventSourceCoordinator.updateQueue")
     private let enabledServers: [RPCServer]
     private var cancellable = Set<AnyCancellable>()
-    
+
     init(wallet: Wallet, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, config: Config) {
         self.wallet = wallet
         self.tokensDataStore = tokensDataStore
@@ -43,7 +32,7 @@ final class EventSourceCoordinator: NSObject {
     func start() {
         setupWatchingTokenChangesToFetchEvents()
         setupWatchingTokenScriptFileChangesToFetchEvents()
-    } 
+    }
 
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore

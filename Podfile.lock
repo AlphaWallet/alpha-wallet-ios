@@ -6,7 +6,8 @@ PODS:
     - EthereumAddress
     - TrustKeystore
     - web3swift
-  - AlphaWalletCore (1.0.1)
+  - AlphaWalletCore (1.0.1):
+    - PromiseKit
   - AlphaWalletENS (1.0.0):
     - AlphaWalletAddress
     - PromiseKit
@@ -267,7 +268,7 @@ SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
   AlphaWalletAddress: d742c9b77d0a798c6711de5c32b573e474b64d8e
-  AlphaWalletCore: f0dc8f3f6c6600b9419596b944deb4145f00f7e1
+  AlphaWalletCore: 0424dd8e215a8aa57c9828543a960071a95663e8
   AlphaWalletENS: df3cb79a2def496f78b06a838d0a111528e473db
   AlphaWalletWeb3Provider: 7ca1e1c1dc841dc1915f970daace48bf34931655
   APIKit: 9e1a4069608bf0ae5238811e6cfc26928ad4d01e

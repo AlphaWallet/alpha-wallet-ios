@@ -1,6 +1,7 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletCore
 import BigInt
 import PromiseKit
 import web3swift
@@ -30,7 +31,7 @@ final class EventSourceCoordinatorForActivities {
     func start() {
         setupWatchingTokenChangesToFetchEvents()
         setupWatchingTokenScriptFileChangesToFetchEvents()
-    } 
+    }
 
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
@@ -128,7 +129,7 @@ extension EventSourceCoordinatorForActivities.functional {
 
             let oldEvent = eventsDataStore
             .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
-            
+
             let fromBlock: (EventFilter.Block, UInt64)
             if let newestEvent = oldEvent {
                 let value = UInt64(newestEvent.blockNumber + 1)

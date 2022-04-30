@@ -5,12 +5,13 @@
 //  Created by Vladyslav Shepitko on 27.08.2021.
 //
 
+import AlphaWalletCore
 import PromiseKit
 import Result
 import BigInt
 
 // NOTE: Think about the name, more fittable name is needed
-protocol TokenProviderType: class { 
+protocol TokenProviderType: class {
     func getContractName(for address: AlphaWallet.Address) -> Promise<String>
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String>
     func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8>
@@ -246,6 +247,6 @@ class TokenProvider: TokenProviderType {
         }.catch({ e in
             error(value: e, pref: "isErc20Promise", address: address)
         })
-    } 
+    }
 }
 
