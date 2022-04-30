@@ -16,6 +16,8 @@ public typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNo
 
 public class OpenSea {
     public static var isLoggingEnabled = false
+    //Important to be static so it's for *all* OpenSea calls
+    private static let callCounter = CallCounter()
 
     //TODO why is this needed? Make it always respond on main instead
     private let queue: DispatchQueue
@@ -179,7 +181,9 @@ public class OpenSea {
         let delayUpperRangeValueFrom0To: Int = delayMultiplayer
         return firstly {
             attempt(maximumRetryCount: maximumRetryCount, delayBeforeRetry: retryDelay, delayUpperRangeValueFrom0To: delayUpperRangeValueFrom0To) {
-                firstly {
+                Self.callCounter.clock()
+                infoLog("[OpenSea] Accessing url: \(url.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
+                return firstly {
                     privatePerformRequest(url: url)
                 }.map { _, json -> JSON in
                     json
@@ -220,6 +224,43 @@ public class OpenSea {
                 !excludeContracts.contains { $0.sameContract(as: eachAsset.key) }
             }
             return .value(.init(hasError: true, result: assetsExcluding))
+        }
+    }
+}
+
+//TODO extract to AlphaWalletCore or somewhere else
+//TODO not threadsafe (is it necessary?). Be good if there's some library that does this better
+fileprivate class CallCounter {
+    //Just to be safe, not too big
+    private static let maximumSize = 1000
+
+    private static let windowInSeconds = 10
+
+    private var calledAtTimes = [Int]()
+    private var edge: Int {
+        let currentTime = Int(Date().timeIntervalSince1970)
+        return currentTime - Self.windowInSeconds
+    }
+
+    var averageRatePerSecond: Double {
+        var total: Int = 0
+
+        //TODO reversed might be much faster? But we are truncating already
+        for each in calledAtTimes {
+            if each >= edge {
+                total += 1
+            }
+        }
+        let result: Double = Double(total) / Double(Self.windowInSeconds)
+        return result
+    }
+
+    func clock() {
+        calledAtTimes.append(Int(Date().timeIntervalSince1970))
+        if calledAtTimes.count > Self.maximumSize {
+            if let i = calledAtTimes.firstIndex(where: { $0 >= edge }) {
+                calledAtTimes = Array(calledAtTimes.dropFirst(i))
+            }
         }
     }
 }
