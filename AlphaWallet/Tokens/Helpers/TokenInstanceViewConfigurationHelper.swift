@@ -6,19 +6,20 @@
 //
 
 import UIKit
+import AlphaWalletOpenSea
 
 final class TokenInstanceViewConfigurationHelper {
     private let tokenId: TokenId
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
 
-    private var openSeaCollection: OpenSea.Collection? {
+    private var openSeaCollection: AlphaWalletOpenSea.Collection? {
         values?.collectionValue
     }
-    private var openSeaStats: OpenSea.Stats? {
+    private var openSeaStats: Stats? {
         overiddenOpenSeaStats ?? openSeaCollection?.stats
     }
-    var overiddenOpenSeaStats: OpenSea.Stats?
+    var overiddenOpenSeaStats: Stats?
     var overridenFloorPrice: Double?
     var overridenItemsCount: Double?
 
@@ -70,7 +71,7 @@ final class TokenInstanceViewConfigurationHelper {
         values?.valueIntValue
             .flatMap { TokenInstanceAttributeViewModel.defaultValueAttributedString(String($0)) }
             .flatMap { .init(title: R.string.localizable.semifungiblesValue(), attributedValue: $0) }
-    } 
+    }
 
     var transferableViewModel: TokenInstanceAttributeViewModel? {
         return values?.transferable

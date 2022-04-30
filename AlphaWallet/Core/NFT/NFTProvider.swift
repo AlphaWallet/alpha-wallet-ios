@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlphaWalletOpenSea
 import PromiseKit
 
 typealias NonFungiblesTokens = (openSea: OpenSeaNonFungiblesToAddress, enjin: EnjinSemiFungiblesToTokenId)

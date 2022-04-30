@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import AlphaWalletOpenSea
 import RealmSwift
 
 class TokenBalance: Object {

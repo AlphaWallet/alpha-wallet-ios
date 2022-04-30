@@ -1,10 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import PromiseKit 
+import PromiseKit
+import AlphaWalletOpenSea
 
-typealias OpenSeaNonFungiblesToAddress = [AlphaWallet.Address: [OpenSeaNonFungible]]
-
+//TODO check where instances are created. Can we just create one? Especially because we create a new `queue` for each instance
 final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private var cachedPromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
@@ -65,7 +65,7 @@ final class OpenSea {
                 } else {
                     storage?.value[key] = result.result
                 }
-                
+
                 return storage?.value[key] ?? result.result
             })
     }

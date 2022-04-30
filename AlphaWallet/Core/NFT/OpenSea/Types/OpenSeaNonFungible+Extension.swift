@@ -1,65 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletOpenSea
 import BigInt
 import SwiftyJSON
-//Some fields are duplicated across token IDs within the same contract like the contractName, symbol, contractImageUrl, etc. The space savings in the database aren't work the normalization
-struct OpenSeaNonFungible: Codable, Equatable, Hashable, NonFungibleFromJson {
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(tokenId)
-        hasher.combine(tokenType.rawValue)
-        hasher.combine(value.description)
-    }
-
-    static func == (lhs: OpenSeaNonFungible, rhs: OpenSeaNonFungible) -> Bool {
-        return lhs.tokenId == rhs.tokenId
-    }
-
-    //Not every token might used the same name. This is just common in OpenSea
-    public static let generationTraitName = "generation"
-    public static let cooldownIndexTraitName = "cooldown_index"
-
-    let tokenId: String
-    let tokenType: NonFungibleFromJsonTokenType
-    var value: BigInt
-    let contractName: String
-    let decimals: Int
-    let symbol: String
-    let name: String
-    let description: String
-    let thumbnailUrl: String
-    let imageUrl: String
-    let contractImageUrl: String
-    let externalLink: String
-    let backgroundColor: String?
-    let traits: [OpenSeaNonFungibleTrait]
-    var generationTrait: OpenSeaNonFungibleTrait? {
-        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
-    }
-    let collectionCreatedDate: Date?
-    let collectionDescription: String?
-    var meltStringValue: String?
-    var meltFeeRatio: Int?
-    var meltFeeMaxRatio: Int?
-    var totalSupplyStringValue: String?
-    var circulatingSupplyStringValue: String?
-    var reserveStringValue: String?
-    var nonFungible: Bool?
-    var blockHeight: Int?
-    var mintableSupply: BigInt?
-    var transferable: String?
-    var supplyModel: String?
-    var issuer: String?
-    var created: String?
-    var transferFee: String?
-    var collection: OpenSea.Collection?
-    var creator: OpenSea.AssetCreator?
-    let slug: String
-}
 
 extension OpenSeaNonFungible {
-
     var tokenIdSubstituted: String {
         return TokenIdConverter.toTokenIdSubstituted(string: tokenId)
     }
@@ -114,22 +60,6 @@ struct TokenIdConverter {
     static func addTrailingZerosPadding(string: String) -> String {
         return string.padding(toLength: 64, withPad: "0", startingAt: 0)
     }
-}
-
-struct OpenSeaNonFungibleTrait: Codable {
-    let count: Int
-    let type: String
-    let value: String
-
-    init(json: JSON) {
-        count = json["trait_count"].intValue
-        type = json["trait_type"].stringValue
-        value = json["value"].stringValue
-    }
-}
-
-struct OpenSeaError: Error {
-    var localizedDescription: String
 }
 
 struct OpenSeaNonFungibleBeforeErc1155Support: Codable {

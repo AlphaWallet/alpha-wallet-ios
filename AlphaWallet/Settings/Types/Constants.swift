@@ -89,9 +89,6 @@ public struct Constants {
 
     public static let unstoppableDomainsV2API = "https://unstoppabledomains.g.alchemy.com"
     public static let unstoppableDomainsRecordKeys = ["crypto.MATIC.version.MATIC.address", "crypto.ETH.address", "crypto.MATIC.version.ERC20.address"]
-    //OpenSea links for erc721 assets
-    public static let openseaAPI = "https://api.opensea.io/"
-    public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
     public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
@@ -206,7 +203,7 @@ public struct Constants {
     enum HoneySwap {
         static let exchangeUrl = URL(string: "https://tokens.honeyswap.org/")!
     }
-    
+
     enum Ramp {
         static let exchangeUrl = URL(string: "https://api-instant.ramp.network")!
     }

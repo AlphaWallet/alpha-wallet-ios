@@ -3,6 +3,7 @@
 import UIKit
 import PromiseKit
 import AlphaWalletCore
+import AlphaWalletOpenSea
 
 typealias GoogleContentSize = AlphaWalletCore.GoogleContentSize
 typealias WebImageURL = AlphaWalletCore.WebImageURL

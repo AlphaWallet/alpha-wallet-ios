@@ -3,6 +3,7 @@
 import Combine
 import UIKit
 import AlphaWalletENS
+import AlphaWalletOpenSea
 import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
@@ -133,6 +134,7 @@ class AppCoordinator: NSObject, Coordinator {
     func start() {
         //TODO move to better place
         ENS.isLoggingEnabled = true
+        AlphaWalletOpenSea.OpenSea.isLoggingEnabled = true
 
         if isRunningTests() {
             try! RealmConfiguration.removeWalletsFolderForTests()

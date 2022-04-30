@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import AlphaWalletOpenSea
 import BigInt
 import RealmSwift
 import Combine
@@ -65,7 +66,7 @@ enum TokenUpdateAction {
         for each in servers {
             addEthToken(forServer: each)
         }
-    } 
+    }
 
     func enabledTokenObjectsChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TokenObject]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[TokenObject]>, Never>!
@@ -85,7 +86,7 @@ enum TokenUpdateAction {
                 }
                 .eraseToAnyPublisher()
         }
-        
+
         return publisher
     }
 
@@ -313,7 +314,7 @@ enum TokenUpdateAction {
                 realm.delete(tokens)
             }
         }
-    } 
+    }
 
     func updateOrderedTokens(with orderedTokens: [TokenObject]) {
         guard !orderedTokens.isEmpty else { return }
@@ -333,7 +334,7 @@ enum TokenUpdateAction {
 
     @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool? {
         guard !actions.isEmpty else { return nil }
-        
+
         var result: Bool?
         store.performSync { realm in
             try? realm.safeWrite {

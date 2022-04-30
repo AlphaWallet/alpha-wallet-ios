@@ -7,6 +7,7 @@
 
 import UIKit
 import BigInt
+import AlphaWalletOpenSea
 
 enum TokensCardCollectionInfoPageViewConfiguration {
     case field(viewModel: TokenInstanceAttributeViewModel)
@@ -79,7 +80,7 @@ struct TokensCardCollectionInfoPageViewModel {
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
     }
 
-    mutating func configure(overiddenOpenSeaStats: OpenSea.Stats?) {
+    mutating func configure(overiddenOpenSeaStats: Stats?) {
         self.tokenHolderHelper.overiddenOpenSeaStats = overiddenOpenSeaStats
     }
 
