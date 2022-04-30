@@ -6,6 +6,7 @@
 //
 
 import Alamofire
+import AlphaWalletCore
 import BigInt
 import PromiseKit
 import Result
