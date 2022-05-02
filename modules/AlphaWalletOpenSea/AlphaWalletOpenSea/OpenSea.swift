@@ -181,8 +181,10 @@ public class OpenSea {
         let delayUpperRangeValueFrom0To: Int = delayMultiplayer
         return firstly {
             attempt(maximumRetryCount: maximumRetryCount, delayBeforeRetry: retryDelay, delayUpperRangeValueFrom0To: delayUpperRangeValueFrom0To) {
-                Self.callCounter.clock()
-                infoLog("[OpenSea] Accessing url: \(url.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
+                DispatchQueue.main.async {
+                    Self.callCounter.clock()
+                    infoLog("[OpenSea] Accessing url: \(url.absoluteString) rate: \(Self.callCounter.averageRatePerSecond)/sec")
+                }
                 return firstly {
                     privatePerformRequest(url: url)
                 }.map { _, json -> JSON in
