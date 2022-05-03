@@ -169,15 +169,7 @@ class TokenAdaptor {
         xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
-        switch nonFungible.tokenType {
-        case .erc721:
-            break
-        case .erc1155:
-            guard !nonFungible.value.isZero else { return nil }
-        }
-
-        let event: EventInstance?
+    private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstance? {
         if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
             let filterValue: String
@@ -193,10 +185,13 @@ class TokenAdaptor {
             } else {
                 filterValue = eventFilter.value
             }
-            event = eventsDataStore.getMatchingEvent(forContract: eventContract, tokenContract: token.contractAddress, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
+            return eventsDataStore.getMatchingEvent(forContract: eventContract, tokenContract: token.contractAddress, server: token.server, eventName: eventName, filterName: filterName, filterValue: filterValue)
         } else {
-            event = nil
+            return nil
         }
+    }
+
+    private func getTokenIdOrEvent(event: EventInstance?, nonFungible: NonFungibleFromJson) -> TokenIdOrEvent {
         let tokenId = BigUInt(nonFungible.tokenId) ?? BigUInt(0)
         let tokenIdOrEvent: TokenIdOrEvent
         if let eventNonOptional = event {
@@ -204,7 +199,21 @@ class TokenAdaptor {
         } else {
             tokenIdOrEvent = .tokenId(tokenId: tokenId)
         }
-        var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+        return tokenIdOrEvent
+    }
+
+    private func getTokenForNonFungible(nonFungible: NonFungibleFromJson, inWallet account: Wallet, server: RPCServer, isSourcedFromEvents: Bool, tokenType: TokenType) -> Token? {
+        switch nonFungible.tokenType {
+        case .erc721:
+            break
+        case .erc1155:
+            guard !nonFungible.value.isZero else { return nil }
+        }
+
+        let event = getFirstMatchingEvent(nonFungible: nonFungible, inWallet: account, isSourcedFromEvents: isSourcedFromEvents)
+        let tokenIdOrEvent: TokenIdOrEvent = getTokenIdOrEvent(event: event, nonFungible: nonFungible)
+
+        var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: token.server, account: account)
         values.setTokenId(string: nonFungible.tokenId)
         if let date = nonFungible.collectionCreatedDate {
             //Storing as GeneralisedTime because we only support that for date/time formats in TokenScript. We are using the same `values` infrastructure
@@ -225,6 +234,7 @@ class TokenAdaptor {
         values.setValue(int: nonFungible.value)
         values.setDecimals(int: nonFungible.decimals)
         values.setTokenType(string: nonFungible.tokenType.rawValue)
+
         values.setMeltStringValue(string: nonFungible.meltStringValue)
         values.setMeltFeeRatio(int: nonFungible.meltFeeRatio)
         values.setMeltFeeMaxRatio(int: nonFungible.meltFeeMaxRatio)
@@ -239,6 +249,7 @@ class TokenAdaptor {
         values.setIssuer(string: nonFungible.issuer)
         values.setCreated(string: nonFungible.created)
         values.setTransferFee(string: nonFungible.transferFee)
+
         values.setCollection(collection: nonFungible.collection)
         values.setSlug(string: nonFungible.slug)
         values.setCreator(creator: nonFungible.creator)
