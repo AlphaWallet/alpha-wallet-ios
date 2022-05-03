@@ -41,9 +41,9 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let config: Config
     let assetDefinitionStore: AssetDefinitionStore
     var coinTickersFetcher: CoinTickersFetcherType
-    private var balanceFetchers: [Wallet: WalletBalanceFetcherType] = [:]
+    private var balanceFetchers: ThreadSafeDictionary<Wallet, WalletBalanceFetcherType> = .init()
     private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
-        let balances = balanceFetchers.map { $0.value.balance }
+        let balances = balanceFetchers.values.map { $0.value.balance }
         let summary = WalletSummary(balances: balances)
         return .init(summary)
     }()
@@ -80,7 +80,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
                 }
 
                 //NOTE: we need to remove all balance fetcher for deleted wallets
-                let handlertToDelete = strongSelf.balanceFetchers.filter { !wallets.contains($0.key) }
+                let handlertToDelete = strongSelf.balanceFetchers.values.filter { !wallets.contains($0.key) }
                 for value in handlertToDelete {
                     strongSelf.balanceFetchers.removeValue(forKey: value.key)
                 }
@@ -151,7 +151,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         Promise<[Activity.AssignedToken]> { seal in
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return seal.reject(PMKError.cancelled) }
-                let tokenObjects = strongSelf.balanceFetchers.map { $0.value.tokenObjects }.flatMap { $0 }
+                let tokenObjects = strongSelf.balanceFetchers.values.map { $0.value.tokenObjects }.flatMap { $0 }
 
                 seal.fulfill(tokenObjects + Self.nativeCryptoForAllChains)
             }
@@ -211,7 +211,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     }
 
     private func notifyWalletsSummary() {
-        let balances = balanceFetchers.map { $0.value.balance }
+        let balances = balanceFetchers.values.map { $0.value.balance }
         walletsSummarySubject.value = WalletSummary(balances: balances)
     }
 }

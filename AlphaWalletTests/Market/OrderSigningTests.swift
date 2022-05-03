@@ -8,7 +8,10 @@ class OrderSigningTests: XCTestCase {
     func testSigningOrders() {
         let keystore = try! EtherKeystore(analyticsCoordinator: FakeAnalyticsService())
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
-        let account = try! keystore.createAccount().dematerialize()
+        guard let account = try? keystore.createAccount().dematerialize() else {
+            XCTFail("Failure to import wallet")
+            return
+        }
         var testOrdersList = [Order]()
         //set up test orders
         var indices = [UInt16]()
@@ -28,7 +31,10 @@ class OrderSigningTests: XCTestCase {
             testOrdersList.append(testOrder1)
         }
         let signOrders = OrderHandler(keystore: keystore)
-        let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875)
+        guard let signedOrders = try? signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875) else {
+            XCTFail("Failure to sign an order")
+            return
+        }
         XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
         keystore.delete(wallet: Wallet(type: WalletType.real(account)))
     }

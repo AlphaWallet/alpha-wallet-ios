@@ -15,6 +15,7 @@ protocol WalletBalanceFetcherDelegate: AnyObject {
     func didAddToken(in fetcher: WalletBalanceFetcherType)
     func didUpdate(in fetcher: WalletBalanceFetcherType)
 }
+
 protocol WalletBalanceFetcherTypeTests {
     func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject)
     func deleteTokenTestsOnly(token: TokenObject)
@@ -169,17 +170,23 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+        let tokensDataStore = tokensDataStore
+
         let tokenPublisher = tokensDataStore
             .tokenValuePublisher(forContract: key.address, server: key.server)
             .replaceError(with: nil)
 
         let forceReloadBalanceWhenServersChange = balanceUpdateSubject
-            .map { [weak self] _ in self?.tokensDataStore.token(forContract: key.address, server: key.server) }
+            .map { _ in tokensDataStore.token(forContract: key.address, server: key.server) }
             .replaceError(with: nil)
-            .prepend(tokensDataStore.token(forContract: key.address, server: key.server))
+            .eraseToAnyPublisher()
+
+        let initialyTokenValuePublisher = Just(tokensDataStore.token(forContract: key.address, server: key.server))
+            .replaceError(with: nil)
             .eraseToAnyPublisher()
 
         return Publishers.Merge(forceReloadBalanceWhenServersChange, tokenPublisher)
+            .prepend(initialyTokenValuePublisher)
             .map { $0.flatMap { self.balanceViewModel(forToken: $0) } }
             .eraseToAnyPublisher()
     }
