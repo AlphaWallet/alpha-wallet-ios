@@ -26,7 +26,6 @@ class TokensViewController: UIViewController {
         }
     }
     private let sessions: ServerDictionary<WalletSession>
-    private let account: Wallet
     lazy private var tableViewFilterView: ScrollableSegmentedControl = {
         let cellConfiguration = Style.ScrollableSegmentedControlCell.configuration
         let controlConfiguration = Style.ScrollableSegmentedControl.configuration
@@ -35,6 +34,7 @@ class TokensViewController: UIViewController {
         }
         let control = ScrollableSegmentedControl(cells: cells, configuration: controlConfiguration)
         control.setSelection(cellIndex: 0, animated: false)
+        control.translatesAutoresizingMaskIntoConstraints = false
         return control
     }()
     private let emptyTableView: EmptyTableView = {
@@ -66,15 +66,13 @@ class TokensViewController: UIViewController {
     }()
     private lazy var tableViewRefreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
-        control.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         return control
     }()
     private (set) lazy var blockieImageView: BlockieImageView = BlockieImageView(size: .init(width: 24, height: 24))
     private let searchController: UISearchController
     private lazy var searchBar: DummySearchView = {
         return DummySearchView(closure: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.enterSearchMode()
+            self?.enterSearchMode()
         })
     }()
 
@@ -164,7 +162,6 @@ class TokensViewController: UIViewController {
     private let eventsDataStore: NonActivityEventsDataStore
 
     init(sessions: ServerDictionary<WalletSession>,
-         account: Wallet,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
          tokensFilter: TokensFilter,
@@ -175,7 +172,6 @@ class TokensViewController: UIViewController {
     ) {
         self.eventsDataStore = eventsDataStore
         self.sessions = sessions
-        self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.config = config
@@ -189,13 +185,6 @@ class TokensViewController: UIViewController {
 
         searchController.delegate = self
         searchController.hidesNavigationBarDuringPresentation = false
-
-        view.backgroundColor = viewModel.backgroundColor
-
-        tableViewFilterView.addTarget(self, action: #selector(didTapSegment(_:)), for: .touchUpInside)
-        tableViewFilterView.translatesAutoresizingMaskIntoConstraints = false
-
-        consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
         view.addSubview(tableView)
 
@@ -233,10 +222,10 @@ class TokensViewController: UIViewController {
                 strongSelf.tableView.reloadData()
             }.store(in: &cancellable)
 
-        let initialWalletSummary = WalletSummary(balances: [walletBalanceService.walletBalance(wallet: account)])
+        let initialWalletSummary = WalletSummary(balances: [walletBalanceService.walletBalance(wallet: sessions.anyValue.account)])
 
         let walletSummary = walletBalanceService
-            .walletBalancePublisher(wallet: account)
+            .walletBalancePublisher(wallet: sessions.anyValue.account)
             .map { return WalletSummary(balances: [$0]) }
             .receive(on: RunLoop.main)
             .prepend(initialWalletSummary)
@@ -252,7 +241,11 @@ class TokensViewController: UIViewController {
 
         tableView.delegate = self
         tableView.dataSource = self
+
         tableView.addSubview(tableViewRefreshControl)
+        tableViewFilterView.addTarget(self, action: #selector(didTapSegment), for: .touchUpInside)
+        consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
+        tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
 
         handleTokenCollectionUpdates()
     }
@@ -263,7 +256,7 @@ class TokensViewController: UIViewController {
         navigationController?.applyTintAdjustment()
         hidesBottomBarWhenPushed = false
 
-        fetch()
+        tokenCollection.fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
         delegate?.viewWillAppear(in: self)
@@ -278,15 +271,11 @@ class TokensViewController: UIViewController {
 
     @objc func pullToRefresh() {
         tableViewRefreshControl.beginRefreshing()
-        fetch()
+        tokenCollection.fetch()
     }
 
     @objc func openConsole() {
         delegate?.didTapOpenConsole(in: self)
-    }
-
-    func fetch() {
-        tokenCollection.fetch()
     }
 
     override func viewDidLayoutSubviews() {
@@ -294,20 +283,16 @@ class TokensViewController: UIViewController {
         configureSearchBarOnce()
     }
 
-    private func reloadTableData() {
-        tableView.reloadData()
-    }
-
     private func reload() {
         isPromptBackupWalletViewHolderHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
-        reloadTableData()
+        tableView.reloadData()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    func refreshView(viewModel: TokensViewModel) {
+    private func refreshView(viewModel: TokensViewModel) {
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
     }
@@ -318,7 +303,6 @@ class TokensViewController: UIViewController {
             .sink { [weak self] viewModel in
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel = viewModel
-                strongSelf.refreshView(viewModel: viewModel)
                 strongSelf.reload()
 
                 if strongSelf.tableViewRefreshControl.isRefreshing {
@@ -538,7 +522,7 @@ extension TokensViewController: UITableViewDataSource {
                 if didHideToken {
                     strongSelf.tableView.deleteRows(at: deletedIndexPathArray, with: .automatic)
                 } else {
-                    strongSelf.reloadTableData()
+                    strongSelf.tableView.reloadData()
                 }
 
                 completion(didHideToken)
