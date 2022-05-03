@@ -290,13 +290,13 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
             firstly {
                 EtherscanSingleChainTransactionProvider.functional.fetchTransactions(startBlock: startBlock, sortOrder: sortOrder, session: coordinator.session, alphaWalletProvider: coordinator.alphaWalletProvider, tokensDataStore: coordinator.tokensDataStore, queue: coordinator.queue)
-            }.done { [weak self] transactions in
+            }.done(on: queue, { [weak self] transactions in
                 guard let strongSelf = self else { return }
                 guard !strongSelf.isCancelled else { return }
                 coordinator.addOrUpdate(transactions: transactions)
-            }.catch { e in
+            }).catch(on: queue, { e in
                 error(value: e, rpcServer: coordinator.session.server, address: self.session.account.address)
-            }.finally { [weak self] in
+            }).finally(on: queue, { [weak self] in
                 guard let strongSelf = self else { return }
 
                 strongSelf.willChangeValue(forKey: "isExecuting")
@@ -306,7 +306,7 @@ class EtherscanSingleChainTransactionProvider: SingleChainTransactionProvider {
 
                 strongSelf.didChangeValue(forKey: "isExecuting")
                 strongSelf.didChangeValue(forKey: "isFinished")
-            }
+            })
         } 
     }
 }
