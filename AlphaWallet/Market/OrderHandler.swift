@@ -57,7 +57,7 @@ public class OrderHandler {
 
     func signOrders(orders: [Order], account: AlphaWallet.Address, tokenType: TokenType) throws -> [SignedOrder] {
         let messages = createMessagesFromOrders(orders: orders, tokenType: tokenType)
-        return try! bulkSignOrders(messages: messages, account: account, orders: orders)
+        return try bulkSignOrders(messages: messages, account: account, orders: orders)
     }
 
     private func createMessagesFromOrders(orders: [Order], tokenType: TokenType) -> [Data] {

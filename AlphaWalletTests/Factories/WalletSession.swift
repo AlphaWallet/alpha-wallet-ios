@@ -74,7 +74,12 @@ class FakeMultiWalletBalanceService: MultiWalletBalanceService {
 
         let tickersFetcher = FakeCoinTickersFetcher()
         var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
-        walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
+        switch wallet.type {
+        case .real:
+            walletAddressesStore.addToListOfEthereumAddressesWithSeed(wallet.address)
+        case .watch:
+            walletAddressesStore.addToListOfWatchEthereumAddresses(wallet.address)
+        }
 
         let keystore = FakeKeystore(wallets: [wallet], recentlyUsedWallet: wallet)
         super.init(keystore: keystore, config: .make(), assetDefinitionStore: .init(), coinTickersFetcher: tickersFetcher, walletAddressesStore: walletAddressesStore)
