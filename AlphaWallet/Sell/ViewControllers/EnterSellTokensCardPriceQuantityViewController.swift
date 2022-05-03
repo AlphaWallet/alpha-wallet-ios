@@ -11,7 +11,6 @@ protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenU
 
 class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let storage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let header = TokensCardViewControllerTitleHeader()
@@ -60,7 +59,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 // swiftlint:disable function_body_length
     init(
             analyticsCoordinator: AnalyticsCoordinator,
-            storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
             assetDefinitionStore: AssetDefinitionStore,
@@ -68,7 +66,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             keystore: Keystore
     ) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.storage = storage
         self.paymentFlow = paymentFlow
         self.walletSession = walletSession
         self.viewModel = viewModel

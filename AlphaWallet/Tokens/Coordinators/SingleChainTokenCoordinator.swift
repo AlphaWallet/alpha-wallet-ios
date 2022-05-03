@@ -105,39 +105,6 @@ class SingleChainTokenCoordinator: Coordinator {
             return
         }
 
-        switch token.type {
-        case .erc1155:
-            showTokensCardCollection(for: type, token: token, navigationController: navigationController)
-        case .erc721, .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
-            showTokenCard(for: type, token: token, navigationController: navigationController)
-        }
-    }
-
-    private func showTokensCardCollection(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
-        guard let transactionType = type.transactionType else { return }
-
-        let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
-        let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
-
-        let tokensCardCoordinator = TokensCardCollectionCoordinator(
-                session: session,
-                navigationController: navigationController,
-                keystore: keystore,
-                tokensStorage: tokensDataStore,
-                token: token,
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
-                analyticsCoordinator: analyticsCoordinator,
-                activitiesService: activitiesService,
-                paymantFlow: type
-        )
-
-        addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.delegate = self
-        tokensCardCoordinator.start()
-    }
-
-    private func showTokenCard(for type: PaymentFlow, token: TokenObject, navigationController: UINavigationController) {
         guard let transactionType = type.transactionType else { return }
 
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
@@ -147,7 +114,6 @@ class SingleChainTokenCoordinator: Coordinator {
                 session: session,
                 navigationController: navigationController,
                 keystore: keystore,
-                tokensStorage: tokensDataStore,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
@@ -305,24 +271,5 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
-    }
-}
-
-extension SingleChainTokenCoordinator: TokensCardCollectionCoordinatorDelegate {
-
-    func didTap(for type: PaymentFlow, in coordinator: TokensCardCollectionCoordinator, viewController: UIViewController) {
-        delegate?.didPress(for: type, inViewController: viewController, in: self)
-    }
-
-    func didClose(in coordinator: TokensCardCollectionCoordinator) {
-        removeCoordinator(coordinator)
-    }
-
-    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCollectionCoordinator) {
-        delegate?.didTap(transaction: transaction, inViewController: coordinator.rootViewController, in: self)
-    }
-
-    func didTap(activity: Activity, in coordinator: TokensCardCollectionCoordinator) {
-        delegate?.didTap(activity: activity, inViewController: coordinator.rootViewController, in: self)
     }
 }

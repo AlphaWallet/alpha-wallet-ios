@@ -9,7 +9,6 @@ protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
 
 class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let storage: TokensDataStore
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let header = TokensCardViewControllerTitleHeader()
@@ -56,7 +55,6 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 // swiftlint:disable function_body_length
     init(
             analyticsCoordinator: AnalyticsCoordinator,
-            storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             tokenHolder: TokenHolder,
             ethCost: Ether,
@@ -66,7 +64,6 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             session: WalletSession
     ) {
         self.analyticsCoordinator = analyticsCoordinator
-        self.storage = storage
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost

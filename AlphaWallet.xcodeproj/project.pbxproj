@@ -918,7 +918,6 @@
 		879E1E42264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */; };
 		879E1E44264C0717006CD362 /* TickerFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E43264C0717006CD362 /* TickerFieldValueView.swift */; };
 		879E1E46264C072D006CD362 /* TokenInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */; };
-		879F184026E73B79000602F2 /* TokensCardCollectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F183F26E73B79000602F2 /* TokensCardCollectionCoordinator.swift */; };
 		879F184226E73BCF000602F2 /* SelectableNFTAssetContainerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184126E73BCF000602F2 /* SelectableNFTAssetContainerTableViewCell.swift */; };
 		879F184426E73BFF000602F2 /* SingleNFTAssetSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184326E73BFF000602F2 /* SingleNFTAssetSelectionView.swift */; };
 		879F184626E73CAA000602F2 /* NFTAssetListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879F184526E73CAA000602F2 /* NFTAssetListViewController.swift */; };
@@ -2061,7 +2060,6 @@
 		879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenHistoryPeriodSelectorView.swift; sourceTree = "<group>"; };
 		879E1E43264C0717006CD362 /* TickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerFieldValueView.swift; sourceTree = "<group>"; };
 		879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInfoHeaderView.swift; sourceTree = "<group>"; };
-		879F183F26E73B79000602F2 /* TokensCardCollectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensCardCollectionCoordinator.swift; sourceTree = "<group>"; };
 		879F184126E73BCF000602F2 /* SelectableNFTAssetContainerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableNFTAssetContainerTableViewCell.swift; sourceTree = "<group>"; };
 		879F184326E73BFF000602F2 /* SingleNFTAssetSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNFTAssetSelectionView.swift; sourceTree = "<group>"; };
 		879F184526E73CAA000602F2 /* NFTAssetListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetListViewController.swift; sourceTree = "<group>"; };
@@ -4958,7 +4956,6 @@
 			isa = PBXGroup;
 			children = (
 				442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */,
-				879F183F26E73B79000602F2 /* TokensCardCollectionCoordinator.swift */,
 				8739BBD326CD2A820045CFED /* NFTAssetSelectionCoordinator.swift */,
 			);
 			path = Coordinators;
@@ -6595,7 +6592,6 @@
 				87442BD827D615B500EA2209 /* CheckTransactionStateViewController.swift in Sources */,
 				5E7C7A67B6143DFB9B1CF02B /* ConfirmSignMessageTableViewCell.swift in Sources */,
 				5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */,
-				879F184026E73B79000602F2 /* TokensCardCollectionCoordinator.swift in Sources */,
 				5E7C7A928412AF3E16CDA038 /* AmountTextField.swift in Sources */,
 				5E7C7131E338A806132D989B /* DateEntryField.swift in Sources */,
 				5E7C7E7AEF01B9D170228342 /* TimeEntryField.swift in Sources */,
