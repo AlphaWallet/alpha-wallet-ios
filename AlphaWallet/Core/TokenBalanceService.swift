@@ -20,9 +20,6 @@ protocol TokenBalanceService {
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     private let wallet: Wallet
     private let server: RPCServer
-    private var emptyEtherBalance: BalanceBaseViewModel? {
-        return balanceProvider.tokenBalance(etherToken.addressAndRPCServer, wallet: wallet)
-    }
     private let balanceProvider: TokenBalanceProvider & CoinTickerProvider
 
     let etherToken: TokenObject

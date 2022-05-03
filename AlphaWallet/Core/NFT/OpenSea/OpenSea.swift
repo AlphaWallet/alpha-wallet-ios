@@ -4,7 +4,6 @@ import Foundation
 import PromiseKit
 import AlphaWalletOpenSea
 
-//TODO check where instances are created. Can we just create one? Especially because we create a new `queue` for each instance
 final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
     private var cachedPromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
