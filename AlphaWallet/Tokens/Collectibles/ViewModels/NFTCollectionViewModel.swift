@@ -1,5 +1,5 @@
 //
-//  TokensCardViewModel.swift
+//  NFTCollectionViewModel.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/24/18.
@@ -9,7 +9,7 @@
 import Foundation
 import BigInt
 
-struct TokensCardViewModel {
+struct NFTCollectionViewModel {
 
     var initiallySelectedTabIndex: Int {
         return 1

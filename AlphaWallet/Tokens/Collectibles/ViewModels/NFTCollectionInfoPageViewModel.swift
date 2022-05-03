@@ -1,5 +1,5 @@
 //
-//  TokensCardCollectionInfoPageViewModel.swift
+//  NFTCollectionInfoPageViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -9,12 +9,12 @@ import UIKit
 import BigInt
 import AlphaWalletOpenSea
 
-enum TokensCardCollectionInfoPageViewConfiguration {
+enum NFTCollectionInfoPageViewConfiguration {
     case field(viewModel: TokenInstanceAttributeViewModel)
     case header(viewModel: TokenInfoHeaderViewModel)
 }
 
-struct TokensCardCollectionInfoPageViewModel {
+struct NFTCollectionInfoPageViewModel {
     var tabTitle: String {
         return R.string.localizable.tokenTabInfo()
     }
@@ -120,8 +120,8 @@ struct TokensCardCollectionInfoPageViewModel {
         tokenHolderHelper.externalUrlViewModel
     }
 
-    var configurations: [TokensCardCollectionInfoPageViewConfiguration] {
-        var configurations: [TokensCardCollectionInfoPageViewConfiguration] = []
+    var configurations: [NFTCollectionInfoPageViewConfiguration] {
+        var configurations: [NFTCollectionInfoPageViewConfiguration] = []
 
         let detailsSectionViewModels = [
             tokenHolderHelper.createdDateViewModel,
@@ -135,7 +135,7 @@ struct TokensCardCollectionInfoPageViewModel {
             tokenHolderHelper.marketCap,
             tokenHolderHelper.floorPrice,
             tokenHolderHelper.numReports,
-        ].compactMap { viewModel -> TokensCardCollectionInfoPageViewConfiguration? in
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
@@ -149,7 +149,7 @@ struct TokensCardCollectionInfoPageViewModel {
 
         let descriptionSectionViewModels = [
             tokenHolderHelper.descriptionViewModel
-        ].compactMap { viewModel -> TokensCardCollectionInfoPageViewConfiguration? in
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
             return viewModel.flatMap { .field(viewModel: $0) }
         }
 
@@ -168,8 +168,8 @@ struct TokensCardCollectionInfoPageViewModel {
             tokenHolderHelper.discordUrlViewModel,
             tokenHolderHelper.telegramUrlViewModel,
             tokenHolderHelper.externalUrlViewModel
-        ].compactMap { viewModel -> TokensCardCollectionInfoPageViewConfiguration? in
-            return viewModel.flatMap { TokensCardCollectionInfoPageViewConfiguration.field(viewModel: $0) }
+        ].compactMap { viewModel -> NFTCollectionInfoPageViewConfiguration? in
+            return viewModel.flatMap { NFTCollectionInfoPageViewConfiguration.field(viewModel: $0) }
         }
 
         if linksSectionViewModels.isEmpty {

@@ -1,5 +1,5 @@
 //
-//  NonFungibleTokenViewModel.swift
+//  NFTAssetViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -24,7 +24,7 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
-struct NonFungibleTokenViewModel {
+struct NFTAssetViewModel {
     let tokenId: TokenId
     let token: TokenObject
     let tokenHolder: TokenHolder

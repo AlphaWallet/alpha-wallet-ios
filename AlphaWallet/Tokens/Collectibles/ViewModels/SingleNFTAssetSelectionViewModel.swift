@@ -1,5 +1,5 @@
 //
-//  SingleTokenCardSelectionViewModel.swift
+//  SingleNFTAssetSelectionViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 15.11.2021.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct SingleTokenCardSelectionViewModel {
+struct SingleNFTAssetSelectionViewModel {
     var backgroundColor: UIColor = Colors.appTint
 
     var selectedAmount: Int? {

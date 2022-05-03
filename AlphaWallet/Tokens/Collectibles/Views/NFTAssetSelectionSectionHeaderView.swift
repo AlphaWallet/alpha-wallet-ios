@@ -1,5 +1,5 @@
 //
-//  TokenCardSelectionSectionHeaderView.swift
+//  NFTAssetSelectionSectionHeaderView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 16.11.2021.
@@ -7,16 +7,16 @@
 
 import UIKit
 
-protocol TokenCardSelectionSectionHeaderViewDelegate: class {
-    func didSelectAll(in view: TokenCardSelectionViewController.TokenCardSelectionSectionHeaderView)
+protocol NFTAssetSelectionSectionHeaderViewDelegate: class {
+    func didSelectAll(in view: NFTAssetSelectionViewController.NFTAssetSelectionSectionHeaderView)
 }
 protocol SelectionPositioningView: class {
     var positioningView: UIView { get }
 }
 
-extension TokenCardSelectionViewController {
+extension NFTAssetSelectionViewController {
 
-    class TokenCardSelectionSectionHeaderView: UITableViewHeaderFooterView, SelectAllAssetsViewDelegate {
+    class NFTAssetSelectionSectionHeaderView: UITableViewHeaderFooterView, SelectAllAssetsViewDelegate {
 
         private lazy var selectAllAssetsView: SelectAllAssetsView = {
             let view = SelectAllAssetsView()
@@ -33,7 +33,7 @@ extension TokenCardSelectionViewController {
         }()
 
         var section: Int?
-        weak var delegate: TokenCardSelectionSectionHeaderViewDelegate?
+        weak var delegate: NFTAssetSelectionSectionHeaderViewDelegate?
 
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
@@ -55,17 +55,17 @@ extension TokenCardSelectionViewController {
             return nil
         }
 
-        func configure(viewModel: TokenCardSelectionSectionHeaderViewModel) {
+        func configure(viewModel: NFTAssetSelectionSectionHeaderViewModel) {
             topSeparatorView.backgroundColor = viewModel.separatorColor
             selectAllAssetsView.configure(viewModel: viewModel.selectAllAssetsViewModel)
         }
 
-        func selectAllSelected(in view: TokenCardSelectionViewController.SelectAllAssetsView) {
+        func selectAllSelected(in view: NFTAssetSelectionViewController.SelectAllAssetsView) {
             delegate?.didSelectAll(in: self)
         }
     }
 
-    struct TokenCardSelectionSectionHeaderViewModel {
+    struct NFTAssetSelectionSectionHeaderViewModel {
         let text: String
         var selectAllAssetsViewModel: SelectAllAssetsViewModel
         var separatorColor: UIColor = GroupedTable.Color.cellSeparator

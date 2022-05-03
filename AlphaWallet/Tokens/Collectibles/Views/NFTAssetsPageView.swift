@@ -1,5 +1,5 @@
 //
-//  AssetsPageView.swift
+//  NFTAssetsPageView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.08.2021.
@@ -12,21 +12,21 @@ extension NSNotification.Name {
     static let invalidateLayout = NSNotification.Name(rawValue: "InvalidateLayout")
 }
 
-protocol AssetsPageViewDelegate: class {
-    func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder)
+protocol NFTAssetsPageViewDelegate: class {
+    func nftAssetsPageView(_ view: NFTAssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder)
 }
-typealias TokenHoldersDataSource = UICollectionViewDiffableDataSource<AssetsPageViewModel.AssetsSection, TokenHolder>
+typealias TokenHoldersDataSource = UICollectionViewDiffableDataSource<NFTAssetsPageViewModel.AssetsSection, TokenHolder>
 
-class AssetsPageView: UIView, PageViewType {
+class NFTAssetsPageView: UIView, PageViewType {
     var title: String {
         viewModel.navigationTitle
     }
-    private (set) var viewModel: AssetsPageViewModel {
+    private (set) var viewModel: NFTAssetsPageViewModel {
         didSet {
             viewModel.searchFilter = oldValue.searchFilter
         }
     }
-    weak var delegate: AssetsPageViewDelegate?
+    weak var delegate: NFTAssetsPageViewDelegate?
 
     var rightBarButtonItem: UIBarButtonItem?
 
@@ -41,7 +41,7 @@ class AssetsPageView: UIView, PageViewType {
     private (set) lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.backgroundColor = viewModel.backgroundColor
-        collectionView.register(TokenCardContainerCollectionViewCell.self)
+        collectionView.register(NFTAssetContainerCollectionViewCell.self)
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -66,7 +66,7 @@ class AssetsPageView: UIView, PageViewType {
     private let assetDefinitionStore: AssetDefinitionStore
     private var dataSource: TokenHoldersDataSource!
 
-    init(assetDefinitionStore: AssetDefinitionStore, viewModel: AssetsPageViewModel) {
+    init(assetDefinitionStore: AssetDefinitionStore, viewModel: NFTAssetsPageViewModel) {
         self.viewModel = viewModel
 
         self.assetDefinitionStore = assetDefinitionStore
@@ -99,11 +99,11 @@ class AssetsPageView: UIView, PageViewType {
 
     private func configureDataSource() {
         let assetDefinitionStore = assetDefinitionStore
-        dataSource = TokenHoldersDataSource(collectionView: collectionView) { [weak self] cv, indexPath, tokenHolder -> TokenCardContainerCollectionViewCell? in
+        dataSource = TokenHoldersDataSource(collectionView: collectionView) { [weak self] cv, indexPath, tokenHolder -> NFTAssetContainerCollectionViewCell? in
             guard let strongSelf = self else { return nil }
 
-            let cell: TokenCardContainerCollectionViewCell = cv.dequeueReusableCell(for: indexPath)
-            TokenCardContainerCollectionViewCell.configureSeparatorLines(selection: strongSelf.viewModel.selection, cell)
+            let cell: NFTAssetContainerCollectionViewCell = cv.dequeueReusableCell(for: indexPath)
+            NFTAssetContainerCollectionViewCell.configureSeparatorLines(selection: strongSelf.viewModel.selection, cell)
             cell.containerEdgeInsets = .zero
 
             let subview: TokenCardViewType = strongSelf.factory.create(for: tokenHolder, layout: strongSelf.viewModel.selection, gridEdgeInsets: .zero)
@@ -123,7 +123,7 @@ class AssetsPageView: UIView, PageViewType {
         invalidateLayout()
     }
 
-    func configure(viewModel: AssetsPageViewModel) {
+    func configure(viewModel: NFTAssetsPageViewModel) {
         let prevViewModel = self.viewModel
         self.viewModel = viewModel
 
@@ -132,7 +132,7 @@ class AssetsPageView: UIView, PageViewType {
     }
 
     private func invalidateDataSource(animatingDifferences: Bool = true) {
-        var snapshot = NSDiffableDataSourceSnapshot<AssetsPageViewModel.AssetsSection, TokenHolder>()
+        var snapshot = NSDiffableDataSourceSnapshot<NFTAssetsPageViewModel.AssetsSection, TokenHolder>()
         snapshot.appendSections([.assets])
         snapshot.appendItems(viewModel.filteredTokenHolders)
 
@@ -182,7 +182,7 @@ class AssetsPageView: UIView, PageViewType {
     } 
 }
 
-extension AssetsPageView: StatefulViewController {
+extension NFTAssetsPageView: StatefulViewController {
     func hasContent() -> Bool {
         return !viewModel.filteredTokenHolders.isEmpty
     }
@@ -230,12 +230,12 @@ extension UICollectionViewLayout {
     }
 }
 
-extension AssetsPageView: UICollectionViewDelegate {
+extension NFTAssetsPageView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
 
         guard let tokenHolder = viewModel.item(atIndexPath: indexPath) else { return }
-        delegate?.assetsPageView(self, didSelectTokenHolder: tokenHolder)
+        delegate?.nftAssetsPageView(self, didSelectTokenHolder: tokenHolder)
     }
 }
 

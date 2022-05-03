@@ -1,5 +1,5 @@
 //
-//  TokensCardCollectionInfoPageView.swift
+//  NFTCollectionInfoPageView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,12 +7,12 @@
 
 import UIKit
 
-protocol TokensCardCollectionInfoPageViewDelegate: class {
-    func didPressOpenWebPage(_ url: URL, in view: TokensCardCollectionInfoPageView)
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView)
+protocol NFTCollectionInfoPageViewDelegate: class {
+    func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView)
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: NFTCollectionInfoPageView)
 }
 
-class TokensCardCollectionInfoPageView: UIView, PageViewType {
+class NFTCollectionInfoPageView: UIView, PageViewType {
     private let headerViewRefreshInterval: TimeInterval = 5.0
 
     var title: String {
@@ -30,16 +30,12 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     }()
 
     private let containerView = ScrollableStackView()
-    private var stackView: UIStackView {
-        containerView.stackView
-    }
-
-    private (set) var viewModel: TokensCardCollectionInfoPageViewModel
-    weak var delegate: TokensCardCollectionInfoPageViewDelegate?
+    private (set) var viewModel: NFTCollectionInfoPageViewModel
+    weak var delegate: NFTCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
     private let session: WalletSession
 
-    init(viewModel: TokensCardCollectionInfoPageViewModel, session: WalletSession) {
+    init(viewModel: NFTCollectionInfoPageViewModel, session: WalletSession) {
         self.viewModel = viewModel
         self.session = session
         super.init(frame: .zero)
@@ -59,12 +55,12 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         tokenIconImageView.addGestureRecognizer(tap)
     }
 
-    private func generateSubviews(viewModel: TokensCardCollectionInfoPageViewModel) {
-        stackView.removeAllArrangedSubviews()
+    private func generateSubviews(viewModel: NFTCollectionInfoPageViewModel) {
+        containerView.stackView.removeAllArrangedSubviews()
 
-        stackView.addArrangedSubview(UIView.spacer(height: 10))
-        stackView.addArrangedSubview(tokenIconImageView)
-        stackView.addArrangedSubview(UIView.spacer(height: 20))
+        containerView.stackView.addArrangedSubview(UIView.spacer(height: 10))
+        containerView.stackView.addArrangedSubview(tokenIconImageView)
+        containerView.stackView.addArrangedSubview(UIView.spacer(height: 20))
 
         for (index, each) in viewModel.configurations.enumerated() {
             switch each {
@@ -72,12 +68,12 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
                 let performanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
                 performanceHeader.configure(viewModel: viewModel)
 
-                stackView.addArrangedSubview(performanceHeader)
+                containerView.stackView.addArrangedSubview(performanceHeader)
             case .field(let viewModel):
                 let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
                 view.configure(viewModel: viewModel)
                 view.delegate = self
-                stackView.addArrangedSubview(view)
+                containerView.stackView.addArrangedSubview(view)
             }
         }
     }
@@ -94,7 +90,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
         }
     }
 
-    func configure(viewModel: TokensCardCollectionInfoPageViewModel) {
+    func configure(viewModel: NFTCollectionInfoPageViewModel) {
         self.viewModel = viewModel
 
         generateSubviews(viewModel: viewModel)
@@ -110,7 +106,7 @@ class TokensCardCollectionInfoPageView: UIView, PageViewType {
     }
 }
 
-extension TokensCardCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
+extension NFTCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
         let url: URL? = {
             switch viewModel.configurations[view.indexPath.row] {

@@ -1,5 +1,5 @@
 //
-//  AssetsPageViewModel.swift
+//  NFTAssetsPageViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.08.2021.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AssetsPageViewModel {
+class NFTAssetsPageViewModel {
 
     enum AssetsSection: Int, Hashable, CaseIterable {
         case assets

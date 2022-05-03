@@ -1,5 +1,5 @@
 //
-//  SelectableTokenCardContainerTableViewCell.swift
+//  SelectableNFTAssetContainerTableViewCell.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,12 +7,12 @@
 
 import UIKit
 
-protocol SelectableTokenCardContainerTableViewCellDelegate: class {
-    func didCloseSelection(in sender: SelectableTokenCardContainerTableViewCell, with selectedAmount: Int)
+protocol SelectableNFTAssetContainerTableViewCellDelegate: class {
+    func didCloseSelection(in sender: SelectableNFTAssetContainerTableViewCell, with selectedAmount: Int)
 }
 
-class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
-    private var viewModel: SelectableTokenCardContainerTableViewCellViewModel?
+class SelectableNFTAssetContainerTableViewCell: ContainerTableViewCell {
+    private var viewModel: SelectableNFTAssetContainerViewModel?
 
     private var selectionStateViews: (containerView: UIView, selectionImageView: UIImageView) = {
         let view = UIView()
@@ -34,7 +34,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
         return (view, imageView)
     }()
 
-    weak var delegate: SelectableTokenCardContainerTableViewCellDelegate?
+    weak var delegate: SelectableNFTAssetContainerTableViewCellDelegate?
 
     private lazy var hiddenTextField: UITextField = {
         let textField = UITextField()
@@ -62,8 +62,8 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
         return toolbar
     }()
 
-    private let selectedAmountView: SingleTokenCardSelectionView = {
-        let view = SingleTokenCardSelectionView()
+    private let selectedAmountView: SingleNFTAssetSelectionView = {
+        let view = SingleNFTAssetSelectionView()
         return view
     }()
 
@@ -103,7 +103,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
         return nil
     }
 
-    func configure(viewModel: SelectableTokenCardContainerTableViewCellViewModel) {
+    func configure(viewModel: SelectableNFTAssetContainerViewModel) {
         self.viewModel = viewModel
 
         backgroundColor = viewModel.contentsBackgroundColor
@@ -131,7 +131,7 @@ class SelectableTokenCardContainerTableViewCell: ContainerTableViewCell {
     }
 }
 
-extension SelectableTokenCardContainerTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
+extension SelectableNFTAssetContainerTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
     func closeSelected(in view: SingleTokenCardAmountSelectionToolbarView) {
         delegate?.didCloseSelection(in: self, with: view.viewModel.counter)
     }

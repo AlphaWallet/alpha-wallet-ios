@@ -1,5 +1,5 @@
 //
-//  TokenCardSelectionCoordinator.swift
+//  NFTAssetSelectionCoordinator.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 17.07.2020.
@@ -7,16 +7,16 @@
 
 import UIKit
 
-protocol TokenCardSelectionCoordinatorDelegate: AnyObject {
-    func didFinish(in coordinator: TokenCardSelectionCoordinator)
-    func didTapSend(in coordinator: TokenCardSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
+protocol NFTAssetSelectionCoordinatorDelegate: AnyObject {
+    func didFinish(in coordinator: NFTAssetSelectionCoordinator)
+    func didTapSend(in coordinator: NFTAssetSelectionCoordinator, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
 
-class TokenCardSelectionCoordinator: Coordinator {
+class NFTAssetSelectionCoordinator: Coordinator {
 
     private let parentsNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    weak var delegate: TokenCardSelectionCoordinatorDelegate?
+    weak var delegate: NFTAssetSelectionCoordinatorDelegate?
     private let tokenObject: TokenObject
     private let tokenHolders: [TokenHolder]
     private let assetDefinitionStore: AssetDefinitionStore
@@ -34,7 +34,7 @@ class TokenCardSelectionCoordinator: Coordinator {
     }
 
     func start() {
-        let viewController = TokenCardSelectionViewController(viewModel: .init(tokenObject: tokenObject, tokenHolders: tokenHolders), tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        let viewController = NFTAssetSelectionViewController(viewModel: .init(tokenObject: tokenObject, tokenHolders: tokenHolders), tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
         viewController.delegate = self
         let navigationController = UINavigationController(rootViewController: viewController)
@@ -51,9 +51,9 @@ class TokenCardSelectionCoordinator: Coordinator {
     }
 }
 
-extension TokenCardSelectionCoordinator: TokenCardSelectionViewControllerDelegate {
+extension NFTAssetSelectionCoordinator: NFTAssetSelectionViewControllerDelegate {
 
-    func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
+    func didTapSend(in viewController: NFTAssetSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder]) {
         parentsNavigationController.dismiss(animated: true) {
             self.delegate?.didTapSend(in: self, tokenObject: tokenObject, tokenHolders: tokenHolders)
         }

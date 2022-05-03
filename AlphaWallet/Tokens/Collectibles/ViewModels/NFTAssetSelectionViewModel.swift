@@ -24,7 +24,7 @@ enum AssetFilter {
     case none
 }
 
-class TokenCardSelectionViewModel {
+class NFTAssetSelectionViewModel {
     let tokenObject: TokenObject
     let tokenHolders: [TokenHolder]
     private var filteredTokenHolders: [TokenHolderWithItsTokenIds] = []
@@ -35,7 +35,7 @@ class TokenCardSelectionViewModel {
         }
     }
     var headerBackgroundColor: UIColor = Colors.appWhite
-    let actions: [TokenCardSelectionViewController.ToolbarAction] = [.clear, .selectAll, .send]
+    let actions: [NFTAssetSelectionViewController.ToolbarAction] = [.clear, .selectAll, .send]
 
     var navigationTitle: String {
         if tokenSelectionCount > 0 {
@@ -49,7 +49,7 @@ class TokenCardSelectionViewModel {
 
     var isSearchActive: Bool = false
 
-    func isActionEnabled(_ action: TokenCardSelectionViewController.ToolbarAction) -> Bool {
+    func isActionEnabled(_ action: NFTAssetSelectionViewController.ToolbarAction) -> Bool {
         switch action {
         case .clear, .selectAll:
             return true
@@ -70,7 +70,7 @@ class TokenCardSelectionViewModel {
     }
 
     private func filter(tokenHolders: [TokenHolder]) {
-        filteredTokenHolders = TokenCardSelectionViewModel.functional.filter(tokenHolders: tokenHolders, with: filter)
+        filteredTokenHolders = NFTAssetSelectionViewModel.functional.filter(tokenHolders: tokenHolders, with: filter)
     }
 
     func tokenHolderSelection(indexPath: IndexPath) -> TokenHolderSelection {
@@ -132,11 +132,11 @@ class TokenCardSelectionViewModel {
     }
 }
 
-extension TokenCardSelectionViewModel {
+extension NFTAssetSelectionViewModel {
     class functional { }
 }
 
-extension TokenCardSelectionViewModel.functional {
+extension NFTAssetSelectionViewModel.functional {
     static func filter(tokenHolders: [TokenHolder], with filter: AssetFilter) -> [TokenHolderWithItsTokenIds] {
         switch filter {
         case .keyword(let keyword):

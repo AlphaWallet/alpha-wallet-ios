@@ -8,7 +8,7 @@
 import UIKit
 
 typealias TokenCardConfigurableView = TokenCardRowViewProtocol & UIView & TokenCardRowViewLayoutConfigurableProtocol
-class TokenCardContainerCollectionViewCell: ContainerCollectionViewCell {
+class NFTAssetContainerCollectionViewCell: ContainerCollectionViewCell {
     weak var delegate: BaseTokenCardTableViewCellDelegate?
 
     var subview: TokenCardConfigurableView? {
@@ -26,7 +26,7 @@ class TokenCardContainerCollectionViewCell: ContainerCollectionViewCell {
         NotificationCenter.default.addObserver(self, selector: #selector(invalidateInnerLayout), name: .invalidateLayout, object: nil)
     }
 
-    static func configureSeparatorLines(selection: GridOrListSelectionState, _ element: TokenCardContainerCollectionViewCell) {
+    static func configureSeparatorLines(selection: GridOrListSelectionState, _ element: NFTAssetContainerCollectionViewCell) {
         switch selection {
         case .list:
             element.cellSeparators.bottom.backgroundColor = R.color.mercury()
@@ -40,7 +40,7 @@ class TokenCardContainerCollectionViewCell: ContainerCollectionViewCell {
             let selection = notification.userInfo?["selection"] as? GridOrListSelectionState,
             let sender = notification.object as? UICollectionView, sender == collectionView else { return }
 
-        TokenCardContainerCollectionViewCell.configureSeparatorLines(selection: selection, self)
+        NFTAssetContainerCollectionViewCell.configureSeparatorLines(selection: selection, self)
         subview?.configureLayout(layout: selection)
 
         layoutSubviews()
@@ -54,7 +54,7 @@ class TokenCardContainerCollectionViewCell: ContainerCollectionViewCell {
     }
 }
 
-extension TokenCardContainerCollectionViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
+extension NFTAssetContainerCollectionViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
     func didTapURL(url: URL) {
         delegate?.didTapURL(url: url)
     }

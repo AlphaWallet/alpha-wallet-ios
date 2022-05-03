@@ -1,5 +1,5 @@
 //
-//  TokensCardViewController.swift
+//  NFTCollectionViewController.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/24/18.
@@ -10,16 +10,16 @@ import Foundation
 import UIKit
 import Combine
 
-protocol TokensCardViewControllerDelegate: class, CanOpenURL {
-    func didSelectAssetSelection(in viewController: TokensCardViewController)
-    func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController)
-    func didTap(activity: Activity, in viewController: TokensCardViewController)
-    func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder)
-    func didCancel(in viewController: TokensCardViewController)
+protocol NFTCollectionViewControllerDelegate: class, CanOpenURL {
+    func didSelectAssetSelection(in viewController: NFTCollectionViewController)
+    func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController)
+    func didTap(activity: Activity, in viewController: NFTCollectionViewController)
+    func didSelectTokenHolder(in viewController: NFTCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder)
+    func didCancel(in viewController: NFTCollectionViewController)
 }
 
-class TokensCardViewController: UIViewController {
-    private (set) var viewModel: TokensCardViewModel
+class NFTCollectionViewController: UIViewController {
+    private (set) var viewModel: NFTCollectionViewModel
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
@@ -32,11 +32,11 @@ class TokensCardViewController: UIViewController {
     }()
     private let tokenScriptFileStatusHandler: XMLHandler
 
-    weak var delegate: TokensCardViewControllerDelegate?
+    weak var delegate: NFTCollectionViewControllerDelegate?
 
-    private lazy var collectionInfoPageView: TokensCardCollectionInfoPageView = {
-        let viewModel: TokensCardCollectionInfoPageViewModel = .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
-        let view = TokensCardCollectionInfoPageView(viewModel: viewModel, session: session)
+    private lazy var collectionInfoPageView: NFTCollectionInfoPageView = {
+        let viewModel: NFTCollectionInfoPageViewModel = .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
+        let view = NFTCollectionInfoPageView(viewModel: viewModel, session: session)
         view.delegate = self
 
         return view
@@ -50,9 +50,9 @@ class TokensCardViewController: UIViewController {
         return view
     }()
 
-    private lazy var assetsPageView: AssetsPageView = {
-        let viewModel: AssetsPageViewModel = .init(tokenHolders: viewModel.tokenHolders, selection: .list)
-        let view = AssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
+    private lazy var nftAssetsPageView: NFTAssetsPageView = {
+        let viewModel: NFTAssetsPageViewModel = .init(tokenHolders: viewModel.tokenHolders, selection: .list)
+        let view = NFTAssetsPageView(assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
         view.delegate = self
         view.rightBarButtonItem = UIBarButtonItem.switchGridToListViewBarButton(
             selection: viewModel.selection.inverted,
@@ -72,7 +72,7 @@ class TokensCardViewController: UIViewController {
     private let keystore: Keystore
     private var cancelable = Set<AnyCancellable>()
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: TokensCardViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, viewModel: NFTCollectionViewModel, activitiesService: ActivitiesServiceType, eventsDataStore: NonActivityEventsDataStore) {
         self.viewModel = viewModel
         self.session = session
         self.tokenScriptFileStatusHandler = XMLHandler(token: viewModel.token, assetDefinitionStore: assetDefinition)
@@ -88,7 +88,7 @@ class TokensCardViewController: UIViewController {
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         let pageWithFooter = PageViewWithFooter(pageView: collectionInfoPageView, footerBar: footerBar)
-        let pages: [PageViewType] = [pageWithFooter, assetsPageView, activitiesPageView]
+        let pages: [PageViewType] = [pageWithFooter, nftAssetsPageView, activitiesPageView]
 
         let containerView = PagesContainerView(pages: pages, selectedIndex: viewModel.initiallySelectedTabIndex)
         containerView.delegate = self
@@ -98,26 +98,26 @@ class TokensCardViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = .never
 
         keyboardChecker.constraints = containerView.bottomAnchorConstraints
-        configure(assetsPageView: assetsPageView, viewModel: viewModel)
+        configure(nftAssetsPageView: nftAssetsPageView, viewModel: viewModel)
     }
 
-    private func configure(assetsPageView: AssetsPageView, viewModel: TokensCardViewModel) {
+    private func configure(nftAssetsPageView: NFTAssetsPageView, viewModel: NFTCollectionViewModel) {
         switch viewModel.token.type {
         case .erc1155:
             //TODO disabled until we support batch transfers. Selection doesn't work correctly too
-            assetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
+            nftAssetsPageView.rightBarButtonItem = UIBarButtonItem.selectBarButton(self, selector: #selector(assetSelectionSelected))
 
             switch session.account.type {
             case .real:
-                assetsPageView.rightBarButtonItem?.isEnabled = true
+                nftAssetsPageView.rightBarButtonItem?.isEnabled = true
             case .watch:
-                assetsPageView.rightBarButtonItem?.isEnabled = false
+                nftAssetsPageView.rightBarButtonItem?.isEnabled = false
             }
         case .erc721, .erc721ForTickets:
-            let selection = assetsPageView.viewModel.selection.inverted
+            let selection = nftAssetsPageView.viewModel.selection.inverted
             let buttonItem = UIBarButtonItem.switchGridToListViewBarButton(selection: selection, self, selector: #selector(assetsDisplayTypeSelected))
 
-            assetsPageView.rightBarButtonItem = buttonItem
+            nftAssetsPageView.rightBarButtonItem = buttonItem
         case .erc20, .nativeCryptocurrency, .erc875:
             break
         }
@@ -167,7 +167,7 @@ class TokensCardViewController: UIViewController {
         sender.endRefreshing()
     }
 
-    func configure(viewModel value: TokensCardViewModel? = .none) {
+    func configure(viewModel value: NFTCollectionViewModel? = .none) {
         if let viewModel = value {
             self.viewModel = viewModel
         }
@@ -177,7 +177,7 @@ class TokensCardViewController: UIViewController {
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
         collectionInfoPageView.configure(viewModel: .init(server: session.server, token: viewModel.token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account))
-        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: assetsPageView.viewModel.selection))
+        nftAssetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: nftAssetsPageView.viewModel.selection))
 
         if collectionInfoPageView.viewModel.openInUrl != nil {
             buttonsBar.configure(.secondary(buttons: 1))
@@ -223,15 +223,15 @@ class TokensCardViewController: UIViewController {
     }
 }
 
-extension TokensCardViewController: UISearchBarDelegate {
+extension NFTCollectionViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        assetsPageView.viewModel.searchFilter = .keyword(searchText)
-        assetsPageView.reload(animatingDifferences: true)
+        nftAssetsPageView.viewModel.searchFilter = .keyword(searchText)
+        nftAssetsPageView.reload(animatingDifferences: true)
     }
 }
 
-extension TokensCardViewController: PagesContainerViewDelegate {
+extension NFTCollectionViewController: PagesContainerViewDelegate {
     func containerView(_ containerView: PagesContainerView, didSelectPage index: Int) {
         navigationItem.rightBarButtonItem = containerView.pages[index].rightBarButtonItem
     }
@@ -241,30 +241,30 @@ extension TokensCardViewController: PagesContainerViewDelegate {
     }
 
     @objc private func assetsDisplayTypeSelected(_ sender: UIBarButtonItem) {
-        let selection = assetsPageView.viewModel.selection
-        assetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: sender.selection ?? selection))
+        let selection = nftAssetsPageView.viewModel.selection
+        nftAssetsPageView.configure(viewModel: .init(tokenHolders: viewModel.tokenHolders, selection: sender.selection ?? selection))
         sender.toggleSelection()
     }
 }
 
-extension TokensCardViewController: CanOpenURL2 {
+extension NFTCollectionViewController: CanOpenURL2 {
     func open(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
 
-extension TokensCardViewController: TokensCardCollectionInfoPageViewDelegate {
+extension NFTCollectionViewController: NFTCollectionInfoPageViewDelegate {
 
-    func didPressOpenWebPage(_ url: URL, in view: TokensCardCollectionInfoPageView) {
+    func didPressOpenWebPage(_ url: URL, in view: NFTCollectionInfoPageView) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 
-    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: TokensCardCollectionInfoPageView) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: NFTCollectionInfoPageView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
 }
 
-extension TokensCardViewController: ActivitiesPageViewDelegate {
+extension NFTCollectionViewController: ActivitiesPageViewDelegate {
     func didTap(activity: Activity, in view: ActivitiesPageView) {
         delegate?.didTap(activity: activity, in: self)
     }
@@ -274,8 +274,8 @@ extension TokensCardViewController: ActivitiesPageViewDelegate {
     }
 }
 
-extension TokensCardViewController: AssetsPageViewDelegate {
-    func assetsPageView(_ view: AssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder) {
+extension NFTCollectionViewController: NFTAssetsPageViewDelegate {
+    func nftAssetsPageView(_ view: NFTAssetsPageView, didSelectTokenHolder tokenHolder: TokenHolder) {
         delegate?.didSelectTokenHolder(in: self, didSelectTokenHolder: tokenHolder)
     }
 }

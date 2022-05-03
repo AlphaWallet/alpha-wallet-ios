@@ -1,72 +1,28 @@
 //
-//  TokenCardListViewController.swift
+//  NFTAssetListViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
 //
 
 import UIKit
+import StatefulViewController
 
-protocol TokenCardListViewControllerDelegate: class {
-    func selectTokenCardsSelected(in viewController: TokenCardListViewController)
-    func didSelectTokenCard(in viewController: TokenCardListViewController, tokenId: TokenId)
+protocol NFTAssetListViewControllerDelegate: class {
+    func selectTokenCardsSelected(in viewController: NFTAssetListViewController)
+    func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenId: TokenId)
 }
 
-class TokenCardListViewControllerViewModel {
-    let tokenHolder: TokenHolder
-    private var filteredTokenHolders: [TokenHolderWithItsTokenIds] = []
-
-    var headerBackgroundColor: UIColor = Colors.appWhite
-
-    var navigationTitle: String {
-        return tokenHolder.name
-    }
-
-    var backgroundColor: UIColor = GroupedTable.Color.background
-
-    var isSearchActive: Bool = false
-    
-    var numberOfSections: Int {
-        filteredTokenHolders.count
-    }
-
-    func numberOfTokens(section: Int) -> Int {
-        return filteredTokenHolders[section].tokensIds.count
-    }
-
-    func titleForTokenHolder(section: Int) -> String {
-        return filteredTokenHolders[section].tokenHolder.name
-    }
-
-    func tokenHolderSelection(indexPath: IndexPath) -> TokenHolderSelection {
-        let pair = filteredTokenHolders[indexPath.section]
-
-        return (pair.tokensIds[indexPath.row], pair.tokenHolder)
-    }
-
-    func selectableTokenHolder(at section: Int) -> TokenHolder {
-        return filteredTokenHolders[section].tokenHolder
-    }
-
-    init(tokenHolder: TokenHolder) {
-        self.tokenHolder = tokenHolder
-
-        filteredTokenHolders = [
-            .init(tokenHolder: tokenHolder, tokensIds: tokenHolder.tokenIds)
-        ]
-    }
-}
-
-class TokenCardListViewController: UIViewController {
+class NFTAssetListViewController: UIViewController {
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
     }
-    private var viewModel: TokenCardListViewControllerViewModel
+    private var viewModel: NFTAssetListViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(TokenCardContainerTableViewCell.self)
+        tableView.register(NFTAssetContainerTableViewCell.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
@@ -82,7 +38,7 @@ class TokenCardListViewController: UIViewController {
 
     private let roundedBackground = RoundedBackground()
 
-    weak var delegate: TokenCardListViewControllerDelegate?
+    weak var delegate: NFTAssetListViewControllerDelegate?
 
     private lazy var factory: TokenCardTableViewCellFactory = {
         TokenCardTableViewCellFactory()
@@ -94,7 +50,7 @@ class TokenCardListViewController: UIViewController {
     private let server: RPCServer
     private let tokenObject: TokenObject
 
-    init(viewModel: TokenCardListViewControllerViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
+    init(viewModel: NFTAssetListViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -129,22 +85,20 @@ class TokenCardListViewController: UIViewController {
         endLoading(animated: false)
     }
 
-    private func configure(viewModel: TokenCardListViewControllerViewModel) {
+    private func configure(viewModel: NFTAssetListViewModel) {
         title = viewModel.navigationTitle
         view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundColor = viewModel.backgroundColor
     }
 }
 
-import StatefulViewController
-
-extension TokenCardListViewController: StatefulViewController {
+extension NFTAssetListViewController: StatefulViewController {
     func hasContent() -> Bool {
         return viewModel.numberOfSections != .zero
     }
 }
 
-extension TokenCardListViewController: UITableViewDelegate {
+extension NFTAssetListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
 
@@ -152,11 +106,11 @@ extension TokenCardListViewController: UITableViewDelegate {
     }
 }
 
-extension TokenCardListViewController: UITableViewDataSource {
+extension NFTAssetListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        let cell: TokenCardContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: NFTAssetContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.containerEdgeInsets = .zero
 
         let subview: UIView & TokenCardRowViewProtocol
@@ -174,7 +128,7 @@ extension TokenCardListViewController: UITableViewDataSource {
         return cell
     }
 
-    private func configure(container: TokenCardContainerTableViewCell, tokenId: TokenId, tokenHolder: TokenHolder) {
+    private func configure(container: NFTAssetContainerTableViewCell, tokenId: TokenId, tokenHolder: TokenHolder) {
         container.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), tokenId: tokenId, assetDefinitionStore: assetDefinitionStore)
     }
 

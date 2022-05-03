@@ -1,5 +1,5 @@
 //
-//  TokenCardContainerTableViewCell.swift
+//  NFTAssetContainerTableViewCell.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 15.11.2021.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TokenCardContainerTableViewCell: ContainerTableViewCell {
+class NFTAssetContainerTableViewCell: ContainerTableViewCell {
     weak var delegate: BaseTokenCardTableViewCellDelegate?
 
     var subview: (TokenCardRowViewProtocol & UIView)? {
@@ -24,7 +24,7 @@ class TokenCardContainerTableViewCell: ContainerTableViewCell {
     }
 }
 
-extension TokenCardContainerTableViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
+extension NFTAssetContainerTableViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
     func didTapURL(url: URL) {
         delegate?.didTapURL(url: url)
     }
