@@ -18,7 +18,7 @@ protocol ENSDelegateImpl: ENSDelegate {
 extension ENSDelegateImpl {
     func callSmartContract(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], timeout: TimeInterval?) -> Promise<[String: Any]> {
         let server = RPCServer(chainID: chainId)
-        return globalCallSmartContract(server, contract, functionName, abiString, parameters, timeout, false)
+        return globalCallSmartContract(server, contract, functionName, abiString, parameters, timeout, false, nil)
     }
 
     func getSmartContractCallData(withChainId chainId: ChainId, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject], timeout: TimeInterval?) -> Data? {

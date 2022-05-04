@@ -6,9 +6,11 @@ import PromiseKit
 
 class NonFungibleContract {
     private let server: RPCServer
+    private let queue: DispatchQueue
 
-    init(server: RPCServer) {
+    init(server: RPCServer, queue: DispatchQueue) {
         self.server = server
+        self.queue = queue
     }
 
     func getTokenUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
@@ -22,29 +24,29 @@ class NonFungibleContract {
     private func getTokenUriImpl(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetTokenUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: Constants.fetchContractDataTimeout)
-        }.map { uriResult -> URL in
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: Constants.fetchContractDataTimeout, queue: queue)
+        }.map(on: queue, { uriResult -> URL in
             let string = ((uriResult["0"] as? String) ?? "").stringWithTokenIdSubstituted(tokenId)
             if let url = URL(string: string) {
                 return url
             } else {
                 throw Web3Error(description: "Error extracting tokenUri uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")
             }
-        }
+        })
     }
 
     private func getUri(for tokenId: String, contract: AlphaWallet.Address) -> Promise<URL> {
         let function = GetUri()
         return firstly {
-            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: Constants.fetchContractDataTimeout)
-        }.map { uriResult -> URL in
+            callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [tokenId] as [AnyObject], timeout: Constants.fetchContractDataTimeout, queue: queue)
+        }.map(on: queue, { uriResult -> URL in
             let string = ((uriResult["0"] as? String) ?? "").stringWithTokenIdSubstituted(tokenId)
             if let url = URL(string: string) {
                 return url
             } else {
                 throw Web3Error(description: "Error extracting token uri for contract \(contract.eip55String) tokenId: \(tokenId) string: \(uriResult)")
             }
-        }
+        })
     }
 }
 

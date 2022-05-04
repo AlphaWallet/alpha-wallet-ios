@@ -65,10 +65,10 @@ final class TokensFromTransactionsFetcher {
         let tokenTypePromises = contracts.map { session.tokenProvider.getTokenType(for: $0) }
 
         return when(fulfilled: tokenTypePromises)
-            .map { tokenTypes in
+            .map(on: session.queue, { tokenTypes in
                 let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
                 return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
-            }
+            })
     }
 }
 

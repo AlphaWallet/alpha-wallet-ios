@@ -69,7 +69,7 @@ extension TransactionInstance {
 
         return firstly {
             createOperationForTokenTransfer(forTransaction: transaction, tokensDataStore: tokensDataStore, session: session)
-        }.then { operations -> Promise<TransactionInstance?> in
+        }.then(on: session.queue, { operations -> Promise<TransactionInstance?> in
             let result = TransactionInstance(
                     id: transaction.hash,
                     server: session.server,
@@ -89,7 +89,7 @@ extension TransactionInstance {
             )
 
             return .value(result)
-        }
+        })
     }
 
     static private func createOperationForTokenTransfer(forTransaction transaction: RawTransaction, tokensDataStore: TokensDataStore, session: WalletSession) -> Promise<[LocalizedOperationObjectInstance]> {
@@ -110,14 +110,14 @@ extension TransactionInstance {
 
                 return firstly {
                     when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
-                }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
+                }.then(on: session.queue, { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObjectInstance]> in
                     let operationType = mapTokenTypeToTransferOperationType(tokenType, functionCall: functionCall)
                     let result = LocalizedOperationObjectInstance(from: transaction.from, to: recipient.eip55String, contract: contract, type: operationType.rawValue, value: String(value), tokenId: "", symbol: symbol, name: name, decimals: Int(decimals))
                     return .value([result])
-                }.recover { _ -> Promise<[LocalizedOperationObjectInstance]> in
+                }).recover(on: session.queue, { _ -> Promise<[LocalizedOperationObjectInstance]> in
                     //NOTE: Return an empty array when failure to fetch contracts data, instead of failing whole TransactionInstance creating
                     return Promise.value([])
-                }
+                })
             }
         }
 

@@ -28,6 +28,7 @@ class TokenProvider: TokenProviderType {
     private let numberOfTimesToRetryFetchContractData = 2
     private let server: RPCServer
     private let queue: DispatchQueue?
+    private lazy var isERC1155ContractDetector = GetIsERC1155ContractCoordinator(forServer: server)
 
     init(account: Wallet, server: RPCServer, queue: DispatchQueue? = .none) {
         self.account = account
@@ -134,13 +135,13 @@ class TokenProvider: TokenProviderType {
             attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
                 GetERC721BalanceCoordinator(forServer: server, queue: queue)
                     .getERC721TokenBalance(for: account, contract: address)
-            }.map { balance -> [String] in
+            }.map(on: queue, { balance -> [String] in
                 if balance >= Int.max {
                     throw AnyError(Web3Error(description: ""))
                 } else {
                     return [String](repeating: "0", count: Int(balance))
                 }
-            }
+            })
         }
     }
 
@@ -190,7 +191,7 @@ class TokenProvider: TokenProviderType {
 
         let isErc1155Promise = firstly {
             attempt(maximumRetryCount: numberOfTimesToRetryFetchContractData) {
-                GetIsERC1155ContractCoordinator(forServer: server)
+                self.isERC1155ContractDetector
                     .getIsERC1155Contract(for: address)
             }.recover { _ -> Promise<Bool> in
                 return .value(false)

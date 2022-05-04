@@ -66,9 +66,13 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private let config: Config
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
-    private var cachedErc1155TokenIdsFetchers: [AddressAndRPCServer: Erc1155TokenIdsFetcher] = [:]
     private var cancelable = Set<AnyCancellable>()
+
     private lazy var nonErc1155BalanceFetcher = TokenProvider(account: account, server: server, queue: queue)
+    private lazy var nonFungibleContract = NonFungibleContract(server: server, queue: queue)
+
+    private lazy var erc1155TokenIdsFetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
+    private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: account.address, server: server)
 
     let server: RPCServer
     let etherToken: Activity.AssignedToken
@@ -175,39 +179,26 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
     private func updateNonOpenSeaNonFungiblesBalance(contracts: [AlphaWallet.Address], enjinTokens: EnjinSemiFungiblesToTokenId) {
         let erc721Contracts = filterAwayErc1155Tokens(contracts: contracts)
-        erc721Contracts.forEach { updateNonOpenSeaErc721Balance(contract: $0) }
+        erc721Contracts.forEach { updateNonOpenSeaErc721Balance(contract: $0, enjinTokens: enjinTokens) }
 
         updateNonOpenSeaErc1155Balance(enjinTokens: enjinTokens)
     }
 
-    //NOTE: avoid memory leak while creating a lot of `Erc1155TokenIdsFetcher` instances
-    private func createOrGetErc1155TokenIdsFetcher(address: AlphaWallet.Address, server: RPCServer) -> Erc1155TokenIdsFetcher {
-        let key = AddressAndRPCServer(address: address, server: server)
-        if let value = cachedErc1155TokenIdsFetchers[key] {
-            return value
-        } else {
-            let fetcher = Erc1155TokenIdsFetcher(address: account.address, server: server, config: config, queue: queue)
-            cachedErc1155TokenIdsFetchers[key] = fetcher
-
-            return fetcher
-        }
-    }
-
     private func filterAwayErc1155Tokens(contracts: [AlphaWallet.Address]) -> [AlphaWallet.Address] {
-        if let erc1155Contracts = createOrGetErc1155TokenIdsFetcher(address: account.address, server: server).knownErc1155Contracts() {
+        if let erc1155Contracts = erc1155TokenIdsFetcher.knownErc1155Contracts() {
             return contracts.filter { !erc1155Contracts.contains($0) }
         } else {
             return contracts
         }
     }
 
-    private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address) {
+    private func updateNonOpenSeaErc721Balance(contract: AlphaWallet.Address, enjinTokens: EnjinSemiFungiblesToTokenId) {
         guard let erc721TokenIdsFetcher = erc721TokenIdsFetcher else { return }
         firstly {
             erc721TokenIdsFetcher.tokenIdsForErc721Token(contract: contract, forServer: server, inAccount: account.address)
         }.then(on: queue, { tokenIds -> Promise<[String]> in
             let guarantees: [Guarantee<String>] = tokenIds
-                .map { self.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, enjinTokens: [:]) }
+                .map { self.fetchNonFungibleJson(forTokenId: $0, tokenType: .erc721, address: contract, enjinTokens: enjinTokens) }
             return when(fulfilled: guarantees)
         }).done(on: queue, { [weak self, weak tokensDataStore] jsons in
             guard let strongSelf = self else { return }
@@ -223,10 +214,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         guard Features.default.isAvailable(.isErc1155Enabled) else { return }
         //Local copies so we don't access the wrong ones during async operation
 
-        let tokenIdsFetcher = createOrGetErc1155TokenIdsFetcher(address: account.address, server: server)
-        let balanceFetcher = Erc1155BalanceFetcher(address: account.address, server: server)
         firstly {
-            tokenIdsFetcher.detectContractsAndTokenIds()
+            erc1155TokenIdsFetcher.detectContractsAndTokenIds()
         }.then(on: queue, { contractsAndTokenIds in
             self.addUnknownErc1155ContractsToDatabase(contractsAndTokenIds: contractsAndTokenIds.tokens)
         }).then(on: queue, { (contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds) -> Promise<(contractsAndTokenIds: Erc1155TokenIds.ContractsAndTokenIds, tokenIdMetaDatas: [TokenIdMetaData])> in
@@ -238,7 +227,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                     tokenIds.compactMap { BigInt($0) }
                 }
             let promises = contractsToTokenIds.map { contract, tokenIds in
-                    balanceFetcher
+                self.erc1155BalanceFetcher
                     .fetch(contract: contract, tokenIds: Set(tokenIds))
                     .map { (contract: contract, balances: $0 ) }
             }
@@ -336,7 +325,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     //Misnomer, we call this "nonFungible", but this includes ERC1155 which can contain (semi-)fungibles, but there's no better name
     private func fetchNonFungibleJson(forTokenId tokenId: String, tokenType: TokenType, address: AlphaWallet.Address, enjinTokens: EnjinSemiFungiblesToTokenId) -> Guarantee<String> {
         firstly {
-            NonFungibleContract(server: server).getTokenUri(for: tokenId, contract: address)
+            nonFungibleContract.getTokenUri(for: tokenId, contract: address)
         }.then(on: queue, {
             self.fetchTokenJson(forTokenId: tokenId, tokenType: tokenType, uri: $0, address: address, enjinTokens: enjinTokens)
         }).recover(on: queue, { _ in

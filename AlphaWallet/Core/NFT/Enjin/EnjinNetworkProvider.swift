@@ -146,6 +146,7 @@ final private class NetworkInterceptorProvider: InterceptorProvider {
     // will be handed to different interceptors.
     private let store: ApolloStore
     private let client: URLSessionClient
+    private let enjinUserManagementInterceptor = EnjinUserManagementInterceptor()
 
     init(store: ApolloStore, client: URLSessionClient) {
         self.store = store
@@ -156,7 +157,7 @@ final private class NetworkInterceptorProvider: InterceptorProvider {
         return [
             MaxRetryInterceptor(),
             CacheReadInterceptor(store: self.store),
-            EnjinUserManagementInterceptor(),
+            enjinUserManagementInterceptor,
             NetworkFetchInterceptor(client: self.client),
             ResponseCodeInterceptor(),
             JSONResponseParsingInterceptor(cacheKeyForObject: self.store.cacheKeyForObject),

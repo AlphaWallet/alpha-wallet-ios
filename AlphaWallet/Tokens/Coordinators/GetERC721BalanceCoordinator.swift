@@ -19,10 +19,10 @@ class GetERC721BalanceCoordinator {
 
     func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigUInt> {
         let function = GetERC721Balance()
-        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout).map(on: queue, { balanceResult -> BigUInt in
-            let balance = GetERC721BalanceCoordinator.adapt(balanceResult["0"] as Any)
-            return balance
-        }) 
+        return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout, queue: queue).map(on: queue, { balanceResult -> BigUInt in
+                let balance = GetERC721BalanceCoordinator.adapt(balanceResult["0"] as Any)
+                return balance
+            })
     }
 
     private static func adapt(_ value: Any) -> BigUInt {
