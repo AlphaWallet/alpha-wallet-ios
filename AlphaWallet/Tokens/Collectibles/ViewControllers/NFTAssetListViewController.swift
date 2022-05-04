@@ -9,7 +9,6 @@ import UIKit
 import StatefulViewController
 
 protocol NFTAssetListViewControllerDelegate: class {
-    func selectTokenCardsSelected(in viewController: NFTAssetListViewController)
     func didSelectTokenCard(in viewController: NFTAssetListViewController, tokenId: TokenId)
 }
 
