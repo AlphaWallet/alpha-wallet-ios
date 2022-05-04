@@ -2539,7 +2539,8 @@
 		291EC9E01F7053C80004EDD0 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				2963B6AC1F981A96003063C1 /* TransactionAppearance.swift */,
+				8736214C264D3AFF00AAF794 /* BalloonMarker.swift */,
+				8736214B264D3AFF00AAF794 /* XYMarkerView.swift */,
 				29FF12F91F74CC6C00AFD326 /* Form */,
 				296421941F70C1EC00EB363B /* LoadingView.swift */,
 				296421961F70C1F200EB363B /* ErrorView.swift */,
@@ -2742,7 +2743,6 @@
 			children = (
 				29FC0CB51F8298820036089F /* TransactionCoordinator.swift */,
 				613D048A1FDE162B008DE72E /* AlphaWalletProviderFactory.swift */,
-				442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */,
 				5E7C743C5382AF2288A1DB0D /* ReplaceTransactionCoordinator.swift */,
 			);
 			path = Coordinators;
@@ -2821,9 +2821,7 @@
 			children = (
 				294DFB9D1FE0CA59004CEB56 /* TransactionsViewModel.swift */,
 				293B8B401F707F4600356286 /* TransactionViewModel.swift */,
-				29C80D4C1FB5202C0037B1E0 /* BalanceBaseViewModel.swift */,
 				5E7C7365D14169D22AE1D20A /* TransactionRowCellViewModel.swift */,
-				5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */,
 				5E7C7C1720AD49046D2B4023 /* TransactionDetailsViewModel.swift */,
 				5E7C7DDCCEDE8A14A9C49E4A /* TransactionRowViewModel.swift */,
 				5E7C7E49792FB9967E1C18D8 /* TransactionRow.swift */,
@@ -2843,17 +2841,9 @@
 		2977CAED1F7E0BEC009682A0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				8736214C264D3AFF00AAF794 /* BalloonMarker.swift */,
-				8736214B264D3AFF00AAF794 /* XYMarkerView.swift */,
+				2963B6AC1F981A96003063C1 /* TransactionAppearance.swift */,
 				29E2E33D1F7A2423000CF94A /* TransactionHeaderView.swift */,
 				293B8B441F70A20200356286 /* TransactionViewCell.swift */,
-				87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */,
-				87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */,
-				87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */,
-				879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */,
-				879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */,
-				879E1E43264C0717006CD362 /* TickerFieldValueView.swift */,
-				879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2929,7 +2919,6 @@
 				AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */,
 				294DFBA81FE6EBFB004CEB56 /* NewTokenViewController.swift */,
 				5E7C778F20D32B70D7FF2135 /* TokenCardRedemptionInfoViewController.swift */,
-				5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */,
 				5E7C7B3302309706CA0F972A /* TokensViewController.swift */,
 				5E7C7CC48CA7A1EA7D539C87 /* VerifiableStatusViewController.swift */,
 				5E7C7EC53B2B5DFAAC7965EC /* TokenViewController.swift */,
@@ -2982,7 +2971,6 @@
 				5E7C72DDBF109139E4C661D5 /* DelegateContract.swift */,
 				5E7C7C83B57FC8FAE9AF8F26 /* TokenCollection.swift */,
 				5E7C7C01F8C42D7A43792C26 /* HiddenContract.swift */,
-				5E7C7957AA1BC0B5BD6E98FF /* TransactionsFilterStrategy.swift */,
 				5E7C7B43816C35C3FE2EFFBE /* TokenInstanceAction.swift */,
 				5E7C74822F5F71748184F6C1 /* EventInstance.swift */,
 				5E7C737CC822F8143DE1FDC0 /* EventActivity.swift */,
@@ -3250,6 +3238,7 @@
 		29B6AECF1F7C881100EC6DE3 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				5E7C7957AA1BC0B5BD6E98FF /* TransactionsFilterStrategy.swift */,
 				291D73C51F7F500D00A8AB56 /* TransactionItemState.swift */,
 				296105941FA2DEF000292494 /* TransactionDirection.swift */,
 				2963A2891FC402940095447D /* LocalizedOperationObject.swift */,
@@ -3305,7 +3294,6 @@
 			children = (
 				29E14FD01F7F457D00185568 /* TransactionsStorage.swift */,
 				29E14FDA1F7F4F3D00185568 /* Transaction.swift */,
-				29AD8A081F93F8B2008E10E7 /* Session.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -3383,6 +3371,8 @@
 				87BB63DF265E21E400FF702A /* WalletBalance.swift */,
 				87C65F4F265FCAC500919819 /* ThreadSafeDictionary.swift */,
 				87D457F426677CBE00BA1442 /* ERC20BalanceViewModel.swift */,
+				29AD8A081F93F8B2008E10E7 /* Session.swift */,
+				29C80D4C1FB5202C0037B1E0 /* BalanceBaseViewModel.swift */,
 				87584FA627E9F8A2006A7CD1 /* NFTBalanceViewModel.swift */,
 				87D457F626677CD300BA1442 /* NativecryptoBalanceViewModel.swift */,
 				87F4D41D26C26C3A00EFB9BC /* SortTokensParam.swift */,
@@ -3716,6 +3706,7 @@
 		5E7C719CC201CF486AC66B9B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				87713EB3264BAB5A00B1B9CB /* ActivityPageView.swift */,
 				5E7C71DB4EDD10EA665101C2 /* ActivityViewCell.swift */,
 				5E7C76B3FD690DC23263DE26 /* DefaultActivityItemViewCell.swift */,
 				5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */,
@@ -3805,6 +3796,7 @@
 		5E7C7372BDD012864CBFE456 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				5E7C7F5A42365FDA22AEE6F7 /* ActivityViewModel.swift */,
 				5E7C7EEA3015F451B066D78D /* ActivitiesViewModel.swift */,
 				5E7C760CC5A9E144BDB5451D /* ActivityCellViewModel.swift */,
 				5E7C7B6849D43348C5109712 /* DefaultActivityCellViewModel.swift */,
@@ -4001,6 +3993,7 @@
 		5E7C77BAC05F2F2417098707 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */,
 				5E7C71ADDDAB65DEF4096A8D /* PromptViewController.swift */,
 				87509A5F26F8D63600D3EE85 /* ModalViewController.swift */,
 			);
@@ -4358,12 +4351,12 @@
 		5E7C7EF382294C8C3357E9EC /* Activities */ = {
 			isa = PBXGroup;
 			children = (
+				8738DDDB2652B98200064CCA /* ActivitiesService.swift */,
 				8780FDAB27BF882B00BBE9DD /* Types */,
 				5E7C79B61997F5903F0C6D70 /* Coordinators */,
 				5E7C75019080D822E6BE9E92 /* ViewControllers */,
 				5E7C7372BDD012864CBFE456 /* ViewModels */,
 				5E7C719CC201CF486AC66B9B /* Views */,
-				8738DDDB2652B98200064CCA /* ActivitiesService.swift */,
 			);
 			path = Activities;
 			sourceTree = "<group>";
@@ -4869,6 +4862,12 @@
 		8739BB5326CCECC40045CFED /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */,
+				87713EB1264BAB4700B1B9CB /* TokenInfoPageView.swift */,
+				879E1E3F264BDD5C006CD362 /* TokenHistoryChartView.swift */,
+				879E1E41264BFB9B006CD362 /* TokenHistoryPeriodSelectorView.swift */,
+				879E1E43264C0717006CD362 /* TickerFieldValueView.swift */,
+				879E1E45264C072D006CD362 /* TokenInfoHeaderView.swift */,
 				8739BB5426CCECD10045CFED /* Erc875NonFungibleRowView.swift */,
 				8739BB6526CCED4B0045CFED /* AssetsPageView.swift */,
 				879F184126E73BCF000602F2 /* SelectableTokenCardContainerTableViewCell.swift */,
@@ -4913,6 +4912,7 @@
 		8739BBD226CD2A5C0045CFED /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */,
 				8739BBD326CD2A820045CFED /* TokenCardSelectionCoordinator.swift */,
 				879F183F26E73B79000602F2 /* TokensCardCollectionCoordinator.swift */,
 			);
