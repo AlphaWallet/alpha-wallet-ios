@@ -238,7 +238,7 @@
 		442FC01053E2F1B59355A961 /* Arguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC7DC5A13C023F7F2C26 /* Arguments.swift */; };
 		442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
-		442FC258BAEFDE2D64E48D0D /* TokensCardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */; };
+		442FC258BAEFDE2D64E48D0D /* NFTCollectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC8150042FE9179D574A /* NFTCollectionCoordinator.swift */; };
 		442FC2CC21FFFC4FAB33A300 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC90F0768C43EF903465B /* Token.swift */; };
 		442FC546ED56F5C9D3D35471 /* TokenCardRedemptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCBDB86579889BC773540 /* TokenCardRedemptionViewModel.swift */; };
 		442FC58B7558F28F9452D383 /* GetIsERC875ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */; };
@@ -1389,7 +1389,7 @@
 		442FCBDB86579889BC773540 /* TokenCardRedemptionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRedemptionViewModel.swift; sourceTree = "<group>"; };
 		442FCC17EAB857C58732831E /* RedeemTokenCardQuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemTokenCardQuantitySelectionViewController.swift; sourceTree = "<group>"; };
 		442FCC7DC5A13C023F7F2C26 /* Arguments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Arguments.swift; sourceTree = "<group>"; };
-		442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardCoordinator.swift; sourceTree = "<group>"; };
+		442FCC8150042FE9179D574A /* NFTCollectionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTCollectionCoordinator.swift; sourceTree = "<group>"; };
 		442FCCAC6A172506637A2FF6 /* Int.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875ContractCoordinator.swift; sourceTree = "<group>"; };
@@ -4955,7 +4955,7 @@
 		8739BBD226CD2A5C0045CFED /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
-				442FCC8150042FE9179D574A /* TokensCardCoordinator.swift */,
+				442FCC8150042FE9179D574A /* NFTCollectionCoordinator.swift */,
 				8739BBD326CD2A820045CFED /* NFTAssetSelectionCoordinator.swift */,
 			);
 			path = Coordinators;
@@ -6343,7 +6343,7 @@
 				87F15B0E27F365BF00EB9787 /* TickerIdFilter.swift in Sources */,
 				442FC81F38F80EEF54C69C5B /* TokenAdaptor.swift in Sources */,
 				879F184226E73BCF000602F2 /* SelectableNFTAssetContainerTableViewCell.swift in Sources */,
-				442FC258BAEFDE2D64E48D0D /* TokensCardCoordinator.swift in Sources */,
+				442FC258BAEFDE2D64E48D0D /* NFTCollectionCoordinator.swift in Sources */,
 				8703F66B26136A500082EE25 /* RenameWalletViewController.swift in Sources */,
 				87BBF9912563DD7600FF4846 /* WalletConnectActionType.swift in Sources */,
 				76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */,

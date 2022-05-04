@@ -1,4 +1,4 @@
-//  TokensCardCoordinator.swift
+//  NFTCollectionCoordinator.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/27/18.
@@ -12,14 +12,14 @@ import MessageUI
 import BigInt
 import Combine
 
-protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
-    func didCancel(in coordinator: TokensCardCoordinator)
-    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator)
-    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCoordinator)
-    func didTap(activity: Activity, in coordinator: TokensCardCoordinator)
+protocol NFTCollectionCoordinatorDelegate: class, CanOpenURL {
+    func didCancel(in coordinator: NFTCollectionCoordinator)
+    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator)
+    func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator)
+    func didTap(activity: Activity, in coordinator: NFTCollectionCoordinator)
 }
 
-class TokensCardCoordinator: NSObject, Coordinator {
+class NFTCollectionCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     lazy var rootViewController: NFTCollectionViewController = {
@@ -36,7 +36,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let eventsDataStore: NonActivityEventsDataStore
     private let analyticsCoordinator: AnalyticsCoordinator
     private let activitiesService: ActivitiesServiceType
-    weak var delegate: TokensCardCoordinatorDelegate?
+    weak var delegate: NFTCollectionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     private var cancelable = Set<AnyCancellable>()
@@ -379,7 +379,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 }
 
-extension TokensCardCoordinator: NFTCollectionViewControllerDelegate {
+extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     func didSelectAssetSelection(in viewController: NFTCollectionViewController) {
         showTokenCardSelection(tokenHolders: viewController.viewModel.tokenHolders)
@@ -466,7 +466,7 @@ extension TokensCardCoordinator: NFTCollectionViewControllerDelegate {
     }
 }
 
-extension TokensCardCoordinator: NFTAssetListViewControllerDelegate {
+extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
     func selectTokenCardsSelected(in viewController: NFTAssetListViewController) {
         showTokenCardSelection(tokenHolders: [viewController.tokenHolder])
     }
@@ -481,7 +481,7 @@ extension TokensCardCoordinator: NFTAssetListViewControllerDelegate {
     }
 }
 
-extension TokensCardCoordinator: NFTAssetSelectionCoordinatorDelegate {
+extension NFTCollectionCoordinator: NFTAssetSelectionCoordinatorDelegate {
 
     private func showTokenCardSelection(tokenHolders: [TokenHolder]) {
         let coordinator = NFTAssetSelectionCoordinator(navigationController: navigationController, tokenObject: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server)
@@ -504,7 +504,7 @@ extension TokensCardCoordinator: NFTAssetSelectionCoordinatorDelegate {
     }
 }
 
-extension TokensCardCoordinator: NonFungibleTokenViewControllerDelegate {
+extension NFTCollectionCoordinator: NonFungibleTokenViewControllerDelegate {
 
     func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController) {
         switch token.type {
@@ -544,7 +544,7 @@ extension TokensCardCoordinator: NonFungibleTokenViewControllerDelegate {
     }
 }
 
-extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerDelegate {
+extension NFTCollectionCoordinator: RedeemTokenCardQuantitySelectionViewControllerDelegate {
     func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController) {
         showTokenCardRedemptionViewController(token: token, for: tokenHolder, in: viewController)
     }
@@ -554,7 +554,7 @@ extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerD
     }
 }
 
-extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControllerDelegate {
+extension NFTCollectionCoordinator: TransferTokenCardQuantitySelectionViewControllerDelegate {
     func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController) {
         showChooseTokensCardTransferModeViewController(token: token, for: tokenHolder, in: viewController)
     }
@@ -564,7 +564,7 @@ extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControlle
     }
 }
 
-extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerDelegate {
+extension NFTCollectionCoordinator: EnterSellTokensCardPriceQuantityViewControllerDelegate {
     func didEnterSellTokensPriceQuantity(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController) {
         showEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, in: viewController)
     }
@@ -574,7 +574,7 @@ extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerD
     }
 }
 
-extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelegate {
+extension NFTCollectionCoordinator: SetSellTokensCardExpiryDateViewControllerDelegate {
     func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController) {
         showSaleConfirmationScreen(for: tokenHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, in: viewController)
     }
@@ -584,7 +584,7 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
     }
 }
 
-extension TokensCardCoordinator: GenerateSellMagicLinkViewControllerDelegate {
+extension NFTCollectionCoordinator: GenerateSellMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
         sellViaActivitySheet(tokenHolder: viewController.tokenHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
     }
@@ -594,7 +594,7 @@ extension TokensCardCoordinator: GenerateSellMagicLinkViewControllerDelegate {
     }
 }
 
-extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelegate {
+extension NFTCollectionCoordinator: ChooseTokenCardTransferModeViewControllerDelegate {
     func didChooseTransferViaMagicLink(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
         let vc = makeEnterTransferTokensCardExpiryDateViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         vc.navigationItem.largeTitleDisplayMode = .never
@@ -611,7 +611,7 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
     }
 }
 
-extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
+extension NFTCollectionCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
     func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController) {
         showTransferConfirmationScreen(for: tokenHolder, linkExpiryDate: linkExpiryDate, in: viewController)
     }
@@ -621,7 +621,7 @@ extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDe
     }
 }
 
-extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
+extension NFTCollectionCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView) {
         transferViaActivitySheet(tokenHolder: viewController.tokenHolder, linkExpiryDate: viewController.linkExpiryDate, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
     }
@@ -631,10 +631,10 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
     }
 }
 
-extension TokensCardCoordinator: TokenCardRedemptionViewControllerDelegate {
+extension NFTCollectionCoordinator: TokenCardRedemptionViewControllerDelegate {
 }
 
-extension TokensCardCoordinator: CanOpenURL {
+extension NFTCollectionCoordinator: CanOpenURL {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -648,7 +648,7 @@ extension TokensCardCoordinator: CanOpenURL {
     }
 }
 
-extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
+extension NFTCollectionCoordinator: StaticHTMLViewControllerDelegate {
 }
 
 extension Collection where Element == TokenHolder {
