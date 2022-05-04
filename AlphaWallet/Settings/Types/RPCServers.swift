@@ -394,13 +394,18 @@ enum RPCServer: Hashable, CaseIterable {
 
     //Can't use https://blockscout.com/poa/dai/address/ even though it ultimately redirects there because blockscout (tested on 20190620), blockscout.com is only able to show that URL after the address has been searched (with the ?q= URL)
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL? {
-        switch etherscanCompatibleType {
-        case .etherscan:
-            return etherscanWebpageRoot?.appendingPathComponent("address").appendingPathComponent(address.eip55String)
-        case .blockscout:
-            return etherscanWebpageRoot?.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
-        case .unknown:
-            return nil
+        switch self {
+        case .klaytnCypress, .klaytnBaobabTestnet:
+            return etherscanWebpageRoot?.appendingPathComponent("account").appendingPathComponent(address.eip55String)
+        case .main, .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
+            switch etherscanCompatibleType {
+            case .etherscan:
+                return etherscanWebpageRoot?.appendingPathComponent("address").appendingPathComponent(address.eip55String)
+            case .blockscout:
+                return etherscanWebpageRoot?.appendingPathComponent("search").appendingQueryString("q=\(address.eip55String)")
+            case .unknown:
+                return nil
+            }
         }
     }
 
@@ -409,12 +414,10 @@ enum RPCServer: Hashable, CaseIterable {
     //TODO check if Blockscout can support this
     func etherscanTokenDetailsWebPageURL(for address: AlphaWallet.Address) -> URL? {
         switch self {
-        case .main:
+        case .main, .klaytnCypress, .klaytnBaobabTestnet:
             return etherscanWebpageRoot?.appendingPathComponent("token").appendingPathComponent(address.eip55String)
         case .ropsten, .rinkeby, .kovan, .xDai, .goerli, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet:
             return etherscanContractDetailsWebPageURL(for: address)
-        case .klaytnCypress, .klaytnBaobabTestnet:
-            return nil
         }
     }
 
