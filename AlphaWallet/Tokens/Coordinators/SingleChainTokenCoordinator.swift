@@ -110,7 +110,7 @@ class SingleChainTokenCoordinator: Coordinator {
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
 
-        let tokensCardCoordinator = TokensCardCoordinator(
+        let coordinator = NFTCollectionCoordinator(
                 session: session,
                 navigationController: navigationController,
                 keystore: keystore,
@@ -121,9 +121,9 @@ class SingleChainTokenCoordinator: Coordinator {
                 activitiesService: activitiesService
         )
 
-        addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.delegate = self
-        tokensCardCoordinator.start()
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     func show(fungibleToken token: TokenObject, transactionType: TransactionType, navigationController: UINavigationController) {
@@ -180,24 +180,24 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 }
 
-extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
-    func didTap(transaction: TransactionInstance, in coordinator: TokensCardCoordinator) {
+extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
+    func didTap(transaction: TransactionInstance, in coordinator: NFTCollectionCoordinator) {
         delegate?.didTap(transaction: transaction, inViewController: coordinator.rootViewController, in: self)
     }
 
-    func didTap(activity: Activity, in coordinator: TokensCardCoordinator) {
+    func didTap(activity: Activity, in coordinator: NFTCollectionCoordinator) {
         delegate?.didTap(activity: activity, inViewController: coordinator.rootViewController, in: self)
     }
 
-    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: TokensCardCoordinator) {
+    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: NFTCollectionCoordinator) {
         delegate?.didPress(for: type, inViewController: viewController, in: self)
     }
 
-    func didCancel(in coordinator: TokensCardCoordinator) {
+    func didCancel(in coordinator: NFTCollectionCoordinator) {
         removeCoordinator(coordinator)
     }
 
-    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCardCoordinator) {
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: NFTCollectionCoordinator) {
         delegate?.didPostTokenScriptTransaction(transaction, in: self)
     }
 }
