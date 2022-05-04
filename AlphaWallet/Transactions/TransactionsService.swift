@@ -36,15 +36,16 @@ class TransactionsService {
             .map { change -> [TransactionInstance] in
                 switch change {
                 case .initial(let transactions):
-                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                    return transactions.map { TransactionInstance(transaction: $0) }
                 case .update(let transactions, _, _, _):
-                    return Array(transactions).map { TransactionInstance(transaction: $0) }
+                    return transactions.map { TransactionInstance(transaction: $0) }
                 case .error:
                     return []
                 }
             }
             .eraseToAnyPublisher()
     }
+    private var cancelable = Set<AnyCancellable>()
 
     init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore) {
         self.sessions = sessions
@@ -52,8 +53,17 @@ class TransactionsService {
         self.tokensDataStore = tokensDataStore
 
         setupSingleChainTransactionProviders()
-        NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        NotificationCenter.default.applicationState
+            .receive(on: RunLoop.main)
+            .sink { [weak self] state in
+                switch state {
+                case .didEnterBackground:
+                    self?.stopTimers()
+                case .willEnterForeground:
+                    self?.restartTimers()
+                } 
+            }.store(in: &cancelable)
     }
 
     deinit {

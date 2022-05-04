@@ -219,8 +219,9 @@ class TransactionDataStore {
         }
     }
 
-    func addOrUpdate(transactions: [TransactionInstance]) {
+    @discardableResult func addOrUpdate(transactions: [TransactionInstance]) -> [TransactionInstance] {
         let newTransactions = transactions.map { Transaction(object: $0) }
+        var transactionsToReturn: [TransactionInstance] = []
 
         store.performSync { realm in
             let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(newTransactions, realm: realm)
@@ -229,7 +230,9 @@ class TransactionDataStore {
             try? realm.safeWrite {
                 realm.add(transactionsToCommit, update: .all)
             }
+            transactionsToReturn = transactionsToCommit.map { TransactionInstance(transaction: $0) }
         }
+        return transactionsToReturn
     }
 
     //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
@@ -458,4 +461,4 @@ extension TransactionState {
     static func predicate(state: TransactionState) -> NSPredicate {
         return NSPredicate(format: "internalState == \(state.rawValue)")
     }
-} 
+}

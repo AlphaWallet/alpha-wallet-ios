@@ -4,8 +4,69 @@ import Foundation
 import APIKit
 import JSONRPCKit
 import PromiseKit
+import Combine
+
+extension Publishers {
+    struct RetryIf<P: Publisher>: Publisher {
+        typealias Output = P.Output
+        typealias Failure = P.Failure
+
+        let publisher: P
+        let times: Int
+        let condition: (P.Failure) -> Bool
+
+        func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
+            guard times > 0 else { return publisher.receive(subscriber: subscriber) }
+
+            publisher.catch { (error: P.Failure) -> AnyPublisher<Output, Failure> in
+                if condition(error)  {
+                    return RetryIf(publisher: publisher, times: times - 1, condition: condition).eraseToAnyPublisher()
+                } else {
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+            }.receive(subscriber: subscriber)
+        }
+    }
+}
+
+extension Publisher {
+    func retry(times: Int, if condition: @escaping (Failure) -> Bool) -> Publishers.RetryIf<Self> {
+        Publishers.RetryIf(publisher: self, times: times, condition: condition)
+    }
+}
 
 extension Session {
+    private class func sendImplPublisher<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> AnyPublisher<Request.Response, SessionTaskError> {
+        var sessionTask: SessionTask?
+        let publisher = Deferred {
+            Future<Request.Response, SessionTaskError> { seal in
+                sessionTask = Session.send(request, callbackQueue: callbackQueue) { result in
+                    switch result {
+                    case .success(let result):
+                        seal(.success(result))
+                    case .failure(let error):
+                        if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
+                            seal(.failure(.requestError(e))) //FIXME:
+                        } else {
+                            seal(.failure(error))
+                        }
+                    }
+                }
+            }
+        }.handleEvents(receiveCancel: {
+            sessionTask?.cancel()
+        })
+
+        return publisher
+            .eraseToAnyPublisher()
+    }
+
+    class func sendPublisher<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> AnyPublisher<Request.Response, SessionTaskError> {
+        sendImplPublisher(request, callbackQueue: callbackQueue)
+            .retry(times: 2) { $0 is SendTransactionRetryableError }
+            .eraseToAnyPublisher()
+    }
+
     private class func sendImpl<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
         Promise { seal in
             Session.send(request, callbackQueue: callbackQueue) { result in
