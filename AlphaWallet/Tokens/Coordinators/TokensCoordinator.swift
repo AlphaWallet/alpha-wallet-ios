@@ -57,7 +57,6 @@ class TokensCoordinator: Coordinator {
     private (set) lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
             sessions: sessions,
-            account: sessions.anyValue.account,
             tokenCollection: tokenCollection,
             assetDefinitionStore: assetDefinitionStore,
             tokensFilter: tokensFilter,
