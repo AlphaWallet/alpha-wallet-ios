@@ -5429,7 +5429,7 @@
 				8A3C752ACC5CACBD729A8F25 /* [CP] Embed Pods Frameworks */,
 				F6006D07F1DCADBC1150AD02 /* [CP] Copy Pods Resources */,
 				878EE8F6255ADA49000210DE /* Embed App Extensions */,
-				87FBF2B828056D8600616B7D /* ShellScript */,
+				87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -5728,7 +5728,7 @@
 			shellPath = /bin/sh;
 			shellScript = "# Don't run this during index builds\nif [ $ACTION = \"indexbuild\" ]; then exit 0; fi\n\nSCRIPT_PATH=\"${PODS_ROOT}/Apollo/scripts\"\ncd \"${SRCROOT}/${TARGET_NAME}\"\n\"${SCRIPT_PATH}\"/run-bundled-codegen.sh codegen:generate --target=swift --includes=./**/*.graphql --localSchemaFile=\"schema.json\" API.swift\n#Download graphql scheme \n#\"${SCRIPT_PATH}\"/run-bundled-codegen.sh schema:download --endpoint=\"https://cloud.enjin.io/graphql/default\" API.swift\n";
 		};
-		87FBF2B828056D8600616B7D /* ShellScript */ = {
+		87FBF2B828056D8600616B7D /* Upload debug symbols to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5739,6 +5739,7 @@
 				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
 				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
+			name = "Upload debug symbols to Crashlytics";
 			outputFileListPaths = (
 			);
 			outputPaths = (
