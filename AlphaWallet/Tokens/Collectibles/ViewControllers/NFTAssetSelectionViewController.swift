@@ -1,5 +1,5 @@
 //
-//  TokenCardSelectionViewController.swift
+//  NFTAssetSelectionViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 18.08.2021.
@@ -8,7 +8,7 @@
 import UIKit
 import StatefulViewController
 
-extension TokenCardSelectionViewController {
+extension NFTAssetSelectionViewController {
     enum ToolbarAction: CaseIterable {
         var isEnabled: Bool {
             return true
@@ -36,18 +36,18 @@ extension TokenCardSelectionViewController {
         }
     }
 }
-protocol TokenCardSelectionViewControllerDelegate: class {
-    func didTapSend(in viewController: TokenCardSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
+protocol NFTAssetSelectionViewControllerDelegate: class {
+    func didTapSend(in viewController: NFTAssetSelectionViewController, tokenObject: TokenObject, tokenHolders: [TokenHolder])
 }
 
-class TokenCardSelectionViewController: UIViewController {
-    private var viewModel: TokenCardSelectionViewModel
+class NFTAssetSelectionViewController: UIViewController {
+    private var viewModel: NFTAssetSelectionViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(SelectableTokenCardContainerTableViewCell.self)
-        tableView.registerHeaderFooterView(TokenCardSelectionSectionHeaderView.self)
+        tableView.register(SelectableNFTAssetContainerTableViewCell.self)
+        tableView.registerHeaderFooterView(NFTAssetSelectionSectionHeaderView.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
@@ -77,9 +77,9 @@ class TokenCardSelectionViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let server: RPCServer
     private let tokenObject: TokenObject
-    weak var delegate: TokenCardSelectionViewControllerDelegate?
+    weak var delegate: NFTAssetSelectionViewControllerDelegate?
 
-    init(viewModel: TokenCardSelectionViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
+    init(viewModel: NFTAssetSelectionViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
         self.tokenObject = tokenObject
         self.assetDefinitionStore = assetDefinitionStore
         self.analyticsCoordinator = analyticsCoordinator
@@ -139,7 +139,7 @@ class TokenCardSelectionViewController: UIViewController {
         endLoading(animated: false)
     }
 
-    private func configure(viewModel: TokenCardSelectionViewModel) {
+    private func configure(viewModel: NFTAssetSelectionViewModel) {
         self.viewModel = viewModel
         title = viewModel.navigationTitle
         view.backgroundColor = viewModel.backgroundColor
@@ -178,7 +178,7 @@ class TokenCardSelectionViewController: UIViewController {
     }
 
     private func reconfigureCell(at indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) as? SelectableTokenCardContainerTableViewCell else { return }
+        guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetContainerTableViewCell else { return }
 
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
@@ -192,21 +192,21 @@ class TokenCardSelectionViewController: UIViewController {
     }
 }
 
-extension TokenCardSelectionViewController: StatefulViewController {
+extension NFTAssetSelectionViewController: StatefulViewController {
     func hasContent() -> Bool {
         return viewModel.numberOfSections != .zero
     }
 }
 
-extension TokenCardSelectionViewController: UITableViewDelegate {
+extension NFTAssetSelectionViewController: UITableViewDelegate {
 
 }
 
-extension TokenCardSelectionViewController: UITableViewDataSource {
+extension NFTAssetSelectionViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        let cell: SelectableTokenCardContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: SelectableNFTAssetContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let subview: UIView & SelectionPositioningView & TokenCardRowViewProtocol
 
         if let view = cachedCellsCardRowViews[indexPath] {
@@ -239,7 +239,7 @@ extension TokenCardSelectionViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let tokenHolder = viewModel.selectableTokenHolder(at: section)
-        let view: TokenCardSelectionSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
+        let view: NFTAssetSelectionSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
         view.configure(viewModel: .init(tokenHolder: tokenHolder, backgroundColor: R.color.alabaster()!))
         view.delegate = self
         view.section = section
@@ -261,12 +261,12 @@ extension TokenCardSelectionViewController: UITableViewDataSource {
     }
 }
 
-extension TokenCardSelectionViewController: TokenCardSelectionSectionHeaderViewDelegate {
-    func didSelectAll(in view: TokenCardSelectionSectionHeaderView) {
+extension NFTAssetSelectionViewController: NFTAssetSelectionSectionHeaderViewDelegate {
+    func didSelectAll(in view: NFTAssetSelectionSectionHeaderView) {
         guard let section = view.section else { return }
 
         for indexPath in viewModel.selectAllTokens(for: section) {
-            guard let cell = tableView.cellForRow(at: indexPath) as? SelectableTokenCardContainerTableViewCell else { continue }
+            guard let cell = tableView.cellForRow(at: indexPath) as? SelectableNFTAssetContainerTableViewCell else { continue }
 
             let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
             cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
@@ -276,9 +276,9 @@ extension TokenCardSelectionViewController: TokenCardSelectionSectionHeaderViewD
     }
 }
 
-extension TokenCardSelectionViewController: SelectableTokenCardContainerTableViewCellDelegate {
+extension NFTAssetSelectionViewController: SelectableNFTAssetContainerTableViewCellDelegate {
 
-    func didCloseSelection(in sender: SelectableTokenCardContainerTableViewCell, with selectedAmount: Int) {
+    func didCloseSelection(in sender: SelectableNFTAssetContainerTableViewCell, with selectedAmount: Int) {
         guard let indexPath = sender.indexPath else { return }
 
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
@@ -291,7 +291,7 @@ extension TokenCardSelectionViewController: SelectableTokenCardContainerTableVie
     }
 }
 
-extension TokenCardSelectionViewController: UISearchControllerDelegate {
+extension NFTAssetSelectionViewController: UISearchControllerDelegate {
     func willPresentSearchController(_ searchController: UISearchController) {
         viewModel.isSearchActive = true
     }
@@ -301,7 +301,7 @@ extension TokenCardSelectionViewController: UISearchControllerDelegate {
     }
 }
 
-extension TokenCardSelectionViewController: UISearchResultsUpdating {
+extension NFTAssetSelectionViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
@@ -312,7 +312,7 @@ extension TokenCardSelectionViewController: UISearchResultsUpdating {
 }
 
 ///Support searching/filtering tokens with keywords. This extension is set up so it's easier to copy and paste this functionality elsewhere
-extension TokenCardSelectionViewController {
+extension NFTAssetSelectionViewController {
     private func makeSwitchToAnotherTabWorkWhileFiltering() {
         definesPresentationContext = true
     }
@@ -360,10 +360,10 @@ extension TokenCardSelectionViewController {
 }
 
 protocol SelectAllAssetsViewDelegate: class {
-    func selectAllSelected(in view: TokenCardSelectionViewController.SelectAllAssetsView)
+    func selectAllSelected(in view: NFTAssetSelectionViewController.SelectAllAssetsView)
 }
 
-extension TokenCardSelectionViewController {
+extension NFTAssetSelectionViewController {
 
     struct SelectAllAssetsViewModel {
         let text: String

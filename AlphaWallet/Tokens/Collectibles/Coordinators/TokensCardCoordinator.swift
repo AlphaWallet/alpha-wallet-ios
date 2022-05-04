@@ -22,8 +22,8 @@ protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
 class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
-    lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+    lazy var rootViewController: NFTCollectionViewController = {
+        let viewModel = NFTCollectionViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -93,14 +93,14 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func refreshScreen() {
         for each in navigationController.viewControllers {
             switch each {
-            case let vc as TokensCardViewController:
-                let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+            case let vc as NFTCollectionViewController:
+                let viewModel = NFTCollectionViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
                 vc.configure(viewModel: viewModel)
-            case let vc as NonFungibleTokenViewController:
+            case let vc as NFTAssetViewController:
                 let updatedTokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: session.account)
                 let tokenHolder = vc.viewModel.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
                 if let tokenHolder = tokenHolder {
-                    let viewModel = NonFungibleTokenViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+                    let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
                 }
             case let vc as TokenInstanceActionViewController:
@@ -112,8 +112,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
+    private func makeTokensCardViewController(with account: Wallet, viewModel: NFTCollectionViewModel) -> NFTCollectionViewController {
+        let controller = NFTCollectionViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, viewModel: viewModel, activitiesService: activitiesService, eventsDataStore: eventsDataStore)
         controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
 
@@ -386,9 +386,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
-    private func showNonFungibleTokenViewController(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
-        let viewModel = NonFungibleTokenViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = NonFungibleTokenViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel, mode: .interactive)
+    private func showNFTAssetViewController(tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
+        let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenHolder.tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel, mode: .interactive)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never
         vc.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(tokenInstanceViewControllerDidCloseSelected))
@@ -404,33 +404,33 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 }
 
-extension TokensCardCoordinator: TokensCardViewControllerDelegate {
+extension TokensCardCoordinator: NFTCollectionViewControllerDelegate {
 
-    func didSelectAssetSelection(in viewController: TokensCardViewController) {
+    func didSelectAssetSelection(in viewController: NFTCollectionViewController) {
         //no-op
     }
 
-    func didTap(transaction: TransactionInstance, in viewController: TokensCardViewController) {
+    func didTap(transaction: TransactionInstance, in viewController: NFTCollectionViewController) {
         delegate?.didTap(transaction: transaction, in: self)
     }
 
-    func didTap(activity: Activity, in viewController: TokensCardViewController) {
+    func didTap(activity: Activity, in viewController: NFTCollectionViewController) {
         delegate?.didTap(activity: activity, in: self)
     }
 
-    func didSelectTokenHolder(in viewController: TokensCardViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
-        showNonFungibleTokenViewController(tokenHolder: tokenHolder, in: viewController)
+    func didSelectTokenHolder(in viewController: NFTCollectionViewController, didSelectTokenHolder tokenHolder: TokenHolder) {
+        showNFTAssetViewController(tokenHolder: tokenHolder, in: viewController)
     }
 
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
         showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
     }
 
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController) {
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTCollectionViewController) {
         showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
     }
 
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, in viewController: TokensCardViewController) {
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, in viewController: NFTCollectionViewController) {
         switch token.type {
         case .erc721:
             delegate?.didPress(for: type, inViewController: viewController, in: self)
@@ -441,29 +441,29 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         }
     }
 
-    func didCancel(in viewController: TokensCardViewController) {
+    func didCancel(in viewController: NFTCollectionViewController) {
         delegate?.didCancel(in: self)
     }
 
-    func didPressViewRedemptionInfo(in viewController: TokensCardViewController) {
+    func didPressViewRedemptionInfo(in viewController: NFTCollectionViewController) {
         showViewRedemptionInfo(in: viewController)
     }
 
-    func didTapURL(url: URL, in viewController: TokensCardViewController) {
+    func didTapURL(url: URL, in viewController: NFTCollectionViewController) {
         let controller = SFSafariViewController(url: url)
         controller.makePresentationFullScreenForiOS13Migration()
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         viewController.present(controller, animated: true)
     }
 
-    func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
-        showNonFungibleTokenViewController(tokenHolder: tokenHolder, in: viewController)
+    func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: NFTCollectionViewController) {
+        showNFTAssetViewController(tokenHolder: tokenHolder, in: viewController)
     }
 }
 
 extension TokensCardCoordinator: NonFungibleTokenViewControllerDelegate {
 
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController) {
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController) {
         switch token.type {
         case .erc721:
             delegate?.didPress(for: paymentFlow, inViewController: viewController, in: self)
@@ -474,26 +474,26 @@ extension TokensCardCoordinator: NonFungibleTokenViewControllerDelegate {
         }
     }
 
-    func didTapURL(url: URL, in viewController: NonFungibleTokenViewController) {
+    func didTapURL(url: URL, in viewController: NFTAssetViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         controller.makePresentationFullScreenForiOS13Migration()
         viewController.present(controller, animated: true)
     }
 
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NonFungibleTokenViewController) {
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NFTAssetViewController) {
         showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
     }
 
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NonFungibleTokenViewController) {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NFTAssetViewController) {
         showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
     }
 
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController) {
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTAssetViewController) {
         showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
     }
 
-    func didPressViewRedemptionInfo(in viewController: NonFungibleTokenViewController) {
+    func didPressViewRedemptionInfo(in viewController: NFTAssetViewController) {
         showViewRedemptionInfo(in: viewController)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  SingleTokenCardSelectionView.swift
+//  SingleNFTAssetSelectionView.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SingleTokenCardSelectionView: UIView {
+class SingleNFTAssetSelectionView: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -29,7 +29,7 @@ class SingleTokenCardSelectionView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
     }
 
-    func configure(viewModel: SingleTokenCardSelectionViewModel) {
+    func configure(viewModel: SingleNFTAssetSelectionViewModel) {
         backgroundColor = viewModel.backgroundColor
         titleLabel.attributedText = viewModel.selectedAmountAttributedString
         isHidden = viewModel.isHidden

@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct SelectableTokenCardContainerTableViewCellViewModel {
+struct SelectableNFTAssetContainerViewModel {
     private let token: Token?
     private let tokenHolder: TokenHolder
 
@@ -45,7 +45,7 @@ struct SelectableTokenCardContainerTableViewCellViewModel {
         selectionViewModel.isSelected ? R.image.ticket_bundle_checked() : R.image.ticket_bundle_unchecked()
     }
 
-    var selectionViewModel: SingleTokenCardSelectionViewModel {
+    var selectionViewModel: SingleNFTAssetSelectionViewModel {
         .init(tokenHolder: tokenHolder, tokenId: tokenId)
     }
     private let tokenId: TokenId

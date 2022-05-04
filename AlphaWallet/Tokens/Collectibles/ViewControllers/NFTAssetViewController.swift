@@ -1,5 +1,5 @@
 //
-//  NonFungibleTokenViewController.swift
+//  NFTAssetViewController.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -8,17 +8,17 @@
 import UIKit
 
 protocol NonFungibleTokenViewControllerDelegate: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NonFungibleTokenViewController)
-    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController)
-    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NonFungibleTokenViewController)
-    func didPressViewRedemptionInfo(in viewController: NonFungibleTokenViewController)
-    func didTapURL(url: URL, in viewController: NonFungibleTokenViewController)
-    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NonFungibleTokenViewController)
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: NFTAssetViewController)
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: NFTAssetViewController)
+    func didPressViewRedemptionInfo(in viewController: NFTAssetViewController)
+    func didTapURL(url: URL, in viewController: NFTAssetViewController)
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: NFTAssetViewController)
 }
 
-class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusViewController {
+class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
-    private (set) var viewModel: NonFungibleTokenViewModel
+    private (set) var viewModel: NFTAssetViewModel
     private let bigImageView: WebImageView = {
         let imageView = WebImageView()
         imageView.contentMode = .scaleAspectFit
@@ -39,7 +39,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: NonFungibleTokenViewControllerDelegate?
 
-    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, viewModel: NonFungibleTokenViewModel, mode: TokenInstanceViewMode) {
+    init(analyticsCoordinator: AnalyticsCoordinator, assetDefinitionStore: AssetDefinitionStore, viewModel: NFTAssetViewModel, mode: TokenInstanceViewMode) {
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.mode = mode
@@ -89,7 +89,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
         }
     }
 
-    private func generateSubviews(viewModel: NonFungibleTokenViewModel) {
+    private func generateSubviews(viewModel: NFTAssetViewModel) {
         let stackView = containerView.stackView
         stackView.removeAllArrangedSubviews()
 
@@ -125,7 +125,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
         stackView.addArrangedSubviews(subviews)
     }
 
-    func configure(viewModel newViewModel: NonFungibleTokenViewModel) {
+    func configure(viewModel newViewModel: NFTAssetViewModel) {
         viewModel = newViewModel
 
         view.backgroundColor = viewModel.backgroundColor
@@ -219,7 +219,7 @@ class NonFungibleTokenViewController: UIViewController, TokenVerifiableStatusVie
     }
 }
 
-extension NonFungibleTokenViewController: VerifiableStatusViewController {
+extension NFTAssetViewController: VerifiableStatusViewController {
     func showInfo() {
         delegate?.didPressViewRedemptionInfo(in: self)
     }
@@ -233,7 +233,7 @@ extension NonFungibleTokenViewController: VerifiableStatusViewController {
     }
 }
 
-extension NonFungibleTokenViewController: TokenInstanceAttributeViewDelegate {
+extension NFTAssetViewController: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
         switch viewModel.configurations[view.indexPath.row] {
         case .field(let vm) where viewModel.tokenIdViewModel == vm:
