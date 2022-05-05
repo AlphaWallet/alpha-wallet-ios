@@ -37,7 +37,7 @@ final class EventSourceCoordinator: NSObject {
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
             .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
-            .receive(on: RunLoop.main)
+            .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
             }.store(in: &cancellable)
@@ -46,22 +46,29 @@ final class EventSourceCoordinator: NSObject {
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.bodyChange
-            .receive(on: RunLoop.main)
+            .receive(on: queue)
             .compactMap { [weak self] in self?.tokensDataStore.token(forContract: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 
-                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
-                guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
-                switch server {
-                case .any:
-                    for each in strongSelf.config.enabledServers {
-                        strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: each)
-                    }
-                case .server(let server):
-                    strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: server)
+                for each in strongSelf.fetchMappedContractsAndServers(token: token) {
+                    strongSelf.fetchEvents(forTokenContract: each.contract, server: each.server)
                 }
             }.store(in: &cancellable)
+    }
+
+    private func fetchMappedContractsAndServers(token: TokenObject) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+        var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
+        switch server {
+        case .any:
+            values = config.enabledServers.map { (contract: token.contractAddress, server: $0) }
+        case .server(let server):
+            values = [(contract: token.contractAddress, server: server)]
+        }
+
+        return values
     }
 
     private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
@@ -73,30 +80,38 @@ final class EventSourceCoordinator: NSObject {
             .cauterize()
     }
 
-    private func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
+    private func getEventOriginsAndTokenIds(forToken token: TokenObject) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+        var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
-        guard xmlHandler.hasAssetDefinition else { return .init() }
-        guard !xmlHandler.attributesWithEventSource.isEmpty else { return .init() }
+        guard xmlHandler.hasAssetDefinition else { return [] }
+        guard !xmlHandler.attributesWithEventSource.isEmpty else { return [] }
 
-        var fetchPromises = [Promise<Void>]()
         for each in xmlHandler.attributesWithEventSource {
             guard let eventOrigin = each.eventOrigin else { continue }
             let tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet, isSourcedFromEvents: false)
+            let tokenIds = tokenHolders.flatMap { $0.tokenIds }
 
-            for eachTokenHolder in tokenHolders {
-                guard let tokenId = eachTokenHolder.tokenIds.first else { continue }
-                let promise = EventSourceCoordinator.functional.fetchEvents(config: config, forTokenId: tokenId, token: token, eventOrigin: eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
-                fetchPromises.append(promise)
-            }
+            cards.append((eventOrigin, tokenIds))
         }
 
-        return fetchPromises
+        return cards
+    }
+
+    private func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
+        return getEventOriginsAndTokenIds(forToken: token)
+            .flatMap { value in
+                value.tokenIds.map {
+                    EventSourceCoordinator.functional.fetchEvents(config: config, forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
+                }
+            }
     }
 
     private func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
-                self?.fetchEthereumEventsImpl()
+                self?.queue.async {
+                    self?.fetchEthereumEventsImpl()
+                }
             }
         } else {
             rateLimitedUpdater?.run()
