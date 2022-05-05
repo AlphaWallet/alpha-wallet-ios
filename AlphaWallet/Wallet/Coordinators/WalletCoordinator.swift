@@ -52,7 +52,7 @@ class WalletCoordinator: Coordinator {
             createInstantWallet()
             return false
         case .addInitialWallet:
-            let controller = CreateInitialWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
+            let controller = CreateInitialWalletViewController(keystore: keystore)
             controller.delegate = self
             controller.configure()
             navigationController.viewControllers = [controller]

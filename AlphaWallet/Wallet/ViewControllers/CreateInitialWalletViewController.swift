@@ -11,87 +11,62 @@ protocol CreateInitialWalletViewControllerDelegate: AnyObject {
 class CreateInitialWalletViewController: UIViewController {
     private let keystore: Keystore
     private var viewModel = CreateInitialViewModel()
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let roundedBackground = RoundedBackground()
-    private let subtitleLabel = UILabel()
-    private let imageView = UIImageView()
-    private let createWalletButtonBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
-    private let separator = UIView.spacer(height: 1)
-    private let haveWalletLabel = UILabel()
-    private let buttonsBar = HorizontalButtonsBar(configuration: .secondary(buttons: 2))
+    private let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
 
-    private var imageViewDimension: CGFloat {
-        if ScreenChecker().isNarrowScreen {
-            return 60
-        } else {
-            return 90
-        }
-    }
-    private var topMarginOfImageView: CGFloat {
-        if ScreenChecker().isNarrowScreen {
-            return 100
-        } else {
-            return 170
-        }
-    }
+        return imageView
+    }()
+    private let buttonsBar = VerticalButtonsBar(numberOfButtons: 2)
+    private lazy var titleLabel: UILabel = {
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        return titleLabel
+    }()
 
     weak var delegate: CreateInitialWalletViewControllerDelegate?
 
-    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator) {
+    init(keystore: Keystore) {
         self.keystore = keystore
-        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
-
-        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(roundedBackground)
-
-        imageView.contentMode = .scaleAspectFit
-
-        let stackView = [
-            UIView.spacer(height: topMarginOfImageView),
-            imageView,
-            UIView.spacer(height: 10),
-            subtitleLabel,
-            UIView.spacerWidth(flexible: true),
-            createWalletButtonBar,
-            UIView.spacer(height: 25),
-            separator,
-            UIView.spacer(height: 25),
-            haveWalletLabel,
-            UIView.spacer(height: 15),
-        ].asStackView(axis: .vertical)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
-        roundedBackground.addSubview(footerBar)
+
+        view.addSubview(footerBar)
+        view.addSubview(imageView)
+        view.addSubview(titleLabel)
 
         footerBar.addSubview(buttonsBar)
 
+        let footerBottomConstraint = footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
+
         NSLayoutConstraint.activate([
-            imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 
-            createWalletButtonBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: HorizontalButtonsBar.buttonsHeight),
+            buttonsBar.bottomAnchor.constraint(equalTo: footerBar.bottomAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 20),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -20),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -HorizontalButtonsBar.buttonsHeight - HorizontalButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            roundedBackground.createConstraintsWithContainer(view: view),
+            footerBottomConstraint,
         ])
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -100,44 +75,50 @@ class CreateInitialWalletViewController: UIViewController {
 
     func configure() {
         view.backgroundColor = Colors.appBackground
-
-        subtitleLabel.textAlignment = .center
-        subtitleLabel.textColor = viewModel.subtitleColor
-        subtitleLabel.font = viewModel.subtitleFont
-        subtitleLabel.text = viewModel.subtitle
-
         imageView.image = viewModel.imageViewImage
+        titleLabel.attributedText = viewModel.titleAttributedString
 
-        separator.backgroundColor = viewModel.separatorColor
+        let createWalletButton = buttonsBar.buttons[0]
+        createWalletButton.setTitle(viewModel.createWalletButtonTitle, for: .normal)
+        createWalletButton.addTarget(self, action: #selector(createWalletSelected), for: .touchUpInside)
 
-        haveWalletLabel.textAlignment = .center
-        haveWalletLabel.textColor = viewModel.alreadyHaveWalletTextColor
-        haveWalletLabel.font = viewModel.alreadyHaveWalletTextFont
-        haveWalletLabel.text = viewModel.alreadyHaveWalletText
-
-        createWalletButtonBar.configure()
-        let createWalletButton = createWalletButtonBar.buttons[0]
-        createWalletButton.setTitle(viewModel.createButtonTitle, for: .normal)
-        createWalletButton.addTarget(self, action: #selector(createWallet), for: .touchUpInside)
-
-        buttonsBar.configure()
-        let watchButton = buttonsBar.buttons[0]
-        watchButton.setTitle(viewModel.watchButtonTitle, for: .normal)
-        watchButton.addTarget(self, action: #selector(watchWallet), for: .touchUpInside)
-        let importButton = buttonsBar.buttons[1]
-        importButton.setTitle(viewModel.importButtonTitle, for: .normal)
-        importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
+        let alreadyHaveWalletButton = buttonsBar.buttons[1]
+        alreadyHaveWalletButton.setTitle(viewModel.alreadyHaveWalletButtonText, for: .normal)
+        alreadyHaveWalletButton.addTarget(self, action: #selector(alreadyHaveWalletWallet), for: .touchUpInside)
     }
 
-    @objc private func createWallet() {
+    @objc private func createWalletSelected(_ sender: UIButton) {
         delegate?.didTapCreateWallet(inViewController: self)
     }
 
-    @objc private func watchWallet() {
-        delegate?.didTapWatchWallet(inViewController: self)
+    @objc private func alreadyHaveWalletWallet(_ sender: UIButton) {
+        let viewController = makeAlreadyHaveWalletAlertSheet(sender: sender)
+        present(viewController, animated: true)
     }
 
-    @objc private func importWallet() {
-        delegate?.didTapImportWallet(inViewController: self)
+    private func makeAlreadyHaveWalletAlertSheet(sender: UIView) -> UIAlertController {
+        let alertController = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        alertController.popoverPresentationController?.sourceView = sender
+        alertController.popoverPresentationController?.sourceRect = sender.centerRect
+
+        let importWalletAction = UIAlertAction(title: viewModel.importButtonTitle, style: .default) { _ in
+            self.delegate?.didTapWatchWallet(inViewController: self)
+        }
+
+        let trackWalletAction = UIAlertAction(title: viewModel.watchButtonTitle, style: .default) { _ in
+            self.delegate?.didTapImportWallet(inViewController: self)
+        }
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+
+        alertController.addAction(importWalletAction)
+        alertController.addAction(trackWalletAction)
+        alertController.addAction(cancelAction)
+
+        return alertController
     }
 }

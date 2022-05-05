@@ -183,6 +183,8 @@
 "detecting.serverAutomatically" = "Täytä automaattisesti";
 "detecting.serverAutomatically.buttonTitle" = "Auto";
 "editTokens.searchBar.placeholder.title" = "Etsi rahakkeita";
+"gettingStarted.alertSheet.option.watch.title" = "Track Wallet Address";
+"gettingStarted.alertSheet.option.import.title" = "Import Existing Wallet";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "Lompakon tuonnin valinnat";
 "importWallet.import.button.title" = "Tuo";
@@ -481,9 +483,9 @@
 "TokenScript.type2.conflictingFiles" = "Ristiriitaiset TokenScript-tiedostot";
 "TokenScript.type2.oldSchemaVersion" = "Vanha TokenScript-versio";
 "TokenScript.type2.invalidSignature" = "Virheellinen allekirjoitus";
-"gettingStarted.subtitle" = "Tervetuloa AlfaLompakkoon!";
+"gettingStarted.subtitle" = "AlfaLompakkoon!";
 "gettingStarted.newWallet" = "Luo uusi lompakko";
-"gettingStarted.alreadyHaveWallet" = "Minulla on jo lompakko:";
+"gettingStarted.alreadyHaveWallet" = "Minulla on jo Lompakko";
 "backup.prompt.title" = "Lompakkosi ei ole varmuuskopioitu!";
 "backup.prompt.description.withAmount" = "Et ole vielä varmuuskopioinut lompakkoasi. Sinulla %@ USD lompakossasi. Toimi!";
 "backup.prompt.backupButton.title" = "Varmuuskopioi";

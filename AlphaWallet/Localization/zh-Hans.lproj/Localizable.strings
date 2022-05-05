@@ -183,6 +183,8 @@
 "detecting.serverAutomatically" = "自动检测";
 "detecting.serverAutomatically.buttonTitle" = "自动";
 "editTokens.searchBar.placeholder.title" = "搜索通证";
+"gettingStarted.alertSheet.option.watch.title" = "Track Wallet Address";
+"gettingStarted.alertSheet.option.import.title" = "Import Existing Wallet";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "导入钱包选项";
 "importWallet.import.button.title" = "导入";
@@ -481,9 +483,9 @@
 "TokenScript.type2.conflictingFiles" = "TokenScript 文件相冲突";
 "TokenScript.type2.oldSchemaVersion" = "老旧的 TokenScript 版本";
 "TokenScript.type2.invalidSignature" = "无效签名";
-"gettingStarted.subtitle" = "欢迎使用 AlphaWallet";
+"gettingStarted.subtitle" = "AlphaWallet";
 "gettingStarted.newWallet" = "创建新钱包";
-"gettingStarted.alreadyHaveWallet" = "我已经有一个钱包：";
+"gettingStarted.alreadyHaveWallet" = "我已经有一个钱包";
 "backup.prompt.title" = "您的钱包未备份！";
 "backup.prompt.description.withAmount" = "您尚未备份钱包。您有 %@ 美元的净值，立即备份。";
 "backup.prompt.backupButton.title" = "备份钱包";

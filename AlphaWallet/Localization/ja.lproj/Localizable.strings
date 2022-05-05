@@ -183,6 +183,8 @@
 "detecting.serverAutomatically" = "Detect Automatically";
 "detecting.serverAutomatically.buttonTitle" = "Auto";
 "editTokens.searchBar.placeholder.title" = "検索のトークン";
+"gettingStarted.alertSheet.option.watch.title" = "Track Wallet Address";
+"gettingStarted.alertSheet.option.import.title" = "Import Existing Wallet";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "ウォレットのインポート オプション";
 "importWallet.import.button.title" = "インポート";
@@ -481,9 +483,9 @@
 "TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
 "TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
 "TokenScript.type2.invalidSignature" = "Invalid Signature";
-"gettingStarted.subtitle" = "Welcome to AlphaWallet";
-"gettingStarted.newWallet" = "Create a New Wallet";
-"gettingStarted.alreadyHaveWallet" = "I already have a wallet:";
+"gettingStarted.subtitle" = "AlphaWallet";
+"gettingStarted.newWallet" = "Create a new Wallet";
+"gettingStarted.alreadyHaveWallet" = "I already have a Wallet";
 "backup.prompt.title" = "Your Wallet is not backed up!";
 "backup.prompt.description.withAmount" = "You have not backed up your wallet yet. You have %@ USD net. Act now.";
 "backup.prompt.backupButton.title" = "Back up Wallet";
