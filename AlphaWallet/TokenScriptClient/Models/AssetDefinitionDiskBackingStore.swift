@@ -63,8 +63,8 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             guard let contents = try? String(contentsOf: eachUrl) else { continue }
             let fileName = eachUrl.lastPathComponent
             //TODO don't use regex. When we finally use XMLHandler to extract entities, we have to be careful not to create AssetDefinitionStore instances within XMLHandler otherwise infinite recursion by calling this func again
-            if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
-                let entities = XMLHandler.getEntities(forTokenScript: contents)
+            if let contracts = XMLHandler.functional.getHoldingContracts(forTokenScript: contents) {
+                let entities = XMLHandler.functional.getEntities(forTokenScript: contents)
                 for (eachContract, _) in contracts {
                     tokenScriptFileIndices.contractsToFileNames[eachContract, default: []] += [fileName]
                 }
@@ -205,7 +205,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         assert(isOfficial)
         let path = localURLOfXML(for: contract)
         guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
-        guard XMLHandler.isTokenScriptSupportedSchemaVersion(path) else { return nil }
+        guard XMLHandler.functional.isTokenScriptSupportedSchemaVersion(path) else { return nil }
         return lastModified.contentModificationDate
     }
 
@@ -251,9 +251,9 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
             let contracts: [AlphaWallet.Address]
             if let contents = try? String(contentsOf: url) {
-                if let holdingContracts = XMLHandler.getHoldingContracts(forTokenScript: contents)?.map({ $0.0 }) {
+                if let holdingContracts = XMLHandler.functional.getHoldingContracts(forTokenScript: contents)?.map({ $0.0 }) {
                     contracts = holdingContracts
-                    let entities = XMLHandler.getEntities(forTokenScript: contents)
+                    let entities = XMLHandler.functional.getEntities(forTokenScript: contents)
                     for eachContract in contracts {
                         tokenScriptFileIndices.contractsToFileNames[eachContract, default: []] += [fileName]
                     }

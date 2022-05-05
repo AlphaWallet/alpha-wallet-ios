@@ -131,7 +131,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
 
         //TODO improve or remove checking here. getHoldingContracts() below already check for schema support. We might have to show the error in wallet if we keep the file instead. We are deleting the files for now
         let isTokenScriptOrXml: Bool
-        switch XMLHandler.checkTokenScriptSchema(forPath: url) {
+        switch XMLHandler.functional.checkTokenScriptSchema(forPath: url) {
         case .supportedTokenScriptVersion:
             isTokenScriptOrXml = true
         case .unsupportedTokenScriptVersion:
@@ -154,7 +154,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
             try? FileManager.default.removeItem(at: destinationFileName )
             try FileManager.default.moveItem(at: url, to: destinationFileName )
             if isTokenScriptOrXml, let contents = try? String(contentsOf: destinationFileName) {
-                if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
+                if let contracts = XMLHandler.functional.getHoldingContracts(forTokenScript: contents) {
                     for (contract, chainId) in contracts {
                         let server = RPCServer(chainID: chainId)
                         delegate?.addedTokenScript(forContract: contract, forServer: server, destinationFileInUse: destinationFileInUse, filename: filename)
