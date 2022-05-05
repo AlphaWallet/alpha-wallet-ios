@@ -8,7 +8,7 @@ import web3swift
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 class CallForAssetAttributeCoordinator {
-    private var promiseCache = [AssetFunctionCall: Promise<AssetInternalValue>]()
+    private var promiseCache: ThreadSafeDictionary<AssetFunctionCall, Promise<AssetInternalValue>> = .init()
 
     func getValue(
             forAttributeId attributeId: AttributeId,
