@@ -5,7 +5,7 @@ import BigInt
 import PromiseKit
 import web3swift
 
-class GetBlockTimestampCoordinator {
+class GetBlockTimestamp {
     private static var blockTimestampCache = ThreadSafeDictionary<RPCServer, [BigUInt: Promise<Date>]>()
 
     func getBlockTimestamp(_ blockNumber: BigUInt, onServer server: RPCServer) -> Promise<Date> {

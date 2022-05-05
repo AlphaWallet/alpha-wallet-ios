@@ -8,7 +8,7 @@ import PromiseKit
 import Result
 import web3swift
 
-class GetIsERC1155ContractCoordinator {
+class IsErc1155Contract {
     private let server: RPCServer
     private var cache: CachedERC1155ContractDictionary?
 
@@ -26,7 +26,7 @@ class GetIsERC1155ContractCoordinator {
             return Promise.value(result)
         }
         return firstly {
-            GetInterfaceSupported165Coordinator(forServer: server).getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
+            IsInterfaceSupported165(forServer: server).getInterfaceSupported165(hash: ERC165Hash.official, contract: contract)
         }.get { result in
             self.cache?.setContract(for: contract, result)
         }

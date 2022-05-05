@@ -8,7 +8,7 @@ import PromiseKit
 import Result
 import web3swift
 
-class GetIsERC721ContractCoordinator {
+class IsErc721Contract {
     private let server: RPCServer
 
     private struct DoesNotSupportERC165Querying {

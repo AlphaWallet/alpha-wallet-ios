@@ -4,7 +4,7 @@ import Foundation
 import Result
 import PromiseKit
 
-class GetERC875BalanceCoordinator {
+class GetErc875Balance {
     private let queue: DispatchQueue?
     private let server: RPCServer
 
@@ -16,7 +16,7 @@ class GetERC875BalanceCoordinator {
     func getERC875TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<[String]> {
         let function = GetERC875Balance()
         return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout).map(on: queue, { balanceResult -> [String] in
-            return GetERC875BalanceCoordinator.adapt(balanceResult["0"])
+            return GetErc875Balance.adapt(balanceResult["0"])
         })
     }
 

@@ -8,7 +8,7 @@ import BigInt
 import PromiseKit
 import Result
 
-class GetERC721BalanceCoordinator {
+class GetErc721Balance {
     private let queue: DispatchQueue?
     private let server: RPCServer
 
@@ -20,7 +20,7 @@ class GetERC721BalanceCoordinator {
     func getERC721TokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address) -> Promise<BigUInt> {
         let function = GetERC721Balance()
         return callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: Constants.fetchContractDataTimeout, queue: queue).map(on: queue, { balanceResult -> BigUInt in
-                let balance = GetERC721BalanceCoordinator.adapt(balanceResult["0"] as Any)
+                let balance = GetErc721Balance.adapt(balanceResult["0"] as Any)
                 return balance
             })
     }

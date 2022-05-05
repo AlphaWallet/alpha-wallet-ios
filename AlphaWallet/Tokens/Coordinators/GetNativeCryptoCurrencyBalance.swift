@@ -8,7 +8,7 @@ import Result
 import web3swift
 import PromiseKit
 
-class GetNativeCryptoCurrencyBalanceCoordinator {
+class GetNativeCryptoCurrencyBalance {
     private let server: RPCServer
     private let queue: DispatchQueue?
     

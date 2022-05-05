@@ -4,7 +4,7 @@ import Foundation
 import PromiseKit
 
 //Use the wallet name which the user has set, otherwise fallback to ENS, if available
-class GetWalletNameCoordinator {
+class GetWalletName {
     private let config: Config
     private let resolver: DomainResolutionServiceType = DomainResolutionService()
 

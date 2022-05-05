@@ -6,7 +6,7 @@ import Result
 import web3swift
 import PromiseKit
 
-class GetERC20BalanceCoordinator {
+class GetErc20Balance {
     private let server: RPCServer
     private let queue: DispatchQueue?
 

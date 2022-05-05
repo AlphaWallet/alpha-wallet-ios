@@ -6,7 +6,7 @@ import Foundation
 import PromiseKit
 import Result
 
-class GetInterfaceSupported165Coordinator {
+class IsInterfaceSupported165 {
     private let server: RPCServer
 
     init(forServer server: RPCServer) {

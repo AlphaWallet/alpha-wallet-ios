@@ -200,7 +200,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
-                    let balanceCoordinator = GetERC875BalanceCoordinator(forServer: server, queue: queue)
+                    let balanceCoordinator = GetErc875Balance(forServer: server, queue: queue)
                     return balanceCoordinator.getERC875TokenBalance(for: accountAddress, contract: contract).then { balance -> Promise<AddTokenObjectOperation> in
                         if balance.isEmpty {
                             return .value(.none)
@@ -211,7 +211,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
                         return .value(.none)
                     }
                 case .erc20:
-                    let balanceCoordinator = GetERC20BalanceCoordinator(forServer: server, queue: queue)
+                    let balanceCoordinator = GetErc20Balance(forServer: server, queue: queue)
                     return balanceCoordinator.getBalance(for: accountAddress, contract: contract).then { balance -> Promise<AddTokenObjectOperation> in
                         if balance > 0 {
                             return tokenObjectFetcher.fetchTokenObject(for: contract, onlyIfThereIsABalance: false)

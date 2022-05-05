@@ -5,7 +5,7 @@ import Result
 import web3swift
 import PromiseKit
 
-class GetSymbolCoordinator {
+class GetContractSymbol {
     private let server: RPCServer
 
     init(forServer server: RPCServer) {

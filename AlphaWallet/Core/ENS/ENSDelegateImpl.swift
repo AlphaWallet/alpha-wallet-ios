@@ -28,6 +28,6 @@ extension ENSDelegateImpl {
 
     func getInterfaceSupported165(chainId: Int, hash: String, contract: AlphaWallet.Address) -> Promise<Bool> {
         let server = RPCServer(chainID: chainId)
-        return GetInterfaceSupported165Coordinator(forServer: server).getInterfaceSupported165(hash: hash, contract: contract)
+        return IsInterfaceSupported165(forServer: server).getInterfaceSupported165(hash: hash, contract: contract)
     }
 }
