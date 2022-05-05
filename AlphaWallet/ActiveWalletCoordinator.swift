@@ -871,14 +871,7 @@ extension ActiveWalletCoordinator: PaymentCoordinatorDelegate {
 
     //NOTE: askUserToRateAppOrSubscribeToNewsletter can't be called ringht in confirmation coordinator as after successfully sent transaction coordinator dismissed
     private func askUserToRateAppOrSubscribeToNewsletter() {
-        guard let keyWindow = UIApplication.shared.firstKeyWindow else { return }
-
-        let hostViewController: UIViewController
-        if let controller = keyWindow.rootViewController?.presentedViewController {
-            hostViewController = controller
-        } else {
-            hostViewController = navigationController
-        }
+        let hostViewController = UIApplication.shared.presentedViewController(or: navigationController)
 
         let coordinator = HelpUsCoordinator(hostViewController: hostViewController, appTracker: AppTracker(), analyticsCoordinator: analyticsCoordinator)
         coordinator.rateUsOrSubscribeToNewsletter()
