@@ -35,8 +35,8 @@ final class EventSourceCoordinatorForActivities {
 
     private func setupWatchingTokenChangesToFetchEvents() {
         tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: config.enabledServers)
-            .receive(on: RunLoop.main)
+            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
             }.store(in: &cancellable)
@@ -44,22 +44,28 @@ final class EventSourceCoordinatorForActivities {
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         assetDefinitionStore.bodyChange
-            .receive(on: RunLoop.main)
+            .receive(on: queue)
             .compactMap { [weak self] in self?.tokensDataStore.token(forContract: $0) }
             .sink { [weak self] token in
                 guard let strongSelf = self else { return }
 
-                let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
-                guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
-                switch server {
-                case .any:
-                    for each in strongSelf.config.enabledServers {
-                        strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: each)
-                    }
-                case .server(let server):
-                    strongSelf.fetchEvents(forTokenContract: token.contractAddress, server: server)
+                for each in strongSelf.fetchMappedContractsAndServers(token: token) {
+                    strongSelf.fetchEvents(forTokenContract: each.contract, server: each.server)
                 }
             }.store(in: &cancellable)
+    }
+
+    private func fetchMappedContractsAndServers(token: TokenObject) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+        var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
+        guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
+        switch server {
+        case .any:
+            values = config.enabledServers.map { (contract: token.contractAddress, server: $0) }
+        case .server(let server):
+            values = [(contract: token.contractAddress, server: server)]
+        }
+        return values
     }
 
     private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
@@ -70,18 +76,27 @@ final class EventSourceCoordinatorForActivities {
             .cauterize()
     }
 
-    private func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
+    private func getActivityCards(forToken token: TokenObject) -> [TokenScriptCard] {
+        var cards: [TokenScriptCard] = []
+
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
-        return xmlHandler.activityCards.compactMap {
-            EventSourceCoordinatorForActivities.functional.fetchEvents(config: config, tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet)
-        }
+        cards = xmlHandler.activityCards
+
+        return cards
+    }
+
+    private func fetchEvents(forToken token: TokenObject) -> [Promise<Void>] {
+        return getActivityCards(forToken: token)
+            .map { EventSourceCoordinatorForActivities.functional.fetchEvents(config: config, tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
     }
 
     private func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for Activities", limit: 60, autoRun: true) { [weak self] in
-                self?.fetchEthereumEventsImpl()
+                self?.queue.async {
+                    self?.fetchEthereumEventsImpl()
+                }
             }
         } else {
             rateLimitedUpdater?.run()
