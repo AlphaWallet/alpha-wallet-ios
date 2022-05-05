@@ -46,6 +46,7 @@ class TransactionsService {
             .eraseToAnyPublisher()
     }
     private var cancelable = Set<AnyCancellable>()
+    private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")
 
     init(sessions: ServerDictionary<WalletSession>, transactionDataStore: TransactionDataStore, tokensDataStore: TokensDataStore) {
         self.sessions = sessions
@@ -64,10 +65,16 @@ class TransactionsService {
                     self?.restartTimers()
                 } 
             }.store(in: &cancelable)
+
     }
 
     deinit {
         fetchLatestTransactionsQueue.cancelAllOperations()
+    }
+
+    private func removeUnknownTransactions() {
+        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
+        transactionDataStore.removeTransactions(for: [.unknown], servers: config.enabledServers)
     }
 
     private func setupSingleChainTransactionProviders() {
@@ -85,6 +92,10 @@ class TransactionsService {
     func start() {
         for each in providers {
             each.start()
+        }
+        
+        queue.async {
+            self.removeUnknownTransactions()
         }
     }
 
