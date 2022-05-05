@@ -8,12 +8,13 @@
 import PromiseKit
 import Moya
 import Combine
+import Foundation
 
 protocol CoinTickersFetcherType: AnyObject {
     var tickersUpdatedPublisher: AnyPublisher<Void, Never> { get }
 
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
-    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void>
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker])
     func fetchChartHistories(addressToRPCServerKey: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]>
 }
 
@@ -82,15 +83,14 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         return promise
     }
 
-    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
-        let cache = self.cache
-        return firstly {
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) {
+        firstly {
             fetchTickers(forTokens: tokens)
-        }.get { tickers, tickerIds in
-            cache.tickers = tickers
-            cache.lastFetchedTickerIds = tickerIds
-            cache.lastFetchedDate = Date()
-        }.map { _ in }
+        }.done { [weak cache] tickers, tickerIds in
+            cache?.tickers = tickers
+            cache?.lastFetchedTickerIds = tickerIds
+            cache?.lastFetchedDate = Date()
+        }.cauterize()
     }
 
     func fetchChartHistories(addressToRPCServerKey addressAndPRCServer: AddressAndRPCServer, force: Bool, periods: [ChartHistoryPeriod]) -> Promise<[ChartHistory]> {
@@ -154,15 +154,15 @@ class CoinTickersFetcher: CoinTickersFetcherType {
         return firstly {
             fetchSupportedTickerIds()
         }.compactMap(on: CoinTickersFetcher.queue, { tickerIds -> [MappedCoinTickerId] in
-            let mappedTokensToCoinTickerIds = tokens.compactMap { tokenObject -> MappedCoinTickerId? in
-               let spamNeedle = AddressAndRPCServer(address: tokenObject.contractAddress, server: tokenObject.server)
+            let mappedTokensToCoinTickerIds = tokens.compactMap { token -> MappedCoinTickerId? in
+               let spamNeedle = AddressAndRPCServer(address: token.contractAddress, server: token.server)
                 if spamTokens.isSpamToken(spamNeedle) {
                     return nil
                 }
 
-                if let tickerId = tickerIds.first(where: { tickerIdFilter.matches(tokenObject: tokenObject, tickerId: $0) }) {
-                    let tickerId = tokenObject.overridenCoinGeckoTickerId(tickerId: tickerId.id)
-                    return MappedCoinTickerId(tickerId: tickerId, contractAddress: tokenObject.contractAddress, server: tokenObject.server)
+                if let tickerId = tickerIds.first(where: { tickerIdFilter.matches(token: token, tickerId: $0) }) {
+                    let tickerId = token.overridenCoinGeckoTickerId(tickerId: tickerId.id)
+                    return MappedCoinTickerId(tickerId: tickerId, contractAddress: token.contractAddress, server: token.server)
                 } else {
                     return nil
                 }

@@ -97,27 +97,9 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .receive(on: queue)
             .sink { [weak coinTickersFetcher] tokens in
                 let tokens = (tokens + Self.nativeCryptoForAllChains).filter { !$0.server.isTestnet }
-                let uniqueTokens = Set(tokens)
+                let uniqueTokens = Set(tokens).map { TokenMappedToTicker(token: $0) }
 
-                var store = ServerDictionary<[TokenMappedToTicker]>()
-
-                for each in uniqueTokens {
-                    var array: [TokenMappedToTicker]
-                    if let value = store[safe: each.server] {
-                        array = value
-                    } else {
-                        array = .init()
-                    }
-
-                    array.append(TokenMappedToTicker(token: each))
-
-                    store[each.server] = array
-                }
-
-                coinTickersFetcher?.fetchPrices(forTokens: store.values.flatMap({ $0 }))
-                    .done { _ in }
-                    .cauterize()
-                
+                coinTickersFetcher?.fetchPrices(forTokens: uniqueTokens)
             }.store(in: &cancelable)
     }
 

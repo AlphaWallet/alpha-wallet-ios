@@ -276,8 +276,8 @@ import Combine
 
 final class FakeCoinTickersFetcher: CoinTickersFetcherType {
 
-    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) -> Promise<Void> {
-        return .value(())
+    func fetchPrices(forTokens tokens: [TokenMappedToTicker]) {
+        
     }
 
     var tickersUpdatedPublisher: AnyPublisher<Void, Never> {
