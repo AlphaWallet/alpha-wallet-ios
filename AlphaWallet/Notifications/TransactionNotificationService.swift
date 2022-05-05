@@ -30,7 +30,7 @@ final class TransactionNotificationSourceService: NotificationSourceService {
 
     func start(wallet: Wallet) {
         let predicate = transactionsPredicate(wallet: wallet)
-        
+
         transactionDataStore
             .transactionsChangesetPublisher(forFilter: .predicate(predicate), servers: config.enabledServers)
             .map { changeset -> ServerDictionary<[TransactionInstance]> in
@@ -45,6 +45,7 @@ final class TransactionNotificationSourceService: NotificationSourceService {
                 }
             }
             .filter { !$0.isEmpty }
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] serverFilteredTransactions in
                 for each in serverFilteredTransactions.keys {
                     let transactions = serverFilteredTransactions[each]
