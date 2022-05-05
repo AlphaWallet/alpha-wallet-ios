@@ -85,9 +85,9 @@ class AppCoordinator: NSObject, Coordinator {
         return service
     }()
 
-    private lazy var walletSessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
+    private lazy var sessionsSubject = CurrentValueSubject<ServerDictionary<WalletSession>, Never>(.init())
     private lazy var walletConnectCoordinator: WalletConnectCoordinator = {
-        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config, sessionsSubject: walletSessionsSubject)
+        let coordinator = WalletConnectCoordinator(keystore: keystore, navigationController: navigationController, analyticsCoordinator: analyticsService, config: config, sessionsSubject: sessionsSubject)
 
         return coordinator
     }()
@@ -206,7 +206,7 @@ class AppCoordinator: NSObject, Coordinator {
                 coinTickersFetcher: coinTickersFetcher,
                 tokenActionsService: tokenActionsService,
                 walletConnectCoordinator: walletConnectCoordinator,
-                sessionsSubject: walletSessionsSubject,
+                sessionsSubject: sessionsSubject,
                 notificationService: notificationService)
 
         coordinator.delegate = self
