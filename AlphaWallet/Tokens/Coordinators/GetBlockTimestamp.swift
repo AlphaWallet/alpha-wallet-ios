@@ -20,12 +20,11 @@ class GetBlockTimestamp {
 
         let promise: Promise<Date> = firstly {
             web3swift.web3.Eth(provider: web3.provider, web3: web3).getBlockByNumberPromise(blockNumber)
-        }.map {
-            $0.timestamp
-        }
+        }.map(on: web3.requestDispatcher.queue, { $0.timestamp })
 
         cacheForServer[blockNumber] = promise
         Self.blockTimestampCache[server] = cacheForServer
+
         return promise
     }
 }
