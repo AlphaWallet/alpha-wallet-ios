@@ -69,8 +69,6 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     }
 
     func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy) {
-        balanceProvider.refreshBalance(updatePolicy: refreshBalancePolicy, wallets: [wallet], force: true)
-            .done { _ in }
-            .cauterize()
+        balanceProvider.refreshBalance(updatePolicy: refreshBalancePolicy, wallets: [wallet])
     }
 }

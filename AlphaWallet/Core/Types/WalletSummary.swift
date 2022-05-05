@@ -10,10 +10,14 @@ import BigInt
 
 struct WalletSummary: Equatable {
 
-    private let balances: [WalletBalance]
+    private var totalAmountDouble: Double?
+    private var etherTotalAmountDouble: NSDecimalNumber?
+    var changePercentage: Double?
 
     init(balances: [WalletBalance]) {
-        self.balances = balances
+        self.changePercentage = WalletSummary.functional.createChangePercentage(balances: balances)
+        self.totalAmountDouble = WalletSummary.functional.createTotalAmount(balances: balances)
+        self.etherTotalAmountDouble = WalletSummary.functional.createEtherTotalAmountDouble(balances: balances)
     }
 
     var totalAmount: String {
@@ -33,8 +37,22 @@ struct WalletSummary: Equatable {
             return nil
         }
     }
+}
 
-    var changePercentage: Double? {
+extension Double {
+    var nilIfNan: Double? {
+        guard !isNaN else { return nil }
+        return self
+    }
+}
+
+extension WalletSummary {
+    enum functional {}
+}
+
+extension WalletSummary.functional {
+
+    static func createChangePercentage(balances: [WalletBalance]) -> Double? {
         let values = balances.compactMap { $0.changePercentage?.nilIfNan }
         if values.isEmpty {
             return nil
@@ -43,7 +61,7 @@ struct WalletSummary: Equatable {
         }
     }
 
-    private var totalAmountDouble: Double? {
+    static func createTotalAmount(balances: [WalletBalance]) -> Double? {
         var amount: Double?
 
         for each in balances {
@@ -57,9 +75,9 @@ struct WalletSummary: Equatable {
         }
 
         return amount?.nilIfNan
-    } 
+    }
 
-    private var etherTotalAmountDouble: NSDecimalNumber? {
+    static func createEtherTotalAmountDouble(balances: [WalletBalance]) -> NSDecimalNumber? {
         var amount: NSDecimalNumber?
 
         for each in balances {
@@ -73,12 +91,5 @@ struct WalletSummary: Equatable {
         }
 
         return amount
-    }
-}
-
-extension Double {
-    var nilIfNan: Double? {
-        guard !isNaN else { return nil }
-        return self
     }
 }

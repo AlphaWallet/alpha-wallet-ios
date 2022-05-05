@@ -58,7 +58,7 @@ func getCachedWeb3(forServer server: RPCServer, timeout: TimeInterval) throws ->
 
 private let callSmartContractQueue = DispatchQueue(label: "com.callSmartContractQueue.updateQueue")
 //`shouldDelayIfCached` is a hack for TokenScript views
-func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], timeout: TimeInterval? = nil, shouldDelayIfCached: Bool = false) -> Promise<[String: Any]> {
+func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [], timeout: TimeInterval? = nil, shouldDelayIfCached: Bool = false, queue: DispatchQueue? = nil) -> Promise<[String: Any]> {
     let timeout: TimeInterval = 60
     //We must include the ABI string in the key because the order of elements in a dictionary when serialized in the string is not ordered. Parameters (which is ordered) should ensure it's the same function
     let cacheKey = "\(contract).\(functionName) \(parameters) \(server.chainID)"
@@ -84,27 +84,27 @@ func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Addre
     let result: Promise<[String: Any]> = Promise { seal in
         callSmartContractQueue.async {
             guard let web3 = try? getCachedWeb3(forServer: server, timeout: timeout) else {
-                seal.reject( Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
+                seal.reject(Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
                 return
             }
 
             let contractAddress = EthereumAddress(address: contract)
 
             guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
-                seal.reject( Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))
+                seal.reject(Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))
                 return
             }
             guard let promiseCreator = contractInstance.method(functionName, parameters: parameters, options: nil) else {
-                seal.reject( Web3Error(description: "Error calling \(contract.eip55String).\(functionName)() with parameters: \(parameters)"))
+                seal.reject(Web3Error(description: "Error calling \(contract.eip55String).\(functionName)() with parameters: \(parameters)"))
                 return
             }
 
             //callPromise() creates a promise. It doesn't "call" a promise. Bad name
-            promiseCreator.callPromise(options: nil).done(on: .main) { d in
+            promiseCreator.callPromise(options: nil).done(on: queue ?? .main, { d in
                 seal.fulfill(d)
-            }.catch(on: .main) { e in
+            }).catch(on: queue ?? .main, { e in
                 seal.reject(e)
-            }
+            })
         }
     }
 

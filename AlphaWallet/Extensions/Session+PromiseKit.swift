@@ -68,20 +68,21 @@ extension Session {
     }
 
     private class func sendImpl<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {
-        Promise { seal in
-            Session.send(request, callbackQueue: callbackQueue) { result in
-                switch result {
-                case .success(let result):
-                    seal.fulfill(result)
-                case .failure(let error):
-                    if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
-                        seal.reject(e)
-                    } else {
-                        seal.reject(error)
-                    }
+        let (promise, seal) = Promise<Request.Response>.pending()
+        Session.send(request, callbackQueue: callbackQueue) { result in
+            switch result {
+            case .success(let result):
+                seal.fulfill(result)
+            case .failure(let error):
+                if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
+                    seal.reject(e)
+                } else {
+                    seal.reject(error)
                 }
             }
         }
+        
+        return promise
     }
 
     class func send<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> Promise<Request.Response> {

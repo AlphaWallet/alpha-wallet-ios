@@ -18,7 +18,7 @@ class AccountViewModel {
         
         return walletBalanceService
             .walletBalancePublisher(wallet: wallet)
-            .map { self.apprecation24hourAttributedString(for: $0) }
+            .compactMap { [weak self] in self?.apprecation24hourAttributedString(for: $0) }
             .receive(on: RunLoop.main)
             .prepend(initialApprecation24hour)
             .eraseToAnyPublisher()
@@ -28,7 +28,7 @@ class AccountViewModel {
         let initialBalance = balanceAttributedString(for: walletBalanceService.walletBalance(wallet: wallet).totalAmountString)
 
         return walletBalanceService.walletBalancePublisher(wallet: wallet)
-            .map { self.balanceAttributedString(for: $0.totalAmountString) }
+            .compactMap { [weak self] in self?.balanceAttributedString(for: $0.totalAmountString) }
             .receive(on: RunLoop.main)
             .prepend(initialBalance)
             .eraseToAnyPublisher()
@@ -54,7 +54,7 @@ class AccountViewModel {
             .prepend((image: nil, resolution: .resolved(nil)))
             .replaceError(with: (image: nil, resolution: .resolved(nil)))
             .map { $0.resolution.value }
-            .map { self.addressAttributedString(ensName: $0) }
+            .compactMap { [weak self] in self?.addressAttributedString(ensName: $0) }
             .receive(on: RunLoop.main)
             .prepend(addressAttributedString(ensName: nil))
             .eraseToAnyPublisher()
@@ -82,11 +82,7 @@ class AccountViewModel {
 
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
-    }
-
-//    var address: AlphaWallet.Address {
-//        return wallet.address
-//    }
+    } 
 
     var isSelected: Bool {
         return wallet == current

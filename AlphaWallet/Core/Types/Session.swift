@@ -8,18 +8,22 @@ class WalletSession {
     let tokenBalanceService: TokenBalanceService
     let config: Config
     let chainState: ChainState
-    let tokenProvider: TokenProviderType
+    lazy private (set) var tokenProvider: TokenProviderType = {
+        return TokenProvider(account: account, server: server, queue: queue)
+    }()
     var sessionID: String {
         return WalletSession.functional.sessionID(account: account, server: server)
     }
-    
+    lazy private (set) var queue: DispatchQueue = {
+        return DispatchQueue(label: "com.WalletSession.\(account.address.eip55String).\(server)")
+    }()
+
     init(account: Wallet, server: RPCServer, config: Config, tokenBalanceService: TokenBalanceService) {
         self.account = account
         self.server = server
         self.config = config
         self.chainState = ChainState(config: config, server: server)
         self.tokenBalanceService = tokenBalanceService
-        self.tokenProvider = TokenProvider(account: account, server: server)
 
         if config.development.isAutoFetchingDisabled {
             //no-op

@@ -153,7 +153,6 @@ class AppCoordinator: NSObject, Coordinator {
 
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
-        walletBalanceService.start()
         oneInchSwapService.fetchSupportedTokens()
         rampBuyService.fetchSupportedTokens()
 

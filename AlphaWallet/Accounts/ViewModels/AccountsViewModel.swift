@@ -41,12 +41,7 @@ class AccountsViewModel {
     }
 
     lazy var walletSummaryViewModel: WalletSummaryViewModel = {
-        let walletsSummary = walletBalanceService.walletsSummaryPublisher
-            .receive(on: RunLoop.main)
-            .prepend(walletBalanceService.walletsSummary)
-            .eraseToAnyPublisher()
-
-        return .init(walletSummary: walletsSummary, config: config)
+        return .init(walletSummary: walletBalanceService.walletsSummaryPublisher, config: config)
     }()
 
     var hasWallets: Bool {
@@ -80,12 +75,10 @@ class AccountsViewModel {
 
     func reloadBalance() {
         reloadBalanceSubject.send(.fetching)
-        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets, force: true)
-            .done { [weak reloadBalanceSubject] _ in
-                reloadBalanceSubject?.send(.done)
-            }.catch { [weak reloadBalanceSubject] error in
-                reloadBalanceSubject?.send(.failure(error: error))
-            }
+        walletBalanceService.refreshBalance(updatePolicy: .all, wallets: keystore.wallets)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.reloadBalanceSubject.send(.done)
+        } 
     }
 
     func delete(account: Wallet) -> Result<Void, KeystoreError> {

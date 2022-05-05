@@ -11,20 +11,22 @@ extension NonFungibleFromJson {
     }
 }
 
+private let decoder = JSONDecoder()
+
 func nonFungible(fromJsonData jsonData: Data, tokenType: TokenType? = nil) -> NonFungibleFromJson? {
-    if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: jsonData) {
+    if let nonFungible = try? decoder.decode(OpenSeaNonFungible.self, from: jsonData) {
         return nonFungible
     }
-    if let nonFungible = try? JSONDecoder().decode(NonFungibleFromTokenUri.self, from: jsonData) {
+    if let nonFungible = try? decoder.decode(NonFungibleFromTokenUri.self, from: jsonData) {
         return nonFungible
     }
 
     let nonFungibleTokenType = tokenType.flatMap { MultipleChainsTokensDataStore.functional.nonFungibleTokenType(fromTokenType: $0) }
     //Parse JSON strings which were saved before we added support for ERC1155. So they are might be ERC721s with missing fields
-    if let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungibleBeforeErc1155Support.self, from: jsonData) {
+    if let nonFungible = try? decoder.decode(OpenSeaNonFungibleBeforeErc1155Support.self, from: jsonData) {
         return nonFungible.asPostErc1155Support(tokenType: nonFungibleTokenType)
     }
-    if let nonFungible = try? JSONDecoder().decode(NonFungibleFromTokenUriBeforeErc1155Support.self, from: jsonData) {
+    if let nonFungible = try? decoder.decode(NonFungibleFromTokenUriBeforeErc1155Support.self, from: jsonData) {
         return nonFungible.asPostErc1155Support(tokenType: nonFungibleTokenType)
     }
 

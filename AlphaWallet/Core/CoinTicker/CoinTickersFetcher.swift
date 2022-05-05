@@ -9,7 +9,7 @@ import PromiseKit
 import Moya
 import Combine
 
-protocol CoinTickersFetcherType {
+protocol CoinTickersFetcherType: AnyObject {
     var tickersUpdatedPublisher: AnyPublisher<Void, Never> { get }
 
     func ticker(for addressAndPRCServer: AddressAndRPCServer) -> CoinTicker?
@@ -143,9 +143,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
     }
 
     private func fetchTickers(forTokens tokens: [TokenMappedToTicker]) -> Promise<(tickers: [AddressAndRPCServer: CoinTicker], tickerIds: [String])> {
-        guard !isFetchingPrices else { return .init(error: Error.alreadyFetchingPrices) }
-
-        isFetchingPrices = true
 
         let cache = self.cache
         let pricesCacheLifetime = self.pricesCacheLifetime
@@ -182,8 +179,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 }
             }
             return Self.fetchPrices(provider: provider, config: config, ids: ids, mappedCoinTickerIds: mapped, tickerIds: tickerIds).map { (tickers: $0, tickerIds: tickerIds) }
-        }).ensure(on: CoinTickersFetcher.queue, { [weak self] in
-            self?.isFetchingPrices = false
         })
     }
 
