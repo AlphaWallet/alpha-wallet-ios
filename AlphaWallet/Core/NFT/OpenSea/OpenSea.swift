@@ -6,7 +6,7 @@ import AlphaWalletOpenSea
 
 final class OpenSea {
     private let storage: Storage<[AddressAndRPCServer: OpenSeaNonFungiblesToAddress]> = .init(fileName: "OpenSea", defaultValue: [:])
-    private var cachedPromises: [AddressAndRPCServer: Promise<OpenSeaNonFungiblesToAddress>] = [:]
+    private var cachedPromises: ThreadSafeDictionary<AddressAndRPCServer, Promise<OpenSeaNonFungiblesToAddress>> = .init()
     private let queue: DispatchQueue = DispatchQueue(label: "com.OpenSea.UpdateQueue")
     private lazy var networkProvider: OpenSeaNetworkProvider = OpenSeaNetworkProvider(queue: queue)
 
