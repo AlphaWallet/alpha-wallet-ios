@@ -255,7 +255,7 @@ class AppCoordinator: NSObject, Coordinator {
         WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService).createInitialWalletIfMissing()
     }
 
-    private func showTransactionsIfNeeded() {
+    private func showActiveWalletIfNeeded() {
         if activeWalletCoordinator != nil {
             //no-op
         } else if let pendingCoordinator = pendingActiveWalletCoordinator {
@@ -271,7 +271,7 @@ class AppCoordinator: NSObject, Coordinator {
     /// Return true if handled
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
         createInitialWalletIfMissing()
-        showTransactionsIfNeeded()
+        showActiveWalletIfNeeded()
 
         return universalLinkCoordinator.handleUniversalLinkOpen(url: url)
     }
@@ -281,7 +281,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func launchUniversalScanner() {
-        showTransactionsIfNeeded()
+        showActiveWalletIfNeeded()
         activeWalletCoordinator?.launchUniversalScanner()
     }
 
