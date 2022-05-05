@@ -9,9 +9,13 @@ import Foundation
 
 final class CleanupWallets: Initializer {
     private let keystore: Keystore
-
-    init(keystore: Keystore) {
+    private let walletAddressesStore: WalletAddressesStore
+    private let config: Config
+    
+    init(keystore: Keystore, walletAddressesStore: WalletAddressesStore, config: Config) {
         self.keystore = keystore
+        self.config = config
+        self.walletAddressesStore = walletAddressesStore
     }
 
     func perform() {
@@ -23,5 +27,6 @@ final class CleanupWallets: Initializer {
         }
 
         DatabaseMigration.removeWalletsIfRealmFilesMissed(keystore: keystore)
+        DatabaseMigration.oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: walletAddressesStore, config: config)
     }
 }

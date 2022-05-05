@@ -137,6 +137,32 @@ extension DatabaseMigration {
         }
     }
 
+    static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: WalletAddressesStore, config: Config) {
+        guard !config.hasMigratedToSharedRealm() else { return }
+
+        for each in walletAddressesStore.wallets {
+            let migration = DatabaseMigration(account: each)
+            migration.perform()
+            migration.oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm()
+        }
+
+        config.markAsMigratedToSharedRealmDatabase()
+    }
+
+    private func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm() {
+        let oldPerWalletDatabase = try! Realm(configuration: config)
+        let realm = Realm.shared()
+
+        try? realm.write {
+            for each in oldPerWalletDatabase.objects(History.self) {
+                realm.create(History.self, value: each)
+            }
+            for each in oldPerWalletDatabase.objects(Bookmark.self) {
+                realm.create(Bookmark.self, value: each)
+            }
+        }
+    }
+
     func oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: AssetDefinitionStore) {
         let migration = self
 
@@ -202,3 +228,14 @@ extension DatabaseMigration {
     }
 }
 
+fileprivate extension Config {
+    private static var storageKey: String = "migrationsToSharedRealmForBookmarks"
+
+    func hasMigratedToSharedRealm() -> Bool {
+        defaults.bool(forKey: Config.storageKey)
+    }
+
+    func markAsMigratedToSharedRealmDatabase() {
+        defaults.set(true, forKey: Config.storageKey)
+    }
+}
