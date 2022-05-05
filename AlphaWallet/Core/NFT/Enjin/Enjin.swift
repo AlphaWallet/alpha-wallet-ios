@@ -19,7 +19,7 @@ typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinTo
 final class Enjin {
     private let networkProvider = EnjinNetworkProvider()
 
-    private var promiseCache: [AddressAndRPCServer: Promise<EnjinSemiFungiblesToAddress>] = [:]
+    private var promiseCache: ThreadSafeDictionary<AddressAndRPCServer, Promise<EnjinSemiFungiblesToAddress>> = .init()
     private let queue: DispatchQueue = DispatchQueue(label: "com.Enjin.UpdateQueue")
 
     typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
