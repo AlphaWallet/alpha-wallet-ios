@@ -228,11 +228,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         migration.oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: assetDefinitionStore)
     }
 
-    private func removeUnknownTransactions() {
-        //TODO why do we remove such transactions? especially `.failed` and `.unknown`?
-        transactionDataStore.removeTransactions(for: [.unknown], servers: config.enabledServers)
-    }
-
     private func setupWalletSessions() {
         var walletSessions: ServerDictionary<WalletSession> = .init()
         for each in config.enabledServers {
@@ -249,8 +244,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
-        setupWalletSessions()
-        removeUnknownTransactions()
+        setupWalletSessions() 
     }
 
     func showTabBar(animated: Bool) {
