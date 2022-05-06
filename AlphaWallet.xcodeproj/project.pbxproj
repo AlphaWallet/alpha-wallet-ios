@@ -509,7 +509,6 @@
 		5E7C78F1D29280E3FF4EAF5E /* RoundedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75918317E13AD540DCA7 /* RoundedBackground.swift */; };
 		5E7C78F7C4848D484AD4183A /* DefaultActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AEDAAE638601C7122A5 /* DefaultActivityView.swift */; };
 		5E7C78FF73BAB3E6EBE1F682 /* SingleChainTransactionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70CA72BB443C987ECDD9 /* SingleChainTransactionProvider.swift */; };
-		5E7C78FF93B0DD68700FAFB6 /* NativeCryptoCurrencyBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D0476B2C4EEB526189D /* NativeCryptoCurrencyBalanceView.swift */; };
 		5E7C7900E8FF0E478376861B /* URLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C716ABBF98AD0823CB4A0 /* URLTests.swift */; };
 		5E7C79284D45EF4C5440E546 /* EnabledServersCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C7CB95B7EE4B2547585 /* EnabledServersCoordinator.swift */; };
 		5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C51CEC4AAFDFBD75482 /* ConsoleCoordinator.swift */; };
@@ -1729,7 +1728,6 @@
 		5E7C7CE6E3560E773D2287E2 /* ElevateWalletSecurityCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElevateWalletSecurityCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7CF1465A1DCB44371BA9 /* ConsoleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConsoleViewController.swift; sourceTree = "<group>"; };
 		5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
-		5E7C7D0476B2C4EEB526189D /* NativeCryptoCurrencyBalanceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeCryptoCurrencyBalanceView.swift; sourceTree = "<group>"; };
 		5E7C7D0BC856442683F18DDF /* XMLHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
 		5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AlphaWalletAddress+UI.swift"; sourceTree = "<group>"; };
 		5E7C7D15A0AFDB3EEF4D0781 /* RestartTaskQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestartTaskQueue.swift; sourceTree = "<group>"; };
@@ -4701,7 +4699,6 @@
 				5E7C79FA3E6A05845ECFCDCF /* BrowserHistoryViewControllerHeaderView.swift */,
 				5E7C790B6371A5BCD733A4BE /* DappsHomeEmptyView.swift */,
 				5E7C7171B802C0C2718EEED0 /* MyDappsViewControllerHeaderView.swift */,
-				5E7C7D0476B2C4EEB526189D /* NativeCryptoCurrencyBalanceView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6675,7 +6672,6 @@
 				5E7C72A83542B1CB69E7B4B7 /* EnabledServersViewController.swift in Sources */,
 				5E7C79284D45EF4C5440E546 /* EnabledServersCoordinator.swift in Sources */,
 				5E7C745ECFCAE8B1A52B7FAC /* EnabledServersViewModel.swift in Sources */,
-				5E7C78FF93B0DD68700FAFB6 /* NativeCryptoCurrencyBalanceView.swift in Sources */,
 				5E7C751D847B47B2BA67F6B5 /* PaymentFlowFromEip681UrlResolver.swift in Sources */,
 				02E7B6782795352E00311218 /* Formatter.swift in Sources */,
 				5E7C76C8A983A91A82F646E5 /* TokenInstanceWebView.swift in Sources */,
