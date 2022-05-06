@@ -30,11 +30,13 @@ final class EventSourceCoordinator: NSObject {
     }
 
     func start() {
-        setupWatchingTokenChangesToFetchEvents()
-        setupWatchingTokenScriptFileChangesToFetchEvents()
+        guard !config.development.isAutoFetchingDisabled else { return }
+
+        subscribeForTokenChanges()
+        subscribeForTokenScriptFileChanges()
     }
 
-    private func setupWatchingTokenChangesToFetchEvents() {
+    private func subscribeForTokenChanges() {
         tokensDataStore
             .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
             .receive(on: queue)
@@ -43,7 +45,7 @@ final class EventSourceCoordinator: NSObject {
             }.store(in: &cancellable)
     }
 
-    private func setupWatchingTokenScriptFileChangesToFetchEvents() {
+    private func subscribeForTokenScriptFileChanges() {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.bodyChange
             .receive(on: queue)
@@ -63,7 +65,7 @@ final class EventSourceCoordinator: NSObject {
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
         switch server {
         case .any:
-            values = config.enabledServers.map { (contract: token.contractAddress, server: $0) }
+            values = enabledServers.map { (contract: token.contractAddress, server: $0) }
         case .server(let server):
             values = [(contract: token.contractAddress, server: server)]
         }
@@ -101,7 +103,7 @@ final class EventSourceCoordinator: NSObject {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
-                    EventSourceCoordinator.functional.fetchEvents(config: config, forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
+                    EventSourceCoordinator.functional.fetchEvents(forTokenId: $0, token: token, eventOrigin: value.eventOrigin, wallet: wallet, eventsDataStore: eventsDataStore, queue: queue)
                 }
             }
     }
@@ -136,45 +138,40 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(config: Config, forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
-        if config.development.isAutoFetchingDisabled {
-            return Promise { _ in }
-        }
+    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (promise, seal) = Promise<Void>.pending()
 
-        queue.async {
-            let (filterName, filterValue) = eventOrigin.eventFilter
-            let filterParam = eventOrigin
-                .parameters
-                .filter { $0.isIndexed }
-                .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
+        let (filterName, filterValue) = eventOrigin.eventFilter
+        let filterParam = eventOrigin
+            .parameters
+            .filter { $0.isIndexed }
+            .map { Self.formFilterFrom(fromParameter: $0, tokenId: tokenId, filterName: filterName, filterValue: filterValue, wallet: wallet) }
 
-            let oldEvent = eventsDataStore
-                .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
-            let fromBlock: EventFilter.Block
-            if let newestEvent = oldEvent {
-                fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
-            } else {
-                fromBlock = .blockNumber(0)
-            }
-            let addresses = [EthereumAddress(address: eventOrigin.contract)]
-            let parameterFilters = filterParam.map { $0?.filter }
-
-            let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
-
-            getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-            .done(on: queue, { result in
-                let events = result.compactMap {
-                    Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
-                }
-
-                eventsDataStore.add(events: events)
-                seal.fulfill(())
-            }).catch(on: queue, { e in
-                error(value: e, rpcServer: token.server, address: token.contractAddress)
-                seal.reject(e)
-            })
+        let oldEvent = eventsDataStore
+            .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: token.contractAddress, server: token.server, eventName: eventOrigin.eventName)
+        let fromBlock: EventFilter.Block
+        if let newestEvent = oldEvent {
+            fromBlock = .blockNumber(UInt64(newestEvent.blockNumber + 1))
+        } else {
+            fromBlock = .blockNumber(0)
         }
+        let addresses = [EthereumAddress(address: eventOrigin.contract)]
+        let parameterFilters = filterParam.map { $0?.filter }
+
+        let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
+
+        getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+        .done(on: queue, { result in
+            let events = result.compactMap {
+                Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
+            }
+
+            eventsDataStore.add(events: events)
+            seal.fulfill(())
+        }).catch(on: queue, { e in
+            error(value: e, rpcServer: token.server, address: token.contractAddress)
+            seal.reject(e)
+        })
 
         return promise
     }
