@@ -30,6 +30,7 @@ class VerticalButtonsBar: UIView {
         maxButtonCount = numberOfButtons
         super.init(frame: .zero)
         setup(numberOfButtons: numberOfButtons)
+        adjustHeight()
     }
 
     required init?(coder: NSCoder) {

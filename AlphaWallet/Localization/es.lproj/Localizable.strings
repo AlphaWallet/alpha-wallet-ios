@@ -183,6 +183,8 @@
 "detecting.serverAutomatically" = "Detectar automáticamente";
 "detecting.serverAutomatically.buttonTitle" = "Auto";
 "editTokens.searchBar.placeholder.title" = "Buscar tokens";
+"gettingStarted.alertSheet.option.watch.title" = "Track Wallet Address";
+"gettingStarted.alertSheet.option.import.title" = "Import Existing Wallet";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "Opciones de importación de monedero";
 "importWallet.import.button.title" = "Importar";
@@ -481,9 +483,9 @@
 "TokenScript.type2.conflictingFiles" = "Archivos de TokenScript en conflicto";
 "TokenScript.type2.oldSchemaVersion" = "Versión antigua de TokenScript";
 "TokenScript.type2.invalidSignature" = "Firma no válida";
-"gettingStarted.subtitle" = "Bienvenido a AlphaWallet";
+"gettingStarted.subtitle" = "AlphaWallet";
 "gettingStarted.newWallet" = "Crear un monedero nuevo";
-"gettingStarted.alreadyHaveWallet" = "Ya tengo un monedero:";
+"gettingStarted.alreadyHaveWallet" = "Ya tengo un Monedero";
 "backup.prompt.title" = "¡No has hecho una copia de seguridad de tu monedero!";
 "backup.prompt.description.withAmount" = "Todavía no has hecho una copia de seguridad de tu monedero. Tienes %@ USD netos. Hazlo ahora.";
 "backup.prompt.backupButton.title" = "Hacer una copia de seguridad del monedero";
