@@ -39,9 +39,7 @@ class TokenViewController: UIViewController {
     private var activitiesPageView: ActivitiesPageView
     private var alertsPageView: PriceAlertsPageView
     private let activitiesService: ActivitiesServiceType
-    private var alertsSubscriptionKey: Subscribable<[PriceAlert]>.SubscribableKey?
     private let alertService: PriceAlertServiceType
-    private lazy var alertsSubscribable = alertService.alertsSubscribable(strategy: .token(tokenObject))
     private var cancelable = Set<AnyCancellable>()
 
     init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
@@ -79,11 +77,7 @@ class TokenViewController: UIViewController {
 
         navigationItem.largeTitleDisplayMode = .never
 
-        alertsSubscriptionKey = alertsSubscribable.subscribe { [weak alertsPageView] alerts in
-            guard let view = alertsPageView else { return }
 
-            view.configure(viewModel: .init(alerts: alerts))
-        }
 
         refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType: transactionType)
     }
@@ -92,20 +86,28 @@ class TokenViewController: UIViewController {
         return nil
     }
 
-    deinit {
-        alertsSubscriptionKey.flatMap { alertsSubscribable.unsubscribe($0) }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         configureBalanceViewModel()
         configure(viewModel: viewModel)
 
+        subscribeForAlerts()
+        subscribeForActivities()
+    }
+
+    private func subscribeForActivities() {
         activitiesService.viewModelPublisher
             .receive(on: RunLoop.main)
             .sink { [weak activitiesPageView] viewModel in
                 activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
+            }.store(in: &cancelable)
+    }
+
+    private func subscribeForAlerts() {
+        alertService.alertsPublisher(forStrategy: .token(tokenObject))
+            .sink { [weak alertsPageView] alerts in
+                alertsPageView?.configure(viewModel: .init(alerts: alerts))
             }.store(in: &cancelable)
     }
 
@@ -139,7 +141,7 @@ class TokenViewController: UIViewController {
         viewModel2.values = viewModel.chartHistory
 
         tokenInfoPageView.configure(viewModel: viewModel2)
-        alertsPageView.configure(viewModel: .init(alerts: alertsSubscribable.value ?? []))
+        alertsPageView.configure(viewModel: .init(alerts: alertService.alerts(forStrategy: .token(tokenObject))))
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
@@ -347,15 +349,11 @@ extension TokenViewController: PriceAlertsPageViewDelegate {
     }
 
     func removeAlert(in view: PriceAlertsPageView, indexPath: IndexPath) {
-        alertService.remove(indexPath: indexPath).done { _ in
-            // no-op
-        }.cauterize()
+        alertService.remove(indexPath: indexPath)
     }
 
     func updateAlert(in view: PriceAlertsPageView, value: Bool, indexPath: IndexPath) {
-        alertService.update(indexPath: indexPath, update: .enabled(value)).done { _ in
-            // no-op
-        }.cauterize()
+        alertService.update(indexPath: indexPath, update: .enabled(value))
     }
 }
 

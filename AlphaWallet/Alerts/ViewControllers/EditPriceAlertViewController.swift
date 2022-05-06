@@ -138,14 +138,12 @@ class EditPriceAlertViewController: UIViewController {
         switch viewModel.configuration {
         case .create:
             let alert: PriceAlert = .init(type: .init(value: value.doubleValue, marketPrice: marketPrice), tokenObject: viewModel.tokenObject, isEnabled: true)
-            alertService.add(alert: alert).done { _ in
-                self.delegate?.didUpdateAlert(in: self)
-            }.cauterize()
+            alertService.add(alert: alert)
         case .edit(let alert):
-            alertService.update(alert: alert, update: .value(value: value.doubleValue, marketPrice: marketPrice)).done { _ in
-                self.delegate?.didUpdateAlert(in: self)
-            }.cauterize()
+            alertService.update(alert: alert, update: .value(value: value.doubleValue, marketPrice: marketPrice))
         }
+
+        delegate?.didUpdateAlert(in: self)
     }
 
     required init?(coder: NSCoder) {
