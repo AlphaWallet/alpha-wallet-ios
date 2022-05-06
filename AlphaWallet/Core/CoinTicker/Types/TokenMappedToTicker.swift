@@ -27,6 +27,10 @@ struct TokenMappedToTicker: Hashable {
             return true
         } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return true
+        } else if server == .klaytnCypress && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return true
+        } else if server == .xDai && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return true
         } else {
             return false
         }
@@ -41,6 +45,8 @@ struct TokenMappedToTicker: Hashable {
             return "binancecoin"
         } else if server == .klaytnCypress && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "klay-token"
+        } else if server == .xDai && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "gnosis"
         } else {
             return tickerId
         }

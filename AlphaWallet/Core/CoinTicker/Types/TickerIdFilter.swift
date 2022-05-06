@@ -12,7 +12,7 @@ struct TickerIdFilter {
     //https://polygonscan.com/address/0x0000000000000000000000000000000000001010
     static private let polygonMaticContract = AlphaWallet.Address(string: "0x0000000000000000000000000000000000001010")!
 
-    func matches(tokenObject: TokenMappedToTicker, tickerId: TickerId) -> Bool {
+    func matches(token: TokenMappedToTicker, tickerId: TickerId) -> Bool {
         //We just filter out those that we don't think are supported by the API. One problem this helps to alleviate is in the API output, certain tickers have a non-empty platform yet the platform list might not be complete, eg. Ether on Ethereum mainnet:
         //{
         //   "symbol" : "eth",
@@ -26,8 +26,8 @@ struct TickerIdFilter {
         //This means we can only match solely by symbol, ignoring platform matches. But this means it's easy to match the wrong ticker (by symbol only). Hence, we at least remove those chains we don't think are supported
         //NOTE maybe its need to handle values like: `"0x270DE58F54649608D316fAa795a9941b355A2Bd0/token-transfers"`
 
-        guard isServerSupported(tokenObject.server) else { return false }
-        if let (_, maybeContractValue) = tickerId.platforms.first(where: { platformMatches($0.key, server: tokenObject.server) }) {
+        guard isServerSupported(token.server) else { return false }
+        if let (_, maybeContractValue) = tickerId.platforms.first(where: { platformMatches($0.key, server: token.server) }) {
             func maybeAddressValue(from str: String) -> AlphaWallet.Address? {
                 let rawValue = str.trimmed
                 if rawValue.isEmpty {
@@ -45,18 +45,16 @@ struct TickerIdFilter {
             }
 
             if contract.sameContract(as: Constants.nullAddress) {
-                return tickerId.symbol.localizedLowercase == tokenObject.symbol.localizedLowercase
-            } else if contract.sameContract(as: tokenObject.contractAddress) {
+                return tickerId.symbol.localizedLowercase == token.symbol.localizedLowercase
+            } else if contract.sameContract(as: token.contractAddress) {
                 return true
-            } else if tokenObject.server == .polygon && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
-                return true
-            } else if tokenObject.server == .klaytnCypress && tokenObject.contractAddress == Constants.nativeCryptoAddressInDatabase {
+            } else if token.server == .polygon && token.contractAddress == Constants.nativeCryptoAddressInDatabase && contract.sameContract(as: Self.polygonMaticContract) {
                 return true
             } else {
-                return tokenObject.canPassFiltering
+                return token.canPassFiltering
             }
         } else {
-            return tickerId.symbol.localizedLowercase == tokenObject.symbol.localizedLowercase && tickerId.name.localizedLowercase == tokenObject.name.localizedLowercase
+            return tickerId.symbol.localizedLowercase == token.symbol.localizedLowercase && tickerId.name.localizedLowercase == token.name.localizedLowercase
         }
     }
 
