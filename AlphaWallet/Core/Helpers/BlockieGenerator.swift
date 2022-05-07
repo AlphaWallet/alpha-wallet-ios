@@ -9,6 +9,7 @@ import Foundation
 import BlockiesSwift
 import PromiseKit
 import UIKit.UIImage
+import Combine
 
 enum BlockiesImage {
     case image(image: UIImage, isEnsAvatar: Bool)
@@ -56,6 +57,14 @@ class BlockiesGenerator {
         createBlockiesImage(address: address, size: size, scale: scale).get { blockie in
             self.cacheBlockie(address: address, blockie: blockie, size: .sized(size: size, scale: scale))
         }
+    }
+
+    func getBlockie(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3, fallbackImage: BlockiesImage = BlockiesImage.defaulBlockieImage) -> AnyPublisher<BlockiesImage, Never> {
+        return promise(address: address, ens: ens, size: size, scale: size).publisher
+            .receive(on: RunLoop.main)
+            .prepend(fallbackImage)
+            .replaceError(with: fallbackImage)
+            .eraseToAnyPublisher() 
     }
 
     func promise(address: AlphaWallet.Address, ens: String? = nil, size: Int = 8, scale: Int = 3) -> Promise<BlockiesImage> {

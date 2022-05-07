@@ -35,13 +35,7 @@ class AccountViewModel {
     }()
     
     lazy var blockieImage: AnyPublisher<BlockiesImage, Never> = {
-        let initialBlockieImage = generator.generatedImage(address: wallet.address, size: 8, scale: 5).publisher
-            .prepend(BlockiesImage.defaulBlockieImage)
-
-        return generator.promise(address: wallet.address, size: 8, scale: 5).publisher
-            .receive(on: RunLoop.main)
-            .prepend(initialBlockieImage)
-            .replaceError(with: BlockiesImage.defaulBlockieImage)
+        return generator.getBlockie(address: wallet.address)
             .handleEvents(receiveOutput: { [weak self] value in
                 guard value.isEnsAvatar else { return }
                 self?.analyticsCoordinator.setUser(property: Analytics.UserProperties.hasEnsAvatar, value: true)
