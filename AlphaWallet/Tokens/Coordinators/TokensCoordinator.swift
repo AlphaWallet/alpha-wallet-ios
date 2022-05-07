@@ -253,11 +253,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     private func getWalletBlockie() {
-        generator.promise(address: sessions.anyValue.account.address, size: 8, scale: 5)
-            .publisher
-            .prepend(BlockiesImage.defaulBlockieImage)
-            .replaceError(with: BlockiesImage.defaulBlockieImage)
-            .receive(on: RunLoop.main)
+        generator.getBlockie(address: sessions.anyValue.account.address)
             .sink(receiveValue: { [weak tokensViewController] image in
                 tokensViewController?.blockieImageView.setBlockieImage(image: image)
             }).store(in: &cancelable)
