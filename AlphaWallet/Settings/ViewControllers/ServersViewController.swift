@@ -51,7 +51,7 @@ class ServersViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(ServerTableViewCell.self) 
+        tableView.register(RPCDisplaySelectableTableViewCell.self)
 
         return tableView
     }()
@@ -107,13 +107,17 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ServerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.selectionStyle = .none
-        let server = viewModel.server(for: indexPath)
-        let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))
+        let rpcServerOrAuto = viewModel.server(for: indexPath)
+        let cellViewModel = ServerImageViewModel(server: rpcServerOrAuto, selected: viewModel.isServerSelected(rpcServerOrAuto))
         cell.configure(viewModel: cellViewModel)
 
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

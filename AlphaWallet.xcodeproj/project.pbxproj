@@ -20,7 +20,7 @@
 		02334299278480CF00492080 /* AddMultipleCustomRpcModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */; };
 		0233429B278489CC00492080 /* AddMultipleCustomRpcViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */; };
 		0233429D27849A4F00492080 /* ExecuteOnceOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */; };
-		0235A795280D470000E65C61 /* ServerImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */; };
+		0235A795280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0235A794280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift */; };
 		024255182816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */; };
 		0242551A28168B84009D626E /* FeaturesTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551928168B84009D626E /* FeaturesTestCase.swift */; };
 		0242551C28168C28009D626E /* EnvironmentTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0242551B28168C28009D626E /* EnvironmentTestCase.swift */; };
@@ -1152,7 +1152,7 @@
 		02334298278480CF00492080 /* AddMultipleCustomRpcModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcModel.swift; sourceTree = "<group>"; };
 		0233429A278489CC00492080 /* AddMultipleCustomRpcViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMultipleCustomRpcViewModel.swift; sourceTree = "<group>"; };
 		0233429C27849A4F00492080 /* ExecuteOnceOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecuteOnceOnly.swift; sourceTree = "<group>"; };
-		0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerImageTableViewCell.swift; sourceTree = "<group>"; };
+		0235A794280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCDisplaySelectableTableViewCell.swift; sourceTree = "<group>"; };
 		024255172816662F009D626E /* StringInsertSpaceBeforeCapitalsTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringInsertSpaceBeforeCapitalsTestCase.swift; sourceTree = "<group>"; };
 		0242551928168B84009D626E /* FeaturesTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesTestCase.swift; sourceTree = "<group>"; };
 		0242551B28168C28009D626E /* EnvironmentTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentTestCase.swift; sourceTree = "<group>"; };
@@ -4296,7 +4296,7 @@
 				02F4E8BF27717A5200D89C19 /* SaveCustomRpcBrowseView.swift */,
 				02D8BF8C277D572600EEE8E9 /* SaveCustomRpcManualEntryView.swift */,
 				028D4E59277309ED00E7418D /* EmptyTableView.swift */,
-				0235A794280D470000E65C61 /* ServerImageTableViewCell.swift */,
+				0235A794280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6250,7 +6250,7 @@
 				87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */,
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
-				0235A795280D470000E65C61 /* ServerImageTableViewCell.swift in Sources */,
+				0235A795280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
 				874DED1724C1BB0E006C8FCE /* SelectTokenViewController.swift in Sources */,
 				2963B6AD1F981A96003063C1 /* TransactionAppearance.swift in Sources */,
