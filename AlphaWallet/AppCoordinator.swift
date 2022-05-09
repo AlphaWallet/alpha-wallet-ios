@@ -1,9 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Combine
-import UIKit
-import AlphaWalletENS
-import AlphaWalletOpenSea
+import UIKit 
 import PromiseKit
 
 class AppCoordinator: NSObject, Coordinator {
@@ -126,25 +124,12 @@ class AppCoordinator: NSObject, Coordinator {
                 PromptBackupCoordinator(keystore: self.keystore, wallet: account, config: self.config, analyticsCoordinator: self.analyticsService).deleteWallet()
                 TransactionsTracker.resetFetchingState(account: account, config: self.config)
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
-                MigrationInitializer.removeRealmFiles(account: account)
+                DatabaseMigration.removeRealmFiles(account: account)
                 self.legacyFileBasedKeystore.delete(wallet: account)
             }.store(in: &cancelable)
     }
 
     func start() {
-        //TODO move to better place
-        ENS.isLoggingEnabled = true
-        AlphaWalletOpenSea.OpenSea.isLoggingEnabled = true
-
-        if isRunningTests() {
-            try! RealmConfiguration.removeWalletsFolderForTests()
-            JsonWalletAddressesStore.removeWalletsFolderForTests()
-        } else {
-            //no-op
-        }
-
-        MigrationInitializer.removeWalletsIfRealmFilesMissed(keystore: keystore)
-
         initializers()
         cleanPasscodeIfNeeded()
         appTracker.start()
@@ -220,12 +205,12 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func initializers() {
-        var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
-        paths.append(legacyFileBasedKeystore.keystoreDirectory)
-
         let initializers: [Initializer] = [
-            SkipBackupFilesInitializer(paths: paths),
+            ConfigureApp(),
+            CleanupWallets(keystore: keystore),
+            SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
         ]
+
         initializers.forEach { $0.perform() }
     }
 

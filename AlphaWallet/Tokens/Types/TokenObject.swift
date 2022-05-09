@@ -454,7 +454,7 @@ extension Wallet {
 
 extension Wallet.functional {
     static func realm(forAccount account: Wallet) -> Realm {
-        let migration = MigrationInitializer(account: account)
+        let migration = DatabaseMigration(account: account)
         migration.perform()
 
         let realm = try! Realm(configuration: migration.config)
