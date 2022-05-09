@@ -53,7 +53,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private let transactionDataStore: TransactionDataStore
     private let transactionsFilterStrategy: TransactionsFilterStrategy
     private var cancelable = Set<AnyCancellable>()
-    private let threadsafe = ThreadSafe()
+    private let threadSafe = ThreadSafe(label: "org.alphawallet.swift.activities")
 
     var viewModelPublisher: AnyPublisher<ActivitiesViewModel, Never> {
         viewModelSubject.eraseToAnyPublisher()
@@ -177,7 +177,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         let contractsAndCards = getContractsAndCards(contractServerXmlHandlers: tokensAndXmlHandlers)
         let activitiesAndTokens = getActivitiesAndTokens(contractsAndCards: contractsAndCards)
 
-        threadsafe.performSync { [weak self] in
+        threadSafe.performSync { [weak self] in
             self?.activities = activitiesAndTokens.compactMap { $0.activity }
             self?.activities.sort { $0.blockNumber > $1.blockNumber }
 
@@ -406,7 +406,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             self?.refreshActivity(tokenObject: tokenObject, tokenHolder: tokenHolder, activity: activity, isFirstUpdate: false)
         }
 
-        threadsafe.performSync { [weak self] in
+        threadSafe.performSync { [weak self] in
             guard let strongSelf = self else { return }
 
             //NOTE: Fix crush when element with index out of range
