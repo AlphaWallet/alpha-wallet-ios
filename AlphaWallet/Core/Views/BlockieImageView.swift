@@ -43,6 +43,28 @@ class BlockieImageView: UIView {
         ])
     }
 
+    init(viewSize: CGSize, imageSize: CGSize) {
+        super.init(frame: .zero)
+        clipsToBounds = true
+        translatesAutoresizingMaskIntoConstraints = false
+        isUserInteractionEnabled = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.cornerRadius = imageSize.height/2.0
+        addSubview(imageView)
+
+        NSLayoutConstraint.activate([
+            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+
+            imageView.widthAnchor.constraint(equalToConstant: imageSize.width),
+            imageView.heightAnchor.constraint(equalToConstant: imageSize.height),
+
+            widthAnchor.constraint(equalToConstant: viewSize.width),
+            heightAnchor.constraint(equalToConstant: viewSize.height),
+        ])
+    }
+
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
