@@ -6,35 +6,6 @@ import JSONRPCKit
 import PromiseKit
 import Combine
 
-extension Publishers {
-    struct RetryIf<P: Publisher>: Publisher {
-        typealias Output = P.Output
-        typealias Failure = P.Failure
-
-        let publisher: P
-        let times: Int
-        let condition: (P.Failure) -> Bool
-
-        func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
-            guard times > 0 else { return publisher.receive(subscriber: subscriber) }
-
-            publisher.catch { (error: P.Failure) -> AnyPublisher<Output, Failure> in
-                if condition(error)  {
-                    return RetryIf(publisher: publisher, times: times - 1, condition: condition).eraseToAnyPublisher()
-                } else {
-                    return Fail(error: error).eraseToAnyPublisher()
-                }
-            }.receive(subscriber: subscriber)
-        }
-    }
-}
-
-extension Publisher {
-    func retry(times: Int, if condition: @escaping (Failure) -> Bool) -> Publishers.RetryIf<Self> {
-        Publishers.RetryIf(publisher: self, times: times, condition: condition)
-    }
-}
-
 extension Session {
     private class func sendImplPublisher<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> AnyPublisher<Request.Response, SessionTaskError> {
         var sessionTask: SessionTask?
@@ -46,7 +17,7 @@ extension Session {
                         seal(.success(result))
                     case .failure(let error):
                         if let e = convertToUserFriendlyError(error: error, baseUrl: request.baseURL) {
-                            seal(.failure(.requestError(e))) //FIXME:
+                            seal(.failure(.requestError(e)))
                         } else {
                             seal(.failure(error))
                         }
@@ -60,10 +31,13 @@ extension Session {
         return publisher
             .eraseToAnyPublisher()
     }
-
+    
     class func sendPublisher<Request: APIKit.Request>(_ request: Request, callbackQueue: CallbackQueue? = nil) -> AnyPublisher<Request.Response, SessionTaskError> {
         sendImplPublisher(request, callbackQueue: callbackQueue)
-            .retry(times: 2) { $0 is SendTransactionRetryableError }
+            .retry(times: 2, when: {
+                guard case SessionTaskError.requestError(let e) = $0 else { return false }
+                return e is SendTransactionRetryableError
+            })
             .eraseToAnyPublisher()
     }
 
@@ -98,7 +72,7 @@ extension Session {
         }
     }
 
-    private static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
+    static func convertToUserFriendlyError(error: SessionTaskError, baseUrl: URL) -> Error? {
         infoLog("convertToUserFriendlyError URL: \(baseUrl.absoluteString) error: \(error)")
         switch error {
         case .connectionError(let e):
