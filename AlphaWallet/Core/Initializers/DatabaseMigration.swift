@@ -155,10 +155,10 @@ extension DatabaseMigration {
 
         try? realm.write {
             for each in oldPerWalletDatabase.objects(History.self) {
-                realm.create(History.self, value: each)
+                realm.create(History.self, value: each, update: .all)
             }
             for each in oldPerWalletDatabase.objects(Bookmark.self) {
-                realm.create(Bookmark.self, value: each)
+                realm.create(Bookmark.self, value: each, update: .all)
             }
         }
     }
