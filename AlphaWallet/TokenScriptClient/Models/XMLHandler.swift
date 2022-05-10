@@ -7,7 +7,7 @@
 
 import Foundation
 import Kanna
-import PromiseKit
+import PromiseKit 
 
 enum SingularOrPlural {
     case singular
@@ -677,8 +677,8 @@ private class PrivateXMLHandler {
 final class ThreadSafe {
     private let queue: DispatchQueue
 
-    public init(queue: DispatchQueue = DispatchQueue(label: "com.RealmStore.syncQueue", qos: .background)) {
-        self.queue = queue
+    public init(label: String, qos: DispatchQoS = .background) {
+        self.queue = DispatchQueue(label: label, qos: qos)
     }
 
     func performSync(_ callback: () -> Void) {
@@ -687,23 +687,22 @@ final class ThreadSafe {
         } else {
             dispatchPrecondition(condition: .notOnQueue(queue))
             queue.sync {
-                autoreleasepool {
-                    callback()
-                }
+                callback()
             }
         }
     }
 }
 
+fileprivate let threadSafeFoXmlHandler = ThreadSafe(label: "org.alphawallet.swift.xmlHandler.xmlHandlers")
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
-    fileprivate static var xmlHandlers = [AlphaWallet.Address: PrivateXMLHandler]()
-    fileprivate static var baseXmlHandlers = [String: PrivateXMLHandler]()
+    fileprivate static var xmlHandlers = ThreadSafeDictionary<AlphaWallet.Address, PrivateXMLHandler>()
+    fileprivate static var baseXmlHandlers = ThreadSafeDictionary<String, PrivateXMLHandler>()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
-    private let threadSafe: ThreadSafe = .init()
+    private let threadSafe: ThreadSafe = threadSafeFoXmlHandler
 
     var hasAssetDefinition: Bool {
         var hasAssetDefinition: Bool = true
