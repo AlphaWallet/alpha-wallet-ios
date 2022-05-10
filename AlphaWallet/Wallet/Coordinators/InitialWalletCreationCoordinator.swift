@@ -32,6 +32,10 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     func start() {
+        startWalletCoordinator()
+    }
+
+    private func startWalletCoordinator() {
         let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         coordinator.start(.addInitialWallet)

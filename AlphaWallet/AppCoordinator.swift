@@ -230,7 +230,16 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func showInitialWalletCoordinator() {
-        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService)
+        // FIXME: - Uncomment these when testing is done
+//        let coordinator = InitialWalletCreationCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsService)
+//        coordinator.delegate = self
+//        coordinator.start()
+//        addCoordinator(coordinator)
+        showInitialNetworkSelectionCoordinator()
+    }
+
+    func showInitialNetworkSelectionCoordinator() {
+        let coordinator = InitialNetworkSelectionCoordinator(config: config, navigationController: navigationController)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -306,8 +315,17 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
-        guard let wallet = keystore.currentWallet else { return }
-        showActiveWallet(for: wallet, animated: false)
+        showInitialNetworkSelectionCoordinator()
+    }
+
+}
+
+extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegateProtocol {
+    func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator) {
+        // FIXME: Add the selected networks
+        // Show the new wallet
+        //        guard let wallet = keystore.currentWallet else { return }
+        //        showActiveWallet(for: wallet, animated: false)
     }
 }
 
