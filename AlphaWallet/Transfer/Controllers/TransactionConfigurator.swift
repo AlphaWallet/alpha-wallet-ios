@@ -13,59 +13,7 @@ protocol TransactionConfiguratorDelegate: AnyObject {
     func updateNonce(to nonce: Int, in configurator: TransactionConfigurator)
 }
 
-// swiftlint:disable type_body_length
 class TransactionConfigurator {
-    enum GasPriceWarning {
-        case tooHighCustomGasPrice
-        case networkCongested
-        case tooLowCustomGasPrice
-
-        var shortTitle: String {
-            switch self {
-            case .tooHighCustomGasPrice, .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighShort()
-            case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowShort()
-            }
-        }
-
-        var longTitle: String {
-            switch self {
-            case .tooHighCustomGasPrice, .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighLong()
-            case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowLong()
-            }
-        }
-
-        var description: String {
-            switch self {
-            case .tooHighCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooHighDescription()
-            case .networkCongested:
-                return R.string.localizable.transactionConfigurationGasPriceCongestedDescription()
-            case .tooLowCustomGasPrice:
-                return R.string.localizable.transactionConfigurationGasPriceTooLowDescription()
-            }
-        }
-    }
-
-    enum GasLimitWarning {
-        case tooHighCustomGasLimit
-
-        var description: String {
-            ConfigureTransactionError.gasLimitTooHigh.localizedDescription
-        }
-    }
-
-    enum GasFeeWarning {
-        case tooHighGasFee
-
-        var description: String {
-            ConfigureTransactionError.gasFeeTooHigh.localizedDescription
-        }
-    }
-
     private let account: AlphaWallet.Address
 
     private var isGasLimitSpecifiedByTransaction: Bool {
@@ -173,11 +121,10 @@ class TransactionConfigurator {
             self.configurations.standard = defaultConfig
 
             //Careful to not create if they don't exist
-            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
-                if var config = self.configurations[each] {
-                    config.setEstimated(gasLimit: gasLimit)
-                    self.configurations[each] = config
-                }
+            for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
+                guard var config = self.configurations[each] else { continue }
+                config.setEstimated(gasLimit: gasLimit)
+                self.configurations[each] = config
             }
 
             self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
@@ -188,20 +135,21 @@ class TransactionConfigurator {
     }
 
     private func estimateGasPrice() {
+        let estimator = GasPriceEstimator()
         firstly {
-            Self.estimateGasPrice(server: session.server)
+            estimator.estimateGasPrice(server: session.server)
         }.done { estimates in
             let standard = estimates.standard
             var customConfig = self.configurations.custom
             customConfig.setEstimated(gasPrice: standard)
             var defaultConfig = self.configurations.standard
             defaultConfig.setEstimated(gasPrice: standard)
-            if self.shouldUseEstimatedGasPrice(standard) {
+            if estimator.shouldUseEstimatedGasPrice(standard, forTransaction: self.transaction) {
                 self.configurations.custom = customConfig
                 self.configurations.standard = defaultConfig
             }
 
-            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+            for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
                 guard let estimate = estimates[each] else { continue }
                 //Since there's a price estimate, we want to add that config if it's missing
                 var config = self.configurations[each] ?? defaultConfig
@@ -213,78 +161,6 @@ class TransactionConfigurator {
         }.catch({ e in
             error(value: e, rpcServer: self.session.server)
         })
-    }
-
-    private func shouldUseEstimatedGasPrice(_ estimatedGasPrice: BigInt) -> Bool {
-        //Gas price may be specified in the transaction object, and it will be if we are trying to speedup or cancel a transaction. The replacement transaction will be automatically assigned a slightly higher gas price. We don't want to override that with what we fetch back from gas price estimate if the estimate is lower
-        if let specifiedGasPrice = transaction.gasPrice, specifiedGasPrice > estimatedGasPrice {
-            return false
-        } else {
-            return true
-        }
-    }
-
-    static func estimateGasPrice(server: RPCServer) -> Promise<GasEstimates> {
-        if EtherscanGasPriceEstimator.supports(server: server) {
-            return estimateGasPriceForUsingEtherscanApi(server: server).recover { _ in
-                estimateGasPriceForUseRpcNode(server: server)
-            }
-        } else {
-            switch server {
-            case .xDai:
-                return estimateGasPriceForXDai()
-            case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
-                return Promise(estimateGasPriceForUseRpcNode(server: server))
-            }
-        }
-    }
-
-    private static func estimateGasPriceForUsingEtherscanApi(server: RPCServer) -> Promise<GasEstimates> {
-        let estimator = EtherscanGasPriceEstimator()
-        return firstly {
-            estimator.fetch(server: server)
-        }.get { estimates in
-            infoLog("Estimated gas price with gas price estimator API: \(estimates)")
-        }.map { estimates in
-            GasEstimates(standard: BigInt(estimates.standard), others: [
-                TransactionConfigurationType.slow: BigInt(estimates.slow),
-                TransactionConfigurationType.fast: BigInt(estimates.fast),
-                TransactionConfigurationType.rapid: BigInt(estimates.rapid)
-            ])
-        }
-    }
-
-    private static func estimateGasPriceForXDai() -> Promise<GasEstimates> {
-        //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
-        .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
-    }
-
-    private static func estimateGasPriceForUseRpcNode(server: RPCServer) -> Guarantee<GasEstimates> {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
-        let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
-        let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
-
-        return firstly {
-            Session.send(request)
-        }.map {
-            if let gasPrice = BigInt($0.drop0x, radix: 16) {
-                if (gasPrice + GasPriceConfiguration.oneGwei) > maxPrice {
-                    // Guard against really high prices
-                    return GasEstimates(standard: maxPrice)
-                } else {
-                    if server.canUserChangeGas {
-                        //Add an extra gwei because the estimate is sometimes too low
-                        return GasEstimates(standard: gasPrice + GasPriceConfiguration.oneGwei)
-                    } else {
-                        return GasEstimates(standard: gasPrice)
-                    }
-                }
-            } else {
-                return GasEstimates(standard: defaultPrice)
-            }
-        }.recover { _ in
-            .value(GasEstimates(standard: defaultPrice))
-        }
     }
 
     func gasLimitWarning(forConfiguration configuration: TransactionConfiguration) -> GasLimitWarning? {
@@ -318,27 +194,11 @@ class TransactionConfigurator {
             break
         }
         return nil
-    }
-
-    private static func computeDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigInt {
-        switch server {
-        case .xDai:
-            //xdai transactions are always 1 gwei in gasPrice
-            return GasPriceConfiguration.xDaiGasPrice
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .polygon, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
-            let maxPrice: BigInt = GasPriceConfiguration.maxPrice(forServer: server)
-            let defaultPrice: BigInt = GasPriceConfiguration.defaultPrice(forServer: server)
-            if let gasPrice = transaction.gasPrice, gasPrice > 0 {
-                return min(max(gasPrice, GasPriceConfiguration.minPrice), maxPrice)
-            } else {
-                let defaultGasPrice = min(max(transaction.gasPrice ?? defaultPrice, GasPriceConfiguration.minPrice), maxPrice)
-                return defaultGasPrice
-            }
-        }
-    }
+    } 
 
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
-        TransactionConfiguration(gasPrice: TransactionConfigurator.computeDefaultGasPrice(server: server, transaction: transaction), gasLimit: gasLimit, data: data)
+        let gasPrice = GasPriceEstimator().estimateDefaultGasPrice(server: server, transaction: transaction)
+        return TransactionConfiguration(gasPrice: gasPrice, gasLimit: gasLimit, data: data)
     }
 
 // swiftlint:disable function_body_length
@@ -482,7 +342,7 @@ class TransactionConfigurator {
             defaultConfig.set(nonce: nonce)
             configurations.standard = defaultConfig
 
-            for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
+            for each: TransactionConfigurationType in [.slow, .fast, .rapid] {
                 //We don't want to add that config if it's missing (e.g. testnets don't have them)
                 if var config = configurations[each] {
                     config.set(nonce: nonce)
@@ -530,4 +390,3 @@ class TransactionConfigurator {
         delegate?.configurationChanged(in: self)
     }
 }
-// swiftlint:enable type_body_length
