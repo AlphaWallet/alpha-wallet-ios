@@ -6,16 +6,14 @@
 ###################### Automatically generated ######################
 # Feel free to remove the following line if you use fastlane (which you should)
 
-app_identifier "com.sixdays.trust" # The bundle identifier of your app
-username "thetrustwallet@gmail.com" # your Apple ID user
+team_id "118986049"
 
 force true
 
-submit_for_review true
-automatic_release false
+skip_screenshots true
 
-submission_information({
-  add_id_info_serves_ads: false,
-  export_compliance_uses_encryption: false,
-  export_compliance_encryption_updated: false
-})
+skip_metadata true
+
+submit_for_review false
+
+run_precheck_before_submit false
