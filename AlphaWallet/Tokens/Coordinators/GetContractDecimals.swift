@@ -5,7 +5,7 @@ import Result
 import web3swift
 import PromiseKit
 
-class GetDecimalsCoordinator {
+class GetContractDecimals {
     private let server: RPCServer
 
     init(forServer server: RPCServer) {

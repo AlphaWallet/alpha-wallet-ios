@@ -4,7 +4,7 @@ import Foundation
 import Result
 import PromiseKit
 
-class GetIsERC721ForTicketsContractCoordinator {
+class IsErc721ForTicketsContract {
     private let server: RPCServer
 
     init(forServer server: RPCServer) {
@@ -12,7 +12,7 @@ class GetIsERC721ForTicketsContractCoordinator {
     }
 
     func getIsERC721ForTicketContract(for contract: AlphaWallet.Address) -> Promise<Bool> {
-        return GetInterfaceSupported165Coordinator(forServer: server)
+        return IsInterfaceSupported165(forServer: server)
             .getInterfaceSupported165(hash: Constants.balances165Hash721Ticket, contract: contract)
     }
 }

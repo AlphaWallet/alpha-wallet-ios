@@ -143,6 +143,7 @@ extension EventSourceCoordinatorForActivities.functional {
         let oldEvent = eventsDataStore
         .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
 
+//<<<<<<< HEAD
         let fromBlock: (EventFilter.Block, UInt64)
         if let newestEvent = oldEvent {
             let value = UInt64(newestEvent.blockNumber + 1)
@@ -162,7 +163,7 @@ extension EventSourceCoordinatorForActivities.functional {
                     return .value(nil)
                 }
 
-                return GetBlockTimestampCoordinator()
+                return GetBlockTimestamp()
                     .getBlockTimestamp(blockNumber, onServer: server)
                     .map(on: queue, { date in
                         Self.convertEventToDatabaseObject(event, date: date, filterParam: filterParam, eventOrigin: eventOrigin, tokenContract: tokenContract, server: server)

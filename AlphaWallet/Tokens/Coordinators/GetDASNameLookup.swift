@@ -1,5 +1,5 @@
 //
-//  DASNameLookupCoordinator.swift
+//  GetDASNameLookup.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 08.10.2021.
@@ -9,7 +9,7 @@ import JSONRPCKit
 import APIKit
 import PromiseKit
 
-public final class DASNameLookupCoordinator {
+public final class GetDASNameLookup {
     enum DASNameLookupError: Error {
         case ethRecordNotFound
         case invalidInput
@@ -22,7 +22,7 @@ public final class DASNameLookupCoordinator {
     }
 
     func resolve(rpcURL: URL, value: String) -> Promise<AlphaWallet.Address> {
-        guard DASNameLookupCoordinator.isValid(value: value) else {
+        guard GetDASNameLookup.isValid(value: value) else {
             debugLog("[DAS] Invalid lookup: \(value)")
             return .init(error: DASNameLookupError.invalidInput)
         }
@@ -31,7 +31,7 @@ public final class DASNameLookupCoordinator {
         debugLog("[DAS] Looking up value \(value)")
         return Session.send(request).map { response -> AlphaWallet.Address in
             debugLog("[DAS] response for value: \(value) response : \(response)")
-            if let record = response.records.first(where: { $0.key == DASNameLookupCoordinator.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
+            if let record = response.records.first(where: { $0.key == GetDASNameLookup.ethAddressKey }), let address = AlphaWallet.Address(string: record.value) {
                 infoLog("[DAS] resolve value: \(value) to address: \(address)")
                 return address
             } else if response.records.isEmpty, let ownerAddress = response.ownerAddress {

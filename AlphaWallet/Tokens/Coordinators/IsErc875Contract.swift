@@ -4,7 +4,7 @@ import Foundation
 import Result
 import PromiseKit
 
-class GetIsERC875ContractCoordinator {
+class IsErc875Contract {
     private let server: RPCServer
 
     init(forServer server: RPCServer) {

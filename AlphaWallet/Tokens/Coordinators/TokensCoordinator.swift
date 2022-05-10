@@ -242,7 +242,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         tokensViewController.title = viewModel.walletDefaultTitle
 
         firstly {
-            GetWalletNameCoordinator(config: config).getName(forAddress: sessions.anyValue.account.address)
+            GetWalletName(config: config).getName(forAddress: sessions.anyValue.account.address)
         }.done { [weak self] name in
             self?.tokensViewController.navigationItem.title = name
             //Don't `cauterize` here because we don't want to PromiseKit to show the error messages from UnstoppableDomains API, suggesting there's an API error when the reason could be that the address being looked up simply does not have a registered name

@@ -1,5 +1,5 @@
 //
-//  GetIsERC1155ContractCoordinatorTestCase.swift
+//  IsErc1155ContractTestCase.swift
 //  AlphaWalletTests
 //
 //  Created by Jerome Chan on 14/4/22.
@@ -10,7 +10,7 @@ import AlphaWalletAddress
 import PromiseKit
 import XCTest
 
-class GetIsERC1155ContractCoordinatorTestCase: XCTestCase {
+class IsErc1155ContractTestCase: XCTestCase {
 
     private let fileName = "test-cache.json"
     private let address1: AlphaWallet.Address = AlphaWallet.Address(string: "0xbbce83173d5c1d122ae64856b4af0d5ae07fa362")!
@@ -28,7 +28,7 @@ class GetIsERC1155ContractCoordinatorTestCase: XCTestCase {
     }
 
     func testgetIsERC1155Contract() throws {
-        let coordinator = GetIsERC1155ContractCoordinator(forServer: .main, cacheName: fileName)
+        let coordinator = IsErc1155Contract(forServer: .main, cacheName: fileName)
         let expectation = expectation(description: "Waiting for server response")
         firstly {
             coordinator.getIsERC1155Contract(for: address1)
