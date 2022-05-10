@@ -7,8 +7,6 @@
 
 import Foundation
 
-protocol BuyTokenURLProviderType {
-    var action: String { get }
-    
+protocol BuyTokenURLProviderType: TokenActionProvider {
     func url(token: TokenActionsServiceKey) -> URL?
 }

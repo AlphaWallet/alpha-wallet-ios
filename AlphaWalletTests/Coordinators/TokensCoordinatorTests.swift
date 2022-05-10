@@ -4,11 +4,11 @@ import XCTest
 @testable import AlphaWallet
 
 class FakeSwapTokenService: TokenActionsServiceType {
-    func register(service: TokenActionsProvider) {
+    func register(service: SupportedTokenActionsProvider) {
 
     }
 
-    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider? {
+    func service(ofType: SupportedTokenActionsProvider.Type) -> SupportedTokenActionsProvider? {
         return nil
     }
 

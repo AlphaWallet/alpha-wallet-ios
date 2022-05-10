@@ -57,6 +57,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private lazy var oneInchSwapService = Oneinch()
     private lazy var rampBuyService = Ramp()
+    private lazy var swapTokenProvider = SwapTokenNativeProvider()
     private lazy var tokenActionsService: TokenActionsServiceType = {
         let service = TokenActionsService()
         service.register(service: rampBuyService)
@@ -75,7 +76,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         var quickSwap = QuickSwap()
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
-
+        service.register(service: swapTokenProvider)
         service.register(service: quickSwap)
         service.register(service: ArbitrumBridge())
         service.register(service: xDaiBridge())

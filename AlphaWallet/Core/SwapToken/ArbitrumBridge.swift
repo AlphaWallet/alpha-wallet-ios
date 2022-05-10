@@ -9,7 +9,7 @@ import Foundation
 
 typealias BridgeTokenURLProviderType = BuyTokenURLProviderType
 
-final class ArbitrumBridge: TokenActionsProvider, BridgeTokenURLProviderType {
+final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
     private static let supportedServer: RPCServer = .main
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {

@@ -7,13 +7,14 @@ import PromiseKit
 import Combine
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
-    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
-    func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
-    func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
-    func didTap(transaction: TransactionInstance, inViewController viewController: TokenViewController)
-    func didTap(activity: Activity, inViewController viewController: TokenViewController)
-    func didTap(action: TokenInstanceAction, transactionType: TransactionType, viewController: TokenViewController)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
+    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: TokenViewController)
+    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: TokenViewController)
+    func didTap(transaction: TransactionInstance, in viewController: TokenViewController)
+    func didTap(activity: Activity, in viewController: TokenViewController)
+    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: TokenViewController)
     func didTapAddAlert(for tokenObject: TokenObject, in viewController: TokenViewController)
     func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: TokenViewController)
 }
@@ -247,24 +248,16 @@ class TokenViewController: UIViewController {
         }
     }
 
-    @objc private func send() {
-        delegate?.didTapSend(forTransactionType: transactionType, inViewController: self)
-    }
-
-    @objc private func receive() {
-        delegate?.didTapReceive(forTransactionType: transactionType, inViewController: self)
-    }
-
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
             case .swap(let service):
-                delegate?.didTapSwap(forTransactionType: transactionType, service: service, inViewController: self)
+                delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
             case .erc20Send:
-                send()
+                delegate?.didTapSend(forTransactionType: transactionType, in: self)
             case .erc20Receive:
-                receive()
+                delegate?.didTapReceive(forTransactionType: transactionType, in: self)
             case .nftRedeem, .nftSell, .nonFungibleTransfer:
                 break
             case .tokenScript:
@@ -280,17 +273,12 @@ class TokenViewController: UIViewController {
                         //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
                     }
                 } else {
-                    delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
+                    delegate?.didTap(action: action, transactionType: transactionType, in: self)
                 }
             case .bridge(let service):
-                guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
-
-                delegate?.shouldOpen(url: url, shouldSwitchServer: true, forTransactionType: transactionType, inViewController: self)
+                delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
             case .buy(let service):
-                guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
-
-                logStartOnRamp(name: "Ramp")
-                delegate?.shouldOpen(url: url, shouldSwitchServer: false, forTransactionType: transactionType, inViewController: self)
+                delegate?.didTapBuy(forTransactionType: transactionType, service: service, in: self)
             }
             break
         }
@@ -359,17 +347,10 @@ extension TokenViewController: PriceAlertsPageViewDelegate {
 
 extension TokenViewController: ActivitiesPageViewDelegate {
     func didTap(activity: Activity, in view: ActivitiesPageView) {
-        delegate?.didTap(activity: activity, inViewController: self)
+        delegate?.didTap(activity: activity, in: self)
     }
 
     func didTap(transaction: TransactionInstance, in view: ActivitiesPageView) {
-        delegate?.didTap(transaction: transaction, inViewController: self)
-    }
-}
-
-// MARK: Analytics
-extension TokenViewController {
-    private func logStartOnRamp(name: String) {
-        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analyticsCoordinator: analyticsCoordinator)
+        delegate?.didTap(transaction: transaction, in: self)
     }
 }
