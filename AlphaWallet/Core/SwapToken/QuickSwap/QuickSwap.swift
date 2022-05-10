@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct QuickSwap: TokenActionsProvider, SwapTokenURLProviderType {
+struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle()

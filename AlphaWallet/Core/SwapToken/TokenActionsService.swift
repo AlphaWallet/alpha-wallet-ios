@@ -23,42 +23,34 @@ struct TokenActionsServiceKey {
     }
 }
 
-protocol TokenActionsProvider {
+protocol SupportedTokenActionsProvider {
     func isSupport(token: TokenActionsServiceKey) -> Bool
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction]
-}
+} 
 
-protocol SwapTokenURLProviderType {
+protocol TokenActionProvider {
     var action: String { get }
-    var analyticsName: String { get }
-
-    func rpcServer(forToken token: TokenActionsServiceKey) -> RPCServer?
-    func url(token: TokenActionsServiceKey) -> URL?
 }
 
-protocol TokenActionsServiceType: TokenActionsProvider {
-    func register(service: TokenActionsProvider)
-    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider?
+protocol TokenActionsServiceType: SupportedTokenActionsProvider {
+    func register(service: SupportedTokenActionsProvider)
+    func service(ofType: SupportedTokenActionsProvider.Type) -> SupportedTokenActionsProvider?
 }
 
 class TokenActionsService: TokenActionsServiceType {
 
-    private var services: [TokenActionsProvider] = []
+    private var services: [SupportedTokenActionsProvider] = []
 
-    func register(service: TokenActionsProvider) {
+    func register(service: SupportedTokenActionsProvider) {
         services.append(service)
     }
 
-    func service(ofType: TokenActionsProvider.Type) -> TokenActionsProvider? {
+    func service(ofType: SupportedTokenActionsProvider.Type) -> SupportedTokenActionsProvider? {
         return services.first(where: { type(of: $0) == ofType })
     }
 
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
-        services.filter {
-            $0.isSupport(token: token)
-        }.flatMap {
-            $0.actions(token: token)
-        }
+        services.filter { $0.isSupport(token: token) }.flatMap { $0.actions(token: token) }
     }
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {

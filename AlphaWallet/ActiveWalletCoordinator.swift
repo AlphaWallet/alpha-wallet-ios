@@ -767,34 +767,37 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         navigationController.pushViewController(controller, animated: true)
     }
 
-    func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
+    func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator) {
         guard let navigationController = viewController.navigationController else { return }
 
         showActivity(activity, navigationController: navigationController)
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator) {
-        logTappedSwap(service: service)
-        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        if let service = service as? SwapTokenViaUrlProvider {
+            logTappedSwap(service: service)
+            guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
 
-        if let server = service.rpcServer(forToken: token) {
-            open(url: url, onServer: server)
-        } else {
-            open(for: url)
-        }
-    }
-
-    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator) {
-        switch transactionType {
-        case .nativeCryptocurrency(let token, _, _), .erc20Token(let token, _, _), .erc875Token(let token, _), .erc721Token(let token, _), .erc1155Token(let token, _, _):
-            if shouldSwitchServer {
-                open(url: url, onServer: token.server)
+            if let server = service.rpcServer(forToken: token) {
+                open(url: url, onServer: server)
             } else {
                 open(for: url)
             }
-        case .erc875TokenOrder, .erc721ForTicketToken, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            break
         }
+    }
+
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        guard let service = service as? BridgeTokenURLProviderType else { return }
+        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
+
+        open(url: url, onServer: token.server)
+    }
+
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator) {
+        guard let service = service as? BuyTokenURLProviderType else { return }
+        guard let token = transactionType.swapServiceInputToken, let url = service.url(token: token) else { return }
+        logStartOnRamp(name: "Ramp")
+        open(for: url)
     }
 
     private func open(for url: URL) {
@@ -810,7 +813,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         dappBrowserCoordinator.switch(toServer: server, url: url)
     }
 
-    func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator) {
+    func didPress(for type: PaymentFlow, server: RPCServer, viewController: UIViewController?, in coordinator: TokensCoordinator) {
         let navigationController: UINavigationController
         if let nvc = viewController?.navigationController {
             navigationController = nvc
@@ -821,7 +824,7 @@ extension ActiveWalletCoordinator: TokensCoordinatorDelegate {
         showPaymentFlow(for: type, server: server, navigationController: navigationController)
     }
 
-    func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
+    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator) {
         if transaction.localizedOperations.count > 1 {
             transactionCoordinator?.showTransaction(.group(transaction), inViewController: viewController)
         } else {
@@ -971,7 +974,7 @@ extension ActiveWalletCoordinator {
         analyticsCoordinator.setUser(property: Analytics.UserProperties.dynamicTypeSetting, value: setting)
     }
 
-    private func logTappedSwap(service: SwapTokenURLProviderType) {
+    private func logTappedSwap(service: SwapTokenViaUrlProvider) {
         analyticsCoordinator.log(navigation: Analytics.Navigation.tokenSwap, properties: [Analytics.Properties.name.rawValue: service.analyticsName])
     }
 
@@ -1029,6 +1032,13 @@ extension ActiveWalletCoordinator: TransactionsServiceDelegate {
         for each in contracts {
             assetDefinitionStore.fetchXML(forContract: each)
         }
+    }
+}
+
+// MARK: Analytics
+extension ActiveWalletCoordinator {
+    private func logStartOnRamp(name: String) {
+        FiatOnRampCoordinator.logStartOnRamp(name: name, source: .token, analyticsCoordinator: analyticsCoordinator)
     }
 }
 // swiftlint:enable file_length

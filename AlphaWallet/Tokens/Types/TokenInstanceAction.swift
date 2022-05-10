@@ -12,9 +12,9 @@ struct TokenInstanceAction {
         case nftSell
         case nonFungibleTransfer
         case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?)
-        case swap(service: SwapTokenURLProviderType)
-        case bridge(service: BridgeTokenURLProviderType)
-        case buy(service: BuyTokenURLProviderType)
+        case swap(service: TokenActionProvider)
+        case bridge(service: TokenActionProvider)
+        case buy(service: TokenActionProvider)
     }
     
     var name: String {

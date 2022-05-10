@@ -7,11 +7,12 @@ import AlphaWalletAddress
 import Combine
 
 protocol TokensCoordinatorDelegate: CanOpenURL, SendTransactionDelegate {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
-    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: TokensCoordinator)
-    func didPress(for type: PaymentFlow, server: RPCServer, inViewController viewController: UIViewController?, in coordinator: TokensCoordinator)
-    func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
-    func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: TokensCoordinator)
+    func didPress(for type: PaymentFlow, server: RPCServer, viewController: UIViewController?, in coordinator: TokensCoordinator)
+    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: TokensCoordinator)
+    func didTap(activity: Activity, viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
     func blockieSelected(in coordinator: TokensCoordinator)
@@ -282,7 +283,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         let showMyWalletAddressAction = UIAlertAction(title: R.string.localizable.settingsShowMyWalletTitle(), style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), inViewController: .none, in: strongSelf)
+            strongSelf.delegate?.didPress(for: .request, server: strongSelf.config.anyEnabledServer(), viewController: .none, in: strongSelf)
         }
         alertController.addAction(showMyWalletAddressAction)
 
@@ -392,7 +393,7 @@ extension TokensCoordinator: SelectTokenCoordinatorDelegate {
         case .some(let address):
             let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: .address(address), amount: nil)))
 
-            delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
+            delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
         case .none:
             break
         }
@@ -427,7 +428,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
         let paymentFlow = PaymentFlow.send(type: .transaction(transactionType))
 
-        delegate?.didPress(for: paymentFlow, server: token.server, inViewController: .none, in: self)
+        delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction) {
@@ -562,24 +563,28 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         coordinatorToAdd.start()
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator) {
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func shouldOpen(url: URL, shouldSwitchServer: Bool, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.shouldOpen(url: url, shouldSwitchServer: shouldSwitchServer, forTransactionType: transactionType, in: self)
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didPress(for type: PaymentFlow, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didPress(for: type, server: coordinator.session.server, inViewController: viewController, in: self)
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTapBuy(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTap(activity: Activity, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTap(activity: activity, inViewController: viewController, in: self)
+    func didPress(for type: PaymentFlow, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didPress(for: type, server: coordinator.session.server, viewController: viewController, in: self)
     }
 
-    func didTap(transaction: TransactionInstance, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
-        delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
+    func didTap(activity: Activity, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTap(activity: activity, viewController: viewController, in: self)
+    }
+
+    func didTap(transaction: TransactionInstance, viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didTap(transaction: transaction, viewController: viewController, in: self)
     }
 
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator) {

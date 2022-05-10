@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HoneySwap: TokenActionsProvider, SwapTokenURLProviderType {
+class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle()

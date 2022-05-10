@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class xDaiBridge: TokenActionsProvider, BridgeTokenURLProviderType {
+final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
     private static let supportedServer: RPCServer = .xDai
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {

@@ -9,7 +9,7 @@ struct TokenViewControllerViewModel {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
-    private (set) var tokenActionsProvider: TokenActionsProvider
+    private (set) var tokenActionsProvider: SupportedTokenActionsProvider
     var chartHistory: [ChartHistory] = []
 
     var token: TokenObject? {
@@ -115,7 +115,7 @@ struct TokenViewControllerViewModel {
         }
     }
 
-    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: TokenActionsProvider) {
+    init(transactionType: TransactionType, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, tokenActionsProvider: SupportedTokenActionsProvider) {
         self.transactionType = transactionType
         self.session = session
         self.assetDefinitionStore = assetDefinitionStore
