@@ -447,29 +447,3 @@ func compositeTokenName(forContract contract: AlphaWallet.Address, fromContractN
     }
     return compositeName
 }
-
-extension Wallet {
-    class functional {}
-}
-
-extension Wallet.functional {
-    static func realm(forAccount account: Wallet) -> Realm {
-        let migration = DatabaseMigration(account: account)
-        migration.perform()
-
-        let realm = try! Realm(configuration: migration.config)
-
-        let realmUrl = migration.config.fileURL!
-        let realmUrls = [
-            realmUrl,
-            realmUrl.appendingPathExtension("lock"),
-            realmUrl.appendingPathExtension("note"),
-            realmUrl.appendingPathExtension("management")
-        ]
-        for each in realmUrls {
-            try? FileManager.default.setAttributes([FileAttributeKey.protectionKey: FileProtectionType.none], ofItemAtPath: each.relativePath)
-        }
-
-        return realm
-    }
-}

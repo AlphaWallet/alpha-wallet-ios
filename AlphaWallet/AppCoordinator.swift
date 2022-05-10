@@ -109,7 +109,6 @@ class AppCoordinator: NSObject, Coordinator {
         window.makeKeyAndVisible()
 
         setupSplashViewController(on: navigationController)
-
         bindWalletAddressesStore()
     }
 
@@ -129,7 +128,7 @@ class AppCoordinator: NSObject, Coordinator {
             }.store(in: &cancelable)
     }
 
-    func start() {
+    func start() { 
         initializers()
         cleanPasscodeIfNeeded()
         appTracker.start()
@@ -207,7 +206,7 @@ class AppCoordinator: NSObject, Coordinator {
     private func initializers() {
         let initializers: [Initializer] = [
             ConfigureApp(),
-            CleanupWallets(keystore: keystore),
+            CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
         ]
 

@@ -5,9 +5,22 @@ import RealmSwift
 
 struct RealmConfiguration {
     private static let walletsFolderForTests = "testSuiteWalletsForRealm"
+
+    static func configuration(for account: Wallet) -> Realm.Configuration {
+        var config = realmConfiguration()
+        config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased()).realm")
+        return config
+    }
+
     static func configuration(for account: Wallet, server: RPCServer) -> Realm.Configuration {
         var config = realmConfiguration()
         config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased())-\(server.chainID).realm")
+        return config
+    }
+
+    static func configuration(name: String) -> Realm.Configuration {
+        var config = realmConfiguration()
+        config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(name).realm")
         return config
     }
 
@@ -51,13 +64,6 @@ struct RealmConfiguration {
 
         try? fileManager.removeItem(atPath: directory.absoluteString)
     }
-
-    static func configuration(for account: Wallet) -> Realm.Configuration {
-        var config = realmConfiguration()
-        config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased()).realm")
-        return config
-    }
-
 }
 
 extension FileManager {
