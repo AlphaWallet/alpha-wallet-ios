@@ -224,7 +224,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     }
 
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
-        let migration = MigrationInitializer(account: wallet)
+        let migration = DatabaseMigration(account: wallet)
         migration.oneTimeCreationOfOneDatabaseToHoldAllChains(assetDefinitionStore: assetDefinitionStore)
     }
 

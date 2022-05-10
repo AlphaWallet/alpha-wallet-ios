@@ -3,7 +3,7 @@
 import Foundation
 import RealmSwift
 
-class MigrationInitializer: Initializer {
+class DatabaseMigration: Initializer {
     let account: Wallet
 
     lazy var config: Realm.Configuration = RealmConfiguration.configuration(for: account)
@@ -88,7 +88,7 @@ class MigrationInitializer: Initializer {
     }
 }
 
-extension MigrationInitializer {
+extension DatabaseMigration {
 
     static func removeRealmFiles(account: Wallet) {
         for each in realmFilesUrls(account: account) {
