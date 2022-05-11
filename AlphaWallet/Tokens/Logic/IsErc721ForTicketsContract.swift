@@ -1,7 +1,6 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
-import Result
 import PromiseKit
 
 class IsErc721ForTicketsContract {
