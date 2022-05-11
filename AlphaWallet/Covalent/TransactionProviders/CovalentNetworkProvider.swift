@@ -5,16 +5,10 @@
 //  Created by Vladyslav Shepitko on 30.03.2022.
 //
 
-import Foundation
 import Alamofire
 import SwiftyJSON 
 import Combine
 import APIKit
-import PromiseKit
-
-public enum DataRequestError: Error {
-    case general(error: Error)
-}
 
 extension Covalent {
     enum CovalentError: Error {
@@ -51,27 +45,5 @@ extension Covalent {
                 .mapError { return CovalentError.requestFailure(.general(error: $0)) }
                 .eraseToAnyPublisher()
         }
-    }
-}
-
-extension Alamofire.DataRequest {
-    /// Adds a handler to be called once the request has finished.
-    public func responseJSONPublisher(queue: DispatchQueue? = DispatchQueue.global(), options: JSONSerialization.ReadingOptions = .allowFragments) -> AnyPublisher<(json: Any, response: PMKAlamofireDataResponse), DataRequestError> {
-        var dataRequest: DataRequest?
-        let publisher = Future<(json: Any, response: PMKAlamofireDataResponse), DataRequestError> { seal in
-            dataRequest = self.responseJSON(queue: queue, options: options) { response in
-                switch response.result {
-                case .success(let value):
-                    seal(.success((value, PMKAlamofireDataResponse(response))))
-                case .failure(let error):
-                    seal(.failure(.general(error: error)))
-                }
-            }
-        }.handleEvents(receiveCancel: {
-            dataRequest?.cancel()
-        })
-
-        return publisher
-            .eraseToAnyPublisher()
     }
 }
