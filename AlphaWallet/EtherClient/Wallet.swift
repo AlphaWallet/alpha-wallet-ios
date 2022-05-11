@@ -2,12 +2,21 @@
 
 import Foundation
 
-enum WalletType: Equatable {
+enum WalletType: Equatable, CustomStringConvertible {
     case real(AlphaWallet.Address)
     case watch(AlphaWallet.Address)
+
+    var description: String {
+        switch self {
+        case .real(let address):
+            return ".real(\(address.eip55String))"
+        case .watch(let address):
+            return ".watch(\(address.eip55String))"
+        }
+    }
 }
 
-struct Wallet: Equatable {
+struct Wallet: Equatable, CustomStringConvertible {
     let type: WalletType
 
     var address: AlphaWallet.Address {
@@ -26,5 +35,9 @@ struct Wallet: Equatable {
         case .watch:
             return false
         }
+    }
+    
+    var description: String {
+        type.description
     }
 }
