@@ -888,6 +888,7 @@
 		8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */; };
 		8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */; };
 		8765D6F5282BE0B100529F45 /* Alamofire+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */; };
+		8765D6F7282BE26200529F45 /* Session+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F6282BE26200529F45 /* Session+Publishers.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
@@ -2045,6 +2046,7 @@
 		8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSingleChainTokenBalanceService.swift; sourceTree = "<group>"; };
 		8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportUsersWalletAddresses.swift; sourceTree = "<group>"; };
 		8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Alamofire+Publishers.swift"; sourceTree = "<group>"; };
+		8765D6F6282BE26200529F45 /* Session+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Publishers.swift"; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
@@ -5074,6 +5076,7 @@
 				8714430127FB2E6B008819D1 /* NotificationCenter.swift */,
 				8782E9CF2828E47100E93689 /* RetryIf.swift */,
 				8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */,
+				8765D6F6282BE26200529F45 /* Session+Publishers.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -6518,6 +6521,7 @@
 				5E7C75E5C64619ABFD246183 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */,
 				5E7C7EAEBB435F3909DA36FB /* TransferTokensCardViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */,
+				8765D6F7282BE26200529F45 /* Session+Publishers.swift in Sources */,
 				8757E5E225DE5ADB00812392 /* WalletConnectToSessionViewModel.swift in Sources */,
 				8739BB5526CCECD10045CFED /* Erc875NonFungibleRowView.swift in Sources */,
 				5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */,
