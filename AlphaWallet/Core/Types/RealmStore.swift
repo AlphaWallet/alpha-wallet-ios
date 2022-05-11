@@ -10,12 +10,12 @@ import RealmSwift
 import Foundation
 
 final class RealmStore {
-    private let queue: DispatchQueue
+    private let syncQueue: DispatchQueue
     private let config: Realm.Configuration
     private let realm: Realm
 
-    public init(queue: DispatchQueue = DispatchQueue(label: "com.RealmStore.syncQueue", qos: .background), realm: Realm) {
-        self.queue = queue
+    public init(syncQueue: DispatchQueue = DispatchQueue(label: "com.RealmStore.syncQueue", qos: .background), realm: Realm) {
+        self.syncQueue = syncQueue
         self.realm = realm
         self.config = realm.configuration
     }
@@ -24,8 +24,8 @@ final class RealmStore {
         if Thread.isMainThread {
             callback(realm)
         } else {
-            dispatchPrecondition(condition: .notOnQueue(queue))
-            queue.sync {
+            dispatchPrecondition(condition: .notOnQueue(syncQueue))
+            syncQueue.sync {
                 autoreleasepool {
                     guard let realm = try? Realm(configuration: config) else { return }
                     callback(realm)

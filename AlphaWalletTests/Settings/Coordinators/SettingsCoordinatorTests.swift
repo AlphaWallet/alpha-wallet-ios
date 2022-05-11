@@ -19,7 +19,7 @@ class SettingsCoordinatorTests: XCTestCase {
 
     func testOnDeleteCleanStorage() {
         let wallet: Wallet = .make()
-        let storage = FakeTransactionsStorage(server: .main, wallet: wallet)
+        let storage = FakeTransactionsStorage(wallet: wallet)
         var walletAddressesStore = EtherKeystore.migratedWalletAddressesStore(userDefaults: .test)
         storage.add(transactions: [.make()])
 

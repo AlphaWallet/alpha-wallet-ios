@@ -16,8 +16,8 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
     private let store: RealmStore
     private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
 
-    init(realm: Realm) {
-        self.store = RealmStore(realm: realm)
+    init(store: RealmStore) {
+        self.store = store
     }
 
     func getMatchingEvent(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> EventInstance? {

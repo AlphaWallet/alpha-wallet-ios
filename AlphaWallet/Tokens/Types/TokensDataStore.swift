@@ -59,8 +59,8 @@ enum TokenUpdateAction {
     private let store: RealmStore
     private let queue = DispatchQueue(label: "com.MultipleChainsTokensDataStore.UpdateQueue")
 
-    init(realm: Realm, servers: [RPCServer]) {
-        self.store = RealmStore(realm: realm)
+    init(store: RealmStore, servers: [RPCServer]) {
+        self.store = store
         super.init()
 
         queue.async {

@@ -5,8 +5,8 @@ import Foundation
 import RealmSwift
 
 class FakeTransactionsStorage: TransactionDataStore {
-    convenience init(server: RPCServer = .main, wallet: Wallet = .init(type: .watch(Constants.nativeCryptoAddressInDatabase))) {
-        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm-\(server)-\(wallet.address.eip55String)"))
-        self.init(realm: realm)
+    convenience init(wallet: Wallet = .init(type: .watch(Constants.nativeCryptoAddressInDatabase))) {
+        let store = FakeRealmLocalStore()
+        self.init(store: store.getOrCreateStore(forWallet: wallet))
     }
 }

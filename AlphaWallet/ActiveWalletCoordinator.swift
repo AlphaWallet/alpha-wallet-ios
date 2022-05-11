@@ -23,8 +23,12 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let appTracker: AppTracker
     private let analyticsCoordinator: AnalyticsCoordinator
     private let restartQueue: RestartTaskQueue
-    lazy private var eventsDataStore: NonActivityEventsDataStore = NonActivityMultiChainEventsDataStore(realm: realm)
-    lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = EventsActivityDataStore(realm: realm)
+    lazy private var eventsDataStore: NonActivityEventsDataStore = {
+        return NonActivityMultiChainEventsDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
+    }()
+    lazy private var eventsActivityDataStore: EventsActivityDataStoreProtocol = {
+        return EventsActivityDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
+    }()
     private lazy var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities? = {
         guard Features.default.isAvailable(.isActivityEnabled) else { return nil }
         return EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
@@ -32,14 +36,16 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
     private let coinTickersFetcher: CoinTickersFetcherType
 
     lazy var tokensDataStore: TokensDataStore = {
-        return MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
+        return MultipleChainsTokensDataStore(store: localStore.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
     }()
 
     private lazy var eventSourceCoordinator: EventSourceCoordinator = {
         EventSourceCoordinator(wallet: wallet, tokensDataStore: tokensDataStore, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, config: config)
     }()
 
-    private lazy var transactionDataStore: TransactionDataStore = TransactionDataStore(realm: realm)
+    private lazy var transactionDataStore: TransactionDataStore = {
+        return TransactionDataStore(store: localStore.getOrCreateStore(forWallet: wallet))
+    }()
 
     private var claimOrderCoordinatorCompletionBlock: ((Bool) -> Void)?
     private let blockscanChatService: BlockscanChatService
@@ -81,7 +87,6 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private let walletAddressesStore: WalletAddressesStore
     private let walletBalanceService: WalletBalanceService
-    private lazy var realm = Wallet.functional.realm(forAccount: wallet)
     private var tokenActionsService: TokenActionsServiceType
     private let walletConnectCoordinator: WalletConnectCoordinator
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
@@ -118,10 +123,12 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private lazy var transactionNotificationService = TransactionNotificationSourceService(transactionDataStore: transactionDataStore, promptBackupCoordinator: promptBackupCoordinator, config: config)
     private let notificationService: NotificationService
+    private let localStore: LocalStore
 
     init(
             navigationController: UINavigationController = UINavigationController(),
             walletAddressesStore: WalletAddressesStore,
+            localStore: LocalStore,
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
@@ -138,6 +145,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init()),
             notificationService: NotificationService
     ) {
+        self.localStore = localStore
         self.sessionsSubject = sessionsSubject
         self.walletConnectCoordinator = walletConnectCoordinator
         self.navigationController = navigationController

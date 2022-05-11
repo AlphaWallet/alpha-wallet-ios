@@ -33,6 +33,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            localStore: FakeRealmLocalStore(),
             wallet: .make(),
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -80,6 +81,7 @@ class InCoordinatorTests: XCTestCase {
         let c1 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            localStore: FakeRealmLocalStore(),
             wallet: account1,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -102,6 +104,7 @@ class InCoordinatorTests: XCTestCase {
         let c2 = ActiveWalletCoordinator(
             navigationController: FakeNavigationController(),
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            localStore: FakeRealmLocalStore(),
             wallet: account2,
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
@@ -132,6 +135,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: FakeNavigationController(),
                 walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+                localStore: FakeRealmLocalStore(),
                 wallet: wallet,
                 keystore: FakeKeystore(wallets: [wallet]),
                 assetDefinitionStore: AssetDefinitionStore(),
@@ -163,6 +167,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            localStore: FakeRealmLocalStore(),
             wallet: wallet,
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
@@ -194,6 +199,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = ActiveWalletCoordinator(
             navigationController: navigationController,
             walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+            localStore: FakeRealmLocalStore(),
             wallet: .make(),
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
@@ -244,6 +250,7 @@ class InCoordinatorTests: XCTestCase {
             let coordinator = ActiveWalletCoordinator(
                     navigationController: navigationController,
                     walletAddressesStore: EtherKeystore.migratedWalletAddressesStore(userDefaults: .test),
+                    localStore: FakeRealmLocalStore(),
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),

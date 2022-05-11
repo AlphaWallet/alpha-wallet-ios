@@ -9,7 +9,6 @@ import UIKit
 import BigInt
 import PromiseKit
 import Combine
-import RealmSwift
 
 protocol CoinTickerProvider: AnyObject {
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
@@ -62,8 +61,10 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         let balances = balanceFetchers.values.map { $0.value.balance }
         return WalletSummary(balances: balances)
     }
+    private let store: LocalStore
 
-    init(keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
+    init(store: LocalStore, keystore: Keystore, config: Config, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType, walletAddressesStore: WalletAddressesStore) {
+        self.store = store
         self.keystore = keystore
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
@@ -80,12 +81,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
                 for wallet in wallets {
                     strongSelf.getOrCreateBalanceFetcher(for: wallet)
                 }
-
-                //NOTE: we need to remove all balance fetcher for deleted wallets
-                let handlertToDelete = strongSelf.balanceFetchers.values.filter { !wallets.contains($0.key) }
-                for value in handlertToDelete {
-                    strongSelf.balanceFetchers.removeValue(forKey: value.key)
-                }
+                strongSelf.removeBalanceFetcher(wallets: wallets)
 
                 strongSelf.notifyWalletsSummary()
             }.store(in: &cancelable)
@@ -104,6 +100,14 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
                     fetcher.update(servers: servers)
                 }
             }.store(in: &cancelable)
+    }
+
+    private func removeBalanceFetcher(wallets: Set<Wallet>) {
+        //NOTE: we need to remove all balance fetcher for deleted wallets
+        let fetchersToDelete = balanceFetchers.values.filter { !wallets.contains($0.key) }
+        for value in fetchersToDelete {
+            balanceFetchers.removeValue(forKey: value.key)
+        }
     }
 
     func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel? {
@@ -143,9 +147,8 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
 
     /// NOTE: internal for test ourposes
     func createWalletBalanceFetcher(wallet: Wallet) -> WalletBalanceFetcherType {
-        let realm: Realm = Wallet.functional.realm(forAccount: wallet)
-        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(realm: realm, servers: config.enabledServers)
-        let transactionsStorage = TransactionDataStore(realm: realm)
+        let tokensDataStore: TokensDataStore = MultipleChainsTokensDataStore(store: store.getOrCreateStore(forWallet: wallet), servers: config.enabledServers)
+        let transactionsStorage = TransactionDataStore(store: store.getOrCreateStore(forWallet: wallet))
         let fetcher = WalletBalanceFetcher(wallet: wallet, servers: config.enabledServers, tokensDataStore: tokensDataStore, transactionsStorage: transactionsStorage, nftProvider: nftProvider, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue, coinTickersFetcher: coinTickersFetcher)
         fetcher.delegate = self
 

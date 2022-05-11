@@ -16,8 +16,8 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     private let store: RealmStore
     private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
     
-    init(realm: Realm) {
-        self.store = RealmStore(realm: realm)
+    init(store: RealmStore) {
+        self.store = store
     }
 
     var recentEventsPublisher: AnyPublisher<ChangeSet<[EventActivity]>, Never> {
