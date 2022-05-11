@@ -98,6 +98,10 @@ extension DatabaseMigration {
 
     static func realmFilesUrls(account: Wallet) -> [URL] {
         let config = RealmConfiguration.configuration(for: account)
+        return realmFilesUrls(config: config)
+    }
+
+    static func realmFilesUrls(config: Realm.Configuration) -> [URL] {
         guard let realmUrl = config.fileURL else { return [] }
 
         let realmUrls = [
@@ -211,14 +215,7 @@ extension DatabaseMigration {
             }
             for each in RPCServer.availableServers {
                 let migration = MigrationInitializerForOneChainPerDatabase(account: account, server: each, assetDefinitionStore: assetDefinitionStore)
-                let realmUrl = migration.config.fileURL!
-                let realmUrls = [
-                    realmUrl,
-                    realmUrl.appendingPathExtension("lock"),
-                    realmUrl.appendingPathExtension("note"),
-                    realmUrl.appendingPathExtension("management")
-                ]
-                for each in realmUrls {
+                for each in DatabaseMigration.realmFilesUrls(config: migration.config) {
                     try? FileManager.default.removeItem(at: each)
                 }
             }
