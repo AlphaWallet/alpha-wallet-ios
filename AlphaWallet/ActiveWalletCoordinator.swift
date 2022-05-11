@@ -170,6 +170,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
         blockscanChatService.delegate = self
 
         self.keystore.recentlyUsedWallet = wallet
+        crashlytics.trackActiveWallet(wallet: wallet)
         if let service = tokenActionsService.service(ofType: Ramp.self) as? Ramp {
             service.configure(account: wallet)
         }

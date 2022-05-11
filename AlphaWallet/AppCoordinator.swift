@@ -212,6 +212,7 @@ class AppCoordinator: NSObject, Coordinator {
             ConfigureApp(),
             CleanupWallets(keystore: keystore, walletAddressesStore: walletAddressesStore, config: config),
             SkipBackupFiles(legacyFileBasedKeystore: legacyFileBasedKeystore),
+            ReportUsersWalletAddresses(walletAddressesStore: walletAddressesStore)
         ]
 
         initializers.forEach { $0.perform() }

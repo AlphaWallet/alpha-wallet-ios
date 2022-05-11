@@ -886,6 +886,7 @@
 		8765D6E1282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */; };
 		8765D6E3282BAD6300529F45 /* FakeNftProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */; };
 		8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */; };
+		8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
@@ -2041,6 +2042,7 @@
 		8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMultiWalletBalanceService.swift; sourceTree = "<group>"; };
 		8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNftProvider.swift; sourceTree = "<group>"; };
 		8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSingleChainTokenBalanceService.swift; sourceTree = "<group>"; };
+		8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportUsersWalletAddresses.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
@@ -3540,6 +3542,7 @@
 				5E7C720596AD351B21CE7583 /* DatabaseMigration.swift */,
 				8782E9D12828F52500E93689 /* ConfigureApp.swift */,
 				8782E9D32828F59A00E93689 /* CleanupWallets.swift */,
+				8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */,
 			);
 			path = Initializers;
 			sourceTree = "<group>";
@@ -6670,6 +6673,7 @@
 				5E7C77D12D8DE42157790BDC /* DappsAutoCompletionCell.swift in Sources */,
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,
 				879E1E44264C0717006CD362 /* TickerFieldValueView.swift in Sources */,
+				8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */,
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,
 				C601B18D24407F4300C763D9 /* SettingTableViewCellViewModel.swift in Sources */,
