@@ -5,8 +5,6 @@
 
 import Foundation
 import PromiseKit
-import Result
-import web3swift
 
 class IsErc1155Contract {
     private let server: RPCServer

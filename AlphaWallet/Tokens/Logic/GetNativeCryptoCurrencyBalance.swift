@@ -1,11 +1,8 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import BigInt
 import JSONRPCKit
 import APIKit
-import Result
-import web3swift
 import PromiseKit
 
 class GetNativeCryptoCurrencyBalance {
