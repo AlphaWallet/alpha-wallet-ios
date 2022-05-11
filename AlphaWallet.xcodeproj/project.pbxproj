@@ -889,6 +889,7 @@
 		8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */; };
 		8765D6F5282BE0B100529F45 /* Alamofire+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */; };
 		8765D6F7282BE26200529F45 /* Session+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F6282BE26200529F45 /* Session+Publishers.swift */; };
+		8765D6F9282BE30D00529F45 /* Control+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F8282BE30D00529F45 /* Control+Publishers.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
@@ -2047,6 +2048,7 @@
 		8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportUsersWalletAddresses.swift; sourceTree = "<group>"; };
 		8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Alamofire+Publishers.swift"; sourceTree = "<group>"; };
 		8765D6F6282BE26200529F45 /* Session+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Publishers.swift"; sourceTree = "<group>"; };
+		8765D6F8282BE30D00529F45 /* Control+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Control+Publishers.swift"; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
@@ -5077,6 +5079,7 @@
 				8782E9CF2828E47100E93689 /* RetryIf.swift */,
 				8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */,
 				8765D6F6282BE26200529F45 /* Session+Publishers.swift */,
+				8765D6F8282BE30D00529F45 /* Control+Publishers.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -6771,6 +6774,7 @@
 				8712A38326F475830009C376 /* PriceAlert.swift in Sources */,
 				02EFD0FA27DF0785008B5808 /* Repeat.swift in Sources */,
 				5E7C73092E428F9519787284 /* Core.swift in Sources */,
+				8765D6F9282BE30D00529F45 /* Control+Publishers.swift in Sources */,
 				5E7C70397E7E3A9C88E995B1 /* WKWebViewExtension.swift in Sources */,
 				5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */,
 				5E7C76393408CC2489FF4527 /* AssetDefinitionsOverridesViewController.swift in Sources */,
