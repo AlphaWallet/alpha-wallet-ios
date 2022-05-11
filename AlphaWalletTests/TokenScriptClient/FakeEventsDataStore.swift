@@ -5,7 +5,8 @@ import RealmSwift
 
 class FakeEventsDataStore: NonActivityMultiChainEventsDataStore {
     convenience init(account: Wallet = .make()) {
-        let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest-\(account.address.eip55String)"))
-        self.init(realm: realm)
+        let store = FakeRealmLocalStore()
+        self.init(store: store.getOrCreateStore(forWallet: account))
     }
 }
+

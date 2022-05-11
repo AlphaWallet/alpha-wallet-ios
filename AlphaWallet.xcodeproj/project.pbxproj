@@ -881,6 +881,11 @@
 		8765D6CD282A3B9400529F45 /* GasLimitWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6CC282A3B9400529F45 /* GasLimitWarning.swift */; };
 		8765D6CF282A497900529F45 /* SwapTokenNativeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6CE282A497900529F45 /* SwapTokenNativeProvider.swift */; };
 		8765D6D1282A49D200529F45 /* SwapTokenViaUrlProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6D0282A49D200529F45 /* SwapTokenViaUrlProvider.swift */; };
+		8765D6DD282B9C7D00529F45 /* RealmLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6DC282B9C7D00529F45 /* RealmLocalStore.swift */; };
+		8765D6DF282BAD1900529F45 /* FakeRealmLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6DE282BAD1900529F45 /* FakeRealmLocalStore.swift */; };
+		8765D6E1282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */; };
+		8765D6E3282BAD6300529F45 /* FakeNftProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */; };
+		8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
@@ -2031,6 +2036,11 @@
 		8765D6CC282A3B9400529F45 /* GasLimitWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasLimitWarning.swift; sourceTree = "<group>"; };
 		8765D6CE282A497900529F45 /* SwapTokenNativeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenNativeProvider.swift; sourceTree = "<group>"; };
 		8765D6D0282A49D200529F45 /* SwapTokenViaUrlProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTokenViaUrlProvider.swift; sourceTree = "<group>"; };
+		8765D6DC282B9C7D00529F45 /* RealmLocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmLocalStore.swift; sourceTree = "<group>"; };
+		8765D6DE282BAD1900529F45 /* FakeRealmLocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeRealmLocalStore.swift; sourceTree = "<group>"; };
+		8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMultiWalletBalanceService.swift; sourceTree = "<group>"; };
+		8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNftProvider.swift; sourceTree = "<group>"; };
+		8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSingleChainTokenBalanceService.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
@@ -3516,6 +3526,7 @@
 				5E7C7B097096FC37B68A399B /* EmailList.swift */,
 				5E7C7E586766C5107B2BD6B5 /* ENS */,
 				87F15B2027F5828F00EB9787 /* ReachabilityManager.swift */,
+				8765D6DC282B9C7D00529F45 /* RealmLocalStore.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -3623,6 +3634,10 @@
 				732E0F512022754600B39C1F /* FakeLockProtocol.swift */,
 				73CBC760202139FB00374666 /* FakeGetBalanceCoordinator(.swift */,
 				442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */,
+				8765D6DE282BAD1900529F45 /* FakeRealmLocalStore.swift */,
+				8765D6E0282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift */,
+				8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */,
+				8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */,
 			);
 			path = Factories;
 			sourceTree = "<group>";
@@ -6950,6 +6965,7 @@
 				5E7C7CD5C69451722BAB63E4 /* GetNextNonce.swift in Sources */,
 				5E7C7B1689D3E1D51788FE26 /* Session+PromiseKit.swift in Sources */,
 				5E7C78C68AD1922796E6C88F /* WalletConnectSessionsViewController.swift in Sources */,
+				8765D6DD282B9C7D00529F45 /* RealmLocalStore.swift in Sources */,
 				5E7C78C511CD388E882DBD83 /* WalletConnectSessionCell.swift in Sources */,
 				8757E5E025DE5A9D00812392 /* WalletConnectToSessionViewController.swift in Sources */,
 				5E7C712B11D9D9AAA02C022F /* WalletConnectSessionCellViewModel.swift in Sources */,
@@ -7043,8 +7059,10 @@
 				29F1C865200384FE003780D8 /* Wallet.swift in Sources */,
 				29FF130D1F7626E800AFD326 /* FakeNavigationController.swift in Sources */,
 				61DCE17D2001A7A20053939F /* RLPTests.swift in Sources */,
+				8765D6E3282BAD6300529F45 /* FakeNftProvider.swift in Sources */,
 				299573A41FA27A15006F17FD /* TestKeyStore.swift in Sources */,
 				CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */,
+				8765D6DF282BAD1900529F45 /* FakeRealmLocalStore.swift in Sources */,
 				02CEFAF82807FF7500CF8722 /* GetIsERC1155ContractCoordinatorTestCase.swift in Sources */,
 				871442FD27FB1EE6008819D1 /* FunctionCallArgumentTests.swift in Sources */,
 				02CEFAFB2808027E00CF8722 /* urlUtilities.swift in Sources */,
@@ -7107,10 +7125,12 @@
 				87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */,
 				5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */,
 				5E7C7EAED92E4AE8B99217AB /* TransferTokensCardQuantitySelectionViewControllerTests.swift in Sources */,
+				8765D6E1282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift in Sources */,
 				0256B64127F73EBF008AF8CF /* StringValidatorRuleTestCases.swift in Sources */,
 				5E7C7B4E3DEA90147A5A9E0A /* TokensDataStoreTest.swift in Sources */,
 				5E7C793F7E346402CDAF771F /* AssetDefinitionStoreTests.swift in Sources */,
 				5E7C7705B09D780E84E2FDA5 /* XMLHandlerTest.swift in Sources */,
+				8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */,
 				5E7C7D5843B705ACD26E9090 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift in Sources */,
 				5E7C71D1D16FE09032EB4B7E /* TokenObjectTest.swift in Sources */,
 				5E7C760F9D7C178E17C75C52 /* ImportTokenViewControllerTests.swift in Sources */,

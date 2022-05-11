@@ -35,9 +35,10 @@ class AppCoordinator: NSObject, Coordinator {
     var activeWalletCoordinator: ActiveWalletCoordinator? {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
+    private let localStore: LocalStore = RealmLocalStore()
     private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
     private lazy var walletBalanceService: WalletBalanceService = {
-        return MultiWalletBalanceService(keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
+        return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()
     private var pendingActiveWalletCoordinator: ActiveWalletCoordinator?
 
@@ -126,6 +127,7 @@ class AppCoordinator: NSObject, Coordinator {
                 Erc1155TokenIdsFetcher.deleteForWallet(account.address)
                 DatabaseMigration.removeRealmFiles(account: account)
                 self.legacyFileBasedKeystore.delete(wallet: account)
+                self.localStore.removeStore(forWallet: account)
             }.store(in: &cancelable)
     }
 
@@ -178,6 +180,7 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = ActiveWalletCoordinator(
                 navigationController: navigationController,
                 walletAddressesStore: walletAddressesStore,
+                localStore: localStore,
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,

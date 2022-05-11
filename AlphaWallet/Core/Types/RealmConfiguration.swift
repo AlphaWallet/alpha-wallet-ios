@@ -29,11 +29,17 @@ struct RealmConfiguration {
     }
 
     private static func realmConfiguration() -> Realm.Configuration {
+        let config: Realm.Configuration
         if isRunningTests() {
-            return Realm.Configuration(fileURL: URL(fileURLWithPath: try! _RLMRealmPathInCacheFolderForFile("default.realm"), isDirectory: false))
+            config = Realm.Configuration(fileURL: URL(fileURLWithPath: try! _RLMRealmPathInCacheFolderForFile("default.realm"), isDirectory: false))
         } else {
-            return Realm.Configuration()
+            config = Realm.Configuration()
         }
+
+        for var each in DatabaseMigration.realmFilesUrls(config: config) {
+            try? each.addProtectionKeyNone()
+        }
+        return config
     }
     
     private static func _RLMRealmPathInCacheFolderForFile(_ fileName: String) throws -> String {
