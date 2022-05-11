@@ -887,6 +887,7 @@
 		8765D6E3282BAD6300529F45 /* FakeNftProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */; };
 		8765D6E5282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */; };
 		8765D6E7282BCC8000529F45 /* ReportUsersWalletAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */; };
+		8765D6F5282BE0B100529F45 /* Alamofire+Publishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
 		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
@@ -2043,6 +2044,7 @@
 		8765D6E2282BAD6300529F45 /* FakeNftProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNftProvider.swift; sourceTree = "<group>"; };
 		8765D6E4282BAD7E00529F45 /* FakeSingleChainTokenBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSingleChainTokenBalanceService.swift; sourceTree = "<group>"; };
 		8765D6E6282BCC8000529F45 /* ReportUsersWalletAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportUsersWalletAddresses.swift; sourceTree = "<group>"; };
+		8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Alamofire+Publishers.swift"; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
 		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
@@ -5071,6 +5073,7 @@
 			children = (
 				8714430127FB2E6B008819D1 /* NotificationCenter.swift */,
 				8782E9CF2828E47100E93689 /* RetryIf.swift */,
+				8765D6F4282BE0B100529F45 /* Alamofire+Publishers.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -6336,6 +6339,7 @@
 				29C70C712016C7780072E454 /* SentTransaction.swift in Sources */,
 				87ED8F99248541380005C69B /* AdvancedSettingsViewModel.swift in Sources */,
 				87D949BB2710553000A96A85 /* DASLookupRequest.swift in Sources */,
+				8765D6F5282BE0B100529F45 /* Alamofire+Publishers.swift in Sources */,
 				AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */,
 				29E9CFD21FE737FE00017744 /* RealmConfiguration.swift in Sources */,
 				2959961C1FAE3EDF00DB66A8 /* AlphaWalletService.swift in Sources */,
