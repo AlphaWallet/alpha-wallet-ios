@@ -131,37 +131,7 @@ extension FloatingPanelController {
             let backdropTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackdrop(tapGesture:)))
             backdropView.addGestureRecognizer(backdropTapGesture)
         }
-    }
-
-    convenience init(contentViewController: UIViewController, isGrabberHandleHidden: Bool = false) {
-        self.init()
-
-        let appearance = SurfaceAppearance()
-        appearance.cornerRadius = 16
-        appearance.backgroundColor = Colors.appBackground
-
-        let shadow = SurfaceAppearance.Shadow()
-        shadow.opacity = 0.1
-        shadow.color = .black//.textTapPrimary
-        shadow.offset = .init(width: 0, height: -4)
-        shadow.radius = 5
-        shadow.spread = 0
-
-        appearance.shadows = [shadow]
-
-        isRemovalInteractionEnabled = true
-
-        surfaceView.grabberHandle.isHidden = isGrabberHandleHidden
-        surfaceView.appearance = appearance
-
-        backdropView.gestureRecognizers?.forEach { [weak self] in
-            self?.backdropView.removeGestureRecognizer($0)
-        }
-
-        let backdropTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackdrop(tapGesture:)))
-        backdropTapGesture.cancelsTouchesInView = false
-        backdropView.addGestureRecognizer(backdropTapGesture)
-    }
+    } 
 
     @objc private func handleBackdrop(tapGesture: UITapGestureRecognizer) {
         guard let viewController = tapGesture.view?.parentFloatingPanelController else { return }
