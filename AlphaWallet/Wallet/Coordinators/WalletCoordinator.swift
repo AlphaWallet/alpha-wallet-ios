@@ -91,10 +91,6 @@ class WalletCoordinator: Coordinator {
                 WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
 
                 let wallet = Wallet(type: WalletType.real(account))
-                //Bit of delay to wait for the UI animation to almost finish
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    WhereIsWalletAddressFoundOverlayView.show()
-                }
                 strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
             case .failure(let error):
                 //TODO this wouldn't work since navigationController isn't shown anymore

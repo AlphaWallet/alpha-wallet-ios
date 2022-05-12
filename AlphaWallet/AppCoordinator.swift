@@ -313,7 +313,13 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
-        showInitialNetworkSelectionCoordinator()
+        switch account.type {
+        case .real:
+            showInitialNetworkSelectionCoordinator()
+        case .watch:
+            guard let wallet = keystore.currentWallet else { return }
+            showActiveWallet(for: wallet, animated: false)
+        }
     }
 
 }
@@ -324,6 +330,10 @@ extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegateProtocol {
         removeCoordinator(coordinator)
         guard let wallet = keystore.currentWallet else { return }
         showActiveWallet(for: wallet, animated: false)
+        DispatchQueue.main.async {
+            WhereIsWalletAddressFoundOverlayView.show()
+        }
+
     }
 }
 
