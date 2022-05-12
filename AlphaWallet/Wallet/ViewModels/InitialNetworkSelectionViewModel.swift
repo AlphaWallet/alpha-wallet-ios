@@ -10,8 +10,9 @@ import UIKit
 class InitialNetworkSelectionViewModel: NSObject {
 
     static let ReloadTableViewNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Reload")
+
+    private let numberOfSections = InitialNetworkSelectionCollectionModel.Mode.allCases.count
     private var model: InitialNetworkSelectionCollectionModel
-    private var tableView: UITableView?
 
     init(model: InitialNetworkSelectionCollectionModel) {
         self.model = model
@@ -24,11 +25,15 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
 
     func register(_ tableView: UITableView) {
         tableView.register(ServerImageTableViewCell.self)
-        self.tableView = tableView
     }
 
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return numberOfSections
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.count
+        guard let mode = getModeFromSectionIndex(index: section), mode == model.mode else { return 0 }
+        return model.countFor(mode: mode)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -43,6 +48,10 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
         80.0
     }
 
+    private func getModeFromSectionIndex(index: Int) -> InitialNetworkSelectionCollectionModel.Mode? {
+        guard let mode = InitialNetworkSelectionCollectionModel.Mode(rawValue: index) else { return nil }
+        return mode
+    }
 }
 
 extension InitialNetworkSelectionViewModel: UITableViewDelegate {
