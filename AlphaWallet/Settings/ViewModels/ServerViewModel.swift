@@ -24,7 +24,7 @@ protocol ServerImageTableViewCellViewModelType {
     var secondaryText: String { get }
     var secondaryFontColor: UIColor { get }
     var selectionStyle: UITableViewCell.SelectionStyle { get set }
-    var server: RPCServer { get }
+    var server: RPCServerOrAuto { get }
     var serverColor: UIColor { get }
 }
 
@@ -66,10 +66,10 @@ struct ServerViewModel: ServerTableViewCellViewModelType {
 struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
 
     let isSelected: Bool
-    let server: RPCServer
+    let server: RPCServerOrAuto
     let isTopSeparatorHidden: Bool
 
-    init(server: RPCServer, selected: Bool) {
+    init(server: RPCServerOrAuto, selected: Bool) {
         self.server = server
         self.isSelected = selected
         self.isTopSeparatorHidden = true
@@ -86,7 +86,13 @@ struct ServerImageViewModel: ServerImageTableViewCellViewModelType {
     var primaryFontColor: UIColor = R.color.black()!
 
     var secondaryText: String {
-        return "ChainID: \(server.chainID)"
+        switch server {
+        case .auto:
+            return ""
+        case .server(let rpcServer):
+            return "ChainID: \(rpcServer.chainID)"
+        }
+
     }
     var secondaryFont: UIFont = R.font.sourceSansProRegular(size: 15.0)!
     var secondaryFontColor: UIColor = R.color.dove()!

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ServerImageTableViewCell: UITableViewCell {
+class RPCDisplaySelectableTableViewCell: UITableViewCell {
 
     // MARK: - Properties
 
@@ -46,6 +46,7 @@ class ServerImageTableViewCell: UITableViewCell {
         chainIconView.translatesAutoresizingMaskIntoConstraints = false
         infoView.translatesAutoresizingMaskIntoConstraints = false
         accessoryImageView.translatesAutoresizingMaskIntoConstraints = false
+        chainIconView.contentMode = .scaleAspectFit
         addSubview(topSeparator)
         addSubview(chainIconView)
         addSubview(infoView)
@@ -74,6 +75,8 @@ class ServerImageTableViewCell: UITableViewCell {
             accessoryImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             accessoryImageView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: topAnchor, multiplier: 1.0),
             accessoryImageView.bottomAnchor.constraint(lessThanOrEqualToSystemSpacingBelow: bottomAnchor, multiplier: 1.0),
+
+            heightAnchor.constraint(equalToConstant: 80.0)
         ])
     }
 
@@ -84,8 +87,13 @@ class ServerImageTableViewCell: UITableViewCell {
     }
 
     private func configureChainIconView(viewModel: ServerImageTableViewCellViewModelType) {
-        let imageSubscription = RPCServerImageFetcher.instance.image(server: viewModel.server)
-        chainIconView.subscribable = imageSubscription
+        switch viewModel.server {
+        case .auto:
+            chainIconView.image = R.image.launch_icon()!
+        case .server(let server):
+            let imageSubscription = RPCServerImageFetcher.instance.image(server: server)
+            chainIconView.subscribable = imageSubscription
+        }
     }
 
     private func configureInfoView(viewModel: ServerImageTableViewCellViewModelType) {
@@ -151,5 +159,15 @@ private class ServerInformationView: UIView {
             secondaryTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             secondaryTextLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
+    }
+}
+
+class RPCDisplayTableViewCell: RPCDisplaySelectableTableViewCell {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

@@ -48,6 +48,7 @@ class SaveCustomRpcBrowseViewController: UIViewController {
         tableViewController.tableView.backgroundColor = GroupedTable.Color.background
         tableViewController.tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableViewController.tableView.isEditing = false
+        tableViewController.tableView.register(RPCDisplayTableViewCell.self)
         return tableViewController
     }()
 

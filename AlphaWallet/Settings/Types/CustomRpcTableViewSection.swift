@@ -13,10 +13,6 @@ class CustomRpcTableViewSection: NSObject, TableViewSection {
 
     // MARK: - Properties
 
-    // MARK: Static
-
-    static let cellIdentifier: String = "RPCTableViewCell"
-
     // MARK: Private
 
     private let mode: EnabledServersViewModel.Mode
@@ -43,21 +39,9 @@ class CustomRpcTableViewSection: NSObject, TableViewSection {
         return filtered ? filteredList.count : customRpcList.count
     }
 
-    func cellAt(row: Int, from tableView: UITableView) -> UITableViewCell {
+    func serverAt(row: Int) -> CustomRPC {
         let selectedRow = filtered ? filteredList[row] : customRpcList[row]
-        // We are using the default UITableViewCell with a custom style so we cannot register the cell to the table.
-        var cell: UITableViewCell! = tableView.dequeueReusableCell(withIdentifier: CustomRpcTableViewSection.cellIdentifier)
-        if cell == nil {
-            // This does put the cell into the tableview cache somehow.
-            cell = UITableViewCell(style: .subtitle, reuseIdentifier: CustomRpcTableViewSection.cellIdentifier)
-            cell.textLabel?.textColor = Style.RPCServerTableView.Cell.text.color
-            cell.detailTextLabel?.textColor = Style.RPCServerTableView.Cell.detailedText.color
-        }
-        cell.textLabel?.text = selectedRow.chainName
-        cell.detailTextLabel?.text = "ChainID: \(selectedRow.chainID)"
-        cell.tintColor = Style.RPCServerTableView.Cell.tint.color
-        cell.accessoryType = isMarked(chainID: selectedRow.chainID) ? .checkmark : .none
-        return cell
+        return selectedRow
     }
 
     func didSelect(row: Int) {

@@ -9,7 +9,7 @@ import UIKit
 
 protocol TableViewSection: class {
     func addMarked(chainID: Int)
-    func cellAt(row: Int, from tableView: UITableView) -> UITableViewCell
+    func serverAt(row: Int) -> CustomRPC
     func didSelect(row: Int)
     func filter(phrase: String) -> Int
     func headerHeight() -> CGFloat

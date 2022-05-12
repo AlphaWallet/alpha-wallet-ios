@@ -127,8 +127,12 @@ extension SaveCustomRpcBrowseDataController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard indexPath.section < tableViewSection.count else { return UITableViewCell() }
+        let cell: RPCDisplayTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let section = tableViewSection[indexPath.section]
-        return section.cellAt(row: indexPath.row, from: tableView)
+        let server = section.serverAt(row: indexPath.row)
+        let viewModel = ServerImageViewModel(server: .server(.custom(server)), selected: section.isMarked(chainID: server.chainID))
+        cell.configure(viewModel: viewModel)
+        return cell
     }
 
 }
@@ -160,6 +164,10 @@ extension SaveCustomRpcBrowseDataController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        80.0
     }
 
 }

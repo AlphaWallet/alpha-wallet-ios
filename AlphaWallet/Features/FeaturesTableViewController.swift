@@ -32,7 +32,7 @@ class FeaturesTableViewController: UITableViewController {
         super.init(nibName: nil, bundle: nil)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(DisplayTableViewCell.self)
+        tableView.register(RPCDisplayTableViewCell.self)
     }
 
     required init?(coder: NSCoder) {
@@ -46,7 +46,7 @@ class FeaturesTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: DisplayTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: RPCDisplayTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         return configure(cell: cell, at: indexPath)
     }
 
