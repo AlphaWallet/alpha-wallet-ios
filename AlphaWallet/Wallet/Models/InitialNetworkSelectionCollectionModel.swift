@@ -9,36 +9,66 @@ import UIKit
 
 struct InitialNetworkSelectionCollectionModel {
 
+    // MARK: - enums
+
+    enum Mode {
+        case mainnet
+        case testnet
+    }
+
     // MARK: - variables (private)
 
-    private let servers: [RPCServer] // = RPCServer.allCases
+    private let mainnetServers: [RPCServer]
+    private let testnetServers: [RPCServer]
+    private var filteredMainnetServers: [RPCServer]
+    private var filteredTestnetServers: [RPCServer]
+    private var mode: InitialNetworkSelectionCollectionModel.Mode = .mainnet
+
+    // MARK: - variables
+
+    private(set) var selected: Set<RPCServer>
 
     // MARK: - accessors
 
-    private(set) var filtered: [RPCServer] // = servers
-    private(set) var selected: Set<RPCServer> // = Set<RPCServer>()
     var count: Int {
-        filtered.count
+        switch mode {
+        case .mainnet:
+            return filteredMainnetServers.count
+        case .testnet:
+            return filteredTestnetServers.count
+        }
+    }
+
+    var filtered: [RPCServer] {
+        switch mode {
+        case .mainnet:
+            return filteredMainnetServers
+        case .testnet:
+            return filteredTestnetServers
+        }
     }
 
     // MARK: - Initializers
-    init() {
-        servers = RPCServer.allCases.filter { !$0.isTestnet }
-        filtered = servers
-        selected = []
+
+    init(servers: [RPCServer] = RPCServer.allCases, selected: Set<RPCServer> = []) {
+        mainnetServers = servers.filter { !$0.isTestnet }
+        testnetServers = servers.filter { $0.isTestnet }
+        filteredMainnetServers = mainnetServers
+        filteredTestnetServers = testnetServers
+        self.selected = selected
     }
 
-    // MARK: - functions
+    // MARK: - functions (public)
 
     mutating func filter(keyword rawKeyword: String) {
         let keyword = rawKeyword.lowercased().trimmed
         if keyword.isEmpty {
-            filtered = servers
+            filteredMainnetServers = mainnetServers
+            filteredTestnetServers = testnetServers
             return
         }
-        filtered = servers.filter({
-            $0.name.lowercased().contains(keyword) || String($0.chainID).contains(keyword)
-        })
+        filteredMainnetServers = mainnetServers.filter { $0.match(keyword: keyword) }
+        filteredTestnetServers = testnetServers.filter { $0.match(keyword: keyword) }
     }
 
     mutating func addSelected(server: RPCServer) {
@@ -57,5 +87,15 @@ struct InitialNetworkSelectionCollectionModel {
         let row = indexPath.row
         return filtered[row]
     }
+
+    mutating func set(mode: InitialNetworkSelectionCollectionModel.Mode) {
+        self.mode = mode
+    }
     
+}
+
+fileprivate extension RPCServer {
+    func match(keyword: String) -> Bool {
+        self.name.lowercased().contains(keyword) || String(self.chainID).contains(keyword)
+    }
 }
