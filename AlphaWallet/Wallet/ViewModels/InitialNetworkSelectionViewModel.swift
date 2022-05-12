@@ -11,6 +11,7 @@ class InitialNetworkSelectionViewModel: NSObject {
 
     static let ReloadTableViewNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Reload")
     static let ChangeSelectedCountNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.ChangeCount")
+    static let PromptNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Prompt")
     static let ChangeSelectedKey: String = "count"
 
     private let numberOfSections = InitialNetworkSelectionCollectionModel.Mode.allCases.count
@@ -60,7 +61,7 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        50
+        50.0
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -120,11 +121,33 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
             model.mode = .mainnet
             headerForMainnet.toggle(isEnabled: true)
             headerForTestnet.toggle(isEnabled: false)
+            sendReloadNotification()
         case (false, .mainnet), (true, .testnet):
-            model.mode = .testnet
-            headerForMainnet.toggle(isEnabled: false)
-            headerForTestnet.toggle(isEnabled: true)
+//            let prompt = PromptViewController()
+//            prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
+//            prompt._delegate = self
+//            present(prompt, animated: true)
+            sendPromptNotification()
         }
+    }
+
+    private func sendPromptNotification() {
+        NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.PromptNotification, object: self)
+    }
+}
+
+extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
+
+    func actionButtonTapped(inController controller: PromptViewController) {
+        model.mode = .testnet
+        headerForMainnet.toggle(isEnabled: false)
+        headerForTestnet.toggle(isEnabled: true)
+        sendReloadNotification()
+    }
+
+    func controllerDismiss(_ controller: PromptViewController) {
+        headerForMainnet.toggle(isEnabled: true)
+        headerForTestnet.toggle(isEnabled: false)
         sendReloadNotification()
     }
 

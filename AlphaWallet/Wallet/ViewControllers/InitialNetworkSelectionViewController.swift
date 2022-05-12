@@ -68,6 +68,7 @@ class InitialNetworkSelectionViewController: UIViewController {
         selectionView.configure(viewModel: viewModel)
         NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: viewModel)
         NotificationCenter.default.addObserver(self, selector: #selector(changeContinueButtonState(notification:)), name: InitialNetworkSelectionViewModel.ChangeSelectedCountNotification, object: viewModel)
+        NotificationCenter.default.addObserver(self, selector: #selector(promptUser(notification:)), name: InitialNetworkSelectionViewModel.PromptNotification, object: viewModel)
         changeContinueButtonState(!viewModel.selected.isEmpty)
     }
 
@@ -91,4 +92,13 @@ class InitialNetworkSelectionViewController: UIViewController {
     private func changeContinueButtonState(_ state: Bool) {
         selectionView.continueButton.isEnabled = state
     }
+
+    @objc private func promptUser(notification: Notification) {
+        guard let delegate = notification.object as? InitialNetworkSelectionViewModel else { return }
+        let prompt = PromptViewController()
+        prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
+        prompt._delegate = delegate
+        present(prompt, animated: true)
+    }
+
 }
