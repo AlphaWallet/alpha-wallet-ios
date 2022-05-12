@@ -11,18 +11,15 @@ struct NonFungibleRowViewModel: NonFungibleRowViewModelType {
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let _tokenId: TokenId
-    let areDetailsVisible: Bool
-    private let width: CGFloat
+    let areDetailsVisible: Bool = false
     let convertHtmlInDescription: Bool
     var contentsBackgroundColor: UIColor {
         return Colors.appBackground
     }
 
-    init(tokenHolder: TokenHolder, tokenId: TokenId, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
+    init(tokenHolder: TokenHolder, tokenId: TokenId, convertHtmlInDescription: Bool = true) {
         self.tokenHolder = tokenHolder
         self._tokenId = tokenId
-        self.areDetailsVisible = areDetailsVisible
-        self.width = width
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.convertHtmlInDescription = convertHtmlInDescription
     }
@@ -309,18 +306,14 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
     private let tokenHolder: TokenHolder
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let _tokenId: TokenId
-    let areDetailsVisible: Bool
-    private let width: CGFloat
     let convertHtmlInDescription: Bool
     var contentsBackgroundColor: UIColor {
         return Colors.appBackground
     }
 
-    init(tokenHolder: TokenHolder, tokenId: TokenId, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
+    init(tokenHolder: TokenHolder, tokenId: TokenId, convertHtmlInDescription: Bool = true) {
         self.tokenHolder = tokenHolder
         self._tokenId = tokenId
-        self.areDetailsVisible = areDetailsVisible
-        self.width = width
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.convertHtmlInDescription = convertHtmlInDescription
     }
@@ -431,17 +424,17 @@ struct NonFungibleRowViewModel2: NonFungibleRowViewModelType {
         return displayHelper.statsLabelName
     }
 
-    var isAttributesTitleHidden: Bool {
-        return !areDetailsVisible || attributes.isEmpty
-    }
-
-    var isRankingsTitleHidden: Bool {
-        return !areDetailsVisible || rankings.isEmpty
-    }
-
-    var isStatsTitleHidden: Bool {
-        return !areDetailsVisible || stats.isEmpty
-    }
+//    var isAttributesTitleHidden: Bool {
+//        return !areDetailsVisible || attributes.isEmpty
+//    }
+//
+//    var isRankingsTitleHidden: Bool {
+//        return !areDetailsVisible || rankings.isEmpty
+//    }
+//
+//    var isStatsTitleHidden: Bool {
+//        return !areDetailsVisible || stats.isEmpty
+//    }
 
     var subtitleFont: UIFont {
         return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 11 : 14)

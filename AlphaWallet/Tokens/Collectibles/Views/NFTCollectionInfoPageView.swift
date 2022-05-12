@@ -13,53 +13,47 @@ protocol NFTCollectionInfoPageViewDelegate: class {
 }
 
 class NFTCollectionInfoPageView: UIView, PageViewType {
-    private let headerViewRefreshInterval: TimeInterval = 5.0
-
-    var title: String {
-        return viewModel.tabTitle
-    }
-
-    private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.isUserInteractionEnabled = true
-        imageView.rounding = .custom(20)
-        imageView.isChainOverlayHidden = true
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
+    private let previewView: NFTPreviewView
     private let containerView = ScrollableStackView()
     private (set) var viewModel: NFTCollectionInfoPageViewModel
+
     weak var delegate: NFTCollectionInfoPageViewDelegate?
     var rightBarButtonItem: UIBarButtonItem?
-    private let session: WalletSession
+    var title: String { return viewModel.tabTitle }
 
-    init(viewModel: NFTCollectionInfoPageViewModel, session: WalletSession) {
+    init(viewModel: NFTCollectionInfoPageViewModel, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator) {
         self.viewModel = viewModel
-        self.session = session
+        self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
+        self.previewView.rounding = .custom(20)
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(containerView)
 
+        let previewHeightConstraint: [NSLayoutConstraint]
+        switch viewModel.previewViewType {
+        case .imageView:
+            previewHeightConstraint = [previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor, multiplier: 0.7)]
+        case .tokenCardView:
+            previewHeightConstraint = []
+        }
+
         NSLayoutConstraint.activate([
             containerView.anchorsConstraint(to: self),
-            tokenIconImageView.heightAnchor.constraint(equalTo: tokenIconImageView.widthAnchor, multiplier: 0.7)
-        ])
+        ] + previewHeightConstraint)
 
         generateSubviews(viewModel: viewModel)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
-        tokenIconImageView.addGestureRecognizer(tap)
+        previewView.addGestureRecognizer(tap)
     }
 
     private func generateSubviews(viewModel: NFTCollectionInfoPageViewModel) {
         containerView.stackView.removeAllArrangedSubviews()
 
         containerView.stackView.addArrangedSubview(UIView.spacer(height: 10))
-        containerView.stackView.addArrangedSubview(tokenIconImageView)
+        containerView.stackView.addArrangedSubview(previewView)
         containerView.stackView.addArrangedSubview(UIView.spacer(height: 20))
 
         for (index, each) in viewModel.configurations.enumerated() {
@@ -83,7 +77,7 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
 
         if let openSeaSlug = values.slug, openSeaSlug.trimmed.nonEmpty {
             var viewModel = viewModel
-            OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.tokenObject.server).done { stats in
+            OpenSea.collectionStats(slug: openSeaSlug, server: viewModel.token.server).done { stats in
                 viewModel.configure(overiddenOpenSeaStats: stats)
                 self.configure(viewModel: viewModel)
             }.cauterize()
@@ -94,7 +88,7 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
         self.viewModel = viewModel
 
         generateSubviews(viewModel: viewModel)
-        tokenIconImageView.subscribable = viewModel.iconImage
+        previewView.configure(params: viewModel.previewViewParams)
     }
 
     required init?(coder: NSCoder) {
@@ -108,26 +102,7 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
 
 extension NFTCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
-        let url: URL? = {
-            switch viewModel.configurations[view.indexPath.row] {
-            case .field(let vm) where viewModel.wikiUrlViewModel == vm:
-                return viewModel.wikiUrl
-            case .field(let vm) where viewModel.instagramUsernameViewModel == vm:
-                return viewModel.instagramUrl
-            case .field(let vm) where viewModel.twitterUsernameViewModel == vm:
-                return viewModel.twitterUrl
-            case .field(let vm) where viewModel.discordUrlViewModel == vm:
-                return viewModel.discordUrl
-            case .field(let vm) where viewModel.telegramUrlViewModel == vm:
-                return viewModel.telegramUrl
-            case .field(let vm) where viewModel.externalUrlViewModel == vm:
-                return viewModel.externalUrl
-            case .header, .field:
-                return .none
-            }
-        }()
-
-        guard let url = url else { return }
+        guard let url = viewModel.someUrlFor(indexPath: view.indexPath) else { return }
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }

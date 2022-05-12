@@ -1,5 +1,5 @@
 //
-//  SelectableNFTAssetContainerTableViewCell.swift
+//  SelectableNFTAssetTableViewCell.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 07.09.2021.
@@ -7,11 +7,11 @@
 
 import UIKit
 
-protocol SelectableNFTAssetContainerTableViewCellDelegate: class {
-    func didCloseSelection(in sender: SelectableNFTAssetContainerTableViewCell, with selectedAmount: Int)
+protocol SelectableNFTAssetTableViewCellDelegate: class {
+    func didCloseSelection(in sender: SelectableNFTAssetTableViewCell, with selectedAmount: Int)
 }
 
-class SelectableNFTAssetContainerTableViewCell: ContainerTableViewCell {
+class SelectableNFTAssetTableViewCell: ContainerTableViewCell {
     private var viewModel: SelectableNFTAssetContainerViewModel?
 
     private var selectionStateViews: (containerView: UIView, selectionImageView: UIImageView) = {
@@ -34,7 +34,7 @@ class SelectableNFTAssetContainerTableViewCell: ContainerTableViewCell {
         return (view, imageView)
     }()
 
-    weak var delegate: SelectableNFTAssetContainerTableViewCellDelegate?
+    weak var delegate: SelectableNFTAssetTableViewCellDelegate?
 
     private lazy var hiddenTextField: UITextField = {
         let textField = UITextField()
@@ -131,7 +131,7 @@ class SelectableNFTAssetContainerTableViewCell: ContainerTableViewCell {
     }
 }
 
-extension SelectableNFTAssetContainerTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
+extension SelectableNFTAssetTableViewCell: SingleTokenCardAmountSelectionToolbarViewDelegate {
     func closeSelected(in view: SingleTokenCardAmountSelectionToolbarView) {
         delegate?.didCloseSelection(in: self, with: view.viewModel.counter)
     }

@@ -7,26 +7,39 @@
 
 import UIKit
 
-typealias TokenCardConfigurableView = TokenCardRowViewProtocol & UIView & TokenCardRowViewLayoutConfigurableProtocol
-class NFTAssetContainerCollectionViewCell: ContainerCollectionViewCell {
-    weak var delegate: BaseTokenCardTableViewCellDelegate?
+struct ContainerCollectionViewCellViewModel {
+    var backgroundColor: UIColor = GroupedTable.Color.background
+}
 
-    var subview: TokenCardConfigurableView? {
+typealias TokenCardConfigurableView = UIView & TokenCardRowViewLayoutConfigurableProtocol
+class ContainerCollectionViewCell: UICollectionViewCell {
+    private let background = UIView()
+    private let cellSeparators = (top: UIView(), bottom: UIView())
+    private var _containerEdgeInsets: UIEdgeInsets = .init(top: 16, left: 16, bottom: 16, right: 16)
+    private var subviewConstraints: [NSLayoutConstraint] = []
+    private var subview: TokenCardConfigurableView? {
         viewContainerView.subviews.compactMap { $0 as? TokenCardConfigurableView }.first
     }
-    var anyObject: AnyObject?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        NotificationCenter.default.addObserver(self, selector: #selector(invalidateInnerLayout), name: .invalidateLayout, object: nil)
+    private (set) lazy var viewContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .clear
+        return view
+    }()
+
+    private (set) var stackViewConstraints: [NSLayoutConstraint] = []
+    var containerEdgeInsets: UIEdgeInsets {
+        get {
+            _containerEdgeInsets
+        }
+        set {
+            _containerEdgeInsets = newValue
+            stackViewConstraints.configure(edgeInsets: newValue)
+        }
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        NotificationCenter.default.addObserver(self, selector: #selector(invalidateInnerLayout), name: .invalidateLayout, object: nil)
-    }
-
-    static func configureSeparatorLines(selection: GridOrListSelectionState, _ element: NFTAssetContainerCollectionViewCell) {
+    static func configureSeparatorLines(selection: GridOrListSelectionState, _ element: ContainerCollectionViewCell) {
         switch selection {
         case .list:
             element.cellSeparators.bottom.backgroundColor = R.color.mercury()
@@ -40,55 +53,26 @@ class NFTAssetContainerCollectionViewCell: ContainerCollectionViewCell {
             let selection = notification.userInfo?["selection"] as? GridOrListSelectionState,
             let sender = notification.object as? UICollectionView, sender == collectionView else { return }
 
-        NFTAssetContainerCollectionViewCell.configureSeparatorLines(selection: selection, self)
+        ContainerCollectionViewCell.configureSeparatorLines(selection: selection, self)
         subview?.configureLayout(layout: selection)
 
         layoutSubviews()
     }
 
-    func configure(viewModel: BaseTokenCardTableViewCellViewModel, tokenId: TokenId, assetDefinitionStore: AssetDefinitionStore) {
+    func configure(viewModel: ContainerCollectionViewCellViewModel = .init()) {
         backgroundColor = viewModel.backgroundColor
         contentView.backgroundColor = viewModel.backgroundColor
-
-        subview?.configure(tokenHolder: viewModel.tokenHolder, tokenId: tokenId, tokenView: viewModel.tokenView, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth, assetDefinitionStore: assetDefinitionStore)
     }
-}
 
-extension NFTAssetContainerCollectionViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
-    func didTapURL(url: URL) {
-        delegate?.didTapURL(url: url)
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        NotificationCenter.default.addObserver(self, selector: #selector(invalidateInnerLayout), name: .invalidateLayout, object: nil)
     }
-}
-
-///Reusable TableViewCell allows to change its contantained view
-class ContainerCollectionViewCell: UICollectionViewCell {
-    let background = UIView()
-    let cellSeparators = (top: UIView(), bottom: UIView())
-
-    private (set) lazy var viewContainerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .clear
-        return view
-    }()
-
-    private (set) var stackViewConstraints: [NSLayoutConstraint] = []
-    private var _containerEdgeInsets: UIEdgeInsets = .init(top: 16, left: 16, bottom: 16, right: 16)
-
-    var containerEdgeInsets: UIEdgeInsets {
-        get {
-            _containerEdgeInsets
-        }
-        set {
-            _containerEdgeInsets = newValue
-            stackViewConstraints.configure(edgeInsets: newValue)
-        }
-    }
-    private var subviewConstraints: [NSLayoutConstraint] = []
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        NotificationCenter.default.addObserver(self, selector: #selector(invalidateInnerLayout), name: .invalidateLayout, object: nil)
         contentView.addSubview(background)
 
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -132,8 +116,4 @@ class ContainerCollectionViewCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate(subviewConstraints)
     }
-
-    required init?(coder aDecoder: NSCoder) {
-        return nil
-    }
-}
+} 

@@ -19,22 +19,18 @@ class NFTAssetSelectionCoordinator: Coordinator {
     weak var delegate: NFTAssetSelectionCoordinatorDelegate?
     private let tokenObject: TokenObject
     private let tokenHolders: [TokenHolder]
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let server: RPCServer
+    private let tokenCardViewFactory: TokenCardViewFactory
 
     //NOTE: `filter: WalletFilter` parameter allow us to filter tokens we needed
-    init(navigationController: UINavigationController, tokenObject: TokenObject, tokenHolders: [TokenHolder], assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
+    init(navigationController: UINavigationController, tokenObject: TokenObject, tokenHolders: [TokenHolder], tokenCardViewFactory: TokenCardViewFactory) {
         self.tokenObject = tokenObject
         self.tokenHolders = tokenHolders
         self.parentsNavigationController = navigationController
-        self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.server = server
+        self.tokenCardViewFactory = tokenCardViewFactory
     }
 
     func start() {
-        let viewController = NFTAssetSelectionViewController(viewModel: .init(tokenObject: tokenObject, tokenHolders: tokenHolders), tokenObject: tokenObject, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: server)
+        let viewController = NFTAssetSelectionViewController(viewModel: .init(tokenObject: tokenObject, tokenHolders: tokenHolders), tokenCardViewFactory: tokenCardViewFactory)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneButtonSelected))
         viewController.delegate = self
         let navigationController = UINavigationController(rootViewController: viewController)

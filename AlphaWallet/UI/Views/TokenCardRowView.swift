@@ -3,10 +3,6 @@
 import UIKit
 import WebKit
 
-protocol TokenCardRowViewDelegate: AnyObject {
-    func heightChangedFor(tokenCardRowView: TokenCardRowView)
-}
-
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	private let analyticsCoordinator: AnalyticsCoordinator
     private let server: RPCServer
@@ -52,7 +48,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	private var constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
 	private var constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
 
-	weak var delegate: TokenCardRowViewDelegate?
 	let background = UIView()
 	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	var stateLabel = UILabel()
@@ -82,11 +77,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	}
 	var additionalHeightToCompensateForAutoLayout: CGFloat {
 		return 0
-	}
-	var shouldOnlyRenderIfHeightIsCached: Bool = false {
-        didSet {
-			tokenScriptRendererView.shouldOnlyRenderIfHeightIsCached = shouldOnlyRenderIfHeightIsCached
-		}
 	}
 	var isStandalone: Bool {
 		get {
@@ -358,10 +348,6 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
 
 	func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
         //no-op
-	}
-
-	func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
-        delegate?.heightChangedFor(tokenCardRowView: self)
 	}
 
 	func reinject(tokenInstanceWebView: TokenInstanceWebView) {

@@ -5,12 +5,12 @@ import UIKit
 import BigInt
 import PromiseKit
 import WebKit
+import Combine
 
 protocol TokenInstanceWebViewDelegate: AnyObject {
     //TODO not good. But quick and dirty to ship
     func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
-    func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView)
     func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }
 
@@ -71,7 +71,6 @@ class TokenInstanceWebView: UIView {
     //TODO remove once we refactor internals to include a TokenScriptContext
     private var lastTokenHolder: TokenHolder?
     var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
-    private var estimatedProgressObservation: NSKeyValueObservation!
     private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private let keystore: Keystore
 
@@ -82,7 +81,6 @@ class TokenInstanceWebView: UIView {
         }
     }
     weak var delegate: TokenInstanceWebViewDelegate?
-    var shouldOnlyRenderIfHeightIsCached = false
     //HACK: Flag necessary to inject token values somewhat reliably in at least 2 distinct cases:
     //A. TokenScript views in token cards (ie. view iconified)
     //B. Action views
@@ -102,6 +100,7 @@ class TokenInstanceWebView: UIView {
         }
         return results
     }
+    private var cancelable = Set<AnyCancellable>()
 
     init(analyticsCoordinator: AnalyticsCoordinator, server: RPCServer, wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, keystore: Keystore) {
         self.analyticsCoordinator = analyticsCoordinator
@@ -118,35 +117,25 @@ class TokenInstanceWebView: UIView {
         webView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
 
-        estimatedProgressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
-            guard let strongSelf = self, webView.estimatedProgress == 1 else { return }
-            //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical
-            strongSelf.loadId = Int.random(in: 0...Int.max)
-            let forLoadId: Int? = strongSelf.loadId
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                guard strongSelf.loadId == forLoadId else { return }
-                strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                guard strongSelf.loadId == forLoadId else { return }
-                strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
-            }
-        }
+        let scrollView = webView.scrollView
+
+        scrollView
+            .publisher(for: \.contentSize, options: [.new, .initial])
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.heightConstraint.constant = scrollView.contentSize.height
+            }.store(in: &cancelable)
 
         NSLayoutConstraint.activate([
             webView.anchorsConstraint(to: self),
-
             heightConstraint,
         ])
+        
+        translatesAutoresizingMaskIntoConstraints = false
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    deinit {
-        //Necessary to prevent crash when scrolling a table with several cells containing this class
-        estimatedProgressObservation.invalidate()
     }
 
     //Implementation: String concatenation is slow, but it's not obvious at all
@@ -310,76 +299,8 @@ class TokenInstanceWebView: UIView {
 
     func loadHtml(_ html: String, hash: Int) {
         hashOfCurrentHtml = hash
-        if let cachedHeight = TokenInstanceWebView.htmlHeightCache[hash] {
-            //When live-reloading, we load a different HTML, so we must proceed to load the HTML even if the height already correct
-            if heightConstraint.constant == cachedHeight && hashOfLoadedHtml == hashOfCurrentHtml {
-                return
-            }
-            heightConstraint.constant = cachedHeight
-            delegate?.heightChangedFor(tokenInstanceWebView: self)
-        } else {
-            if shouldOnlyRenderIfHeightIsCached {
-                return
-            }
-        }
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
-    }
-
-    private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
-        let forLoadId: Int? = loadId
-        webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { [weak self] height, _ in
-            guard let strongSelf = self else { return }
-            guard strongSelf.loadId == forLoadId else { return }
-            guard let height = height as? CGFloat else { return }
-            strongSelf.cache(height: height, forRenderingAttempt: renderingAttempt)
-            guard strongSelf.heightConstraint.constant != height else { return }
-            strongSelf.heightConstraint.constant = height
-            strongSelf.delegate?.heightChangedFor(tokenInstanceWebView: strongSelf)
-        })
-    }
-
-    private func cache(height: CGFloat, forRenderingAttempt renderingAttempt: RenderingAttempt) {
-        //We cache for both the 1st and 2nd pass because the 1st pass might get it right too
-        guard let hash = hashOfCurrentHtml else { return }
-        TokenInstanceWebView.htmlHeightCache[hash] = height
-    }
-}
-
-private extension TokenInstanceWebView {
-    private enum RenderingAttempt {
-        case first
-        case second
-    }
-    //Cache height given a piece of HTML (which might have different values loaded into it) to improve performance of heavy TokenScript views.
-    //TODO This can be inaccurate if the HTML height changes when applied with different values. eg. a line is added if a flag is true. Fix it so that caching is by contract + token ID, rather than by HTML-only
-    private static var htmlHeightCache: [Int: CGFloat] = readHtmlHeightCache() {
-        didSet {
-            guard oldValue != htmlHeightCache else { return }
-            writeHtmlHeightCache()
-        }
-    }
-    private static let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-    private static var htmlHeightCacheFilename: URL {
-        return documentsDirectory.appendingPathComponent("htmlHeightCacheFilename")
-    }
-
-    private static func readHtmlHeightCache() -> [Int: CGFloat] {
-        guard let data = try? Data(contentsOf: htmlHeightCacheFilename) else { return .init() }
-        if let cache = try? JSONDecoder().decode([Int: CGFloat].self, from: data) {
-            return cache
-        } else {
-            return .init()
-        }
-    }
-    private static func writeHtmlHeightCache() {
-        //TODO implement LRU for cache instead of stupidly deleting the whole cache
-        if htmlHeightCache.count > 100 {
-            try? FileManager.default.removeItem(at: htmlHeightCacheFilename)
-        }
-        let encoder = JSONEncoder()
-        guard let data = try? encoder.encode(htmlHeightCache) else { return }
-        try? data.write(to: htmlHeightCacheFilename)
     }
 }
 

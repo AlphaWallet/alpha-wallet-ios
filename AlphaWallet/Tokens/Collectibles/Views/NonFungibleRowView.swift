@@ -8,14 +8,6 @@
 import UIKit
 
 class NonFungibleRowView: TokenCardViewType {
-    var checkboxImageView: UIImageView = UIImageView()
-    var stateLabel: UILabel = UILabel()
-    var tokenView: TokenView
-    var showCheckbox: Bool = false
-    var areDetailsVisible: Bool = false
-    var additionalHeightToCompensateForAutoLayout: CGFloat = 0.0
-    var shouldOnlyRenderIfHeightIsCached: Bool = false
-
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
 
@@ -32,8 +24,7 @@ class NonFungibleRowView: TokenCardViewType {
     private var imageSmallSizeContraints: [NSLayoutConstraint] = []
     private var imageLargeSizeContraints: [NSLayoutConstraint] = []
 
-    init(tokenView: TokenView, layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
-        self.tokenView = tokenView
+    init(layout: GridOrListSelectionState, gridEdgeInsets: UIEdgeInsets = .zero, listEdgeInsets: UIEdgeInsets = .init(top: 0, left: 16, bottom: 0, right: 16)) {
         self.gridEdgeInsets = gridEdgeInsets
         self.listEdgeInsets = listEdgeInsets
         super.init(frame: .zero)
@@ -125,9 +116,8 @@ class NonFungibleRowView: TokenCardViewType {
         titleLabel.text = viewModel.titleText
     }
 
-    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
-        self.tokenView = tokenView
-        configure(viewModel: NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: areDetailsVisible, width: width))
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore) {
+        configure(viewModel: NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId))
     }
 }
 

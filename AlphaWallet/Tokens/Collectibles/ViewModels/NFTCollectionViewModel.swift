@@ -10,22 +10,13 @@ import Foundation
 import BigInt
 
 struct NFTCollectionViewModel {
-
-    var initiallySelectedTabIndex: Int {
-        return 1
-    }
-
+    private(set) var tokenHolders: [TokenHolder]
     private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: NonActivityEventsDataStore
+
     let token: TokenObject
-    var tokenHolders: [TokenHolder]
-
-    func item(for indexPath: IndexPath) -> TokenHolder {
-        return tokenHolders[indexPath.section]
-    }
-
-    var backgroundColor: UIColor {
-        return Colors.appBackground
-    }
+    var initiallySelectedTabIndex: Int = 1
+    var backgroundColor: UIColor = Colors.appBackground
 
     var navigationTitle: String {
         if let name = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet) {
@@ -35,8 +26,15 @@ struct NFTCollectionViewModel {
         }
     }
 
-    private let eventsDataStore: NonActivityEventsDataStore
-    private let wallet: Wallet
+    var openInUrl: URL? {
+        let values = tokenHolders[0].values
+        return values.collectionValue.flatMap { collection -> URL? in
+            guard collection.slug.trimmed.nonEmpty else { return nil }
+            return URL(string: "https://opensea.io/collection/\(collection.slug)")
+        }
+    }
+
+    let wallet: Wallet
 
     init(token: TokenObject, forWallet wallet: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore) {
         self.token = token
@@ -49,13 +47,4 @@ struct NFTCollectionViewModel {
     mutating func invalidateTokenHolders() {
         tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
     }
-
-    func tokenHolder(at indexPath: IndexPath) -> TokenHolder {
-        return tokenHolders[indexPath.section]
-    }
-
-    func numberOfItems() -> Int {
-        return tokenHolders.count
-    }
-
 }
