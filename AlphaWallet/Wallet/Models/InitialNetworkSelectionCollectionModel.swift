@@ -11,9 +11,9 @@ struct InitialNetworkSelectionCollectionModel {
 
     // MARK: - enums
 
-    enum Mode {
-        case mainnet
-        case testnet
+    enum Mode: Int, CaseIterable {
+        case mainnet = 0
+        case testnet = 1
     }
 
     // MARK: - variables (private)
@@ -22,11 +22,11 @@ struct InitialNetworkSelectionCollectionModel {
     private let testnetServers: [RPCServer]
     private var filteredMainnetServers: [RPCServer]
     private var filteredTestnetServers: [RPCServer]
-    private var mode: InitialNetworkSelectionCollectionModel.Mode = .mainnet
 
     // MARK: - variables
 
     private(set) var selected: Set<RPCServer>
+    var mode: InitialNetworkSelectionCollectionModel.Mode = .mainnet
 
     // MARK: - accessors
 
@@ -88,10 +88,15 @@ struct InitialNetworkSelectionCollectionModel {
         return filtered[row]
     }
 
-    mutating func set(mode: InitialNetworkSelectionCollectionModel.Mode) {
-        self.mode = mode
+    func countFor(mode: InitialNetworkSelectionCollectionModel.Mode) -> Int {
+        switch mode {
+        case .mainnet:
+            return filteredMainnetServers.count
+        case .testnet:
+            return filteredTestnetServers.count
+        }
     }
-    
+
 }
 
 fileprivate extension RPCServer {

@@ -17,10 +17,10 @@ class InitialNetworkSelectionCollectionModelTestCase: XCTestCase {
     }
 
     func testModeFilter() {
-        model.set(mode: .mainnet)
+        model.mode = .mainnet
         model.filter(keyword: "Binance")
         XCTAssertTrue(model.filtered == [.binance_smart_chain], "\(model.filtered)")
-        model.set(mode: .testnet)
+        model.mode = .testnet
         XCTAssertTrue(model.filtered == [.binance_smart_chain_testnet], "\(model.filtered)")
     }
 
