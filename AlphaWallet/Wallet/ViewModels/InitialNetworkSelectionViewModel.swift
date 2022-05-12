@@ -10,15 +10,30 @@ import UIKit
 class InitialNetworkSelectionViewModel: NSObject {
 
     static let ReloadTableViewNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Reload")
+    static let ChangeSelectedCountNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.ChangeCount")
+    static let ChangeSelectedKey: String = "count"
 
     private let numberOfSections = InitialNetworkSelectionCollectionModel.Mode.allCases.count
     private var model: InitialNetworkSelectionCollectionModel
+    private let headerForMainnet: EnableServersHeaderView = EnableServersHeaderView()
+    private let headerForTestnet: EnableServersHeaderView = EnableServersHeaderView()
+
+    var selected: [RPCServer] {
+        Array(model.selected)
+    }
 
     init(model: InitialNetworkSelectionCollectionModel) {
         self.model = model
         super.init()
+        configureViewModel()
     }
 
+    private func configureViewModel() {
+        headerForMainnet.configure(mode: .mainnet, isEnabled: model.mode == .mainnet)
+        headerForTestnet.configure(mode: .testnet, isEnabled: model.mode == .testnet)
+        headerForMainnet.delegate = self
+        headerForTestnet.delegate = self
+    }
 }
 
 extension InitialNetworkSelectionViewModel: UITableViewDataSource {
@@ -44,25 +59,48 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
         return cell
     }
 
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        50
+    }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         80.0
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let mode = getModeFromSectionIndex(index: section) else { return nil }
+        switch mode {
+        case .mainnet:
+            return headerForMainnet
+        case .testnet:
+            return headerForTestnet
+        }
     }
 
     private func getModeFromSectionIndex(index: Int) -> InitialNetworkSelectionCollectionModel.Mode? {
         guard let mode = InitialNetworkSelectionCollectionModel.Mode(rawValue: index) else { return nil }
         return mode
     }
+
 }
 
 extension InitialNetworkSelectionViewModel: UITableViewDelegate {
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let server = model.server(for: indexPath)
         model.isSelected(server: server) ? model.removeSelected(server: server) : model.addSelected(server: server)
         tableView.reloadRows(at: [indexPath], with: .none)
+        sendChangeSelectedCountNotification()
     }
+
+    private func sendChangeSelectedCountNotification() {
+        NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.ChangeSelectedCountNotification, object: self, userInfo: [InitialNetworkSelectionViewModel.ChangeSelectedKey: model.selected.count])
+    }
+
 }
 
 extension InitialNetworkSelectionViewModel: UISearchBarDelegate {
+
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         model.filter(keyword: searchText)
         sendReloadNotification()
@@ -71,4 +109,23 @@ extension InitialNetworkSelectionViewModel: UISearchBarDelegate {
     private func sendReloadNotification() {
         NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: self)
     }
+
+}
+
+extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
+
+    func toggledTo(_ newValue: Bool, headerView: EnableServersHeaderView) {
+        switch (newValue, headerView.mode) {
+        case (true, .mainnet), (false, .testnet):
+            model.mode = .mainnet
+            headerForMainnet.toggle(isEnabled: true)
+            headerForTestnet.toggle(isEnabled: false)
+        case (false, .mainnet), (true, .testnet):
+            model.mode = .testnet
+            headerForMainnet.toggle(isEnabled: false)
+            headerForTestnet.toggle(isEnabled: true)
+        }
+        sendReloadNotification()
+    }
+
 }

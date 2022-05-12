@@ -10,7 +10,19 @@ import UIKit
 protocol InitialNetworkSelectionViewControllerDelegateProtocol: class {
     func didSelect(networks: [RPCServer], in viewController: InitialNetworkSelectionViewController)
 }
+/*         let headerView: EnableServersHeaderView
+ switch sections[section] {
+ case .testnet:
+ headerView = headers.testnet
+ headerView.configure(mode: .testnet, isEnabled: viewModel.mode == .testnet)
+ case .mainnet:
+ headerView = headers.mainnet
+ headerView.configure(mode: .mainnet, isEnabled: viewModel.mode == .mainnet)
+ }
+ headerView.delegate = self
+ return headerView
 
+ */
 class InitialNetworkSelectionViewController: UIViewController {
 
     // MARK: - Accessors (Private)
@@ -54,7 +66,9 @@ class InitialNetworkSelectionViewController: UIViewController {
         selectionView.tableViewDataSource = viewModel
         selectionView.searchBarDelegate = viewModel
         selectionView.configure(viewModel: viewModel)
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable) , name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: viewModel)
+        NotificationCenter.default.addObserver(self, selector: #selector(changeContinueButtonState(notification:)), name: InitialNetworkSelectionViewModel.ChangeSelectedCountNotification, object: viewModel)
+        changeContinueButtonState(!viewModel.selected.isEmpty)
     }
 
     // MARK: - selectors
@@ -66,5 +80,15 @@ class InitialNetworkSelectionViewController: UIViewController {
 
     @objc private func reloadTable() {
         selectionView.reloadTableView()
+    }
+
+    @objc private func changeContinueButtonState(notification: Notification) {
+        if let selectedCount = notification.userInfo?[InitialNetworkSelectionViewModel.ChangeSelectedKey] as? Int {
+            changeContinueButtonState(selectedCount > 0)
+        }
+    }
+
+    private func changeContinueButtonState(_ state: Bool) {
+        selectionView.continueButton.isEnabled = state
     }
 }

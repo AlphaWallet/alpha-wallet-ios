@@ -24,7 +24,7 @@ class InitialNetworkSelectionCoordinator: Coordinator {
     }
 
     func start() {
-        let controller = InitialNetworkSelectionViewController()
+        let controller = InitialNetworkSelectionViewController(model: InitialNetworkSelectionCollectionModel(servers: RPCServer.allCases, selected: Set<RPCServer>(config.enabledServers)))
         controller.delegate = self
         navigationController.viewControllers = [controller]
         // We create the view controller here and wait for the user to select something
