@@ -106,11 +106,11 @@ class CreateInitialWalletViewController: UIViewController {
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
         let importWalletAction = UIAlertAction(title: viewModel.importButtonTitle, style: .default) { _ in
-            self.delegate?.didTapWatchWallet(inViewController: self)
+            self.delegate?.didTapImportWallet(inViewController: self)
         }
 
         let trackWalletAction = UIAlertAction(title: viewModel.watchButtonTitle, style: .default) { _ in
-            self.delegate?.didTapImportWallet(inViewController: self)
+            self.delegate?.didTapWatchWallet(inViewController: self)
         }
 
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
