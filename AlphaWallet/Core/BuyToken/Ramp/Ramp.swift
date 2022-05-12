@@ -6,9 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
-
+    var objectWillChange: AnyPublisher<Void, Never> {
+        objectWillChangeSubject.eraseToAnyPublisher()
+    }
+    private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
+    
     var action: String {
         return R.string.localizable.aWalletTokenBuyTitle()
     }
@@ -66,20 +71,26 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
 
     private static var assets: [Asset] = []
 
-    func fetchSupportedTokens() {
+    func start() {
+        queue.async {
+            self.fetchSupportedTokens()
+        }
+    }
+
+    private func fetchSupportedTokens() {
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.rampAssets, callbackQueue: queue).map(on: queue, { response -> RampAssetsResponse in
-            try JSONDecoder().decode(RampAssetsResponse.self, from: response.data)
-        }).map(on: queue, { data -> [Asset] in
-            return data.assets
-        }).done(on: queue, { response in
-            Self.assets = response
-        }).catch(on: queue, { error in
-            let service = AlphaWalletService.rampAssets
-            let url = service.baseURL.appendingPathComponent(service.path)
-            RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
-        })
+        provider.request(.rampAssets, callbackQueue: queue)
+            .map(on: queue, { response -> [Asset] in
+                try JSONDecoder().decode(RampAssetsResponse.self, from: response.data).assets
+            }).done(on: queue, { response in
+                Self.assets = response
+                self.objectWillChangeSubject.send(())
+            }).catch(on: queue, { error in
+                let service = AlphaWalletService.rampAssets
+                let url = service.baseURL.appendingPathComponent(service.path)
+                RemoteLogger.instance.logRpcOrOtherWebError("Ramp error | \(error)", url: url.absoluteString)
+            })
     }
 }
 

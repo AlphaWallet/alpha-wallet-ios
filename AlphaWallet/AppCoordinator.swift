@@ -56,13 +56,10 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinator
     }()
 
-    private lazy var oneInchSwapService = Oneinch()
-    private lazy var rampBuyService = Ramp()
-    private lazy var swapTokenProvider = SwapTokenNativeProvider()
-    private lazy var tokenActionsService: TokenActionsServiceType = {
+    private lazy var tokenActionsService: TokenActionsService = {
         let service = TokenActionsService()
-        service.register(service: rampBuyService)
-        service.register(service: oneInchSwapService)
+        service.register(service: Ramp())
+        service.register(service: Oneinch())
 
         let honeySwapService = HoneySwap()
         honeySwapService.theme = navigationController.traitCollection.honeyswapTheme
@@ -77,7 +74,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         var quickSwap = QuickSwap()
         quickSwap.theme = navigationController.traitCollection.uniswapTheme
-        service.register(service: swapTokenProvider)
+        service.register(service: SwapTokenNativeProvider())
         service.register(service: quickSwap)
         service.register(service: ArbitrumBridge())
         service.register(service: xDaiBridge())
@@ -140,8 +137,7 @@ class AppCoordinator: NSObject, Coordinator {
 
         setupAssetDefinitionStoreCoordinator()
         migrateToStoringRawPrivateKeysInKeychain()
-        oneInchSwapService.fetchSupportedTokens()
-        rampBuyService.fetchSupportedTokens()
+        tokenActionsService.start()
 
         addCoordinator(walletConnectCoordinator)
 

@@ -122,6 +122,17 @@ struct TokenViewControllerViewModel {
         self.tokenActionsProvider = tokenActionsProvider
     }
 
+    func refreshBalance() {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
+        case .erc20Token(let token, _, _):
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Activity.AssignedToken(tokenObject: token)))
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            break
+        }
+    }
+
     var destinationAddress: AlphaWallet.Address {
         return transactionType.contract
     }

@@ -6,10 +6,15 @@
 //
 
 import Foundation
+import Combine
 
 typealias BridgeTokenURLProviderType = BuyTokenURLProviderType
 
 final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
+
     private static let supportedServer: RPCServer = .main
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {
@@ -40,5 +45,9 @@ final class ArbitrumBridge: SupportedTokenActionsProvider, BridgeTokenURLProvide
 
     func url(token: TokenActionsServiceKey) -> URL? {
         return Constants.arbitrumBridge
+    }
+
+    func start() {
+        //no-op
     }
 }

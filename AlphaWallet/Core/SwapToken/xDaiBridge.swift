@@ -6,8 +6,13 @@
 //
 
 import Foundation
+import Combine
 
 final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderType {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
+
     private static let supportedServer: RPCServer = .xDai
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {
@@ -37,5 +42,9 @@ final class xDaiBridge: SupportedTokenActionsProvider, BridgeTokenURLProviderTyp
 
     func url(token: TokenActionsServiceKey) -> URL? {
         return Constants.xDaiBridge
+    }
+
+    func start() {
+        //no-op
     }
 }

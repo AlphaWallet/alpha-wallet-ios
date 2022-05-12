@@ -39,7 +39,7 @@ class TokensCoordinator: Coordinator {
         return .init(assetDefinitionStore: assetDefinitionStore, tokenActionsService: tokenActionsService, coinTickersFetcher: coinTickersFetcher, tokenGroupIdentifier: tokenGroupIdentifier)
     }()
     private let analyticsCoordinator: AnalyticsCoordinator
-    private let tokenActionsService: TokenActionsServiceType
+    private let tokenActionsService: TokenActionsService
 
     private let autoDetectTransactedTokensQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -104,7 +104,7 @@ class TokensCoordinator: Coordinator {
             eventsDataStore: NonActivityEventsDataStore,
             promptBackupCoordinator: PromptBackupCoordinator,
             analyticsCoordinator: AnalyticsCoordinator,
-            tokenActionsService: TokenActionsServiceType,
+            tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
             coinTickersFetcher: CoinTickersFetcherType,
             activitiesService: ActivitiesServiceType,

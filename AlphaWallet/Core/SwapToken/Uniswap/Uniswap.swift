@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnUniswapButtonTitle()
@@ -107,6 +111,10 @@ struct Uniswap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {
         return UniswapERC20Token.isSupport(token: token)
+    }
+
+    func start() {
+        //no-op
     }
 }
 

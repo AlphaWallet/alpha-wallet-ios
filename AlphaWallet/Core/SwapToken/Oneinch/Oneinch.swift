@@ -6,11 +6,16 @@
 //
 
 import Foundation
+import Combine
 import PromiseKit
 import Moya
 
 class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
-
+    var objectWillChange: AnyPublisher<Void, Never> {
+        objectWillChangeSubject.eraseToAnyPublisher()
+    }
+    private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
+    
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOn1inchButtonTitle()
     }
@@ -74,22 +79,28 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return availableTokens[address]
     }
 
-    func fetchSupportedTokens() {
+    func start() {
+        queue.async {
+            self.fetchSupportedTokens()
+        }
+    }
+
+    private func fetchSupportedTokens() {
         let provider = AlphaWalletProviderFactory.makeProvider()
 
-        provider.request(.oneInchTokens, callbackQueue: queue).map(on: queue, { response -> [String: Oneinch.ERC20Token] in
-            try JSONDecoder().decode(ApiResponsePayload.self, from: response.data).tokens
-        }).map(on: queue, { data -> [Oneinch.ERC20Token] in
-            data.map { $0.value }
-        }).done(on: queue, { response in
-            for token in self.predefinedTokens + response {
-                self.availableTokens[token.address] = token
-            }
-        }).catch(on: queue, { error in
-            let service = AlphaWalletService.oneInchTokens
-            let url = service.baseURL.appendingPathComponent(service.path)
-            RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: url.absoluteString)
-        })
+        provider.request(.oneInchTokens, callbackQueue: queue)
+            .map(on: queue, { response -> [Oneinch.ERC20Token] in
+                try JSONDecoder().decode(ApiResponsePayload.self, from: response.data).tokens.map { $0.value }
+            }).done(on: queue, { response in
+                for token in self.predefinedTokens + response {
+                    self.availableTokens[token.address] = token
+                }
+                self.objectWillChangeSubject.send()
+            }).catch(on: queue, { error in
+                let service = AlphaWalletService.oneInchTokens
+                let url = service.baseURL.appendingPathComponent(service.path)
+                RemoteLogger.instance.logRpcOrOtherWebError("Oneinch error | \(error)", url: url.absoluteString)
+            })
     }
 
     private func defaultOutputAddress(forInput input: AlphaWallet.Address) -> AlphaWallet.Address {
