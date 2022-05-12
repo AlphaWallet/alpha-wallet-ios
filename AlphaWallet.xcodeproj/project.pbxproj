@@ -43,6 +43,7 @@
 		0277D92B282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */; };
 		0277D92E282A789000510ECE /* InitialNetworkSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */; };
 		028D4E5A277309ED00E7418D /* EmptyTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 028D4E59277309ED00E7418D /* EmptyTableView.swift */; };
+		02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */; };
 		02B01A6327B3CD6F00379A00 /* ButtonsBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */; };
 		02C6B6A02828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C6B69F2828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift */; };
 		02C6B6A22828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C6B6A12828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift */; };
@@ -1199,6 +1200,7 @@
 		0277D92A282A494600510ECE /* InitialNetworkSelectionCollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModel.swift; sourceTree = "<group>"; };
 		0277D92D282A789000510ECE /* InitialNetworkSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionViewModel.swift; sourceTree = "<group>"; };
 		028D4E59277309ED00E7418D /* EmptyTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableView.swift; sourceTree = "<group>"; };
+		02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCollectionModelTestCase.swift; sourceTree = "<group>"; };
 		02B01A6227B3CD6F00379A00 /* ButtonsBarStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsBarStyle.swift; sourceTree = "<group>"; };
 		02C6B69F2828D71700A6FEF0 /* InitialNetworkSelectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionCoordinator.swift; sourceTree = "<group>"; };
 		02C6B6A12828E2A000A6FEF0 /* InitialNetworkSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialNetworkSelectionViewController.swift; sourceTree = "<group>"; };
@@ -2391,6 +2393,14 @@
 			children = (
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		02988ACA282C85CD00433F3B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				02988ACB282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		02C7AF6D2770C3E4005367EE /* Rpc Network */ = {
@@ -4735,6 +4745,7 @@
 		77872D2A202514930032D687 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				02988ACA282C85CD00433F3B /* Models */,
 				77872D2B2025149A0032D687 /* Coordinators */,
 			);
 			path = Wallet;
@@ -7175,6 +7186,7 @@
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
 				5E7C786AD8E4877C36D3B14A /* TokenAdaptorTest.swift in Sources */,
 				87242E4225F2749500F0E89D /* SendViewControllerTests.swift in Sources */,
+				02988ACC282C85F100433F3B /* InitialNetworkSelectionCollectionModelTestCase.swift in Sources */,
 				5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */,
 				5E7C7EAED92E4AE8B99217AB /* TransferTokensCardQuantitySelectionViewControllerTests.swift in Sources */,
 				8765D6E1282BAD3A00529F45 /* FakeMultiWalletBalanceService.swift in Sources */,
