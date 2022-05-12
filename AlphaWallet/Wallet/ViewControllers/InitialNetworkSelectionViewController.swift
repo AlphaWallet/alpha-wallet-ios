@@ -8,7 +8,7 @@
 import UIKit
 
 protocol InitialNetworkSelectionViewControllerDelegateProtocol: class {
-    func didSelect(networks: [RPCServer], in viewController: InitialNetworkSelectionViewController)
+    func didSelect(servers: [RPCServer], in viewController: InitialNetworkSelectionViewController)
 }
 /*         let headerView: EnableServersHeaderView
  switch sections[section] {
@@ -34,6 +34,9 @@ class InitialNetworkSelectionViewController: UIViewController {
     // MARK: - variables (Private)
 
     private var viewModel: InitialNetworkSelectionViewModel
+
+    // MARK: - variables (Public)
+
     weak var delegate: InitialNetworkSelectionViewControllerDelegateProtocol?
 
     init(model: InitialNetworkSelectionCollectionModel = InitialNetworkSelectionCollectionModel()) {
@@ -75,8 +78,9 @@ class InitialNetworkSelectionViewController: UIViewController {
     // MARK: - selectors
 
     @objc private func continuePressed(sender: UIButton) {
-        // FIXME: - Add code to save networks
-        NSLog("Ouch")
+        let selectedServers = viewModel.selected
+        guard !selectedServers.isEmpty else { return }
+        delegate?.didSelect(servers: selectedServers, in: self)
     }
 
     @objc private func reloadTable() {

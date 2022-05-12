@@ -15,11 +15,13 @@ class InitialNetworkSelectionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var config: Config
+    var restartTaskQueue: RestartTaskQueue
     weak var delegate: InitialNetworkSelectionCoordinatorDelegateProtocol?
 
-    init(config: Config, navigationController: UINavigationController) {
+    init(config: Config, navigationController: UINavigationController, restartTaskQueue: RestartTaskQueue) {
         self.navigationController = navigationController
         self.config = config
+        self.restartTaskQueue = restartTaskQueue
         navigationController.setNavigationBarHidden(false, animated: true)
     }
 
@@ -27,17 +29,13 @@ class InitialNetworkSelectionCoordinator: Coordinator {
         let controller = InitialNetworkSelectionViewController(model: InitialNetworkSelectionCollectionModel(servers: RPCServer.allCases, selected: Set<RPCServer>(config.enabledServers)))
         controller.delegate = self
         navigationController.viewControllers = [controller]
-        // We create the view controller here and wait for the user to select something
-//        let controller = CreateInitialWalletViewController(keystore: keystore)
-//        controller.delegate = self
-//        controller.configure()
-//        navigationController.viewControllers = [controller]
     }
 }
 
 extension InitialNetworkSelectionCoordinator: InitialNetworkSelectionViewControllerDelegateProtocol {
-    func didSelect(networks: [RPCServer], in viewController: InitialNetworkSelectionViewController) {
-        // FIXME: Do we need to do anything to the viewController
-        delegate?.didSelect(networks: networks, in: self)
+    func didSelect(servers: [RPCServer], in viewController: InitialNetworkSelectionViewController) {
+        viewController.dismiss(animated: true)
+        config.enabledServers = servers
+        delegate?.didSelect(networks: servers, in: self)
     }
 }

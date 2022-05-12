@@ -123,10 +123,6 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
             headerForTestnet.toggle(isEnabled: false)
             sendReloadNotification()
         case (false, .mainnet), (true, .testnet):
-//            let prompt = PromptViewController()
-//            prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
-//            prompt._delegate = self
-//            present(prompt, animated: true)
             sendPromptNotification()
         }
     }
