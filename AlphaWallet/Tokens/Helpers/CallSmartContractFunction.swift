@@ -130,18 +130,15 @@ func getEventLogs(
         filter: EventFilter,
         queue: DispatchQueue
 ) -> Promise<[EventParserResultProtocol]> {
-    firstly { () -> Promise<EthereumAddress> in
-        let contractAddress = EthereumAddress(address: contract)
-        return .value(contractAddress)
-    }.then(on: queue) { contractAddress -> Promise<[EventParserResultProtocol]> in
-        guard let web3 = try? getCachedWeb3(forServer: server, timeout: 60) else {
-            throw Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)")
-        }
+    let contractAddress = EthereumAddress(address: contract)
 
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
-            return Promise(error: Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()"))
-        }
-
-        return contractInstance.getIndexedEventsPromise(eventName: eventName, filter: filter)
+    guard let web3 = try? getCachedWeb3(forServer: server, timeout: 60) else {
+        return Promise(error: Web3Error(description: "Error creating web3 for: \(server.rpcURL) + \(server.web3Network)"))
     }
+
+    guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
+        return Promise(error: Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()"))
+    }
+
+    return contractInstance.getIndexedEventsPromise(eventName: eventName, filter: filter)
 }

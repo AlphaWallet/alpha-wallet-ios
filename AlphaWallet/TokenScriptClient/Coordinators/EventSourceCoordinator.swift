@@ -139,8 +139,6 @@ extension EventSourceCoordinator {
 extension EventSourceCoordinator.functional {
 
     static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
-        let (promise, seal) = Promise<Void>.pending()
-
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin
             .parameters
@@ -160,20 +158,16 @@ extension EventSourceCoordinator.functional {
 
         let eventFilter = EventFilter(fromBlock: fromBlock, toBlock: .latest, addresses: addresses, parameterFilters: parameterFilters)
 
-        getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
-        .done(on: queue, { result in
+        return getEventLogs(withServer: token.server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+        .done(on: queue, { result -> Void in
             let events = result.compactMap {
                 Self.convertEventToDatabaseObject($0, filterParam: filterParam, eventOrigin: eventOrigin, contractAddress: token.contractAddress, server: token.server)
             }
 
             eventsDataStore.add(events: events)
-            seal.fulfill(())
-        }).catch(on: queue, { e in
+        }).recover(on: queue, { e in
             error(value: e, rpcServer: token.server, address: token.contractAddress)
-            seal.reject(e)
         })
-
-        return promise
     }
 
     static func convertToImplicitAttribute(string: String) -> AssetImplicitAttributes? {
