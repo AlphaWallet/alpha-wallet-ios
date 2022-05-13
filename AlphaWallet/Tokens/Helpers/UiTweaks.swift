@@ -4,5 +4,5 @@ import Foundation
 
 struct UiTweaks {
     //This used to be "-", just not displaying anything should make Wallet tab look less cluttered
-    static let noPriceMarker = ""
+    static let noPriceMarker = " "
 }
