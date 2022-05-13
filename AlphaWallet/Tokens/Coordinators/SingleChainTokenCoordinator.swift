@@ -169,14 +169,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {
-        //TODO id 1 for fungibles. Might come back to bite us?
-        let hardcodedTokenIdForFungibles = BigUInt(1)
-        let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
-        //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: server, account: session.account)
-        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
-        let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
-
+        let tokenHolder = tokenObject.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account)
         delegate?.didPress(for: .send(type: .tokenScript(action: action, tokenObject: tokenObject, tokenHolder: tokenHolder)), viewController: navigationController, in: self)
     }
 }
