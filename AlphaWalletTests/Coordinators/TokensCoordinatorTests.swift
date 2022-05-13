@@ -2,23 +2,9 @@
 
 import XCTest
 @testable import AlphaWallet
+import Combine
 
-class FakeSwapTokenService: TokenActionsServiceType {
-    func register(service: SupportedTokenActionsProvider) {
-
-    }
-
-    func service(ofType: SupportedTokenActionsProvider.Type) -> SupportedTokenActionsProvider? {
-        return nil
-    }
-
-    func isSupport(token: TokenActionsServiceKey) -> Bool {
-        false
-    }
-
-    func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction] {
-        []
-    }
+final class FakeSwapTokenService: TokenActionsService {
 }
 
 class TokensCoordinatorTests: XCTestCase {

@@ -21,11 +21,11 @@ class TokensFilter {
     }
 
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokenActionsService: TokenActionsServiceType
+    private let tokenActionsService: TokenActionsService
     private let coinTickersFetcher: CoinTickersFetcherType
     private let tokenGroupIdentifier: TokenGroupIdentifierProtocol
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsServiceType, coinTickersFetcher: CoinTickersFetcherType, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenActionsService: TokenActionsService, coinTickersFetcher: CoinTickersFetcherType, tokenGroupIdentifier: TokenGroupIdentifierProtocol) {
         self.assetDefinitionStore = assetDefinitionStore
         self.tokenActionsService = tokenActionsService
         self.coinTickersFetcher = coinTickersFetcher

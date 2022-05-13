@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 struct TokenActionsServiceKey {
     let contractAddress: AlphaWallet.Address
@@ -24,22 +25,28 @@ struct TokenActionsServiceKey {
 }
 
 protocol SupportedTokenActionsProvider {
+    var objectWillChange: AnyPublisher<Void, Never> { get }
+
     func isSupport(token: TokenActionsServiceKey) -> Bool
     func actions(token: TokenActionsServiceKey) -> [TokenInstanceAction]
+    func start()
 } 
 
 protocol TokenActionProvider {
     var action: String { get }
 }
 
-protocol TokenActionsServiceType: SupportedTokenActionsProvider {
-    func register(service: SupportedTokenActionsProvider)
-    func service(ofType: SupportedTokenActionsProvider.Type) -> SupportedTokenActionsProvider?
-}
+class TokenActionsService: SupportedTokenActionsProvider {
 
-class TokenActionsService: TokenActionsServiceType {
+    @Published private var services: [SupportedTokenActionsProvider] = []
+    private var cancelable = Set<Combine.AnyCancellable>()
 
-    private var services: [SupportedTokenActionsProvider] = []
+    private (set) lazy var objectWillChange: AnyPublisher<Void, Never> = {
+        return $services
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }) }
+            .map { _ in }
+            .eraseToAnyPublisher()
+    }()
 
     func register(service: SupportedTokenActionsProvider) {
         services.append(service)
@@ -55,6 +62,10 @@ class TokenActionsService: TokenActionsServiceType {
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {
         services.contains { $0.isSupport(token: token) }
+    }
+
+    func start() {
+        services.forEach { $0.start() }
     }
 }
 

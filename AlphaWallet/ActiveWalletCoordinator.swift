@@ -87,7 +87,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
 
     private let walletAddressesStore: WalletAddressesStore
     private let walletBalanceService: WalletBalanceService
-    private var tokenActionsService: TokenActionsServiceType
+    private var tokenActionsService: TokenActionsService
     private let walletConnectCoordinator: WalletConnectCoordinator
     private lazy var promptBackupCoordinator: PromptBackupCoordinator = {
         return PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
@@ -140,7 +140,7 @@ class ActiveWalletCoordinator: NSObject, Coordinator, DappRequestHandlerDelegate
             accountsCoordinator: AccountsCoordinator,
             walletBalanceService: WalletBalanceService,
             coinTickersFetcher: CoinTickersFetcherType,
-            tokenActionsService: TokenActionsServiceType,
+            tokenActionsService: TokenActionsService,
             walletConnectCoordinator: WalletConnectCoordinator,
             sessionsSubject: CurrentValueSubject<ServerDictionary<WalletSession>, Never> = .init(.init()),
             notificationService: NotificationService

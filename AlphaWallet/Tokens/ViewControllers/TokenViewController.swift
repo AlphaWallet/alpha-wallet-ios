@@ -29,8 +29,6 @@ class TokenViewController: UIViewController {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
     private lazy var tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
-    weak var delegate: TokenViewControllerDelegate?
-
     private lazy var tokenInfoPageView: TokenInfoPageView = {
         let view = TokenInfoPageView(server: session.server, token: tokenObject, config: session.config, transactionType: transactionType)
         view.delegate = self
@@ -41,9 +39,13 @@ class TokenViewController: UIViewController {
     private var alertsPageView: PriceAlertsPageView
     private let activitiesService: ActivitiesServiceType
     private let alertService: PriceAlertServiceType
+    private let tokenActionsProvider: SupportedTokenActionsProvider
     private var cancelable = Set<AnyCancellable>()
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType) {
+    weak var delegate: TokenViewControllerDelegate?
+
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, tokenActionsProvider: SupportedTokenActionsProvider) {
+        self.tokenActionsProvider = tokenActionsProvider
         self.tokenObject = token
         self.viewModel = viewModel
         self.session = session
@@ -77,10 +79,6 @@ class TokenViewController: UIViewController {
         NSLayoutConstraint.activate([containerView.anchorsConstraint(to: view)])
 
         navigationItem.largeTitleDisplayMode = .never
-
-
-
-        refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType: transactionType)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -95,35 +93,15 @@ class TokenViewController: UIViewController {
 
         subscribeForAlerts()
         subscribeForActivities()
-    }
-
-    private func subscribeForActivities() {
-        activitiesService.viewModelPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak activitiesPageView] viewModel in
-                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
-            }.store(in: &cancelable)
-    }
-
-    private func subscribeForAlerts() {
-        alertService.alertsPublisher(forStrategy: .token(tokenObject))
-            .sink { [weak alertsPageView] alerts in
-                alertsPageView?.configure(viewModel: .init(alerts: alerts))
-            }.store(in: &cancelable)
+        subscribeForTokenActions()
+        subscribeForAssetDefinitionChanges()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         hideNavigationBarTopSeparatorLine()
 
-        switch transactionType {
-        case .nativeCryptocurrency:
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
-        case .erc20Token(let token, _, _):
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Activity.AssignedToken(tokenObject: token)))
-        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            break
-        }
+        viewModel.refreshBalance()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -173,14 +151,40 @@ class TokenViewController: UIViewController {
         }
     }
 
-    private func refreshTokenViewControllerUponAssetDefinitionChanges(forTransactionType transactionType: TransactionType) {
+    private func subscribeForTokenActions() {
+        tokenActionsProvider.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+
+                let viewModel = TokenViewControllerViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                strongSelf.configure(viewModel: viewModel)
+            }.store(in: &cancelable)
+    }
+
+    private func subscribeForActivities() {
+        activitiesService.viewModelPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak activitiesPageView] viewModel in
+                activitiesPageView?.configure(viewModel: .init(activitiesViewModel: viewModel))
+            }.store(in: &cancelable)
+    }
+
+    private func subscribeForAlerts() {
+        alertService.alertsPublisher(forStrategy: .token(tokenObject))
+            .sink { [weak alertsPageView] alerts in
+                alertsPageView?.configure(viewModel: .init(alerts: alerts))
+            }.store(in: &cancelable)
+    }
+
+    private func subscribeForAssetDefinitionChanges() {
         assetDefinitionStore
             .assetBodyChanged(for: transactionType.contract)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 guard let strongSelf = self else { return }
 
-                let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                let viewModel = TokenViewControllerViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
                 strongSelf.configure(viewModel: viewModel)
             }.store(in: &cancelable)
     }

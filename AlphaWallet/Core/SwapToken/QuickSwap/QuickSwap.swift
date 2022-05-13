@@ -6,8 +6,12 @@
 //
 
 import Foundation
+import Combine
 
 struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeOnQuickSwapButtonTitle()
@@ -105,5 +109,9 @@ struct QuickSwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet, .custom, .fantom, .fantom_testnet, .avalanche, .avalanche_testnet, .xDai, .mumbai_testnet, .optimistic, .optimisticKovan, .cronosTestnet, .arbitrum, .arbitrumRinkeby, .palm, .palmTestnet, .klaytnCypress, .klaytnBaobabTestnet:
             return false
         }
+    }
+
+    func start() {
+        //no-op
     }
 }

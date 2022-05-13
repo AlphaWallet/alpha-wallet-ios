@@ -6,8 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
+    var objectWillChange: AnyPublisher<Void, Never> {
+        return Empty<Void, Never>(completeImmediately: true).eraseToAnyPublisher()
+    }
 
     var action: String {
         return R.string.localizable.aWalletTokenErc20ExchangeHoneyswapButtonTitle()
@@ -91,6 +95,10 @@ class HoneySwap: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         return [
             .init(type: .swap(service: self))
         ]
+    }
+
+    func start() {
+        //no-op
     }
 
     func isSupport(token: TokenActionsServiceKey) -> Bool {
