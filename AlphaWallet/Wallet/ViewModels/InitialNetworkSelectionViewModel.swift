@@ -18,13 +18,15 @@ class InitialNetworkSelectionViewModel: NSObject {
     private var model: InitialNetworkSelectionCollectionModel
     private let headerForMainnet: EnableServersHeaderView = EnableServersHeaderView()
     private let headerForTestnet: EnableServersHeaderView = EnableServersHeaderView()
+    private var rowCountCallback: InitialNetworkSelectionViewResultsCallback
 
     var selected: [RPCServer] {
         Array(model.selected)
     }
 
-    init(model: InitialNetworkSelectionCollectionModel) {
+    init(model: InitialNetworkSelectionCollectionModel, rowCountCallback: @escaping InitialNetworkSelectionViewResultsCallback = { _ in }) {
         self.model = model
+        self.rowCountCallback = rowCountCallback
         super.init()
         configureViewModel()
     }
@@ -35,12 +37,16 @@ class InitialNetworkSelectionViewModel: NSObject {
         headerForMainnet.delegate = self
         headerForTestnet.delegate = self
     }
+
+    func set(rowCountCallback: @escaping InitialNetworkSelectionViewResultsCallback) {
+        self.rowCountCallback = rowCountCallback
+    }
 }
 
 extension InitialNetworkSelectionViewModel: UITableViewDataSource {
 
     func register(_ tableView: UITableView) {
-        tableView.register(ServerImageTableViewCell.self)
+        tableView.register(RPCDisplaySelectableTableViewCell.self)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -48,14 +54,17 @@ extension InitialNetworkSelectionViewModel: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let mode = getModeFromSectionIndex(index: section), mode == model.mode else { return 0 }
-        return model.countFor(mode: mode)
+        guard let mode = getModeFromSectionIndex(index: section), mode == model.mode else {
+            return 0 }
+        let rowCount = model.countFor(mode: mode)
+        self.rowCountCallback(rowCount)
+        return rowCount
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: ServerImageTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: RPCDisplaySelectableTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         let server = model.server(for: indexPath)
-        let cellViewModel = ServerImageViewModel(server: server, selected: model.isSelected(server: server))
+        let cellViewModel = ServerImageViewModel(server: .server(server), selected: model.isSelected(server: server))
         cell.configure(viewModel: cellViewModel)
         return cell
     }

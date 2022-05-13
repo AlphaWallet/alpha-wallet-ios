@@ -42,6 +42,9 @@ class InitialNetworkSelectionViewController: UIViewController {
     init(model: InitialNetworkSelectionCollectionModel = InitialNetworkSelectionCollectionModel()) {
         viewModel = InitialNetworkSelectionViewModel(model: model)
         super.init(nibName: nil, bundle: nil)
+        viewModel.set { rowCount in
+            self.selectionView.setTableViewEmpty(isHidden: rowCount == 0)
+        }
     }
 
     required init?(coder: NSCoder) {

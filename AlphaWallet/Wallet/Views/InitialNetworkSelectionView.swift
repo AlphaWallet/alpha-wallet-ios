@@ -7,6 +7,8 @@
 
 import UIKit
 
+typealias InitialNetworkSelectionViewResultsCallback = (Int) -> Void
+
 class InitialNetworkSelectionView: UIView {
 
     // MARK: - Accessors
@@ -59,6 +61,13 @@ class InitialNetworkSelectionView: UIView {
         return tableView
     }()
 
+    private let emptyTableView: EmptyTableView = {
+        let view = EmptyTableView(title: R.string.localizable.emptyTableViewSearchTitle(), image: R.image.iconsIllustrationsSearchResults()!, heightAdjustment: 100)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
+    }()
+
     private lazy var buttonsBar: HorizontalButtonsBar = {
         let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
         buttonsBar.configure()
@@ -88,6 +97,7 @@ class InitialNetworkSelectionView: UIView {
         addSubview(searchBar)
         addSubview(tableView)
         addSubview(buttonsBar)
+        addSubview(emptyTableView)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -101,6 +111,9 @@ class InitialNetworkSelectionView: UIView {
             buttonsBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20.0),
             buttonsBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20.0),
             buttonsBar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+
+            emptyTableView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+            emptyTableView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
         ])
     }
 
@@ -108,6 +121,10 @@ class InitialNetworkSelectionView: UIView {
 
     func reloadTableView() {
         tableView.reloadData()
+    }
+
+    func setTableViewEmpty(isHidden: Bool) {
+        emptyTableView.isHidden = !isHidden
     }
     
 }
