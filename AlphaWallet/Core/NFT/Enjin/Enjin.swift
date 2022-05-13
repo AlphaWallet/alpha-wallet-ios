@@ -17,11 +17,9 @@ typealias EnjinSemiFungiblesToAddress = [AlphaWallet.Address: [GetEnjinTokenQuer
 typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinToken]
 
 final class Enjin {
-    private let networkProvider = EnjinNetworkProvider()
-
-    private var promiseCache: ThreadSafeDictionary<AddressAndRPCServer, Promise<EnjinSemiFungiblesToAddress>> = .init()
+    private lazy var networkProvider = EnjinNetworkProvider(queue: queue)
+    private var cachedPromises: ThreadSafeDictionary<AddressAndRPCServer, Promise<EnjinSemiFungiblesToAddress>> = .init()
     private let queue: DispatchQueue = DispatchQueue(label: "com.Enjin.UpdateQueue")
-
     typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
     typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]
 
@@ -29,18 +27,17 @@ final class Enjin {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard Enjin.isServerSupported(key.server) else {
-            promiseCache[key] = .value([:])
-            return promiseCache[key]!
+            return .value([:])
         }
 
         return makeFetchPromise(for: key)
     }
 
     private func makeFetchPromise(for key: AddressAndRPCServer) -> Promise<EnjinSemiFungiblesToAddress> {
-        if let promise = promiseCache[key] {
+        if let promise = cachedPromises[key] {
             if promise.isResolved {
                 let promise = fetchFromRemotePromise(key: key)
-                promiseCache[key] = promise
+                cachedPromises[key] = promise
 
                 return promise
             } else {
@@ -48,26 +45,28 @@ final class Enjin {
             }
         } else {
             let promise = fetchFromRemotePromise(key: key)
-            promiseCache[key] = promise
+            cachedPromises[key] = promise
 
             return promise
         }
     }
 
     private func fetchFromRemotePromise(key: AddressAndRPCServer) -> Promise<EnjinSemiFungiblesToAddress> {
-        return Promise<MappedEnjinBalances> { seal in
+        return Promise<[AlphaWallet.Address: [GetEnjinBalancesQuery.Data.EnjinBalance]]> { seal in
             let offset = 1
             networkProvider.getEnjinBalances(forOwner: key.address, offset: offset) { result in
                 switch result {
                 case .success(let result):
-                    seal.fulfill(result.excludingUefa)
+                    seal.fulfill(result.balances)
                 case .failure(let error):
                     seal.reject(error)
                 }
             }
-        }.then({ balances -> Promise<EnjinSemiFungiblesToAddress> in
+        }.then(on: queue, { balances -> Promise<EnjinSemiFungiblesToAddress> in
             let ids = (balances[key.address] ?? []).compactMap { $0.token?.id }
             return self.networkProvider.getEnjinTokens(ids: ids, owner: key.address)
+        }).ensure(on: queue, {
+            self.cachedPromises[key] = .none
         })
     }
 

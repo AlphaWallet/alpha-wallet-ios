@@ -15,6 +15,7 @@ final class EnjinNetworkProvider {
     static let client = URLSessionClient()
     static let cache = InMemoryNormalizedCache()
     static var store = ApolloStore(cache: cache)
+    private let queue: DispatchQueue
 
     private lazy var graphqlClient: ApolloClient = {
         let provider = NetworkInterceptorProvider(store: EnjinNetworkProvider.store, client: EnjinNetworkProvider.client)
@@ -23,11 +24,15 @@ final class EnjinNetworkProvider {
         return ApolloClient(networkTransport: transport, store: EnjinNetworkProvider.store)
     }()
 
-    typealias GetEnjinBalancesResponse = (excludingUefa: Enjin.MappedEnjinBalances, tokenIdCount: Int, owner: AlphaWallet.Address)
+    init(queue: DispatchQueue) {
+        self.queue = queue
+    }
+
+    typealias GetEnjinBalancesResponse = (balances: Enjin.MappedEnjinBalances, owner: AlphaWallet.Address)
 
     func getEnjinBalances(forOwner owner: AlphaWallet.Address, offset: Int, sum: Enjin.MappedEnjinBalances = [:], limit: Int = 50, completion: @escaping (Swift.Result<GetEnjinBalancesResponse, EnjinError>) -> Void) {
 
-        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit)) { response in
+        graphqlClient.fetch(query: GetEnjinBalancesQuery(ethAddress: owner.eip55String, page: offset, limit: limit), queue: queue) { response in
             switch response {
             case .failure(let error):
                 completion(.failure(EnjinError(localizedDescription: "Error calling Engin API: \(String(describing: error))")))
@@ -51,13 +56,7 @@ final class EnjinNetworkProvider {
                         completion(results)
                     }
                 } else {
-                    let excludingUefa = sum
-                    var tokenIdCount = 0
-                    for (_, tokenIds) in excludingUefa {
-                        tokenIdCount += tokenIds.count
-                    }
-
-                    completion(.success((excludingUefa, tokenIdCount, owner)))
+                    completion(.success((sum, owner)))
                 }
             }
         }
@@ -68,9 +67,9 @@ final class EnjinNetworkProvider {
             return .value([owner: []])
         }
 
-        let promises = ids.compactMap({ tokenId in
+        let promises = ids.map { tokenId in
             return Promise<GetEnjinTokenQuery.Data.EnjinToken> { seal in
-                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId)) { response in
+                graphqlClient.fetch(query: GetEnjinTokenQuery(id: tokenId), queue: queue) { response in
                     switch response {
                     case .failure(let error):
                         seal.reject(error)
@@ -84,7 +83,7 @@ final class EnjinNetworkProvider {
                     }
                 }
             }
-        })
+        }
 
         return when(resolved: promises).map { results in
             let tokens = results.compactMap { $0.optionalValue }
