@@ -466,7 +466,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             }
             //OpenSea API output doesn't include the balance ("value") for each tokenId, it seems. So we have to fetch them:
             let promises = contractsToTokenIds.map { contract, tokenIds in
-                Erc1155BalanceFetcher(address: account.address, server: server)
+                erc1155BalanceFetcher
                     .fetch(contract: contract, tokenIds: Set(tokenIds))
                     .map(on: queue, { (contract: contract, balances: $0) })
                     .recover(on: queue, { _ in return .value((contract: contract, balances: [:])) })
