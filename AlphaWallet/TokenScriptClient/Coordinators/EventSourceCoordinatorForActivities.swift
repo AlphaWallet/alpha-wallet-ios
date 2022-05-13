@@ -125,8 +125,6 @@ extension EventSourceCoordinatorForActivities {
 extension EventSourceCoordinatorForActivities.functional {
     static func fetchEvents(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, eventsDataStore: EventsActivityDataStoreProtocol, queue: DispatchQueue, wallet: Wallet) -> Promise<Void> {
 
-        let (promise, seal) = Promise<Void>.pending()
-
         let eventOrigin = card.eventOrigin
         let (filterName, filterValue) = eventOrigin.eventFilter
         typealias functional = EventSourceCoordinatorForActivities.functional
@@ -136,14 +134,12 @@ extension EventSourceCoordinatorForActivities.functional {
 
         if filterParam.allSatisfy({ $0 == nil }) {
             //TODO log to console as diagnostic
-            seal.fulfill(())
-            return promise
+            return .init(error: PMKError.cancelled)
         }
 
         let oldEvent = eventsDataStore
         .getLastMatchingEventSortedByBlockNumber(forContract: eventOrigin.contract, tokenContract: tokenContract, server: server, eventName: eventOrigin.eventName)
 
-//<<<<<<< HEAD
         let fromBlock: (EventFilter.Block, UInt64)
         if let newestEvent = oldEvent {
             let value = UInt64(newestEvent.blockNumber + 1)
@@ -156,7 +152,7 @@ extension EventSourceCoordinatorForActivities.functional {
         let toBlock = server.makeMaximumToBlockForEvents(fromBlockNumber: fromBlock.1)
         let eventFilter =  EventFilter(fromBlock: fromBlock.0, toBlock: toBlock, addresses: addresses, parameterFilters: parameterFilters)
 
-        getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
+        return getEventLogs(withServer: server, contract: eventOrigin.contract, eventName: eventOrigin.eventName, abiString: eventOrigin.eventAbiString, filter: eventFilter, queue: queue)
         .then(on: queue, { events -> Promise<[EventActivityInstance]> in
             let promises = events.compactMap { event -> Promise<EventActivityInstance?> in
                 guard let blockNumber = event.eventLog?.blockNumber else {
@@ -175,15 +171,11 @@ extension EventSourceCoordinatorForActivities.functional {
             return when(resolved: promises).map(on: queue, { values -> [EventActivityInstance] in
                 values.compactMap { $0.optionalValue }.compactMap { $0 }
             })
-        }).done(on: queue, { events in
+        }).map(on: queue, { events -> Void in
             eventsDataStore.add(events: events)
-            seal.fulfill(())
-        }).catch(on: queue, { e in
+        }).recover(on: queue, { e in
             error(value: e, rpcServer: server, address: tokenContract)
-            seal.reject(e)
         })
-
-        return promise
     }
 
     private static func convertEventToDatabaseObject(_ event: EventParserResultProtocol, date: Date, filterParam: [(filter: [EventFilterable], textEquivalent: String)?], eventOrigin: EventOrigin, tokenContract: AlphaWallet.Address, server: RPCServer) -> EventActivityInstance? {
