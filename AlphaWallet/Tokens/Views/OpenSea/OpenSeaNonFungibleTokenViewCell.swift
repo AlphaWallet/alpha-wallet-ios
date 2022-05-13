@@ -7,7 +7,7 @@ class OpenSeaNonFungibleTokenView: UIView {
     private let background = UIView()
     private let imageView: TokenImageView = {
         let imageView: TokenImageView = TokenImageView()
-        imageView.isRoundingEnabled = false
+        imageView.rounding = .none
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
