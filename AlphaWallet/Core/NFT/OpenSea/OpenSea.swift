@@ -23,8 +23,7 @@ final class OpenSea {
         let key: AddressAndRPCServer = .init(address: wallet.address, server: server)
 
         guard OpenSea.isServerSupported(key.server) else {
-            cachedPromises[key] = .value([:])
-            return cachedPromises[key]!
+            return .value([:])
         }
 
         return makeFetchPromise(for: key)
@@ -66,6 +65,8 @@ final class OpenSea {
                 }
 
                 return storage?.value[key] ?? result.result
+            }).ensure(on: queue, {
+                self.cachedPromises[key] = .none
             })
     }
 
