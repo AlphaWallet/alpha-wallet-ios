@@ -131,15 +131,15 @@ class SingleChainTokenCoordinator: Coordinator {
         //NOTE: create half mutable copy of `activitiesService` to configure it for fetching activities for specific token
         let activitiesFilterStrategy = transactionType.activitiesFilterStrategy
         let activitiesService = self.activitiesService.copy(activitiesFilterStrategy: activitiesFilterStrategy, transactionsFilterStrategy: TransactionDataStore.functional.transactionsFilter(for: activitiesFilterStrategy, tokenObject: transactionType.tokenObject))
-        let viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
-        let viewController = TokenViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService, tokenActionsProvider: tokenActionsProvider)
+        let viewModel = FungibleTokenViewModel(transactionType: transactionType, session: session, assetDefinitionStore: assetDefinitionStore, tokenActionsProvider: tokenActionsProvider)
+        let viewController = FungibleTokenViewController(keystore: keystore, session: session, assetDefinition: assetDefinitionStore, transactionType: transactionType, analyticsCoordinator: analyticsCoordinator, token: token, viewModel: viewModel, activitiesService: activitiesService, alertService: alertService, tokenActionsProvider: tokenActionsProvider)
         viewController.delegate = self
 
         //NOTE: refactor later with subscribable coin ticker, and chart history
         coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: token.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases).done { [weak self, weak viewController] history in
             guard let strongSelf = self, let viewController = viewController else { return }
 
-            var viewModel = TokenViewControllerViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
+            var viewModel = FungibleTokenViewModel(transactionType: transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.tokenActionsProvider)
             viewModel.chartHistory = history
             viewController.configure(viewModel: viewModel)
         }.catch { _ in
@@ -203,45 +203,45 @@ extension SingleChainTokenCoordinator: NFTCollectionCoordinatorDelegate {
     }
 }
 
-extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
+extension SingleChainTokenCoordinator: FungibleTokenViewControllerDelegate {
 
-    func didTapAddAlert(for tokenObject: TokenObject, in viewController: TokenViewController) {
+    func didTapAddAlert(for tokenObject: TokenObject, in viewController: FungibleTokenViewController) {
         delegate?.didTapAddAlert(for: tokenObject, in: self)
     }
 
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: TokenViewController) {
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: FungibleTokenViewController) {
         delegate?.didTapEditAlert(for: tokenObject, alert: alert, in: self)
     }
 
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController) {
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController) {
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
         delegate?.didTapBridge(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController) {
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController) {
         delegate?.didTapBuy(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: TokenViewController) {
+    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController) {
         delegate?.didPress(for: .send(type: .transaction(transactionType)), viewController: viewController, in: self)
     }
 
-    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: TokenViewController) {
+    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController) {
         delegate?.didPress(for: .request, viewController: viewController, in: self)
     }
 
-    func didTap(activity: Activity, in viewController: TokenViewController) {
+    func didTap(activity: Activity, in viewController: FungibleTokenViewController) {
         delegate?.didTap(activity: activity, viewController: viewController, in: self)
     }
 
-    func didTap(transaction: TransactionInstance, in viewController: TokenViewController) {
+    func didTap(transaction: TransactionInstance, in viewController: FungibleTokenViewController) {
         delegate?.didTap(transaction: transaction, viewController: viewController, in: self)
     }
 
-    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: TokenViewController) {
+    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController) {
         guard let navigationController = viewController.navigationController else { return }
 
         let token: TokenObject
