@@ -6,21 +6,21 @@ import BigInt
 import PromiseKit
 import Combine
 
-protocol TokenViewControllerDelegate: class, CanOpenURL {
-    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
-    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
-    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: TokenViewController)
-    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: TokenViewController)
-    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: TokenViewController)
-    func didTap(transaction: TransactionInstance, in viewController: TokenViewController)
-    func didTap(activity: Activity, in viewController: TokenViewController)
-    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: TokenViewController)
-    func didTapAddAlert(for tokenObject: TokenObject, in viewController: TokenViewController)
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: TokenViewController)
+protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
+    func didTapSwap(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapBridge(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapBuy(forTransactionType transactionType: TransactionType, service: TokenActionProvider, in viewController: FungibleTokenViewController)
+    func didTapSend(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
+    func didTapReceive(forTransactionType transactionType: TransactionType, in viewController: FungibleTokenViewController)
+    func didTap(transaction: TransactionInstance, in viewController: FungibleTokenViewController)
+    func didTap(activity: Activity, in viewController: FungibleTokenViewController)
+    func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController)
+    func didTapAddAlert(for tokenObject: TokenObject, in viewController: FungibleTokenViewController)
+    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in viewController: FungibleTokenViewController)
 }
 
-class TokenViewController: UIViewController {
-    private var viewModel: TokenViewControllerViewModel
+class FungibleTokenViewController: UIViewController {
+    private var viewModel: FungibleTokenViewModel
     private var tokenHolder: TokenHolder?
     private let tokenObject: TokenObject
     private let session: WalletSession
@@ -42,9 +42,9 @@ class TokenViewController: UIViewController {
     private let tokenActionsProvider: SupportedTokenActionsProvider
     private var cancelable = Set<AnyCancellable>()
 
-    weak var delegate: TokenViewControllerDelegate?
+    weak var delegate: FungibleTokenViewControllerDelegate?
 
-    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TokenViewControllerViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, tokenActionsProvider: SupportedTokenActionsProvider) {
+    init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, tokenActionsProvider: SupportedTokenActionsProvider) {
         self.tokenActionsProvider = tokenActionsProvider
         self.tokenObject = token
         self.viewModel = viewModel
@@ -109,7 +109,7 @@ class TokenViewController: UIViewController {
         showNavigationBarTopSeparatorLine()
     }
 
-    func configure(viewModel: TokenViewControllerViewModel) {
+    func configure(viewModel: FungibleTokenViewModel) {
         self.viewModel = viewModel
 
         view.backgroundColor = viewModel.backgroundColor
@@ -126,7 +126,7 @@ class TokenViewController: UIViewController {
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
 
-        func _configButton(action: TokenInstanceAction, viewModel: TokenViewControllerViewModel, button: BarButton) {
+        func _configButton(action: TokenInstanceAction, viewModel: FungibleTokenViewModel, button: BarButton) {
             if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                 if selection.denial == nil {
                     button.displayButton = false
@@ -157,7 +157,7 @@ class TokenViewController: UIViewController {
             .sink { [weak self] _ in
                 guard let strongSelf = self else { return }
 
-                let viewModel = TokenViewControllerViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                let viewModel = FungibleTokenViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
                 strongSelf.configure(viewModel: viewModel)
             }.store(in: &cancelable)
     }
@@ -184,7 +184,7 @@ class TokenViewController: UIViewController {
             .sink { [weak self] _ in
                 guard let strongSelf = self else { return }
 
-                let viewModel = TokenViewControllerViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                let viewModel = FungibleTokenViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
                 strongSelf.configure(viewModel: viewModel)
             }.store(in: &cancelable)
     }
@@ -319,19 +319,19 @@ class TokenViewController: UIViewController {
     }
 }
 
-extension TokenViewController: CanOpenURL2 {
+extension FungibleTokenViewController: CanOpenURL2 {
     func open(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
 
-extension TokenViewController: TokenInfoPageViewDelegate {
+extension FungibleTokenViewController: TokenInfoPageViewDelegate {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in tokenInfoPageView: TokenInfoPageView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
 }
 
-extension TokenViewController: PriceAlertsPageViewDelegate {
+extension FungibleTokenViewController: PriceAlertsPageViewDelegate {
     func addAlertSelected(in view: PriceAlertsPageView) {
         delegate?.didTapAddAlert(for: tokenObject, in: self)
     }
@@ -349,7 +349,7 @@ extension TokenViewController: PriceAlertsPageViewDelegate {
     }
 }
 
-extension TokenViewController: ActivitiesPageViewDelegate {
+extension FungibleTokenViewController: ActivitiesPageViewDelegate {
     func didTap(activity: Activity, in view: ActivitiesPageView) {
         delegate?.didTap(activity: activity, in: self)
     }

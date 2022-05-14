@@ -5,7 +5,7 @@ import UIKit
 import BigInt
 import PromiseKit
 
-struct TokenViewControllerViewModel {
+struct FungibleTokenViewModel {
     private let transactionType: TransactionType
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
