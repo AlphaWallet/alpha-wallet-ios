@@ -22,6 +22,8 @@
 	<string>1</string>
 	<key>NSExtension</key>
 	<dict>
+		<key>NSExtensionActionWantsFullScreenPresentation</key>
+		<false/>
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>IntentsSupported</key>
@@ -30,26 +32,24 @@
 			</array>
 			<key>NSExtensionActivationRule</key>
 			<dict>
-                <key>NSExtensionServiceRoleType</key>
-                <string>NSExtensionServiceRoleTypeViewer</string>
+				<key>NSExtensionActivationDictionaryVersion</key>
+				<integer>2</integer>
 				<key>NSExtensionActivationSupportsText</key>
 				<false/>
 				<key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
 				<integer>1</integer>
 				<key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
 				<integer>1</integer>
-				<key>NSExtensionActivationDictionaryVersion</key>
-				<integer>2</integer>
+				<key>NSExtensionServiceRoleType</key>
+				<string>NSExtensionServiceRoleTypeViewer</string>
 			</dict>
 			<key>NSExtensionJavaScriptPreprocessingFil</key>
 			<string>GetURL</string>
 		</dict>
-		<key>NSExtensionPrincipalClass</key>
-		<string>ShareContextHandler</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
-        <key>NSExtensionActionWantsFullScreenPresentation</key>
-        <false/>
+		<key>NSExtensionPrincipalClass</key>
+		<string>ShareContextHandler</string>
 	</dict>
 </dict>
 </plist>

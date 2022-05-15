@@ -2,6 +2,7 @@
 "MainNet":
   [
     {"address": "0xdac17f958d2ee523a2206206994597c13d831ec7", "name": "USDT", "isPopular": true, "network": 1},
+    {"address": "0x3D97EdB1c1D87C0cBf098a0D2230d7380d4b1432", "name": "CNDL", "isPopular": true, "network": 1},
     {"address": "0x58b6a8a3302369daec383334672404ee733ab239", "name": "LPT", "isPopular": true, "network": 1},
     {"address": "0x0e69d0a2bbb30abcb7e5cfea0e4fde19c00a8d47", "name": "IOV", "isPopular": true, "network": 1},
     {"address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "name": "USDC", "isPopular": true, "network": 1},
