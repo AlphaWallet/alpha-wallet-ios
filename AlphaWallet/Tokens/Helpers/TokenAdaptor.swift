@@ -9,11 +9,42 @@
 import Foundation
 import AlphaWalletOpenSea
 import BigInt
+import Combine
+
+extension TokenHolder: ObservableObject { }
 
 extension TokenObject {
+
     func getTokenHolders(assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet account: Wallet, isSourcedFromEvents: Bool = true) -> [TokenHolder] {
         let tokenAdaptor = TokenAdaptor(token: self, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return tokenAdaptor.getTokenHolders(forWallet: account, isSourcedFromEvents: isSourcedFromEvents)
+    }
+
+    /// Generates token holder for fungible token, with id 1
+    func getTokenHolder(assetDefinitionStore: AssetDefinitionStore, forWallet account: Wallet) -> TokenHolder {
+        //TODO id 1 for fungibles. Might come back to bite us?
+        let hardcodedTokenIdForFungibles = BigUInt(1)
+        let xmlHandler = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore)
+            //TODO Event support, if/when designed for fungibles
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: server, account: account)
+        let subscribablesForAttributeValues = values.values
+        let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
+
+        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: type, index: 0, name: name, symbol: symbol, status: .available, values: values)
+        let tokenHolder = TokenHolder(tokens: [token], contractAddress: contractAddress, hasAssetDefinition: true)
+
+        if allResolved {
+            //no-op
+        } else {
+            for each in subscribablesForAttributeValues {
+                guard let subscribable = each.subscribableValue else { continue }
+                subscribable.subscribe { [weak tokenHolder] _ in
+                    tokenHolder?.objectWillChange.send()
+                }
+            }
+        }
+
+        return tokenHolder
     }
 }
 
