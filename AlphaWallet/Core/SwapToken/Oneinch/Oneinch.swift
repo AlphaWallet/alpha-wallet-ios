@@ -42,7 +42,7 @@ class Oneinch: SupportedTokenActionsProvider, SwapTokenViaUrlProvider {
         .init(symbol: "ETH", name: "ETH", address: Constants.nativeCryptoAddressInDatabase, decimal: RPCServer.main.decimals)
     ]
     //NOTE: we use dictionary to improve search tokens
-    private var availableTokens: [AlphaWallet.Address: Oneinch.ERC20Token] = [:]
+    private var availableTokens: AtomicDictionary<AlphaWallet.Address, Oneinch.ERC20Token> = .init()
     private let queue = DispatchQueue(label: "com.Oneinch.updateQueue")
 
     func url(token: TokenActionsServiceKey) -> URL? {

@@ -9,16 +9,18 @@ import Foundation
 import Combine
 
 class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
+    private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
+    private var account: Wallet?
+    private var assets: AtomicArray<Asset> = .init()
+    private let queue: DispatchQueue = .global()
+
     var objectWillChange: AnyPublisher<Void, Never> {
         objectWillChangeSubject.eraseToAnyPublisher()
     }
-    private var objectWillChangeSubject = PassthroughSubject<Void, Never>()
-    
+
     var action: String {
         return R.string.localizable.aWalletTokenBuyTitle()
     }
-
-    private var account: Wallet?
 
     init(account: Wallet? = nil) {
         self.account = account
@@ -27,8 +29,6 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     func configure(account: Wallet) {
         self.account = account
     }
-
-    private let queue: DispatchQueue = .global()
 
     func url(token: TokenActionsServiceKey) -> URL? {
         guard let account = account else { return nil }
@@ -62,14 +62,12 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
     private func asset(for token: TokenActionsServiceKey) -> Asset? {
         //We only operate for mainnets. This is because we store native cryptos for Ethereum testnets like `.goerli` with symbol "ETH" which would match Ramp's Ethereum token
         guard !token.server.isTestnet else { return nil }
-        return Self.assets.first(where: {
+        return assets.first(where: {
             $0.symbol.lowercased() == token.symbol.trimmingCharacters(in: .controlCharacters).lowercased()
                     && $0.decimals == token.decimals
                     && ($0.address == nil ? token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) : $0.address!.sameContract(as: token.contractAddress))
         })
     }
-
-    private static var assets: [Asset] = []
 
     func start() {
         queue.async {
@@ -84,7 +82,7 @@ class Ramp: SupportedTokenActionsProvider, BuyTokenURLProviderType {
             .map(on: queue, { response -> [Asset] in
                 try JSONDecoder().decode(RampAssetsResponse.self, from: response.data).assets
             }).done(on: queue, { response in
-                Self.assets = response
+                self.assets.set(array: response)
                 self.objectWillChangeSubject.send(())
             }).catch(on: queue, { error in
                 let service = AlphaWalletService.rampAssets
