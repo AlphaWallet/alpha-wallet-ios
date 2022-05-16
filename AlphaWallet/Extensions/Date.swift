@@ -9,7 +9,7 @@
 import Foundation
 
 public extension Date {
-    private static var formatsMap: ThreadSafeDictionary<String, DateFormatter> = .init()
+    private static var formatsMap: AtomicDictionary<String, DateFormatter> = .init()
     private static var formatsMapLocale: String?
 
     init?(string: String, format: String) {

@@ -41,7 +41,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private var timer: Timer?
     private let wallet: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
-    private var balanceFetchers: ThreadSafeDictionary<RPCServer, PrivateBalanceFetcherType> = .init()
+    private var balanceFetchers: AtomicDictionary<RPCServer, PrivateBalanceFetcherType> = .init()
     private let queue: DispatchQueue
     private let coinTickersFetcher: CoinTickersFetcherType
     let tokensDataStore: TokensDataStore

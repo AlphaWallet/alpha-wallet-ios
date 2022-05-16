@@ -18,7 +18,7 @@ typealias EnjinSemiFungiblesToTokenId = [String: GetEnjinTokenQuery.Data.EnjinTo
 
 final class Enjin {
     private lazy var networkProvider = EnjinNetworkProvider(queue: queue)
-    private var cachedPromises: ThreadSafeDictionary<AddressAndRPCServer, Promise<EnjinSemiFungiblesToAddress>> = .init()
+    private var cachedPromises: AtomicDictionary<AddressAndRPCServer, Promise<EnjinSemiFungiblesToAddress>> = .init()
     private let queue: DispatchQueue = DispatchQueue(label: "com.Enjin.UpdateQueue")
     typealias EnjinBalances = [GetEnjinBalancesQuery.Data.EnjinBalance]
     typealias MappedEnjinBalances = [AlphaWallet.Address: EnjinBalances]

@@ -38,7 +38,7 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
     private let config: Config
     let assetDefinitionStore: AssetDefinitionStore
     var coinTickersFetcher: CoinTickersFetcherType
-    private var balanceFetchers: ThreadSafeDictionary<Wallet, WalletBalanceFetcherType> = .init()
+    private var balanceFetchers: AtomicDictionary<Wallet, WalletBalanceFetcherType> = .init()
     private lazy var walletsSummarySubject: CurrentValueSubject<WalletSummary, Never> = {
         let balances = balanceFetchers.values.map { $0.value.balance }
         let summary = WalletSummary(balances: balances)

@@ -1,5 +1,5 @@
 //
-//  ThreadSafeDictionary.swift
+//  AtomicDictionary.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 27.05.2021.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class ThreadSafeDictionary<Key: Hashable, Value> {
+public class AtomicDictionary<Key: Hashable, Value> {
     private var cache = [Key: Value]()
     private let queue: DispatchQueue
 
@@ -28,7 +28,7 @@ public class ThreadSafeDictionary<Key: Hashable, Value> {
         }
     }
     
-    public init(queue: DispatchQueue = DispatchQueue(label: "SynchronizedArrayAccess", qos: .background)) {
+    public init(queue: DispatchQueue = DispatchQueue(label: "org.alphawallet.swift.atomicDictionary", qos: .background)) {
         self.queue = queue
     }
 

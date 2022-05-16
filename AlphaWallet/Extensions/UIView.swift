@@ -26,7 +26,7 @@ extension UIView {
       return .init()
     }
 
-    static var tokenSymbolBackgroundImageCache: ThreadSafeDictionary<UIColor, UIImage> = .init()
+    static var tokenSymbolBackgroundImageCache: AtomicDictionary<UIColor, UIImage> = .init()
     static func tokenSymbolBackgroundImage(backgroundColor: UIColor, contractAddress: AlphaWallet.Address) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
             return cachedValue
