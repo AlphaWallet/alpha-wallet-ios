@@ -6,7 +6,7 @@ import PromiseKit
 import web3swift
 
 class GetBlockTimestamp {
-    private static var blockTimestampCache = ThreadSafeDictionary<RPCServer, [BigUInt: Promise<Date>]>()
+    private static var blockTimestampCache = AtomicDictionary<RPCServer, [BigUInt: Promise<Date>]>()
 
     func getBlockTimestamp(_ blockNumber: BigUInt, onServer server: RPCServer) -> Promise<Date> {
         var cacheForServer = Self.blockTimestampCache[server] ?? .init()

@@ -83,7 +83,7 @@ extension RPCServer {
 class RPCServerImageFetcher {
     static var instance = RPCServerImageFetcher()
 
-    private static var subscribables: ThreadSafeDictionary<Int, Subscribable<Image>> = .init()
+    private static var subscribables: AtomicDictionary<Int, Subscribable<Image>> = .init()
 
     private static func programmaticallyGenerateIcon(for server: RPCServer) -> Image {
         return UIView.tokenSymbolBackgroundImage(backgroundColor: server.blockChainNameColor)
@@ -132,7 +132,7 @@ class TokenImageFetcher {
 
     static var instance = TokenImageFetcher()
 
-    private static var subscribables: ThreadSafeDictionary<String, Subscribable<TokenImage>> = .init()
+    private static var subscribables: AtomicDictionary<String, Subscribable<TokenImage>> = .init()
     private let queue: DispatchQueue = .global()
 
     private static func programmaticallyGenerateIcon(for contractAddress: AlphaWallet.Address, type: TokenType, server: RPCServer, symbol: String) -> TokenImage? {

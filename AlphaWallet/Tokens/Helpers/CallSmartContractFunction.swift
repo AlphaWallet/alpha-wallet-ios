@@ -8,8 +8,8 @@ import web3swift
 
 //TODO wrap callSmartContract() and cache into a type
 // swiftlint:disable private_over_fileprivate
-fileprivate var smartContractCallsCache = ThreadSafeDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
-fileprivate var web3s = ThreadSafeDictionary<RPCServer, [TimeInterval: web3]>()
+fileprivate var smartContractCallsCache = AtomicDictionary<String, (promise: Promise<[String: Any]>, timestamp: Date)>()
+fileprivate var web3s = AtomicDictionary<RPCServer, [TimeInterval: web3]>()
 // swiftlint:enable private_over_fileprivate
 
 private let web3Queue: OperationQueue = {
