@@ -78,7 +78,8 @@ enum OriginalDapps {
         Dapp(name: "Eth Gas Station", description: "Consumer oriented metrics for Eth Gas Market", url: "https://ethgasstation.info", cat: "Tool")
         Dapp(name: "Gas Now", description: "Eth Gas Price forecast system", url: "https://www.gasnow.org/", cat: "Tool")
         Dapp(name: "DASLA", description: "A DAS(Decentralized Account System) account registration tool", url: "https://das.la/", cat: "Tool")
-        Dapp(name: "DAS", description: "A cross-chain decentralized account system.", url: "https://da.systems/", cat: "Tool")
+        Dapp(name: "DAS", description: "A cross-chain decentralized account system.", url: "https://da.systems/", cat: "Tool"),
+        Dapp(name: "AAG Staking", description: "Stake your $1AAG or $1AAG-ONE LP Tokens on our staking website to earn huge rewards. Benefit from high APRs and Capital Boosts with our Genesis NFTs.", url: "https://staking.aag.ventures/", cat: "Finance"),
     ]
 
     struct Category {
