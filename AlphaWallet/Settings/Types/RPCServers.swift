@@ -683,8 +683,6 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainAvalanche()
         case .avalanche_testnet:
             return R.string.localizable.blockchainAvalancheTest()
-        case .candle:
-            return R.string.localizable.blockchainCandle()
         case .polygon:
             return R.string.localizable.blockchainPolygon()
         case .mumbai_testnet:
@@ -705,6 +703,7 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainPalm()
         case .palmTestnet:
             return R.string.localizable.blockchainPalmTestnet()
+        case .candle: return "Candle Mainnet"
         case .klaytnCypress: return "Klaytn Cypress"
         case .klaytnBaobabTestnet: return "Klaytn Baobab"
         }
