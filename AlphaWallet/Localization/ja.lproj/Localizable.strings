@@ -460,6 +460,7 @@
 "blockchain.fantom.test" = "Fantom Testnet Network";
 "blockchain.Avalanche" = "Avalanche Mainnet C-Chain";
 "blockchain.Avalanche.test" = "Avalanche FUJI C-Chain";
+"blockchain.Candle" = "Candle Mainnet";
 "blockchain.Polygon" = "Polygon Mainnet";
 "blockchain.Mumbai" = "Mumbai Testnet";
 "blockchain.Optimistic" = "Optimistic Testnet";

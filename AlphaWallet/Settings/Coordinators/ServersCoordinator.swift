@@ -32,6 +32,7 @@ class ServersCoordinator: Coordinator {
             .fantom_testnet,
             .avalanche,
             .avalanche_testnet,
+            .candle,
             .polygon,
             .mumbai_testnet,
             .optimistic,
