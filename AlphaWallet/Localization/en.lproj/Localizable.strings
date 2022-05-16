@@ -146,7 +146,7 @@
 "wallets.backupHdWallet.introduction.title" = "Back up your Wallet\nwith Seed Phrase";
 "wallets.showSeedPhrase.introduction.button.title" = "Got it, show my seed phrase";
 "wallets.showSeedPhrase.introduction.title" = "Beware of scammers!\nDon’t share seed phrase.";
-"wallets.showSeedPhrase.introduction.subtitle" = "AlphaWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
+"wallets.showSeedPhrase.introduction.subtitle" = "CandleWallet will NEVER ask about your\nseed phrase (especially on Telegram).";
 "wallets.showSeedPhrase.subtitle2" = "Your seed phrase\n(do not share with anyone)";
 "wallets.showSeedPhrase.hideSeedPhrase" = "OK, hide my seed phrase";
 "wallets.showSeedPhrase.title" = "Your Seed Phrase";
