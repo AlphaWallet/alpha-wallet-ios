@@ -69,7 +69,7 @@ class TokenScriptCoordinator: Coordinator {
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backBarButton(self, selector: #selector(dismiss))
         navigationController.pushViewController(viewController, animated: true)
 
-        refreshUponEthereumEventChanges() 
+        subscribeForEthereumEventChanges()
     }
 
     @objc private func dismiss() {
@@ -86,9 +86,17 @@ class TokenScriptCoordinator: Coordinator {
         return vc
     }
 
-    private func refreshUponEthereumEventChanges() {
+    private func subscribeForEthereumEventChanges() {
         eventsDataStore
             .recentEvents(forTokenContract: tokenObject.contractAddress)
+            .filter({ changeset in
+                switch changeset {
+                case .update(let events, _, let insertions, let modifications):
+                    return !insertions.map { events[$0] }.isEmpty || !modifications.map { events[$0] }.isEmpty
+                case .initial, .error:
+                    return false
+                }
+            })
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.viewController.configure()
