@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import Combine
 
 enum TokenInfoPageViewModelConfiguration {
     case charts
@@ -9,37 +10,82 @@ enum TokenInfoPageViewModelConfiguration {
     case field(viewModel: TickerFieldValueViewModel)
 }
 
-struct TokenInfoPageViewModel {
+class TokenInfoPageViewModel: NSObject {
+    private var chartHistoriesSubject: CurrentValueSubject<[ChartHistory], Never> = .init([])
+    private let session: WalletSession
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let coinTickersFetcher: CoinTickersFetcherType
+    private var ticker: CoinTicker?
 
     var tabTitle: String {
         return R.string.localizable.tokenTabInfo()
     }
 
-    private let token: TokenObject
     let transactionType: TransactionType
-    let server: RPCServer
-    var title: String
-    var ticker: CoinTicker?
-    var currencyAmount: String?
-    var isShowingValue: Bool = true
-    var values: [ChartHistory] = []
-    var configurations: [TokenInfoPageViewModelConfiguration] {
-        TokenInfoPageViewModel.generateConfiguration(viewModel: self, server: server)
+
+    var chartHistories: [ChartHistory] {
+        chartHistoriesSubject.value
     }
 
-    init(server: RPCServer, token: TokenObject, transactionType: TransactionType) {
-        self.server = server
-        self.token = token
+    lazy var fieldsViewModelConfigurations: AnyPublisher<[TokenInfoPageViewModelConfiguration], Never> = {
+        let coinTicker = coinTicker.handleEvents(receiveOutput: { [weak self] ticker in
+                self?.ticker = ticker
+            }).map { _ in }
+            .eraseToAnyPublisher()
+
+        let chartHistories = chartHistoriesSubject
+            .map { _ in }
+            .eraseToAnyPublisher()
+
+        return Publishers.Merge(coinTicker, chartHistories)
+            .compactMap { [weak self] _ in self?.generateConfigurations() }
+            .eraseToAnyPublisher()
+    }()
+    
+    lazy var chartViewModel: TokenHistoryChartViewModel = .init(chartHistories: chartHistoriesSubject.eraseToAnyPublisher(), coinTicker: coinTicker)
+    lazy var headerViewModel: NonFungibleTokenHeaderViewModel = .init(session: session, transactionType: transactionType, assetDefinitionStore: assetDefinitionStore)
+
+    init(session: WalletSession, transactionType: TransactionType, assetDefinitionStore: AssetDefinitionStore, coinTickersFetcher: CoinTickersFetcherType) {
+        self.session = session
+        self.coinTickersFetcher = coinTickersFetcher
         self.transactionType = transactionType
-        title = ""
-        ticker = nil
-        currencyAmount = nil
+        self.assetDefinitionStore = assetDefinitionStore
+        super.init()
     }
 
-    private static func generateConfiguration(viewModel: TokenInfoPageViewModel, server: RPCServer) -> [TokenInfoPageViewModelConfiguration] {
+    func fetchChartHistory() {
+        coinTickersFetcher.fetchChartHistories(addressToRPCServerKey: transactionType.tokenObject.addressAndRPCServer, force: false, periods: ChartHistoryPeriod.allCases)
+            .done { chartHistories in
+                self.chartHistoriesSubject.send(chartHistories)
+            }.cauterize()
+    }
+
+    private lazy var coinTicker: AnyPublisher<CoinTicker?, Never> = {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            return session.tokenBalanceService
+                .etherBalance
+                .map { $0?.ticker }
+                .receive(on: RunLoop.main)
+                .prepend(session.tokenBalanceService.ethBalanceViewModel?.ticker)
+                .eraseToAnyPublisher()
+        case .erc20Token(let token, _, _):
+            return session.tokenBalanceService
+                .tokenBalancePublisher(token.addressAndRPCServer)
+                .receive(on: RunLoop.main)
+                .map { $0?.ticker }
+                .prepend(session.tokenBalanceService.coinTicker(token.addressAndRPCServer))
+                .eraseToAnyPublisher()
+        case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
+            return Just<CoinTicker?>(nil)
+                .eraseToAnyPublisher()
+        }
+    }()
+
+    private func generateConfigurations() -> [TokenInfoPageViewModelConfiguration] {
         var configurations: [TokenInfoPageViewModelConfiguration] = []
 
-        if server.isTestnet {
+        if session.server.isTestnet {
             configurations = [
                 .testnet
             ]
@@ -47,17 +93,17 @@ struct TokenInfoPageViewModel {
             configurations = [
                 .charts,
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderPerformance())),
-                .field(viewModel: viewModel.dayViewModel),
-                .field(viewModel: viewModel.weekViewModel),
-                .field(viewModel: viewModel.monthViewModel),
-                .field(viewModel: viewModel.yearViewModel),
+                .field(viewModel: dayViewModel),
+                .field(viewModel: weekViewModel),
+                .field(viewModel: monthViewModel),
+                .field(viewModel: yearViewModel),
 
                 .header(viewModel: .init(title: R.string.localizable.tokenInfoHeaderStats())),
-                .field(viewModel: viewModel.markerCapViewModel),
+                .field(viewModel: markerCapViewModel),
                 //.field(viewModel: viewModel.totalSupplyViewModel),
                 //.field(viewModel: viewModel.maxSupplyViewModel),
-                .field(viewModel: viewModel.yearLowViewModel),
-                .field(viewModel: viewModel.yearHighViewModel)
+                .field(viewModel: yearLowViewModel),
+                .field(viewModel: yearHighViewModel)
             ]
         }
 
@@ -126,7 +172,7 @@ struct TokenInfoPageViewModel {
 
     private var yearLowViewModel: TickerFieldValueViewModel {
         let value: String = {
-            let history = values[safe: ChartHistoryPeriod.year.index]
+            let history = chartHistories[safe: ChartHistoryPeriod.year.index]
             if let min = HistoryHelper(history: history).minMax?.min, let value = Formatter.usd.string(from: min) {
                 return value
             } else {
@@ -143,7 +189,7 @@ struct TokenInfoPageViewModel {
 
     private var yearHighViewModel: TickerFieldValueViewModel {
         let value: String = {
-            let history = values[safe: ChartHistoryPeriod.year.index]
+            let history = chartHistories[safe: ChartHistoryPeriod.year.index]
             if let max = HistoryHelper(history: history).minMax?.max, let value = Formatter.usd.string(from: max) {
                 return value
             } else {
@@ -180,7 +226,7 @@ struct TokenInfoPageViewModel {
 
     private func attributedHistoryValue(period: ChartHistoryPeriod) -> NSAttributedString {
         let result: (String, UIColor) = {
-            let result = HistoryHelper(history: values[safe: period.index])
+            let result = HistoryHelper(history: chartHistories[safe: period.index])
 
             switch result.change {
             case .appreciate(let percentage, let value):
@@ -206,156 +252,5 @@ struct TokenInfoPageViewModel {
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
-    }
-
-    var iconImage: Subscribable<TokenImage> {
-        token.icon(withSize: .s300)
-    }
-
-    var blockChainTagViewModel: BlockchainTagLabelViewModel {
-        .init(server: server)
-    }
-
-    var titleAttributedString: NSAttributedString {
-        return NSAttributedString(string: title, attributes: [
-            .font: Fonts.regular(size: ScreenChecker().isNarrowScreen ? 26 : 36),
-            .foregroundColor: Colors.black
-        ])
-    }
-
-    private var testnetValueHintLabelAttributedString: NSAttributedString {
-        return NSAttributedString(string: R.string.localizable.tokenValueTestnetWarning(), attributes: [
-            .font: Fonts.regular(size: 17),
-            .foregroundColor: R.color.dove()!
-        ])
-    }
-
-    var valueAttributedString: NSAttributedString? {
-        if server.isTestnet {
-            return testnetValueHintLabelAttributedString
-        } else {
-            switch transactionType {
-            case .nativeCryptocurrency, .erc20Token:
-                if isShowingValue {
-                    return tokenValueAttributedString
-                } else {
-                    return marketPriceAttributedString
-                }
-            case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                return nil
-            }
-        }
-    }
-
-    private var tokenValueAttributedString: NSAttributedString? {
-        let string: String = {
-            if let currencyAmount = currencyAmount {
-                return R.string.localizable.aWalletTokenValue(currencyAmount)
-            } else {
-                return UiTweaks.noPriceMarker
-            }
-        }()
-        return NSAttributedString(string: string, attributes: [
-            .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: R.color.dove()!
-        ])
-    }
-
-    private var marketPriceAttributedString: NSAttributedString? {
-        guard let marketPrice = marketPriceValue, let valuePercentageChange = valuePercentageChangeValue else {
-            return nil
-        }
-
-        let string = R.string.localizable.aWalletTokenMarketPrice(marketPrice, valuePercentageChange)
-
-        guard let valuePercentageChangeRange = string.range(of: valuePercentageChange) else { return nil }
-
-        let mutableAttributedString = NSMutableAttributedString(string: string, attributes: [
-            .font: Screen.TokenCard.Font.placeholderLabel,
-            .foregroundColor: R.color.dove()!
-        ])
-
-        let range = NSRange(valuePercentageChangeRange, in: string)
-        mutableAttributedString.setAttributes([
-            .font: Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 14 : 17),
-            .foregroundColor: Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
-        ], range: range)
-
-        return mutableAttributedString
-    }
-
-    private var marketPriceValue: String? {
-        if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
-            return Formatter.usd.string(from: value)
-        } else {
-            return nil
-        }
-    }
-}
-
-struct HistoryHelper {
-
-    enum Change {
-        case appreciate(percentage: Double, value: Double)
-        case depreciate(percentage: Double, value: Double)
-        case none
-    }
-
-    private let history: ChartHistory?
-
-    init(history: ChartHistory?) {
-        self.history = history
-    }
-
-    var minMax: (min: Double, max: Double)? {
-        guard let history = history else { return nil }
-        guard let min = history.prices.min(by: { $0.value < $1.value }), let max = history.prices.max(by: { $0.value < $1.value }) else { return nil }
-
-        return (min.value, max.value)
-    }
-
-    var change: HistoryHelper.Change {
-        changeValues.flatMap { values -> HistoryHelper.Change in
-            if isValueAppreciated24h(values.percentage) {
-                return .appreciate(percentage: values.percentage, value: values.change)
-            } else if isValueDepreciated24h(values.percentage) {
-                return .depreciate(percentage: values.percentage, value: values.change)
-            } else {
-                return .none
-            }
-        } ?? .none
-    }
-
-    private var changeValues: (change: Double, percentage: Double)? {
-        history.flatMap { history -> (Double, Double)? in
-            let value = history.prices
-            if value.isEmpty { return nil }
-
-            var changeSum: Double = 0
-            var percChangeSum: Double = 0
-            for i in 0 ..< value.count - 1 {
-                let change = value[i+1].value - value[i].value
-
-                changeSum += change
-                percChangeSum += change / value[i+1].value
-            }
-            return (changeSum, percChangeSum * 100)
-        }
-    }
-
-    private func isValueAppreciated24h(_ value: Double?) -> Bool {
-        if let percentChange = value {
-            return percentChange > 0
-        } else {
-            return false
-        }
-    }
-
-    private func isValueDepreciated24h(_ value: Double?) -> Bool {
-        if let percentChange = value {
-            return percentChange < 0
-        } else {
-            return false
-        }
     }
 }
