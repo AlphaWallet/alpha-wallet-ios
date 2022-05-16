@@ -779,7 +779,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .avalanche, .avalanche_testnet:
             return R.image.iconsTokensAvalanche()
         case .candle:
-            return R.image.iconsTokensPolygon()
+            return R.image.iconsTokensCandle()
         case .polygon, .mumbai_testnet:
             return R.image.iconsTokensPolygon()
         case .optimistic:

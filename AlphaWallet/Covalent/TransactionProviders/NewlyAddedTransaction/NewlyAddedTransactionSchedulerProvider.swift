@@ -99,7 +99,6 @@ extension Config {
     }
 }
 
-
 extension Covalent.NetworkProvider {
     static func isSupport(server: RPCServer) -> Bool {
         switch server {

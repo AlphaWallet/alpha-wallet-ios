@@ -1,8 +1,8 @@
 {
     "extension_name": {
-        "message": "AlphaWallet"
+        "message": "CandleWallet"
     },
     "extension_description": {
-        "message": "Launch AlphaWallet when you tap on EIP681 links"
+        "message": "Launch CandleWallet when you tap on EIP681 links"
     }
 }
