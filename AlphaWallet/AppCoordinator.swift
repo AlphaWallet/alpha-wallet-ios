@@ -324,7 +324,7 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 
 }
 
-extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegateProtocol {
+extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegate {
     func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator) {
         coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
@@ -332,8 +332,8 @@ extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegateProtocol {
         showActiveWallet(for: wallet, animated: false)
         DispatchQueue.main.async {
             WhereIsWalletAddressFoundOverlayView.show()
+            self.restartQueue.add(.reloadServers(networks))
         }
-
     }
 }
 

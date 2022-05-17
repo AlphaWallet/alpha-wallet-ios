@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol InitialNetworkSelectionCoordinatorDelegateProtocol: class {
+protocol InitialNetworkSelectionCoordinatorDelegate: class {
     func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator)
 }
 
@@ -16,7 +16,7 @@ class InitialNetworkSelectionCoordinator: Coordinator {
     var navigationController: UINavigationController
     var config: Config
     var restartTaskQueue: RestartTaskQueue
-    weak var delegate: InitialNetworkSelectionCoordinatorDelegateProtocol?
+    weak var delegate: InitialNetworkSelectionCoordinatorDelegate?
 
     init(config: Config, navigationController: UINavigationController, restartTaskQueue: RestartTaskQueue) {
         self.navigationController = navigationController
