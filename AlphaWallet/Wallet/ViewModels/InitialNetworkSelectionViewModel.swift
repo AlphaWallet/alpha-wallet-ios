@@ -127,7 +127,7 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
     func toggledTo(_ newValue: Bool, headerView: EnableServersHeaderView) {
         switch (newValue, headerView.mode) {
         case (true, .mainnet), (false, .testnet):
-            model.mode = .mainnet
+            model.set(mode: .mainnet)
             headerForMainnet.toggle(isEnabled: true)
             headerForTestnet.toggle(isEnabled: false)
             sendReloadNotification()
@@ -144,7 +144,7 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
 extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
 
     func actionButtonTapped(inController controller: PromptViewController) {
-        model.mode = .testnet
+        model.set(mode: .testnet)
         headerForMainnet.toggle(isEnabled: false)
         headerForTestnet.toggle(isEnabled: true)
         sendReloadNotification()

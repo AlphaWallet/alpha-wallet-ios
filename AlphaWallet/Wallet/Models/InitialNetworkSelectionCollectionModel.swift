@@ -9,6 +9,9 @@ import UIKit
 
 struct InitialNetworkSelectionCollectionModel {
 
+    static let defaultMainnetServers: Set<RPCServer> = [.main, .xDai, .polygon]
+    static let defaultTestnetServers: Set<RPCServer> = [.ropsten]
+
     // MARK: - enums
 
     enum Mode: Int, CaseIterable {
@@ -22,11 +25,12 @@ struct InitialNetworkSelectionCollectionModel {
     private let testnetServers: [RPCServer]
     private var filteredMainnetServers: [RPCServer]
     private var filteredTestnetServers: [RPCServer]
+    private var selectedMainnetServers: Set<RPCServer>
+    private var selectedTestnetServers: Set<RPCServer>
 
     // MARK: - variables
 
-    private(set) var selected: Set<RPCServer>
-    var mode: InitialNetworkSelectionCollectionModel.Mode = .mainnet
+    private(set) var mode: InitialNetworkSelectionCollectionModel.Mode = .mainnet
 
     // MARK: - accessors
 
@@ -48,14 +52,34 @@ struct InitialNetworkSelectionCollectionModel {
         }
     }
 
+    private(set) var selected: Set<RPCServer> {
+        get {
+            switch mode {
+            case .mainnet:
+                return selectedMainnetServers
+            case .testnet:
+                return selectedTestnetServers
+            }
+        }
+        set (newValue) {
+            switch mode {
+            case .mainnet:
+                selectedMainnetServers = newValue
+            case .testnet:
+                selectedTestnetServers = newValue
+            }
+        }
+    }
+
     // MARK: - Initializers
 
-    init(servers: [RPCServer] = RPCServer.allCases, selected: Set<RPCServer> = []) {
+    init(servers: [RPCServer] = RPCServer.allCases) {
         mainnetServers = servers.filter { !$0.isTestnet }
         testnetServers = servers.filter { $0.isTestnet }
         filteredMainnetServers = mainnetServers
         filteredTestnetServers = testnetServers
-        self.selected = selected
+        selectedMainnetServers = []
+        selectedTestnetServers = []
     }
 
     // MARK: - functions (public)
@@ -94,6 +118,18 @@ struct InitialNetworkSelectionCollectionModel {
             return filteredMainnetServers.count
         case .testnet:
             return filteredTestnetServers.count
+        }
+    }
+
+    mutating func set(mode: InitialNetworkSelectionCollectionModel.Mode) {
+        self.mode = mode
+        if selected.isEmpty {
+            switch mode {
+            case .mainnet:
+                selectedMainnetServers = InitialNetworkSelectionCollectionModel.defaultMainnetServers
+            case .testnet:
+                selectedTestnetServers = InitialNetworkSelectionCollectionModel.defaultTestnetServers
+            }
         }
     }
 

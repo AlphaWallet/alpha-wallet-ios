@@ -26,7 +26,7 @@ class InitialNetworkSelectionCoordinator: Coordinator {
     }
 
     func start() {
-        let controller = InitialNetworkSelectionViewController(model: InitialNetworkSelectionCollectionModel(servers: EnabledServersCoordinator.serversOrdered, selected: Set<RPCServer>(config.enabledServers)))
+        let controller = InitialNetworkSelectionViewController(model: InitialNetworkSelectionCollectionModel(servers: EnabledServersCoordinator.serversOrdered))
         controller.delegate = self
         navigationController.viewControllers = [controller]
     }
