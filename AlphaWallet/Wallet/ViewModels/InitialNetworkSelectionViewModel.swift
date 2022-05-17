@@ -131,6 +131,7 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
             headerForMainnet.toggle(isEnabled: true)
             headerForTestnet.toggle(isEnabled: false)
             sendReloadNotification()
+            sendChangeSelectedCountNotification()
         case (false, .mainnet), (true, .testnet):
             sendPromptNotification()
         }
@@ -148,6 +149,7 @@ extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
         headerForMainnet.toggle(isEnabled: false)
         headerForTestnet.toggle(isEnabled: true)
         sendReloadNotification()
+        sendChangeSelectedCountNotification()
     }
 
     func controllerDismiss(_ controller: PromptViewController) {

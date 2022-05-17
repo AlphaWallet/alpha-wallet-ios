@@ -78,8 +78,8 @@ struct InitialNetworkSelectionCollectionModel {
         testnetServers = servers.filter { $0.isTestnet }
         filteredMainnetServers = mainnetServers
         filteredTestnetServers = testnetServers
-        selectedMainnetServers = []
-        selectedTestnetServers = []
+        selectedMainnetServers = InitialNetworkSelectionCollectionModel.defaultMainnetServers
+        selectedTestnetServers = InitialNetworkSelectionCollectionModel.defaultTestnetServers
     }
 
     // MARK: - functions (public)
