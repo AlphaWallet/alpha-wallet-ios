@@ -32,7 +32,7 @@ class InitialNetworkSelectionCoordinator: Coordinator {
     }
 }
 
-extension InitialNetworkSelectionCoordinator: InitialNetworkSelectionViewControllerDelegateProtocol {
+extension InitialNetworkSelectionCoordinator: InitialNetworkSelectionViewControllerDelegate {
     func didSelect(servers: [RPCServer], in viewController: InitialNetworkSelectionViewController) {
         viewController.dismiss(animated: true)
         config.enabledServers = servers

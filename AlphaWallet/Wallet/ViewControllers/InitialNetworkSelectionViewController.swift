@@ -7,22 +7,10 @@
 
 import UIKit
 
-protocol InitialNetworkSelectionViewControllerDelegateProtocol: class {
+protocol InitialNetworkSelectionViewControllerDelegate: class {
     func didSelect(servers: [RPCServer], in viewController: InitialNetworkSelectionViewController)
 }
-/*         let headerView: EnableServersHeaderView
- switch sections[section] {
- case .testnet:
- headerView = headers.testnet
- headerView.configure(mode: .testnet, isEnabled: viewModel.mode == .testnet)
- case .mainnet:
- headerView = headers.mainnet
- headerView.configure(mode: .mainnet, isEnabled: viewModel.mode == .mainnet)
- }
- headerView.delegate = self
- return headerView
 
- */
 class InitialNetworkSelectionViewController: UIViewController {
 
     // MARK: - Accessors (Private)
@@ -37,7 +25,7 @@ class InitialNetworkSelectionViewController: UIViewController {
 
     // MARK: - variables (Public)
 
-    weak var delegate: InitialNetworkSelectionViewControllerDelegateProtocol?
+    weak var delegate: InitialNetworkSelectionViewControllerDelegate?
 
     init(model: InitialNetworkSelectionCollectionModel = InitialNetworkSelectionCollectionModel()) {
         viewModel = InitialNetworkSelectionViewModel(model: model)
@@ -55,7 +43,7 @@ class InitialNetworkSelectionViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureController()
+        configure()
     }
 
     override func loadView() {
@@ -64,7 +52,7 @@ class InitialNetworkSelectionViewController: UIViewController {
 
     // MARK: - Setup
 
-    private func configureController() {
+    private func configure() {
         title = R.string.localizable.settingsSelectActiveNetworksTitle()
         selectionView.continueButton.setTitle(R.string.localizable.continue(), for: .normal)
         selectionView.continueButton.addTarget(self, action: #selector(continuePressed(sender:)), for: .touchUpInside)

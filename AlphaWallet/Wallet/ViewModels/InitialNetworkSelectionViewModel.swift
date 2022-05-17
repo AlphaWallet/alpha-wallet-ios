@@ -28,10 +28,10 @@ class InitialNetworkSelectionViewModel: NSObject {
         self.model = model
         self.rowCountCallback = rowCountCallback
         super.init()
-        configureViewModel()
+        configure()
     }
 
-    private func configureViewModel() {
+    private func configure() {
         headerForMainnet.configure(mode: .mainnet, isEnabled: model.mode == .mainnet)
         headerForTestnet.configure(mode: .testnet, isEnabled: model.mode == .testnet)
         headerForMainnet.delegate = self
