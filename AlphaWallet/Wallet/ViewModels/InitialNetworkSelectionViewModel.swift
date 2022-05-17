@@ -7,12 +7,13 @@
 
 import UIKit
 
-class InitialNetworkSelectionViewModel: NSObject {
+protocol InitialNetworkSelectionViewModelDelegate: AnyObject {
+    func reloadTable()
+    func changeSelectionCount(rowCount: Int)
+    func promptUserForTestnet(viewModel: InitialNetworkSelectionViewModel)
+}
 
-    static let ReloadTableViewNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Reload")
-    static let ChangeSelectedCountNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.ChangeCount")
-    static let PromptNotification: Notification.Name = Notification.Name("InitialNetworkSelectionViewModel.Prompt")
-    static let ChangeSelectedKey: String = "count"
+class InitialNetworkSelectionViewModel: NSObject {
 
     private let numberOfSections = InitialNetworkSelectionCollectionModel.Mode.allCases.count
     private var model: InitialNetworkSelectionCollectionModel
@@ -23,6 +24,8 @@ class InitialNetworkSelectionViewModel: NSObject {
     var selected: [RPCServer] {
         Array(model.selected)
     }
+
+    weak var delegate: InitialNetworkSelectionViewModelDelegate?
 
     init(model: InitialNetworkSelectionCollectionModel, rowCountCallback: @escaping InitialNetworkSelectionViewResultsCallback = { _ in }) {
         self.model = model
@@ -100,11 +103,11 @@ extension InitialNetworkSelectionViewModel: UITableViewDelegate {
         let server = model.server(for: indexPath)
         model.isSelected(server: server) ? model.removeSelected(server: server) : model.addSelected(server: server)
         tableView.reloadRows(at: [indexPath], with: .none)
-        sendChangeSelectedCountNotification()
+        sendDelegateChangeSelectedCount()
     }
 
-    private func sendChangeSelectedCountNotification() {
-        NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.ChangeSelectedCountNotification, object: self, userInfo: [InitialNetworkSelectionViewModel.ChangeSelectedKey: model.selected.count])
+    private func sendDelegateChangeSelectedCount() {
+        delegate?.changeSelectionCount(rowCount: model.selected.count)
     }
 
 }
@@ -113,11 +116,11 @@ extension InitialNetworkSelectionViewModel: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         model.filter(keyword: searchText)
-        sendReloadNotification()
+        sendDelegateReloadTable()
     }
 
-    private func sendReloadNotification() {
-        NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: self)
+    private func sendDelegateReloadTable() {
+        delegate?.reloadTable()
     }
 
 }
@@ -130,16 +133,17 @@ extension InitialNetworkSelectionViewModel: EnableServersHeaderViewDelegate {
             model.set(mode: .mainnet)
             headerForMainnet.toggle(isEnabled: true)
             headerForTestnet.toggle(isEnabled: false)
-            sendReloadNotification()
-            sendChangeSelectedCountNotification()
+            sendDelegateReloadTable()
+            sendDelegateChangeSelectedCount()
         case (false, .mainnet), (true, .testnet):
-            sendPromptNotification()
+            sendDelegatePromptUserForTestnet()
         }
     }
 
-    private func sendPromptNotification() {
-        NotificationCenter.default.post(name: InitialNetworkSelectionViewModel.PromptNotification, object: self)
+    private func sendDelegatePromptUserForTestnet() {
+        delegate?.promptUserForTestnet(viewModel: self)
     }
+
 }
 
 extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
@@ -148,14 +152,14 @@ extension InitialNetworkSelectionViewModel: PromptViewControllerDelegate {
         model.set(mode: .testnet)
         headerForMainnet.toggle(isEnabled: false)
         headerForTestnet.toggle(isEnabled: true)
-        sendReloadNotification()
-        sendChangeSelectedCountNotification()
+        sendDelegateReloadTable()
+        sendDelegateChangeSelectedCount()
     }
 
     func controllerDismiss(_ controller: PromptViewController) {
         headerForMainnet.toggle(isEnabled: true)
         headerForTestnet.toggle(isEnabled: false)
-        sendReloadNotification()
+        sendDelegateReloadTable()
     }
 
 }

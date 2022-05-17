@@ -60,10 +60,7 @@ class InitialNetworkSelectionViewController: UIViewController {
         selectionView.tableViewDataSource = viewModel
         selectionView.searchBarDelegate = viewModel
         selectionView.configure(viewModel: viewModel)
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: InitialNetworkSelectionViewModel.ReloadTableViewNotification, object: viewModel)
-        NotificationCenter.default.addObserver(self, selector: #selector(changeContinueButtonState(notification:)), name: InitialNetworkSelectionViewModel.ChangeSelectedCountNotification, object: viewModel)
-        NotificationCenter.default.addObserver(self, selector: #selector(promptUser(notification:)), name: InitialNetworkSelectionViewModel.PromptNotification, object: viewModel)
-        changeContinueButtonState(!viewModel.selected.isEmpty)
+        viewModel.delegate = self
     }
 
     // MARK: - selectors
@@ -74,22 +71,19 @@ class InitialNetworkSelectionViewController: UIViewController {
         delegate?.didSelect(servers: selectedServers, in: self)
     }
 
-    @objc private func reloadTable() {
+}
+
+extension InitialNetworkSelectionViewController: InitialNetworkSelectionViewModelDelegate {
+
+    func reloadTable() {
         selectionView.reloadTableView()
     }
 
-    @objc private func changeContinueButtonState(notification: Notification) {
-        if let selectedCount = notification.userInfo?[InitialNetworkSelectionViewModel.ChangeSelectedKey] as? Int {
-            changeContinueButtonState(selectedCount > 0)
-        }
+    func changeSelectionCount(rowCount: Int) {
+        selectionView.continueButton.isEnabled = rowCount > 0
     }
 
-    private func changeContinueButtonState(_ state: Bool) {
-        selectionView.continueButton.isEnabled = state
-    }
-
-    @objc private func promptUser(notification: Notification) {
-        guard let delegate = notification.object as? InitialNetworkSelectionViewModel else { return }
+    func promptUserForTestnet(viewModel delegate: InitialNetworkSelectionViewModel) {
         let prompt = PromptViewController()
         prompt.configure(viewModel: .init(title: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetTitle(), description: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetDescription(), buttonTitle: R.string.localizable.settingsEnabledNetworksPromptEnableTestnetButtonTitle()))
         prompt._delegate = delegate
