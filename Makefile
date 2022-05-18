@@ -80,8 +80,7 @@ install_all: setup_path install_gems install_pods
 clean:
 	rm -rf $(vendor_path)
 	rm -rf ./Pods/*
-	@xcodebuild -quiet -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' clean
-	@xcodebuild -quiet -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.4' clean
+	@xcodebuild -quiet -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest' clean
 
 release:
 	fastlane release
@@ -98,7 +97,10 @@ test15:
 test14:
 	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.5' test | $(beautify_cmd)
 
-test: test15
+test_latest:
+	@xcodebuild -disableAutomaticPackageResolution -workspace AlphaWallet.xcworkspace -scheme AlphaWallet -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest' test | $(beautify_cmd)
+
+test: test_latest
 
 build_and_run_booted:
 	#The simulator "name" specified doesn't matter
