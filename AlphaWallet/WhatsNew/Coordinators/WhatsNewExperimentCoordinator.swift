@@ -64,7 +64,7 @@ class WhatsNewExperimentCoordinator: Coordinator {
     }
 }
 
-extension WhatsNewExperimentCoordinator: WhatsNewListingCoordinatorProtocol {
+extension WhatsNewExperimentCoordinator: WhatsNewListingCoordinatorDelegate {
     func didDismiss(controller: WhatsNewListingViewController) {
         delegate?.didEnd(in: self)
     }

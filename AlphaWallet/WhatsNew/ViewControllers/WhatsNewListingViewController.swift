@@ -9,7 +9,7 @@ import UIKit
 
 class WhatsNewListingViewController: ModalViewController {
     let viewModel: WhatsNewListingViewModel
-    weak var whatsNewListingDelegate: WhatsNewListingCoordinatorProtocol?
+    weak var whatsNewListingDelegate: WhatsNewListingCoordinatorDelegate?
 
     init(viewModel: WhatsNewListingViewModel) {
         self.viewModel = viewModel
