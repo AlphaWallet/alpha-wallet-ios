@@ -7,7 +7,7 @@
 
 import UIKit
 
-@objc protocol KeyboardNavigationDelegateProtocol {
+@objc protocol KeyboardNavigationDelegate {
     func gotoNextResponder()
     func gotoPrevResponder()
     func addHttpsText()
@@ -199,7 +199,7 @@ class SaveCustomRpcManualEntryView: UIView {
 
 }
 
-extension SaveCustomRpcManualEntryView: KeyboardNavigationDelegateProtocol {
+extension SaveCustomRpcManualEntryView: KeyboardNavigationDelegate {
 
     func gotoNextResponder() {
         nextTextField()?.becomeFirstResponder()
@@ -232,7 +232,7 @@ fileprivate func defaultTextField(_ type: UIKeyboardType, placeHolder: String, l
     return textField
 }
 
-fileprivate func navToolbar(for delegate: KeyboardNavigationDelegateProtocol) -> UIToolbar {
+fileprivate func navToolbar(for delegate: KeyboardNavigationDelegate) -> UIToolbar {
     let toolbar = UIToolbar(frame: .zero)
     let prev = UIBarButtonItem(title: "<", style: .plain, target: delegate, action: #selector(delegate.gotoPrevResponder))
     let next = UIBarButtonItem(title: ">", style: .plain, target: delegate, action: #selector(delegate.gotoNextResponder))
@@ -242,7 +242,7 @@ fileprivate func navToolbar(for delegate: KeyboardNavigationDelegateProtocol) ->
     return toolbar
 }
 
-fileprivate func urlToolbar(for delegate: KeyboardNavigationDelegateProtocol) -> UIToolbar {
+fileprivate func urlToolbar(for delegate: KeyboardNavigationDelegate) -> UIToolbar {
     let toolbar = UIToolbar(frame: .zero)
     let prev = UIBarButtonItem(title: "<", style: .plain, target: delegate, action: #selector(delegate.gotoPrevResponder))
     let next = UIBarButtonItem(title: ">", style: .plain, target: delegate, action: #selector(delegate.gotoNextResponder))
