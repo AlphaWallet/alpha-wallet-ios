@@ -63,10 +63,9 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        rootViewController.configure()
         rootViewController.navigationItem.leftBarButtonItem = .backBarButton(self, selector: #selector(closeDidSelect))
         navigationController.pushViewController(rootViewController, animated: true)
-        refreshUponEthereumEventChanges()
+        subscribeForEthereumEventChanges()
     }
 
     @objc private func closeDidSelect(_ sender: UIBarButtonItem) {
@@ -74,9 +73,17 @@ class NFTCollectionCoordinator: NSObject, Coordinator {
         delegate?.didCancel(in: self)
     }
 
-    private func refreshUponEthereumEventChanges() {
+    private func subscribeForEthereumEventChanges() {
         eventsDataStore
             .recentEvents(forTokenContract: token.contractAddress)
+            .filter({ changeset in
+                switch changeset {
+                case .update(let events, _, let insertions, let modifications):
+                    return !insertions.map { events[$0] }.isEmpty || !modifications.map { events[$0] }.isEmpty
+                case .initial, .error:
+                    return false
+                }
+            })
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] _ in
                 self?.refreshScreen()

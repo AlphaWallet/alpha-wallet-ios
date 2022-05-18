@@ -22,15 +22,14 @@ protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
 class FungibleTokenViewController: UIViewController {
     private var viewModel: FungibleTokenViewModel
     private var tokenHolder: TokenHolder?
-    private let tokenObject: TokenObject
+    private let token: TokenObject
     private let session: WalletSession
     private let assetDefinitionStore: AssetDefinitionStore
     private let transactionType: TransactionType
-    private let analyticsCoordinator: AnalyticsCoordinator
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 2))
-    private lazy var tokenScriptFileStatusHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
+    private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     private lazy var tokenInfoPageView: TokenInfoPageView = {
-        let view = TokenInfoPageView(server: session.server, token: tokenObject, config: session.config, transactionType: transactionType)
+        let view = TokenInfoPageView(server: session.server, token: token, config: session.config, transactionType: transactionType)
         view.delegate = self
 
         return view
@@ -46,14 +45,14 @@ class FungibleTokenViewController: UIViewController {
 
     init(keystore: Keystore, session: WalletSession, assetDefinition: AssetDefinitionStore, transactionType: TransactionType, analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: FungibleTokenViewModel, activitiesService: ActivitiesServiceType, alertService: PriceAlertServiceType, tokenActionsProvider: SupportedTokenActionsProvider) {
         self.tokenActionsProvider = tokenActionsProvider
-        self.tokenObject = token
+        self.token = token
         self.viewModel = viewModel
         self.session = session
         self.assetDefinitionStore = assetDefinition
         self.transactionType = transactionType
-        self.analyticsCoordinator = analyticsCoordinator
         self.activitiesService = activitiesService
         self.alertService = alertService
+        self.tokenHolder = viewModel.token?.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account)
 
         activitiesPageView = ActivitiesPageView(analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account, viewModel: .init(activitiesViewModel: .init()), sessions: activitiesService.sessions, assetDefinitionStore: assetDefinition)
         alertsPageView = PriceAlertsPageView(viewModel: .init(alerts: []))
@@ -88,13 +87,14 @@ class FungibleTokenViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureBalanceViewModel()
         configure(viewModel: viewModel)
 
+        subscribeForBalanceUpdates()
         subscribeForAlerts()
         subscribeForActivities()
         subscribeForTokenActions()
         subscribeForAssetDefinitionChanges()
+        subscribeForTokenTokenHolder()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -113,21 +113,21 @@ class FungibleTokenViewController: UIViewController {
         self.viewModel = viewModel
 
         view.backgroundColor = viewModel.backgroundColor
-        title = tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
+        title = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
         var viewModel2 = tokenInfoPageView.viewModel
         viewModel2.values = viewModel.chartHistory
 
         tokenInfoPageView.configure(viewModel: viewModel2)
-        alertsPageView.configure(viewModel: .init(alerts: alertService.alerts(forStrategy: .token(tokenObject))))
+        alertsPageView.configure(viewModel: .init(alerts: alertService.alerts(forStrategy: .token(token))))
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
 
         func _configButton(action: TokenInstanceAction, viewModel: FungibleTokenViewModel, button: BarButton) {
-            if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+            if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                 if selection.denial == nil {
                     button.displayButton = false
                 }
@@ -151,6 +151,17 @@ class FungibleTokenViewController: UIViewController {
         }
     }
 
+    private func subscribeForTokenTokenHolder() {
+        tokenHolder?.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let strongSelf = self else { return }
+
+                let viewModel = FungibleTokenViewModel(transactionType: strongSelf.transactionType, session: strongSelf.session, assetDefinitionStore: strongSelf.assetDefinitionStore, tokenActionsProvider: strongSelf.viewModel.tokenActionsProvider)
+                strongSelf.configure(viewModel: viewModel)
+            }.store(in: &cancelable)
+    }
+
     private func subscribeForTokenActions() {
         tokenActionsProvider.objectWillChange
             .receive(on: RunLoop.main)
@@ -171,7 +182,7 @@ class FungibleTokenViewController: UIViewController {
     }
 
     private func subscribeForAlerts() {
-        alertService.alertsPublisher(forStrategy: .token(tokenObject))
+        alertService.alertsPublisher(forStrategy: .token(token))
             .sink { [weak alertsPageView] alerts in
                 alertsPageView?.configure(viewModel: .init(alerts: alerts))
             }.store(in: &cancelable)
@@ -217,11 +228,10 @@ class FungibleTokenViewController: UIViewController {
         }
     }
 
-    private func configureBalanceViewModel() {
+    private func subscribeForBalanceUpdates() {
         switch transactionType {
         case .nativeCryptocurrency:
-            session
-                .tokenBalanceService
+            session.tokenBalanceService
                 .etherBalance
                 .receive(on: RunLoop.main)
                 .sink { [weak self] viewModel in
@@ -265,7 +275,7 @@ class FungibleTokenViewController: UIViewController {
             case .nftRedeem, .nftSell, .nonFungibleTransfer:
                 break
             case .tokenScript:
-                if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                if let tokenHolder = tokenHolder, let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                     if let denialMessage = selection.denial {
                         UIAlertController.alert(
                                 message: denialMessage,
@@ -287,36 +297,6 @@ class FungibleTokenViewController: UIViewController {
             break
         }
     }
-
-    private func generateTokenHolder() -> TokenHolder? {
-        //TODO is it correct to generate the TokenHolder instance once and never replace it? If not, we have to be very careful with subscriptions. Not re-subscribing in an infinite loop
-        guard tokenHolder == nil else { return tokenHolder }
-
-        //TODO id 1 for fungibles. Might come back to bite us?
-        let hardcodedTokenIdForFungibles = BigUInt(1)
-        guard let tokenObject = viewModel.token else { return nil }
-        let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
-        //TODO Event support, if/when designed for fungibles
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: session.server, account: session.account)
-        let subscribablesForAttributeValues = values.values
-        let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
-        if allResolved {
-            //no-op
-        } else {
-            for each in subscribablesForAttributeValues {
-                guard let subscribable = each.subscribableValue else { continue }
-                subscribable.subscribe { [weak self] _ in
-                    guard let strongSelf = self else { return }
-
-                    strongSelf.configure(viewModel: strongSelf.viewModel)
-                }
-            }
-        }
-
-        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
-        tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
-        return tokenHolder
-    }
 }
 
 extension FungibleTokenViewController: CanOpenURL2 {
@@ -333,11 +313,11 @@ extension FungibleTokenViewController: TokenInfoPageViewDelegate {
 
 extension FungibleTokenViewController: PriceAlertsPageViewDelegate {
     func addAlertSelected(in view: PriceAlertsPageView) {
-        delegate?.didTapAddAlert(for: tokenObject, in: self)
+        delegate?.didTapAddAlert(for: token, in: self)
     }
 
     func editAlertSelected(in view: PriceAlertsPageView, alert: PriceAlert) {
-        delegate?.didTapEditAlert(for: tokenObject, alert: alert, in: self)
+        delegate?.didTapEditAlert(for: token, alert: alert, in: self)
     }
 
     func removeAlert(in view: PriceAlertsPageView, indexPath: IndexPath) {

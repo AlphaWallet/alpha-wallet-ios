@@ -14,7 +14,7 @@ protocol LocalStore {
 }
 
 final class RealmLocalStore: LocalStore {
-    private var cachedStores: ThreadSafeDictionary<Wallet, RealmStore> = .init()
+    private var cachedStores: AtomicDictionary<Wallet, RealmStore> = .init()
 
     func getOrCreateStore(forWallet wallet: Wallet) -> RealmStore {
         if let store = cachedStores[wallet] {

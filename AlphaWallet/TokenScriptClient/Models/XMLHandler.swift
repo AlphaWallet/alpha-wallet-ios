@@ -698,8 +698,8 @@ fileprivate let threadSafeFoXmlHandler = ThreadSafe(label: "org.alphawallet.swif
 public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator()
-    fileprivate static var xmlHandlers = ThreadSafeDictionary<AlphaWallet.Address, PrivateXMLHandler>()
-    fileprivate static var baseXmlHandlers = ThreadSafeDictionary<String, PrivateXMLHandler>()
+    fileprivate static var xmlHandlers = AtomicDictionary<AlphaWallet.Address, PrivateXMLHandler>()
+    fileprivate static var baseXmlHandlers = AtomicDictionary<String, PrivateXMLHandler>()
     private let privateXMLHandler: PrivateXMLHandler
     private let baseXMLHandler: PrivateXMLHandler?
     private let threadSafe: ThreadSafe = threadSafeFoXmlHandler

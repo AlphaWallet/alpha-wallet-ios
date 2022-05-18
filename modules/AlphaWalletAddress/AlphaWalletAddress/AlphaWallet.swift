@@ -11,7 +11,7 @@ extension AlphaWallet {
     public enum Address: Hashable, Codable {
         //Computing EIP55 is really slow. Cache needed when we need to create many addresses, like parsing a whole lot of Ethereum event logs
         //there is cases when cache accessing from different treads, fro this case we need to use sync access for it
-        private static var cache: ThreadSafeDictionary<String, AlphaWallet.Address> = .init()
+        private static var cache: AtomicDictionary<String, AlphaWallet.Address> = .init()
 
         case ethereumAddress(eip55String: String)
 

@@ -37,7 +37,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private var activitiesIndexLookup: [Int: (index: Int, activity: Activity)] = .init()
     private var activities: [Activity] = .init()
 
-    private var tokensAndTokenHolders: ThreadSafeDictionary<AlphaWallet.Address, (tokenObject: Activity.AssignedToken, tokenHolders: [TokenHolder])> = .init()
+    private var tokensAndTokenHolders: AtomicDictionary<AlphaWallet.Address, (tokenObject: Activity.AssignedToken, tokenHolders: [TokenHolder])> = .init()
     private var rateLimitedViewControllerReloader: RateLimiter?
     private var hasLoadedActivitiesTheFirstTime = false
 

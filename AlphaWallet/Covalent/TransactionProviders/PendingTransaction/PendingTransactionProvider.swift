@@ -28,7 +28,7 @@ final class PendingTransactionProvider {
         return queue
     }()
 
-    private lazy var store: ThreadSafeDictionary<String, SchedulerProtocol> = .init()
+    private lazy var store: AtomicDictionary<String, SchedulerProtocol> = .init()
 
     init(session: WalletSession, transactionDataStore: TransactionDataStore, tokensFromTransactionsFetcher: TokensFromTransactionsFetcher, fetcher: PendingTransactionFetcher) {
         self.session = session
