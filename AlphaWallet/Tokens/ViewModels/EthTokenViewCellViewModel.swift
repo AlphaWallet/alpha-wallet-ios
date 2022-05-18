@@ -6,14 +6,14 @@ import BigInt
 
 struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: TokenObject
+    private let token: Activity.AssignedToken
     private let currencyAmount: Double?
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool 
     
     init(
-        token: TokenObject,
+        token: Activity.AssignedToken,
         ticker: CoinTicker?,
         currencyAmount: Double?,
         assetDefinitionStore: AssetDefinitionStore,
@@ -27,7 +27,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private var amount: String {
-        return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
+        return shortFormatter.string(from: token.value, decimals: token.decimals)
     }
 
     private var title: String {
@@ -98,7 +98,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private var priceChangeUSDValue: String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
@@ -155,7 +155,7 @@ struct EthTokenViewCellViewModel {
     }
 
     private func priceChangeUSDValue(ticker: CoinTicker?) -> String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.usd.string(from: result) ?? "-"
         } else {
             return "-"

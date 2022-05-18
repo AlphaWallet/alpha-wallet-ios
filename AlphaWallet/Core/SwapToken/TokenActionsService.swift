@@ -15,7 +15,7 @@ struct TokenActionsServiceKey {
     var decimals: Int
     let type: TokenType
 
-    init(tokenObject: TokenObject) {
+    init(tokenObject: Tokenable) {
         self.contractAddress = tokenObject.contractAddress
         self.server = tokenObject.server
         self.symbol = tokenObject.symbol

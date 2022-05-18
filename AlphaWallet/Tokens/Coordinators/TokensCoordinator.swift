@@ -346,28 +346,32 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         coordinator.start()
     }
 
-    func showSingleChainToken(token: TokenObject, in navigationController: UINavigationController) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
+    func showSingleChainToken(tokenObject: TokenObject, in navigationController: UINavigationController) {
 
-        switch token.type {
+        guard let coordinator = singleChainTokenCoordinator(forServer: tokenObject.server) else { return }
+
+        switch tokenObject.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(token, destination: .none, amount: nil), navigationController: navigationController)
+            let token = Activity.AssignedToken(tokenObject: tokenObject)
+            coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(tokenObject, destination: .none, amount: nil), navigationController: navigationController)
         case .erc20:
-            coordinator.show(fungibleToken: token, transactionType: .erc20Token(token, destination: nil, amount: nil), navigationController: navigationController)
+            let token = Activity.AssignedToken(tokenObject: tokenObject)
+            coordinator.show(fungibleToken: token, transactionType: .erc20Token(tokenObject, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(tokenObject, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
         case .erc875, .erc721ForTickets:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc875Token(token, tokenHolders: []))), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc875Token(tokenObject, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
         case .erc1155:
-            coordinator.showTokenList(for: .send(type: .transaction(.erc1155Token(token, transferType: .singleTransfer, tokenHolders: []))), token: token, navigationController: navigationController)
+            coordinator.showTokenList(for: .send(type: .transaction(.erc1155Token(tokenObject, transferType: .singleTransfer, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
         }
     }
 
-    func didSelect(token: TokenObject, in viewController: UIViewController) {
-        showSingleChainToken(token: token, in: navigationController)
+    func didSelect(token: Activity.AssignedToken, in viewController: UIViewController) {
+        guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
+        showSingleChainToken(tokenObject: tokenObject, in: navigationController)
     }
 
-    func didHide(token: TokenObject, in viewController: UIViewController) {
+    func didHide(token: Activity.AssignedToken, in viewController: UIViewController) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         coordinator.mark(token: token, isHidden: true)
     }
@@ -386,14 +390,14 @@ extension TokensCoordinator: RenameWalletViewControllerDelegate {
 
 extension TokensCoordinator: SelectTokenCoordinatorDelegate {
 
-    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: TokenObject) {
+    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Activity.AssignedToken) {
         removeCoordinator(coordinator)
-
+        guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         switch sendToAddress {
         case .some(let address):
-            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: token, recipient: .address(address), amount: nil)))
+            let paymentFlow = PaymentFlow.send(type: .transaction(.init(fungibleToken: tokenObject, recipient: .address(address), amount: nil)))
 
-            delegate?.didPress(for: paymentFlow, server: token.server, viewController: .none, in: self)
+            delegate?.didPress(for: paymentFlow, server: tokenObject.server, viewController: .none, in: self)
         case .none:
             break
         }
@@ -508,7 +512,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
 extension TokensCoordinator: NewTokenCoordinatorDelegate {
 
-    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: TokenObject) {
+    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Activity.AssignedToken) {
         removeCoordinator(coordinator)
     }
 
@@ -549,15 +553,15 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
 
-    func didTapAddAlert(for tokenObject: TokenObject, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, tokenObject: tokenObject, session: coordinator.session, alertService: alertService)
+    func didTapAddAlert(for token: Activity.AssignedToken, in coordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()
     }
 
-    func didTapEditAlert(for tokenObject: TokenObject, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
-        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), tokenObject: tokenObject, session: coordinator.session, alertService: alertService)
+    func didTapEditAlert(for token: Activity.AssignedToken, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
+        let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()

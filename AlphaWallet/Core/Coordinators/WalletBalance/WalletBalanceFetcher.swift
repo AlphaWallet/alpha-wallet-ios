@@ -88,7 +88,6 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     private static var nativeCryptoForAllChains: [Activity.AssignedToken] = {
         return RPCServer.allCases
             .map { MultipleChainsTokensDataStore.functional.etherToken(forServer: $0) }
-            .map { Activity.AssignedToken(tokenObject: $0) }
     }()
 
     private func subscribeForTokenUpdates() {
@@ -130,7 +129,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     
     private func createBalanceFetcher(wallet: Wallet, server: RPCServer) -> PrivateBalanceFetcherType {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
-        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: Activity.AssignedToken(tokenObject: etherToken), server: server, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue)
+        let balanceFetcher = PrivateBalanceFetcher(account: wallet, nftProvider: nftProvider, tokensDataStore: tokensDataStore, etherToken: etherToken, server: server, config: config, assetDefinitionStore: assetDefinitionStore, queue: queue)
         balanceFetcher.erc721TokenIdsFetcher = transactionsStorage
         balanceFetcher.delegate = self
 
@@ -176,16 +175,16 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         delegate?.didUpdate(in: self)
     }
 
-    private func balanceViewModel(forToken token: TokenObject) -> BalanceViewModel {
+    private func balanceViewModel(forToken token: Activity.AssignedToken) -> BalanceViewModel {
         let ticker = coinTickersFetcher.ticker(for: token.addressAndRPCServer)
 
         switch token.type {
         case .nativeCryptocurrency:
-            return NativecryptoBalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
+            return NativecryptoBalanceViewModel(token: token, ticker: ticker)
         case .erc20:
-            return Erc20BalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
+            return Erc20BalanceViewModel(token: token, ticker: ticker)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            return NFTBalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
+            return NFTBalanceViewModel(token: token, ticker: ticker)
         }
     }
 
@@ -224,7 +223,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     var balance: WalletBalance {
-        let tokens = tokensDataStore.enabledTokenObjects(forServers: Array(balanceFetchers.values.keys))
+        let tokens = tokensDataStore.enabledTokens(forServers: Array(balanceFetchers.values.keys))
         return .init(wallet: wallet, tokens: tokens, coinTickersFetcher: coinTickersFetcher)
     }
 
@@ -243,7 +242,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                 fetcher.refreshBalance(forTokens: [token])
             case .all:
                 for (server, fetcher) in self.balanceFetchers.values {
-                    let tokens = self.tokensDataStore.enabledTokenObjects(forServers: [server]).map { Activity.AssignedToken(tokenObject: $0) }
+                    let tokens = self.tokensDataStore.enabledTokens(forServers: [server])
                     fetcher.refreshBalance(forTokens: tokens)
                 }
             case .eth:

@@ -10,7 +10,7 @@ import StatefulViewController
 import Combine
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
-    func controller(_ controller: SelectTokenViewController, didSelectToken token: TokenObject)
+    func controller(_ controller: SelectTokenViewController, didSelectToken token: Activity.AssignedToken)
     func controller(_ controller: SelectTokenViewController, didCancelSelected sender: UIBarButtonItem)
 }
 
@@ -25,7 +25,7 @@ class SelectTokenViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessions: ServerDictionary<WalletSession>
     private let tokensFilter: TokensFilter
-    private var selectedToken: TokenObject?
+    private var selectedToken: Activity.AssignedToken?
     private let filter: WalletFilter
     private let eventsDataStore: NonActivityEventsDataStore
     private lazy var tableView: UITableView = {
@@ -136,8 +136,7 @@ extension SelectTokenViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row)
-        let server = token.server
-        let session = sessions[server]
+        let session = sessions[token.server]
 
         switch token.type {
         case .nativeCryptocurrency:
@@ -164,7 +163,7 @@ extension SelectTokenViewController: UITableViewDataSource {
             return cell
         case .erc721, .erc721ForTickets, .erc875, .erc1155:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
+            cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 
             return cell

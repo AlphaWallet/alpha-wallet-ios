@@ -31,14 +31,20 @@ final class MultipleChainsTokenCollection: NSObject, TokenCollection {
         self.tokensDataStore = tokensDataStore
 
         let enabledServers = config.enabledServers
-        let tokenObjects = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
-        self.tokensViewModelSubject = .init(.init(tokensFilter: tokensFilter, tokens: tokenObjects, config: config))
+        let tokens = tokensDataStore.enabledTokens(forServers: enabledServers)
+        self.tokensViewModelSubject = .init(.init(tokensFilter: tokensFilter, tokens: tokens, config: config))
         super.init()
 
         tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangesetPublisher(forServers: enabledServers)
             .receive(on: queue)
-            .combineLatest(refereshSubject, { changeset, _ in return changeset.asTokensArray })
+            .combineLatest(refereshSubject, { changeset, _ in
+                switch changeset {
+                case .initial(let tokens): return tokens
+                case .update(let tokens, _, _, _): return tokens
+                case .error: return []
+                }
+            })
             .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokenObjects: $0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
             .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: queue)

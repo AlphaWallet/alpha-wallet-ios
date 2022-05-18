@@ -27,9 +27,9 @@ class AddHideTokensCoordinator: Coordinator {
     private let popularTokensCollection: PopularTokensCollectionType = LocalPopularTokensCollection()
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
-    private var tokens: [TokenObject]
+    private var tokens: [Activity.AssignedToken]
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [Activity.AssignedToken], assetDefinitionStore: AssetDefinitionStore, tokensFilter: TokensFilter, sessions: ServerDictionary<WalletSession>, analyticsCoordinator: AnalyticsCoordinator, navigationController: UINavigationController, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.tokensFilter = tokensFilter
         self.sessions = sessions
@@ -71,7 +71,7 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: TokenObject) {
+    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Activity.AssignedToken) {
         removeCoordinator(coordinator)
 
         viewController.add(token: token)
@@ -80,13 +80,13 @@ extension AddHideTokensCoordinator: NewTokenCoordinatorDelegate {
 
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
 
-    func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController) {
+    func didChangeOrder(tokens: [Activity.AssignedToken], in viewController: UIViewController) {
         guard let token = tokens.first else { return }
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         coordinator.updateOrderedTokens(with: tokens)
     }
 
-    func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool) {
+    func didMark(token: Activity.AssignedToken, in viewController: UIViewController, isHidden: Bool) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         coordinator.mark(token: token, isHidden: isHidden)
     }

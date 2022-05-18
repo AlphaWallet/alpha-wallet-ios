@@ -4,7 +4,7 @@ import Foundation
 import Combine
 
 protocol TokenBalanceService {
-    var etherToken: TokenObject { get }
+    var etherToken: Activity.AssignedToken { get }
     var ethBalanceViewModel: BalanceViewModel? { get }
     var etherBalance: AnyPublisher<BalanceViewModel?, Never> { get }
     var etherToFiatRatePublisher: AnyPublisher<Double?, Never> { get }
@@ -22,7 +22,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
     private let server: RPCServer
     private let balanceProvider: TokenBalanceProvider & CoinTickerProvider
 
-    let etherToken: TokenObject
+    let etherToken: Activity.AssignedToken
 
     private (set) lazy var etherToFiatRatePublisher: AnyPublisher<Double?, Never> = {
         return etherBalance
@@ -44,7 +44,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         return tokenBalance(etherToken.addressAndRPCServer)
     }
 
-    init(wallet: Wallet, server: RPCServer, etherToken: TokenObject, tokenBalanceProvider: TokenBalanceProvider & CoinTickerProvider) {
+    init(wallet: Wallet, server: RPCServer, etherToken: Activity.AssignedToken, tokenBalanceProvider: TokenBalanceProvider & CoinTickerProvider) {
         self.wallet = wallet
         self.etherToken = etherToken
         self.server = server

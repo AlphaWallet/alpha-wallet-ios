@@ -32,8 +32,8 @@ class TokensFilter {
         self.tokenGroupIdentifier = tokenGroupIdentifier
     }
 
-    func filterTokens(tokens: [TokenObject], filter: WalletFilter) -> [TokenObject] {
-        let filteredTokens: [TokenObject]
+    func filterTokens(tokens: [Activity.AssignedToken], filter: WalletFilter) -> [Activity.AssignedToken] {
+        let filteredTokens: [Activity.AssignedToken]
         switch filter {
         case .all:
             filteredTokens = tokens
@@ -76,7 +76,7 @@ class TokensFilter {
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||
-                                $0.contract.lowercased().contains(lowercasedKeyword) ||
+                                $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword) ||
                                 $0.title(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword)
                     }
@@ -87,7 +87,7 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func filterTokens(tokens: [PopularToken], walletTokens: [TokenObject], filter: WalletFilter) -> [PopularToken] {
+    func filterTokens(tokens: [PopularToken], walletTokens: [Activity.AssignedToken], filter: WalletFilter) -> [PopularToken] {
         var filteredTokens: [PopularToken] = tokens.filter { token in
             !walletTokens.contains(where: { $0.contractAddress.sameContract(as: token.contractAddress) }) && !token.name.isEmpty
         }
@@ -111,17 +111,17 @@ class TokensFilter {
         return filteredTokens
     }
 
-    func sortDisplayedTokens(tokens: [TokenObject]) -> [TokenObject] {
+    func sortDisplayedTokens(tokens: [Activity.AssignedToken]) -> [Activity.AssignedToken] {
 
-        func sortTokensByFiatValues(_ token1: TokenObject, _ token2: TokenObject) -> Bool {
+        func sortTokensByFiatValues(_ token1: Activity.AssignedToken, _ token2: Activity.AssignedToken) -> Bool {
             let value1 = coinTickersFetcher.ticker(for: token1.addressAndRPCServer).flatMap({ ticker in
                 EthCurrencyHelper(ticker: ticker)
-                    .fiatValue(value: token1.optionalDecimalValue)
+                    .fiatValue(value: token1.valueDecimal)
             }) ?? -1
 
             let value2 = coinTickersFetcher.ticker(for: token2.addressAndRPCServer).flatMap({ ticker in
                 EthCurrencyHelper(ticker: ticker)
-                    .fiatValue(value: token2.optionalDecimalValue)
+                    .fiatValue(value: token2.valueDecimal)
             }) ?? -1
 
             return value1 > value2
@@ -132,11 +132,11 @@ class TokensFilter {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
-            if let value1 = $0.sortIndex.value, let value2 = $1.sortIndex.value {
+            if let value1 = $0.sortIndex, let value2 = $1.sortIndex {
                 return value1 < value2
             } else {
-                let contract0 = $0.contract
-                let contract1 = $1.contract
+                let contract0 = $0.contractAddress.eip55String
+                let contract1 = $1.contractAddress.eip55String
 
                 if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
                     return $0.server.displayOrderPriority < $1.server.displayOrderPriority
@@ -155,7 +155,7 @@ class TokensFilter {
         return result
     }
 
-    func sortDisplayedTokens(tokens: [TokenObject], sortTokensParam: SortTokensParam) -> [TokenObject] {
+    func sortDisplayedTokens(tokens: [Activity.AssignedToken], sortTokensParam: SortTokensParam) -> [Activity.AssignedToken] {
         let result = tokens.filter {
             $0.shouldDisplay
         }.sorted(by: {
@@ -167,9 +167,9 @@ class TokensFilter {
                 case (.name, .descending):
                     return $0.name.lowercased() > $1.name.lowercased()
                 case (.value, .ascending):
-                    return $0.value.lowercased() < $1.value.lowercased()
+                    return $0.value.description.lowercased() < $1.value.description.lowercased()
                 case (.value, .descending):
-                    return $0.value.lowercased() > $1.value.lowercased()
+                    return $0.value.description.lowercased() > $1.value.description.lowercased()
                 }
             case .mostUsed:
                 // NOTE: not implemented yet
@@ -181,11 +181,11 @@ class TokensFilter {
     }
 }
 
-fileprivate extension TokenObject {
+fileprivate extension Activity.AssignedToken {
     var hasNonZeroBalance: Bool {
         switch type {
         case .nativeCryptocurrency, .erc20:
-            return !valueBigInt.isZero
+            return !value.isZero
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
             return !nonZeroBalance.isEmpty
         }

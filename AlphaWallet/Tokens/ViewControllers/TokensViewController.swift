@@ -7,8 +7,8 @@ import Combine
 
 protocol TokensViewControllerDelegate: AnyObject {
     func viewWillAppear(in viewController: UIViewController)
-    func didSelect(token: TokenObject, in viewController: UIViewController)
-    func didHide(token: TokenObject, in viewController: UIViewController)
+    func didSelect(token: Activity.AssignedToken, in viewController: UIViewController)
+    func didHide(token: Activity.AssignedToken, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
     func walletConnectSelected(in viewController: UIViewController)
     func whereAreMyTokensSelected(in viewController: UIViewController)
@@ -445,11 +445,11 @@ extension TokensViewController: UITableViewDataSource {
                     return cell
                 case .erc721, .erc721ForTickets, .erc1155:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
+                    cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell
                 case .erc875:
                     let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-                    cell.configure(viewModel: .init(token: token, server: token.server, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
+                    cell.configure(viewModel: .init(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, wallet: session.account))
                     return cell
                 }
             }
@@ -723,7 +723,7 @@ extension TokensViewController: OpenSeaNonFungibleTokenPairTableCellDelegate {
         switch viewModel.sections[indexPath.section] {
         case .collectiblePairs:
             let pair = viewModel.collectiblePairs[indexPath.row]
-            guard let token: TokenObject = isLeftCardSelected ? pair.left : pair.right else { return }
+            guard let token: Activity.AssignedToken = isLeftCardSelected ? pair.left : pair.right else { return }
             delegate?.didSelect(token: token, in: self)
         case .tokens, .testnetTokens, .activeWalletSession, .filters, .search, .walletSummary:
             break

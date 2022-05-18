@@ -37,16 +37,3 @@ public enum ChangeSet<CollectionType> {
     */
     case error(Error)
 }
-
-extension ChangeSet where CollectionType == [TokenObject] {
-    var asTokensArray: [TokenObject] {
-        switch self {
-        case .initial(let collectionType):
-            return collectionType
-        case .update(let collectionType, _, _, _):
-            return collectionType
-        case .error:
-            return []
-        }
-    }
-}

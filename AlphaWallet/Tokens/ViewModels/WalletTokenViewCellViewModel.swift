@@ -10,11 +10,11 @@ import BigInt
 
 struct WalletTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: TokenObject
+    private let token: Activity.AssignedToken
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
-    
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
+
+    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible
@@ -25,7 +25,7 @@ struct WalletTokenViewCellViewModel {
     }
 
     private var amount: String {
-        return shortFormatter.string(from: token.valueBigInt, decimals: token.decimals)
+        return shortFormatter.string(from: token.value, decimals: token.decimals)
     }
 
     var cryptoValueAttributedString: NSAttributedString {

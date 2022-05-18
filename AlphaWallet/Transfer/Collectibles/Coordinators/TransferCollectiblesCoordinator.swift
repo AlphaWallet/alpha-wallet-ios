@@ -68,7 +68,7 @@ class TransferCollectiblesCoordinator: Coordinator {
     }
     
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, tokenHolders: [TokenHolder]) -> TransferTokenBatchCardsViaWalletAddressViewController {
-        let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TransferTokenBatchCardsViaWalletAddressViewControllerViewModel(token: token, tokenHolders: tokenHolders)
         let tokenCardViewFactory: TokenCardViewFactory = {
             TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
         }()

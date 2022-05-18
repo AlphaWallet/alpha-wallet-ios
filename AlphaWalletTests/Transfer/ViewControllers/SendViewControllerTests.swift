@@ -149,7 +149,7 @@ class SendViewControllerTests: XCTestCase {
             return .make(tokenBalanceService: tokenBalanceService)
         }()
 
-        XCTAssertEqual(session.tokenBalanceService.etherToken, token)
+        XCTAssertEqual(session.tokenBalanceService.etherToken.primaryKey, token.primaryKey)
         XCTAssertNotNil(session.tokenBalanceService.ethBalanceViewModel)
         XCTAssertEqual(session.tokenBalanceService.ethBalanceViewModel!.value, .zero)
 
@@ -253,9 +253,9 @@ class SendViewControllerTests: XCTestCase {
         let token = TokenObject(contract: AlphaWallet.Address.make(), server: .main, decimals: 18, value: "2020224719101120", type: .erc20)
         tokenBalanceService.addOrUpdateTokenTestsOnly(token: token)
 
-        let tokens = tokenBalanceService.tokensDataStore.enabledTokenObjects(forServers: [.main])
+        let tokens = tokenBalanceService.tokensDataStore.enabledTokens(forServers: [.main])
 
-        XCTAssertTrue(tokens.contains(token))
+        XCTAssertTrue(tokens.contains(Activity.AssignedToken(tokenObject: token)))
 
         let viewModel = tokenBalanceService.tokenBalance(token.addressAndRPCServer)
         XCTAssertNotNil(viewModel)

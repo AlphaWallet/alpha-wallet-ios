@@ -42,7 +42,7 @@ struct NFTCollectionViewModel {
         self.eventsDataStore = eventsDataStore
         self.tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
         self.assetDefinitionStore = assetDefinitionStore
-    }
+    } 
 
     mutating func invalidateTokenHolders() {
         tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)

@@ -43,7 +43,7 @@ final class TokensFromTransactionsFetcher {
         let deletedContracts = tokensDataStore.deletedContracts(forServer: session.server).map { $0.contractAddress }
         let hiddenContracts = tokensDataStore.hiddenContracts(forServer: session.server).map { $0.contractAddress }
         let delegateContracts = tokensDataStore.delegateContracts(forServer: session.server).map { $0.contractAddress }
-        let alreadyAddedContracts = tokensDataStore.enabledTokenObjects(forServers: [session.server]).map { $0.contractAddress }
+        let alreadyAddedContracts = tokensDataStore.enabledTokens(forServers: [session.server]).map { $0.contractAddress }
 
         return alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
     }

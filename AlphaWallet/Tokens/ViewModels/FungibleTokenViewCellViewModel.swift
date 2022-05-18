@@ -6,14 +6,14 @@ import BigInt
 
 struct FungibleTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: TokenObject
+    private let token: Activity.AssignedToken
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
+    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
         self.assetDefinitionStore = assetDefinitionStore
@@ -27,7 +27,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var amount: String {
-        return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
+        return shortFormatter.string(from: token.value, decimals: token.decimals)
     }
 
     var backgroundColor: UIColor {
@@ -105,7 +105,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var priceChangeUSDValue: String {
-        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.optionalDecimalValue) {
+        if let result = EthCurrencyHelper(ticker: ticker).valueChanged24h(value: token.valueDecimal) {
             return Formatter.priceChange.string(from: result) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker
@@ -120,7 +120,7 @@ struct FungibleTokenViewCellViewModel {
     }
 
     private var fiatValue: String {
-        if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.optionalDecimalValue) {
+        if let fiatValue = EthCurrencyHelper(ticker: ticker).fiatValue(value: token.valueDecimal) {
             return Formatter.fiat.string(from: fiatValue) ?? UiTweaks.noPriceMarker
         } else {
             return UiTweaks.noPriceMarker

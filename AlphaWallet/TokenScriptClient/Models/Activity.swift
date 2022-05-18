@@ -27,7 +27,6 @@ struct Activity {
     //We use the internal id to track which activity to replace/update
     let id: Int
     var rowType: ActivityRowType
-    //TODO safe to have TokenObject here? Maybe a struct is better
     let tokenObject: AssignedToken
     let server: RPCServer
     let name: String

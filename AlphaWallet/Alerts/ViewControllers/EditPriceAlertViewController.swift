@@ -22,7 +22,7 @@ class EditPriceAlertViewController: UIViewController {
     }()
 
     private lazy var amountTextField: AmountTextField = {
-        let view = AmountTextField(tokenObject: viewModel.tokenObject)
+        let view = AmountTextField(tokenObject: viewModel.token)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.delegate = self
         view.accessoryButtonTitle = .next
@@ -83,7 +83,7 @@ class EditPriceAlertViewController: UIViewController {
         amountTextField.cryptoToDollarRate = 1
         amountTextField.set(ethCost: viewModel.value, useFormatting: false)
 
-        switch viewModel.tokenObject.type {
+        switch viewModel.token.type {
         case .nativeCryptocurrency:
             session.tokenBalanceService
                 .etherToFiatRatePublisher
@@ -96,7 +96,7 @@ class EditPriceAlertViewController: UIViewController {
                 }.store(in: &cancelable)
         case .erc20:
             session.tokenBalanceService
-                .tokenBalancePublisher(viewModel.tokenObject.addressAndRPCServer)
+                .tokenBalancePublisher(viewModel.token.addressAndRPCServer)
                 .receive(on: RunLoop.main)
                 .sink { [weak self] viewModel in
                     guard let strongSelf = self else { return }
@@ -137,7 +137,7 @@ class EditPriceAlertViewController: UIViewController {
 
         switch viewModel.configuration {
         case .create:
-            let alert: PriceAlert = .init(type: .init(value: value.doubleValue, marketPrice: marketPrice), tokenObject: viewModel.tokenObject, isEnabled: true)
+            let alert: PriceAlert = .init(type: .init(value: value.doubleValue, marketPrice: marketPrice), token: viewModel.token, isEnabled: true)
             alertService.add(alert: alert)
         case .edit(let alert):
             alertService.update(alert: alert, update: .value(value: value.doubleValue, marketPrice: marketPrice))

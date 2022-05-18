@@ -38,7 +38,7 @@ final class EventSourceCoordinator: NSObject {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokenObjectsChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangesetPublisher(forServers: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -59,7 +59,7 @@ final class EventSourceCoordinator: NSObject {
             }.store(in: &cancellable)
     }
 
-    private func fetchMappedContractsAndServers(token: TokenObject) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+    private func fetchMappedContractsAndServers(token: Activity.AssignedToken) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
         var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
@@ -82,7 +82,7 @@ final class EventSourceCoordinator: NSObject {
             .cauterize()
     }
 
-    private func getEventOriginsAndTokenIds(forToken token: TokenObject) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+    private func getEventOriginsAndTokenIds(forToken token: Activity.AssignedToken) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
         var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
@@ -99,7 +99,7 @@ final class EventSourceCoordinator: NSObject {
         return cards
     }
 
-    private func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
+    private func fetchEventsByTokenId(forToken token: Activity.AssignedToken) -> [Promise<Void>] {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
@@ -124,7 +124,7 @@ final class EventSourceCoordinator: NSObject {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokens = tokensDataStore.enabledTokenObjects(forServers: enabledServers)
+        let tokens = tokensDataStore.enabledTokens(forServers: enabledServers)
         let promises = tokens.map { fetchEventsByTokenId(forToken: $0) }.flatMap { $0 }
         when(resolved: promises).done { [weak self] _ in
             self?.isFetching = false
@@ -138,7 +138,7 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(forTokenId tokenId: TokenId, token: Activity.AssignedToken, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin
             .parameters

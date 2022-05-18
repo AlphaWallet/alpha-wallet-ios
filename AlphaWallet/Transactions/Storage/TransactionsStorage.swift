@@ -247,8 +247,8 @@ class TransactionDataStore {
 
     @discardableResult func add(transactions: [TransactionInstance]) -> [TransactionInstance] {
         guard !transactions.isEmpty else { return [] }
-        let transactionsToAdd = transactions.map { Transaction(object: $0) }
 
+        let transactionsToAdd = transactions.map { Transaction(object: $0) }
         store.performSync { realm in
             try? realm.safeWrite {
                 realm.add(transactionsToAdd, update: .all)
@@ -342,8 +342,8 @@ extension TransactionDataStore {
 
 extension TransactionDataStore.functional {
 
-    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, tokenObject: TokenObject) -> TransactionsFilterStrategy {
-        return .filter(strategy: strategy, tokenObject: tokenObject)
+    static func transactionsFilter(for strategy: ActivitiesFilterStrategy, token: Activity.AssignedToken) -> TransactionsFilterStrategy {
+        return .filter(strategy: strategy, token: token)
     }
 
     static func generateJsonForTransactions(transactionStorage: TransactionDataStore, server: RPCServer, toUrl url: URL) throws -> Data {

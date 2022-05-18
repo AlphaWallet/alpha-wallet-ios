@@ -866,7 +866,7 @@ public class XMLHandler {
         return fieldIdsAndNames
     }
 
-    convenience init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    convenience init(token: Tokenable, assetDefinitionStore: AssetDefinitionStore) {
         self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
     }
 

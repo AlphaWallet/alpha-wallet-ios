@@ -6,8 +6,8 @@ import PromiseKit
 
 protocol AddHideTokensViewControllerDelegate: AnyObject {
     func didPressAddToken(in viewController: UIViewController, with addressString: String)
-    func didMark(token: TokenObject, in viewController: UIViewController, isHidden: Bool)
-    func didChangeOrder(tokens: [TokenObject], in viewController: UIViewController)
+    func didMark(token: Activity.AssignedToken, in viewController: UIViewController, isHidden: Bool)
+    func didChangeOrder(tokens: [Activity.AssignedToken], in viewController: UIViewController)
     func didClose(viewController: AddHideTokensViewController)
 }
 
@@ -125,7 +125,7 @@ class AddHideTokensViewController: UIViewController {
         endLoading(animated: false)
     }
 
-    func add(token: TokenObject) {
+    func add(token: Activity.AssignedToken) {
         viewModel.add(token: token)
         reload()
     }
