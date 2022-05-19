@@ -329,6 +329,7 @@ extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
         guard let wallet = keystore.currentWallet else { return }
+        WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
         showActiveWallet(for: wallet, animated: false)
         DispatchQueue.main.async {
             WhereIsWalletAddressFoundOverlayView.show()
