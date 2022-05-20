@@ -248,10 +248,8 @@ fileprivate class CallCounter {
         var total: Int = 0
 
         //TODO reversed might be much faster? But we are truncating already
-        for each in calledAtTimes {
-            if each >= edge {
-                total += 1
-            }
+        for each in calledAtTimes where each >= edge {
+            total += 1
         }
         let result: Double = Double(total) / Double(Self.windowInSeconds)
         return result

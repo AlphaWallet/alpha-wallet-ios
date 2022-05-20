@@ -28,7 +28,9 @@ public struct AtomicArray<T>: RangeReplaceableCollection {
 public extension AtomicArray {
 
     init<S>(_ elements: S) where S: Sequence, AtomicArray.Element == S.Element {
+// swiftlint:disable syntactic_sugar
         array = Array<S.Element>(elements)
+// swiftlint:enable syntactic_sugar
     }
 
     init() { self.init([]) }

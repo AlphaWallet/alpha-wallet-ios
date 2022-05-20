@@ -1,8 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
-import RealmSwift 
-import Combine 
+import RealmSwift
+import Combine
 
 protocol NonActivityEventsDataStore {
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventInstanceValue?
@@ -55,9 +55,9 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):
-                        return .initial(Array(eventActivities.map{ EventInstanceValue(event: $0) }))
+                        return .initial(Array(eventActivities.map { EventInstanceValue(event: $0) }))
                     case .update(let eventActivities, let deletions, let insertions, let modifications):
-                        return .update(Array(eventActivities.map{ EventInstanceValue(event: $0) }), deletions: deletions, insertions: insertions, modifications: modifications)
+                        return .update(Array(eventActivities.map { EventInstanceValue(event: $0) }), deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
                     }
