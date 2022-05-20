@@ -20,9 +20,9 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
     private let analyticsCoordinator: AnalyticsCoordinator
     private (set) var viewModel: NFTAssetViewModel
     private let bigImageView: WebImageView = {
-        let imageView = WebImageView()
+        let imageView = WebImageView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
         imageView.contentMode = .scaleAspectFit
-
+        imageView.rounding = .custom(20)
         return imageView
     }()
     private let buttonsBar = HorizontalButtonsBar(configuration: .combined(buttons: 3))

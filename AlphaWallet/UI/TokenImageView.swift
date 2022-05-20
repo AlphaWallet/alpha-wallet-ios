@@ -35,6 +35,7 @@ class TokenImageView: UIView {
     }()
     private lazy var imageView: WebImageView = {
         let imageView = WebImageView()
+        imageView.rounding = rounding
         return imageView
     }()
     private lazy var chainOverlayImageView: UIImageView = {
@@ -53,9 +54,13 @@ class TokenImageView: UIView {
     var isSymbolLabelHidden: Bool = false {
         didSet { symbolLabel.isHidden = isSymbolLabelHidden }
     }
-    
-    var isRoundingEnabled: Bool = true {
-        didSet { self.layoutIfNeeded() }
+
+    var rounding: ViewRounding = .circle {
+        didSet { imageView.rounding = rounding }
+    }
+
+    override var contentMode: UIView.ContentMode {
+        didSet { imageView.contentMode = contentMode }
     }
 
     var subscribable: Subscribable<TokenImage>? {
@@ -74,14 +79,16 @@ class TokenImageView: UIView {
                     guard let strongSelf = self else { return }
                     switch imageAndSymbol?.image {
                     case .image(let v):
+                        strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                         strongSelf.imageView.setImage(image: v)
                     case .url(let v):
+                        strongSelf.symbolLabel.text = ""
                         strongSelf.imageView.setImage(url: v, placeholder: strongSelf.tokenImagePlaceholder)
                     case .none:
+                        strongSelf.symbolLabel.text = ""
                         strongSelf.imageView.setImage(url: nil, placeholder: strongSelf.tokenImagePlaceholder)
                     }
                     strongSelf.chainOverlayImageView.image = imageAndSymbol?.overlayServerIcon
-                    strongSelf.symbolLabel.text = imageAndSymbol?.symbol ?? ""
                 }
             } else {
                 subscriptionKey = nil
@@ -89,10 +96,6 @@ class TokenImageView: UIView {
                 symbolLabel.text = ""
             }
         }
-    }
-
-    override var contentMode: UIView.ContentMode {
-        didSet { imageView.contentMode = contentMode }
     }
 
     init(edgeInsets: UIEdgeInsets = .zero) {
@@ -122,15 +125,6 @@ class TokenImageView: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        guard isRoundingEnabled else {
-            return imageView.cornerRadius = 0
-        }
-        imageView.cornerRadius = bounds.width / 2
     }
 }
 

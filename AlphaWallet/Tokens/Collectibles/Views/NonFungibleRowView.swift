@@ -25,6 +25,7 @@ class NonFungibleRowView: TokenCardViewType {
 
     private var thumbnailImageView: WebImageView = {
         let imageView = WebImageView()
+        imageView.rounding = .none
         return imageView
     }()
 

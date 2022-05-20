@@ -4,14 +4,13 @@ import UIKit
 import WebKit
 import Kingfisher
 
-enum WebImageViewImage {
-    case url(WebImageURL)
-    case image(UIImage)
-}
-
 final class FixedContentModeImageView: UIImageView {
     var fixedContentMode: UIView.ContentMode {
         didSet { self.layoutSubviews() }
+    }
+
+    var rounding: ViewRounding = .none {
+        didSet { layoutSubviews() }
     }
 
     init(fixedContentMode contentMode: UIView.ContentMode) {
@@ -29,6 +28,15 @@ final class FixedContentModeImageView: UIImageView {
         contentMode = fixedContentMode
         layer.masksToBounds = true
         clipsToBounds = true
+
+        switch rounding {
+        case .none:
+            cornerRadius = 0
+        case .circle:
+            cornerRadius = bounds.width / 2
+        case .custom(let radius):
+            cornerRadius = radius
+        }
     }
 }
 
@@ -43,19 +51,12 @@ final class WebImageView: UIView {
         return imageView
     }()
 
-    private lazy var webView: WKWebView = {
-        let preferences = WKPreferences()
-        preferences.javaScriptEnabled = false
-        let configuration = WKWebViewConfiguration()
-        configuration.preferences = preferences
-
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        webView.isUserInteractionEnabled = false
-        webView.scrollView.isScrollEnabled = false
-        webView.contentMode = .scaleAspectFit
-
-        return webView
+    private lazy var svgImageView: SvgImageView = {
+        let imageView = SvgImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.rounding = rounding
+        imageView.backgroundColor = Colors.appBackground
+        return imageView
     }()
 
     private var pendingLoadWebViewOperation: BlockOperation?
@@ -64,18 +65,22 @@ final class WebImageView: UIView {
         didSet { imageView.fixedContentMode = contentMode }
     }
 
-    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
+    var rounding: ViewRounding = .none {
+        didSet { imageView.rounding = rounding; svgImageView.rounding = rounding; }
+    }
+
+    init(placeholder: UIImage? = R.image.tokenPlaceholderLarge(), edgeInsets: UIEdgeInsets = .zero) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = false
         clipsToBounds = true
 
         addSubview(imageView)
-        addSubview(webView)
+        addSubview(svgImageView)
 
         NSLayoutConstraint.activate([
-            webView.anchorsConstraint(to: self),
-            imageView.anchorsConstraint(to: self)
+            svgImageView.anchorsConstraint(to: self, edgeInsets: edgeInsets),
+            imageView.anchorsConstraint(to: self, edgeInsets: edgeInsets)
         ])
     }
 
@@ -84,95 +89,31 @@ final class WebImageView: UIView {
     }
 
     func setImage(image: UIImage) {
-        webView.alpha = 0
-        imageView.image = image
+        svgImageView.alpha = 0
+        imageView.image = image.kf.image(withRadius: .point(rounding.cornerRadius(view: self)), fit: image.size)
     }
 
     func setImage(url: WebImageURL?, placeholder: UIImage? = R.image.tokenPlaceholderLarge()) {
         guard let url = url?.url else {
-            webView.alpha = 0
+            svgImageView.alpha = 0
             imageView.image = placeholder
             return
         }
 
         if url.pathExtension == "svg" {
             imageView.image = nil
-
-            if let data = try? ImageCache.default.diskStorage.value(forKey: url.absoluteString), let svgString = data.flatMap({ String(data: $0, encoding: .utf8) }) {
-                webView.alpha = 1
-                webView.loadHTMLString(html(svgString: svgString), baseURL: nil)
-            } else {
-                webView.alpha = 0
-
-                DispatchQueue.global(qos: .utility).async {
-                    if let data = try? Data(contentsOf: url), let svgString = String(data: data, encoding: .utf8) {
-                        if let op = self.pendingLoadWebViewOperation {
-                            op.cancel()
-                        }
-
-                        let op = BlockOperation {
-                            self.webView.loadHTMLString(self.html(svgString: svgString), baseURL: nil)
-                            self.webView.alpha = 1
-                        }
-                        self.pendingLoadWebViewOperation = op
-
-                        OperationQueue.main.addOperations([op], waitUntilFinished: false)
-
-                        try? ImageCache.default.diskStorage.store(value: data, forKey: url.absoluteString)
-                    }
-                }
-            }
+            svgImageView.setImage(url: url)
         } else {
-            webView.alpha = 0
-            imageView.kf.setImage(with: url, placeholder: placeholder)
+            svgImageView.alpha = 0
+
+            let processor = RoundCornerImageProcessor(cornerRadius: rounding.cornerRadius(view: self))
+            var options: KingfisherOptionsInfo = [.processor(processor)]
+
+            if let value = placeholder {
+                options.append(.onFailureImage(value))
+            }
+
+            imageView.kf.setImage(with: url, placeholder: placeholder, options: options)
         }
     }
 }
-
-extension WebImageView {
-
-    func html(svgString: String) -> String {
-        """
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                <title></title>
-                <style type="text/css">
-                    html {
-                        width: 100%;
-                        height: 100%;
-                        padding: 0;
-                        margin: 0;
-                    }
-
-                    body {
-                        margin: 0;
-                        padding: 0;
-                    }
-
-                    div {
-                        width: 100%;
-                        height: 100%;
-                        margin: 0;
-                        padding: 0;
-                    }
-
-                    svg {
-                        width: inherit;
-                        height: inherit;
-                        max-width: 100%;
-                        max-height: 100%;
-                    }
-                </style>
-            </head>
-            <body>
-            <div>
-                \(svgString)
-            </div>
-            </body>
-        </html>
-        """
-    }
-} 

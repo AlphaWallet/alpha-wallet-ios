@@ -20,10 +20,10 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
     }
 
     private var tokenIconImageView: TokenImageView = {
-        let imageView = TokenImageView()
+        let imageView = TokenImageView(edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isUserInteractionEnabled = true
-        imageView.isRoundingEnabled = false
+        imageView.rounding = .custom(20)
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFit
         return imageView
