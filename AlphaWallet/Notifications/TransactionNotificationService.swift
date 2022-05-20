@@ -54,9 +54,9 @@ final class TransactionNotificationSourceService: NotificationSourceService {
             }.store(in: &cancelable)
     }
 
-    private static func mappedByServer(transactions: [Transaction]) -> ServerDictionary<[TransactionInstance]> {
+    private static func mappedByServer(transactions: [TransactionInstance]) -> ServerDictionary<[TransactionInstance]> {
         var serverFilteredTransactions = ServerDictionary<[TransactionInstance]>()
-        let tsx = transactions.map { TransactionInstance(transaction: $0) }
+        let tsx = transactions
         for each in tsx {
             if let value = serverFilteredTransactions[safe: each.server] {
                 serverFilteredTransactions[each.server] = value + [each]

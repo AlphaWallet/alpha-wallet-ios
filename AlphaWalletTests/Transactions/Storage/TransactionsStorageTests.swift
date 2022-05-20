@@ -2,13 +2,6 @@
 
 import XCTest
 @testable import AlphaWallet
-import RealmSwift
-
-extension FakeTransactionsStorage {
-    var count: Int {
-        transactionCount(forServer: .main)
-    }
-}
 
 class TransactionsStorageTests: XCTestCase {
 
@@ -16,16 +9,16 @@ class TransactionsStorageTests: XCTestCase {
         let storage = FakeTransactionsStorage()
 
         XCTAssertNotNil(storage)
-        XCTAssertEqual(0, storage.count)
+        XCTAssertEqual(0, storage.transactionCount(forServer: .main))
     }
 
     func testAddItem() {
         let storage = FakeTransactionsStorage()
-        let item: Transaction = .make()
+        let item: TransactionInstance = .make()
 
         storage.add(transactions: [item])
 
-        XCTAssertEqual(1, storage.count)
+        XCTAssertEqual(1, storage.transactionCount(forServer: .main))
     }
 
     func testAddItems() {
@@ -36,7 +29,7 @@ class TransactionsStorageTests: XCTestCase {
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.count)
+        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
     }
 
     func testAddItemsDuplicate() {
@@ -48,26 +41,26 @@ class TransactionsStorageTests: XCTestCase {
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.count)
+        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
     }
 
     func testDelete() {
         let storage = FakeTransactionsStorage()
-        let one: Transaction = .make(id: "0x1")
-        let two: Transaction = .make(id: "0x2")
+        let one: TransactionInstance = .make(id: "0x1")
+        let two: TransactionInstance = .make(id: "0x2")
 
         storage.add(transactions: [
             one,
             two,
         ])
 
-        XCTAssertEqual(2, storage.count)
+        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
 
         storage.delete([one])
 
-        XCTAssertEqual(1, storage.count)
+        XCTAssertEqual(1, storage.transactionCount(forServer: .main))
 
-        XCTAssertEqual(two.primaryKey, storage.transactions(forServer: .main).first!.primaryKey)
+        XCTAssertEqual(two, storage.transactions(forServer: .main).first)
     }
 
     func testDeleteAll() {
@@ -78,10 +71,10 @@ class TransactionsStorageTests: XCTestCase {
             .make(id: "0x2")
         ])
 
-        XCTAssertEqual(2, storage.count)
+        XCTAssertEqual(2, storage.transactionCount(forServer: .main))
 
         storage.deleteAllForTestsOnly()
 
-        XCTAssertEqual(0, storage.count)
+        XCTAssertEqual(0, storage.transactionCount(forServer: .main))
     }
 }
