@@ -506,7 +506,7 @@ extension ActivitiesService {
 }
 
 extension ActivitiesService.functional {
-    static func generateImplicitAttributesForCard(forContract contract: AlphaWallet.Address, server: RPCServer, event: EventActivity) -> [String: AssetInternalValue] {
+    static func generateImplicitAttributesForCard(forContract contract: AlphaWallet.Address, server: RPCServer, event: EventActivityInstance) -> [String: AssetInternalValue] {
         var results = [String: AssetInternalValue]()
         var timestamp: GeneralisedTime = .init()
         timestamp.date = event.date

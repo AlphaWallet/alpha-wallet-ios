@@ -80,7 +80,7 @@ struct EventOrigin {
         self.eventFilter = eventFilter
     }
 
-    func extractValue(fromEvent event: EventInstance) -> AssetInternalValue? {
-        eventParameterName.flatMap { event.data[$0] }
+    func extractValue(fromEvent event: EventInstanceValue) -> AssetInternalValue? {
+        eventParameterName.flatMap { event._data?[$0] }
     }
 }

@@ -4,7 +4,7 @@ import Foundation
 
 enum TokenIdOrEvent {
     case tokenId(tokenId: TokenId)
-    case event(tokenId: TokenId, event: EventInstance)
+    case event(tokenId: TokenId, event: EventInstanceValue)
 
     var tokenId: TokenId {
         switch self {

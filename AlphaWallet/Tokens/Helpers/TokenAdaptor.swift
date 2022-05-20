@@ -200,7 +200,7 @@ class TokenAdaptor {
         xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstance? {
+    private func getFirstMatchingEvent(nonFungible: NonFungibleFromJson, inWallet account: Wallet, isSourcedFromEvents: Bool) -> EventInstanceValue? {
         if isSourcedFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
             let filterValue: String
@@ -222,7 +222,7 @@ class TokenAdaptor {
         }
     }
 
-    private func getTokenIdOrEvent(event: EventInstance?, nonFungible: NonFungibleFromJson) -> TokenIdOrEvent {
+    private func getTokenIdOrEvent(event: EventInstanceValue?, nonFungible: NonFungibleFromJson) -> TokenIdOrEvent {
         let tokenId = BigUInt(nonFungible.tokenId) ?? BigUInt(0)
         let tokenIdOrEvent: TokenIdOrEvent
         if let eventNonOptional = event {
