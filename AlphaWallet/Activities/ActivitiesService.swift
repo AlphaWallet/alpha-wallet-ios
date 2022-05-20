@@ -307,7 +307,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
 
         let transactions = transactionDataStore
             .transactions(forFilter: transactionsFilterStrategy, servers: config.enabledServers, oldestBlockNumber: activities.last?.blockNumber)
-            .map { TransactionInstance(transaction: $0) }
 
         let items = combine(activities: activities, withTransactions: transactions)
         let activities = ActivitiesViewModel.sorted(activities: items)

@@ -143,9 +143,9 @@ extension TransactionDataStore {
             .map { changeset in
                 switch changeset {
                 case .initial(let transactions):
-                    return transactions.map { TransactionInstance(transaction: $0) }
+                    return transactions
                 case .update(let transactions, _, let insertions, _):
-                    return insertions.map { transactions[$0] }.map { TransactionInstance(transaction: $0) }
+                    return insertions.map { transactions[$0] }
                 case .error:
                     return []
                 }

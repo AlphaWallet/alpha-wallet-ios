@@ -36,9 +36,9 @@ class TransactionsService {
             .map { change -> [TransactionInstance] in
                 switch change {
                 case .initial(let transactions):
-                    return transactions.map { TransactionInstance(transaction: $0) }
+                    return transactions
                 case .update(let transactions, _, _, _):
-                    return transactions.map { TransactionInstance(transaction: $0) }
+                    return transactions
                 case .error:
                     return []
                 }
@@ -130,7 +130,7 @@ class TransactionsService {
         
         TransactionDataStore.pendingTransactionsInformation[transaction.id] = (server: transaction.original.server, data: transaction.original.data, transactionType: transaction.original.transactionType, gasPrice: transaction.original.gasPrice)
         let token = transaction.original.to.flatMap { tokensDataStore.token(forContract: $0, server: transaction.original.server) }
-        let transaction = Transaction.from(from: session.account.address, transaction: transaction, token: token)
+        let transaction = TransactionInstance.from(from: session.account.address, transaction: transaction, token: token)
         transactionDataStore.add(transactions: [transaction])
     }
 
