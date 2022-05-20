@@ -20,7 +20,6 @@ protocol ActivitiesServiceType: class {
     func copy(activitiesFilterStrategy: ActivitiesFilterStrategy, transactionsFilterStrategy: TransactionsFilterStrategy) -> ActivitiesServiceType
 }
 
-// swiftlint:disable type_body_length
 class ActivitiesService: NSObject, ActivitiesServiceType {
     private typealias ContractsAndCards = [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]
     private typealias ActivityTokenObjectTokenHolder = (activity: Activity, tokenObject: Activity.AssignedToken, tokenHolder: TokenHolder)
@@ -457,7 +456,6 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         })
     }
 }
-// swiftlint:enable type_body_length
 
 fileprivate func == (activity: Activity, operation: LocalizedOperationObjectInstance) -> Bool {
     func isSameFrom() -> Bool {

@@ -142,7 +142,10 @@ extension DatabaseMigration {
     }
 
     static func oneTimeMigrationForBookmarksAndUrlHistoryToSharedRealm(walletAddressesStore: WalletAddressesStore, config: Config) {
+//Disable what seems like a sprurious SwiftLint warning
+// swiftlint:disable empty_enum_arguments
         guard !config.hasMigratedToSharedRealm() else { return }
+// swiftlint:enable empty_enum_arguments
 
         for each in walletAddressesStore.wallets {
             let migration = DatabaseMigration(account: each)
