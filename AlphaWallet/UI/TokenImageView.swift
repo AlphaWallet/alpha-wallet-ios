@@ -23,7 +23,7 @@ class ImageView: UIImageView {
     }
 }
 
-class TokenImageView: UIView {
+class TokenImageView: UIView, ViewRoundingSupportable {
     private var subscriptionKey: Subscribable<TokenImage>.SubscribableKey?
     private let symbolLabel: UILabel = {
         let label = UILabel()

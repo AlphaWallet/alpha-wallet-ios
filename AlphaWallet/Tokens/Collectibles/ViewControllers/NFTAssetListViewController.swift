@@ -21,7 +21,7 @@ class NFTAssetListViewController: UIViewController {
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(NFTAssetContainerTableViewCell.self)
+        tableView.register(ContainerTableViewCell.self)
         tableView.dataSource = self
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
@@ -39,22 +39,12 @@ class NFTAssetListViewController: UIViewController {
 
     weak var delegate: NFTAssetListViewControllerDelegate?
 
-    private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory()
-    }()
+    private let tokenCardViewFactory: TokenCardViewFactory
 
-    private var cachedCellsCardRowViews: [IndexPath: UIView & TokenCardRowViewProtocol] = [:]
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let analyticsCoordinator: AnalyticsCoordinator
-    private let server: RPCServer
-    private let tokenObject: TokenObject
-
-    init(viewModel: NFTAssetListViewModel, tokenObject: TokenObject, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, server: RPCServer) {
-        self.tokenObject = tokenObject
-        self.assetDefinitionStore = assetDefinitionStore
-        self.analyticsCoordinator = analyticsCoordinator
-        self.server = server
+    init(viewModel: NFTAssetListViewModel, tokenCardViewFactory: TokenCardViewFactory) {
+        self.tokenCardViewFactory = tokenCardViewFactory
         self.viewModel = viewModel
+        
         searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
@@ -109,26 +99,18 @@ extension NFTAssetListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let selection = viewModel.tokenHolderSelection(indexPath: indexPath)
-        let cell: NFTAssetContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: ContainerTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.containerEdgeInsets = .zero
+        cell.selectionStyle = .none
+        cell.backgroundColor = viewModel.backgroundColor
+        cell.contentView.backgroundColor = viewModel.backgroundColor
+        cell.accessoryType = .disclosureIndicator
 
-        let subview: UIView & TokenCardRowViewProtocol
-        if let value = cachedCellsCardRowViews[indexPath] {
-            subview = value
-        } else {
-            subview = factory.create(for: selection.tokenHolder, layout: .list)
-
-            cachedCellsCardRowViews[indexPath] = subview
-        }
-
+        let subview = tokenCardViewFactory.create(for: selection.tokenHolder, layout: .list)
+        subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, tokenView: .viewIconified, assetDefinitionStore: tokenCardViewFactory.assetDefinitionStore)
         cell.configure(subview: subview)
-        configure(container: cell, tokenId: selection.tokenId, tokenHolder: selection.tokenHolder)
 
         return cell
-    }
-
-    private func configure(container: NFTAssetContainerTableViewCell, tokenId: TokenId, tokenHolder: TokenHolder) {
-        container.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), tokenId: tokenId, assetDefinitionStore: assetDefinitionStore)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {

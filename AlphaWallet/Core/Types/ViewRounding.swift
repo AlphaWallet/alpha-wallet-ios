@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ViewRoundingSupportable {
+    var rounding: ViewRounding { get set }
+}
+
 enum ViewRounding {
     case none
     case circle

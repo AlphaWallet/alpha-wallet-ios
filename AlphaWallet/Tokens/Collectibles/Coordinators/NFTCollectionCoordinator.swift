@@ -426,14 +426,17 @@ extension NFTCollectionCoordinator: NFTCollectionViewControllerDelegate {
 
     private func createNFTAssetListViewController(tokenHolder: TokenHolder) -> NFTAssetListViewController {
         let viewModel = NFTAssetListViewModel(tokenHolder: tokenHolder)
-        let vc = NFTAssetListViewController(viewModel: viewModel, tokenObject: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server)
+        let tokenCardViewFactory: TokenCardViewFactory = {
+            TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
+        }()
+        let vc = NFTAssetListViewController(viewModel: viewModel, tokenCardViewFactory: tokenCardViewFactory)
         vc.delegate = self
         return vc
     }
 
     private func createNFTAssetViewController(tokenHolder: TokenHolder, tokenId: TokenId, mode: TokenInstanceViewMode = .interactive) -> UIViewController {
         let viewModel = NFTAssetViewModel(account: session.account, tokenId: tokenId, token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
-        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel, mode: mode)
+        let vc = NFTAssetViewController(analyticsCoordinator: analyticsCoordinator, session: session, assetDefinitionStore: assetDefinitionStore, keystore: keystore, viewModel: viewModel, mode: mode)
         vc.delegate = self
         vc.navigationItem.largeTitleDisplayMode = .never
 
@@ -491,7 +494,10 @@ extension NFTCollectionCoordinator: NFTAssetListViewControllerDelegate {
 extension NFTCollectionCoordinator: NFTAssetSelectionCoordinatorDelegate {
 
     private func showTokenCardSelection(tokenHolders: [TokenHolder]) {
-        let coordinator = NFTAssetSelectionCoordinator(navigationController: navigationController, tokenObject: token, tokenHolders: tokenHolders, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, server: session.server)
+        let tokenCardViewFactory: TokenCardViewFactory = {
+            TokenCardViewFactory(token: token, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, keystore: keystore, wallet: session.account)
+        }()
+        let coordinator = NFTAssetSelectionCoordinator(navigationController: navigationController, tokenObject: token, tokenHolders: tokenHolders, tokenCardViewFactory: tokenCardViewFactory)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()

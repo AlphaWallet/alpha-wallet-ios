@@ -24,16 +24,16 @@ enum TokenInstanceViewMode {
     case interactive
 }
 
-struct NFTAssetViewModel {
+class NFTAssetViewModel {
+    private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
+    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+
     let tokenId: TokenId
     let token: TokenObject
     let tokenHolder: TokenHolder
     let assetDefinitionStore: AssetDefinitionStore
-    private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     var backgroundColor: UIColor = Colors.appBackground
-    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
     let account: Wallet
-
     var transferTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         return TransactionType(nonFungibleToken: token, tokenHolders: [tokenHolder])
@@ -42,6 +42,31 @@ struct NFTAssetViewModel {
     var sellTransactionType: TransactionType {
         tokenHolder.select(with: .allFor(tokenId: tokenHolder.tokenId))
         return TransactionType.erc875Token(token, tokenHolders: [tokenHolder])
+    }
+
+    var previewViewType: NFTPreviewViewType {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            return .imageView
+        case .notBackedByOpenSea:
+            return .tokenCardView
+        }
+    }
+
+    var previewViewParams: NFTPreviewViewType.Params {
+        switch previewViewType {
+        case .tokenCardView:
+            return .some(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+        case .imageView:
+            let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId)
+                .flatMap { TokenImage(image: .url($0), symbol: "", isFinal: true, overlayServerIcon: nil) }
+
+            return .image(iconImage: .init(tokenImage))
+        }
+    }
+
+    var previewEdgeInsets: UIEdgeInsets {
+        return .init(top: 0, left: 8, bottom: 0, right: 8)
     }
 
     init(account: Wallet, tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
@@ -55,7 +80,7 @@ struct NFTAssetViewModel {
         self.contractViewModel = TokenInstanceAttributeViewModel(title: R.string.localizable.nonfungiblesValueContract(), attributedValue: TokenInstanceAttributeViewModel.urlValueAttributedString(token.contractAddress.truncateMiddle))
     }
 
-    mutating func configure(overiddenOpenSeaStats: Stats?) {
+    func configure(overiddenOpenSeaStats: Stats?) {
         self.tokenHolderHelper.overridenFloorPrice = overiddenOpenSeaStats?.floorPrice
         self.tokenHolderHelper.overridenItemsCount = overiddenOpenSeaStats?.itemsCount
     }

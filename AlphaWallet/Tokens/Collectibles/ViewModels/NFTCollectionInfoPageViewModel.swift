@@ -14,30 +14,39 @@ enum NFTCollectionInfoPageViewConfiguration {
     case header(viewModel: TokenInfoHeaderViewModel)
 }
 
+enum NFTPreviewViewType {
+    case tokenCardView
+    case imageView
+}
+
+extension NFTPreviewViewType {
+    enum Params {
+        case image(iconImage: Subscribable<TokenImage>)
+        case some(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore)
+    }
+}
+
+protocol ConfigurableNFTPreviewView {
+    func configure(params: NFTPreviewViewType.Params)
+}
+
 struct NFTCollectionInfoPageViewModel {
+    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
+    private let assetDefinitionStore: AssetDefinitionStore
+
     var tabTitle: String {
         return R.string.localizable.tokenTabInfo()
     }
 
-    let tokenObject: TokenObject
-
+    let token: TokenObject
     let server: RPCServer
     var contractAddress: AlphaWallet.Address {
-        tokenObject.contractAddress
+        token.contractAddress
     }
     let tokenHolders: [TokenHolder]
 
     var tokenImagePlaceholder: UIImage? {
         return R.image.tokenPlaceholderLarge()
-    }
-    private let tokenHolderHelper: TokenInstanceViewConfigurationHelper
-
-    var openInUrl: URL? {
-        let values = tokenHolders[0].values
-        return values.collectionValue.flatMap { collection -> URL? in
-            guard collection.slug.trimmed.nonEmpty else { return nil }
-            return URL(string: "https://opensea.io/collection/\(collection.slug)")
-        }
     }
 
     var wikiUrl: URL? {
@@ -69,13 +78,39 @@ struct NFTCollectionInfoPageViewModel {
         tokenHolderHelper.externalUrlViewModel?.value
             .flatMap { URL(string: $0) }
     }
+    
+    let tokenHolder: TokenHolder
+    let tokenId: TokenId
+
+    var previewViewType: NFTPreviewViewType {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            return .imageView
+        case .notBackedByOpenSea:
+            return .tokenCardView
+        }
+    }
+
+    var previewViewParams: NFTPreviewViewType.Params {
+        switch previewViewType {
+        case .tokenCardView:
+            return .some(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+        case .imageView:
+            return .image(iconImage: token.icon(withSize: .s750))
+        }
+    }
+
+    var previewEdgeInsets: UIEdgeInsets {
+        return .init(top: 0, left: 8, bottom: 0, right: 8)
+    }
 
     init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet wallet: Wallet) {
+        self.assetDefinitionStore = assetDefinitionStore
         self.server = server
-        self.tokenObject = token
+        self.token = token
         tokenHolders = token.getTokenHolders(assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore, forWallet: wallet)
-        let tokenHolder = tokenHolders[0]
-        let tokenId = tokenHolder.tokenIds[0]
+        tokenHolder = tokenHolders[0]
+        tokenId = tokenHolder.tokenIds[0]
 
         self.tokenHolderHelper = TokenInstanceViewConfigurationHelper(tokenId: tokenId, tokenHolder: tokenHolder)
     }
@@ -89,7 +124,7 @@ struct NFTCollectionInfoPageViewModel {
     }
 
     var iconImage: Subscribable<TokenImage> {
-        tokenObject.icon(withSize: .s750)
+        token.icon(withSize: .s750)
     }
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
@@ -121,6 +156,24 @@ struct NFTCollectionInfoPageViewModel {
     }
 
     var configurations: [NFTCollectionInfoPageViewConfiguration] {
+        if Constants.ticketContractAddress.sameContract(as: token.contractAddress) {
+            return some_2()
+        } else {
+            return some()
+        }
+    }
+
+    private func some_2() -> [NFTCollectionInfoPageViewConfiguration] {
+        let s = TokenInstanceAttributeViewModel.defaultValueAttributedString("Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.", alignment: .left)
+        let descriptionViewModel = TokenInstanceAttributeViewModel(title: nil, attributedValue: s, value: s.string, isSeparatorHidden: true)
+
+        return [
+            .header(viewModel: .init(title: "Project Info")),
+            .field(viewModel: descriptionViewModel)
+        ]
+    }
+
+    private func some() -> [NFTCollectionInfoPageViewConfiguration] {
         var configurations: [NFTCollectionInfoPageViewConfiguration] = []
 
         let detailsSectionViewModels = [
@@ -181,5 +234,24 @@ struct NFTCollectionInfoPageViewModel {
         }
 
         return configurations
+    }
+
+    func someUrlFor(indexPath: IndexPath) -> URL? {
+        switch configurations[indexPath.row] {
+        case .field(let vm) where wikiUrlViewModel == vm:
+            return wikiUrl
+        case .field(let vm) where instagramUsernameViewModel == vm:
+            return instagramUrl
+        case .field(let vm) where twitterUsernameViewModel == vm:
+            return twitterUrl
+        case .field(let vm) where discordUrlViewModel == vm:
+            return discordUrl
+        case .field(let vm) where telegramUrlViewModel == vm:
+            return telegramUrl
+        case .field(let vm) where externalUrlViewModel == vm:
+            return externalUrl
+        case .header, .field:
+            return .none
+        }
     }
 }

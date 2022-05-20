@@ -25,6 +25,8 @@ class NFTAssetsPageViewModel {
     private (set) var filteredTokenHolders: [TokenHolder] = []
     private (set) var sections: [AssetsSection] = [.assets]
     private (set) var selection: GridOrListSelectionState
+    private let token: TokenObject
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var searchFilter: ActivityOrTransactionFilter = .keyword(nil) {
         didSet {
@@ -32,12 +34,70 @@ class NFTAssetsPageViewModel {
         }
     }
 
-    init(tokenHolders: [TokenHolder], selection: GridOrListSelectionState) {
-        self.tokenHolders = tokenHolders
-        self.selection = selection
+    var spacingForGridLayout: CGFloat {
+        switch token.type {
+        case .erc875:
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+            case .notBackedByOpenSea:
+                return 0
+            case .backedByOpenSea:
+                return 16
+            }
+        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+            return 16
+        }
     }
 
-    func item(atIndexPath indexPath: IndexPath) -> TokenHolder? {
+    var columsForGridLayout: Int {
+        switch token.type {
+        case .erc875:
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+            case .notBackedByOpenSea:
+                return 1
+            case .backedByOpenSea:
+                return 2
+            }
+        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+            return 2
+        }
+    }
+
+    var heightDimensionForGridLayout: CGFloat {
+        switch token.type {
+        case .erc875:
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+            case .notBackedByOpenSea:
+                return 200
+            case .backedByOpenSea:
+                return 220
+            }
+        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+            return 220
+        }
+    }
+
+    var contentInsetsForGridLayout: NSDirectionalEdgeInsets {
+        switch token.type {
+        case .erc875:
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+            case .notBackedByOpenSea:
+                return .init(top: 0, leading: 10, bottom: 0, trailing: 10)
+            case .backedByOpenSea:
+                return .init(top: 16, leading: 16, bottom: 0, trailing: 16)
+            }
+        case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
+            return .init(top: 16, leading: 16, bottom: 0, trailing: 16)
+        }
+    }
+
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, tokenHolders: [TokenHolder], selection: GridOrListSelectionState) {
+        self.tokenHolders = tokenHolders
+        self.selection = selection
+        self.assetDefinitionStore = assetDefinitionStore
+        self.token = token
+    }
+
+    func tokenHolderFor(indexPath: IndexPath) -> TokenHolder? {
         switch sections[safe: indexPath.section] {
         case .assets:
             return filteredTokenHolders[safe: indexPath.row]

@@ -241,10 +241,6 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
         delegate?.shouldCloseFlow(inViewController: self)
     }
 
-    func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
-        //no-op. Auto layout handles it
-    }
-
     func reinject(tokenInstanceWebView: TokenInstanceWebView) {
         configure()
     }

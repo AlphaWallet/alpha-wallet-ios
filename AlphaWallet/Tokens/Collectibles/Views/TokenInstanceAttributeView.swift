@@ -78,9 +78,11 @@ class TokenInstanceAttributeView: UIView {
 
     func configure(viewModel: TokenInstanceAttributeViewModel) {
         titleLabel.attributedText = viewModel.attributedTitle
+        titleLabel.isHidden = titleLabel.attributedText == nil
 
         valueLabel.attributedText = viewModel.attributedValue
         valueLabel.isHidden = valueLabel.attributedText == nil
+
         valueLabel.numberOfLines = viewModel.valueLabelNumberOfLines
         separatorView.backgroundColor = viewModel.separatorColor
         separatorView.isHidden = viewModel.isSeparatorHidden

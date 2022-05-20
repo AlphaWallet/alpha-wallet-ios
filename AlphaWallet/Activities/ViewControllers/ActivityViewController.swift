@@ -243,10 +243,6 @@ extension ActivityViewController: TokenInstanceWebViewDelegate {
         //no-op
     }
 
-    func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
-        //no-op. Auto layout handles it
-    }
-
     func reinject(tokenInstanceWebView: TokenInstanceWebView) {
         delegate?.reinject(viewController: self)
     }

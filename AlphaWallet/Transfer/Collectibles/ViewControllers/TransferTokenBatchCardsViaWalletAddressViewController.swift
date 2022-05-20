@@ -15,7 +15,6 @@ protocol TransferTokenBatchCardsViaWalletAddressViewControllerDelegate: class, C
 
 //TODO: support ERC1155 fungibles (where decimals is provided and > 0)
 class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController {
-    private let analyticsCoordinator: AnalyticsCoordinator
     private let token: TokenObject
     private lazy var targetAddressTextField: AddressTextField = {
         let textField = AddressTextField()
@@ -55,6 +54,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
 
     private let buttonsBar = HorizontalButtonsBar(configuration: .primary(buttons: 1))
     private var viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel
+    private let tokenCardViewFactory: TokenCardViewFactory
 
     var contract: AlphaWallet.Address {
         return token.contractAddress
@@ -62,7 +62,9 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     var server: RPCServer {
         return token.server
     }
-    let assetDefinitionStore: AssetDefinitionStore
+    var assetDefinitionStore: AssetDefinitionStore {
+        tokenCardViewFactory.assetDefinitionStore
+    }
     weak var delegate: TransferTokenBatchCardsViaWalletAddressViewControllerDelegate?
 
     lazy var containerView: ScrollableStackView = {
@@ -70,11 +72,10 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         return view
     }()
 
-    init(analyticsCoordinator: AnalyticsCoordinator, token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
-        self.analyticsCoordinator = analyticsCoordinator
+    init(token: TokenObject, viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel, tokenCardViewFactory: TokenCardViewFactory) {
         self.token = token
         self.viewModel = viewModel
-        self.assetDefinitionStore = assetDefinitionStore
+        self.tokenCardViewFactory = tokenCardViewFactory
 
         super.init(nibName: nil, bundle: nil)
 
@@ -114,11 +115,6 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         containerView.stackView.addArrangedSubviews(subViews)
     }
 
-    private lazy var factory: TokenCardTableViewCellFactory = {
-        TokenCardTableViewCellFactory()
-    }()
-    private var cachedCellsCardRowViews: [Int: UIView & TokenCardRowViewProtocol & TokenCardRowViewLayoutConfigurableProtocol] = [:]
-
     private func generateViewsForSelectedTokenHolders(viewModel: TransferTokenBatchCardsViaWalletAddressViewControllerViewModel) -> [UIView] {
         var subviews: [UIView] = []
         for (index, each) in viewModel.tokenHolders.enumerated() {
@@ -132,14 +128,8 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     }
 
     private func generateViewFor(tokenHolder: TokenHolder, index: Int) -> UIView {
-        let subview: UIView & TokenCardRowViewProtocol & TokenCardRowViewLayoutConfigurableProtocol
-        if let value = cachedCellsCardRowViews[index] {
-            subview = value
-        } else {
-            subview = factory.create(for: tokenHolder, layout: .list, listEdgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16))
-            cachedCellsCardRowViews[index] = subview
-        }
-        
+        let subview = tokenCardViewFactory.create(for: tokenHolder, layout: .list, listEdgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16))
+
         configureToAllowSelection(subview, tokenHolder: tokenHolder, index: index)
         configure(subview: subview, tokenId: tokenHolder.tokenId, tokenHolder: tokenHolder)
 
@@ -155,11 +145,11 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         }
     }
 
-    private func configure(subview: UIView & TokenCardRowViewProtocol, tokenId: TokenId, tokenHolder: TokenHolder) {
-        subview.configure(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, areDetailsVisible: false, width: containerView.stackView.frame.size.width, assetDefinitionStore: assetDefinitionStore)
+    private func configure(subview: UIView & TokenCardRowViewConfigurable, tokenId: TokenId, tokenHolder: TokenHolder) {
+        subview.configure(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         //NOTE: Update with more appropriatable way, type case isn't a good approach
         if let typeSubView = subview as? NonFungibleRowView {
-            typeSubView.configure(viewModel: NonFungibleRowViewModel2(tokenHolder: tokenHolder, tokenId: tokenId, areDetailsVisible: false, width: containerView.stackView.frame.size.width))
+            typeSubView.configure(viewModel: NonFungibleRowViewModel2(tokenHolder: tokenHolder, tokenId: tokenId))
         } else {
             //no-op
         }
