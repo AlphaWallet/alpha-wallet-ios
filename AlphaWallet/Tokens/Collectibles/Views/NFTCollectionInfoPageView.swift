@@ -102,7 +102,7 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
 
 extension NFTCollectionInfoPageView: TokenInstanceAttributeViewDelegate {
     func didSelect(in view: TokenInstanceAttributeView) {
-        guard let url = viewModel.someUrlFor(indexPath: view.indexPath) else { return }
+        guard let url = viewModel.urlForField(indexPath: view.indexPath) else { return }
         delegate?.didPressOpenWebPage(url, in: self)
     }
 }
