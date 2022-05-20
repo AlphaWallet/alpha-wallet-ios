@@ -157,23 +157,24 @@ struct NFTCollectionInfoPageViewModel {
 
     var configurations: [NFTCollectionInfoPageViewConfiguration] {
         if Constants.ticketContractAddress.sameContract(as: token.contractAddress) {
-            return some_2()
+            return generateFieldsConfigurationsForFifaToken()
         } else {
-            return some()
+            return generateFieldsConfigurations()
         }
     }
 
-    private func some_2() -> [NFTCollectionInfoPageViewConfiguration] {
-        let s = TokenInstanceAttributeViewModel.defaultValueAttributedString("Edcon is a game centered around breedable, collectible, and adorable creatures where digital pandas live in the blockchain! Each panda comes from descendants of 50 giant pandas that have been officially licensed by China Panda Conservation and Research Center.", alignment: .left)
+    private func generateFieldsConfigurationsForFifaToken() -> [NFTCollectionInfoPageViewConfiguration] {
+        let s = TokenInstanceAttributeViewModel.defaultValueAttributedString(R.string.localizable.semifungiblesEdconDescription(), alignment: .left)
         let descriptionViewModel = TokenInstanceAttributeViewModel(title: nil, attributedValue: s, value: s.string, isSeparatorHidden: true)
 
         return [
-            .header(viewModel: .init(title: "Project Info")),
+
+            .header(viewModel: .init(title: R.string.localizable.semifungiblesProjectInfo())),
             .field(viewModel: descriptionViewModel)
         ]
     }
 
-    private func some() -> [NFTCollectionInfoPageViewConfiguration] {
+    private func generateFieldsConfigurations() -> [NFTCollectionInfoPageViewConfiguration] {
         var configurations: [NFTCollectionInfoPageViewConfiguration] = []
 
         let detailsSectionViewModels = [
@@ -236,7 +237,7 @@ struct NFTCollectionInfoPageViewModel {
         return configurations
     }
 
-    func someUrlFor(indexPath: IndexPath) -> URL? {
+    func urlForField(indexPath: IndexPath) -> URL? {
         switch configurations[indexPath.row] {
         case .field(let vm) where wikiUrlViewModel == vm:
             return wikiUrl
