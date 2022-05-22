@@ -29,7 +29,7 @@ target 'AlphaWallet' do
   pod 'TrustWalletCore', '2.6.34'
   pod 'AWSSNS', '2.18.0'
   pod 'Mixpanel-swift', '~> 3.1'
-  pod 'EthereumABI', :git => 'git@github.com:AlphaWallet/EthereumABI.git', :commit => '877b77e8e7cbc54ab0712d509b74fec21b79d1bb'
+  pod 'EthereumABI', :git => 'https://github.com/AlphaWallet/EthereumABI.git', :commit => '877b77e8e7cbc54ab0712d509b74fec21b79d1bb'
   pod 'BlockiesSwift'
   pod 'PaperTrailLumberjack/Swift'
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift.git'
