@@ -1,14 +1,13 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 import UIKit
+import Combine
 
-protocol SendHeaderViewDelegate: AnyObject {
-    func didPressViewContractWebPage(inHeaderView: SendHeaderView)
-    func showHideMarketPriceSelected(inHeaderView: SendHeaderView)
+protocol NonFungibleTokenHeaderViewDelegate: AnyObject {
+    func didPressViewContractWebPage(inHeaderView: NonFungibleTokenHeaderView)
 }
 
-class SendHeaderView: UIView {
-
-    weak var delegate: SendHeaderViewDelegate?
+class NonFungibleTokenHeaderView: UIView {
+    weak var delegate: NonFungibleTokenHeaderViewDelegate?
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -33,10 +32,14 @@ class SendHeaderView: UIView {
         label.isUserInteractionEnabled = true
         return label
     }()
-    private var blockChainTagLabel = BlockchainTagLabel()
-    private var viewModel: TokenInfoPageViewModel?
 
-    init() {
+    private var blockChainTagLabel = BlockchainTagLabel()
+    private var cancelable = Set<AnyCancellable>()
+
+    let viewModel: NonFungibleTokenHeaderViewModel
+
+    init(viewModel: NonFungibleTokenHeaderViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
 
         let stackView = [
@@ -60,21 +63,28 @@ class SendHeaderView: UIView {
 
         let tap1 = UITapGestureRecognizer(target: self, action: #selector(showHideMarketSelected))
         valueLabel.addGestureRecognizer(tap1)
+
+        bind(viewModel: viewModel)
+        viewModel.runRefreshHeaderTimer()
     }
 
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
 
-    func configure(viewModel: TokenInfoPageViewModel) {
-        self.viewModel = viewModel
+    private func bind(viewModel: NonFungibleTokenHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         tokenIconImageView.subscribable = viewModel.iconImage
-        titleLabel.attributedText = viewModel.titleAttributedString
-        valueLabel.attributedText = viewModel.valueAttributedString
-
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
+
+        viewModel.title.sink { [weak titleLabel] value in
+            titleLabel?.attributedText = value
+        }.store(in: &cancelable)
+
+        viewModel.value.sink { [weak valueLabel] value in
+            valueLabel?.attributedText = value
+        }.store(in: &cancelable)
     }
 
     @objc private func showContractWebPage() {
@@ -82,8 +92,10 @@ class SendHeaderView: UIView {
     }
 
     @objc private func showHideMarketSelected(_ sender: UITapGestureRecognizer) {
-        guard let server = viewModel?.server, !server.isTestnet else { return }
+        guard !viewModel.server.isTestnet else { return }
 
-        delegate?.showHideMarketPriceSelected(inHeaderView: self)
+        viewModel.tiggleIsShowingValue()
+        viewModel.invalidateRefreshHeaderTimer()
+        viewModel.runRefreshHeaderTimer()
     }
 }
