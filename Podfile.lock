@@ -143,7 +143,7 @@ DEPENDENCIES:
   - Charts
   - CocoaLumberjack (= 3.7.0)
   - CryptoSwift (~> 1.4)
-  - EthereumABI (= 1.3.0)
+  - "EthereumABI (from `git@github.com:AlphaWallet/EthereumABI.git`, commit `877b77e8e7cbc54ab0712d509b74fec21b79d1bb`)"
   - FloatingPanel
   - iOSSnapshotTestCase (= 6.2.0)
   - JSONRPCKit (~> 2.0.0)
@@ -185,7 +185,6 @@ SPEC REPOS:
     - CocoaAsyncSocket
     - CocoaLumberjack
     - CryptoSwift
-    - EthereumABI
     - EthereumAddress
     - FloatingPanel
     - iOSSnapshotTestCase
@@ -226,6 +225,9 @@ EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  EthereumABI:
+    :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
+    :git: "git@github.com:AlphaWallet/EthereumABI.git"
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -251,6 +253,9 @@ CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
     :commit: 9a4496d02b7ddb2f6307fd0510d8d7c9fcef9870
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  EthereumABI:
+    :commit: 877b77e8e7cbc54ab0712d509b74fec21b79d1bb
+    :git: "git@github.com:AlphaWallet/EthereumABI.git"
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
@@ -327,6 +332,6 @@ SPEC CHECKSUMS:
   web3swift: 06118d4c4edc801444aaa995bbbddeda176b97ef
   xcbeautify: b2c6b50c9cab6414296898e94cd153e4ea879662
 
-PODFILE CHECKSUM: 905c3b42504874c66c580d7b8f2e57012e2a3ae7
+PODFILE CHECKSUM: ff75689dd41e8ea049b96ade522d0c8d75e54cb8
 
 COCOAPODS: 1.11.2
