@@ -52,6 +52,7 @@ extension Activity {
         let shouldDisplay: Bool
         let sortIndex: Int?
         var ticker: CoinTicker?
+        let value: BigInt
 
         var addressAndRPCServer: AddressAndRPCServer {
             return .init(address: contractAddress, server: server)
@@ -68,6 +69,7 @@ extension Activity {
             shouldDisplay = false
             sortIndex = nil
             balance = .value(0)
+            value = .zero
         }
 
         init(tokenObject: TokenObject) {
@@ -80,7 +82,8 @@ extension Activity {
             type = tokenObject.type
             shouldDisplay = tokenObject.shouldDisplay
             sortIndex = tokenObject.sortIndex.value
-
+            value = tokenObject.valueBigInt
+            
             switch type {
             case .erc20, .nativeCryptocurrency:
                 let fullValue = EtherNumberFormatter.plain.string(from: tokenObject.valueBigInt, decimals: decimals)

@@ -28,8 +28,8 @@ protocol WalletBalanceFetcherType: AnyObject, WalletBalanceFetcherTypeTests {
     var walletBalance: WalletBalance { get }
     var tokensDataStore: TokensDataStore { get }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never>
-    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never>
+    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceViewModel?
     func start()
     func stop()
     func update(servers: [RPCServer])
@@ -176,19 +176,16 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         delegate?.didUpdate(in: self)
     }
 
-    private func balanceViewModel(forToken token: TokenObject) -> BalanceBaseViewModel {
+    private func balanceViewModel(forToken token: TokenObject) -> BalanceViewModel {
         let ticker = coinTickersFetcher.ticker(for: token.addressAndRPCServer)
 
         switch token.type {
         case .nativeCryptocurrency:
-            let balance = Balance(value: BigInt(token.value, radix: 10) ?? BigInt(0))
-            return NativecryptoBalanceViewModel(server: token.server, balance: balance, ticker: ticker)
+            return NativecryptoBalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
         case .erc20:
-            let balance = ERC20Balance(tokenObject: token)
-            return ERC20BalanceViewModel(server: token.server, balance: balance, ticker: ticker)
+            return Erc20BalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
         case .erc875, .erc721, .erc721ForTickets, .erc1155:
-            let balance = NFTBalance(tokenObject: token)
-            return NFTBalanceViewModel(server: token.server, balance: balance, ticker: ticker)
+            return NFTBalanceViewModel(token: Activity.AssignedToken(tokenObject: token), ticker: ticker)
         }
     }
 
@@ -196,7 +193,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         balanceUpdateSubject.send(())
     }
 
-    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceBaseViewModel? {
+    func tokenBalance(_ key: AddressAndRPCServer) -> BalanceViewModel? {
         guard let token = tokensDataStore.token(forContract: key.address, server: key.server) else {
             return nil
         }
@@ -204,7 +201,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         return balanceViewModel(forToken: token)
     }
 
-    func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+    func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never> {
         let tokensDataStore = tokensDataStore
 
         let tokenPublisher = tokensDataStore

@@ -97,7 +97,7 @@ extension SectionProtocol {
 }
 
 enum UpdateBalanceValue {
-    case nativeCryptocurrency(balanceViewModel: BalanceBaseViewModel?)
+    case nativeCryptocurrency(balanceViewModel: BalanceViewModel?)
     case erc20(token: TokenObject)
     case other
 }
