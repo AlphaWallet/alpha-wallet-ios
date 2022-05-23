@@ -46,7 +46,7 @@ final class WebImageView: UIView {
         let imageView = FixedContentModeImageView(fixedContentMode: contentMode)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = Colors.appBackground
+        imageView.backgroundColor = backgroundColor
 
         return imageView
     }()
@@ -55,7 +55,7 @@ final class WebImageView: UIView {
         let imageView = SvgImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.rounding = rounding
-        imageView.backgroundColor = Colors.appBackground
+        imageView.backgroundColor = backgroundColor
         return imageView
     }()
 
@@ -63,6 +63,10 @@ final class WebImageView: UIView {
 
     override var contentMode: UIView.ContentMode {
         didSet { imageView.fixedContentMode = contentMode }
+    }
+
+    override var backgroundColor: UIColor? {
+        didSet { imageView.backgroundColor = backgroundColor; svgImageView.backgroundColor = backgroundColor; }
     }
 
     var rounding: ViewRounding = .none {

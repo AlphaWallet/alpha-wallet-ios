@@ -113,8 +113,6 @@ class TokenHolder: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(tokens)
         hasher.combine(contractAddress.eip55String)
-        hasher.combine(isSelected)
-        hasher.combine(areDetailsVisible)
         hasher.combine(selections)
     }
 
@@ -122,9 +120,7 @@ class TokenHolder: Hashable {
     let contractAddress: AlphaWallet.Address
     let hasAssetDefinition: Bool
 
-    var isSelected = false
-    var areDetailsVisible = false
-    var selections: [TokenSelection] = []
+    private (set) var selections: [TokenSelection] = []
 
     init(tokens: [TokenScript.Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
         self.tokens = tokens

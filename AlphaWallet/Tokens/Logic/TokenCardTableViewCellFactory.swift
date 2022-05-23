@@ -12,7 +12,7 @@ protocol TokenCardRowViewLayoutConfigurableProtocol {
 }
 
 protocol TokenCardRowViewConfigurable {
-    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore)
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId)
 }
 
 typealias TokenCardViewType = UIView & TokenCardRowViewConfigurable & SelectionPositioningView & TokenCardRowViewLayoutConfigurableProtocol
@@ -40,7 +40,7 @@ class TokenCardViewFactory {
 
         switch tokenHolder.tokenType {
         case .erc875:
-            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analyticsCoordinator: analyticsCoordinator, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, server: token.server, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
+            rowView = Erc875NonFungibleRowView(token: token, tokenType: tokenType, analyticsCoordinator: analyticsCoordinator, keystore: keystore, assetDefinitionStore: assetDefinitionStore, wallet: wallet, layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
             rowView = NonFungibleRowView(layout: layout, gridEdgeInsets: gridEdgeInsets, listEdgeInsets: listEdgeInsets)
         } 

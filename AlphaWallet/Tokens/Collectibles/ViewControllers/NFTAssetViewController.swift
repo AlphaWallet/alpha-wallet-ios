@@ -41,6 +41,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         self.viewModel = viewModel
         self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
+        self.previewView.contentMode = .scaleAspectFill
         super.init(nibName: nil, bundle: nil)
 
         let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
@@ -52,7 +53,7 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         let previewHeightConstraint: [NSLayoutConstraint]
         switch viewModel.previewViewType {
         case .imageView:
-            previewHeightConstraint = [previewView.heightAnchor.constraint(equalToConstant: 250)]
+            previewHeightConstraint = [previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor)]
         case .tokenCardView:
             previewHeightConstraint = []
         }
@@ -135,7 +136,9 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
                 }
             }
         }
+
         previewView.configure(params: viewModel.previewViewParams)
+        previewView.contentBackgroundColor = viewModel.previewViewContentBackgroundColor
 
         generateSubviews(viewModel: viewModel)
     }
@@ -145,14 +148,14 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
             switch action.type {
             case .nftRedeem:
-                redeem()
+                delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
             case .nftSell:
-                sell()
+                delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
             case .erc20Send, .erc20Receive, .swap, .buy, .bridge:
                 //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                 break
             case .nonFungibleTransfer:
-                transfer()
+                delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
             case .tokenScript:
                 if let selection = action.activeExcludingSelection(selectedTokenHolder: viewModel.tokenHolder, tokenId: viewModel.tokenId, forWalletAddress: viewModel.account.address) {
                     if let denialMessage = selection.denial {
@@ -206,18 +209,6 @@ class NFTAssetViewController: UIViewController, TokenVerifiableStatusViewControl
                 containerView.stackView.addArrangedSubview(attributesStackView)
             }
         }
-    }
-
-    private func transfer() {
-        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: viewModel.tokenHolder, forPaymentFlow: .send(type: .transaction(viewModel.transferTransactionType)), in: self)
-    }
-
-    private func redeem() {
-        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: viewModel.tokenHolder, in: self)
-    }
-
-    private func sell() {
-        delegate?.didPressSell(tokenHolder: viewModel.tokenHolder, for: .send(type: .transaction(viewModel.sellTransactionType)), in: self)
     }
 }
 

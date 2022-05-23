@@ -7,10 +7,21 @@
 
 import UIKit
 
-class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportable {
+class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportable, ContentBackgroundSupportable {
+    private var previewView: UIView & ConfigurableNFTPreviewView & ViewRoundingSupportable & ContentBackgroundSupportable
 
-    private var previewView: UIView & ConfigurableNFTPreviewView & ViewRoundingSupportable
-    var rounding: ViewRounding = .none { didSet { previewView.rounding = rounding } }
+    var rounding: ViewRounding = .none {
+        didSet { previewView.rounding = rounding }
+    }
+    
+    override var contentMode: UIView.ContentMode {
+        didSet { previewView.contentMode = contentMode }
+    }
+
+    var contentBackgroundColor: UIColor? {
+        get { return previewView.contentBackgroundColor }
+        set { previewView.contentBackgroundColor = newValue }
+    }
 
     init(type: NFTPreviewViewType, keystore: Keystore, session: WalletSession, assetDefinitionStore: AssetDefinitionStore, analyticsCoordinator: AnalyticsCoordinator, edgeInsets: UIEdgeInsets = .zero) {
         switch type {
@@ -50,21 +61,31 @@ class NFTPreviewView: UIView, ConfigurableNFTPreviewView, ViewRoundingSupportabl
         imageView.rounding = .none
         imageView.isChainOverlayHidden = true
         imageView.contentMode = .scaleAspectFit
+
         return imageView
     }
 }
 
-extension TokenImageView: ConfigurableNFTPreviewView {
+extension TokenImageView: ConfigurableNFTPreviewView, ContentBackgroundSupportable {
+    var contentBackgroundColor: UIColor? {
+        get { return backgroundColor }
+        set { backgroundColor = newValue }
+    }
+
     func configure(params: NFTPreviewViewType.Params) {
         guard case .image(let iconImage) = params else { subscribable = .none; return; }
         subscribable = iconImage
     }
 }
 
-extension TokenCardWebView: ConfigurableNFTPreviewView {
+extension TokenCardWebView: ConfigurableNFTPreviewView, ContentBackgroundSupportable {
+    var contentBackgroundColor: UIColor? {
+        get { return backgroundColor }
+        set { backgroundColor = newValue }
+    }
+
     func configure(params: NFTPreviewViewType.Params) {
-        guard case .some(let tokenHolder, let tokenId, let tokenView, let assetDefinitionStore) = params else { return }
-        configure(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore)
+        guard case .tokenScriptWebView(let tokenHolder, let tokenId) = params else { return }
+        configure(tokenHolder: tokenHolder, tokenId: tokenId)
     }
 }
-

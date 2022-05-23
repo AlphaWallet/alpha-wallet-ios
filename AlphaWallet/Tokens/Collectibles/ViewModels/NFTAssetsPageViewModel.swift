@@ -62,6 +62,7 @@ class NFTAssetsPageViewModel {
         }
     }
 
+    //NOTE: height dimension calculates including additional insets applied to grid layout, pay attention on it
     var heightDimensionForGridLayout: CGFloat {
         switch token.type {
         case .erc875:
@@ -69,10 +70,10 @@ class NFTAssetsPageViewModel {
             case .notBackedByOpenSea:
                 return 200
             case .backedByOpenSea:
-                return 220
+                return 261
             }
         case .nativeCryptocurrency, .erc20, .erc721, .erc721ForTickets, .erc1155:
-            return 220
+            return 261
         }
     }
 
@@ -97,16 +98,14 @@ class NFTAssetsPageViewModel {
         self.token = token
     }
 
-    func tokenHolderFor(indexPath: IndexPath) -> TokenHolder? {
+    func tokenHolder(for indexPath: IndexPath) -> TokenHolder? {
         switch sections[safe: indexPath.section] {
-        case .assets:
-            return filteredTokenHolders[safe: indexPath.row]
-        case .none:
-            return nil
+        case .assets: return filteredTokenHolders[safe: indexPath.row]
+        case .none: return nil
         }
     }
 
-    private func titleFor(tokenHolder: TokenHolder) -> String {
+    private func title(for tokenHolder: TokenHolder) -> String {
         let displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         let tokenId = tokenHolder.values.tokenIdStringValue ?? ""
         if let name = tokenHolder.values.nameStringValue.nilIfEmpty {
@@ -122,8 +121,8 @@ class NFTAssetsPageViewModel {
         switch filter {
         case .keyword(let keyword):
             if let valueToSearch = keyword?.trimmed.lowercased(), valueToSearch.nonEmpty {
-                newTokenHolders = tokenHolders.filter { element in
-                    return self.titleFor(tokenHolder: element).lowercased().contains(valueToSearch)
+                newTokenHolders = tokenHolders.filter { tokenHolder in
+                    return self.title(for: tokenHolder).lowercased().contains(valueToSearch)
                 }
             }
         }

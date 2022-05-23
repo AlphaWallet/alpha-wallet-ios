@@ -100,7 +100,7 @@ class NFTAssetsPageView: UIView, PageViewType {
             cell.containerEdgeInsets = .zero
 
             let subview: TokenCardViewType = strongSelf.tokenCardViewFactory.create(for: tokenHolder, layout: strongSelf.viewModel.selection, gridEdgeInsets: .zero)
-            subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, tokenView: .viewIconified, assetDefinitionStore: strongSelf.tokenCardViewFactory.assetDefinitionStore)
+            subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
 
             cell.configure(subview: subview)
             cell.configure()
@@ -187,7 +187,7 @@ extension NFTAssetsPageView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
 
-        guard let tokenHolder = viewModel.tokenHolderFor(indexPath: indexPath) else { return }
+        guard let tokenHolder = viewModel.tokenHolder(for: indexPath) else { return }
         delegate?.nftAssetsPageView(self, didSelectTokenHolder: tokenHolder)
     }
 }

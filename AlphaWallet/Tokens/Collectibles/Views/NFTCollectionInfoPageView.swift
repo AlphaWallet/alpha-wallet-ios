@@ -12,9 +12,8 @@ protocol NFTCollectionInfoPageViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, in view: NFTCollectionInfoPageView)
 }
 
-class NFTCollectionInfoPageView: UIView, PageViewType {
+class NFTCollectionInfoPageView: ScrollableStackView, PageViewType {
     private let previewView: NFTPreviewView
-    private let containerView = ScrollableStackView()
     private (set) var viewModel: NFTCollectionInfoPageViewModel
 
     weak var delegate: NFTCollectionInfoPageViewDelegate?
@@ -25,23 +24,20 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
         self.viewModel = viewModel
         self.previewView = .init(type: viewModel.previewViewType, keystore: keystore, session: session, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsCoordinator, edgeInsets: viewModel.previewEdgeInsets)
         self.previewView.rounding = .custom(20)
-        super.init(frame: .zero)
+        self.previewView.contentMode = .scaleAspectFill
+        super.init()
 
         translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(containerView)
 
         let previewHeightConstraint: [NSLayoutConstraint]
         switch viewModel.previewViewType {
         case .imageView:
-            previewHeightConstraint = [previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor, multiplier: 0.7)]
+            previewHeightConstraint = [previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor)]
         case .tokenCardView:
             previewHeightConstraint = []
         }
 
-        NSLayoutConstraint.activate([
-            containerView.anchorsConstraint(to: self),
-        ] + previewHeightConstraint)
+        NSLayoutConstraint.activate([previewHeightConstraint])
 
         generateSubviews(viewModel: viewModel)
 
@@ -50,11 +46,11 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
     }
 
     private func generateSubviews(viewModel: NFTCollectionInfoPageViewModel) {
-        containerView.stackView.removeAllArrangedSubviews()
+        stackView.removeAllArrangedSubviews()
 
-        containerView.stackView.addArrangedSubview(UIView.spacer(height: 10))
-        containerView.stackView.addArrangedSubview(previewView)
-        containerView.stackView.addArrangedSubview(UIView.spacer(height: 20))
+        stackView.addArrangedSubview(UIView.spacer(height: 10))
+        stackView.addArrangedSubview(previewView)
+        stackView.addArrangedSubview(UIView.spacer(height: 20))
 
         for (index, each) in viewModel.configurations.enumerated() {
             switch each {
@@ -62,12 +58,12 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
                 let performanceHeader = TokenInfoHeaderView(edgeInsets: .init(top: 15, left: 15, bottom: 20, right: 0))
                 performanceHeader.configure(viewModel: viewModel)
 
-                containerView.stackView.addArrangedSubview(performanceHeader)
+                stackView.addArrangedSubview(performanceHeader)
             case .field(let viewModel):
                 let view = TokenInstanceAttributeView(indexPath: IndexPath(row: index, section: 0))
                 view.configure(viewModel: viewModel)
                 view.delegate = self
-                containerView.stackView.addArrangedSubview(view)
+                stackView.addArrangedSubview(view)
             }
         }
     }
@@ -89,6 +85,7 @@ class NFTCollectionInfoPageView: UIView, PageViewType {
 
         generateSubviews(viewModel: viewModel)
         previewView.configure(params: viewModel.previewViewParams)
+        previewView.contentBackgroundColor = viewModel.previewViewContentBackgroundColor
     }
 
     required init?(coder: NSCoder) {
