@@ -71,10 +71,10 @@ final class OpenSea {
     }
 
     static func fetchAssetImageUrl(for value: Eip155URL, server: RPCServer) -> Promise<URL> {
-        OpenSea().networkProvider.fetchAssetImageUrl(for: value, server: server)
+        OpenSeaNetworkProvider(queue: .global()).fetchAssetImageUrl(for: value, server: server)
     }
 
     static func collectionStats(slug: String, server: RPCServer) -> Promise<Stats> {
-        OpenSea().networkProvider.collectionStats(slug: slug, server: server)
+        OpenSeaNetworkProvider(queue: .global()).collectionStats(slug: slug, server: server)
     }
 }
