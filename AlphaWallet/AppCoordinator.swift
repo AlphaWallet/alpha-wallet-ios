@@ -236,6 +236,13 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
+    func showInitialNetworkSelectionCoordinator() {
+        let coordinator = InitialNetworkSelectionCoordinator(config: config, navigationController: navigationController, restartTaskQueue: restartQueue)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
     private func createInitialWalletIfMissing() {
         WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsService).createInitialWalletIfMissing()
     }
@@ -306,8 +313,28 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true)
 
         removeCoordinator(coordinator)
+        switch account.type {
+        case .real:
+            showInitialNetworkSelectionCoordinator()
+        case .watch:
+            guard let wallet = keystore.currentWallet else { return }
+            showActiveWallet(for: wallet, animated: false)
+        }
+    }
+
+}
+
+extension AppCoordinator: InitialNetworkSelectionCoordinatorDelegate {
+    func didSelect(networks: [RPCServer], in coordinator: InitialNetworkSelectionCoordinator) {
+        coordinator.navigationController.dismiss(animated: true)
+        removeCoordinator(coordinator)
         guard let wallet = keystore.currentWallet else { return }
+        WhatsNewExperimentCoordinator.lastCreatedWalletTimestamp = Date()
         showActiveWallet(for: wallet, animated: false)
+        DispatchQueue.main.async {
+            WhereIsWalletAddressFoundOverlayView.show()
+            self.restartQueue.add(.reloadServers(networks))
+        }
     }
 }
 
