@@ -244,7 +244,7 @@ class ImportMagicLinkCoordinator: Coordinator {
             amt = 0
         }
         count = amt
-        let token = Token(
+        let token = TokenScript.Token(
                 tokenIdOrEvent: .tokenId(tokenId: 0),
                 tokenType: TokenType.nativeCryptocurrency,
                 index: 0,
@@ -504,7 +504,7 @@ class ImportMagicLinkCoordinator: Coordinator {
     private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
         guard let tokenType = type ?? (tokensDataStore.token(forContract: contractAddress, server: server)?.type) else { return }
-        var tokens = [Token]()
+        var tokens = [TokenScript.Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]

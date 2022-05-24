@@ -118,7 +118,7 @@ class TokenHolder: Hashable {
         hasher.combine(selections)
     }
 
-    let tokens: [Token]
+    let tokens: [TokenScript.Token]
     let contractAddress: AlphaWallet.Address
     let hasAssetDefinition: Bool
 
@@ -126,13 +126,13 @@ class TokenHolder: Hashable {
     var areDetailsVisible = false
     var selections: [TokenSelection] = []
 
-    init(tokens: [Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
+    init(tokens: [TokenScript.Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
         self.tokens = tokens
         self.contractAddress = contractAddress
         self.hasAssetDefinition = hasAssetDefinition
     }
 
-    func token(tokenId: TokenId) -> Token? {
+    func token(tokenId: TokenId) -> TokenScript.Token? {
         tokens.first(where: { $0.id == tokenId })
     }
 
@@ -181,7 +181,7 @@ class TokenHolder: Hashable {
         return values.traitsValue
     }
 
-    var status: Token.Status {
+    var status: TokenScript.Token.Status {
         return tokens[0].status
     }
 
@@ -217,7 +217,7 @@ class TokenHolder: Hashable {
             .flatMap { $0.values }
     }
 
-    func status(tokenId: TokenId) -> Token.Status? {
+    func status(tokenId: TokenId) -> TokenScript.Token.Status? {
         token(tokenId: tokenId)
             .flatMap { $0.status }
     }
