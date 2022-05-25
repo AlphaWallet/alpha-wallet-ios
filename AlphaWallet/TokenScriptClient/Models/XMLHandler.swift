@@ -408,7 +408,7 @@ private class PrivateXMLHandler {
             inWallet account: Wallet,
             server: RPCServer,
             tokenType: TokenType
-    ) -> Token {
+    ) -> TokenScript.Token {
         guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
@@ -418,7 +418,7 @@ private class PrivateXMLHandler {
             values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
             cache(attributeValues: values, forTokenId: tokenIdOrEvent.tokenId)
         }
-        return Token(
+        return TokenScript.Token(
                 tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: tokenType,
                 index: index,
@@ -915,16 +915,16 @@ public class XMLHandler {
         self.privateXMLHandler = privateXMLHandler
     }
 
-    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
+    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> TokenScript.Token {
         //TODO get rid of the forced unwrap
-        var token: Token!
+        var token: TokenScript.Token!
         threadSafe.performSync {
             let overrides = privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
             if let baseXMLHandler = baseXMLHandler {
                 let base = baseXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: tokenType)
                 let baseValues = base.values
                 let overriddenValues = overrides.values
-                token = Token(
+                token = TokenScript.Token(
                         tokenIdOrEvent: overrides.tokenIdOrEvent,
                         tokenType: overrides.tokenType,
                         index: overrides.index,

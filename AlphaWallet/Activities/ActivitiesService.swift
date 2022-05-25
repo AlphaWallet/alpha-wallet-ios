@@ -247,7 +247,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             } else {
                 tokenObject = token
                 if tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
-                    let token = Token(tokenIdOrEvent: .tokenId(tokenId: .init(1)), tokenType: .nativeCryptocurrency, index: 0, name: "", symbol: "", status: .available, values: .init())
+                    let token = TokenScript.Token(tokenIdOrEvent: .tokenId(tokenId: .init(1)), tokenType: .nativeCryptocurrency, index: 0, name: "", symbol: "", status: .available, values: .init())
 
                     tokenHolders = [TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)]
                 } else {
