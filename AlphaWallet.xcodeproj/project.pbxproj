@@ -825,6 +825,8 @@
 		87442BD827D615B500EA2209 /* CheckTransactionStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */; };
 		874527D7270B3A25008DB272 /* ArbitrumBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874527D6270B3A25008DB272 /* ArbitrumBridge.swift */; };
 		874527D9270B3A45008DB272 /* xDaiBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874527D8270B3A45008DB272 /* xDaiBridge.swift */; };
+		87455C262834C05200B7B95F /* Tokenable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87455C252834C05200B7B95F /* Tokenable.swift */; };
+		87455C282834CDDA00B7B95F /* AssignedToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87455C272834CDDA00B7B95F /* AssignedToken.swift */; };
 		874AF0832603405F00D613A5 /* LoadingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */; };
 		874BD2BB2669F65800E62E02 /* PopularTokensCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874BD2BA2669F65800E62E02 /* PopularTokensCollection.swift */; };
 		874C6D8125E3FF2300AD8380 /* ConfirmationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874C6D8025E3FF2300AD8380 /* ConfirmationHeaderView.swift */; };
@@ -1995,6 +1997,8 @@
 		87442BD727D615B500EA2209 /* CheckTransactionStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckTransactionStateViewController.swift; sourceTree = "<group>"; };
 		874527D6270B3A25008DB272 /* ArbitrumBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrumBridge.swift; sourceTree = "<group>"; };
 		874527D8270B3A45008DB272 /* xDaiBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = xDaiBridge.swift; sourceTree = "<group>"; };
+		87455C252834C05200B7B95F /* Tokenable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenable.swift; sourceTree = "<group>"; };
+		87455C272834CDDA00B7B95F /* AssignedToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignedToken.swift; sourceTree = "<group>"; };
 		874AF0822603405F00D613A5 /* LoadingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorView.swift; sourceTree = "<group>"; };
 		874BD2BA2669F65800E62E02 /* PopularTokensCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularTokensCollection.swift; sourceTree = "<group>"; };
 		874C6D8025E3FF2300AD8380 /* ConfirmationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationHeaderView.swift; sourceTree = "<group>"; };
@@ -3090,6 +3094,8 @@
 				8703F663261319B80082EE25 /* AddressAndRPCServer.swift */,
 				8703F66626135B330082EE25 /* ChartHistory.swift */,
 				5E7C73EA8FD43F18DDEB6965 /* NonFungibleFromTokenUri.swift */,
+				87455C272834CDDA00B7B95F /* AssignedToken.swift */,
+				87455C252834C05200B7B95F /* Tokenable.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -6789,6 +6795,7 @@
 				8736024C28194E4F002A5ED5 /* WeakRef.swift in Sources */,
 				5E7C71AE5E97BDA5BB685A9F /* Dapp.swift in Sources */,
 				8782E9D42828F59A00E93689 /* CleanupWallets.swift in Sources */,
+				87455C262834C05200B7B95F /* Tokenable.swift in Sources */,
 				5E7C7DC485AD4401A3F6D071 /* FungibleTokenViewController.swift in Sources */,
 				5E7C7EC8E473526629825ADA /* FungibleTokenViewModel.swift in Sources */,
 				87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */,
@@ -7023,6 +7030,7 @@
 				5E7C76DE2F995FE2ABEE74C0 /* ActivitiesViewController.swift in Sources */,
 				87F15B2427F6E97800EB9787 /* OldestTransactionProvider.swift in Sources */,
 				0251BE9327EC341F00B4F328 /* TokenGroupIdentifier.swift in Sources */,
+				87455C282834CDDA00B7B95F /* AssignedToken.swift in Sources */,
 				5E7C7AFF5433B2B8B3415C55 /* DefaultActivityCellViewModel.swift in Sources */,
 				879FD3A1273BF64900D9747D /* WalletConnectV2Provider.swift in Sources */,
 				5E7C7041A8A78E0EF84A94A2 /* ActivityViewCell.swift in Sources */,

@@ -20,13 +20,13 @@ class FungibleTokenViewModel {
     }
 
     private let coinTickersFetcher: CoinTickersFetcherType
-    private var validatedToken: TokenObject? {
+    private var validatedToken: Activity.AssignedToken? {
         switch transactionType {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
-            return token
+            return Activity.AssignedToken(tokenObject: token)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
@@ -47,8 +47,8 @@ class FungibleTokenViewModel {
         return validatedToken.flatMap { $0.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account) }
     }()
 
-    var token: TokenObject {
-        return transactionType.tokenObject
+    var token: Activity.AssignedToken {
+        return .init(tokenObject: transactionType.tokenObject)
     }
 
     var actions: [TokenInstanceAction] {

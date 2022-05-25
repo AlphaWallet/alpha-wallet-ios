@@ -54,7 +54,7 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                     let server = optionalServer ?? config.anyEnabledServer()
 
                     //NOTE: self is required here because object has delated before resolving state
-                    if let token = tokensDataStore.token(forContract: contract, server: server) {
+                    if let token = tokensDataStore.tokenObject(forContract: contract, server: server) {
                         let transactionType = Self.transactionType(token, recipient: recipient, amount: amount)
 
                         seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
@@ -77,8 +77,8 @@ class PaymentFlowFromEip681UrlResolver: Coordinator {
                                         balance: ["0"]
                                 )
                                 let tokenObject = tokensDataStore.addCustom(tokens: [token], shouldUpdateBalance: true)[0]
-
-                                let transactionType = Self.transactionType(tokenObject, recipient: recipient, amount: amount)
+                                guard let t = tokensDataStore.tokenObject(forContract: tokenObject.contractAddress, server: tokenObject.server) else { return }
+                                let transactionType = Self.transactionType(t, recipient: recipient, amount: amount)
 
                                 seal.fulfill((paymentFlow: .send(type: .transaction(transactionType)), server: server))
                             }

@@ -48,7 +48,7 @@ class ReplaceTransactionCoordinator: Coordinator {
             return pendingTransactionInformation.transactionType
         case .cancel:
             //Cancel with a 0-value transfer transaction
-            return .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: pendingTransactionInformation.server), destination: .address(session.account.address), amount: nil)
+            return .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: pendingTransactionInformation.server), destination: .address(session.account.address), amount: nil)
         }
     }
     private var transactionValue: BigInt {

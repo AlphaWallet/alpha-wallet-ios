@@ -10,7 +10,7 @@ import Combine
 
 enum PriceAlertsFilterStrategy {
     case all
-    case token(TokenObject)
+    case token(Activity.AssignedToken)
 }
 
 protocol PriceAlertServiceType: class {

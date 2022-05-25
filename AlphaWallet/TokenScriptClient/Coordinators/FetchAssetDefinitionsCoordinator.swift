@@ -10,7 +10,7 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
 
     private var contractsInDatabase: [AlphaWallet.Address] {
         var contracts = [AlphaWallet.Address]()
-        contracts.append(contentsOf: tokensDataStore.enabledTokenObjects(forServers: config.enabledServers).filter {
+        contracts.append(contentsOf: tokensDataStore.enabledTokens(forServers: config.enabledServers).filter {
             switch $0.type {
             case .erc20, .erc721, .erc875, .erc721ForTickets, .erc1155:
                 return true

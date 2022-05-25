@@ -659,10 +659,10 @@ extension ActiveWalletCoordinator: ActivityViewControllerDelegate {
 
     func goToToken(viewController: ActivityViewController) {
         let token = viewController.viewModel.activity.tokenObject
-        guard let tokenObject = tokensDataStore.token(forContract: token.contractAddress, server: token.server) else { return }
+        guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         guard let tokensCoordinator = tokensCoordinator, let navigationController = viewController.navigationController else { return }
 
-        tokensCoordinator.showSingleChainToken(token: tokenObject, in: navigationController)
+        tokensCoordinator.showSingleChainToken(tokenObject: tokenObject, in: navigationController)
     }
 
     func speedupTransaction(transactionId: String, server: RPCServer, viewController: ActivityViewController) {

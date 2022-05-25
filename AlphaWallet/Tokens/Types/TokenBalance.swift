@@ -4,6 +4,21 @@ import Foundation
 import AlphaWalletOpenSea
 import RealmSwift
 
+struct TokenBalanceValue {
+    let json: String
+    let balance: String
+
+    init(balance: TokenBalance) {
+        self.json = balance.json
+        self.balance = balance.balance
+    }
+
+    var nonFungibleBalance: NonFungibleFromJson? {
+        let nonFungibleBalance = balance.data(using: .utf8).flatMap { nonFungible(fromJsonData: $0) }
+        return nonFungibleBalance
+    }
+}
+
 class TokenBalance: Object {
     @objc dynamic var balance = "0" {
         didSet {

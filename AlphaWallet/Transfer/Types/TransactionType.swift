@@ -125,7 +125,7 @@ extension TransactionType {
             return token
         case .prebuilt(let server):
             //Not applicable
-            return MultipleChainsTokensDataStore.functional.etherToken(forServer: server)
+            return MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: server)
         }
     }
 

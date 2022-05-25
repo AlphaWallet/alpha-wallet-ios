@@ -81,7 +81,7 @@ extension WalletSummary.functional {
         var amount: NSDecimalNumber?
 
         for each in balances {
-            if let eachEtherAmount = each.etherTokenObject?.valueDecimal {
+            if let eachEtherAmount = each.etherToken?.valueDecimal {
                 if amount == nil { amount = .zero }
 
                 if let currentAmount = amount {

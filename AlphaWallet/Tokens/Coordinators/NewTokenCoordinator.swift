@@ -12,7 +12,7 @@ private struct NoContractDetailsDetected: Error {
 }
 
 protocol NewTokenCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: TokenObject)
+    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Activity.AssignedToken)
     func didClose(in coordinator: NewTokenCoordinator)
 }
 

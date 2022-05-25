@@ -16,7 +16,7 @@ class TransactionSigningTests: XCTestCase {
             gasPrice: BigInt("20000000000"),
             gasLimit: BigInt("21000"),
             server: .main,
-            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: nil)
+            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: .main), destination: nil, amount: nil)
         )
         let signer = EIP155Signer(server: .main)
         do {
@@ -39,7 +39,7 @@ class TransactionSigningTests: XCTestCase {
             gasPrice: BigInt("20000000000"),
             gasLimit: BigInt("21000"),
             server: .main,
-            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: nil)
+            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: .main), destination: nil, amount: nil)
         )
         let signer = HomesteadSigner()
         let hash = signer.hash(transaction: transaction)
@@ -58,7 +58,7 @@ class TransactionSigningTests: XCTestCase {
             gasPrice: BigInt(20000000000),
             gasLimit: BigInt(21000),
             server: .main,
-            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherToken(forServer: .main), destination: nil, amount: nil)
+            transactionType: .nativeCryptocurrency(MultipleChainsTokensDataStore.functional.etherTokenObject(forServer: .main), destination: nil, amount: nil)
         )
 
         let signer = EIP155Signer(server: .main)

@@ -33,13 +33,13 @@ enum TokensDataStoreError: Error {
 
 extension TokensDataStore {
     func initialOrNewTokensPublisher(forServers servers: [RPCServer]) -> AnyPublisher<[Activity.AssignedToken], Never> {
-        return enabledTokenObjectsChangesetPublisher(forServers: servers)
+        return enabledTokensChangesetPublisher(forServers: servers)
             .tryMap { changeset -> [Activity.AssignedToken] in
                 switch changeset {
                 case .initial(let tokens):
-                    return tokens.map { Activity.AssignedToken.init(tokenObject: $0) }
+                    return tokens
                 case .update(let tokens, _, let insertions, _):
-                    return insertions.map { tokens[$0] }.map { Activity.AssignedToken.init(tokenObject: $0) }
+                    return insertions.map { tokens[$0] }
                 case .error:
                     return []
                 }
@@ -119,7 +119,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
     enum TokenBatchOperation {
         case add(ERCToken, shouldUpdateBalance: Bool)
-        case update(tokenObject: Activity.AssignedToken, action: TokenUpdateAction)
+        case update(token: Activity.AssignedToken, action: TokenUpdateAction)
     }
 
     /// NOTE: here actually alway only one token, made it as array of being able to skip updating ether token
@@ -128,32 +128,32 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
             nonErc1155BalanceFetcher
                 .getEthBalance(for: account.address)
                 .done(on: queue, { [weak self] balance in
-                    self?.notifyUpdateBalance([.update(tokenObject: etherToken, action: .value(balance.value))])
+                    self?.notifyUpdateBalance([.update(token: etherToken, action: .value(balance.value))])
                 }).cauterize()
         }
     }
 
-    private func getBalanceForNonErc721Or1155Tokens(forToken tokenObject: Activity.AssignedToken) {
-        switch tokenObject.type {
+    private func getBalanceForNonErc721Or1155Tokens(forToken token: Activity.AssignedToken) {
+        switch token.type {
         case .nativeCryptocurrency, .erc721, .erc1155:
             break
         case .erc20:
             nonErc1155BalanceFetcher
-                .getERC20Balance(for: tokenObject.contractAddress)
+                .getERC20Balance(for: token.contractAddress)
                 .done(on: queue, { [weak self] value in
-                    self?.notifyUpdateBalance([.update(tokenObject: tokenObject, action: .value(value))])
+                    self?.notifyUpdateBalance([.update(token: token, action: .value(value))])
                 }).cauterize()
         case .erc875:
             nonErc1155BalanceFetcher
-                .getERC875Balance(for: tokenObject.contractAddress)
+                .getERC875Balance(for: token.contractAddress)
                 .done(on: queue, { [weak self] balance in
-                    self?.notifyUpdateBalance([.update(tokenObject: tokenObject, action: .nonFungibleBalance(balance))])
+                    self?.notifyUpdateBalance([.update(token: token, action: .nonFungibleBalance(balance))])
                 }).cauterize()
         case .erc721ForTickets:
             nonErc1155BalanceFetcher
-                .getERC721ForTicketsBalance(for: tokenObject.contractAddress)
+                .getERC721ForTicketsBalance(for: token.contractAddress)
                 .done(on: queue, { [weak self] balance in
-                    self?.notifyUpdateBalance([.update(tokenObject: tokenObject, action: .nonFungibleBalance(balance))])
+                    self?.notifyUpdateBalance([.update(token: token, action: .nonFungibleBalance(balance))])
                 }).cauterize()
         }
     }
@@ -205,7 +205,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
 
             guard let token = tokensDataStore?.token(forContract: contract, server: strongSelf.server) else { return }
             strongSelf.notifyUpdateBalance([
-                .update(tokenObject: Activity.AssignedToken(tokenObject: token), action: .nonFungibleBalance(jsons))
+                .update(token: token, action: .nonFungibleBalance(jsons))
             ])
         }).cauterize()
     }
@@ -273,13 +273,12 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 tokenType = .erc721
             }
             if let token = tokensDataStore.token(forContract: contract, server: server) {
-                let token = Activity.AssignedToken(tokenObject: token)
                 actions += [
-                    .update(tokenObject: token, action: .type(tokenType)),
-                    .update(tokenObject: token, action: .nonFungibleBalance(listOfJson)),
+                    .update(token: token, action: .type(tokenType)),
+                    .update(token: token, action: .nonFungibleBalance(listOfJson)),
                 ]
                 if let anyNonFungible = anyNonFungible {
-                    actions += [.update(tokenObject: token, action: .name(anyNonFungible.contractName))]
+                    actions += [.update(token: token, action: .name(anyNonFungible.contractName))]
                 }
             } else {
                 let token = ERCToken(
@@ -353,11 +352,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
                 } else {
                     verboseLog("Fetched token URI: \(originalUri.absoluteString)")
                     var jsonDictionary = json
-                    if let tokenObject = tokensDataStore?.token(forContract: address, server: server) {
+                    if let token = tokensDataStore?.token(forContract: address, server: server) {
                         jsonDictionary["tokenType"] = JSON(tokenType.rawValue)
                         //We must make sure the value stored is at least an empty string, never nil because we need to deserialise/decode it
-                        jsonDictionary["contractName"] = JSON(tokenObject.name)
-                        jsonDictionary["symbol"] = JSON(tokenObject.symbol)
+                        jsonDictionary["contractName"] = JSON(token.name)
+                        jsonDictionary["symbol"] = JSON(token.symbol)
                         jsonDictionary["tokenId"] = JSON(tokenId)
                         jsonDictionary["decimals"] = JSON(jsonDictionary["decimals"].intValue)
                         jsonDictionary["name"] = JSON(jsonDictionary["name"].stringValue)

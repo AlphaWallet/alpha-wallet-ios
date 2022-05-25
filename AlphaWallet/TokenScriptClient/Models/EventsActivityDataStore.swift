@@ -68,8 +68,8 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             eventActivity = realm.objects(EventActivity.self)
                     .filter(predicate)
                     .sorted(byKeyPath: "blockNumber")
-                    .map { EventActivityInstance(event: $0) }
                     .last
+                    .flatMap { EventActivityInstance(event: $0) }
         }
 
         return eventActivity

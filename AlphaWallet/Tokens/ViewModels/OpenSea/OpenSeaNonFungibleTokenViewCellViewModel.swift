@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 class OpenSeaNonFungibleTokenViewCellViewModel {
-    private let token: TokenObject
+    private let token: Activity.AssignedToken
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
@@ -39,7 +39,7 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
         token.icon(withSize: .s750)
     }
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
+    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore

@@ -235,15 +235,15 @@ extension ActivitiesViewModel {
 
 extension ActivitiesViewModel.functional {
 
-    static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensDataStore: TokensDataStore, wallet: AlphaWallet.Address) -> (token: TokenObject, activityName: String)? {
+    static func extractTokenAndActivityName(fromTransactionRow transactionRow: TransactionRow, tokensDataStore: TokensDataStore, wallet: AlphaWallet.Address) -> (token: Activity.AssignedToken, activityName: String)? {
         enum TokenOperation {
-            case nativeCryptoTransfer(TokenObject)
-            case completedTransfer(TokenObject)
-            case pendingTransfer(TokenObject)
-            case completedErc20Approval(TokenObject)
-            case pendingErc20Approval(TokenObject)
+            case nativeCryptoTransfer(Activity.AssignedToken)
+            case completedTransfer(Activity.AssignedToken)
+            case pendingTransfer(Activity.AssignedToken)
+            case completedErc20Approval(Activity.AssignedToken)
+            case pendingErc20Approval(Activity.AssignedToken)
 
-            var token: TokenObject {
+            var token: Activity.AssignedToken {
                 switch self {
                 case .nativeCryptoTransfer(let token):
                     return token
@@ -346,7 +346,7 @@ extension ActivitiesViewModel.functional {
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transactionRow.blockNumber + 10000000,
                 rowType: rowType,
-                tokenObject: Activity.AssignedToken(tokenObject: token),
+                tokenObject: token,
                 server: transactionRow.server,
                 name: activityName,
                 eventName: activityName,

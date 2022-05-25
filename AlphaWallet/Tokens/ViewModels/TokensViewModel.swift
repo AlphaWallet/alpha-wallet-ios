@@ -4,10 +4,10 @@ import Foundation
 import UIKit
 
 enum TokenObjectOrRpcServerPair {
-    case tokenObject(TokenObject)
+    case tokenObject(Activity.AssignedToken)
     case rpcServer(RPCServer)
 
-    var tokenObject: TokenObject? {
+    var tokenObject: Activity.AssignedToken? {
         switch self {
         case .rpcServer:
             return nil
@@ -21,7 +21,7 @@ enum TokenObjectOrRpcServerPair {
         case .rpcServer:
             return false
         case .tokenObject(let token):
-            guard !token.isInvalidated else { return false }
+            //guard !token.isInvalidated else { return false }
             if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                 return false
             }
@@ -31,15 +31,8 @@ enum TokenObjectOrRpcServerPair {
 }
 
 struct CollectiblePairs: Hashable {
-    let left: TokenObject
-    let right: TokenObject?
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(left.hash)
-        if let value = right {
-            hasher.combine(value.hash)
-        }
-    }
+    let left: Activity.AssignedToken
+    let right: Activity.AssignedToken?
 }
 
 extension TokensViewModel {
@@ -60,7 +53,7 @@ class TokensViewModel {
     static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
     private let tokensFilter: TokensFilter
-    var tokens: [TokenObject]
+    var tokens: [Activity.AssignedToken]
     let config: Config
     var isSearchActive: Bool = false
     var filter: WalletFilter = .all {
@@ -205,13 +198,13 @@ class TokensViewModel {
         return item(for: row, section: section).canDelete
     }
 
-    init(tokensFilter: TokensFilter, tokens: [TokenObject], config: Config) {
+    init(tokensFilter: TokensFilter, tokens: [Activity.AssignedToken], config: Config) {
         self.tokensFilter = tokensFilter
         self.tokens = TokensViewModel.functional.filterAwaySpuriousTokens(tokens)
         self.config = config
     }
 
-    func markTokenHidden(token: TokenObject) -> Bool {
+    func markTokenHidden(token: Activity.AssignedToken) -> Bool {
         if let index = tokens.firstIndex(where: { $0.primaryKey == token.primaryKey }) {
             tokens.remove(at: index)
             filteredTokens = filteredAndSortedTokens()
@@ -249,7 +242,7 @@ class TokensViewModel {
         }
     }
 
-    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
+    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> Activity.AssignedToken? {
         return tokens.first(where: { $0.primaryKey == MultipleChainsTokensDataStore.functional.etherToken(forServer: server).primaryKey })
     }
 
@@ -352,7 +345,7 @@ extension TokensViewModel {
 }
 
 extension TokensViewModel.functional {
-    static func groupTokenObjectsWithServers(tokens: [TokenObject]) -> [TokenObjectOrRpcServerPair] {
+    static func groupTokenObjectsWithServers(tokens: [Activity.AssignedToken]) -> [TokenObjectOrRpcServerPair] {
         var servers: [RPCServer] = []
         var results: [TokenObjectOrRpcServerPair] = []
 
@@ -373,7 +366,7 @@ extension TokensViewModel.functional {
     }
 
     //Remove tokens that look unwanted in the Wallet tab
-    static func filterAwaySpuriousTokens(_ tokens: [TokenObject]) -> [TokenObject] {
+    static func filterAwaySpuriousTokens(_ tokens: [Activity.AssignedToken]) -> [Activity.AssignedToken] {
         tokens.filter {
             switch $0.type {
             case .nativeCryptocurrency, .erc20, .erc875, .erc721, .erc721ForTickets:

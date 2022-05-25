@@ -18,7 +18,7 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
     init(wallet: Wallet, server: RPCServer, etherToken: TokenObject) {
         self.wallet = wallet
         balanceService = FakeMultiWalletBalanceService(wallet: wallet, servers: [server])
-        super.init(wallet: wallet, server: server, etherToken: etherToken, tokenBalanceProvider: balanceService)
+        super.init(wallet: wallet, server: server, etherToken: Activity.AssignedToken(tokenObject: etherToken), tokenBalanceProvider: balanceService)
     }
 
     func triggerUpdateBalanceSubjectTestsOnly(wallet: Wallet) {
