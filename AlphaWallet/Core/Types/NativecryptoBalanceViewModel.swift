@@ -8,33 +8,22 @@
 import Foundation
 import BigInt
 
-struct NativecryptoBalanceViewModel: BalanceBaseViewModel {
-
-    var isZero: Bool {
-        balance.value.isZero
-    }
-
-    private let server: RPCServer
-    private let balance: BalanceProtocol
+struct NativecryptoBalanceViewModel: BalanceViewModel {
     private (set) var ticker: CoinTicker?
+    private let token: Activity.AssignedToken
 
-    init(server: RPCServer, balance: BalanceProtocol, ticker: CoinTicker?) {
-        self.server = server
-        self.balance = balance
+    init(token: Activity.AssignedToken, ticker: CoinTicker?) {
+        self.token = token
         self.ticker = ticker
     }
 
-    var value: BigInt {
-        balance.value
-    }
-
-    var amount: Double {
-        return EtherNumberFormatter.plain.string(from: balance.value, units: .ether).doubleValue
-    }
+    var value: BigInt { token.value }
+    var amount: Double { return EtherNumberFormatter.plain.string(from: token.value, units: .ether).doubleValue }
 
     var amountString: String {
-        guard !isZero else { return "0.00 \(server.symbol)" }
-        return "\(balance.amountFull) \(server.symbol)"
+        guard !isZero else { return "0.00 \(token.server.symbol)" }
+        let balance = EtherNumberFormatter.full.string(from: token.value)
+        return "\(balance) \(token.server.symbol)"
     }
 
     var currencyAmount: String? {
@@ -43,25 +32,15 @@ struct NativecryptoBalanceViewModel: BalanceBaseViewModel {
     }
 
     var currencyAmountWithoutSymbol: Double? {
-        guard let currentRate = cryptoRate(forServer: server) else { return nil }
+        guard let currentRate = cryptoRate(forServer: token.server) else { return nil }
         return amount * currentRate.price
     }
 
-    var amountFull: String {
-        return balance.amountFull
-    }
+    var amountFull: String { return EtherNumberFormatter.full.string(from: value) }
+    var amountShort: String { return EtherNumberFormatter.short.string(from: value) }
+    var symbol: String { return token.server.symbol }
 
-    var amountShort: String {
-        return balance.amountShort
-    }
-
-    var symbol: String {
-        return server.symbol
-    }
-}
-
-extension BalanceBaseViewModel {
-    func cryptoRate(forServer server: RPCServer) -> Rate? {
+    private func cryptoRate(forServer server: RPCServer) -> Rate? {
         guard let rate = ticker?.rate else { return nil }
         
         let code = mapSymbolToCodeInRates(server)

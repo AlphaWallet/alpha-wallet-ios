@@ -21,8 +21,8 @@ protocol TokenBalanceProviderTests {
 }
 
 protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel?
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never>
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never>
     func refreshBalance(updatePolicy: PrivateBalanceFetcher.RefreshBalancePolicy, wallets: [Wallet])
 }
 
@@ -110,12 +110,12 @@ class MultiWalletBalanceService: NSObject, WalletBalanceService {
         }
     }
 
-    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceBaseViewModel? {
+    func tokenBalance(_ key: AddressAndRPCServer, wallet: Wallet) -> BalanceViewModel? {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalance(key)
     }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer, wallet: Wallet) -> AnyPublisher<BalanceViewModel?, Never> {
         return getOrCreateBalanceFetcher(for: wallet)
             .tokenBalancePublisher(addressAndRPCServer)
     }

@@ -15,7 +15,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
     private let transactionType: TransactionType
     private let assetDefinitionStore: AssetDefinitionStore
     private var isShowingValueSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private lazy var balance: AnyPublisher<BalanceBaseViewModel?, Never> = {
+    private lazy var balance: AnyPublisher<BalanceViewModel?, Never> = {
         switch transactionType {
         case .nativeCryptocurrency:
             return session.tokenBalanceService
@@ -30,7 +30,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
                 .prepend(session.tokenBalanceService.tokenBalance(token.addressAndRPCServer))
                 .eraseToAnyPublisher()
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-            return Just<BalanceBaseViewModel?>(nil)
+            return Just<BalanceViewModel?>(nil)
                 .eraseToAnyPublisher()
         }
     }()
@@ -77,7 +77,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
     lazy var title: AnyPublisher<NSAttributedString, Never> = {
         return balance.combineLatest(isShowingValueSubject, { balance, _ in return balance })
             .map { [weak self] balance -> NSAttributedString in
-                guard let strongSelf = self, let balance = balance else { return .init(string: "-") }
+                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
                 let value: String
                 switch strongSelf.transactionType {
                 case .nativeCryptocurrency:
@@ -85,7 +85,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
                 case .erc20Token(let token, _, _):
                     value = "\(balance.amountShort) \(token.symbolInPluralForm(withAssetDefinitionStore: strongSelf.assetDefinitionStore))"
                 case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
-                    value = "-"
+                    value = UiTweaks.noPriceMarker
                 }
                 return strongSelf.asTitleAttributedString(value)
             }
@@ -95,8 +95,8 @@ class NonFungibleTokenHeaderViewModel: NSObject {
     lazy var value: AnyPublisher<NSAttributedString, Never> = {
         return balance.combineLatest(isShowingValueSubject, { balance, _ in return balance })
             .map { [weak self] balance -> NSAttributedString in
-                guard let strongSelf = self, let balance = balance else { return .init(string: "-") }
-                return strongSelf.asValueAttributedStringFor(balance: balance) ?? .init(string: "-")
+                guard let strongSelf = self, let balance = balance else { return .init(string: UiTweaks.noPriceMarker) }
+                return strongSelf.asValueAttributedString(for: balance) ?? .init(string: UiTweaks.noPriceMarker)
             }.eraseToAnyPublisher()
     }()
 
@@ -111,7 +111,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
         ])
     }
 
-    private func asValueAttributedStringFor(balance: BalanceBaseViewModel) -> NSAttributedString? {
+    private func asValueAttributedString(for balance: BalanceViewModel) -> NSAttributedString? {
         if session.server.isTestnet {
             return testnetValueHintLabelAttributedString
         } else {
@@ -128,7 +128,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
         }
     }
 
-    private func tokenValueAttributedStringFor(balance: BalanceBaseViewModel) -> NSAttributedString? {
+    private func tokenValueAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
         let string: String = {
             if let currencyAmount = balance.currencyAmount {
                 return R.string.localizable.aWalletTokenValue(currencyAmount)
@@ -142,7 +142,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
         ])
     }
 
-    private func marketPriceAttributedStringFor(balance: BalanceBaseViewModel) -> NSAttributedString? {
+    private func marketPriceAttributedStringFor(balance: BalanceViewModel) -> NSAttributedString? {
         guard let marketPrice = marketPriceValueFor(balance: balance), let valuePercentageChange = valuePercentageChangeValueFor(balance: balance) else {
             return nil
         }
@@ -165,7 +165,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
         return mutableAttributedString
     }
 
-    private func valuePercentageChangeValueFor(balance: BalanceBaseViewModel) -> String? {
+    private func valuePercentageChangeValueFor(balance: BalanceViewModel) -> String? {
         switch EthCurrencyHelper(ticker: balance.ticker).change24h {
         case .appreciate(let percentageChange24h):
             return "(\(percentageChange24h)%)"
@@ -176,7 +176,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
         }
     }
 
-    private func marketPriceValueFor(balance: BalanceBaseViewModel) -> String? {
+    private func marketPriceValueFor(balance: BalanceViewModel) -> String? {
         if let value = EthCurrencyHelper(ticker: balance.ticker).marketPrice {
             return Formatter.usd.string(from: value)
         } else {

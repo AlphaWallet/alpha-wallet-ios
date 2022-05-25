@@ -5,16 +5,16 @@ import Combine
 
 protocol TokenBalanceService {
     var etherToken: TokenObject { get }
-    var ethBalanceViewModel: BalanceBaseViewModel? { get }
-    var etherBalance: AnyPublisher<BalanceBaseViewModel?, Never> { get }
+    var ethBalanceViewModel: BalanceViewModel? { get }
+    var etherBalance: AnyPublisher<BalanceViewModel?, Never> { get }
     var etherToFiatRatePublisher: AnyPublisher<Double?, Never> { get }
     var etherToFiatRate: Double? { get }
 
     func start()
     func refresh(refreshBalancePolicy: PrivateBalanceFetcher.RefreshBalancePolicy)
     func coinTicker(_ addressAndRPCServer: AddressAndRPCServer) -> CoinTicker?
-    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceBaseViewModel?
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never>
+    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel?
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never>
 }
 
 class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
@@ -30,7 +30,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
             .eraseToAnyPublisher()
     }()
 
-    private (set) lazy var etherBalance: AnyPublisher<BalanceBaseViewModel?, Never> = {
+    private (set) lazy var etherBalance: AnyPublisher<BalanceViewModel?, Never> = {
         return tokenBalancePublisher(etherToken.addressAndRPCServer)
             .eraseToAnyPublisher()
     }()
@@ -40,7 +40,7 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
             .flatMap { $0.price_usd }
     }
 
-    var ethBalanceViewModel: BalanceBaseViewModel? {
+    var ethBalanceViewModel: BalanceViewModel? {
         return tokenBalance(etherToken.addressAndRPCServer)
     }
 
@@ -60,11 +60,11 @@ class SingleChainTokenBalanceService: NSObject, TokenBalanceService {
         balanceProvider.coinTicker(addressAndRPCServer)
     }
 
-    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceBaseViewModel? {
+    func tokenBalance(_ addressAndRPCServer: AddressAndRPCServer) -> BalanceViewModel? {
         balanceProvider.tokenBalance(addressAndRPCServer, wallet: wallet)
     }
 
-    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceBaseViewModel?, Never> {
+    func tokenBalancePublisher(_ addressAndRPCServer: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never> {
         balanceProvider.tokenBalancePublisher(addressAndRPCServer, wallet: wallet)
     }
 

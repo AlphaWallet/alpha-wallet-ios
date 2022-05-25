@@ -215,8 +215,6 @@ class CoinTickersFetcher: CoinTickersFetcherType {
                 }
             }
             return resultTickers
-        }).then(on: CoinTickersFetcher.queue, { tickers -> Promise<[AddressAndRPCServer: CoinTicker]> in
-            return .value(tickers)
         }).recover(on: CoinTickersFetcher.queue, { _ -> Promise<[AddressAndRPCServer: CoinTicker]> in
             if shouldRetry {
                 return fetchPricesPage(provider: provider, config: config, ids: ids, mappedCoinTickerIds: mappedCoinTickerIds, tickerIds: tickerIds, page: page, shouldRetry: false)

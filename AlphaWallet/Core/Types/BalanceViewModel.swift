@@ -3,7 +3,7 @@
 import Foundation
 import BigInt
 
-protocol BalanceBaseViewModel {
+protocol BalanceViewModel {
     var currencyAmount: String? { get }
     var amountFull: String { get }
     var amountShort: String { get }
@@ -15,12 +15,6 @@ protocol BalanceBaseViewModel {
     var ticker: CoinTicker? { get }
 }
 
-extension BalanceBaseViewModel {
-    var isZero: Bool {
-        value.isZero
-    }
-
-    var currencyRate: CurrencyRate? {
-        ticker?.rate
-    }
+extension BalanceViewModel {
+    var isZero: Bool { value.isZero }
 }

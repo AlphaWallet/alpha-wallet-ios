@@ -91,7 +91,7 @@ struct WalletBalance: Equatable {
 
 extension Balance: CustomStringConvertible {
     var description: String {
-        return "value: \(amountFull)"
+        return "value: \(EtherNumberFormatter.full.string(from: value))"
     }
 }
 
