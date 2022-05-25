@@ -14,7 +14,6 @@ protocol NonActivityEventsDataStore {
 
 class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
     private let store: RealmStore
-    private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
 
     init(store: RealmStore) {
         self.store = store
@@ -51,7 +50,6 @@ class NonActivityMultiChainEventsDataStore: NonActivityEventsDataStore {
             publisher = realm.objects(EventInstance.self)
                 .filter("tokenContract = '\(tokenContract.eip55String)'")
                 .changesetPublisher
-                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):

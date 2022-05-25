@@ -10,26 +10,31 @@ import RealmSwift
 import Foundation
 
 final class RealmStore {
-    private let syncQueue: DispatchQueue
-    private let config: Realm.Configuration
+    private let thread: RunLoopThread = .init()
     private let mainThreadRealm: Realm
+    private var backgroundThreadRealm: Realm?
 
-    public init(syncQueue: DispatchQueue = DispatchQueue(label: "com.RealmStore.syncQueue", qos: .background), realm: Realm) {
-        self.syncQueue = syncQueue
+    public init(realm: Realm) {
         self.mainThreadRealm = realm
-        self.config = realm.configuration
+        let config = realm.configuration
+
+        thread.name = "org.alphawallet.swift.realmStore"
+        thread.start()
+
+        thread.performSync() {
+            self.backgroundThreadRealm = try? Realm(configuration: config)
+        }
+
+        assert(backgroundThreadRealm != nil)
     }
 
-    func performSync(_ callback: (Realm) -> Void) {
+    func performSync(_ callback: @escaping (Realm) -> Void) {
         if Thread.isMainThread {
             callback(mainThreadRealm)
         } else {
-            dispatchPrecondition(condition: .notOnQueue(syncQueue))
-            syncQueue.sync {
-                autoreleasepool {
-                    guard let realm = try? Realm(configuration: config) else { return }
-                    callback(realm)
-                }
+            thread.performSync() {
+                guard let realm = self.backgroundThreadRealm else { fatalError("Failure to resolve background realm") }
+                callback(realm)
             }
         }
     }

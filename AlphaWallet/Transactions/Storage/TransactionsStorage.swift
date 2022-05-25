@@ -9,7 +9,6 @@ class TransactionDataStore {
     static var pendingTransactionsInformation: [String: (server: RPCServer, data: Data, transactionType: TransactionType, gasPrice: BigInt)] = .init()
 
     private let store: RealmStore
-    private let queue = DispatchQueue(label: "com.TransactionDataStore.UpdateQueue")
 
     init(store: RealmStore) {
         self.store = store
@@ -54,7 +53,6 @@ class TransactionDataStore {
                 .filter(predicate)
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
-                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let transactions):
@@ -219,7 +217,7 @@ class TransactionDataStore {
         var transactionsToReturn: [TransactionInstance] = []
 
         store.performSync { realm in
-            transactionsToReturn = filterTransactionsToNotOverrideERC20Transactions(transactions, realm: realm)
+            transactionsToReturn = self.filterTransactionsToNotOverrideERC20Transactions(transactions, realm: realm)
             guard !transactionsToReturn.isEmpty else { return }
 
             let transactionsToCommit = transactionsToReturn.map { Transaction(object: $0) }

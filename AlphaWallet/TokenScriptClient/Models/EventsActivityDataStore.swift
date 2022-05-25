@@ -14,7 +14,6 @@ protocol EventsActivityDataStoreProtocol {
 
 class EventsActivityDataStore: EventsActivityDataStoreProtocol {
     private let store: RealmStore
-    private let queue = DispatchQueue(label: "com.NonActivityEventsDataStore.UpdateQueue")
     
     init(store: RealmStore) {
         self.store = store
@@ -26,7 +25,6 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
             publisher = realm.objects(EventActivity.self)
                 .sorted(byKeyPath: "date", ascending: false)
                 .changesetPublisher
-                .subscribe(on: queue)
                 .map { change in
                     switch change {
                     case .initial(let eventActivities):

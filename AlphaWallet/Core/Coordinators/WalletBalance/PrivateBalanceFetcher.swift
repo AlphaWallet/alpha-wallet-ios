@@ -91,6 +91,8 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     }
 
     func refreshBalance(forTokens tokens: [Activity.AssignedToken]) {
+        guard !isRunningTests() else { return }
+        
         let etherTokens = tokens.filter { $0 == etherToken }
         let nonEtherTokens = tokens.filter { $0 != etherToken }
 
