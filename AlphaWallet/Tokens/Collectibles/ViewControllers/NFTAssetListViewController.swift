@@ -107,7 +107,7 @@ extension NFTAssetListViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
 
         let subview = tokenCardViewFactory.create(for: selection.tokenHolder, layout: .list)
-        subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId, tokenView: .viewIconified, assetDefinitionStore: tokenCardViewFactory.assetDefinitionStore)
+        subview.configure(tokenHolder: tokenHolder, tokenId: tokenHolder.tokenId)
         cell.configure(subview: subview)
 
         return cell

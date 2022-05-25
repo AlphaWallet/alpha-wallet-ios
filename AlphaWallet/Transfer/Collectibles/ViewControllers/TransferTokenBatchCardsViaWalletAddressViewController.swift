@@ -146,12 +146,14 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
     }
 
     private func configure(subview: UIView & TokenCardRowViewConfigurable, tokenId: TokenId, tokenHolder: TokenHolder) {
-        subview.configure(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
-        //NOTE: Update with more appropriatable way, type case isn't a good approach
         if let typeSubView = subview as? NonFungibleRowView {
-            typeSubView.configure(viewModel: NonFungibleRowViewModel2(tokenHolder: tokenHolder, tokenId: tokenId))
+            var viewModel = NonFungibleRowViewModel(tokenHolder: tokenHolder, tokenId: tokenId)
+            viewModel.titleColor = Colors.appText
+            viewModel.titleFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 13 : 17)
+
+            typeSubView.configure(viewModel: viewModel)
         } else {
-            //no-op
+            subview.configure(tokenHolder: tokenHolder, tokenId: tokenId)
         }
     }
 

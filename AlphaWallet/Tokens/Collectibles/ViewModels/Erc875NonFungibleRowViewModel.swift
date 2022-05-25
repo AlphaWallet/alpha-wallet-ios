@@ -9,7 +9,6 @@ import UIKit
 
 struct Erc875NonFungibleRowViewModel {
     private let tokenHolder: TokenHolder
-    private let assetDefinitionStore: AssetDefinitionStore
     private let displayHelper: OpenSeaNonFungibleTokenDisplayHelper
     private let tokenId: TokenId
 
@@ -17,10 +16,9 @@ struct Erc875NonFungibleRowViewModel {
         return Colors.appBackground
     }
 
-    init(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore) {
+    init(tokenHolder: TokenHolder, tokenId: TokenId) {
         self.tokenHolder = tokenHolder
         self.tokenId = tokenId
-        self.assetDefinitionStore = assetDefinitionStore
         displayHelper = .init(contract: tokenHolder.contractAddress)
     }
 

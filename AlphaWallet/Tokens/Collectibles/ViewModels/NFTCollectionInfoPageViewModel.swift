@@ -22,7 +22,7 @@ enum NFTPreviewViewType {
 extension NFTPreviewViewType {
     enum Params {
         case image(iconImage: Subscribable<TokenImage>)
-        case some(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore)
+        case tokenScriptWebView(tokenHolder: TokenHolder, tokenId: TokenId)
     }
 }
 
@@ -94,14 +94,23 @@ struct NFTCollectionInfoPageViewModel {
     var previewViewParams: NFTPreviewViewType.Params {
         switch previewViewType {
         case .tokenCardView:
-            return .some(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            return .tokenScriptWebView(tokenHolder: tokenHolder, tokenId: tokenId)
         case .imageView:
             return .image(iconImage: token.icon(withSize: .s750))
         }
     }
 
     var previewEdgeInsets: UIEdgeInsets {
-        return .init(top: 0, left: 8, bottom: 0, right: 8)
+        switch previewViewType {
+        case .tokenCardView:
+            return .init(top: 0, left: 8, bottom: 0, right: 8)
+        case .imageView:
+            return .init(top: 0, left: 15, bottom: 0, right: 15)
+        }
+    }
+
+    var previewViewContentBackgroundColor: UIColor {
+        return Colors.appBackground
     }
 
     init(server: RPCServer, token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, forWallet wallet: Wallet) {
@@ -121,11 +130,7 @@ struct NFTCollectionInfoPageViewModel {
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
-    }
-
-    var iconImage: Subscribable<TokenImage> {
-        token.icon(withSize: .s750)
-    }
+    } 
 
     var blockChainTagViewModel: BlockchainTagLabelViewModel {
         .init(server: server)
@@ -168,7 +173,6 @@ struct NFTCollectionInfoPageViewModel {
         let descriptionViewModel = TokenInstanceAttributeViewModel(title: nil, attributedValue: s, value: s.string, isSeparatorHidden: true)
 
         return [
-
             .header(viewModel: .init(title: R.string.localizable.semifungiblesProjectInfo())),
             .field(viewModel: descriptionViewModel)
         ]

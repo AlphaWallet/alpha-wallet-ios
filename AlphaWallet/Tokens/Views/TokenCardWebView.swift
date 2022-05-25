@@ -51,12 +51,12 @@ class TokenCardWebView: UIView, TokenCardRowViewConfigurable, ViewRoundingSuppor
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(tokenHolder: TokenHolder, tokenId: TokenId, tokenView: TokenView, assetDefinitionStore: AssetDefinitionStore) {
+    func configure(tokenHolder: TokenHolder, tokenId: TokenId) {
         lastTokenHolder = tokenHolder
         configure(viewModel: TokenCardWebViewModel(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
     }
 
-    func configure(viewModel: TokenCardWebViewModel) {
+    private func configure(viewModel: TokenCardWebViewModel) {
         backgroundColor = viewModel.contentsBackgroundColor
         if viewModel.hasTokenScriptHtml {
             tokenScriptRendererView.isHidden = false

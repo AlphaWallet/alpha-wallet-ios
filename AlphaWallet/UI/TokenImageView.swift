@@ -31,15 +31,19 @@ class TokenImageView: UIView, ViewRoundingSupportable {
         label.font = UIFont.systemFont(ofSize: 13)
         label.textAlignment = .center
         label.adjustsFontSizeToFitWidth = true
+
         return label
     }()
     private lazy var imageView: WebImageView = {
         let imageView = WebImageView()
         imageView.rounding = rounding
+        imageView.backgroundColor = backgroundColor
+
         return imageView
     }()
     private lazy var chainOverlayImageView: UIImageView = {
         let imageView = UIImageView()
+
         return imageView
     }()
 
@@ -61,6 +65,10 @@ class TokenImageView: UIView, ViewRoundingSupportable {
 
     override var contentMode: UIView.ContentMode {
         didSet { imageView.contentMode = contentMode }
+    }
+
+    override var backgroundColor: UIColor? {
+        didSet { imageView.backgroundColor = backgroundColor; }
     }
 
     var subscribable: Subscribable<TokenImage>? {

@@ -201,7 +201,7 @@ extension NFTAssetSelectionViewController: UITableViewDataSource {
         cell.prapare(with: subview)
         cell.configure(viewModel: .init(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId))
 
-        subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId, tokenView: .viewIconified, assetDefinitionStore: tokenCardViewFactory.assetDefinitionStore)
+        subview.configure(tokenHolder: selection.tokenHolder, tokenId: selection.tokenId)
         //NOTE: tweak views background color
         subview.backgroundColor = .clear
 

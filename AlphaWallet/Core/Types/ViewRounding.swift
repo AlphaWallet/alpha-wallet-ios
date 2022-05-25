@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ContentBackgroundSupportable {
+    var contentBackgroundColor: UIColor? { get set }
+}
+
 protocol ViewRoundingSupportable {
     var rounding: ViewRounding { get set }
 }

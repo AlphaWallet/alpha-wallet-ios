@@ -56,7 +56,7 @@ class NFTAssetViewModel {
     var previewViewParams: NFTPreviewViewType.Params {
         switch previewViewType {
         case .tokenCardView:
-            return .some(tokenHolder: tokenHolder, tokenId: tokenId, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
+            return .tokenScriptWebView(tokenHolder: tokenHolder, tokenId: tokenId)
         case .imageView:
             let tokenImage = tokenHolder.assetImageUrl(tokenId: tokenId)
                 .flatMap { TokenImage(image: .url($0), symbol: "", isFinal: true, overlayServerIcon: nil) }
@@ -65,8 +65,25 @@ class NFTAssetViewModel {
         }
     }
 
+    var previewViewContentBackgroundColor: UIColor {
+        if displayHelper.imageHasBackgroundColor {
+            return Colors.appBackground
+        } else {
+            if let color = tokenHolder.values.backgroundColorStringValue.nilIfEmpty {
+                return UIColor(hex: color)
+            } else {
+                return UIColor(red: 247, green: 197, blue: 196)
+            }
+        }
+    }
+
     var previewEdgeInsets: UIEdgeInsets {
-        return .init(top: 0, left: 8, bottom: 0, right: 8)
+        switch previewViewType {
+        case .tokenCardView:
+            return .init(top: 0, left: 8, bottom: 0, right: 8)
+        case .imageView:
+            return .init(top: 0, left: 15, bottom: 0, right: 15)
+        }
     }
 
     init(account: Wallet, tokenId: TokenId, token: TokenObject, tokenHolder: TokenHolder, assetDefinitionStore: AssetDefinitionStore) {
