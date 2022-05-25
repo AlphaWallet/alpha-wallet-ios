@@ -7,37 +7,18 @@
 
 import Foundation
 
-struct TokenMappedToTicker: Hashable {
+struct TokenMappedToTicker: Hashable, Codable {
     let symbol: String
     let name: String
     let contractAddress: AlphaWallet.Address
     let server: RPCServer
+    /// Already found ticker id, out of info.coingeckoTickerId
+    let coinGeckoId: String?
 
-    init(token: Token) {
-        symbol = token.symbol
-        name = token.name
-        contractAddress = token.contractAddress
-        server = token.server
-    }
-
-    var canPassFiltering: Bool {
-        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .binance_smart_chain && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .klaytnCypress && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else if server == .xDai && contractAddress == Constants.nativeCryptoAddressInDatabase {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    func overridenCoinGeckoTickerId(tickerId: String) -> String {
-        if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
+    var knownCoinGeckoTickerId: String? {
+        if let tickerId = coinGeckoId {
+            return tickerId
+        } else if server == .avalanche && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "avalanche-2"
         } else if server == .fantom && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "fantom"
@@ -47,8 +28,34 @@ struct TokenMappedToTicker: Hashable {
             return "klay-token"
         } else if server == .xDai && contractAddress == Constants.nativeCryptoAddressInDatabase {
             return "gnosis"
+        } else if server == .arbitrum && contractAddress == Constants.nativeCryptoAddressInDatabase {
+            return "ethereum"
         } else {
-            return tickerId
+            return nil
         }
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(contractAddress.eip55String)
+        hasher.combine(server.chainID)
+    }
+}
+
+extension TokenMappedToTicker {
+
+    init(token: Token) {
+        symbol = token.symbol
+        name = token.name
+        contractAddress = token.contractAddress
+        server = token.server
+        coinGeckoId = token.info.coinGeckoId
+    } 
+}
+
+extension TokenMappedToTicker: Equatable {
+
+    /// Checks for matching of ticker id
+    public static func == (lhs: TokenMappedToTicker, rhs: AddressAndRPCServer) -> Bool {
+        return lhs.contractAddress.sameContract(as: rhs.address) && lhs.server == rhs.server
     }
 }

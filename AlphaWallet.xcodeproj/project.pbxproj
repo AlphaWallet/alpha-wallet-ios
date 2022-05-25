@@ -768,6 +768,8 @@
 		8703FC15270366DA0062C416 /* AlphaWalletSafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 8703FBFD270366DA0062C416 /* AlphaWalletSafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		870415A125E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */; };
 		87094598285853B800E2746E /* CleanupPasscode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87094597285853B800E2746E /* CleanupPasscode.swift */; };
+		8709459C2858F04800E2746E /* InMemoryTickerIdsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8709459B2858F04800E2746E /* InMemoryTickerIdsFetcher.swift */; };
+		8709459E2858F06100E2746E /* TickerIdsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8709459D2858F06100E2746E /* TickerIdsFetcher.swift */; };
 		870CC47927C6561F00A19380 /* TokenFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47827C6561F00A19380 /* TokenFetcher.swift */; };
 		870CC47B27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47A27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift */; };
 		870CC47D27C6566400A19380 /* AutoDetectTokensOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870CC47C27C6566400A19380 /* AutoDetectTokensOperation.swift */; };
@@ -970,7 +972,7 @@
 		8766B053283242E3004CF81C /* NFTPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8766B052283242E3004CF81C /* NFTPreviewView.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8769BCA8256D15BF0095EA5B /* BlockieImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */; };
-		876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */; };
+		876C80C92673349300B16595 /* CoinTickersStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80C82673349300B16595 /* CoinTickersStorage.swift */; };
 		876C80CD2673940B00B16595 /* SwitchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876C80CC2673940B00B16595 /* SwitchView.swift */; };
 		87713EAE264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */; };
 		87713EB0264BAB2500B1B9CB /* TokenPagesContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */; };
@@ -1085,6 +1087,9 @@
 		87BC89B826B82288005482F4 /* UIBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BC89B726B82287005482F4 /* UIBarButtonItem.swift */; };
 		87BDF47028423DC30018DC68 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = 87BDF46F28423DC30018DC68 /* WalletConnect */; };
 		87BE29B7283B7F8F001FC0CD /* TokenSwapperStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BE29B6283B7F8F001FC0CD /* TokenSwapperStore.swift */; };
+		87BE29C1283D2BA0001FC0CD /* CoinGeckoNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BE29C0283D2BA0001FC0CD /* CoinGeckoNetworkProvider.swift */; };
+		87BE29C5283D2E24001FC0CD /* CoinGeckoTickersFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BE29C4283D2E24001FC0CD /* CoinGeckoTickersFetcher.swift */; };
+		87BE29C7283D320A001FC0CD /* CoinGeckoTickerIdsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BE29C6283D320A001FC0CD /* CoinGeckoTickerIdsFetcher.swift */; };
 		87C10A6525ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */; };
 		87C237DC26DE5303003CA387 /* UIToolbar+Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */; };
 		87C237DE26DE5389003CA387 /* SelectAssetAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */; };
@@ -1139,6 +1144,7 @@
 		87E2555424F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */; };
 		87E2555624F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */; };
 		87E2555824F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */; };
+		87EA6A722869A4F30007E47E /* tokens_2.json in Resources */ = {isa = PBXBuildFile; fileRef = 87EA6A712869851F0007E47E /* tokens_2.json */; };
 		87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
 		87ED8F95248535400005C69B /* SwitchTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */; };
@@ -2037,6 +2043,8 @@
 		8703FC12270366DA0062C416 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		870415A025E8FBD30013F3E2 /* MixpanelCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinatorTests.swift; sourceTree = "<group>"; };
 		87094597285853B800E2746E /* CleanupPasscode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupPasscode.swift; sourceTree = "<group>"; };
+		8709459B2858F04800E2746E /* InMemoryTickerIdsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryTickerIdsFetcher.swift; sourceTree = "<group>"; };
+		8709459D2858F06100E2746E /* TickerIdsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerIdsFetcher.swift; sourceTree = "<group>"; };
 		870CC47827C6561F00A19380 /* TokenFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFetcher.swift; sourceTree = "<group>"; };
 		870CC47A27C6563D00A19380 /* AutoDetectTransactedTokensOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoDetectTransactedTokensOperation.swift; sourceTree = "<group>"; };
 		870CC47C27C6566400A19380 /* AutoDetectTokensOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoDetectTokensOperation.swift; sourceTree = "<group>"; };
@@ -2239,7 +2247,7 @@
 		8766B052283242E3004CF81C /* NFTPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTPreviewView.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8769BCA7256D15BF0095EA5B /* BlockieImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockieImageView.swift; sourceTree = "<group>"; };
-		876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersFetcherCache.swift; sourceTree = "<group>"; };
+		876C80C82673349300B16595 /* CoinTickersStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinTickersStorage.swift; sourceTree = "<group>"; };
 		876C80CC2673940B00B16595 /* SwitchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchView.swift; sourceTree = "<group>"; };
 		87713EAD264ABF2800B1B9CB /* DecodedFunctionCall+Decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodedFunctionCall+Decode.swift"; sourceTree = "<group>"; };
 		87713EAF264BAB2500B1B9CB /* TokenPagesContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPagesContainerView.swift; sourceTree = "<group>"; };
@@ -2350,6 +2358,9 @@
 		87BC890D26B7EDC6005482F4 /* WalletSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSummaryView.swift; sourceTree = "<group>"; };
 		87BC89B726B82287005482F4 /* UIBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBarButtonItem.swift; sourceTree = "<group>"; };
 		87BE29B6283B7F8F001FC0CD /* TokenSwapperStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSwapperStore.swift; sourceTree = "<group>"; };
+		87BE29C0283D2BA0001FC0CD /* CoinGeckoNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinGeckoNetworkProvider.swift; sourceTree = "<group>"; };
+		87BE29C4283D2E24001FC0CD /* CoinGeckoTickersFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinGeckoTickersFetcher.swift; sourceTree = "<group>"; };
+		87BE29C6283D320A001FC0CD /* CoinGeckoTickerIdsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinGeckoTickerIdsFetcher.swift; sourceTree = "<group>"; };
 		87C10A6425ED1105008E9B1B /* SignatureConfirmationDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureConfirmationDetailsViewController.swift; sourceTree = "<group>"; };
 		87C237DB26DE5303003CA387 /* UIToolbar+Custom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIToolbar+Custom.swift"; sourceTree = "<group>"; };
 		87C237DD26DE5389003CA387 /* SelectAssetAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetAmountView.swift; sourceTree = "<group>"; };
@@ -2406,6 +2417,7 @@
 		87E2555324F52E9500F025F7 /* GasSpeedTableViewHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderView.swift; sourceTree = "<group>"; };
 		87E2555524F52EAA00F025F7 /* GasSpeedTableViewHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewHeaderViewModel.swift; sourceTree = "<group>"; };
 		87E2555724F52EBF00F025F7 /* GasSpeedTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasSpeedTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		87EA6A712869851F0007E47E /* tokens_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tokens_2.json; sourceTree = "<group>"; };
 		87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenCoordinator.swift; sourceTree = "<group>"; };
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
 		87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCellViewModel.swift; sourceTree = "<group>"; };
@@ -5574,9 +5586,11 @@
 		879599482604A5A2006722B2 /* CoinTicker */ = {
 			isa = PBXGroup;
 			children = (
+				87BE29BF283D2B94001FC0CD /* CoinGecko */,
 				87F15B0C27F365B500EB9787 /* Types */,
 				879599492604A5B6006722B2 /* CoinTickersFetcher.swift */,
-				876C80C82673349300B16595 /* CoinTickersFetcherCache.swift */,
+				876C80C82673349300B16595 /* CoinTickersStorage.swift */,
+				87EA6A712869851F0007E47E /* tokens_2.json */,
 			);
 			path = CoinTicker;
 			sourceTree = "<group>";
@@ -5767,6 +5781,16 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
+		87BE29BF283D2B94001FC0CD /* CoinGecko */ = {
+			isa = PBXGroup;
+			children = (
+				87BE29C0283D2BA0001FC0CD /* CoinGeckoNetworkProvider.swift */,
+				87BE29C4283D2E24001FC0CD /* CoinGeckoTickersFetcher.swift */,
+				87BE29C6283D320A001FC0CD /* CoinGeckoTickerIdsFetcher.swift */,
+			);
+			path = CoinGecko;
+			sourceTree = "<group>";
+		};
 		87C2008927A483A100338D26 /* OpenSea */ = {
 			isa = PBXGroup;
 			children = (
@@ -5878,6 +5902,8 @@
 		87F15B0C27F365B500EB9787 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				8709459B2858F04800E2746E /* InMemoryTickerIdsFetcher.swift */,
+				8709459D2858F06100E2746E /* TickerIdsFetcher.swift */,
 				87F15B0D27F365BF00EB9787 /* TickerIdFilter.swift */,
 				87F15B0F27F365D800EB9787 /* TickerId.swift */,
 				87F15B1127F365F000EB9787 /* TokenMappedToTicker.swift */,
@@ -6264,6 +6290,7 @@
 				C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */,
 				5E7C73AB79C2C5FC6C76CDFF /* ERC20-TokenScript.tsml in Resources */,
 				5E7C7F906FE07C75F357569B /* DAI.tsml in Resources */,
+				87EA6A722869A4F30007E47E /* tokens_2.json in Resources */,
 				02425FB327852B85007ECF94 /* chains.zip in Resources */,
 				5E7C7F808D0B0B19ECEA6623 /* ETH.tsml in Resources */,
 				5E7C706322B52C0D0CED8018 /* aETH.tsml in Resources */,
@@ -6694,6 +6721,7 @@
 				296105931FA2AA2100292494 /* UnsignedTransaction.swift in Sources */,
 				8765D6CD282A3B9400529F45 /* GasLimitWarning.swift in Sources */,
 				296105951FA2DEF000292494 /* TransactionDirection.swift in Sources */,
+				87BE29C7283D320A001FC0CD /* CoinGeckoTickerIdsFetcher.swift in Sources */,
 				291ED08B1F6F5D2100E7E93A /* Bundle.swift in Sources */,
 				293B8B451F70A20200356286 /* TransactionViewCell.swift in Sources */,
 				872A98812864606700196EA3 /* SwapTransactionViewModel.swift in Sources */,
@@ -6715,6 +6743,7 @@
 				025F5D202760C76A00B2A3BC /* ExportJsonKeystorePasswordView.swift in Sources */,
 				296421991F70C1F900EB363B /* EmptyView.swift in Sources */,
 				8795994A2604A5B6006722B2 /* CoinTickersFetcher.swift in Sources */,
+				87BE29C5283D2E24001FC0CD /* CoinGeckoTickersFetcher.swift in Sources */,
 				73C41C71201B46AD00243C6C /* LockEnterPasscodeViewModel.swift in Sources */,
 				29FA00D0201CA66A002F7DC5 /* DAppError.swift in Sources */,
 				2995739F1FA1F294006F17FD /* QRCodeValueParser.swift in Sources */,
@@ -6833,6 +6862,7 @@
 				8765D6CB282A3B8000529F45 /* GasFeeWarning.swift in Sources */,
 				87DCCB51266F655D003E8EA0 /* WalletSummaryViewModel.swift in Sources */,
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
+				8709459E2858F06100E2746E /* TickerIdsFetcher.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
 				0235A795280D470000E65C61 /* RPCDisplaySelectableTableViewCell.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
@@ -6905,6 +6935,7 @@
 				8739BB6626CCED4B0045CFED /* NFTAssetsPageView.swift in Sources */,
 				87ED8F95248535400005C69B /* SwitchTableViewCellViewModel.swift in Sources */,
 				29E2E33E1F7A2423000CF94A /* TransactionHeaderView.swift in Sources */,
+				87BE29C1283D2BA0001FC0CD /* CoinGeckoNetworkProvider.swift in Sources */,
 				879FD3A6273C115800D9747D /* WalletConnectV2URI.swift in Sources */,
 				872A987728645F9A00196EA3 /* TokenScriptTransactionViewModel.swift in Sources */,
 				87D84747274521FD00EDBA80 /* TransactionConfirmationRPCServerInfoView.swift in Sources */,
@@ -7057,6 +7088,7 @@
 				5E7C745C725F3F34037DCC68 /* SetTransferTokensCardExpiryDateViewControllerViewModel.swift in Sources */,
 				5E7C74B5796FB59C8427C7A0 /* GenerateTransferMagicLinkViewController.swift in Sources */,
 				87620026266E07490059B05A /* ThreadSafeDictionary.swift in Sources */,
+				8709459C2858F04800E2746E /* InMemoryTickerIdsFetcher.swift in Sources */,
 				874ED6A627DF5411001AB374 /* SelectNetworkView.swift in Sources */,
 				871CE2E727DF80AF00B1E1CF /* SelectableSlippageView.swift in Sources */,
 				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
@@ -7378,7 +7410,7 @@
 				5E7C7ED8CC713EA8548F295D /* XMLHandler.swift in Sources */,
 				5E7C7AD6B20E857DAF560E4E /* AssetAttributeValues.swift in Sources */,
 				5E7C7A957F0CF58041D4929E /* AssetAttributeSyntaxValue.swift in Sources */,
-				876C80C92673349300B16595 /* CoinTickersFetcherCache.swift in Sources */,
+				876C80C92673349300B16595 /* CoinTickersStorage.swift in Sources */,
 				87C8018C24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift in Sources */,
 				5E7C7BDE26B72B7620EA5F01 /* AssetDefinitionBackingStore.swift in Sources */,
 				5E7C75421C08B96E8872722C /* GeneralisedTime.swift in Sources */,

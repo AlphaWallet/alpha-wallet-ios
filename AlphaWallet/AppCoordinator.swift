@@ -37,7 +37,12 @@ class AppCoordinator: NSObject, Coordinator {
         return coordinators.first { $0 is ActiveWalletCoordinator } as? ActiveWalletCoordinator
     }
     private let localStore: LocalStore = RealmLocalStore()
-    private lazy var coinTickersFetcher: CoinTickersFetcherType = CoinTickersFetcher(provider: AlphaWalletProviderFactory.makeProvider(), config: config)
+    private lazy var coinTickersFetcher: CoinTickersFetcherType = {
+        let networkProvider = CoinGeckoNetworkProvider(provider: AlphaWalletProviderFactory.makeProvider())
+        let storage = CoinTickersFileStorage(config: config)
+
+        return CoinGeckoTickersFetcher(networkProvider: networkProvider, config: config, storage: storage)
+    }()
     private lazy var walletBalanceService: WalletBalanceService = {
         return MultiWalletBalanceService(store: localStore, keystore: keystore, config: config, assetDefinitionStore: assetDefinitionStore, analyticsCoordinator: analyticsService, coinTickersFetcher: coinTickersFetcher, walletAddressesStore: walletAddressesStore)
     }()

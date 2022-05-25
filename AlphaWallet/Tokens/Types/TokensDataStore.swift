@@ -34,6 +34,12 @@ protocol TokensDataStore: NSObjectProtocol {
 }
 
 extension TokensDataStore {
+    
+    @discardableResult func updateToken(addressAndRpcServer: AddressAndRPCServer, action: TokenUpdateAction) -> Bool? {
+        let primaryKey = TokenObject.generatePrimaryKey(fromContract: addressAndRpcServer.address, server: addressAndRpcServer.server)
+        return updateToken(primaryKey: primaryKey, action: action)
+    }
+
     func initialOrNewTokensPublisher(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
         return enabledTokensChangeset(for: servers)
             .tryMap { changeset -> [Token] in
@@ -178,6 +184,7 @@ enum TokenUpdateAction {
     case type(TokenType)
     case isHidden(Bool)
     case imageUrl(URL?)
+    case coinGeckoTickerId(String)
 }
 
 class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
@@ -549,6 +556,11 @@ class MultipleChainsTokensDataStore: NSObject, TokensDataStore {
         case .imageUrl(let url):
             if tokenObject._info?.imageUrl != url?.absoluteString {
                 tokenObject._info?.imageUrl = url?.absoluteString
+                result = true
+            }
+        case .coinGeckoTickerId(let id):
+            if tokenObject._info?.coinGeckoId != id {
+                tokenObject._info?.coinGeckoId = id
                 result = true
             }
         }

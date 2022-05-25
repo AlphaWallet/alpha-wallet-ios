@@ -88,31 +88,52 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         subscribeForTokenUpdates()
     }
 
-    private static var nativeCryptoForAllChains: [Token] = {
+    private var nativeCryptoForAllChains: [Token] = {
         return RPCServer.allCases
             .map { MultipleChainsTokensDataStore.functional.etherToken(forServer: $0) }
     }()
 
     private func subscribeForTokenUpdates() {
-        servers.compactMap { [weak tokensDataStore] in tokensDataStore?.initialOrNewTokensPublisher(for: $0) }
+        servers.compactMap { [tokensDataStore] in tokensDataStore.initialOrNewTokensPublisher(for: $0) }
             .switchToLatest()
             .receive(on: queue)
-            .sink { [weak coinTickersFetcher] tokens in
-                let tokens = (tokens + Self.nativeCryptoForAllChains).filter { !$0.server.isTestnet }
-                let uniqueTokens = Set(tokens).map { TokenMappedToTicker(token: $0) }
-
-                coinTickersFetcher?.fetchPrices(forTokens: uniqueTokens)
+            .sink { [weak self] tokens in
+                self?.fetchTickers(for: tokens)
             }.store(in: &cancelable)
     }
 
+    private func fetchTickers(for tokens: [Token]) {
+        let tokens = (tokens + nativeCryptoForAllChains).filter { token in
+            switch token.type {
+            case .erc20, .nativeCryptocurrency: return !token.server.isTestnet
+            case .erc875, .erc721, .erc1155, .erc721ForTickets: return false
+            }
+        }.map { TokenMappedToTicker(token: $0) }
+
+        coinTickersFetcher.fetchTickers(for: Array(Set(tokens)), force: false)
+    }
+
     private func subscribeForTickerUpdates() {
-        coinTickersFetcher
-            .tickersUpdatedPublisher
+        coinTickersFetcher.tickersDidUpdate
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.reloadWalletBalance()
                 guard !isRunningTests() else { return }
                 self?.triggerUpdateBalance()
+            }.store(in: &cancelable)
+
+        coinTickersFetcher.updateTickerId
+            .receive(on: queue)
+            .sink { [tokensDataStore] value in
+                tokensDataStore.updateToken(addressAndRpcServer: value.key, action: TokenUpdateAction.coinGeckoTickerId(value.tickerId))
+            }.store(in: &cancelable)
+
+        tokensDataStore.enabledTokensPublisher(for: RPCServer.allCases)
+            .receive(on: queue)
+            .map { $0.filter { $0.info.coinGeckoId == nil } }
+            .sink { [coinTickersFetcher] tokens in
+                let tokens = tokens.map { TokenMappedToTicker(token: $0) }
+                coinTickersFetcher.resolveTikerIds(for: tokens)
             }.store(in: &cancelable)
     }
 
@@ -180,7 +201,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         delegate?.didUpdate(in: self)
     }
 
-    private func balanceViewModel(forToken token: Token) -> BalanceViewModel {
+    private func balanceViewModel(for token: Token) -> BalanceViewModel {
         let ticker = coinTickersFetcher.ticker(for: token.addressAndRPCServer)
 
         switch token.type {
@@ -202,7 +223,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             return nil
         }
 
-        return balanceViewModel(forToken: token)
+        return balanceViewModel(for: token)
     }
 
     func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never> {
@@ -215,7 +236,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .eraseToAnyPublisher()
 
         return Publishers.Merge(forceReloadBalanceWhenServersChange, tokenPublisher)
-            .map { $0.flatMap { self.balanceViewModel(forToken: $0) } }
+            .map { $0.flatMap { self.balanceViewModel(for: $0) } }
             .eraseToAnyPublisher()
     }
 
@@ -243,6 +264,9 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                     let tokens = self.tokensDataStore.enabledTokens(for: [server])
                     fetcher.refreshBalance(for: tokens)
                 }
+
+                let tokens = self.tokensDataStore.enabledTokens(for: self.config.enabledServers)
+                self.fetchTickers(for: tokens)
             case .eth:
                 for (_, fetcher) in self.balanceFetchers.values {
                     fetcher.refreshBalance(for: [fetcher.etherToken])

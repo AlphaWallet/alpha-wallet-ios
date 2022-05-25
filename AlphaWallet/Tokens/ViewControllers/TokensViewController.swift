@@ -418,7 +418,7 @@ extension TokensViewController: UITableViewDataSource {
                 return cell
             case .token(let token):
                 let session = sessions[token.server]
-
+                
                 switch token.type {
                 case .nativeCryptocurrency:
                     let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
