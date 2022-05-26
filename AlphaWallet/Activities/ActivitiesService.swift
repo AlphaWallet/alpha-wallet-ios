@@ -84,17 +84,17 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         self.tokensDataStore = tokensDataStore
         super.init()
 
-        let transactionsChangesetPublisher = transactionDataStore
-            .transactionsChangesetPublisher(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
+        let transactionsChangeset = transactionDataStore
+            .transactionsChangeset(forFilter: transactionsFilterStrategy, servers: config.enabledServers)
             .map { _ in }
             .eraseToAnyPublisher()
 
-        let eventsActivityPublisher = eventsActivityDataStore
-            .recentEventsPublisher
+        let eventsActivity = eventsActivityDataStore
+            .recentEventsChangeset
             .map { _ in }
             .eraseToAnyPublisher()
 
-        Publishers.Merge(transactionsChangesetPublisher, eventsActivityPublisher)
+        Publishers.Merge(transactionsChangeset, eventsActivity)
             .receive(on: queue)
             .sink { [weak self]  _ in
                 self?.createActivities(reloadImmediately: true)
@@ -161,7 +161,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     private func getTokensForActivities() -> [Activity.AssignedToken] {
         switch transactionsFilterStrategy {
         case .all:
-            return tokensDataStore.enabledTokens(forServers: config.enabledServers)
+            return tokensDataStore.enabledTokens(for: config.enabledServers)
         case .filter(_, let token):
             return [token]
         case .predicate:

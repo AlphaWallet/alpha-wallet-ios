@@ -93,7 +93,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     }
 
     private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], forServer server: RPCServer) -> [AlphaWallet.Address] {
-        let alreadyAddedContracts = tokensDataStore.enabledTokens(forServers: [server]).map { $0.contractAddress }
+        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
         let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
         let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
         let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.address }
@@ -181,7 +181,7 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
     private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], forServer server: RPCServer) -> [AlphaWallet.Address] {
 
-        let alreadyAddedContracts = tokensDataStore.enabledTokens(forServers: [server]).map { $0.contractAddress }
+        let alreadyAddedContracts = tokensDataStore.enabledTokens(for: [server]).map { $0.contractAddress }
         let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
         let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
 

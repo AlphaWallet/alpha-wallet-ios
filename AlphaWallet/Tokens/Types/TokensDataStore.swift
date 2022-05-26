@@ -15,8 +15,8 @@ enum DataStoreError: Error {
 
 /// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
-    func enabledTokensChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never>
-    func enabledTokens(forServers servers: [RPCServer]) -> [Activity.AssignedToken]
+    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never>
+    func enabledTokens(for servers: [RPCServer]) -> [Activity.AssignedToken]
     func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Activity.AssignedToken?, DataStoreError>
     func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
@@ -58,7 +58,7 @@ enum TokenUpdateAction {
         }
     }
 
-    func enabledTokensChangesetPublisher(forServers servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never> {
+    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never>!
         store.performSync { realm in
             publisher = self.enabledTokenObjectResults(forServers: servers, realm: realm)
@@ -116,7 +116,7 @@ enum TokenUpdateAction {
             }).eraseToAnyPublisher()
     }
 
-    func enabledTokens(forServers servers: [RPCServer]) -> [Activity.AssignedToken] {
+    func enabledTokens(for servers: [RPCServer]) -> [Activity.AssignedToken] {
         var tokensToReturn: [Activity.AssignedToken] = []
         store.performSync { realm in
             let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Activity.AssignedToken(tokenObject: $0) })

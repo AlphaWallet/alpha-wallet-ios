@@ -29,21 +29,17 @@ class TransactionsService {
 
     weak var delegate: TransactionsServiceDelegate?
 
-    var transactionsChangesetPublisher: AnyPublisher<[TransactionInstance], Never> {
+    var transactionsChangeset: AnyPublisher<[TransactionInstance], Never> {
         let servers = sessions.values.map { $0.server }
         return transactionDataStore
-            .transactionsChangesetPublisher(forFilter: .all, servers: servers)
+            .transactionsChangeset(forFilter: .all, servers: servers)
             .map { change -> [TransactionInstance] in
                 switch change {
-                case .initial(let transactions):
-                    return transactions
-                case .update(let transactions, _, _, _):
-                    return transactions
-                case .error:
-                    return []
+                case .initial(let transactions): return transactions
+                case .update(let transactions, _, _, _): return transactions
+                case .error: return []
                 }
-            }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }
     private var cancelable = Set<AnyCancellable>()
     private let queue = DispatchQueue(label: "com.TransactionsService.UpdateQueue")

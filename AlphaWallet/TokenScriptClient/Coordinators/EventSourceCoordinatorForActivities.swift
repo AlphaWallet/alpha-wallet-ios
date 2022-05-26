@@ -37,7 +37,7 @@ final class EventSourceCoordinatorForActivities {
 
     private func subscribeForTokenChanges() {
         tokensDataStore
-            .enabledTokensChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangeset(for: enabledServers)
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.fetchEthereumEvents()
@@ -109,7 +109,7 @@ final class EventSourceCoordinatorForActivities {
         guard !isFetching else { return }
         isFetching = true
 
-        let tokens = tokensDataStore.enabledTokens(forServers: enabledServers)
+        let tokens = tokensDataStore.enabledTokens(for: enabledServers)
         let promises = tokens.map { fetchEvents(forToken: $0) }.flatMap { $0 }
 
         when(resolved: promises).done { [weak self] _ in

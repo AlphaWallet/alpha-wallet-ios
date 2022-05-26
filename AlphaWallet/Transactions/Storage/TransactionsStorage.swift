@@ -30,7 +30,7 @@ class TransactionDataStore {
         return results
     }
 
-    func transactionsChangesetPublisher(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TransactionInstance]>, Never> {
+    func transactionsChangeset(forFilter filter: TransactionsFilterStrategy, servers: [RPCServer]) -> AnyPublisher<ChangeSet<[TransactionInstance]>, Never> {
         let predicate: NSPredicate
         switch filter {
         case .filter(let filter, let tokenObject):

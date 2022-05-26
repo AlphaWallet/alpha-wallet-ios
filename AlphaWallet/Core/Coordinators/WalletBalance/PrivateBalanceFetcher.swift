@@ -32,16 +32,13 @@ enum TokensDataStoreError: Error {
 }
 
 extension TokensDataStore {
-    func initialOrNewTokensPublisher(forServers servers: [RPCServer]) -> AnyPublisher<[Activity.AssignedToken], Never> {
-        return enabledTokensChangesetPublisher(forServers: servers)
+    func initialOrNewTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<[Activity.AssignedToken], Never> {
+        return enabledTokensChangeset(for: servers)
             .tryMap { changeset -> [Activity.AssignedToken] in
                 switch changeset {
-                case .initial(let tokens):
-                    return tokens
-                case .update(let tokens, _, let insertions, _):
-                    return insertions.map { tokens[$0] }
-                case .error:
-                    return []
+                case .initial(let tokens): return tokens
+                case .update(let tokens, _, let insertions, _): return insertions.map { tokens[$0] }
+                case .error: return []
                 }
             }
             .replaceError(with: [])
