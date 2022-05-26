@@ -11,19 +11,18 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 class TransactionCoordinator: NSObject, Coordinator {
     private let analyticsCoordinator: AnalyticsCoordinator
     private let sessions: ServerDictionary<WalletSession>
+    private let queue = DispatchQueue(label: "com.PendingTransactionProvider.updateQueue")
+    private var cancelable = Set<AnyCancellable>()
+    private var transactionsService: TransactionsService
 
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
     }()
 
-    private var transactionsService: TransactionsService
-
     weak var delegate: TransactionCoordinatorDelegate?
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
-    private var cancelable = Set<AnyCancellable>()
-    
     init(
         analyticsCoordinator: AnalyticsCoordinator,
         sessions: ServerDictionary<WalletSession>,
@@ -42,7 +41,8 @@ class TransactionCoordinator: NSObject, Coordinator {
         guard !Features.default.isAvailable(.isActivityEnabled) else { return }
 
         transactionsService
-            .transactionsChangesetPublisher
+            .transactionsChangeset
+            .receive(on: queue)
             .map { TransactionsViewModel.mapTransactions(transactions: $0) }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] transactions in

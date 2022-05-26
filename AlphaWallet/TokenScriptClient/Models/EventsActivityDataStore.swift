@@ -5,7 +5,7 @@ import RealmSwift
 import Combine
 
 protocol EventsActivityDataStoreProtocol {
-    var recentEventsPublisher: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> { get }
+    var recentEventsChangeset: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> { get }
 
     func getRecentEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, server: RPCServer, eventName: String, interpolatedFilter: String) -> [EventActivityInstance]
     func getLastMatchingEventSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> EventActivityInstance?
@@ -19,7 +19,7 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         self.store = store
     }
 
-    var recentEventsPublisher: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> {
+    var recentEventsChangeset: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never> {
         var publisher: AnyPublisher<ChangeSet<[EventActivityInstance]>, Never>!
         store.performSync { realm in
             publisher = realm.objects(EventActivity.self)
@@ -64,10 +64,10 @@ class EventsActivityDataStore: EventsActivityDataStoreProtocol {
         var eventActivity: EventActivityInstance?
         store.performSync { realm in
             eventActivity = realm.objects(EventActivity.self)
-                    .filter(predicate)
-                    .sorted(byKeyPath: "blockNumber")
-                    .last
-                    .flatMap { EventActivityInstance(event: $0) }
+                .filter(predicate)
+                .sorted(byKeyPath: "blockNumber")
+                .last
+                .flatMap { EventActivityInstance(event: $0) }
         }
 
         return eventActivity

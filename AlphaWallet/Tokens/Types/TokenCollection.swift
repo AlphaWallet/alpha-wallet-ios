@@ -31,12 +31,12 @@ final class MultipleChainsTokenCollection: NSObject, TokenCollection {
         self.tokensDataStore = tokensDataStore
 
         let enabledServers = config.enabledServers
-        let tokens = tokensDataStore.enabledTokens(forServers: enabledServers)
+        let tokens = tokensDataStore.enabledTokens(for: enabledServers)
         self.tokensViewModelSubject = .init(.init(tokensFilter: tokensFilter, tokens: tokens, config: config))
         super.init()
 
         tokensDataStore
-            .enabledTokensChangesetPublisher(forServers: enabledServers)
+            .enabledTokensChangeset(for: enabledServers)
             .receive(on: queue)
             .combineLatest(refereshSubject, { changeset, _ in
                 switch changeset {

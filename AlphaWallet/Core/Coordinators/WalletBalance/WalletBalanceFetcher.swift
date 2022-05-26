@@ -92,7 +92,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }()
 
     private func subscribeForTokenUpdates() {
-        servers.compactMap { [weak tokensDataStore] in tokensDataStore?.initialOrNewTokensPublisher(forServers: $0) }
+        servers.compactMap { [weak tokensDataStore] in tokensDataStore?.initialOrNewTokensChangeset(for: $0) }
             .switchToLatest()
             .receive(on: queue)
             .sink { [weak coinTickersFetcher] tokens in
@@ -116,7 +116,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
 
     private func subscribeForTokenUpdates(forServer server: RPCServer) {
         tokensDataStore
-            .initialOrNewTokensPublisher(forServers: [server])
+            .initialOrNewTokensChangeset(for: [server])
             .receive(on: queue)
             .sink { [weak self] tokens in
                 guard let balanceFetcher = self?.balanceFetchers[server] else { return }
@@ -218,7 +218,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     var balance: WalletBalance {
-        let tokens = tokensDataStore.enabledTokens(forServers: Array(balanceFetchers.values.keys))
+        let tokens = tokensDataStore.enabledTokens(for: Array(balanceFetchers.values.keys))
         return .init(wallet: wallet, tokens: tokens, coinTickersFetcher: coinTickersFetcher)
     }
 
@@ -238,7 +238,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
                 fetcher.refreshBalance(forTokens: [token])
             case .all:
                 for (server, fetcher) in self.balanceFetchers.values {
-                    let tokens = self.tokensDataStore.enabledTokens(forServers: [server])
+                    let tokens = self.tokensDataStore.enabledTokens(for: [server])
                     fetcher.refreshBalance(forTokens: tokens)
                 }
             case .eth:
