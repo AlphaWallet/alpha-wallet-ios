@@ -59,7 +59,7 @@ class TokenInfoPageView: UIView, PageViewType {
             switch each {
             case .testnet:
                 stackView.addArrangedSubview(UIView.spacer(height: 40))
-                stackView.addArrangedSubview(UIView.separator())
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
 
                 let view = TestnetTokenInfoView()
                 view.configure(viewModel: .init())
@@ -69,7 +69,7 @@ class TokenInfoPageView: UIView, PageViewType {
                 stackView.addArrangedSubview(chartView)
 
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
-                stackView.addArrangedSubview(UIView.separator())
+                stackView.addArrangedSubview(UIView.spacer(backgroundColor: R.color.mike()!))
                 stackView.addArrangedSubview(UIView.spacer(height: 10))
             case .field(let viewModel):
                 let view = TickerFieldValueView()
@@ -101,19 +101,5 @@ extension TokenInfoPageView: FungibleTokenHeaderViewDelegate {
 
     func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: viewModel.transactionType.contract, in: self)
-    }
-}
-
-extension UIView {
-    static func separator(backgroundColor: UIColor = R.color.mike()!) -> UIView {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = backgroundColor
-
-        NSLayoutConstraint.activate([
-            view.heightAnchor.constraint(equalToConstant: 1)
-        ]) 
-
-        return view
     }
 }
