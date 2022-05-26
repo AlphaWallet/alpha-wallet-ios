@@ -15,9 +15,10 @@ protocol CoinTickerProvider: AnyObject {
 }
 
 protocol TokenBalanceProviderTests {
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet)
-    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet)
-    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet)
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken, wallet: Wallet)
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken, wallet: Wallet)
+    func deleteTokenTestsOnly(token: Activity.AssignedToken, wallet: Wallet)
+    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken, wallet: Wallet)
 }
 
 protocol TokenBalanceProvider: AnyObject, TokenBalanceProviderTests {
@@ -179,17 +180,22 @@ extension MultiWalletBalanceService {
             .triggerUpdateBalanceSubjectTestsOnly()
     }
 
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject, wallet: Wallet) {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .setBalanceTestsOnly(value, forToken: token)
     }
 
-    func deleteTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken, wallet: Wallet) {
+        getOrCreateBalanceFetcher(for: wallet)
+            .setNftBalanceTestsOnly(value, forToken: token)
+    }
+
+    func deleteTokenTestsOnly(token: Activity.AssignedToken, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .deleteTokenTestsOnly(token: token)
     }
 
-    func addOrUpdateTokenTestsOnly(token: TokenObject, wallet: Wallet) {
+    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken, wallet: Wallet) {
         getOrCreateBalanceFetcher(for: wallet)
             .addOrUpdateTokenTestsOnly(token: token)
     }

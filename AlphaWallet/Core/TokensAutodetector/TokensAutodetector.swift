@@ -12,7 +12,7 @@ import PromiseKit
 extension SingleChainTokensAutodetector {
     enum AddTokenObjectOperation {
         case ercToken(ERCToken)
-        case tokenObject(TokenObject)
+        case tokenObject(Activity.AssignedToken)
         case delegateContracts([DelegateContract])
         case deletedContracts([DeletedContract])
         ///We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
@@ -94,9 +94,9 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
 
     private func contractsForTransactedTokens(detectedContracts: [AlphaWallet.Address], forServer server: RPCServer) -> [AlphaWallet.Address] {
         let alreadyAddedContracts = tokensDataStore.enabledTokens(forServers: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
-        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.contractAddress }
+        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
+        let delegateContracts = tokensDataStore.delegateContracts(forServer: server).map { $0.address }
 
         return detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
     }
@@ -182,8 +182,8 @@ class SingleChainTokensAutodetector: NSObject, TokensAutodetector {
     private func contractsToAutodetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], forServer server: RPCServer) -> [AlphaWallet.Address] {
 
         let alreadyAddedContracts = tokensDataStore.enabledTokens(forServers: [server]).map { $0.contractAddress }
-        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.contractAddress }
-        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.contractAddress }
+        let deletedContracts = tokensDataStore.deletedContracts(forServer: server).map { $0.address }
+        let hiddenContracts = tokensDataStore.hiddenContracts(forServer: server).map { $0.address }
 
         return contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
     }

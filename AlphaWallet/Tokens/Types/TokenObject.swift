@@ -59,6 +59,19 @@ class TokenObject: Object {
         self.type = type
     }
 
+    convenience init(token: Activity.AssignedToken) {
+        self.init()
+        self.primaryKey = token.primaryKey
+        self.contract = token.contractAddress.eip55String
+        self.chainId = token.server.chainID
+        self.name = token.name
+        self.symbol = token.symbol
+        self.decimals = token.decimals
+        self.value = token.value.description
+        self.type = token.type
+        self.balance.append(objectsIn: token.balanceNft.map { TokenBalance(balance: $0.balance, json: $0.json) })
+    }
+
     var optionalDecimalValue: NSDecimalNumber? {
         return EtherNumberFormatter.plain.string(from: valueBigInt, decimals: decimals).optionalDecimalValue
     }

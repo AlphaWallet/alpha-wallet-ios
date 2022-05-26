@@ -16,9 +16,10 @@ protocol WalletBalanceFetcherDelegate: AnyObject {
 }
 
 protocol WalletBalanceFetcherTypeTests {
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject)
-    func deleteTokenTestsOnly(token: TokenObject)
-    func addOrUpdateTokenTestsOnly(token: TokenObject)
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken)
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken)
+    func deleteTokenTestsOnly(token: Activity.AssignedToken)
+    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken)
     func triggerUpdateBalanceSubjectTestsOnly()
 }
 
@@ -108,6 +109,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
             .receive(on: queue)
             .sink { [weak self] _ in
                 self?.reloadWalletBalance()
+                guard !isRunningTests() else { return }
                 self?.triggerUpdateBalance()
             }.store(in: &cancelable)
     }
@@ -160,6 +162,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
         filterAwayDeletedBalanceFetchers(servers: servers)
 
         reloadWalletBalance()
+        guard !isRunningTests() else { return }
         triggerUpdateBalance()
     }
 
@@ -201,23 +204,15 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func tokenBalancePublisher(_ key: AddressAndRPCServer) -> AnyPublisher<BalanceViewModel?, Never> {
-        let tokensDataStore = tokensDataStore
-
         let tokenPublisher = tokensDataStore
-            .tokenValuePublisher(forContract: key.address, server: key.server)
+            .tokenPublisher(for: key.address, server: key.server)
             .replaceError(with: nil)
-
+        
         let forceReloadBalanceWhenServersChange = balanceUpdateSubject
-            .map { _ in tokensDataStore.token(forContract: key.address, server: key.server) }
-            .replaceError(with: nil)
-            .eraseToAnyPublisher()
-
-        let initialyTokenValuePublisher = Just(tokensDataStore.token(forContract: key.address, server: key.server))
-            .replaceError(with: nil)
+            .map { [tokensDataStore] _ in tokensDataStore.token(forContract: key.address, server: key.server) }
             .eraseToAnyPublisher()
 
         return Publishers.Merge(forceReloadBalanceWhenServersChange, tokenPublisher)
-            .prepend(initialyTokenValuePublisher)
             .map { $0.flatMap { self.balanceViewModel(forToken: $0) } }
             .eraseToAnyPublisher()
     }
@@ -228,6 +223,7 @@ class WalletBalanceFetcher: NSObject, WalletBalanceFetcherType {
     }
 
     func start() {
+        guard !isRunningTests() else { return }
         refreshBalance(updatePolicy: .all)
         timer = Timer.scheduledTimer(withTimeInterval: Self.updateBalanceInterval, repeats: true) { [weak self] _ in
             self?.refreshBalance(updatePolicy: .all)
@@ -271,15 +267,19 @@ extension WalletBalanceFetcher: PrivateBalanceFetcherDelegate {
 
 extension WalletBalanceFetcher: WalletBalanceFetcherTypeTests {
 
-    func setBalanceTestsOnly(_ value: BigInt, forToken token: TokenObject) {
+    func setBalanceTestsOnly(_ value: BigInt, forToken token: Activity.AssignedToken) {
         tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .value(value))
     }
 
-    func deleteTokenTestsOnly(token: TokenObject) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken) {
+        tokensDataStore.updateToken(primaryKey: token.primaryKey, action: .nonFungibleBalance(value))
+    }
+
+    func deleteTokenTestsOnly(token: Activity.AssignedToken) {
         tokensDataStore.deleteTestsOnly(tokens: [token])
     }
 
-    func addOrUpdateTokenTestsOnly(token: TokenObject) {
+    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken) {
         tokensDataStore.addTokenObjects(values: [
             .tokenObject(token)
         ])

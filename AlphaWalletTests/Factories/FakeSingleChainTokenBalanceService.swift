@@ -25,15 +25,19 @@ class FakeSingleChainTokenBalanceService: SingleChainTokenBalanceService {
         balanceService.triggerUpdateBalanceSubjectTestsOnly(wallet: wallet)
     }
 
-    func setBalanceTestsOnly(balance: Balance, forToken token: TokenObject) {
+    func setBalanceTestsOnly(balance: Balance, forToken token: Activity.AssignedToken) {
         balanceService.setBalanceTestsOnly(balance.value, forToken: token, wallet: wallet)
     }
 
-    func addOrUpdateTokenTestsOnly(token: TokenObject) {
+    func setNftBalanceTestsOnly(_ value: [String], forToken token: Activity.AssignedToken) {
+        balanceService.setNftBalanceTestsOnly(value, forToken: token, wallet: wallet)
+    }
+
+    func addOrUpdateTokenTestsOnly(token: Activity.AssignedToken) {
         balanceService.addOrUpdateTokenTestsOnly(token: token, wallet: wallet)
     }
 
-    func deleteTokenTestsOnly(token: TokenObject) {
+    func deleteTokenTestsOnly(token: Activity.AssignedToken) {
         balanceService.deleteTokenTestsOnly(token: token, wallet: wallet)
     }
 
