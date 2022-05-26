@@ -9,19 +9,31 @@ struct RealmConfiguration {
     static func configuration(for account: Wallet) -> Realm.Configuration {
         var config = realmConfiguration()
         config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased()).realm")
+        addProtectionKeyNone(for: config)
+
         return config
     }
 
     static func configuration(for account: Wallet, server: RPCServer) -> Realm.Configuration {
         var config = realmConfiguration()
         config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(account.address.eip55String.lowercased())-\(server.chainID).realm")
+        addProtectionKeyNone(for: config)
+
         return config
     }
 
     static func configuration(name: String) -> Realm.Configuration {
         var config = realmConfiguration()
         config.fileURL = defaultRealmFolderUrl.appendingPathComponent("\(name).realm")
+        addProtectionKeyNone(for: config)
+
         return config
+    }
+
+    private static func addProtectionKeyNone(for config: Realm.Configuration) {
+        for var each in DatabaseMigration.realmFilesUrls(config: config) {
+            try? each.addProtectionKeyNone()
+        }
     }
 
     static var defaultRealmFolderUrl: URL {
