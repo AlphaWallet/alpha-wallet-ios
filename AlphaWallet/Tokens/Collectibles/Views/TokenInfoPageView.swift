@@ -13,7 +13,7 @@ protocol TokenInfoPageViewDelegate: class {
 }
 
 class TokenInfoPageView: UIView, PageViewType {
-    private lazy var headerView = NonFungibleTokenHeaderView(viewModel: viewModel.headerViewModel)
+    private lazy var headerView = FungibleTokenHeaderView(viewModel: viewModel.headerViewModel)
     private lazy var chartView: TokenHistoryChartView = {
         let chartView = TokenHistoryChartView(viewModel: viewModel.chartViewModel)
         return chartView
@@ -97,9 +97,9 @@ class TokenInfoPageView: UIView, PageViewType {
     }
 }
 
-extension TokenInfoPageView: NonFungibleTokenHeaderViewDelegate {
+extension TokenInfoPageView: FungibleTokenHeaderViewDelegate {
 
-    func didPressViewContractWebPage(inHeaderView: NonFungibleTokenHeaderView) {
+    func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: viewModel.transactionType.contract, in: self)
     }
 }
