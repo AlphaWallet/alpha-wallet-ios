@@ -32,7 +32,7 @@ platform :ios do
     increment_version_number(bump_type: "patch")
     cert
     match(type: "appstore", readonly: true)
-    gym(scheme: "AlphaWallet")
+    build_app(workspace: "AlphaWallet.xcworkspace", scheme: "AlphaWallet", xcargs: "-allowProvisioningUpdates")
     commit_version_bump(message: "Version Bump", force: true)
     deliver(force: true)
     push_to_git_remote
@@ -64,6 +64,23 @@ platform :ios do
   end
 
   # You can define as many lanes as you want
+
+  desc "Upload a build for TestFlight"
+  lane :testflight do
+    cocoapods(use_bundle_exec: true)
+
+    build_app(workspace: "AlphaWallet.xcworkspace", scheme: "AlphaWallet",
+           xcargs: "-allowProvisioningUpdates",
+           export_method: "app-store",
+           export_xcargs: "-allowProvisioningUpdates",
+           export_options: {
+              signingStyle:  "automatic",
+           },
+           skip_package_dependencies_resolution: true,
+           disable_package_automatic_updates: true
+    )
+    deliver
+  end
 
   after_all do |lane|
     # This block is called, only if the executed lane was successful
