@@ -5,5 +5,5 @@ import Foundation
 enum TransactionsFilterStrategy {
     case all
     case predicate(NSPredicate)
-    case filter(strategy: ActivitiesFilterStrategy, token: Activity.AssignedToken)
+    case filter(strategy: ActivitiesFilterStrategy, token: Token)
 }

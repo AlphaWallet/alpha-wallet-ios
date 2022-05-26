@@ -34,10 +34,10 @@ enum AddHideTokenSections: Int {
 class AddHideTokensViewModel {
     var sections: [AddHideTokenSections] = [.sortingFilters, .displayedTokens, .hiddenTokens, .popularTokens]
     private let tokensFilter: TokensFilter
-    private var tokens: [Activity.AssignedToken]
+    private var tokens: [Token]
     private var allPopularTokens: [PopularToken] = []
-    private var displayedTokens: [Activity.AssignedToken] = []
-    private var hiddenTokens: [Activity.AssignedToken] = []
+    private var displayedTokens: [Token] = []
+    private var hiddenTokens: [Token] = []
     private var popularTokens: [PopularToken] = []
 
     var sortTokensParam: SortTokensParam = .byField(field: .name, direction: .ascending) {
@@ -52,7 +52,7 @@ class AddHideTokensViewModel {
     }
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
 
-    init(tokens: [Activity.AssignedToken], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [Token], tokensFilter: TokensFilter, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.tokens = tokens
         self.tokensFilter = tokensFilter
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
@@ -106,7 +106,7 @@ class AddHideTokensViewModel {
         }
     }
 
-    func add(token: Activity.AssignedToken) {
+    func add(token: Token) {
         if !tokens.contains(token) {
             tokens.append(token)
         }
@@ -118,7 +118,7 @@ class AddHideTokensViewModel {
         singleChainTokenCoordinators.first { $0.isServer(server) }
     }
 
-    typealias TokenWithIndexToInsert = (token: Activity.AssignedToken, indexPathToInsert: IndexPath)
+    typealias TokenWithIndexToInsert = (token: Token, indexPathToInsert: IndexPath)
 
     enum ShowHideOperationResult {
         case value(TokenWithIndexToInsert?)
@@ -207,7 +207,7 @@ class AddHideTokensViewModel {
         }
     }
 
-    func moveItem(from: IndexPath, to: IndexPath) -> [Activity.AssignedToken]? {
+    func moveItem(from: IndexPath, to: IndexPath) -> [Token]? {
         switch sections[from.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: from.row)
@@ -220,7 +220,7 @@ class AddHideTokensViewModel {
     }
     var isSearchActive: Bool = false
 
-    private func filter(tokens: [Activity.AssignedToken]) {
+    private func filter(tokens: [Token]) {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
@@ -237,7 +237,7 @@ class AddHideTokensViewModel {
         sections = AddHideTokensViewModel.functional.availableSectionsToDisplay(displayedTokens: displayedTokens, hiddenTokens: hiddenTokens, popularTokens: popularTokens, isSearchActive: isSearchActive)
     }
 
-    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<Activity.AssignedToken> {
+    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address) -> Promise<Token> {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else {
             return .init(error: RetrieveSingleChainTokenCoordinator())
         }

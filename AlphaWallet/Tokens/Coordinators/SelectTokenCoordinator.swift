@@ -8,7 +8,7 @@
 import UIKit
 
 protocol SelectTokenCoordinatorDelegate: AnyObject {
-    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Activity.AssignedToken)
+    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token)
     func selectAssetDidCancel(in coordinator: SelectTokenCoordinator)
 }
 
@@ -55,7 +55,7 @@ class SelectTokenCoordinator: Coordinator {
 
 extension SelectTokenCoordinator: SelectTokenViewControllerDelegate {
 
-    func controller(_ controller: SelectTokenViewController, didSelectToken token: Activity.AssignedToken) {
+    func controller(_ controller: SelectTokenViewController, didSelectToken token: Token) {
         //NOTE: for now we dismiss assets vc because then we will not able to close it, after payment flow.
         //first needs to update payment flow, make it push to navigation stack
         navigationController.dismiss(animated: true) {

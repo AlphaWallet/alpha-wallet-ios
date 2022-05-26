@@ -6,14 +6,14 @@ import BigInt
 
 struct FungibleTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: Activity.AssignedToken
+    private let token: Token
     private let ticker: CoinTicker?
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
     private let eventsDataStore: NonActivityEventsDataStore
     private let wallet: Wallet
 
-    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: NonActivityEventsDataStore, wallet: Wallet, isVisible: Bool = true, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
         self.assetDefinitionStore = assetDefinitionStore

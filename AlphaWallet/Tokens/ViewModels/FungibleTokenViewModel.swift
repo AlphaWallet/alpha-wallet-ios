@@ -20,13 +20,13 @@ class FungibleTokenViewModel {
     }
 
     private let coinTickersFetcher: CoinTickersFetcherType
-    private var validatedToken: Activity.AssignedToken? {
+    private var validatedToken: Token? {
         switch transactionType {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
             return MultipleChainsTokensDataStore.functional.etherToken(forServer: session.server)
         case .erc20Token(let token, _, _):
-            return Activity.AssignedToken(tokenObject: token)
+            return Token(tokenObject: token)
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             return nil
         }
@@ -47,7 +47,7 @@ class FungibleTokenViewModel {
         return validatedToken.flatMap { $0.getTokenHolder(assetDefinitionStore: assetDefinitionStore, forWallet: session.account) }
     }()
 
-    var token: Activity.AssignedToken {
+    var token: Token {
         return .init(tokenObject: transactionType.tokenObject)
     }
 
@@ -233,7 +233,7 @@ class FungibleTokenViewModel {
         case .nativeCryptocurrency:
             session.tokenBalanceService.refresh(refreshBalancePolicy: .eth)
         case .erc20Token(let token, _, _):
-            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Activity.AssignedToken(tokenObject: token)))
+            session.tokenBalanceService.refresh(refreshBalancePolicy: .token(token: Token(tokenObject: token)))
         case .erc875Token, .erc875TokenOrder, .erc721Token, .erc721ForTicketToken, .erc1155Token, .dapp, .tokenScript, .claimPaidErc875MagicLink, .prebuilt:
             break
         }

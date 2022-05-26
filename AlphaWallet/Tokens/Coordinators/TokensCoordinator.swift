@@ -352,10 +352,10 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         switch tokenObject.type {
         case .nativeCryptocurrency:
-            let token = Activity.AssignedToken(tokenObject: tokenObject)
+            let token = Token(tokenObject: tokenObject)
             coordinator.show(fungibleToken: token, transactionType: .nativeCryptocurrency(tokenObject, destination: .none, amount: nil), navigationController: navigationController)
         case .erc20:
-            let token = Activity.AssignedToken(tokenObject: tokenObject)
+            let token = Token(tokenObject: tokenObject)
             coordinator.show(fungibleToken: token, transactionType: .erc20Token(tokenObject, destination: nil, amount: nil), navigationController: navigationController)
         case .erc721:
             coordinator.showTokenList(for: .send(type: .transaction(.erc721Token(tokenObject, tokenHolders: []))), token: tokenObject, navigationController: navigationController)
@@ -366,12 +366,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
     }
 
-    func didSelect(token: Activity.AssignedToken, in viewController: UIViewController) {
+    func didSelect(token: Token, in viewController: UIViewController) {
         guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         showSingleChainToken(tokenObject: tokenObject, in: navigationController)
     }
 
-    func didHide(token: Activity.AssignedToken, in viewController: UIViewController) {
+    func didHide(token: Token, in viewController: UIViewController) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         coordinator.mark(token: token, isHidden: true)
     }
@@ -390,7 +390,7 @@ extension TokensCoordinator: RenameWalletViewControllerDelegate {
 
 extension TokensCoordinator: SelectTokenCoordinatorDelegate {
 
-    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Activity.AssignedToken) {
+    func coordinator(_ coordinator: SelectTokenCoordinator, didSelectToken token: Token) {
         removeCoordinator(coordinator)
         guard let tokenObject = tokensDataStore.tokenObject(forContract: token.contractAddress, server: token.server) else { return }
         switch sendToAddress {
@@ -512,7 +512,7 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
 
 extension TokensCoordinator: NewTokenCoordinatorDelegate {
 
-    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Activity.AssignedToken) {
+    func coordinator(_ coordinator: NewTokenCoordinator, didAddToken token: Token) {
         removeCoordinator(coordinator)
     }
 
@@ -553,14 +553,14 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
         delegate?.didSendTransaction(transaction, inCoordinator: coordinator)
     }
 
-    func didTapAddAlert(for token: Activity.AssignedToken, in coordinator: SingleChainTokenCoordinator) {
+    func didTapAddAlert(for token: Token, in coordinator: SingleChainTokenCoordinator) {
         let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .create, token: token, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self
         coordinatorToAdd.start()
     }
 
-    func didTapEditAlert(for token: Activity.AssignedToken, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
+    func didTapEditAlert(for token: Token, alert: PriceAlert, in coordinator: SingleChainTokenCoordinator) {
         let coordinatorToAdd = EditPriceAlertCoordinator(navigationController: navigationController, configuration: .edit(alert), token: token, session: coordinator.session, alertService: alertService)
         addCoordinator(coordinatorToAdd)
         coordinatorToAdd.delegate = self

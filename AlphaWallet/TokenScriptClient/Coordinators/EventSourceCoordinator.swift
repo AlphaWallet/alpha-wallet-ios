@@ -59,7 +59,7 @@ final class EventSourceCoordinator: NSObject {
             }.store(in: &cancellable)
     }
 
-    private func fetchMappedContractsAndServers(token: Activity.AssignedToken) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+    private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
         var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
@@ -82,7 +82,7 @@ final class EventSourceCoordinator: NSObject {
             .cauterize()
     }
 
-    private func getEventOriginsAndTokenIds(forToken token: Activity.AssignedToken) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
+    private func getEventOriginsAndTokenIds(forToken token: Token) -> [(eventOrigin: EventOrigin, tokenIds: [TokenId])] {
         var cards: [(eventOrigin: EventOrigin, tokenIds: [TokenId])] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return [] }
@@ -99,7 +99,7 @@ final class EventSourceCoordinator: NSObject {
         return cards
     }
 
-    private func fetchEventsByTokenId(forToken token: Activity.AssignedToken) -> [Promise<Void>] {
+    private func fetchEventsByTokenId(forToken token: Token) -> [Promise<Void>] {
         return getEventOriginsAndTokenIds(forToken: token)
             .flatMap { value in
                 value.tokenIds.map {
@@ -138,7 +138,7 @@ extension EventSourceCoordinator {
 
 extension EventSourceCoordinator.functional {
 
-    static func fetchEvents(forTokenId tokenId: TokenId, token: Activity.AssignedToken, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
+    static func fetchEvents(forTokenId tokenId: TokenId, token: Token, eventOrigin: EventOrigin, wallet: Wallet, eventsDataStore: NonActivityEventsDataStore, queue: DispatchQueue) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam = eventOrigin
             .parameters

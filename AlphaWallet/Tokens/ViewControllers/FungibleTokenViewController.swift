@@ -12,8 +12,8 @@ protocol FungibleTokenViewControllerDelegate: class, CanOpenURL {
     func didTap(transaction: TransactionInstance, in viewController: FungibleTokenViewController)
     func didTap(activity: Activity, in viewController: FungibleTokenViewController)
     func didTap(action: TokenInstanceAction, transactionType: TransactionType, in viewController: FungibleTokenViewController)
-    func didTapAddAlert(for token: Activity.AssignedToken, in viewController: FungibleTokenViewController)
-    func didTapEditAlert(for token: Activity.AssignedToken, alert: PriceAlert, in viewController: FungibleTokenViewController)
+    func didTapAddAlert(for token: Token, in viewController: FungibleTokenViewController)
+    func didTapEditAlert(for token: Token, alert: PriceAlert, in viewController: FungibleTokenViewController)
 }
 
 class FungibleTokenViewController: UIViewController {

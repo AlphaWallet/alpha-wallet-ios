@@ -10,7 +10,7 @@ import StatefulViewController
 import Combine
 
 protocol SelectTokenViewControllerDelegate: AnyObject {
-    func controller(_ controller: SelectTokenViewController, didSelectToken token: Activity.AssignedToken)
+    func controller(_ controller: SelectTokenViewController, didSelectToken token: Token)
     func controller(_ controller: SelectTokenViewController, didCancelSelected sender: UIBarButtonItem)
 }
 
@@ -25,7 +25,7 @@ class SelectTokenViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let sessions: ServerDictionary<WalletSession>
     private let tokensFilter: TokensFilter
-    private var selectedToken: Activity.AssignedToken?
+    private var selectedToken: Token?
     private let filter: WalletFilter
     private let eventsDataStore: NonActivityEventsDataStore
     private lazy var tableView: UITableView = {

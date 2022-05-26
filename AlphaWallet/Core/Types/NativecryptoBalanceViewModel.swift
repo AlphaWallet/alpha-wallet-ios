@@ -10,9 +10,9 @@ import BigInt
 
 struct NativecryptoBalanceViewModel: BalanceViewModel {
     private (set) var ticker: CoinTicker?
-    private let token: Activity.AssignedToken
+    private let token: Token
 
-    init(token: Activity.AssignedToken, ticker: CoinTicker?) {
+    init(token: Token, ticker: CoinTicker?) {
         self.token = token
         self.ticker = ticker
     }

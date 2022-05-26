@@ -15,23 +15,23 @@ enum DataStoreError: Error {
 
 /// Multiple-chains tokens data store
 protocol TokensDataStore: NSObjectProtocol {
-    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never>
-    func enabledTokens(for servers: [RPCServer]) -> [Activity.AssignedToken]
-    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Activity.AssignedToken?, DataStoreError>
+    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never>
+    func enabledTokens(for servers: [RPCServer]) -> [Token]
+    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError>
     func deletedContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func delegateContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func hiddenContracts(forServer server: RPCServer) -> [AddressAndRPCServer]
     func addEthToken(forServer server: RPCServer)
-    func token(forContract contract: AlphaWallet.Address) -> Activity.AssignedToken?
+    func token(forContract contract: AlphaWallet.Address) -> Token?
     func tokenObject(forContract contract: AlphaWallet.Address, server: RPCServer) -> TokenObject?
-    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Activity.AssignedToken?
-    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Activity.AssignedToken]
+    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token?
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token]
     func add(hiddenContracts: [HiddenContract])
-    func deleteTestsOnly(tokens: [Activity.AssignedToken])
-    func updateOrderedTokens(with orderedTokens: [Activity.AssignedToken])
+    func deleteTestsOnly(tokens: [Token])
+    func updateOrderedTokens(with orderedTokens: [Token])
     func add(tokenUpdates updates: [TokenUpdate])
     @discardableResult func updateToken(primaryKey: String, action: TokenUpdateAction) -> Bool?
-    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Activity.AssignedToken]
+    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Token]
     @discardableResult func batchUpdateToken(_ actions: [PrivateBalanceFetcher.TokenBatchOperation]) -> Bool?
 }
 
@@ -58,18 +58,18 @@ enum TokenUpdateAction {
         }
     }
 
-    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never> {
-        var publisher: AnyPublisher<ChangeSet<[Activity.AssignedToken]>, Never>!
+    func enabledTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<ChangeSet<[Token]>, Never> {
+        var publisher: AnyPublisher<ChangeSet<[Token]>, Never>!
         store.performSync { realm in
             publisher = self.enabledTokenObjectResults(forServers: servers, realm: realm)
                 .changesetPublisher
                 .map { change in
                     switch change {
                     case .initial(let tokenObjects):
-                        let tokens = Array(tokenObjects).map { Activity.AssignedToken(tokenObject: $0) }
+                        let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
                         return .initial(tokens)
                     case .update(let tokenObjects, let deletions, let insertions, let modifications):
-                        let tokens = Array(tokenObjects).map { Activity.AssignedToken(tokenObject: $0) }
+                        let tokens = Array(tokenObjects).map { Token(tokenObject: $0) }
                         return .update(tokens, deletions: deletions, insertions: insertions, modifications: modifications)
                     case .error(let error):
                         return .error(error)
@@ -81,12 +81,12 @@ enum TokenUpdateAction {
         return publisher
     }
 
-    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Activity.AssignedToken?, DataStoreError> {
+    func tokenPublisher(for contract: AlphaWallet.Address, server: RPCServer) -> AnyPublisher<Token?, DataStoreError> {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        let publisher: CurrentValueSubject<Activity.AssignedToken?, DataStoreError> = .init(nil)
+        let publisher: CurrentValueSubject<Token?, DataStoreError> = .init(nil)
         var notificationToken: NotificationToken?
 
         store.performSync { realm in
@@ -95,13 +95,13 @@ enum TokenUpdateAction {
                 return
             }
 
-            publisher.send(Activity.AssignedToken(tokenObject: token))
+            publisher.send(Token(tokenObject: token))
 
             notificationToken = token.observe { change in
                 switch change {
                 case .change(let object, _):
                     guard let token = object as? TokenObject else { return }
-                    publisher.send(Activity.AssignedToken(tokenObject: token))
+                    publisher.send(Token(tokenObject: token))
                 case .deleted:
                     publisher.send(completion: .failure(.objectDeleted))
                 case .error(let e):
@@ -116,10 +116,10 @@ enum TokenUpdateAction {
             }).eraseToAnyPublisher()
     }
 
-    func enabledTokens(for servers: [RPCServer]) -> [Activity.AssignedToken] {
-        var tokensToReturn: [Activity.AssignedToken] = []
+    func enabledTokens(for servers: [RPCServer]) -> [Token] {
+        var tokensToReturn: [Token] = []
         store.performSync { realm in
-            let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Activity.AssignedToken(tokenObject: $0) })
+            let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Token(tokenObject: $0) })
             tokensToReturn = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokens)
         }
 
@@ -188,34 +188,34 @@ enum TokenUpdateAction {
         }
     }
 
-    func token(forContract contract: AlphaWallet.Address) -> Activity.AssignedToken? {
+    func token(forContract contract: AlphaWallet.Address) -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(contract: contract)
 
-        var token: Activity.AssignedToken?
+        var token: Token?
         store.performSync { realm in
             token = realm.objects(TokenObject.self)
                 .filter(predicate)
                 .first
-                .map { Activity.AssignedToken(tokenObject: $0) }
+                .map { Token(tokenObject: $0) }
         }
 
         return token
     }
 
-    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Activity.AssignedToken? {
+    func token(forContract contract: AlphaWallet.Address, server: RPCServer) -> Token? {
         let predicate = MultipleChainsTokensDataStore
             .functional
             .tokenPredicate(server: server, contract: contract)
 
-        var token: Activity.AssignedToken?
+        var token: Token?
 
         store.performSync { realm in
             token = realm.objects(TokenObject.self)
                 .filter(predicate)
                 .first
-                .map { Activity.AssignedToken(tokenObject: $0) }
+                .map { Token(tokenObject: $0) }
         }
 
         return token
@@ -240,9 +240,9 @@ enum TokenUpdateAction {
             .first
     }
 
-    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Activity.AssignedToken] {
+    @discardableResult func addCustom(tokens: [ERCToken], shouldUpdateBalance: Bool) -> [Token] {
         guard !tokens.isEmpty else { return [] }
-        var tokensToReturn: [Activity.AssignedToken] = []
+        var tokensToReturn: [Token] = []
         store.performSync { realm in
             let newTokens = tokens.compactMap { MultipleChainsTokensDataStore.functional.createTokenObject(ercToken: $0, shouldUpdateBalance: shouldUpdateBalance) }
             try? realm.safeWrite {
@@ -252,13 +252,13 @@ enum TokenUpdateAction {
                 }
             }
 
-            tokensToReturn = newTokens.map { Activity.AssignedToken(tokenObject: $0) }
+            tokensToReturn = newTokens.map { Token(tokenObject: $0) }
         }
 
         return tokensToReturn
     }
 
-    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Activity.AssignedToken] {
+    @discardableResult func addTokenObjects(values: [SingleChainTokensAutodetector.AddTokenObjectOperation]) -> [Token] {
         guard !values.isEmpty else { return [] }
 
         store.performSync { realm in
@@ -314,7 +314,7 @@ enum TokenUpdateAction {
         }
     }
 
-    func deleteTestsOnly(tokens: [Activity.AssignedToken]) {
+    func deleteTestsOnly(tokens: [Token]) {
         guard !tokens.isEmpty else { return }
 
         store.performSync { realm in
@@ -325,7 +325,7 @@ enum TokenUpdateAction {
         }
     }
 
-    func updateOrderedTokens(with orderedTokens: [Activity.AssignedToken]) {
+    func updateOrderedTokens(with orderedTokens: [Token]) {
         guard !orderedTokens.isEmpty else { return }
         store.performSync { realm in
             let orderedTokensIds = orderedTokens.map { $0.primaryKey }
@@ -562,8 +562,8 @@ extension MultipleChainsTokensDataStore.functional {
         )
     }
 
-    static func etherToken(forServer server: RPCServer) -> Activity.AssignedToken {
-        return Activity.AssignedToken(
+    static func etherToken(forServer server: RPCServer) -> Token {
+        return Token(
                 contract: Constants.nativeCryptoAddressInDatabase,
                 server: server,
                 name: server.name,
@@ -609,7 +609,7 @@ extension MultipleChainsTokensDataStore.functional {
         return newToken
     }
 
-    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokenObjects: [Activity.AssignedToken]) -> [Activity.AssignedToken] {
+    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokenObjects: [Token]) -> [Token] {
         var result = tokenObjects
         for server in servers {
             if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: address) }) {

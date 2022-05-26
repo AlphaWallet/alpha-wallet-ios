@@ -9,10 +9,10 @@ import UIKit
 
 class SelectTokenViewModel {
     let tokensFilter: TokensFilter
-    var tokens: [Activity.AssignedToken]
+    var tokens: [Token]
     let filter: WalletFilter
 
-    lazy var filteredTokens: [Activity.AssignedToken] = filteredAndSortedTokens()
+    lazy var filteredTokens: [Token] = filteredAndSortedTokens()
 
     var headerBackgroundColor: UIColor {
         return .white
@@ -30,11 +30,11 @@ class SelectTokenViewModel {
         return filteredTokens.count
     }
 
-    func item(for row: Int) -> Activity.AssignedToken {
+    func item(for row: Int) -> Token {
         return filteredTokens[row]
     }
 
-    func accessoryType(_ selectedToken: Activity.AssignedToken?, indexPath: IndexPath) -> UITableViewCell.AccessoryType {
+    func accessoryType(_ selectedToken: Token?, indexPath: IndexPath) -> UITableViewCell.AccessoryType {
         guard let selectedToken = selectedToken else { return .none }
 
         let token = filteredTokens[indexPath.row]
@@ -46,13 +46,13 @@ class SelectTokenViewModel {
         self.init(tokensFilter: tokensFilter, tokens: viewModel.tokens, filter: filter)
     }
 
-    init(tokensFilter: TokensFilter, tokens: [Activity.AssignedToken], filter: WalletFilter) {
+    init(tokensFilter: TokensFilter, tokens: [Token], filter: WalletFilter) {
         self.tokensFilter = tokensFilter
         self.tokens = tokens
         self.filter = filter
     }
 
-    private func filteredAndSortedTokens() -> [Activity.AssignedToken] {
+    private func filteredAndSortedTokens() -> [Token] {
         let displayedTokens = tokensFilter.filterTokens(tokens: tokens, filter: filter)
         return tokensFilter.sortDisplayedTokens(tokens: displayedTokens)
     }

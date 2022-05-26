@@ -16,12 +16,12 @@ class EditPriceAlertCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     private let configuration: EdiPricetAlertViewModelConfiguration
     private let navigationController: UINavigationController
-    private let token: Activity.AssignedToken
+    private let token: Token
     private let session: WalletSession
     private let alertService: PriceAlertServiceType
     weak var delegate: EditPriceAlertCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, configuration: EdiPricetAlertViewModelConfiguration, token: Activity.AssignedToken, session: WalletSession, alertService: PriceAlertServiceType) {
+    init(navigationController: UINavigationController, configuration: EdiPricetAlertViewModelConfiguration, token: Token, session: WalletSession, alertService: PriceAlertServiceType) {
         self.configuration = configuration
         self.navigationController = navigationController
         self.token = token

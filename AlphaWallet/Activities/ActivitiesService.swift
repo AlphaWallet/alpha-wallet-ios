@@ -22,7 +22,7 @@ protocol ActivitiesServiceType: class {
 
 class ActivitiesService: NSObject, ActivitiesServiceType {
     private typealias ContractsAndCards = [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]
-    private typealias ActivityTokenObjectTokenHolder = (activity: Activity, tokenObject: Activity.AssignedToken, tokenHolder: TokenHolder)
+    private typealias ActivityTokenObjectTokenHolder = (activity: Activity, tokenObject: Token, tokenHolder: TokenHolder)
     private typealias TokenObjectsAndXMLHandlers = [(contract: AlphaWallet.Address, server: RPCServer, xmlHandler: XMLHandler)]
 
     private let config: Config
@@ -112,7 +112,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         }
     }
 
-    private func getTokensAndXmlHandlers(forTokens tokens: [Activity.AssignedToken]) -> TokenObjectsAndXMLHandlers {
+    private func getTokensAndXmlHandlers(forTokens tokens: [Token]) -> TokenObjectsAndXMLHandlers {
         return tokens.compactMap { each in
             let xmlHandler = XMLHandler(token: each, assetDefinitionStore: self.assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition else { return nil }
@@ -158,7 +158,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
         return contractsAndCardsOptional.flatMap { $0 }
     }
 
-    private func getTokensForActivities() -> [Activity.AssignedToken] {
+    private func getTokensForActivities() -> [Token] {
         switch transactionsFilterStrategy {
         case .all:
             return tokensDataStore.enabledTokens(for: config.enabledServers)
@@ -260,7 +260,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
                 //no-op
             }
 
-            let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, tokenObject: token, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
+            let activity = Activity(id: Int.random(in: 0..<Int.max), rowType: .standalone, token: token, server: eachEvent.server, name: card.name, eventName: eachEvent.eventName, blockNumber: eachEvent.blockNumber, transactionId: eachEvent.transactionId, transactionIndex: eachEvent.transactionIndex, logIndex: eachEvent.logIndex, date: eachEvent.date, values: (token: tokenAttributes, card: cardAttributes), view: card.view, itemView: card.itemView, isBaseCard: card.isBase, state: .completed)
 
             return (activity: activity, tokenObject: token, tokenHolder: tokenHolder)
         }
@@ -288,9 +288,9 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     func reinject(activity: Activity) {
-        guard let tokenHolders = tokensAndTokenHolders[activity.tokenObject.addressAndRPCServer] else { return }
+        guard let tokenHolders = tokensAndTokenHolders[activity.token.addressAndRPCServer] else { return }
 
-        refreshActivity(token: activity.tokenObject, tokenHolder: tokenHolders[0], activity: activity, isFirstUpdate: true)
+        refreshActivity(token: activity.token, tokenHolder: tokenHolders[0], activity: activity, isFirstUpdate: true)
     }
 
     private func reloadViewControllerImpl() {
@@ -391,7 +391,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
     }
 
     //Important to pass in the `TokenHolder` instance and not re-create so that we don't override the subscribable values for the token with ones that are not resolved yet
-    private func refreshActivity(token: Activity.AssignedToken, tokenHolder: TokenHolder, activity: Activity, isFirstUpdate: Bool = true) {
+    private func refreshActivity(token: Token, tokenHolder: TokenHolder, activity: Activity, isFirstUpdate: Bool = true) {
         let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self, weak tokenHolder] _ in
             guard let tokenHolder = tokenHolder, isFirstUpdate else { return }
@@ -404,7 +404,7 @@ class ActivitiesService: NSObject, ActivitiesServiceType {
             //NOTE: Fix crush when element with index out of range
             if let (index, oldActivity) = activitiesIndexLookup[activity.id], activities.indices.contains(index) {
                 let updatedValues = (token: oldActivity.values.token.merging(resolvedAttributeNameValues) { _, new in new }, card: oldActivity.values.card)
-                let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, tokenObject: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
+                let updatedActivity: Activity = .init(id: oldActivity.id, rowType: oldActivity.rowType, token: token, server: oldActivity.server, name: oldActivity.name, eventName: oldActivity.eventName, blockNumber: oldActivity.blockNumber, transactionId: oldActivity.transactionId, transactionIndex: oldActivity.transactionIndex, logIndex: oldActivity.logIndex, date: oldActivity.date, values: updatedValues, view: oldActivity.view, itemView: oldActivity.itemView, isBaseCard: oldActivity.isBaseCard, state: oldActivity.state)
 
                 if strongSelf.activities.indices.contains(index) {
                     strongSelf.activities[index] = updatedActivity

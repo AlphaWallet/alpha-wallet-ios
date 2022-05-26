@@ -20,11 +20,11 @@ protocol PrivateBalanceFetcherDelegate: AnyObject {
 
 protocol PrivateBalanceFetcherType: AnyObject {
     var server: RPCServer { get }
-    var etherToken: Activity.AssignedToken { get }
+    var etherToken: Token { get }
     var delegate: PrivateBalanceFetcherDelegate? { get set }
     var erc721TokenIdsFetcher: Erc721TokenIdsFetcher? { get set }
 
-    func refreshBalance(forTokens tokens: [Activity.AssignedToken])
+    func refreshBalance(forTokens tokens: [Token])
 }
 
 enum TokensDataStoreError: Error {
@@ -32,9 +32,9 @@ enum TokensDataStoreError: Error {
 }
 
 extension TokensDataStore {
-    func initialOrNewTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<[Activity.AssignedToken], Never> {
+    func initialOrNewTokensChangeset(for servers: [RPCServer]) -> AnyPublisher<[Token], Never> {
         return enabledTokensChangeset(for: servers)
-            .tryMap { changeset -> [Activity.AssignedToken] in
+            .tryMap { changeset -> [Token] in
                 switch changeset {
                 case .initial(let tokens): return tokens
                 case .update(let tokens, _, let insertions, _): return insertions.map { tokens[$0] }
@@ -72,11 +72,11 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     private lazy var erc1155BalanceFetcher = Erc1155BalanceFetcher(address: account.address, server: server)
 
     let server: RPCServer
-    let etherToken: Activity.AssignedToken
+    let etherToken: Token
     weak var delegate: PrivateBalanceFetcherDelegate?
     weak var erc721TokenIdsFetcher: Erc721TokenIdsFetcher?
 
-    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Activity.AssignedToken, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
+    init(account: Wallet, nftProvider: NFTProvider, tokensDataStore: TokensDataStore, etherToken: Token, server: RPCServer, config: Config, assetDefinitionStore: AssetDefinitionStore, queue: DispatchQueue) {
         self.nftProvider = nftProvider
         self.account = account
         self.server = server
@@ -87,7 +87,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         self.assetDefinitionStore = assetDefinitionStore
     }
 
-    func refreshBalance(forTokens tokens: [Activity.AssignedToken]) {
+    func refreshBalance(forTokens tokens: [Token]) {
         guard !isRunningTests() else { return }
         
         let etherTokens = tokens.filter { $0 == etherToken }
@@ -105,7 +105,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         delegate?.didUpdateBalance(value: operations, in: self)
     }
 
-    private func refreshBalanceForNonErc721Or1155Tokens(tokens: [Activity.AssignedToken]) {
+    private func refreshBalanceForNonErc721Or1155Tokens(tokens: [Token]) {
         assert(!tokens.contains { $0.isERC721Or1155AndNotForTickets })
         tokens.forEach { getBalanceForNonErc721Or1155Tokens(forToken: $0) }
     }
@@ -113,16 +113,16 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
     enum RefreshBalancePolicy {
         case eth
         case all
-        case token(token: Activity.AssignedToken)
+        case token(token: Token)
     }
 
     enum TokenBatchOperation {
         case add(ERCToken, shouldUpdateBalance: Bool)
-        case update(token: Activity.AssignedToken, action: TokenUpdateAction)
+        case update(token: Token, action: TokenUpdateAction)
     }
 
     /// NOTE: here actually alway only one token, made it as array of being able to skip updating ether token
-    private func refreshEtherTokens(tokens: [Activity.AssignedToken]) {
+    private func refreshEtherTokens(tokens: [Token]) {
         for etherToken in tokens {
             nonErc1155BalanceFetcher
                 .getEthBalance(for: account.address)
@@ -132,7 +132,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
-    private func getBalanceForNonErc721Or1155Tokens(forToken token: Activity.AssignedToken) {
+    private func getBalanceForNonErc721Or1155Tokens(forToken token: Token) {
         switch token.type {
         case .nativeCryptocurrency, .erc721, .erc1155:
             break
@@ -157,7 +157,7 @@ class PrivateBalanceFetcher: PrivateBalanceFetcherType {
         }
     }
 
-    private func refreshBalanceForErc721Or1155Tokens(tokens: [Activity.AssignedToken]) {
+    private func refreshBalanceForErc721Or1155Tokens(tokens: [Token]) {
         assert(!tokens.contains { !$0.isERC721Or1155AndNotForTickets })
 
         firstly {

@@ -10,11 +10,11 @@ import BigInt
 
 struct WalletTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
-    private let token: Activity.AssignedToken
+    private let token: Token
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
 
-    init(token: Activity.AssignedToken, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
+    init(token: Token, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.isVisible = isVisible

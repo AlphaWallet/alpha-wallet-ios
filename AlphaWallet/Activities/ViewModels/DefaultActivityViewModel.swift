@@ -45,8 +45,8 @@ struct DefaultActivityViewModel {
             }
         case .erc20OwnerApproved, .erc20ApprovalObtained:
             if let value = cardAttributes.amountUIntValue {
-                if doesApprovedAmountLookReallyBig(value, decimals: activity.tokenObject.decimals) {
-                    string = R.string.localizable.activityApproveAmountAll(activity.tokenObject.symbol)
+                if doesApprovedAmountLookReallyBig(value, decimals: activity.token.decimals) {
+                    string = R.string.localizable.activityApproveAmountAll(activity.token.symbol)
                 } else {
                     string = stringFromFungibleAmount(sign: sign, amount: value)
                 }
@@ -75,12 +75,12 @@ struct DefaultActivityViewModel {
 
     private func stringFromFungibleAmount(sign: String, amount: BigUInt) -> String {
         let formatter = EtherNumberFormatter.short
-        let value = formatter.string(from: BigInt(amount), decimals: activity.tokenObject.decimals)
-        return "\(sign)\(value) \(activity.tokenObject.symbol)"
+        let value = formatter.string(from: BigInt(amount), decimals: activity.token.decimals)
+        return "\(sign)\(value) \(activity.token.symbol)"
     }
 
     private func doesApprovedAmountLookReallyBig(_ amount: BigUInt, decimals: Int) -> Bool {
         let empiricallyBigLimit: Double = 90_000_000
-        return Double(amount) / pow(10, activity.tokenObject.decimals).doubleValue > empiricallyBigLimit
+        return Double(amount) / pow(10, activity.token.decimals).doubleValue > empiricallyBigLimit
     }
 }

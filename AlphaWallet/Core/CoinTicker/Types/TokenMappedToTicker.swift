@@ -13,7 +13,7 @@ struct TokenMappedToTicker: Hashable {
     let contractAddress: AlphaWallet.Address
     let server: RPCServer
 
-    init(token: Activity.AssignedToken) {
+    init(token: Token) {
         symbol = token.symbol
         name = token.name
         contractAddress = token.contractAddress

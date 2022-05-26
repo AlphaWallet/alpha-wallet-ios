@@ -57,7 +57,7 @@ final class EventSourceCoordinatorForActivities {
             }.store(in: &cancellable)
     }
 
-    private func fetchMappedContractsAndServers(token: Activity.AssignedToken) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
+    private func fetchMappedContractsAndServers(token: Token) -> [(contract: AlphaWallet.Address, server: RPCServer)] {
         var values: [(contract: AlphaWallet.Address, server: RPCServer)] = []
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return [] }
@@ -78,7 +78,7 @@ final class EventSourceCoordinatorForActivities {
             .cauterize()
     }
 
-    private func getActivityCards(forToken token: Activity.AssignedToken) -> [TokenScriptCard] {
+    private func getActivityCards(forToken token: Token) -> [TokenScriptCard] {
         var cards: [TokenScriptCard] = []
 
         let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
@@ -88,7 +88,7 @@ final class EventSourceCoordinatorForActivities {
         return cards
     }
 
-    private func fetchEvents(forToken token: Activity.AssignedToken) -> [Promise<Void>] {
+    private func fetchEvents(forToken token: Token) -> [Promise<Void>] {
         return getActivityCards(forToken: token)
             .map { EventSourceCoordinatorForActivities.functional.fetchEvents(tokenContract: token.contractAddress, server: token.server, card: $0, eventsDataStore: eventsDataStore, queue: queue, wallet: wallet) }
     }

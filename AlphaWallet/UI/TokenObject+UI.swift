@@ -115,7 +115,7 @@ extension TokenObject {
     }
 }
 
-extension Activity.AssignedToken {
+extension Token {
 
     func icon(withSize size: GoogleContentSize) -> Subscribable<TokenImage> {
         let name = symbol.nilIfEmpty ?? name

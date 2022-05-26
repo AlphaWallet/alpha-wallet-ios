@@ -16,11 +16,11 @@ struct WalletBalance: Equatable {
     }
 
     private let wallet: Wallet
-    private let tokens: [Activity.AssignedToken]
+    private let tokens: [Token]
     var totalAmountDouble: Double?
     var changeDouble: Double?
 
-    init(wallet: Wallet, tokens: [Activity.AssignedToken], coinTickersFetcher: CoinTickersFetcherType) {
+    init(wallet: Wallet, tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) {
         self.wallet = wallet
         self.tokens = tokens
         self.totalAmountDouble = WalletBalance.functional.createTotalAmountDouble(tokens: tokens, coinTickersFetcher: coinTickersFetcher)
@@ -43,7 +43,7 @@ struct WalletBalance: Equatable {
         return Formatter.shortCrypto.string(from: value.doubleValue)
     }
 
-    var etherToken: Activity.AssignedToken? {
+    var etherToken: Token? {
         let etherToken = MultipleChainsTokensDataStore.functional.etherToken(forServer: .main)
         guard let token = tokens.first(where: { $0.primaryKey == etherToken.primaryKey }) else {
             return nil
@@ -88,7 +88,7 @@ extension WalletBalance {
 
 extension WalletBalance.functional {
 
-    static func createChangeDouble(tokens: [Activity.AssignedToken], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
+    static func createChangeDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
         var totalChange: Double?
         for each in tokens {
             guard let value = each.valueDecimal, let ticker = coinTickersFetcher.ticker(for: each.addressAndRPCServer) else { continue }
@@ -105,7 +105,7 @@ extension WalletBalance.functional {
         return totalChange
     }
 
-    static func createTotalAmountDouble(tokens: [Activity.AssignedToken], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
+    static func createTotalAmountDouble(tokens: [Token], coinTickersFetcher: CoinTickersFetcherType) -> Double? {
         var totalAmount: Double?
 
         for each in tokens {
