@@ -120,7 +120,7 @@ class TransferTokenBatchCardsViaWalletAddressViewController: UIViewController, T
         for (index, each) in viewModel.tokenHolders.enumerated() {
             subviews += [
                 generateViewFor(tokenHolder: each, index: index),
-                .separator()
+                UIView.spacer(backgroundColor: R.color.mike()!)
             ]
         }
 

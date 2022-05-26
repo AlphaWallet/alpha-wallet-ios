@@ -6,7 +6,7 @@ class ServerTableViewCell: UITableViewCell {
     static let selectionAccessoryType: (selected: UITableViewCell.AccessoryType, unselected: UITableViewCell.AccessoryType) = (selected: .checkmark, unselected: .none)
 
     private let nameLabel = UILabel()
-    private lazy var topSeparator: UIView = UIView.separator()
+    private lazy var topSeparator: UIView = UIView.spacer(backgroundColor: R.color.mike()!)
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
