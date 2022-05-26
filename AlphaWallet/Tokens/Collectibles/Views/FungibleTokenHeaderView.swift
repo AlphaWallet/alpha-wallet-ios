@@ -2,12 +2,12 @@
 import UIKit
 import Combine
 
-protocol NonFungibleTokenHeaderViewDelegate: AnyObject {
-    func didPressViewContractWebPage(inHeaderView: NonFungibleTokenHeaderView)
+protocol FungibleTokenHeaderViewDelegate: AnyObject {
+    func didPressViewContractWebPage(inHeaderView: FungibleTokenHeaderView)
 }
 
-class NonFungibleTokenHeaderView: UIView {
-    weak var delegate: NonFungibleTokenHeaderViewDelegate?
+class FungibleTokenHeaderView: UIView {
+    weak var delegate: FungibleTokenHeaderViewDelegate?
 
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -36,9 +36,9 @@ class NonFungibleTokenHeaderView: UIView {
     private var blockChainTagLabel = BlockchainTagLabel()
     private var cancelable = Set<AnyCancellable>()
 
-    let viewModel: NonFungibleTokenHeaderViewModel
+    let viewModel: FungibleTokenHeaderViewModel
 
-    init(viewModel: NonFungibleTokenHeaderViewModel) {
+    init(viewModel: FungibleTokenHeaderViewModel) {
         self.viewModel = viewModel
         super.init(frame: .zero)
 
@@ -72,7 +72,7 @@ class NonFungibleTokenHeaderView: UIView {
         return nil
     }
 
-    private func bind(viewModel: NonFungibleTokenHeaderViewModel) {
+    private func bind(viewModel: FungibleTokenHeaderViewModel) {
         backgroundColor = viewModel.backgroundColor
 
         tokenIconImageView.subscribable = viewModel.iconImage

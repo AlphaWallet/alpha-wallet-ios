@@ -1,5 +1,5 @@
 //
-//  NonFungibleTokenHeaderViewModel.swift
+//  FungibleTokenHeaderViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 20.05.2022.
@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class NonFungibleTokenHeaderViewModel: NSObject {
+class FungibleTokenHeaderViewModel: NSObject {
     private let headerViewRefreshInterval: TimeInterval = 5.0
     private var headerRefreshTimer: Timer?
     private let session: WalletSession
@@ -88,8 +88,7 @@ class NonFungibleTokenHeaderViewModel: NSObject {
                     value = UiTweaks.noPriceMarker
                 }
                 return strongSelf.asTitleAttributedString(value)
-            }
-            .eraseToAnyPublisher()
+            }.eraseToAnyPublisher()
     }()
 
     lazy var value: AnyPublisher<NSAttributedString, Never> = {
