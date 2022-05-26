@@ -45,7 +45,7 @@ final class MultipleChainsTokenCollection: NSObject, TokenCollection {
                 case .error: return []
                 }
             })
-            .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokenObjects: $0) }
+            .map { MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: enabledServers, tokens: $0) }
             .map { TokensViewModel(tokensFilter: tokensFilter, tokens: $0, config: config) }
             .debounce(for: .seconds(Constants.refreshTokensThresholdSec), scheduler: queue)
             .receive(on: RunLoop.main)

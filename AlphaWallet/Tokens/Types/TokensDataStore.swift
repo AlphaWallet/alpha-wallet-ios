@@ -120,7 +120,7 @@ enum TokenUpdateAction {
         var tokensToReturn: [Token] = []
         store.performSync { realm in
             let tokens = Array(self.enabledTokenObjectResults(forServers: servers, realm: realm).map { Token(tokenObject: $0) })
-            tokensToReturn = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokenObjects: tokens)
+            tokensToReturn = MultipleChainsTokensDataStore.functional.erc20AddressForNativeTokenFilter(servers: servers, tokens: tokens)
         }
 
         return tokensToReturn
@@ -610,8 +610,8 @@ extension MultipleChainsTokensDataStore.functional {
         return newToken
     }
 
-    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokenObjects: [Token]) -> [Token] {
-        var result = tokenObjects
+    static func erc20AddressForNativeTokenFilter(servers: [RPCServer], tokens: [Token]) -> [Token] {
+        var result = tokens
         for server in servers {
             if let address = server.erc20AddressForNativeToken, result.contains(where: { $0.contractAddress.sameContract(as: address) }) {
                 result = result.filter { !$0.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) && $0.server == server }
